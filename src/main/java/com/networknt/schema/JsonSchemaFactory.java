@@ -52,4 +52,8 @@ public class JsonSchemaFactory {
         }
     }
 
+    public JsonSchema getSchema(JsonNode jsonNode) {
+        return new JsonSchema(mapper, jsonNode);
+    }
+
 }
