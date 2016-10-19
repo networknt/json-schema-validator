@@ -34,7 +34,7 @@
         "valid": true
       },
       {
-        "description": "another valid uri",
+        "description": "another valid URI",
         "data": "https://lorem.ipsum?foo=bar",
         "valid": true
       },
