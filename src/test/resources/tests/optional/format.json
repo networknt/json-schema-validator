@@ -34,6 +34,11 @@
         "valid": true
       },
       {
+        "description": "another valid uri",
+        "data": "https://lorem.ipsum?foo=bar",
+        "valid": true
+      },
+      {
         "description": "a valid protocol-relative URI",
         "data": "//foo.bar/?baz=qux#quux",
         "valid": true
