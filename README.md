@@ -1,5 +1,8 @@
 # json-schema-validator
-A Java json schema validator that support json schema draft v4
+A Java json schema validator that support json schema draft v4. It is a key component in our
+[light-java](https://github.com/networknt/light-java) microservices framework to validate request
+against OpenAPI specification at runtime.
+
 
 * [Why to use this library?](#why-to-use-this-library)
 * [Maven installation](#maven-installation)
@@ -52,13 +55,16 @@ Add the following to your `pom.xml`:
 
 ## Known issues
 
-I have just updated the test suites from the official website as the old ones were copied from another
+I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another
 Java validator. Now there are several issues that need to be addressed. All of them are edge cases
 in my opinion but need to be investigated.
 
 [#7](https://github.com/networknt/json-schema-validator/issues/7)
+
 [#6](https://github.com/networknt/json-schema-validator/issues/6)
+
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
+
 [#4](https://github.com/networknt/json-schema-validator/issues/4)
 
 
