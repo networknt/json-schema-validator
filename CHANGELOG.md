@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
+- Sycn with official test suites and documented failed test cases.
 
 
 ## 0.1.2 - 2016-10-20
