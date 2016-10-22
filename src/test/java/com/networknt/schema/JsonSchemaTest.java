@@ -182,11 +182,6 @@ public class JsonSchemaTest {
     }
 
     @Test
-    public void testNullAndFormatValidator() throws Exception {
-        runTestFile("tests/nullAndFormat.json");
-    }
-
-    @Test
     public void testOneOfValidator() throws Exception {
         runTestFile("tests/oneOf.json");
     }
