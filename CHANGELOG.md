@@ -8,8 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
-- Sycn with official test suites and documented failed test cases.
 
+## 0.1.3 - 2016-11-03
+### Added
+
+### Changed
+- Sycn with official test suites and documented failed test cases.
+- Fixes #4 MinLength and MaxLength validator for unicode string. Thanks for @dola to point me to the right direction.
 
 ## 0.1.2 - 2016-10-20
 ### Added

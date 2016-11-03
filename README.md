@@ -152,6 +152,5 @@ were inherited from another Java JSON Schema Validator, I guess other Java Valid
 
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
 
-[#4](https://github.com/networknt/json-schema-validator/issues/4)
 
 
