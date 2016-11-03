@@ -48,11 +48,9 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
             // ignore no-string typs
             return errors;
         }
-
-        if (node.textValue().length() > maxLength) {
+        if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
             errors.add(buildValidationMessage(at, "" + maxLength));
         }
-
         return errors;
     }
 
