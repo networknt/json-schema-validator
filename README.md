@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator)
 
 # json-schema-validator
+
+[![Join the chat at https://gitter.im/networknt/json-schema-validator](https://badges.gitter.im/networknt/json-schema-validator.svg)](https://gitter.im/networknt/json-schema-validator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 A Java json schema validator that support json schema draft v4. It is a key component in our
 [light-java](https://github.com/networknt/light-java) microservices framework to validate request
 against OpenAPI specification at runtime.
