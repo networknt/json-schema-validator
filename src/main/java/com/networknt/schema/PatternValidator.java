@@ -58,7 +58,7 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
         if (p != null) {
             try {
                 Matcher m = p.matcher(node.asText());
-                if (!m.matches()) {
+                if (!m.find()) {
                     errors.add(buildValidationMessage(at, pattern));
                 }
             } catch (PatternSyntaxException pse) {
