@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.4 - 2017-02-06
+### Added
+
+### Changed
+- Fixes #6 Match subsequence instead of entire input sequence. Thanks @mspiegel
+
 ## 0.1.3 - 2016-11-03
 ### Added
 
