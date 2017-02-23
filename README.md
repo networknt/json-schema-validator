@@ -53,7 +53,7 @@ base test class that shows you several way to construct these from String, Strea
 as it is the way to construct JsonSchema object.
 
 
-```
+```java
 /*
  * Copyright (c) 2016 Network New Technologies Inc.
  *
@@ -134,7 +134,7 @@ public class BaseJsonSchemaValidatorTest {
 And the following is one of the test case in one of the test class extends from above base class. As you can see, it constructs JsonSchema
 and JsonNode from String.
 
-```
+```java
 		JsonSchema schema = getJsonSchemaFromStringContent("{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}");
 		JsonNode node = getJsonNodeFromStringContent("7");
 		Set<ValidationMessage> errors = schema.validate(node);
