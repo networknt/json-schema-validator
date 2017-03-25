@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <description>A json schema validator that supports draft v4</description>
     <url>https://github.com/networknt/json-schema-validator</url>
     <name>JsonSchemaValidator</name>
@@ -127,6 +127,7 @@
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
             <version>${version.undertow}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

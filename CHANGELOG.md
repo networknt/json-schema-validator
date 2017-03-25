@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.5 - 2017-03-25
+### Added
+
+### Changed
+- Fixes #19 make undertow test scope
+
 ## 0.1.4 - 2017-02-06
 ### Added
 
