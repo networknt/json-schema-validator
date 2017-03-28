@@ -23,7 +23,7 @@ import java.util.Map;
 public enum ValidatorTypeCode {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", new MessageFormat(
             "{0}.{1}: is not defined in the schema and the schema does not allow additional properties")),
-    ALL_OF("allOf", "1002", new MessageFormat("{0}: should be valid to all of the schemas {1}")),
+    ALL_OF("allOf", "1002", new MessageFormat("{0}: should be valid to all the schemas {1}")),
     ANY_OF("anyOf", "1003", new MessageFormat("{0}: should be valid to any of the schemas {1}")),
     CROSS_EDITS("crossEdits", "", new MessageFormat("{0}: has some error with 'cross edits'")),
     DEPENDENCIES("dependencies", "1007", new MessageFormat("{0}: has some error with dependencies {1}")),
