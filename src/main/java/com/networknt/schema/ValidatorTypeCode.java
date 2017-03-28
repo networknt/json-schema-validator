@@ -23,11 +23,11 @@ import java.util.Map;
 public enum ValidatorTypeCode {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", new MessageFormat(
             "{0}.{1}: is not defined in the schema and the schema does not allow additional properties")),
-    ALL_OF("allOf", "1002", new MessageFormat("")),
-    ANY_OF("anyOf", "1003", new MessageFormat("")),
-    CROSS_EDITS("crossEdits", "", new MessageFormat("")),
-    DEPENDENCIES("dependencies", "1007", new MessageFormat("")),
-    EDITS("edits", "", new MessageFormat("")),
+    ALL_OF("allOf", "1002", new MessageFormat("{0}: should be valid to all of the schemas {1}")),
+    ANY_OF("anyOf", "1003", new MessageFormat("{0}: should be valid to any of the schemas {1}")),
+    CROSS_EDITS("crossEdits", "", new MessageFormat("{0}: has some error with 'cross edits'")),
+    DEPENDENCIES("dependencies", "1007", new MessageFormat("{0}: has some error with dependencies {1}")),
+    EDITS("edits", "", new MessageFormat("{0}: has some error with 'edits'")),
     ENUM("enum", "1008", new MessageFormat("{0}: does not have a value in the enumeration {1}")),
     FORMAT("format", "1009", new MessageFormat("{0}: does not match the {1} pattern {2}")),
     ITEMS("items", "1010", new MessageFormat("{0}[{1}]: no validator found at this index")),
@@ -43,17 +43,17 @@ public enum ValidatorTypeCode {
     NOT_ALLOWED("notAllowed", "1033", new MessageFormat("{0}.{1}: is not allowed but it is in the data")),
     NOT("not", "1020", new MessageFormat("{0}: should not be valid to the schema {1}")),
     ONE_OF("oneOf", "1022", new MessageFormat("{0}: should be valid to one and only one of the schemas {1}")),
-    PATTERN_PROPERTIES("patternProperties", "1024", new MessageFormat("")),
+    PATTERN_PROPERTIES("patternProperties", "1024", new MessageFormat("{0}: has some error with 'pattern properties'")),
     PATTERN("pattern", "1023", new MessageFormat("{0}: does not match the regex pattern {1}")),
-    PROPERTIES("properties", "1025", new MessageFormat("")),
+    PROPERTIES("properties", "1025", new MessageFormat("{0}: has some error with 'properties'")),
     READ_ONLY("readOnly", "1032", new MessageFormat("{0}: is a readonly field, it cannot be changed")),
-    REF("ref", "1026", new MessageFormat("")),
+    REF("ref", "1026", new MessageFormat("{0}: has some error with 'refs'")),
     REQUIRED("required", "1028", new MessageFormat("{0}.{1}: is missing but it is required")),
     TYPE("type", "1029", new MessageFormat("{0}: {1} found, {2} expected")),
     UNION_TYPE("unionType", "1030", new MessageFormat("{0}: {1} found, but {2} is required")),
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat("{0}: the items in the array must be unique"));
-
-    private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
+   
+	private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
 
     static {
         for (ValidatorTypeCode c : values()) {
