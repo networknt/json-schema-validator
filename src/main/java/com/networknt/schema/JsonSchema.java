@@ -57,8 +57,8 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Find the schema node for $ref attribute.
      *
-     * @param ref
-     * @return
+     * @param ref String
+     * @return JsonNode
      */
     public JsonNode getRefSchemaNode(String ref) {
         JsonSchema schema = findAncestor();
