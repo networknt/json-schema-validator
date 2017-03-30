@@ -61,18 +61,17 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return subSchema != null;
     }
     
-    
     protected JsonSchema obainSubSchemaNode(JsonNode schemaNode){
-    	JsonNode node = schemaNode.get("id");
-    	if(node == null) return null;
+        JsonNode node = schemaNode.get("id");
+        if(node == null) return null;
     	
-		try {
-			JsonSchemaFactory factory = new JsonSchemaFactory();
-			URL url = new URL(node.textValue());
-			return factory.getSchema(url);
-		} catch (MalformedURLException e) {
-			return null;
-		}
+        try {
+            JsonSchemaFactory factory = new JsonSchemaFactory();
+            URL url = new URL(node.textValue());
+            return factory.getSchema(url);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
     public Set<ValidationMessage> validate(JsonNode node) {

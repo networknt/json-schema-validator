@@ -80,7 +80,7 @@ public class JsonSchema extends BaseJsonValidator {
                     node = schemaNode.get(key);
                 }
                 if (node == null && schema.hasSubSchema()){
-                	node = schema.getSubSchema().getRefSchemaNode(ref);
+                    node = schema.getSubSchema().getRefSchemaNode(ref);
                 }
             }
         }
