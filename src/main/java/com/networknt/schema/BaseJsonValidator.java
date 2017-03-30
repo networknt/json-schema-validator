@@ -20,12 +20,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 
 public abstract class BaseJsonValidator implements JsonValidator {
     private String schemaPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
+    private JsonSchema subSchema;
     private ValidatorTypeCode validatorType;
     private String errorCode;
 
@@ -35,6 +38,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.validatorType = validatorType;
+        this.subSchema = obainSubSchemaNode(schemaNode);
     }
 
     protected String getSchemaPath() {
@@ -47,6 +51,28 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected JsonSchema getParentSchema() {
         return parentSchema;
+    }
+    
+    protected JsonSchema getSubSchema() {
+        return subSchema;
+    }
+    
+    protected boolean hasSubSchema() {
+        return subSchema != null;
+    }
+    
+    
+    protected JsonSchema obainSubSchemaNode(JsonNode schemaNode){
+    	JsonNode node = schemaNode.get("id");
+    	if(node == null) return null;
+    	
+		try {
+			JsonSchemaFactory factory = new JsonSchemaFactory();
+			URL url = new URL(node.textValue());
+			return factory.getSchema(url);
+		} catch (MalformedURLException e) {
+			return null;
+		}
     }
 
     public Set<ValidationMessage> validate(JsonNode node) {
