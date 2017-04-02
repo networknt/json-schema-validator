@@ -56,7 +56,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected JsonSchema getSubSchema() {
         return subSchema;
     }
-    
+
     protected boolean hasSubSchema() {
         return subSchema != null;
     }
@@ -64,7 +64,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected JsonSchema obainSubSchemaNode(JsonNode schemaNode){
         JsonNode node = schemaNode.get("id");
         if(node == null) return null;
-    	
+    	if(node.equals(schemaNode.get("$schema"))) return null;
+
         try {
             JsonSchemaFactory factory = new JsonSchemaFactory();
             URL url = new URL(node.textValue());

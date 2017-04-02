@@ -62,9 +62,8 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public JsonNode getRefSchemaNode(String ref) {
         JsonSchema schema = findAncestor();
-        JsonNode schemaNode = schema.getSchemaNode();
-        JsonNode node = null;
-        
+        JsonNode node = schema.getSchemaNode();
+
         if (ref.startsWith("#/")) {
             // handle local ref
             String[] keys = ref.substring(2).split("/");
@@ -75,12 +74,15 @@ public class JsonSchema extends BaseJsonValidator {
                 }
                 Matcher matcher = intPattern.matcher(key);
                 if (matcher.matches()) {
-                    node = schemaNode.get(Integer.parseInt(key));
+                    node = node.get(Integer.parseInt(key));
                 } else {
-                    node = schemaNode.get(key);
+                    node = node.get(key);
                 }
                 if (node == null && schema.hasSubSchema()){
                     node = schema.getSubSchema().getRefSchemaNode(ref);
+                }
+                if (node == null){
+                    break;
                 }
             }
         }
