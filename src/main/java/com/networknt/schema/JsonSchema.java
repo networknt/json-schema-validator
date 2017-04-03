@@ -78,7 +78,10 @@ public class JsonSchema extends BaseJsonValidator {
                 } else {
                     node = node.get(key);
                 }
-                if (node == null) {
+                if (node == null && schema.hasSubSchema()){
+                    node = schema.getSubSchema().getRefSchemaNode(ref);
+                }
+                if (node == null){
                     break;
                 }
             }
