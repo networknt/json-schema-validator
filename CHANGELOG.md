@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.6 - 2017-04-03
+### Added
+
+### Changed
+- Fixes #20 added default messages to empty messages on ValidatorTypeCode. Thanks @eskabetxe
+- Fixes #22 only check subschema if distinct from schema, and minor changes. Thanks @eskabetxe
+- Fixes #24 update dependencies versions. Thanks @eskabetxe
+
 ## 0.1.5 - 2017-03-25
 ### Added
 
