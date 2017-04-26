@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "features fields",
+  "featuresBoolean": {
+    "title": "boolean feature",
+    "type": "boolean"
+  },
+  "featuresInteger": {
+    "title": "integer feature",
+    "type": "integer",
+    "minimum": 1,
+    "maximum": 99999
+  }
+}
