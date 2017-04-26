@@ -19,17 +19,51 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.undertow.Undertow;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.resource.FileResource;
+import io.undertow.server.handlers.resource.FileResourceManager;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.undertow.Handlers.resource;
+
 public class JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
+    protected static Undertow server = null;
 
     public JsonSchemaTest() {
+    }
+
+    @BeforeClass
+    public static void setUp() {
+        if(server == null) {
+            server = Undertow.builder()
+                    .addHttpListener(1234, "localhost")
+                    .setHandler(resource(new FileResourceManager(
+                            new File("./src/test/resources/tests"), 100)))
+                    .build();
+            server.start();
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        if(server != null) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+
+            }
+            server.stop();
+        }
     }
 
     private void runTestFile(String testCaseFile) throws Exception {
