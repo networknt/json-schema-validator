@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.7 - 2017-04-26
+### Added
+
+### Changed
+- Fixes #25 Enable Undertow server to test remote schemas
+- Add test with id schema as url Thanks @eskabetxe
+- If schema not valid to oneOf, added all errors. Thanks @eskabetxe
+
 ## 0.1.6 - 2017-04-03
 ### Added
 
