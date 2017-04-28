@@ -259,5 +259,10 @@ public class JsonSchemaTest {
     public void testUniqueItemsValidator() throws Exception {
         runTestFile("tests/uniqueItems.json");
     }
+    
+    @Test
+    public void testIdSchemaWithUrl() throws Exception {
+        runTestFile("tests/id_schema/property.json");
+    }
 
 }

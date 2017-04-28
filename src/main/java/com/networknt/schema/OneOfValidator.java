@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -45,21 +46,33 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         int numberOfValidSchema = 0;
-
+        Set<ValidationMessage> errors = new HashSet<>();
+        
         for (JsonSchema schema : schemas) {
-            Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
-            if (errors == null || errors.isEmpty()) {
+        	Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
+            if (schemaErrors.isEmpty()) {
                 numberOfValidSchema++;
+                errors = new HashSet<>();
             }
+            if(numberOfValidSchema == 0){
+        		errors.addAll(schemaErrors);
+        	}
             if (numberOfValidSchema > 1) {
                 break;
             }
         }
-
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-        if (numberOfValidSchema != 1) {
-            errors.add(buildValidationMessage(at, ""));
+        
+        if (numberOfValidSchema == 0) {
+        	errors = errors.stream()
+        		.filter(msg -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES
+        							.equals(ValidatorTypeCode.fromValue(msg.getType())))
+        		.collect(Collectors.toSet());
         }
+        if (numberOfValidSchema > 1) {
+        	errors = new HashSet<>();
+        	errors.add(buildValidationMessage(at, ""));
+        }
+        
         return errors;
     }
 
