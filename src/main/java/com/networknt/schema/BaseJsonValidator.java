@@ -41,6 +41,15 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.subSchema = obainSubSchemaNode(schemaNode);
     }
 
+    public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+                             ValidatorTypeCode validatorType, JsonSchema subSchema) {
+        this.schemaPath = schemaPath;
+        this.schemaNode = schemaNode;
+        this.parentSchema = parentSchema;
+        this.validatorType = validatorType;
+        this.subSchema = subSchema;
+    }
+
     protected String getSchemaPath() {
         return schemaPath;
     }

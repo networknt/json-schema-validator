@@ -54,6 +54,20 @@ public class JsonSchema extends BaseJsonValidator {
         read(schemaNode);
     }
 
+    JsonSchema(ObjectMapper mapper, String schemaPath, JsonNode schemaNode,
+               JsonSchema parent, JsonSchema subSchema) {
+        super(schemaPath, schemaNode, parent, null, subSchema);
+        this.mapper = mapper;
+
+        validators = new LinkedHashMap<String, JsonValidator>();
+
+        read(schemaNode);
+    }
+
+    public JsonSchema(ObjectMapper mapper, JsonNode schemaNode, JsonSchema subSchema) {
+        this(mapper, "#", schemaNode, null, subSchema);
+    }
+
     /**
      * Find the schema node for $ref attribute.
      *
