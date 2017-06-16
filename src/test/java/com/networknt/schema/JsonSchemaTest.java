@@ -28,7 +28,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +107,7 @@ public class JsonSchemaTest {
     }
 
     @Test(/*expected = java.lang.StackOverflowError.class*/)
-    public void testLoadingWithId() throws IOException {
+    public void testLoadingWithId() throws Exception {
         URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
         JsonNode schemaJson = mapper.readTree(url);
         JsonSchemaFactory factory = new JsonSchemaFactory();
