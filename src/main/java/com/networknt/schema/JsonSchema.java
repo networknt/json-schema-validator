@@ -47,11 +47,23 @@ public class JsonSchema extends BaseJsonValidator {
     JsonSchema(ObjectMapper mapper, String schemaPath, JsonNode schemaNode,
                JsonSchema parent) {
         super(schemaPath, schemaNode, parent, null);
+        this.init(mapper, schemaNode);
+    }
+
+    JsonSchema(ObjectMapper mapper, String schemaPath, JsonNode schemaNode,
+               JsonSchema parent, JsonSchema subSchema) {
+        super(schemaPath, schemaNode, parent, null, subSchema);
+        this.init(mapper, schemaNode);
+    }
+
+    public JsonSchema(ObjectMapper mapper, JsonNode schemaNode, JsonSchema subSchema) {
+        this(mapper, "#", schemaNode, null, subSchema);
+    }
+
+    private void init(ObjectMapper mapper, JsonNode schemaNode) {
         this.mapper = mapper;
-
-        validators = new LinkedHashMap<String, JsonValidator>();
-
-        read(schemaNode);
+        this.validators = new LinkedHashMap<String, JsonValidator>();
+        this.read(schemaNode);
     }
 
     /**
