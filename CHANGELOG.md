@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.8 - 2017-06-17
+### Added
+
+### Changed
+- Recursive load fix #36 Thanks @thekensta
+
 ## 0.1.7 - 2017-04-26
 ### Added
 
