@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,6 +104,14 @@ public class JsonSchemaTest {
                 System.out.println("Bypass validation due to invalid schema: " + e.getMessage());
             }
         }
+    }
+
+    @Test(/*expected = java.lang.StackOverflowError.class*/)
+    public void testLoadingWithId() throws Exception {
+        URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
+        JsonNode schemaJson = mapper.readTree(url);
+        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchema schema = factory.getSchema(schemaJson);
     }
 
     @Test

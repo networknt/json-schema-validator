@@ -26,6 +26,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class JsonSchemaFactory {
+
+    // Draft 6 uses "$id"
+    private static final String DRAFT_4_ID = "id";
+
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
     private ObjectMapper mapper;
@@ -60,8 +64,15 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(URL schemaURL) {
         try {
+
             JsonNode schemaNode = mapper.readTree(schemaURL.openStream());
+
+            if (this.idMatchesSourceUrl(schemaNode, schemaURL)) {
+                return new JsonSchema(mapper, schemaNode, null);
+            }
+
             return new JsonSchema(mapper, schemaNode);
+
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -70,6 +81,20 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(JsonNode jsonNode) {
         return new JsonSchema(mapper, jsonNode);
+    }
+
+    private boolean idMatchesSourceUrl(JsonNode schema, URL schemaUrl) {
+
+        JsonNode idNode = schema.get(DRAFT_4_ID);
+
+        if (idNode == null) {
+            return false;
+        }
+
+        String id = idNode.asText();
+        logger.info("Matching " + id + " to " + schemaUrl.toString());
+        return id.equals(schemaUrl.toString());
+
     }
 
 }
