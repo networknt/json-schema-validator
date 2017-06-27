@@ -31,29 +31,26 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchema schema;
+    
+    private final String REF_DOMAIN = "/";
+    private final String REF_CURRENT = "#";
+    private final String REF_RELATIVE = "../";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
 
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF);
         String refValue = schemaNode.asText();
-        if (refValue.startsWith("#")) {
-            // handle local $ref
-            if (refValue.equals("#")) {
-                schema = parentSchema.findAncestor();
-            } else {
-
-                JsonNode node = parentSchema.getRefSchemaNode(refValue);
-                if (node != null) {
-                    schema = new JsonSchema(mapper, refValue, node, parentSchema);
-                }
-            }
-        } else {
+        if (!refValue.startsWith(REF_CURRENT)) {
             // handle remote ref
-            int index = refValue.indexOf("#");
-            String schemaUrl = refValue;
+        	String schemaUrl = refValue;
+        	int index = refValue.indexOf(REF_CURRENT);
             if (index > 0) {
                 schemaUrl = schemaUrl.substring(0, index);
             }
+        	if(isRelativePath(schemaUrl)){
+        		schemaUrl = obtainAbsolutePath(parentSchema, schemaUrl);
+        	}
+            
             JsonSchemaFactory factory = new JsonSchemaFactory(mapper);
             try {
                 URL url = new URL(schemaUrl);
@@ -66,16 +63,47 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
                 schema = parentSchema.findAncestor();
             } else {
                 refValue = refValue.substring(index);
-                if (refValue.equals("#")) {
-                    schema = parentSchema.findAncestor();
-                } else {
-                    JsonNode node = parentSchema.getRefSchemaNode(refValue);
-                    if (node != null) {
-                        schema = new JsonSchema(mapper, refValue, node, parentSchema);
-                    }
-                }
             }
         }
+        if (refValue.equals(REF_CURRENT)) {
+            schema = parentSchema.findAncestor();
+        } else {
+            JsonNode node = parentSchema.getRefSchemaNode(refValue);
+            if (node != null) {
+                schema = new JsonSchema(mapper, refValue, node, parentSchema);
+            }
+        }
+    }
+    
+    private boolean isRelativePath(String schemaUrl) {
+    	return !schemaUrl.startsWith("http");
+    }
+    
+    private String obtainAbsolutePath(JsonSchema parentSchema, String schemaUrl) {
+    	String baseSchemaUrl = parentSchema.findAncestor().getSchemaNode().get("id").textValue();
+		int index = baseSchemaUrl.lastIndexOf("/");
+		baseSchemaUrl = baseSchemaUrl.substring(0, index);
+		
+		String schemaRef = schemaUrl;
+		
+		if(schemaRef.startsWith(REF_DOMAIN)){
+			// from domain add ref
+			try {
+				URL url = new URL(baseSchemaUrl);
+				baseSchemaUrl = url.getProtocol()+"//"+url.getHost();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}else if(schemaRef.startsWith(REF_RELATIVE)){
+			// relative from schema
+			while(schemaRef.startsWith(REF_RELATIVE)){
+				index = baseSchemaUrl.lastIndexOf("/");
+				baseSchemaUrl = baseSchemaUrl.substring(0, index);
+				schemaRef = schemaRef.replaceFirst(REF_RELATIVE, "");
+			}
+		}
+		schemaRef = baseSchemaUrl +"/"+ schemaRef;
+		return schemaRef;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
