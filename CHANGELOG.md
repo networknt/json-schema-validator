@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.9 - 2017-07-03
+### Added
+
+### Changed
+- Fixes #37 adding relative $ref url. Thanks @eskabetxe
+
 ## 0.1.8 - 2017-06-17
 ### Added
 
