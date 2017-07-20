@@ -18,14 +18,15 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -46,13 +47,13 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         int numberOfValidSchema = 0;
-        Set<ValidationMessage> errors = new HashSet<>();
+        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
         
         for (JsonSchema schema : schemas) {
         	Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
             if (schemaErrors.isEmpty()) {
                 numberOfValidSchema++;
-                errors = new HashSet<>();
+                errors = new HashSet<ValidationMessage>();
             }
             if(numberOfValidSchema == 0){
         		errors.addAll(schemaErrors);
@@ -63,13 +64,17 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
         
         if (numberOfValidSchema == 0) {
-        	errors = errors.stream()
-        		.filter(msg -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES
-        							.equals(ValidatorTypeCode.fromValue(msg.getType())))
-        		.collect(Collectors.toSet());
+            for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext();) {
+                ValidationMessage msg = it.next();
+                
+                if (ValidatorTypeCode.ADDITIONAL_PROPERTIES.equals(ValidatorTypeCode.fromValue(msg
+                        .getType()))) {
+                    it.remove();
+                }
+            }
         }
         if (numberOfValidSchema > 1) {
-        	errors = new HashSet<>();
+        	errors = new HashSet<ValidationMessage>();
         	errors.add(buildValidationMessage(at, ""));
         }
         
