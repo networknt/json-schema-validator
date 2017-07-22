@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.10 - 2017-07-22
+### Added
+
+### Changed
+- Release the library in Java 6 as there are still developer using it. Thanks @basinilya
+
 ## 0.1.9 - 2017-07-03
 ### Added
 
