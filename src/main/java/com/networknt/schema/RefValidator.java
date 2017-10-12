@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.url.URLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             
             JsonSchemaFactory factory = new JsonSchemaFactory(mapper);
             try {
-                URL url = new URL(schemaUrl);
+                URL url = URLFactory.toURL(schemaUrl);
                 parentSchema = factory.getSchema(url);
             } catch (MalformedURLException e) {
                 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaUrl);
@@ -89,7 +90,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 		if(schemaRef.startsWith(REF_DOMAIN)){
 			// from domain add ref
 			try {
-				URL url = new URL(baseSchemaUrl);
+				URL url = URLFactory.toURL(baseSchemaUrl);
 				baseSchemaUrl = url.getProtocol()+"//"+url.getHost();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
