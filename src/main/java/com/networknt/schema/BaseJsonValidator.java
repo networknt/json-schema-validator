@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.url.URLFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -77,8 +78,14 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
         try {
             JsonSchemaFactory factory = new JsonSchemaFactory();
-            URL url = new URL(node.textValue());
-            return factory.getSchema(url);
+            String text = node.textValue();
+            if (text == null) {
+                return null;
+            }
+            else {
+                URL url = URLFactory.toURL(node.textValue());
+                return factory.getSchema(url);
+            }
         } catch (MalformedURLException e) {
             return null;
         }
