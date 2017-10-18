@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.11 - 2017-10-18
+### Added
+
+### Changed
+- Load reference schemas from classpath is supported. Thanks @kenwa 
+
 ## 0.1.10 - 2017-07-22
 ### Added
 
