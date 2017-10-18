@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
-- Load reference schemas from classpath is supported. Thanks @kenwa 
+- Fixes #43 Load reference schemas from classpath is supported. Thanks @kenwa 
 
 ## 0.1.10 - 2017-07-22
 ### Added
