@@ -1,0 +1,29 @@
+[
+  {
+    "description": "Sub schema in classpath",
+    "schema": {
+      "id": "classpath:/tests/classpath/sub-schema.json",
+      "type": "object",
+      "properties": {
+        "features": {
+          "$ref": "#/features"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "data": {
+          "features": 4
+        },
+        "valid": true
+      },
+      {
+        "data": {
+          "features": 4.0
+        },
+        "valid": false
+      }
+    ]
+  }
+]
