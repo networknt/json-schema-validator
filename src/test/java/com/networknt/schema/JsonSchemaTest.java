@@ -274,4 +274,9 @@ public class JsonSchemaTest {
         runTestFile("tests/id_schema/property.json");
     }
 
+    @Test
+    public void testSchemaFromClasspath() throws Exception {
+        runTestFile("tests/classpath/schema.json");
+    }
+
 }
