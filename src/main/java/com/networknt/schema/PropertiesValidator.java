@@ -40,7 +40,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         for (String key : schemas.keySet()) {
             JsonSchema propertySchema = schemas.get(key);
@@ -51,7 +51,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             }
         }
 
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

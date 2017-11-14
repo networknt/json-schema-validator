@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -48,25 +49,23 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-
         JsonType nodeType = TypeFactory.getValueNodeType(node);
         if (nodeType != JsonType.STRING && nodeType != JsonType.NUMBER && nodeType != JsonType.INTEGER) {
-            return errors;
+            return Collections.emptySet();
         }
 
         if (p != null) {
             try {
                 Matcher m = p.matcher(node.asText());
                 if (!m.find()) {
-                    errors.add(buildValidationMessage(at, pattern));
+                    return Collections.singleton(buildValidationMessage(at, pattern));
                 }
             } catch (PatternSyntaxException pse) {
                 logger.error("Failed to apply pattern on " + at + ": Invalid syntax [" + pattern + "]", pse);
             }
         }
 
-        return errors;
+        return Collections.emptySet();
     }
 
 }

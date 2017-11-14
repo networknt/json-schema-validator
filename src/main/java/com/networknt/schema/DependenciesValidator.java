@@ -55,7 +55,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -73,7 +73,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             }
         }
 
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

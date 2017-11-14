@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,8 +42,6 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-
         if (unique) {
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
@@ -50,11 +49,11 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
             }
 
             if (set.size() < node.size()) {
-                errors.add(buildValidationMessage(at));
+                return Collections.singleton(buildValidationMessage(at));
             }
         }
 
-        return errors;
+        return Collections.emptySet();
     }
 
 }

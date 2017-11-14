@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
@@ -44,27 +44,24 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-
         if (schemaType == JsonType.UNION) {
-            errors.addAll(unionTypeValidator.validate(node, rootNode, at));
-            return errors;
+            return unionTypeValidator.validate(node, rootNode, at);
         }
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
         if (nodeType != schemaType) {
             if (schemaType == JsonType.ANY) {
-                return errors;
+                return Collections.emptySet();
             }
 
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
-                return errors;
+                return Collections.emptySet();
             }
 
-            errors.add(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
+           return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
 
-        return errors;
+        return Collections.emptySet();
     }
 
 }

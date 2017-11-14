@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class NotValidator extends BaseJsonValidator implements JsonValidator {
@@ -39,12 +39,11 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> notValidationError = new HashSet<ValidationMessage>();
         Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
         if (errors.isEmpty()) {
-            notValidationError.add(buildValidationMessage(at, schema.toString()));
+            return Collections.singleton(buildValidationMessage(at, schema.toString()));
         }
-        return notValidationError;
+        return Collections.emptySet();
     }
 
 }

@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         int size = schemas.size();
-        Set<ValidationMessage> allErrors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
 
         for (int i = 0; i < size; i++) {
             Set<ValidationMessage> errors = schemas.get(i).validate(node, rootNode, at);
@@ -53,7 +54,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             allErrors.addAll(errors);
         }
 
-        return allErrors;
+        return Collections.unmodifiableSet(allErrors);
     }
 
 }

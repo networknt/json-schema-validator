@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class MaxLengthValidator extends BaseJsonValidator implements JsonValidator {
@@ -43,15 +43,14 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         debug(logger, node, rootNode, at);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
         if (nodeType != JsonType.STRING) {
             // ignore no-string typs
-            return errors;
+            return Collections.emptySet();
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
-            errors.add(buildValidationMessage(at, "" + maxLength));
+            return Collections.singleton(buildValidationMessage(at, "" + maxLength));
         }
-        return errors;
+        return Collections.emptySet();
     }
 
 }

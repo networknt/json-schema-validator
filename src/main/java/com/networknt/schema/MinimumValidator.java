@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class MinimumValidator extends BaseJsonValidator implements JsonValidator {
@@ -50,18 +50,16 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-
         if (!node.isNumber()) {
             // minimum only applies to numbers
-            return errors;
+            return Collections.emptySet();
         }
 
         double value = node.doubleValue();
         if (lessThan(value, minimum) || (excluded && equals(value, minimum))) {
-            errors.add(buildValidationMessage(at, "" + minimum));
+            return Collections.singleton(buildValidationMessage(at, "" + minimum));
         }
-        return errors;
+        return Collections.emptySet();
     }
 
 }
