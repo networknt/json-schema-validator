@@ -76,7 +76,6 @@ public class ValidationMessage {
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(arguments, that.arguments)) return false;
         return !(message != null ? !message.equals(that.message) : that.message != null);
 
