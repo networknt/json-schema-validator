@@ -45,11 +45,11 @@ public class ValidationMessage {
         this.path = path;
     }
 
-    String[] getArguments() {
+    public String[] getArguments() {
         return arguments;
     }
 
-    public void setArguments(String[] arguments) {
+    void setArguments(String[] arguments) {
         this.arguments = arguments;
     }
 
