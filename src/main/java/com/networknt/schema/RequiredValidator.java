@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
@@ -57,7 +58,7 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
             }
         }
 
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

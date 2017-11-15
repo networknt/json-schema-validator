@@ -21,8 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -74,7 +75,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
         if (nodeType != JsonType.STRING) {
@@ -93,7 +94,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             }
         }
 
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

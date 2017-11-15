@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -35,8 +35,11 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE);
         schemas = new ArrayList<JsonValidator>();
+
+        StringBuilder errorBuilder = new StringBuilder();
+
         String sep = "";
-        error = "[";
+        errorBuilder.append('[');
 
         if (!schemaNode.isArray())
             throw new JsonSchemaException("Expected array for type property on Union Type Definition.");
@@ -44,7 +47,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         int i = 0;
         for (JsonNode n : schemaNode) {
             JsonType t = TypeFactory.getSchemaNodeType(n);
-            error += sep + t;
+            errorBuilder.append(sep).append(t);
             sep = ", ";
 
             if (n.isObject())
@@ -55,7 +58,9 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             i++;
         }
 
-        error += "]";
+        errorBuilder.append(']');
+
+        error = errorBuilder.toString();
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -63,22 +68,21 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
 
-        Set<ValidationMessage> _return = new HashSet<ValidationMessage>();
         boolean valid = false;
 
         for (JsonValidator schema : schemas) {
             Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
-            if (errors == null || errors.size() == 0) {
+            if (errors == null || errors.isEmpty()) {
                 valid = true;
                 break;
             }
         }
 
         if (!valid) {
-            _return.add(buildValidationMessage(at, nodeType.toString(), error));
+            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), error));
         }
 
-        return _return;
+        return Collections.emptySet();
     }
 
 }

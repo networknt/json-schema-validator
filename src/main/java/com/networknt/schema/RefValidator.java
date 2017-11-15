@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
@@ -113,7 +113,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         if (schema != null) {
             return schema.validate(node, rootNode, at);
         } else {
-            return new HashSet<ValidationMessage>();
+            return Collections.emptySet();
         }
     }
 

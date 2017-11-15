@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class PatternPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
-    private Map<Pattern, JsonSchema> schemas = new HashMap<Pattern, JsonSchema>();
+    private Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
 
     public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ObjectMapper mapper) {
@@ -46,7 +46,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         if (!node.isObject()) {
             return errors;
@@ -56,14 +56,14 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
-            for (Pattern pattern : schemas.keySet()) {
-                Matcher m = pattern.matcher(name);
+            for (Map.Entry<Pattern, JsonSchema> entry : schemas.entrySet()) {
+                Matcher m = entry.getKey().matcher(name);
                 if (m.find()) {
-                    errors.addAll(schemas.get(pattern).validate(n, rootNode, at + "." + name));
+                    errors.addAll(entry.getValue().validate(n, rootNode, at + "." + name));
                 }
             }
         }
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

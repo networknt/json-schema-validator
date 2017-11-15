@@ -23,8 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,13 +48,13 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         int numberOfValidSchema = 0;
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         
         for (JsonSchema schema : schemas) {
         	Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
             if (schemaErrors.isEmpty()) {
                 numberOfValidSchema++;
-                errors = new HashSet<ValidationMessage>();
+                errors = new LinkedHashSet<ValidationMessage>();
             }
             if(numberOfValidSchema == 0){
         		errors.addAll(schemaErrors);
@@ -74,11 +75,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
         if (numberOfValidSchema > 1) {
-        	errors = new HashSet<ValidationMessage>();
-        	errors.add(buildValidationMessage(at, ""));
+            errors = Collections.singleton(buildValidationMessage(at, ""));
         }
         
-        return errors;
+        return Collections.unmodifiableSet(errors);
     }
 
 }

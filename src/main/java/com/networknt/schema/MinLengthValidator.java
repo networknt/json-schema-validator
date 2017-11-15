@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class MinLengthValidator extends BaseJsonValidator implements JsonValidator {
@@ -43,16 +43,15 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         debug(logger, node, rootNode, at);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
         if (nodeType != JsonType.STRING) {
             // ignore non-string types
-            return errors;
+            return Collections.emptySet();
         }
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
-            errors.add(buildValidationMessage(at, "" + minLength));
+            return Collections.singleton(buildValidationMessage(at, "" + minLength));
         }
-        return errors;
+        return Collections.emptySet();
     }
 
 }
