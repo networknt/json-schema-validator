@@ -48,27 +48,28 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
         JsonSchema schema = factory.getSchema(is);
         return schema;
     }
 
+
     protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(schemaContent);
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String url) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(new URL(url));
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(jsonNode);
         return schema;
     }

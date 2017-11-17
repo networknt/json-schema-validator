@@ -16,18 +16,19 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -35,35 +36,28 @@ import java.util.regex.Pattern;
  * constructed, it can be used to validate multiple json data concurrently.
  */
 public class JsonSchema extends BaseJsonValidator {
-    private static final Logger logger = LoggerFactory.getLogger(JsonSchema.class);
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
-    protected Map<String, JsonValidator> validators;
-    private ObjectMapper mapper;
+    protected final Map<String, JsonValidator> validators;
+    private final ValidationContext validationContext;
 
-    JsonSchema(ObjectMapper mapper, JsonNode schemaNode) {
-        this(mapper, "#", schemaNode, null);
+    JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
+        this(validationContext,  "#", schemaNode, null);
     }
 
-    JsonSchema(ObjectMapper mapper, String schemaPath, JsonNode schemaNode,
+    JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent) {
-        super(schemaPath, schemaNode, parent, null);
-        this.init(mapper, schemaNode);
+        this(validationContext,  schemaPath, schemaNode, parent, obainSubSchemaNode(schemaNode, validationContext));
     }
 
-    JsonSchema(ObjectMapper mapper, String schemaPath, JsonNode schemaNode,
+    JsonSchema(ValidationContext validatorFactory,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent, JsonSchema subSchema) {
         super(schemaPath, schemaNode, parent, null, subSchema);
-        this.init(mapper, schemaNode);
+        this.validationContext = validatorFactory;
+        this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
 
-    public JsonSchema(ObjectMapper mapper, JsonNode schemaNode, JsonSchema subSchema) {
-        this(mapper, "#", schemaNode, null, subSchema);
-    }
-
-    private void init(ObjectMapper mapper, JsonNode schemaNode) {
-        this.mapper = mapper;
-        this.validators = new LinkedHashMap<String, JsonValidator>();
-        this.read(schemaNode);
+    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, JsonSchema subSchema) {
+        this(validationContext, "#", schemaNode, null, subSchema);
     }
 
     /**
@@ -109,50 +103,26 @@ public class JsonSchema extends BaseJsonValidator {
         return ancestor;
     }
 
-    @SuppressWarnings("unchecked")
-    private void read(JsonNode schemaNode) {
+    private Map<String, JsonValidator> read(JsonNode schemaNode) {
+        Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
         Iterator<String> pnames = schemaNode.fieldNames();
         while (pnames.hasNext()) {
             String pname = pnames.next();
             JsonNode n = schemaNode.get(pname);
 
-            String shortClassName = pname;
-            if (shortClassName.startsWith("$")) {
-                // remove "$" from class name for $ref schema
-                shortClassName = shortClassName.substring(1);
+            Optional<JsonValidator> validator = validationContext.newValidator(getSchemaPath(), pname, n, this);
+            if (validator.isPresent()) {
+                validators.put(getSchemaPath() + "/" + pname, validator.get());
             }
 
-            try {
-                ValidatorTypeCode.fromValue(shortClassName);
-
-                String className = Character.toUpperCase(shortClassName.charAt(0))
-                        + shortClassName.substring(1) + "Validator";
-                Class<JsonValidator> clazz = (Class<JsonValidator>) Class
-                        .forName("com.networknt.schema." + className);
-                Constructor<JsonValidator> c = null;
-                c = clazz.getConstructor(new Class[]{String.class,
-                        JsonNode.class, JsonSchema.class, ObjectMapper.class});
-                validators.put(getSchemaPath() + "/" + pname, c.newInstance(
-                        getSchemaPath() + "/" + pname, n, this, mapper));
-            } catch (IllegalArgumentException e) {
-                // ignore unsupported schema node
-            } catch (InvocationTargetException e) {
-                if (e.getTargetException() instanceof JsonSchemaException) {
-                    throw (JsonSchemaException) e.getTargetException();
-                } else {
-                    logger.info("Could not load validator " + pname);
-                }
-            } catch (Exception e) {
-                logger.info("Could not load validator " + pname);
-            }
         }
+        return validators;
     }
 
-    public Set<ValidationMessage> validate(JsonNode JsonNode,
-                                           JsonNode rootNode, String at) {
-        Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+    public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         for (JsonValidator v : validators.values()) {
-            errors.addAll(v.validate(JsonNode, rootNode, at));
+            errors.addAll(v.validate(jsonNode, rootNode, at));
         }
         return errors;
     }

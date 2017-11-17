@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.url.URLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,28 +36,27 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private final String REF_CURRENT = "#";
     private final String REF_RELATIVE = "../";
 
-    public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
+    public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF);
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         if (!refValue.startsWith(REF_CURRENT)) {
             // handle remote ref
-        	String schemaUrl = refValue;
-        	int index = refValue.indexOf(REF_CURRENT);
+            String schemaUrl = refValue;
+        	    int index = refValue.indexOf(REF_CURRENT);
             if (index > 0) {
                 schemaUrl = schemaUrl.substring(0, index);
             }
-        	if(isRelativePath(schemaUrl)){
-        		schemaUrl = obtainAbsolutePath(parentSchema, schemaUrl);
-        	}
+            if(isRelativePath(schemaUrl)){
+                schemaUrl = obtainAbsolutePath(parentSchema, schemaUrl);
+            }
             
-            JsonSchemaFactory factory = new JsonSchemaFactory(mapper);
             try {
                 URL url = URLFactory.toURL(schemaUrl);
-                parentSchema = factory.getSchema(url);
+                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url);
             } catch (MalformedURLException e) {
                 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaUrl);
-                parentSchema = factory.getSchema(is);
+                parentSchema = validationContext.getJsonSchemaFactory().getSchema(is);
             }
             if (index < 0) {
                 schema = parentSchema.findAncestor();
@@ -71,7 +69,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                schema = new JsonSchema(mapper, refValue, node, parentSchema);
+                schema = new JsonSchema(validationContext, refValue, node, parentSchema);
             }
         }
     }

@@ -31,19 +31,16 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private JsonSchema parentSchema;
     private JsonSchema subSchema;
     private ValidatorTypeCode validatorType;
-    private String errorCode;
+    private ErrorMessageType errorMessageType;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType) {
-        this.schemaPath = schemaPath;
-        this.schemaNode = schemaNode;
-        this.parentSchema = parentSchema;
-        this.validatorType = validatorType;
-        this.subSchema = obainSubSchemaNode(schemaNode);
+                             ValidatorTypeCode validatorType, ValidationContext validationContext) {
+    	this(schemaPath, schemaNode, parentSchema, validatorType, obainSubSchemaNode(schemaNode, validationContext) );
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, JsonSchema subSchema) {
+        this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
@@ -71,20 +68,19 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return subSchema != null;
     }
     
-    protected JsonSchema obainSubSchemaNode(JsonNode schemaNode){
+    protected static JsonSchema obainSubSchemaNode(JsonNode schemaNode, ValidationContext validationContext){
         JsonNode node = schemaNode.get("id");
         if(node == null) return null;
     	if(node.equals(schemaNode.get("$schema"))) return null;
 
         try {
-            JsonSchemaFactory factory = new JsonSchemaFactory();
             String text = node.textValue();
             if (text == null) {
                 return null;
             }
             else {
                 URL url = URLFactory.toURL(node.textValue());
-                return factory.getSchema(url);
+                return validationContext.getJsonSchemaFactory().getSchema(url);
             }
         } catch (MalformedURLException e) {
             return null;
@@ -110,27 +106,16 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected void parseErrorCode(String errorCodeKey) {
         JsonNode errorCodeNode = getParentSchema().getSchemaNode().get(errorCodeKey);
         if (errorCodeNode != null && errorCodeNode.isTextual()) {
-            errorCode = errorCodeNode.asText();
+            String errorCodeText = errorCodeNode.asText();
+            if (StringUtils.isNotBlank(errorCodeText)) {
+                errorMessageType = CustomErrorMessageType.of(errorCodeText);
+            }
         }
     }
 
-    private String getErrorCode() {
-        return errorCode;
-    }
-
-    private boolean isUsingCustomErrorCode() {
-        return StringUtils.isNotBlank(errorCode);
-    }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        ValidationMessage.Builder builder = new ValidationMessage.Builder();
-        if (isUsingCustomErrorCode()) {
-            builder.code(getErrorCode()).path(at).arguments(arguments).type(validatorType.getValue());
-        } else {
-            builder.code(validatorType.getErrorCode()).path(at).arguments(arguments)
-                    .format(validatorType.getMessageFormat()).type(validatorType.getValue());
-        }
-        return builder.build();
+        return ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
     }
 
     protected void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,7 +29,7 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
 
     @Test(expected=JsonSchemaException.class)
     public void testInvalidPatternPropertiesValidator() throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
 
         JsonNode node = getJsonNodeFromStringContent("");

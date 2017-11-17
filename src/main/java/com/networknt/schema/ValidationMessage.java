@@ -18,12 +18,14 @@ package com.networknt.schema;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Map;
 
 public class ValidationMessage {
     private String type;
     private String code;
     private String path;
     private String[] arguments;
+    private Map<String, Object> details;
     private String message;
 
     ValidationMessage() {
@@ -52,6 +54,14 @@ public class ValidationMessage {
     void setArguments(String[] arguments) {
         this.arguments = arguments;
     }
+    
+    void setDetails(Map<String, Object> details) {
+        this.details = details;
+    }
+    
+    public Map<String, Object> getDetails() {
+        return details;
+    }
 
     public String getMessage() {
         return message;
@@ -76,6 +86,7 @@ public class ValidationMessage {
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
+        if (details != null ? !details.equals(that.details) : that.details != null) return false;
         if (!Arrays.equals(arguments, that.arguments)) return false;
         return !(message != null ? !message.equals(that.message) : that.message != null);
 
@@ -86,6 +97,7 @@ public class ValidationMessage {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (path != null ? path.hashCode() : 0);
+        result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (arguments != null ? Arrays.hashCode(arguments) : 0);
         result = 31 * result + (message != null ? message.hashCode() : 0);
         return result;
@@ -99,11 +111,26 @@ public class ValidationMessage {
         this.type = type;
     }
 
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String... arguments) {
+        ValidationMessage.Builder builder = new ValidationMessage.Builder();
+        builder.code(errorMessageType.getErrorCode()).path(at).arguments(arguments)
+                    .format(errorMessageType.getMessageFormat()).type(type);
+        return builder.build();
+    }
+    
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, Map<String, Object> details) {
+        ValidationMessage.Builder builder = new ValidationMessage.Builder();
+        builder.code(errorMessageType.getErrorCode()).path(at).details(details)
+        .format(errorMessageType.getMessageFormat()).type(type);
+        return builder.build();
+    }
+
     public static class Builder {
         private String type;
         private String code;
         private String path;
         private String[] arguments;
+        private Map<String, Object> details;
         private MessageFormat format;
 
         public Builder type(String type) {
@@ -125,6 +152,11 @@ public class ValidationMessage {
             this.arguments = arguments;
             return this;
         }
+        
+        public Builder details(Map<String, Object> details) {
+            this.details = details;
+            return this;
+        }
 
         public Builder format(MessageFormat format) {
             this.format = format;
@@ -137,6 +169,7 @@ public class ValidationMessage {
             msg.setCode(code);
             msg.setPath(path);
             msg.setArguments(arguments);
+            msg.setDetails(details);
 
             if (format != null) {
                 String[] objs = new String[(arguments == null ? 0 : arguments.length) + 1];
