@@ -18,12 +18,14 @@ package com.networknt.schema;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class JsonMetaSchema {
 
     private static final Logger logger = LoggerFactory
             .getLogger(JsonMetaSchema.class);
-    
+    private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<String, String>();
     
     private static class DraftV4 {
         private static String URI = "http://json-schema.org/draft-04/schema#";
@@ -76,6 +78,15 @@ public class JsonMetaSchema {
                     .idKeyword(DRAFT_4_ID)
                     .addFormats(BUILTIN_FORMATS)
                     .addKeywords(ValidatorTypeCode.getNonFormatKeywords())
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .addKeywords(Arrays.asList(
+                            new NonValidationKeyword("$schema"),
+                            new NonValidationKeyword("id"),
+                            new NonValidationKeyword("title"), 
+                            new NonValidationKeyword("description"), 
+                            new NonValidationKeyword("default"),
+                            new NonValidationKeyword("definitions")
+                    ))
                     .build();
         }
     }
@@ -221,7 +232,10 @@ public class JsonMetaSchema {
         try {
             Keyword kw = keywords.get(keyword);
             if (kw == null) {
-                logger.warn("Unknown keyword " + keyword);
+                if (!UNKNOWN_KEYWORDS.containsKey(keyword)) {
+                    UNKNOWN_KEYWORDS.put(keyword, keyword);
+                    logger.warn("Unknown keyword " + keyword + " - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword");
+                }
                 return Optional.empty();
             }
             return Optional.of(kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext));

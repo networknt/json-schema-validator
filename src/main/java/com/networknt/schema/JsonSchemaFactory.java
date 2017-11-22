@@ -214,8 +214,11 @@ public class JsonSchemaFactory {
         if (id == null || id.isEmpty()) {
             return false;
         }
-        logger.info("Matching " + id + " to " + schemaUrl.toString());
-        return id.equals(schemaUrl.toString());
+        boolean result = id.equals(schemaUrl.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Matching " + id + " to " + schemaUrl.toString() + ": " + result);
+        }
+        return result;
 
     }
 
