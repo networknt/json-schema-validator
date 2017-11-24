@@ -29,23 +29,24 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private String schemaPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
-    private JsonSchema subSchema;
+    private boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
 
+    
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-    	this(schemaPath, schemaNode, parentSchema, validatorType, obainSubSchemaNode(schemaNode, validationContext) );
+    	this(schemaPath, schemaNode, parentSchema, validatorType, false );
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, JsonSchema subSchema) {
+                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.validatorType = validatorType;
-        this.subSchema = subSchema;
+        this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
     }
 
     protected String getSchemaPath() {
@@ -60,15 +61,12 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return parentSchema;
     }
     
-    protected JsonSchema getSubSchema() {
-        return subSchema;
+    protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
+        return suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(schemaNode, validationContext);
     }
 
-    protected boolean hasSubSchema() {
-        return subSchema != null;
-    }
     
-    protected static JsonSchema obainSubSchemaNode(JsonNode schemaNode, ValidationContext validationContext){
+    private static JsonSchema obtainSubSchemaNode(JsonNode schemaNode, ValidationContext validationContext){
         JsonNode node = schemaNode.get("id");
         if(node == null) return null;
     	if(node.equals(schemaNode.get("$schema"))) return null;
