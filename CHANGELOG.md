@@ -10,14 +10,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 ## 0.1.12 - 2017-11-23
+
 ### Added
+
+### Changed
 - Fixes #50 Support custom meta schemas with custom keywords and formats. Thanks @kkalass
 - Fixes #49 Use LinkedHashSets for ValidationMessages. Thanks @ehrmann 
 - Fixes #48 Remove unnecessary todo. Thanks @ehrmann
 - Fixes #47 Change access modifiers in ValidationMessage. Thanks @ehrmann
 - Fixes #45 Added test case for loading schemas from classpath. Thanks @kenwa
-
-### Changed
 
 
 ## 0.1.11 - 2017-10-18
