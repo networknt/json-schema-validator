@@ -17,12 +17,10 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,9 +32,9 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
     private String pattern;
     private Pattern p;
 
-    public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
+    public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN);
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);
         pattern = "";
         if (schemaNode != null && schemaNode.isTextual()) {
             pattern = schemaNode.textValue();

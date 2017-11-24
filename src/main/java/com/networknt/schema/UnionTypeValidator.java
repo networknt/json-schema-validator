@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +31,8 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     private List<JsonValidator> schemas;
     private String error;
 
-    public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE);
+    public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);
         schemas = new ArrayList<JsonValidator>();
 
         StringBuilder errorBuilder = new StringBuilder();
@@ -51,9 +50,9 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             sep = ", ";
 
             if (n.isObject())
-                schemas.add(new JsonSchema(mapper, ValidatorTypeCode.TYPE.getValue(), n, parentSchema));
+                schemas.add(new JsonSchema(validationContext, ValidatorTypeCode.TYPE.getValue(), n, parentSchema));
             else
-                schemas.add(new TypeValidator(schemaPath + "/" + i, n, parentSchema, mapper));
+                schemas.add(new TypeValidator(schemaPath + "/" + i, n, parentSchema, validationContext));
 
             i++;
         }

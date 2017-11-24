@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +30,15 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
     private Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
 
     public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                      ObjectMapper mapper) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES);
+            ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
         if (!schemaNode.isObject()) {
             throw new JsonSchemaException("patternProperties must be an object node");
         }
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
-            schemas.put(Pattern.compile(name), new JsonSchema(mapper, name, schemaNode.get(name), parentSchema));
+            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, schemaNode.get(name), parentSchema));
         }
     }
 

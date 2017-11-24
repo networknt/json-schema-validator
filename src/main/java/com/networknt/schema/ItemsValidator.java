@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +35,14 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     private boolean additionalItems = true;
     private JsonSchema additionalSchema;
 
-    public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ObjectMapper mapper) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS);
+    public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
         if (schemaNode.isObject()) {
-            schema = new JsonSchema(mapper, getValidatorType().getValue(), schemaNode, parentSchema);
+            schema = new JsonSchema(validationContext, getValidatorType().getValue(), schemaNode, parentSchema);
         } else {
             tupleSchema = new ArrayList<JsonSchema>();
             for (JsonNode s : schemaNode) {
-                tupleSchema.add(new JsonSchema(mapper, getValidatorType().getValue(), s, parentSchema));
+                tupleSchema.add(new JsonSchema(validationContext, getValidatorType().getValue(), s, parentSchema));
             }
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
@@ -51,7 +50,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
                 if (addItemNode.isBoolean()) {
                     additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    additionalSchema = new JsonSchema(mapper, addItemNode);
+                    additionalSchema = new JsonSchema(validationContext, addItemNode);
                 }
             }
         }

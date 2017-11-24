@@ -16,36 +16,153 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.url.StandardURLFetcher;
+import com.networknt.schema.url.URLFetcher;
 
 public class JsonSchemaFactory {
 
-    // Draft 6 uses "$id"
-    private static final String DRAFT_4_ID = "id";
-
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
-    private ObjectMapper mapper;
-
-    public JsonSchemaFactory() {
-        this(new ObjectMapper());
+    
+    
+    public static class Builder {
+        private ObjectMapper objectMapper = new ObjectMapper();
+        private URLFetcher urlFetcher;
+        private String defaultMetaSchemaURI;
+        private Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
+        
+        public Builder objectMapper(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+            return this;
+        }
+        
+        public Builder urlFetcher(URLFetcher urlFetcher) {
+            this.urlFetcher = urlFetcher;
+            return this;
+        }
+        
+        public Builder defaultMetaSchemaURI(String defaultMetaSchemaURI) {
+            this.defaultMetaSchemaURI = defaultMetaSchemaURI;
+            return this;
+        }
+        
+        public Builder addMetaSchema(JsonMetaSchema jsonMetaSchema) {
+            this.jsonMetaSchemas.put(jsonMetaSchema.getUri(), jsonMetaSchema);
+            return this;
+        }
+        
+        public Builder addMetaSchemas(Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
+            for (JsonMetaSchema jsonMetaSchema: jsonMetaSchemas) {
+                this.jsonMetaSchemas.put(jsonMetaSchema.getUri(), jsonMetaSchema);
+            }
+            return this;
+        }
+        
+        public JsonSchemaFactory build() {
+            // create builtin keywords with (custom) formats.
+            return new JsonSchemaFactory(
+                    objectMapper == null ? new ObjectMapper() : objectMapper, 
+                    urlFetcher == null ? new StandardURLFetcher(): urlFetcher, 
+                    defaultMetaSchemaURI, 
+                    jsonMetaSchemas
+            );
+        }
     }
+    
+    private final ObjectMapper mapper;
+    private final URLFetcher urlFetcher;
+    private final String defaultMetaSchemaURI;
+    private final Map<String, JsonMetaSchema> jsonMetaSchemas;
 
-    public JsonSchemaFactory(ObjectMapper mapper) {
+    private JsonSchemaFactory(ObjectMapper mapper, URLFetcher urlFetcher, String defaultMetaSchemaURI, Map<String, JsonMetaSchema> jsonMetaSchemas) {
+        if (mapper == null) {
+            throw new IllegalArgumentException("ObjectMapper must not be null");
+        }
+        if (urlFetcher == null) {
+            throw new IllegalArgumentException("URLFetcher must not be null");
+        }
+        if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
+            throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
+        }
+        if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
+            throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
+        }
+        if (jsonMetaSchemas.get(defaultMetaSchemaURI) == null) {
+            throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
+        }
         this.mapper = mapper;
+        this.defaultMetaSchemaURI = defaultMetaSchemaURI;
+        this.urlFetcher = urlFetcher;
+        this.jsonMetaSchemas = jsonMetaSchemas;
     }
 
+    /**
+     * Builder without keywords or formats.
+     * 
+     * Use {@link #getDraftV4()} instead, or if you need a builder based on Draft4, use
+     * 
+     * <code>
+     * JsonSchemaFactory.builder(JsonSchemaFactory.getDraftV4()).build();
+     * </code>
+     * 
+     * @return a builder instance without any keywords or formats - usually not what one needs.
+     */
+    static Builder builder() {
+        return new Builder();
+    }
+    
+    public static JsonSchemaFactory getInstance() {
+        JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
+        return builder()
+                .defaultMetaSchemaURI(draftV4.getUri())
+                .addMetaSchema(draftV4)
+                .build();
+    }
+    
+    public static Builder builder(JsonSchemaFactory blueprint) {
+        return builder()
+                .addMetaSchemas(blueprint.jsonMetaSchemas.values())
+                .urlFetcher(blueprint.urlFetcher)
+                .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
+                .objectMapper(blueprint.mapper);
+    }
+    
+    private JsonSchema newJsonSchema(JsonNode schemaNode) {
+        final ValidationContext validationContext = createValidationContext(schemaNode);
+        return new JsonSchema(validationContext, schemaNode);
+    }
+
+    protected ValidationContext createValidationContext(JsonNode schemaNode) {
+        final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
+        return new ValidationContext(jsonMetaSchema, this);
+    }
+
+    private JsonMetaSchema findMetaSchemaForSchema(JsonNode schemaNode) {
+        final JsonNode uriNode = schemaNode.get("$schema");
+        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI: uriNode.textValue();
+        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
+        if (jsonMetaSchema == null) {
+            throw new JsonSchemaException("Unknown Metaschema: " + uri);
+        }
+        return jsonMetaSchema;
+    }
+    
     public JsonSchema getSchema(String schema) {
         try {
-            JsonNode schemaNode = mapper.readTree(schema);
-            return new JsonSchema(mapper, schemaNode);
+            final JsonNode schemaNode = mapper.readTree(schema);
+            return newJsonSchema(schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -54,8 +171,8 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(InputStream schemaStream) {
         try {
-            JsonNode schemaNode = mapper.readTree(schemaStream);
-            return new JsonSchema(mapper, schemaNode);
+            final JsonNode schemaNode = mapper.readTree(schemaStream);
+            return newJsonSchema(schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -64,15 +181,23 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(URL schemaURL) {
         try {
+            InputStream inputStream = null;
+            try {
+                inputStream = urlFetcher.fetch(schemaURL);
+                JsonNode schemaNode = mapper.readTree(inputStream);
+                final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
-            JsonNode schemaNode = mapper.readTree(schemaURL.openStream());
+                if (idMatchesSourceUrl(jsonMetaSchema, schemaNode, schemaURL)) {
+                    
+                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, null);
+                }
 
-            if (this.idMatchesSourceUrl(schemaNode, schemaURL)) {
-                return new JsonSchema(mapper, schemaNode, null);
+                return newJsonSchema(schemaNode);
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             }
-
-            return new JsonSchema(mapper, schemaNode);
-
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -80,20 +205,20 @@ public class JsonSchemaFactory {
     }
 
     public JsonSchema getSchema(JsonNode jsonNode) {
-        return new JsonSchema(mapper, jsonNode);
+        return newJsonSchema(jsonNode);
     }
 
-    private boolean idMatchesSourceUrl(JsonNode schema, URL schemaUrl) {
+    private boolean idMatchesSourceUrl(JsonMetaSchema metaSchema, JsonNode schema, URL schemaUrl) {
 
-        JsonNode idNode = schema.get(DRAFT_4_ID);
-
-        if (idNode == null) {
+        String id = metaSchema.readId(schema);
+        if (id == null || id.isEmpty()) {
             return false;
         }
-
-        String id = idNode.asText();
-        logger.info("Matching " + id + " to " + schemaUrl.toString());
-        return id.equals(schemaUrl.toString());
+        boolean result = id.equals(schemaUrl.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Matching " + id + " to " + schemaUrl.toString() + ": " + result);
+        }
+        return result;
 
     }
 

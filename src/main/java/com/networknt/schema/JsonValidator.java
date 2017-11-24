@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public interface JsonValidator {
     public static final String AT_ROOT = "$";
+    
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.

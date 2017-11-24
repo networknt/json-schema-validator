@@ -16,14 +16,19 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class AdditionalPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
@@ -34,15 +39,15 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
     private List<Pattern> patternProperties = new ArrayList<Pattern>();
 
     public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                         ObjectMapper mapper) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES);
+            ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
         allowAdditionalProperties = false;
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
         }
         if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = new JsonSchema(mapper, getValidatorType().getValue(), schemaNode, parentSchema);
+            additionalPropertiesSchema = new JsonSchema(validationContext, getValidatorType().getValue(), schemaNode, parentSchema);
         }
 
         allowedProperties = new ArrayList<String>();

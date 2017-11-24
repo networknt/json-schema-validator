@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +29,8 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
     protected int min;
 
     public MinPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                  ObjectMapper mapper) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES);
+            ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
         if (schemaNode.isIntegralNumber()) {
             min = schemaNode.intValue();
         }

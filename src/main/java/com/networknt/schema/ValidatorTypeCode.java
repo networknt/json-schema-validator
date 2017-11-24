@@ -16,11 +16,14 @@
 
 package com.networknt.schema;
 
+import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-public enum ValidatorTypeCode {
+import com.fasterxml.jackson.databind.JsonNode;
+
+public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", new MessageFormat(
             "{0}.{1}: is not defined in the schema and the schema does not allow additional properties")),
     ALL_OF("allOf", "1002", new MessageFormat("{0}: should be valid to all the schemas {1}")),
@@ -29,7 +32,13 @@ public enum ValidatorTypeCode {
     DEPENDENCIES("dependencies", "1007", new MessageFormat("{0}: has an error with dependencies {1}")),
     EDITS("edits", "1005", new MessageFormat("{0}: has an error with 'edits'")),
     ENUM("enum", "1008", new MessageFormat("{0}: does not have a value in the enumeration {1}")),
-    FORMAT("format", "1009", new MessageFormat("{0}: does not match the {1} pattern {2}")),
+    FORMAT("format", "1009", new MessageFormat("{0}: does not match the {1} pattern {2}")){
+        @Override
+        public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
+                throws Exception {
+            throw new UnsupportedOperationException("Use FormatKeyword instead");
+        }
+    },
     ITEMS("items", "1010", new MessageFormat("{0}[{1}]: no validator found at this index")),
     MAXIMUM("maximum", "1011", new MessageFormat("{0}: must have a maximum value of {1}")),
     MAX_ITEMS("maxItems", "1012", new MessageFormat("{0}: there must be a maximum of {1} items in the array")),
@@ -47,20 +56,12 @@ public enum ValidatorTypeCode {
     PATTERN("pattern", "1023", new MessageFormat("{0}: does not match the regex pattern {1}")),
     PROPERTIES("properties", "1025", new MessageFormat("{0}: has an error with 'properties'")),
     READ_ONLY("readOnly", "1032", new MessageFormat("{0}: is a readonly field, it cannot be changed")),
-    REF("ref", "1026", new MessageFormat("{0}: has an error with 'refs'")),
+    REF("$ref", "1026", new MessageFormat("{0}: has an error with 'refs'")),
     REQUIRED("required", "1028", new MessageFormat("{0}.{1}: is missing but it is required")),
     TYPE("type", "1029", new MessageFormat("{0}: {1} found, {2} expected")),
     UNION_TYPE("unionType", "1030", new MessageFormat("{0}: {1} found, but {2} is required")),
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat("{0}: the items in the array must be unique"));
    
-	private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
-
-    static {
-        for (ValidatorTypeCode c : values()) {
-            constants.put(c.value, c);
-        }
-    }
-
     private final String value;
     private final String errorCode;
     private final MessageFormat messageFormat;
@@ -73,15 +74,34 @@ public enum ValidatorTypeCode {
         this.errorCodeKey = value + "ErrorCode";
     }
 
-    public static ValidatorTypeCode fromValue(String value) {
-        ValidatorTypeCode constant = constants.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
+    public static List<ValidatorTypeCode> getNonFormatKeywords() {
+        final List<ValidatorTypeCode> result = new ArrayList<ValidatorTypeCode>();
+        for (ValidatorTypeCode keyword: values()) {
+            if (!FORMAT.equals(keyword)) {
+                result.add(keyword);
+            }
         }
+        return result;
     }
+    
+    public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {
+            String shortClassName = getValue();
+            if (shortClassName.startsWith("$")) {
+                // remove "$" from class name for $ref schema
+                shortClassName = shortClassName.substring(1);
+            }
 
+            final String className = Character.toUpperCase(shortClassName.charAt(0)) + shortClassName.substring(1)
+                    + "Validator";
+            @SuppressWarnings("unchecked")
+            final Class<JsonValidator> clazz = (Class<JsonValidator>) Class
+                    .forName("com.networknt.schema." + className);
+            Constructor<JsonValidator> c = null;
+            c = clazz.getConstructor(
+                    new Class[] { String.class, JsonNode.class, JsonSchema.class, ValidationContext.class });
+            return c.newInstance(schemaPath + "/" + getValue(), schemaNode, parentSchema, validationContext);
+    }
+    
     @Override
     public String toString() {
         return this.value;

@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.resource.FileResource;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -38,6 +36,7 @@ import static io.undertow.Handlers.resource;
 
 public class JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
+    protected JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance()).objectMapper(mapper).build();
     protected static Undertow server = null;
 
     public JsonSchemaTest() {
@@ -75,7 +74,7 @@ public class JsonSchemaTest {
         for (int j = 0; j < testCases.size(); j++) {
             try {
                 JsonNode testCase = testCases.get(j);
-                JsonSchema schema = new JsonSchema(mapper, testCase.get("schema"));
+                JsonSchema schema = validatorFactory.getSchema(testCase.get("schema"));
                 ArrayNode testNodes = (ArrayNode) testCase.get("tests");
                 for (int i = 0; i < testNodes.size(); i++) {
                     JsonNode test = testNodes.get(i);
@@ -110,7 +109,8 @@ public class JsonSchemaTest {
     public void testLoadingWithId() throws Exception {
         URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
         JsonNode schemaJson = mapper.readTree(url);
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
+        @SuppressWarnings("unused")
         JsonSchema schema = factory.getSchema(schemaJson);
     }
 
