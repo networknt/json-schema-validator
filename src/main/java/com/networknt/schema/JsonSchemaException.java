@@ -16,11 +16,16 @@
 
 package com.networknt.schema;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class JsonSchemaException extends RuntimeException {
     private static final long serialVersionUID = -7805792737596582110L;
+    private ValidationMessage validationMessage;
 
     public JsonSchemaException(ValidationMessage validationMessage) {
         super(validationMessage.getMessage());
+        this.validationMessage = validationMessage;
     }
     
     public JsonSchemaException(String message) {
@@ -31,4 +36,10 @@ public class JsonSchemaException extends RuntimeException {
         super(throwable);
     }
 
+    public Set<ValidationMessage> getValidationMessages() {
+        if (validationMessage == null) {
+            return Collections.emptySet();
+        }
+        return Collections.singleton(validationMessage);
+    }
 }
