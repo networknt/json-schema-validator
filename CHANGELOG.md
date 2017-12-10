@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.13 - 2017-12-10
+
+### Added
+
+### Changed
+- Fixes #53 Optimization for OneOf. Thanks @kkalass
+- Fixes #52 References that cannot be resolved should be treated as an error. Thanks @kkalass
+- Fixes #51 Resolve sub schema node only if really needed. Thanks @kkalass
+
 ## 0.1.12 - 2017-11-23
 
 ### Added
