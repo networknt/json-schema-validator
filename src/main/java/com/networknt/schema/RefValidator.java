@@ -34,14 +34,21 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     protected JsonSchema schema;
     
-    private final String REF_DOMAIN = "/";
-    private final String REF_CURRENT = "#";
-    private final String REF_RELATIVE = "../";
+    private static final String REF_DOMAIN = "/";
+    private static final String REF_CURRENT = "#";
+    private static final String REF_RELATIVE = "../";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
+        schema = getRefSchema(parentSchema, validationContext, refValue);
+        if (schema == null) {
+            throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
+        }
+    }
+
+    static JsonSchema getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
         if (!refValue.startsWith(REF_CURRENT)) {
             // handle remote ref
             String schemaUrl = refValue;
@@ -61,29 +68,27 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
                 parentSchema = validationContext.getJsonSchemaFactory().getSchema(is);
             }
             if (index < 0) {
-                schema = parentSchema.findAncestor();
+                return parentSchema.findAncestor();
             } else {
                 refValue = refValue.substring(index);
             }
         }
         if (refValue.equals(REF_CURRENT)) {
-            schema = parentSchema.findAncestor();
+            return parentSchema.findAncestor();
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                schema = new JsonSchema(validationContext, refValue, node, parentSchema);
+                return new JsonSchema(validationContext, refValue, node, parentSchema);
             }
         }
-        if (schema == null) {
-            throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
-        }
+        return null;
     }
     
-    private boolean isRelativePath(String schemaUrl) {
+    private static boolean isRelativePath(String schemaUrl) {
     	return !schemaUrl.startsWith("http");
     }
     
-    private String obtainAbsolutePath(JsonSchema parentSchema, String schemaUrl) {
+    private static String obtainAbsolutePath(JsonSchema parentSchema, String schemaUrl) {
     	String baseSchemaUrl = parentSchema.findAncestor().getSchemaNode().get("id").textValue();
 		int index = baseSchemaUrl.lastIndexOf("/");
 		baseSchemaUrl = baseSchemaUrl.substring(0, index);
