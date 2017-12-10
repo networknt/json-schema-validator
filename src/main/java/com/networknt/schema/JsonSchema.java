@@ -46,18 +46,18 @@ public class JsonSchema extends BaseJsonValidator {
 
     JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent) {
-        this(validationContext,  schemaPath, schemaNode, parent, obainSubSchemaNode(schemaNode, validationContext));
+        this(validationContext,  schemaPath, schemaNode, parent, false);
     }
 
     JsonSchema(ValidationContext validatorFactory,  String schemaPath, JsonNode schemaNode,
-               JsonSchema parent, JsonSchema subSchema) {
-        super(schemaPath, schemaNode, parent, null, subSchema);
+               JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validatorFactory;
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
 
-    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, JsonSchema subSchema) {
-        this(validationContext, "#", schemaNode, null, subSchema);
+    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
+        this(validationContext, "#", schemaNode, null, suppressSubSchemaRetrieval);
     }
 
     /**
@@ -84,8 +84,11 @@ public class JsonSchema extends BaseJsonValidator {
                 } else {
                     node = node.get(key);
                 }
-                if (node == null && schema.hasSubSchema()){
-                    node = schema.getSubSchema().getRefSchemaNode(ref);
+                if (node == null){
+                    JsonSchema subSchema = schema.fetchSubSchemaNode(validationContext);
+                    if (subSchema != null) {
+                        node = subSchema.getRefSchemaNode(ref);
+                    }
                 }
                 if (node == null){
                     break;

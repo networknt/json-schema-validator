@@ -189,7 +189,7 @@ public class JsonSchemaFactory {
 
                 if (idMatchesSourceUrl(jsonMetaSchema, schemaNode, schemaURL)) {
                     
-                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, null);
+                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
                 return newJsonSchema(schemaNode);
