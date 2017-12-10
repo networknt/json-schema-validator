@@ -16,16 +16,18 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.URLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.url.URLFactory;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -71,6 +73,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             if (node != null) {
                 schema = new JsonSchema(validationContext, refValue, node, parentSchema);
             }
+        }
+        if (schema == null) {
+            throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
         }
     }
     
