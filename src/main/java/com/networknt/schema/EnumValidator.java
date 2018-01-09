@@ -20,35 +20,41 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(EnumValidator.class);
 
-    private List<JsonNode> nodes;
-    private String error;
+    private final Set<JsonNode> nodes;
+    private final String error;
 
     public EnumValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
-        nodes = new ArrayList<JsonNode>();
-        error = "[none]";
+            super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
 
         if (schemaNode != null && schemaNode.isArray()) {
-            error = "[";
-            int i = 0;
+            nodes = new HashSet<JsonNode>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.append('[');
+            String separator = "";
+
             for (JsonNode n : schemaNode) {
                 nodes.add(n);
 
-                String v = n.asText();
-                error = error + (i == 0 ? "" : ", ") + v;
-                i++;
-
+                sb.append(separator);
+                sb.append(n.asText());
+                separator = ", ";
             }
-            error = error + "]";
+
+            sb.append(']');
+
+            error = sb.toString();
+        } else {
+            nodes = Collections.emptySet();
+            error = "[none]";
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
