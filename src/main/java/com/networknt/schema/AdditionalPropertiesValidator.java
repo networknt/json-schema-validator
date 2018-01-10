@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,24 +34,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class AdditionalPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
 
-    private boolean allowAdditionalProperties;
-    private JsonSchema additionalPropertiesSchema;
-    private List<String> allowedProperties;
-    private List<Pattern> patternProperties = new ArrayList<Pattern>();
+    private final boolean allowAdditionalProperties;
+    private final JsonSchema additionalPropertiesSchema;
+    private final Set<String> allowedProperties;
+    private final List<Pattern> patternProperties = new ArrayList<Pattern>();
 
     public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
-        allowAdditionalProperties = false;
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
-        }
-        if (schemaNode.isObject()) {
+            additionalPropertiesSchema = null;
+        } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
             additionalPropertiesSchema = new JsonSchema(validationContext, getValidatorType().getValue(), schemaNode, parentSchema);
+        } else {
+            allowAdditionalProperties = false;
+            additionalPropertiesSchema = null;
         }
 
-        allowedProperties = new ArrayList<String>();
+        allowedProperties = new HashSet<String>();
         JsonNode propertiesNode = parentSchema.getSchemaNode().get(PropertiesValidator.PROPERTY);
         if (propertiesNode != null) {
             for (Iterator<String> it = propertiesNode.fieldNames(); it.hasNext(); ) {
