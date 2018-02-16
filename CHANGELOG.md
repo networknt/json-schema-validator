@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.15 - 2017-02-16
+
+### Added
+
+### Changed
+- Fixes #65 enhance day validation regex for date format. Thanks @chenyan71
+
+
 ## 0.1.14 - 2017-02-14
 
 ### Added
