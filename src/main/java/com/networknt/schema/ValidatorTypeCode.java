@@ -19,7 +19,9 @@ package com.networknt.schema;
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -62,6 +64,14 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     UNION_TYPE("unionType", "1030", new MessageFormat("{0}: {1} found, but {2} is required")),
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat("{0}: the items in the array must be unique"));
    
+	private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
+
+    static {
+        for (ValidatorTypeCode c : values()) {
+            constants.put(c.value, c);
+        }
+    }
+
     private final String value;
     private final String errorCode;
     private final MessageFormat messageFormat;
@@ -82,6 +92,15 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
             }
         }
         return result;
+    }
+
+    public static ValidatorTypeCode fromValue(String value) {
+        ValidatorTypeCode constant = constants.get(value);
+        if (constant == null) {
+            throw new IllegalArgumentException(value);
+        } else {
+            return constant;
+        }
     }
     
     public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {

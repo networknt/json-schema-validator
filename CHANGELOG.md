@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.14 - 2017-02-14
+
+### Added
+
+### Changed
+- Fixes #64 Add simple tests for ValidatorTypeCode. Thanks @ehrmann
+- Fixes #61 Restore validator type code from value. Thanks @ehrmann
+
 ## 0.1.13 - 2017-12-10
 
 ### Added
