@@ -47,8 +47,8 @@ public class JsonMetaSchema {
         public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>();
         static {
             BUILTIN_FORMATS.add(pattern("date-time", 
-                    "^\\d{4}-(?:0[0-9]{1}|1[0-2]{1})-[0-9]{2}[tT ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?([zZ]|[+-]\\d{2}:\\d{2})$"));
-            BUILTIN_FORMATS.add(pattern("date", "^\\d{4}-(?:0[0-9]{1}|1[0-2]{1})-[0-9]{2}$"));
+                    "^\\d{4}-(?:0[0-9]{1}|1[0-2]{1})-(0?[1-9]|[12][0-9]|3[01])[tT ]\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?([zZ]|[+-]\\d{2}:\\d{2})$"));
+            BUILTIN_FORMATS.add(pattern("date", "^\\d{4}-(?:0[0-9]{1}|1[0-2]{1})-(0?[1-9]|[12][0-9]|3[01])$"));
             BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}$"));
             BUILTIN_FORMATS.add(pattern("email", "^\\S+@\\S+$"));
             BUILTIN_FORMATS.add(pattern("ip-address", 
