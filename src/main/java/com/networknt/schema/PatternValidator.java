@@ -48,7 +48,7 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
         debug(logger, node, rootNode, at);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
-        if (nodeType != JsonType.STRING && nodeType != JsonType.NUMBER && nodeType != JsonType.INTEGER) {
+        if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
 
