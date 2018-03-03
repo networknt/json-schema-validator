@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-## 0.1.15 - 2017-02-16
+## 0.1.16 - 2018-03-03
+
+### Added
+
+### Changed
+- Fixes #62 Correct behavior when both allOf and type are present. Thanks @ehrmann
+- Fixes #70 Minor optimizations. Thanks @ehrmann
+
+## 0.1.15 - 2018-02-16
 
 ### Added
 
@@ -17,7 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixes #65 enhance day validation regex for date format. Thanks @chenyan71
 
 
-## 0.1.14 - 2017-02-14
+## 0.1.14 - 2018-02-14
 
 ### Added
 
