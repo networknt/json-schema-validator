@@ -44,11 +44,9 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
         if (unique) {
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
-                set.add(n);
-            }
-
-            if (set.size() < node.size()) {
-                return Collections.singleton(buildValidationMessage(at));
+                if (!set.add(n)) {
+                    return Collections.singleton(buildValidationMessage(at));
+                }
             }
         }
 

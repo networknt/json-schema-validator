@@ -41,12 +41,12 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        for (String key : schemas.keySet()) {
-            JsonSchema propertySchema = schemas.get(key);
-            JsonNode propertyNode = node.get(key);
+        for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
+            JsonSchema propertySchema = entry.getValue();
+            JsonNode propertyNode = node.get(entry.getKey());
 
             if (propertyNode != null) {
-                errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + key));
+                errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
             }
         }
 
