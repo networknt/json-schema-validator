@@ -35,9 +35,8 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
 
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
         if (schemaNode.isArray()) {
-            int size = schemaNode.size();
-            for (int i = 0; i < size; i++) {
-                fieldNames.add(schemaNode.get(i).asText());
+            for (JsonNode fieldNme : schemaNode) {
+                fieldNames.add(fieldNme.asText());
             }
         }
 
@@ -46,6 +45,10 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+
+        if (!node.isObject()) {
+            return Collections.emptySet();
+        }
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 

@@ -35,5 +35,18 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "required validation on non-object",
+        "schema": {
+            "required": ["foo"]
+        },
+        "tests": [
+            {
+                "description": "required not applied on null",
+                "data": null,
+                "valid": true
+            }
+        ]
     }
 ]
