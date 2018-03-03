@@ -42,11 +42,10 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        int size = schemas.size();
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        for (int i = 0; i < size; i++) {
-            errors.addAll(schemas.get(i).validate(node, rootNode, at));
+        for (JsonSchema schema : schemas) {
+            errors.addAll(schema.validate(node, rootNode, at));
         }
 
         return Collections.unmodifiableSet(errors);
