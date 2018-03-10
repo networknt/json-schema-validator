@@ -19,7 +19,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>0.1.16</version>
+    <version>0.1.17</version>
+    <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4</description>
     <url>https://github.com/networknt/json-schema-validator</url>
     <name>JsonSchemaValidator</name>
@@ -143,6 +144,11 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
