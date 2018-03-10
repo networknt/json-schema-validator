@@ -3,9 +3,10 @@
 
 # json-schema-validator
 
-A Java json schema validator that support json schema draft v4. It is a key component in our
-[light-java](https://github.com/networknt/light-java) microservices framework to validate request
-against OpenAPI specification at runtime.
+A Java json schema validator that supports json schema draft v4. It is a key component in our
+[light-4j](https://github.com/networknt/light-4j) microservices framework to validate request
+against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) 
+and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime.
 
 
 * [Why to use this library?](#why-to-use-this-library)
@@ -30,7 +31,7 @@ specification. It uses the [Jackson](https://github.com/FasterXML/jackson) for j
 
 You can run the performance tests for three libraries from [https://github.com/networknt/json-schema-validator-perftest](https://github.com/networknt/json-schema-validator-perftest)
 
-* It uses jackson which is the most popular JSON parser in Java.
+* It uses Jackson which is the most popular JSON parser in Java.
 
 
 
@@ -42,7 +43,7 @@ Add the following to your `pom.xml`:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.16</version>
 </dependency>
 ```
 
@@ -104,35 +105,36 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
         JsonSchema schema = factory.getSchema(is);
         return schema;
     }
 
+
     protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(schemaContent);
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String url) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(new URL(url));
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) throws Exception {
-        JsonSchemaFactory factory = new JsonSchemaFactory();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
         JsonSchema schema = factory.getSchema(jsonNode);
         return schema;
     }
 }
 
 ```
-And the following is one of the test case in one of the test class extends from above base class. As you can see, it constructs JsonSchema
-and JsonNode from String.
+And the following is one of the test cases in one of the test classes extends from above base class. As you can see, it constructs 
+JsonSchema and JsonNode from String.
 
 ```java
 		JsonSchema schema = getJsonSchemaFromStringContent("{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}");
@@ -144,15 +146,12 @@ and JsonNode from String.
 
 ## Known issues
 
-I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another
-Java validator. Now there are several issues that need to be addressed. All of them are edge cases in my opinion but need to be investigated. As my old test suites
-were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java Language itself.
+I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases in my opinion 
+but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java Language itself.
 
 [#7](https://github.com/networknt/json-schema-validator/issues/7)
 
 [#6](https://github.com/networknt/json-schema-validator/issues/6)
 
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
-
-
 
