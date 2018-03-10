@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.17 - 2018-03-09
+
+### Added
+
+### Changed
+- Fixes #72 build JAR with OSGi support. Thanks @lichtin
+- Fixes #71 Github Quickstart section out-of-date. Thanks @lichtin
+
 ## 0.1.16 - 2018-03-03
 
 ### Added
