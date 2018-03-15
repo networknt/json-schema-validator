@@ -40,16 +40,16 @@ public class JsonSchema extends BaseJsonValidator {
     protected final Map<String, JsonValidator> validators;
     private final ValidationContext validationContext;
 
-    JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
+    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
         this(validationContext,  "#", schemaNode, null);
     }
 
-    JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent) {
         this(validationContext,  schemaPath, schemaNode, parent, false);
     }
 
-    JsonSchema(ValidationContext validatorFactory,  String schemaPath, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validatorFactory,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validatorFactory;
