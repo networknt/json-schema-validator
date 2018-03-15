@@ -228,7 +228,7 @@ public class JsonSchemaTest {
     public void testOneOfValidator() throws Exception {
         runTestFile("tests/oneOf.json");
     }
-
+    
     @Test
     public void testPatternValidator() throws Exception {
         runTestFile("tests/pattern.json");
