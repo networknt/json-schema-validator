@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.18 - 2018-04-04
+
+### Added
+
+### Changed
+- Fixes #80 upgrade to jackson 2.9.5 and undertow 1.4.20.Final
+- Fixes #77 One of was broken - it did not fail when there were no valid schemas. Thanks @kkalass
+- Fixes #76 Make remaining JsonSchema constructors public. Thanks @kkalass
+
 ## 0.1.17 - 2018-03-09
 
 ### Added
