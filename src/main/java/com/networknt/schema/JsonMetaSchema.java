@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -226,7 +225,7 @@ public class JsonMetaSchema {
         return uri;
     }
     
-    public Optional<JsonValidator> newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
+    public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
             JsonSchema parentSchema) {
         
         try {
@@ -236,9 +235,9 @@ public class JsonMetaSchema {
                     UNKNOWN_KEYWORDS.put(keyword, keyword);
                     logger.warn("Unknown keyword " + keyword + " - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword");
                 }
-                return Optional.empty();
+                return null;
             }
-            return Optional.of(kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext));
+            return kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof JsonSchemaException) {
                 throw (JsonSchemaException) e.getTargetException();

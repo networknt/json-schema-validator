@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,9 +112,9 @@ public class JsonSchema extends BaseJsonValidator {
             String pname = pnames.next();
             JsonNode n = schemaNode.get(pname);
 
-            Optional<JsonValidator> validator = validationContext.newValidator(getSchemaPath(), pname, n, this);
-            if (validator.isPresent()) {
-                validators.put(getSchemaPath() + "/" + pname, validator.get());
+            JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, n, this);
+            if (validator != null) {
+                validators.put(getSchemaPath() + "/" + pname, validator);
             }
 
         }

@@ -1,7 +1,5 @@
 package com.networknt.schema;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class ValidationContext {
@@ -19,7 +17,7 @@ public class ValidationContext {
         this.jsonSchemaFactory = jsonSchemaFactory;
     }
     
-    public Optional<JsonValidator> newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
+    public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
             JsonSchema parentSchema) {
         return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
     }
