@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.19 - 2018-04-07
+
+### Added
+
+### Changed
+- fixes #84 remove Java 8 optional to ensure that this library can be Java 6 compatible. Thanks @johnygeorge
+- fixes #81 java.lang.NoClassDefFoundError: Failed resolution of: Ljava/util/Optional. Thanks @johnygeorge
+- fixes #83 upgrade to undertow 1.4.23.Final in sync with other repo
+
 ## 0.1.18 - 2018-04-04
 
 ### Added
