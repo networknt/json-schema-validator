@@ -43,7 +43,7 @@ Add the following to your `pom.xml`:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>0.1.16</version>
+    <version>0.1.19</version>
 </dependency>
 ```
 
