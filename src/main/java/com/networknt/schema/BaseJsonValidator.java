@@ -53,7 +53,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return schemaPath;
     }
 
-    protected JsonNode getSchemaNode() {
+    public JsonNode getSchemaNode() {
         return schemaNode;
     }
 

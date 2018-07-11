@@ -15,7 +15,7 @@ public class CustomErrorMessageType implements ErrorMessageType {
         return new CustomErrorMessageType(errorCode, null);
     }
     public static ErrorMessageType of(String errorCode, MessageFormat messageFormat) {
-        return new CustomErrorMessageType(errorCode, null);
+        return new CustomErrorMessageType(errorCode, messageFormat);
     }
 
     @Override
