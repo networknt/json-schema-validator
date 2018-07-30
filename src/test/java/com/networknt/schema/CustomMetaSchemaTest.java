@@ -80,7 +80,7 @@ public class CustomMetaSchemaTest {
             if (!node.isArray()) {
                 throw new JsonSchemaException("Keyword enum needs to receive an array");
             }
-            ArrayList<String> result = new ArrayList<>(node.size());
+            ArrayList<String> result = new ArrayList<String>(node.size());
             for (JsonNode child : node) {
                 result.add(child.asText());
             }
