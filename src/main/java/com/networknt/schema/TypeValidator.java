@@ -52,9 +52,6 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (schemaType == JsonType.ANY ) {
                 return Collections.emptySet();
             }
-            if (schemaType == JsonType.NULL ) {
-                return Collections.emptySet();
-            }
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return Collections.emptySet();
             }
