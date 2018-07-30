@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.20 - 2018-07-30
+
+### Added
+
+### Changed
+- fixes #85 Update version in maven dependnecy sample. Thanks @banterCZ
+- fixes #89 Added example for custom keywords in tests. Thanks @Klas Kalaß
+- fixes #90 Remove unused dependency to slf4j-ext due to security issue. Thanks @Thorbias
+- fixes #91 update one test case to ensure compatibility of Java 6
+- fixes #92 rollback type validator for null value as it is against spec.
+
 ## 0.1.19 - 2018-04-07
 
 ### Added
