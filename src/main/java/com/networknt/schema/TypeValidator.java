@@ -56,12 +56,9 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                 return Collections.emptySet();
             }
             if (nodeType == JsonType.NULL) {
-                try {
-                    if (this.getParentSchema().getSchemaNode().get("nullable").asBoolean()) {
-                        return Collections.emptySet();
-                    }
-                } catch (Exception e) {
-                    logger.warn("Failed when trying to get nullable field.");
+                JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
+                if (nullable != null && nullable.asBoolean()) {
+                    return Collections.emptySet();
                 }
             }
 
