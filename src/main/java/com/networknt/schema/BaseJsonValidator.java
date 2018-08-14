@@ -125,4 +125,12 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected ValidatorTypeCode getValidatorType() {
         return validatorType;
     }
+
+    protected String getNodeFieldType() {
+        JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
+        if (typeField != null) {
+            return typeField.asText();
+        }
+        return null;
+    }
 }
