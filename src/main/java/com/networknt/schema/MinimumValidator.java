@@ -53,9 +53,13 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
             // minimum only applies to numbers
             return Collections.emptySet();
         }
+        String fieldType = this.getNodeFieldType();
 
         double value = node.doubleValue();
         if (lessThan(value, minimum) || (excluded && equals(value, minimum))) {
+            if (JsonType.INTEGER.toString().equals(fieldType)) {
+                return Collections.singleton(buildValidationMessage(at, "" + (int) minimum));
+            }
             return Collections.singleton(buildValidationMessage(at, "" + minimum));
         }
         return Collections.emptySet();

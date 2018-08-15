@@ -55,8 +55,13 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
             return Collections.emptySet();
         }
 
+        String fieldType = this.getNodeFieldType();
+
         double value = node.doubleValue();
         if (greaterThan(value, maximum) || (excludeEqual && equals(value, maximum))) {
+            if (JsonType.INTEGER.toString().equals(fieldType)) {
+                return Collections.singleton(buildValidationMessage(at, "" + (int)maximum));
+            }
             return Collections.singleton(buildValidationMessage(at, "" + maximum));
         }
         return Collections.emptySet();
