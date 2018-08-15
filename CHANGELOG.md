@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.21 - 2018-08-14
+
+### Added
+
+### Changed
+- fixes #94 Fix min/max error message of integer fields displayed as doubles. Thanks @NicholasAzar
+- fixes #93 Adding support for nullable fields. Thanks @NicholasAzar
+
 ## 0.1.20 - 2018-07-30
 
 ### Added
