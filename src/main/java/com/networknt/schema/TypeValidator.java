@@ -22,14 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
-    private static final String NUMERIC_PATTERN = "-?\\d+(\\.\\d+)?";
-    private static Pattern numericPattern = Pattern.compile(NUMERIC_PATTERN);
-    private static final String INTEGER_PATTERN = "\\-?\\d+";
-    private static Pattern integerPattern = Pattern.compile(INTEGER_PATTERN);
 
     private JsonType schemaType;
     private UnionTypeValidator unionTypeValidator;
