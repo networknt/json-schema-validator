@@ -19,9 +19,9 @@
                 "valid": false
             },
             {
-                "description": "a string is still not an integer, even if it looks like one",
+                "description": "a string that can be converted to integer is an integer",
                 "data": "1",
-                "valid": false
+                "valid": true
             },
             {
                 "description": "an object is not an integer",
@@ -65,9 +65,9 @@
                 "valid": false
             },
             {
-                "description": "a string is still not a number, even if it looks like one",
+                "description": "a string that can be converted to number is a number",
                 "data": "1",
-                "valid": false
+                "valid": true
             },
             {
                 "description": "an object is not a number",

@@ -22,9 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
+    private static final String NUMERIC_PATTERN = "-?\\d+(\\.\\d+)?";
+    private static Pattern numericPattern = Pattern.compile(NUMERIC_PATTERN);
+    private static final String INTEGER_PATTERN = "\\-?\\d+";
+    private static Pattern integerPattern = Pattern.compile(INTEGER_PATTERN);
 
     private JsonType schemaType;
     private UnionTypeValidator unionTypeValidator;
@@ -48,6 +53,9 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         JsonType nodeType = TypeFactory.getValueNodeType(node);
+        // in the case that node type is not the same as schema type, try to convert node to the
+        // same type of schema. In REST API, query parameters, path parameters and headers are all
+        // string type and we must convert, otherwise, all schema validations will fail.
         if (nodeType != schemaType) {
             if (schemaType == JsonType.ANY ) {
                 return Collections.emptySet();
@@ -61,11 +69,73 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                     return Collections.emptySet();
                 }
             }
-
-           return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
+            if (nodeType == JsonType.STRING) {
+                if(schemaType == JsonType.INTEGER) {
+                    if(isInteger(node.textValue())) {
+                        return Collections.emptySet();
+                    }
+                } else if(schemaType == JsonType.BOOLEAN) {
+                    if(isBoolean(node.textValue())) {
+                        return Collections.emptySet();
+                    }
+                } else if(schemaType == JsonType.NUMBER) {
+                    if(isNumeric(node.textValue())) {
+                        return Collections.emptySet();
+                    }
+                }
+            }
+            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
-
         return Collections.emptySet();
     }
 
+    public static boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        if (str.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (str.length() == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isBoolean(String s) {
+        return Boolean.parseBoolean(s);
+    }
+
+    public static boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        if (str.isEmpty()) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (str.length() == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9' && c != '.') {
+                return false;
+            }
+        }
+        return true;
+    }
 }
