@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.22 - 2018-09-11
+
+### Added
+
+### Changed
+- fixes #101 enhance TypeValidator trying to convert type from TEXT
+
 ## 0.1.21 - 2018-08-14
 
 ### Added
