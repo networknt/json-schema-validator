@@ -108,7 +108,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public static boolean isBoolean(String s) {
-        return Boolean.parseBoolean(s);
+        return "true".equals(s) || "false".equals(s);
     }
 
     public static boolean isNumeric(String str) {
