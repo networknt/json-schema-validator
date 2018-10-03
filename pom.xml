@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>0.1.22</version>
+    <version>0.1.23</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -68,7 +68,7 @@
         <version.junit>4.12</version.junit>
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>1.3</version.hamcrest>
-        <version.undertow>1.4.23.Final</version.undertow>
+        <version.undertow>2.0.11.Final</version.undertow>
     </properties>
     <dependencies>
         <dependency>

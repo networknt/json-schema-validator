@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.23 - 2018-10-02
+
+### Added
+
+### Changed
+- fixes #103 Boolean type validation for the string type is incorrect
+
 ## 0.1.22 - 2018-09-11
 
 ### Added
