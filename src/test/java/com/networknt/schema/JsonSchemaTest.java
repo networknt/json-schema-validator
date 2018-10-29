@@ -125,6 +125,11 @@ public class JsonSchemaTest {
     }
 
     @Test
+    public void testComplexSchema() throws Exception {
+        runTestFile("tests/optional/complex.json");
+    }
+
+    @Test
     public void testZeroTerminatedFloatsValidator() throws Exception {
         runTestFile("tests/optional/zeroTerminatedFloats.json");
     }
