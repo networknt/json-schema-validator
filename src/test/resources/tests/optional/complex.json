@@ -1,0 +1,881 @@
+[
+  {
+    "description": "test on complex schema",
+    "schema": {
+      "additionalProperties" : false,
+      "type" : "object",
+      "properties" : {
+        "prop249" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalItems" : false,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          } ]
+        },
+        "prop398" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalProperties" : false,
+            "type" : "object",
+            "properties" : {
+              "prop395" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "string"
+                } ]
+              },
+              "prop397" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "string"
+                } ]
+              },
+              "prop389" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "string"
+                } ]
+              },
+              "prop396" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "string"
+                } ]
+              }
+            },
+            "required" : [ ]
+          } ]
+        },
+        "prop388" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "lockinbenefits" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalProperties" : false,
+            "type" : "object",
+            "properties" : {
+              "freeShipping" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "additionalProperties" : false,
+                  "type" : "object",
+                  "properties" : {
+                    "actualBenefit" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    },
+                    "potentialBenefits" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    },
+                    "eligibleBenefits" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    }
+                  },
+                  "required" : [ ]
+                } ]
+              },
+              "hasEarlyAccess" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "boolean"
+                } ]
+              },
+              "fastShipping" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "additionalProperties" : false,
+                  "type" : "object",
+                  "properties" : {
+                    "actualBenefit" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    },
+                    "potentialBenefits" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    },
+                    "eligibleBenefits" : {
+                      "anyOf" : [ {
+                        "type" : "null"
+                      }, {
+                        "type" : "string"
+                      } ]
+                    }
+                  },
+                  "required" : [ ]
+                } ]
+              }
+            },
+            "required" : [ ]
+          } ]
+        },
+        "prop248" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "prop237" : {
+          "type" : "string"
+        },
+        "prop250" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "prop389" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "prop387" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "prop247" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "prop252" : {
+          "type" : "string"
+        },
+        "prop392" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalItems" : false,
+            "type" : "array",
+            "items" : {
+              "additionalProperties" : false,
+              "type" : "object",
+              "properties" : {
+                "prop391" : {
+                  "type" : "string"
+                },
+                "prop390" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "prop391", "prop390" ]
+            }
+          } ]
+        },
+        "prop240" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "prop241" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "prop246" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalProperties" : false,
+            "type" : "object",
+            "properties" : {
+              "prop245" : {
+                "maximum" : 2147483647,
+                "type" : "integer",
+                "minimum" : -2147483648
+              },
+              "prop244" : {
+                "maximum" : 2147483647,
+                "type" : "integer",
+                "minimum" : -2147483648
+              },
+              "prop243" : {
+                "maximum" : 1.7976931348623157E308,
+                "type" : "number",
+                "minimum" : -1.7976931348623157E308
+              },
+              "prop242" : {
+                "maximum" : 2147483647,
+                "type" : "integer",
+                "minimum" : -2147483648
+              }
+            },
+            "required" : [ "prop245", "prop244", "prop243", "prop242" ]
+          } ]
+        },
+        "prop385" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalItems" : false,
+            "type" : "array",
+            "items" : {
+              "additionalProperties" : false,
+              "type" : "object",
+              "properties" : {
+                "prop269" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "maximum" : 2147483647,
+                    "type" : "integer",
+                    "minimum" : -2147483648
+                  } ]
+                },
+                "prop284" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "additionalItems" : false,
+                    "type" : "array",
+                    "items" : {
+                      "additionalProperties" : false,
+                      "type" : "object",
+                      "properties" : {
+                        "prop282" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "boolean"
+                          } ]
+                        },
+                        "prop283" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "boolean"
+                          } ]
+                        },
+                        "prop281" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "additionalProperties" : false,
+                            "type" : "object",
+                            "properties" : {
+                              "prop280" : {
+                                "type" : "string"
+                              },
+                              "prop279" : {
+                                "maximum" : 2147483647,
+                                "type" : "integer",
+                                "minimum" : -2147483648
+                              }
+                            },
+                            "required" : [ "prop280", "prop279" ]
+                          } ]
+                        },
+                        "shownOnProductPage" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "boolean"
+                          } ]
+                        },
+                        "prop278" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "boolean"
+                          } ]
+                        },
+                        "prop277" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "maximum" : 9223372036854775807,
+                            "type" : "integer",
+                            "minimum" : -9223372036854775808
+                          } ]
+                        },
+                        "prop276" : {
+                          "type" : "string"
+                        }
+                      },
+                      "required" : [ "prop276" ]
+                    }
+                  } ]
+                },
+                "prop267" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "additionalItems" : false,
+                    "type" : "array",
+                    "items" : {
+                      "additionalProperties" : false,
+                      "type" : "object",
+                      "properties" : {
+                        "prop255" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "string"
+                          } ]
+                        },
+                        "type" : {
+                          "anyOf" : [ {
+                            "type" : "null"
+                          }, {
+                            "type" : "string"
+                          } ]
+                        }
+                      },
+                      "required" : [ ]
+                    }
+                  } ]
+                },
+                "prop271" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "maximum" : 2147483647,
+                    "type" : "integer",
+                    "minimum" : -2147483648
+                  } ]
+                },
+                "prop270" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "maximum" : 2147483647,
+                    "type" : "integer",
+                    "minimum" : -2147483648
+                  } ]
+                },
+                "prop272" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "maximum" : 2147483647,
+                    "type" : "integer",
+                    "minimum" : -2147483648
+                  } ]
+                },
+                "prop274" : {
+                  "type" : "string"
+                },
+                "prop285" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "additionalItems" : false,
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  } ]
+                },
+                "prop268" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "type" : "boolean"
+                  } ]
+                },
+                "displayedFinalPrice" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "maximum" : 2147483647,
+                    "type" : "integer",
+                    "minimum" : -2147483648
+                  } ]
+                },
+                "prop254" : {
+                  "type" : "string"
+                },
+                "prop253" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "type" : "boolean"
+                  } ]
+                },
+                "showMRP" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "type" : "boolean"
+                  } ]
+                },
+                "exchangeDetails" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "additionalProperties" : false,
+                    "type" : "object",
+                    "properties" : {
+                      "pincode" : {
+                        "anyOf" : [ {
+                          "type" : "null"
+                        }, {
+                          "maximum" : 2147483647,
+                          "type" : "integer",
+                          "minimum" : -2147483648
+                        } ]
+                      },
+                      "offerId" : {
+                        "type" : "string"
+                      },
+                      "prop278" : {
+                        "anyOf" : [ {
+                          "type" : "null"
+                        }, {
+                          "type" : "boolean"
+                        } ]
+                      }
+                    },
+                    "required" : [ "offerId" ]
+                  } ]
+                },
+                "prop275" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "type" : "string"
+                  } ]
+                },
+                "prop277" : {
+                  "anyOf" : [ {
+                    "type" : "null"
+                  }, {
+                    "pattern" : "^(19[7-9][0-9]|2\\d{3})-((((0[13578])|(1[02]))-(([0-2][0-9])|(3[01])))|(((0[469])|(11))-(([0-2][0-9])|(30)))|(02-?[0-2][0-9]))([tT ]([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(\\.\\d+)?([zZ]|[+-]\\d{2}(:|)\\d{2}|\\b)|\\b)$",
+                    "type" : "string"
+                  } ]
+                },
+                "prop273" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "prop274", "prop254", "prop273" ]
+            }
+          } ]
+        },
+        "prop399" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "prop393" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "prop239" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalProperties" : false,
+            "type" : "object",
+            "properties" : {
+              "prop238" : {
+                "type" : "boolean"
+              },
+              "type" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "additionalItems" : false,
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                } ]
+              }
+            },
+            "required" : [ "prop238" ]
+          } ]
+        },
+        "latestVersion" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "exchangeDetails" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "additionalProperties" : false,
+            "type" : "object",
+            "properties" : {
+              "pincode" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "maximum" : 2147483647,
+                  "type" : "integer",
+                  "minimum" : -2147483648
+                } ]
+              },
+              "offerId" : {
+                "type" : "string"
+              },
+              "prop278" : {
+                "anyOf" : [ {
+                  "type" : "null"
+                }, {
+                  "type" : "boolean"
+                } ]
+              }
+            },
+            "required" : [ "offerId" ]
+          } ]
+        },
+        "prop386" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "type" : "boolean"
+          } ]
+        },
+        "prop251" : {
+          "anyOf" : [ {
+            "type" : "null"
+          }, {
+            "maximum" : 2147483647,
+            "type" : "integer",
+            "minimum" : -2147483648
+          } ]
+        }
+      },
+      "required" : [ "prop237", "prop252" ]
+    },
+    "tests": [
+      {
+        "description": "test on complex schema",
+        "data": {
+          "prop399": "SADSADSADASDSAD",
+          "prop398": {
+            "prop397": "sdsadsadsad",
+            "prop396": "dsadsadsadsad",
+            "prop395": "Fashiosadsadn",
+            "prop389": "sadsadsdsadas"
+          },
+          "prop393": "sassa-6572-4e94-8c45-9b76adfe567b.BELEEVDNNWHPCFG5",
+          "prop392": [
+            {
+              "prop391": "sadsadsdsadas",
+              "prop390": "sadsadsdsadas"
+            }
+          ],
+          "prop389": "BELEEVDNNWHPCFG5",
+          "prop388": false,
+          "prop387": false,
+          "prop386": false,
+          "prop385": [
+            {
+              "prop285": [
+                "nsddasc17ce07",
+                "nbsds05674208",
+                "nadsda1b76202",
+                "nadada7dbb31",
+                "ndadada7a6be08",
+                "nbadadf4e4dd06"
+              ],
+              "prop284": [
+                {
+                  "prop283": false,
+                  "prop282": true,
+                  "prop281": {
+                    "prop280": "AASS",
+                    "prop279": 65
+                  },
+                  "prop278": true,
+                  "prop277": 1519064999000,
+                  "prop276": "REGULAR"
+                }
+              ],
+              "prop275": "AFDA SDADck",
+              "prop274": "LSTBELEEVDNNWHPCFG5XTR99D",
+              "prop273": "current",
+              "prop272": 599,
+              "prop271": 6,
+              "prop270": 177,
+              "prop269": 112,
+              "prop268": true,
+              "prop267": [
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AAA15c17ce07"
+                },
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AA05674208"
+                },
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AAAAA1b76202"
+                },
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AAAAA67dbb31"
+                },
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AAAAA7a6be08"
+                },
+                {
+                  "type": "sadsadsdsadas",
+                  "prop255": "AAAAf4e4dd06"
+                }
+              ],
+              "prop254": "AAAADSDSWQDFDFSD44",
+              "prop253": false
+            },
+            {
+              "prop285": [
+                "nSADSA15c17ce07",
+                "nSDSA105674208",
+                "nSDS0081b76202",
+                "nSDSD67dbb31",
+                "nSAFS1d7a6be08",
+                "nbSFDFSAf4e4dd06"
+              ],
+              "prop284": [
+                {
+                  "prop283": false,
+                  "prop282": true,
+                  "prop281": {
+                    "prop280": "WHAT",
+                    "prop279": 58
+                  },
+                  "prop278": true,
+                  "prop277": 1519151399000,
+                  "prop276": "REGULAR"
+                }
+              ],
+              "prop275": "SDADAck",
+              "prop274": "LSTBELEEVDNNWHPCFG5SOSPHT",
+              "prop273": "current",
+              "prop272": 599,
+              "prop271": 6,
+              "prop270": 198,
+              "prop269": 140,
+              "prop268": true,
+              "prop267": [
+                {
+                  "type": "DFSFDSFSDFDSFSDFDFDFSDFD",
+                  "prop255": "nb:mp:015c17ce07"
+                },
+                {
+                  "type": "DSFDSFSDFSDFSDFSDFSDF",
+                  "prop255": "nb:mp:0105674208"
+                },
+                {
+                  "type": "SFDSFDSFDSFDSFDFSDF",
+                  "prop255": "nb:mp:0081b76202"
+                },
+                {
+                  "type": "SFDSFSDFFDSFDFSDFDSFFDSDF",
+                  "prop255": "nb:mp:00f67dbb31"
+                },
+                {
+                  "type": "DSFSDFDFDSFSDFDSFDFSDFSDF",
+                  "prop255": "nb:mp:01d7a6be08"
+                },
+                {
+                  "type": "DGDGDSGDSGSGSDGSDGSDGSDGSDGSSD",
+                  "prop255": "nb:mp:01f4e4dd06"
+                }
+              ],
+              "prop254": "aaaaca4d3acf4b76",
+              "prop253": false
+            },
+            {
+              "prop285": [
+                "dsdsadsadasdsad",
+                "sadsdsadasdsa8",
+                "nsdadsad0081b76202",
+                "sdddsadadsdd",
+                "nasdsadsa08",
+                "nsaddsadsae4dd06"
+              ],
+              "prop284": [
+                {
+                  "prop283": false,
+                  "prop282": true,
+                  "prop281": {
+                    "prop280": "ohh",
+                    "prop279": 58
+                  },
+                  "prop278": true,
+                  "prop277": 1519064999000,
+                  "prop276": "REGULAR"
+                }
+              ],
+              "prop275": "OUT",
+              "prop274": "LSTBELEEVDNNWHPCFG5NHDRPJ",
+              "prop273": "PAST",
+              "prop272": 599,
+              "prop271": 6,
+              "prop270": 207,
+              "prop269": 149,
+              "prop268": true,
+              "prop267": [
+                {
+                  "type": "SAFSAFSAFASFASFDASFSDFASD",
+                  "prop255": "EDSFdsad05674208"
+                },
+                {
+                  "type": "SFAFSAFSADFSAFSAFSAFSSAFSA",
+                  "prop255": "nbdsad05674208"
+                },
+                {
+                  "type": "SFDSFSFDSFDSFDSFDSFDSFDSAF",
+                  "prop255": "nbasdsa1b76202"
+                },
+                {
+                  "type": "SFDSFSFSAFSAFSAFSAFSAFSA",
+                  "prop255": "nbsa0f67dbb31"
+                },
+                {
+                  "type": "DSFDSFDSFDSFSADFDSAFEWRFEWFDSAFSD",
+                  "prop255": "nbdasd7a6be08"
+                },
+                {
+                  "type": "DFDSFDSFDSFDSDSFDSFSDFDS",
+                  "prop255": "nbssads4dd06"
+                }
+              ],
+              "prop254": "a98dbbb8c75e4fe9",
+              "prop253": false
+            },
+            {
+              "prop285": [
+                "SADSASA015c17ce07",
+                "nASDSA0105674208",
+                "nbSADASD0081b76202",
+                "nSADAS0f67dbb31",
+                "nbSADSAd7a6be08",
+                "nbD45545F1f4e4dd06"
+              ],
+              "prop284": [
+                {
+                  "prop283": false,
+                  "prop282": true,
+                  "prop281": {
+                    "prop280": "MYPRICE",
+                    "prop279": 58
+                  },
+                  "prop278": true,
+                  "prop277": 1519064999000,
+                  "prop276": "IRREGULAR"
+                }
+              ],
+              "prop275": "WHAT?",
+              "prop274": "LSTBELEEVDNNWHPCFG5DU2RER",
+              "prop273": "PAST",
+              "prop272": 599,
+              "prop271": 6,
+              "prop270": 278,
+              "prop269": 220,
+              "prop268": true,
+              "prop267": [
+                {
+                  "type": "DDSFDSFSDDSADFSFDS",
+                  "prop255": "nb:mp:015c17ce07"
+                },
+                {
+                  "type": "DFDSFDSFDSFDSFDS",
+                  "prop255": "nb:mp:0105674208"
+                },
+                {
+                  "type": "DSFDSFDSFDSFDSFDSFDS",
+                  "prop255": "DSADASDA0081b76202"
+                },
+                {
+                  "type": "DSFDSFDSFDSFSAFFDFDASFASD",
+                  "prop255": "DSADSAD00f67dbb31"
+                },
+                {
+                  "type": "ADSFDSFDSFDSFDSFDSFDSFDS",
+                  "prop255": "nbSDSAmpSASADSADSA01d7a6be08"
+                },
+                {
+                  "type": "DSFDSFDSFDSFDSFDSFDS",
+                  "prop255": "SADSADSA"
+                }
+              ],
+              "prop254": "10d23E223E324E32e58d43a4648ea",
+              "prop253": false
+            }
+          ],
+          "prop252": "SDSFSD",
+          "prop251": 4,
+          "prop250": false,
+          "prop249": [],
+          "prop248": false,
+          "prop247": false,
+          "prop246": {
+            "prop245": 6,
+            "prop244": 5,
+            "prop243": 3,
+            "prop242": 35
+          },
+          "prop241": "JUNK",
+          "prop240": "NICEVERYNICE",
+          "prop239": {
+            "prop238": false
+          },
+          "prop237": "NICEVERYNICE"
+        },
+        "valid": true
+      }
+    ]
+  }
+]
