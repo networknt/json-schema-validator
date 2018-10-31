@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +43,30 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
+        String typeValidatorName = "anyOf/type";
+        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        //If schema has type validator and it doesn't match with node type then ignore it
+        List<JsonSchema> filteredSchemaList = new ArrayList<JsonSchema>();
+        List<String> expectedTypeList = new ArrayList<String>();
+        for (JsonSchema schema : schemas) {
+            if (schema.validators.containsKey(typeValidatorName)) {
+                JsonType schemaType = ((TypeValidator) schema.validators.get(typeValidatorName)).getSchemaType();
+                if (schemaType == nodeType) {
+                    filteredSchemaList.add(schema);
+                }
+                expectedTypeList.add(schemaType.toString());
+            }
+            else {
+                filteredSchemaList.add(schema);
+            }
+        }
+        if (!schemas.isEmpty() && filteredSchemaList.isEmpty()) {
+            return Collections.singleton(buildValidationMessage(at, StringUtils.join(expectedTypeList)));
+        }
+
         Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
 
-        for (JsonSchema schema : schemas) {
+        for (JsonSchema schema : filteredSchemaList) {
             Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
             if (errors.isEmpty()) {
                 return errors;
