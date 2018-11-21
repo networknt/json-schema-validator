@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.24 - 2018-11-21
+
+### Added
+
+### Changed
+- fixes #105 temporary fix to performance issue. Thanks @nitin456
+
 ## 0.1.23 - 2018-10-02
 
 ### Added
