@@ -40,6 +40,10 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    public JsonType getSchemaType() {
+        return schemaType;
+    }
+
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
