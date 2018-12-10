@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.networknt.schema.url.ValidatorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

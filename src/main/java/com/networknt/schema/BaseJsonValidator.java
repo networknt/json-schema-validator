@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.url.URLFactory;
-import com.networknt.schema.url.ValidatorConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 

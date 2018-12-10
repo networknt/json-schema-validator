@@ -1,7 +1,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.ValidatorConfig;
 
 public class ValidationContext {
     private final JsonMetaSchema metaSchema;

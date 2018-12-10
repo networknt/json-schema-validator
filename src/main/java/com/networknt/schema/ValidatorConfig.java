@@ -1,4 +1,4 @@
-package com.networknt.schema.url;
+package com.networknt.schema;
 
 public class ValidatorConfig {
     /**
