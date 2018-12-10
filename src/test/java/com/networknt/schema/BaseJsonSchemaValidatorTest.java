@@ -21,14 +21,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by steve on 22/10/16.
  */
 public class BaseJsonSchemaValidatorTest {
-    Map<String, Object> option = new HashMap<String, Object>();
     protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
@@ -61,19 +58,19 @@ public class BaseJsonSchemaValidatorTest {
 
     protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
-        JsonSchema schema = factory.getSchema(schemaContent, option);
+        JsonSchema schema = factory.getSchema(schemaContent);
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String url) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
-        JsonSchema schema = factory.getSchema(new URL(url), option);
+        JsonSchema schema = factory.getSchema(new URL(url));
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
-        JsonSchema schema = factory.getSchema(jsonNode, option);
+        JsonSchema schema = factory.getSchema(jsonNode);
         return schema;
     }
 }

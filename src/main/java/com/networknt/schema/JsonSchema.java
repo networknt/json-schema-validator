@@ -52,7 +52,7 @@ public class JsonSchema extends BaseJsonValidator {
                JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
-        this.option = validationContext.getOption();
+        this.config = validationContext.getConfig();
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
 

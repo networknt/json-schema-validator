@@ -1,13 +1,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Map;
+import com.networknt.schema.url.ValidatorConfig;
 
 public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
-    private Map<String, Object> option;
+    private ValidatorConfig config;
     
     public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
         if (metaSchema == null) {
@@ -29,11 +28,11 @@ public class ValidationContext {
         return jsonSchemaFactory;
     }
 
-    public Map<String, Object> getOption() {
-        return option;
+    public ValidatorConfig getConfig() {
+        return config;
     }
 
-    public void setOption(Map<String, Object> option) {
-        this.option = option;
+    public void setConfig(ValidatorConfig config) {
+        this.config = config;
     }
 }

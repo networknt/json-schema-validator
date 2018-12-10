@@ -13,4 +13,12 @@ public class ValidatorConfig {
     public void setTypeLoose(boolean typeLoose) {
         this.typeLoose = typeLoose;
     }
+
+    public ValidatorConfig() {
+        loadDefaultConfig();
+    }
+
+    private void loadDefaultConfig() {
+        this.typeLoose = true;
+    }
 }
