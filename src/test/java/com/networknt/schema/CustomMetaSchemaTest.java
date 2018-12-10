@@ -1,17 +1,17 @@
 package com.networknt.schema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
 
 public class CustomMetaSchemaTest {
 
@@ -60,7 +60,7 @@ public class CustomMetaSchemaTest {
         
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
              */

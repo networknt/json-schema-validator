@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class BaseJsonValidator implements JsonValidator {
@@ -32,11 +34,13 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
+    protected Map<String, Object> option = new HashMap();
 
     
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
     	this(schemaPath, schemaNode, parentSchema, validatorType, false );
+    	this.option = validationContext.getOption() == null ? new HashMap<String, Object>() : validationContext.getOption();
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
@@ -132,5 +136,13 @@ public abstract class BaseJsonValidator implements JsonValidator {
             return typeField.asText();
         }
         return null;
+    }
+
+    public Map<String, Object> getOption() {
+        return option;
+    }
+
+    public void setOption(Map<String, Object> option) {
+        this.option = option;
     }
 }

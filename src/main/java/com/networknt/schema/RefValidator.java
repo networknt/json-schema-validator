@@ -16,18 +16,18 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.url.URLFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.URLFactory;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -62,10 +62,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             
             try {
                 URL url = URLFactory.toURL(schemaUrl);
-                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url);
+                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url, new HashMap<String, Object>());
             } catch (MalformedURLException e) {
                 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaUrl);
-                parentSchema = validationContext.getJsonSchemaFactory().getSchema(is);
+                parentSchema = validationContext.getJsonSchemaFactory().getSchema(is, new HashMap<String, Object>());
             }
             if (index < 0) {
                 return parentSchema.findAncestor();

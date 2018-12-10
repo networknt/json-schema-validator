@@ -16,18 +16,13 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -39,7 +34,12 @@ public class JsonSchema extends BaseJsonValidator {
     protected final Map<String, JsonValidator> validators;
     private final ValidationContext validationContext;
 
+
     public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
+        this(validationContext, schemaNode, new HashMap<String, Object>());
+    }
+
+    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, Map<String, Object> option) {
         this(validationContext,  "#", schemaNode, null);
     }
 
@@ -48,10 +48,11 @@ public class JsonSchema extends BaseJsonValidator {
         this(validationContext,  schemaPath, schemaNode, parent, false);
     }
 
-    public JsonSchema(ValidationContext validatorFactory,  String schemaPath, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
                JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
-        this.validationContext = validatorFactory;
+        this.validationContext = validationContext;
+        this.option = validationContext.getOption();
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
 
@@ -133,5 +134,4 @@ public class JsonSchema extends BaseJsonValidator {
     public String toString() {
         return "\"" + getSchemaPath() + "\" : " + getSchemaNode().toString();
     }
-
 }
