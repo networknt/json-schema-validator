@@ -44,6 +44,44 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         return schemaType;
     }
 
+    public boolean equalsToSchemaType(JsonNode node) {
+        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        // in the case that node type is not the same as schema type, try to convert node to the
+        // same type of schema. In REST API, query parameters, path parameters and headers are all
+        // string type and we must convert, otherwise, all schema validations will fail.
+        if (nodeType != schemaType) {
+            if (schemaType == JsonType.ANY) {
+                return true;
+            }
+            if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
+                return true;
+            }
+            if (nodeType == JsonType.NULL) {
+                JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
+                if (nullable != null && nullable.asBoolean()) {
+                    return true;
+                }
+            }
+            if (nodeType == JsonType.STRING) {
+                if (schemaType == JsonType.INTEGER) {
+                    if (isInteger(node.textValue())) {
+                        return true;
+                    }
+                } else if (schemaType == JsonType.BOOLEAN) {
+                    if (isBoolean(node.textValue())) {
+                        return true;
+                    }
+                } else if (schemaType == JsonType.NUMBER) {
+                    if (isNumeric(node.textValue())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
@@ -51,38 +89,8 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             return unionTypeValidator.validate(node, rootNode, at);
         }
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
-        // in the case that node type is not the same as schema type, try to convert node to the
-        // same type of schema. In REST API, query parameters, path parameters and headers are all
-        // string type and we must convert, otherwise, all schema validations will fail.
-        if (nodeType != schemaType) {
-            if (schemaType == JsonType.ANY ) {
-                return Collections.emptySet();
-            }
-            if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
-                return Collections.emptySet();
-            }
-            if (nodeType == JsonType.NULL) {
-                JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
-                if (nullable != null && nullable.asBoolean()) {
-                    return Collections.emptySet();
-                }
-            }
-            if (nodeType == JsonType.STRING) {
-                if(schemaType == JsonType.INTEGER) {
-                    if(isInteger(node.textValue())) {
-                        return Collections.emptySet();
-                    }
-                } else if(schemaType == JsonType.BOOLEAN) {
-                    if(isBoolean(node.textValue())) {
-                        return Collections.emptySet();
-                    }
-                } else if(schemaType == JsonType.NUMBER) {
-                    if(isNumeric(node.textValue())) {
-                        return Collections.emptySet();
-                    }
-                }
-            }
+        if (!equalsToSchemaType(node)) {
+            JsonType nodeType = TypeFactory.getValueNodeType(node);
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
         return Collections.emptySet();

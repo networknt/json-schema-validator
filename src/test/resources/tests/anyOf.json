@@ -64,5 +64,35 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "anyOf",
+        "schema": {
+            "anyOf": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "neither anyOf valid",
+                "data": true,
+                "valid": false
+            },
+            {
+                "description": "first anyOf valid",
+                "data": "test",
+                "valid": true
+            },
+            {
+                "description": "second anyOf valid",
+                "data": 3,
+                "valid": true
+            }
+        ]
     }
 ]
