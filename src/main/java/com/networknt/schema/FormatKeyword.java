@@ -1,10 +1,10 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class FormatKeyword implements Keyword {
     private final ValidatorTypeCode type;

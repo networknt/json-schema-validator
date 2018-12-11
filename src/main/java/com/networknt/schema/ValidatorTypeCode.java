@@ -16,14 +16,14 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", new MessageFormat(
@@ -104,21 +104,21 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     }
     
     public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {
-        String shortClassName = getValue();
-        if (shortClassName.startsWith("$")) {
-            // remove "$" from class name for $ref schema
-            shortClassName = shortClassName.substring(1);
-        }
+            String shortClassName = getValue();
+            if (shortClassName.startsWith("$")) {
+                // remove "$" from class name for $ref schema
+                shortClassName = shortClassName.substring(1);
+            }
 
-        final String className = Character.toUpperCase(shortClassName.charAt(0)) + shortClassName.substring(1)
-                + "Validator";
-        @SuppressWarnings("unchecked")
-        final Class<JsonValidator> clazz = (Class<JsonValidator>) Class
-                .forName("com.networknt.schema." + className);
-        Constructor<JsonValidator> c = null;
-        c = clazz.getConstructor(
-                new Class[] { String.class, JsonNode.class, JsonSchema.class, ValidationContext.class });
-        return c.newInstance(schemaPath + "/" + getValue(), schemaNode, parentSchema, validationContext);
+            final String className = Character.toUpperCase(shortClassName.charAt(0)) + shortClassName.substring(1)
+                    + "Validator";
+            @SuppressWarnings("unchecked")
+            final Class<JsonValidator> clazz = (Class<JsonValidator>) Class
+                    .forName("com.networknt.schema." + className);
+            Constructor<JsonValidator> c = null;
+            c = clazz.getConstructor(
+                    new Class[] { String.class, JsonNode.class, JsonSchema.class, ValidationContext.class });
+            return c.newInstance(schemaPath + "/" + getValue(), schemaNode, parentSchema, validationContext);
     }
     
     @Override

@@ -34,12 +34,7 @@ public class JsonSchema extends BaseJsonValidator {
     protected final Map<String, JsonValidator> validators;
     private final ValidationContext validationContext;
 
-
     public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
-        this(validationContext, schemaNode, new HashMap<String, Object>());
-    }
-
-    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, Map<String, Object> option) {
         this(validationContext,  "#", schemaNode, null);
     }
 

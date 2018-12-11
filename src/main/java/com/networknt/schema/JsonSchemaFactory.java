@@ -201,7 +201,7 @@ public class JsonSchemaFactory {
                     return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
-                return newJsonSchema(schemaNode, null);
+                return newJsonSchema(schemaNode, config);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
