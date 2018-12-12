@@ -51,7 +51,8 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             if (schema.validators.containsKey(typeValidatorName)) {
                 TypeValidator typeValidator = ((TypeValidator) schema.validators.get(typeValidatorName));
                 //If schema has type validator and node type doesn't match with schemaType then ignore it
-                if (!typeValidator.equalsToSchemaType(node)) {
+                //For union type, it is must to call TypeValidator
+                if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
                     expectedTypeList.add(typeValidator.getSchemaType().toString());
                     continue;
                 }
