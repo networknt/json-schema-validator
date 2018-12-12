@@ -138,7 +138,7 @@ public class JsonSchemaFactory {
                 .objectMapper(blueprint.mapper);
     }
     
-    private JsonSchema newJsonSchema(JsonNode schemaNode, ValidatorConfig config) {
+    private JsonSchema newJsonSchema(JsonNode schemaNode, SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
         JsonSchema jsonSchema = new JsonSchema(validationContext, schemaNode);
@@ -160,7 +160,7 @@ public class JsonSchemaFactory {
         return jsonMetaSchema;
     }
 
-    public JsonSchema getSchema(String schema, ValidatorConfig config) {
+    public JsonSchema getSchema(String schema, SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schema);
             return newJsonSchema(schemaNode, config);
@@ -174,7 +174,7 @@ public class JsonSchemaFactory {
         return getSchema(schema, null);
     }
 
-    public JsonSchema getSchema(InputStream schemaStream, ValidatorConfig config) {
+    public JsonSchema getSchema(InputStream schemaStream, SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schemaStream);
             return newJsonSchema(schemaNode, config);
@@ -188,7 +188,7 @@ public class JsonSchemaFactory {
         return getSchema(schemaStream, null);
     }
 
-    public JsonSchema getSchema(URL schemaURL, ValidatorConfig config) {
+    public JsonSchema getSchema(URL schemaURL, SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
             try {
@@ -217,7 +217,7 @@ public class JsonSchemaFactory {
         return getSchema(schemaURL, null);
     }
 
-    public JsonSchema getSchema(JsonNode jsonNode, ValidatorConfig config) {
+    public JsonSchema getSchema(JsonNode jsonNode, SchemaValidatorsConfig config) {
         return newJsonSchema(jsonNode, config);
     }
 

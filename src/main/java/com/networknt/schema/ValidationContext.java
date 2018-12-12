@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
-    private ValidatorConfig config;
+    private SchemaValidatorsConfig config;
     
     public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
         if (metaSchema == null) {
@@ -27,11 +27,11 @@ public class ValidationContext {
         return jsonSchemaFactory;
     }
 
-    public ValidatorConfig getConfig() {
+    public SchemaValidatorsConfig getConfig() {
         return config;
     }
 
-    public void setConfig(ValidatorConfig config) {
+    public void setConfig(SchemaValidatorsConfig config) {
         this.config = config;
     }
 }

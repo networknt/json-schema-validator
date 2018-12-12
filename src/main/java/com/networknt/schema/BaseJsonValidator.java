@@ -33,15 +33,15 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
     /**
-     * ValidatorConfig can only get and set in validationContext
+     * SchemaValidatorsConfig can only get and set in validationContext
      */
-    protected ValidatorConfig config;
+    protected SchemaValidatorsConfig config;
 
     
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
     	this(schemaPath, schemaNode, parentSchema, validatorType, false );
-    	this.config = validationContext.getConfig() == null ? new ValidatorConfig() : validationContext.getConfig();
+    	this.config = validationContext.getConfig() == null ? new SchemaValidatorsConfig() : validationContext.getConfig();
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,

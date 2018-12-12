@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-public class ValidatorConfig {
+public class SchemaValidatorsConfig {
     /**
      * when validate type, if TYPE_LOOSE = true, will try to convert string to different types to match the type defined in schema.
      */
@@ -14,7 +14,7 @@ public class ValidatorConfig {
         this.typeLoose = typeLoose;
     }
 
-    public ValidatorConfig() {
+    public SchemaValidatorsConfig() {
         loadDefaultConfig();
     }
 
