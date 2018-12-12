@@ -32,7 +32,6 @@ import com.networknt.schema.url.StandardURLFetcher;
 import com.networknt.schema.url.URLFetcher;
 
 public class JsonSchemaFactory {
-
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
     
@@ -139,9 +138,11 @@ public class JsonSchemaFactory {
                 .objectMapper(blueprint.mapper);
     }
     
-    private JsonSchema newJsonSchema(JsonNode schemaNode) {
+    private JsonSchema newJsonSchema(JsonNode schemaNode, SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
-        return new JsonSchema(validationContext, schemaNode);
+        validationContext.setConfig(config);
+        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaNode);
+        return jsonSchema;
     }
 
     protected ValidationContext createValidationContext(JsonNode schemaNode) {
@@ -158,11 +159,25 @@ public class JsonSchemaFactory {
         }
         return jsonMetaSchema;
     }
-    
-    public JsonSchema getSchema(String schema) {
+
+    public JsonSchema getSchema(String schema, SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schema);
-            return newJsonSchema(schemaNode);
+            return newJsonSchema(schemaNode, config);
+        } catch (IOException ioe) {
+            logger.error("Failed to load json schema!", ioe);
+            throw new JsonSchemaException(ioe);
+        }
+    }
+
+    public JsonSchema getSchema(String schema) {
+        return getSchema(schema, null);
+    }
+
+    public JsonSchema getSchema(InputStream schemaStream, SchemaValidatorsConfig config) {
+        try {
+            final JsonNode schemaNode = mapper.readTree(schemaStream);
+            return newJsonSchema(schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -170,16 +185,10 @@ public class JsonSchemaFactory {
     }
 
     public JsonSchema getSchema(InputStream schemaStream) {
-        try {
-            final JsonNode schemaNode = mapper.readTree(schemaStream);
-            return newJsonSchema(schemaNode);
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new JsonSchemaException(ioe);
-        }
+        return getSchema(schemaStream, null);
     }
 
-    public JsonSchema getSchema(URL schemaURL) {
+    public JsonSchema getSchema(URL schemaURL, SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
             try {
@@ -192,7 +201,7 @@ public class JsonSchemaFactory {
                     return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
-                return newJsonSchema(schemaNode);
+                return newJsonSchema(schemaNode, config);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
@@ -204,8 +213,16 @@ public class JsonSchemaFactory {
         }
     }
 
+    public JsonSchema getSchema(URL schemaURL) {
+        return getSchema(schemaURL, null);
+    }
+
+    public JsonSchema getSchema(JsonNode jsonNode, SchemaValidatorsConfig config) {
+        return newJsonSchema(jsonNode, config);
+    }
+
     public JsonSchema getSchema(JsonNode jsonNode) {
-        return newJsonSchema(jsonNode);
+        return newJsonSchema(jsonNode, null);
     }
 
     private boolean idMatchesSourceUrl(JsonMetaSchema metaSchema, JsonNode schema, URL schemaUrl) {
@@ -219,7 +236,5 @@ public class JsonSchemaFactory {
             logger.debug("Matching " + id + " to " + schemaUrl.toString() + ": " + result);
         }
         return result;
-
     }
-
 }

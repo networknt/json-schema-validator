@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
+    private SchemaValidatorsConfig config;
     
     public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
         if (metaSchema == null) {
@@ -18,11 +19,19 @@ public class ValidationContext {
     }
     
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
-            JsonSchema parentSchema) {
+                                      JsonSchema parentSchema) {
         return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
     }
     
     public JsonSchemaFactory getJsonSchemaFactory() {
         return jsonSchemaFactory;
+    }
+
+    public SchemaValidatorsConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(SchemaValidatorsConfig config) {
+        this.config = config;
     }
 }
