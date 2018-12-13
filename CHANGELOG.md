@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.25 - 2018-12-12
+
+### Added
+
+### Changed
+- fixes #108 v0.1.24 error on array union type. Thanks @nitin456
+- fixes #107 Fix for perfomance issue Thanks @nitin456
+- fixes #106 Fix for enable loose type validator for REST Thanks @BalloonWen
+
 ## 0.1.24 - 2018-11-21
 
 ### Added
