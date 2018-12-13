@@ -62,18 +62,20 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                     return true;
                 }
             }
-            if (nodeType == JsonType.STRING) {
-                if (schemaType == JsonType.INTEGER) {
-                    if (isInteger(node.textValue())) {
-                        return true;
-                    }
-                } else if (schemaType == JsonType.BOOLEAN) {
-                    if (isBoolean(node.textValue())) {
-                        return true;
-                    }
-                } else if (schemaType == JsonType.NUMBER) {
-                    if (isNumeric(node.textValue())) {
-                        return true;
+            if(config.isTypeLoose()) {
+                if (nodeType == JsonType.STRING) {
+                    if(schemaType == JsonType.INTEGER) {
+                        if(isInteger(node.textValue())) {
+                            return Collections.emptySet();
+                        }
+                    } else if(schemaType == JsonType.BOOLEAN) {
+                        if(isBoolean(node.textValue())) {
+                            return Collections.emptySet();
+                        }
+                    } else if(schemaType == JsonType.NUMBER) {
+                        if(isNumeric(node.textValue())) {
+                            return Collections.emptySet();
+                        }
                     }
                 }
             }
