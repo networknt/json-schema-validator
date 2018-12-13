@@ -44,28 +44,22 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         return schemaType;
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-
-        if (schemaType == JsonType.UNION) {
-            return unionTypeValidator.validate(node, rootNode, at);
-        }
-
+    public boolean equalsToSchemaType(JsonNode node) {
         JsonType nodeType = TypeFactory.getValueNodeType(node);
         // in the case that node type is not the same as schema type, try to convert node to the
         // same type of schema. In REST API, query parameters, path parameters and headers are all
         // string type and we must convert, otherwise, all schema validations will fail.
         if (nodeType != schemaType) {
-            if (schemaType == JsonType.ANY ) {
-                return Collections.emptySet();
+            if (schemaType == JsonType.ANY) {
+                return true;
             }
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
-                return Collections.emptySet();
+                return true;
             }
             if (nodeType == JsonType.NULL) {
                 JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
                 if (nullable != null && nullable.asBoolean()) {
-                    return Collections.emptySet();
+                    return true;
                 }
             }
             if(config.isTypeLoose()) {
@@ -85,6 +79,20 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             }
+            return false;
+        }
+        return true;
+    }
+
+    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        debug(logger, node, rootNode, at);
+
+        if (schemaType == JsonType.UNION) {
+            return unionTypeValidator.validate(node, rootNode, at);
+        }
+
+        if (!equalsToSchemaType(node)) {
+            JsonType nodeType = TypeFactory.getValueNodeType(node);
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
         return Collections.emptySet();

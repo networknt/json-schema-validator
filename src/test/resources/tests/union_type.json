@@ -1,0 +1,78 @@
+[
+    {
+        "description": "test case with union types",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "vars": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": [
+                                    "string",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "vars"
+            ]
+        },
+        "tests": [
+            {
+                "description": "an item from valid union types",
+                "data": {"vars":[232]},
+                "valid": true
+            },
+            {
+                "description": "an item from valid union types",
+                "data": {"vars":["test"]},
+                "valid": true
+            },
+            {
+                "description": "an item other than valid union types",
+                "data": {"vars":[true]},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "test case with union types",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "vars": {
+                    "type": [
+                        "string",
+                        "number"
+                    ]
+                }
+            },
+            "required": [
+                "vars"
+            ]
+        },
+        "tests": [
+            {
+                "description": "an item other than valid union types",
+                "data": {"vars": true},
+                "valid": false
+            },
+            {
+                "description": "an item from valid union types",
+                "data": {"vars":232},
+                "valid": true
+            },
+            {
+                "description": "an item from valid union types",
+                "data": {"vars":"test"},
+                "valid": true
+            }
+        ]
+
+    }
+]

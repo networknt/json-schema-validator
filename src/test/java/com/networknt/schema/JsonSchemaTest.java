@@ -270,6 +270,11 @@ public class JsonSchemaTest {
     }
 
     @Test
+    public void testUnionTypeValidator() throws Exception {
+        runTestFile("tests/union_type.json");
+    }
+
+    @Test
     public void testUniqueItemsValidator() throws Exception {
         runTestFile("tests/uniqueItems.json");
     }
