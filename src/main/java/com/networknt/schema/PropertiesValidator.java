@@ -46,7 +46,11 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             JsonNode propertyNode = node.get(entry.getKey());
 
             if (propertyNode != null) {
-                errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
+                errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey())); 
+            } else {
+            	// if a node could not be found, treat is as error/continue, depending on the SchemaValidatorsConfig
+            	if(config.isMissingNodeAsError())
+            		errors.add(buildValidationMessage(at, node.toString()));
             }
         }
 

@@ -130,7 +130,12 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-
+        
+        // this validator considers a missing node as an error
+        // set it here to true, however re-set it to its original value upon finishing the validation
+        boolean missingNodeAsError = config.isMissingNodeAsError();
+        config.setMissingNodeAsError(true);
+        
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         
@@ -170,6 +175,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         if (numberOfValidSchema > 1) {
             errors = Collections.singleton(buildValidationMessage(at, ""));
         }
+        
+        // reset the flag for error handling
+        config.setMissingNodeAsError(missingNodeAsError);
         
         return Collections.unmodifiableSet(errors);
     }
