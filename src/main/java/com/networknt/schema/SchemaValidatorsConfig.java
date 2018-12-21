@@ -12,6 +12,12 @@ public class SchemaValidatorsConfig {
      */
     private boolean missingNodeAsError = false;
     
+    /**
+     * if HAS_ELEMENT_VALIDATION_ERROR = true, the caller can decide, in conjunction with a missing node flag
+     * on how to treat the error
+     */
+    private boolean elementValidationError = false;
+    
     public boolean isTypeLoose() {
         return typeLoose;
     }
@@ -26,6 +32,14 @@ public class SchemaValidatorsConfig {
     
     public void setMissingNodeAsError(boolean missingNodeAsError) {
     	this.missingNodeAsError = missingNodeAsError;
+    }
+    
+    public boolean hasElementValidationError() {
+    	return elementValidationError;
+    }
+    
+    public void setElementValidationError(boolean elementValidationError) {
+    	this.elementValidationError = elementValidationError;
     }
     
     public SchemaValidatorsConfig() {

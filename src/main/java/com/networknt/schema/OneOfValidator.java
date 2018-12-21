@@ -152,8 +152,17 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 errors = new LinkedHashSet<ValidationMessage>();
             }
             if(numberOfValidSchema == 0){
-        		errors.addAll(schemaErrors);
-        	    }
+            	// one of has matched one of the elements
+            	// if it has an error here, it is due to an element validation error
+            	// within its child elements
+            	if(config.hasElementValidationError()) {
+            		errors.clear();
+            		errors.addAll(schemaErrors);
+            		break;
+            	} else {
+            		errors.addAll(schemaErrors);
+            	}
+        	}
             if (numberOfValidSchema > 1) {
                 break;
             }
