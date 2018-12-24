@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 0.1.26 - 2018-12-24
+
+### Added
+
+### Changed
+- fixes #110 Validation Error when using OneOf in OpenAPI specs. Thanks @ddobrin
+
 ## 0.1.25 - 2018-12-12
 
 ### Added
