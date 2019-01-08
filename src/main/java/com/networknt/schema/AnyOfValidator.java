@@ -63,7 +63,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             }
             allErrors.addAll(errors);
         }
-        if (!schemas.isEmpty()) {
+        if (!expectedTypeList.isEmpty()) {
             return Collections.singleton(buildValidationMessage(at, StringUtils.join(expectedTypeList)));
         }
         return Collections.unmodifiableSet(allErrors);
