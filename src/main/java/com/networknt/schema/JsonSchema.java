@@ -33,6 +33,8 @@ public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     protected final Map<String, JsonValidator> validators;
     private final ValidationContext validationContext;
+    
+    private JsonValidator requiredValidator = null;
 
     public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
         this(validationContext,  "#", schemaNode, null);
@@ -111,6 +113,9 @@ public class JsonSchema extends BaseJsonValidator {
             JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, n, this);
             if (validator != null) {
                 validators.put(getSchemaPath() + "/" + pname, validator);
+                
+                if(pname.equals("required"))
+                	requiredValidator = validator;
             }
 
         }
@@ -129,4 +134,12 @@ public class JsonSchema extends BaseJsonValidator {
     public String toString() {
         return "\"" + getSchemaPath() + "\" : " + getSchemaNode().toString();
     }
+
+    public boolean hasRequiredValidator() {
+    	return requiredValidator != null ? true : false;
+    }
+    
+	public JsonValidator getRequiredValidator() {
+		return requiredValidator;
+	}
 }

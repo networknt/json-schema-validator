@@ -163,9 +163,6 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             		errors.addAll(schemaErrors);
             	}
         	}
-            if (numberOfValidSchema > 1) {
-                break;
-            }
         }
         
         if (numberOfValidSchema == 0) {

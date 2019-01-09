@@ -54,8 +54,12 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                 }
             } else {
             	// if a node could not be found, treat is as error/continue, depending on the SchemaValidatorsConfig
-            	if(config.isMissingNodeAsError())
-            		errors.add(buildValidationMessage(at, node.toString()));
+            	if(config.isMissingNodeAsError()) {
+            		if(getParentSchema().hasRequiredValidator())
+                		errors.addAll(getParentSchema().getRequiredValidator().validate(node,  rootNode, at));     
+            		else 
+                		errors.add(buildValidationMessage(at, node.toString()));
+            	}
             }
         }
 
