@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.0 - 2019-01-10
+
+### Added
+
+### Changed
+- fixes #112 AnyOfValidator: only return expectedTypeList if not empty. Thanks @c14s
+- fixes #111 Validation failure for optional field in a schema - in the PropertiesValidator. Thanks @ddobrin
+
 ## 0.1.26 - 2018-12-24
 
 ### Added
