@@ -65,11 +65,24 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        if (!nodes.contains(node)) {
+        if (!nodes.contains(node) && !isTypeLooseEqual(node)) {
             errors.add(buildValidationMessage(at, error));
         }
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    private boolean isTypeLooseEqual(JsonNode node) {
+        if (config.isTypeLoose() && TypeFactory.getValueNodeType(node) == JsonType.STRING) {
+            String nodeText = node.textValue();
+            for (JsonNode n : nodes) {
+                String value = n.asText();
+                if (value != null && value.equals(nodeText)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
