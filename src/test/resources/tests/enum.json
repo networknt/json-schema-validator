@@ -9,6 +9,18 @@
                 "valid": true
             },
             {
+                "description": "one of the enum is valid",
+                "isTypeLoose": true,
+                "data": "1",
+                "valid": true
+            },
+            {
+                "description": "something else is invalid",
+                "isTypeLoose": false,
+                "data": "1",
+                "valid": false
+            },
+            {
                 "description": "something else is invalid",
                 "data": 4,
                 "valid": false
@@ -32,6 +44,12 @@
             {
                 "description": "objects are deep compared",
                 "data": {"foo": false},
+                "valid": false
+            },
+            {
+                "description": "objects are deep compared",
+                "data": "true",
+                "isTypeLoose": false,
                 "valid": false
             }
         ]

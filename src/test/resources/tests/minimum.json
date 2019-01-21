@@ -9,6 +9,11 @@
                 "valid": true
             },
             {
+                "description": "above the minimum is valid",
+                "data": "2.6",
+                "valid": true
+            },
+            {
                 "description": "below the minimum is invalid",
                 "data": 0.6,
                 "valid": false
