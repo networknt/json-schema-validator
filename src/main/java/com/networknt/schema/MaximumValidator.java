@@ -50,14 +50,14 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!node.isNumber()) {
+        if (!TypeValidator.isNumber(node, config.isTypeLoose())) {
             // maximum only applies to numbers
             return Collections.emptySet();
         }
 
         String fieldType = this.getNodeFieldType();
 
-        double value = node.doubleValue();
+        double value = node.asDouble();
         if (greaterThan(value, maximum) || (excludeEqual && equals(value, maximum))) {
             if (JsonType.INTEGER.toString().equals(fieldType)) {
                 return Collections.singleton(buildValidationMessage(at, "" + (int)maximum));

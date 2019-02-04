@@ -65,11 +65,28 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        if (!nodes.contains(node)) {
+        if (!nodes.contains(node) && !(config.isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             errors.add(buildValidationMessage(at, error));
         }
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    /**
+     * Check whether enum contains the value of the JsonNode if the typeLoose is enabled.
+     * @param node JsonNode to check
+     */
+    private boolean isTypeLooseContainsInEnum(JsonNode node) {
+        if (TypeFactory.getValueNodeType(node) == JsonType.STRING) {
+            String nodeText = node.textValue();
+            for (JsonNode n : nodes) {
+                String value = n.asText();
+                if (value != null && value.equals(nodeText)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
