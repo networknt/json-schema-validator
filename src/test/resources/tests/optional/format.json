@@ -24,8 +24,28 @@
                 "valid": false
             },
             {
-                "description": "an invalid date-time string",
+                "description": "an valid date-time string",
                 "data": "1963-12-31T08:30:06.283185Z",
+                "valid": true
+            },
+            {
+                "description": "an valid date-time string",
+                "data": "1963-12-30T08:30:06.283Z",
+                "valid": true
+            },
+            {
+                "description": "an valid date-time string",
+                "data": "1963-12-30T08:30:06.283",
+                "valid": true
+            },
+            {
+                "description": "an valid date-time string",
+                "data": "1963-12-30T08:30:06",
+                "valid": true
+            },
+            {
+                "description": "an valid date-time string",
+                "data": "1963-12-30T08:30:06Z",
                 "valid": true
             },
             {

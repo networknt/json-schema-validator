@@ -9,7 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-## 1.0.0 - 2019-01-10
+## 1.0.2 - 2019-02-05
+
+### Added
+
+### Changed
+
+- fixes #114 LocalDateTime validation error. Thanks @chenyan71
+- fixes #113 Fixed validation for path parameters and query parameters. Thanks @jiachen1120
+
+## 1.0.1 - 2019-01-10
 
 ### Added
 
