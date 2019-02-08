@@ -99,14 +99,11 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public static boolean isInteger(String str) {
-        if (str == null) {
-            return false;
-        }
-        if (str.isEmpty()) {
+        if (str == null || str.equals("")) {
             return false;
         }
         int i = 0;
-        if (str.charAt(0) == '-') {
+        if (str.charAt(0) == '-' || str.charAt(0) == '+') {
             if (str.length() == 1) {
                 return false;
             }
@@ -126,14 +123,12 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public static boolean isNumeric(String str) {
-        if (str == null) {
-            return false;
-        }
-        if (str.isEmpty()) {
+        if (str == null || str.equals("")) {
             return false;
         }
         int i = 0;
-        if (str.charAt(0) == '-') {
+        boolean hasDot = false;
+        if (str.charAt(0) == '-' || str.charAt(0) == '+') {
             if (str.length() == 1) {
                 return false;
             }
@@ -141,8 +136,16 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         }
         for (; i < str.length(); i++) {
             char c = str.charAt(i);
-            if (c < '0' || c > '9' && c != '.') {
+            if ((c < '0' || c > '9') && c != '.') {
                 return false;
+            }
+            if (c == '.') {
+                if (hasDot) {
+                    return false;
+                }
+                else {
+                    hasDot = true;
+                }
             }
         }
         return true;
