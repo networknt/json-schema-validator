@@ -156,6 +156,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
      * status of typeLoose flag.
      * @param node the JsonNode to check
      * @param isTypeLoose The flag to show whether typeLoose is enabled
+     * @return boolean to indicate if it is a number
      */
     public static boolean isNumber(JsonNode node, boolean isTypeLoose) {
         if (node.isNumber()) {
