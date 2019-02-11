@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.3 - 2019-02-10
+
+### Added
+
+### Changed
+
+- fixes #116 Fail to validate numeric and Integer in TypeValidator. Thanks @jiachen1120
+
 ## 1.0.2 - 2019-02-05
 
 ### Added
