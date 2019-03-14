@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.4 - 2019-03-14
+
+### Added
+
+### Changed
+
+- fixes #119 Almost JSON-spec compliant validation of numeric values. Thanks @kosty
+- fixes #120 Update the version in the README.md file. Thanks @chenyan71
+
 ## 1.0.3 - 2019-02-10
 
 ### Added
