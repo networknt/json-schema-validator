@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.url.StandardURLFetcher;
-import com.networknt.schema.url.URLFactory;
 import com.networknt.schema.url.URLFetcher;
 
 public class JsonSchemaFactory {
@@ -70,22 +68,6 @@ public class JsonSchemaFactory {
                 this.jsonMetaSchemas.put(jsonMetaSchema.getUri(), jsonMetaSchema);
             }
             return this;
-        }
-        
-        public Builder addUrlMappings(URL url) throws MalformedURLException, IOException {
-            if (objectMapper == null) {
-                objectMapper = new ObjectMapper();
-            }
-            return addUrlMappings(objectMapper.readTree(url));
-        }
-
-        public Builder addUrlMappings(JsonNode jsonNode) throws MalformedURLException {
-            HashMap<URL, URL> map = new HashMap<URL, URL>();
-            for (JsonNode mapping : jsonNode) {
-                map.put(URLFactory.toURL(mapping.get("publicURL").asText()),
-                        URLFactory.toURL(mapping.get("localURL").asText()));
-            }
-            return addUrlMappings(map);
         }
         
         public Builder addUrlMappings(Map<URL, URL> map) {
@@ -222,7 +204,9 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(URL schemaURL, SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
-            URL mappedURL = urlMap.getOrDefault(schemaURL, schemaURL);
+            Map<URL, URL> map = (config != null) ? config.getUrlMappings() : new HashMap<URL, URL>(urlMap);
+            map.putAll(urlMap);
+            URL mappedURL = map.getOrDefault(schemaURL, schemaURL);
             try {
                 inputStream = urlFetcher.fetch(mappedURL);
                 JsonNode schemaNode = mapper.readTree(inputStream);
@@ -255,55 +239,6 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(JsonNode jsonNode) {
         return newJsonSchema(jsonNode, null);
-    }
-
-    /**
-     * Add URL mappings contained in a given URL.
-     * 
-     * @param url resource containing URL mappings in a JSON array
-     * @throws IOException if unable to parse urlMappings
-     * @see #addUrlMappings(JsonNode)
-     */
-    public JsonSchemaFactory addUrlMappings(URL url) throws IOException {
-        return addUrlMappings(mapper.readTree(url));
-    }
-
-    /**
-     * Add URL mappings containined in a given JSON array.
-     * 
-     * An example array is: <code>
-     * [
-     *   {
-     *     "publicURL": "http://json-schema.org/draft-04/schema#",
-     *     "localURL": "resource:/draftv4.schema.json"
-     *   },
-     *   {
-     *     "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/main/resources/url-mapping.schema.json",
-     *     "localURL": "resource:/com/networknt/schema/url-mapping.schema.json"
-     *   }
-     * ]
-     * </code>
-     * 
-     * @param jsonNode JSON array containing URL mappings
-     * @throws MalformedURLException if any URL mapping is malformed
-     * @see #addUrlMappings(Map)
-     */
-    public JsonSchemaFactory addUrlMappings(JsonNode jsonNode) throws MalformedURLException {
-        HashMap<URL, URL> map = new HashMap<URL, URL>();
-        for (JsonNode mapping : jsonNode) {
-            map.put(URLFactory.toURL(mapping.get("publicURL").asText()), URLFactory.toURL(mapping.get("localURL").asText()));
-        }
-        return addUrlMappings(map);
-    }
-
-    /**
-     * Add URL mappings containined in a given map.
-     * 
-     * @param map Map of URL mappings, where the public URL is the key, and the local URL to use is the value
-     */
-    public JsonSchemaFactory addUrlMappings(Map<URL, URL> map) {
-        urlMap.putAll(map);
-        return this;
     }
 
     private boolean idMatchesSourceUrl(JsonMetaSchema metaSchema, JsonNode schema, URL schemaUrl) {

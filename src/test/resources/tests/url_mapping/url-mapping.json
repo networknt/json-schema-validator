@@ -4,7 +4,7 @@
         "localURL": "resource:/draftv4.schema.json" 
     },
     {
-        "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/main/resources/url-mapping.schema.json",
-        "localURL": "resource:/com/networknt/schema/url-mapping.schema.json"
+        "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/url_mapping/url-mapping.schema.json",
+        "localURL": "resource:/tests/url_mapping/url-mapping.schema.json"
     }
 ]
