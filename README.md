@@ -6,7 +6,6 @@ This is an implementation of the [JSON Schema Core Draft v4](http://json-schema.
 [Subreddit](https://www.reddit.com/r/lightapi/) |
 [Youtube Channel](https://www.youtube.com/channel/UCHCRMWJVXw8iB7zKxF55Byw) |
 [Documentation](https://doc.networknt.com/library/json-overlay/) |
-[Javadocs](https://www.javadoc.io/doc/com.networknt/json-schema-validator) |
 [Contribution Guide](https://doc.networknt.com/contribute/) |
 
 [![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator)

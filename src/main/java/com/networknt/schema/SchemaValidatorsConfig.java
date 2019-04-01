@@ -1,9 +1,5 @@
 package com.networknt.schema;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.net.URL;
-
 public class SchemaValidatorsConfig {
     /**
      * when validate type, if TYPE_LOOSE = true, will try to convert string to different types to match the type defined in schema.
@@ -22,27 +18,12 @@ public class SchemaValidatorsConfig {
      */
     private boolean elementValidationError = false;
     
-    /**
-     * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
-     * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory} 
-     * may have been built with.
-     */
-    private Map<URL, URL> urlMappings = new HashMap<URL, URL>();
-
     public boolean isTypeLoose() {
         return typeLoose;
     }
 
     public void setTypeLoose(boolean typeLoose) {
         this.typeLoose = typeLoose;
-    }
-
-    public Map<URL, URL> getUrlMappings() {
-        return new HashMap<URL, URL>(urlMappings);
-    }
-
-    public void setUrlMappings(Map<URL, URL> urlMappings) {
-        this.urlMappings = urlMappings;
     }
 
     public boolean isMissingNodeAsError() {
@@ -67,6 +48,5 @@ public class SchemaValidatorsConfig {
 
     private void loadDefaultConfig() {
         this.typeLoose = true;
-        this.urlMappings = new HashMap<URL, URL>();
     }
 }
