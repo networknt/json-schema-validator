@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "json-schema-validator-url-mapping",
+    "type": "array",
+    "description": "Data portion of message from JMRI to client for type \"node\"",
+    "items": {
+        "type": "object",
+        "uniqueItems": true,
+        "properties": {
+            "publicURL": {
+                "type": "string",
+                "description": "Public, presumably internet-accessible, URL for schema"
+            },
+            "localURL": {
+                "type": "string",
+                "description": "Local URL for schema that will be used when a schema references the public URL"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "publicURL",
+            "localURL"
+        ]
+    }
+}

@@ -41,6 +41,7 @@ public class JsonSchemaFactory {
         private URLFetcher urlFetcher;
         private String defaultMetaSchemaURI;
         private Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
+        private Map<URL, URL> urlMap = new HashMap<URL, URL>();
         
         public Builder objectMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
@@ -69,13 +70,19 @@ public class JsonSchemaFactory {
             return this;
         }
         
+        public Builder addUrlMappings(Map<URL, URL> map) {
+            this.urlMap.putAll(map);
+            return this;
+        }
+        
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
                     objectMapper == null ? new ObjectMapper() : objectMapper, 
                     urlFetcher == null ? new StandardURLFetcher(): urlFetcher, 
                     defaultMetaSchemaURI, 
-                    jsonMetaSchemas
+                    jsonMetaSchemas,
+                    urlMap
             );
         }
     }
@@ -84,8 +91,9 @@ public class JsonSchemaFactory {
     private final URLFetcher urlFetcher;
     private final String defaultMetaSchemaURI;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
+    private final Map<URL, URL> urlMap;
 
-    private JsonSchemaFactory(ObjectMapper mapper, URLFetcher urlFetcher, String defaultMetaSchemaURI, Map<String, JsonMetaSchema> jsonMetaSchemas) {
+    private JsonSchemaFactory(ObjectMapper mapper, URLFetcher urlFetcher, String defaultMetaSchemaURI, Map<String, JsonMetaSchema> jsonMetaSchemas, Map<URL, URL> urlMap) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         }
@@ -101,10 +109,14 @@ public class JsonSchemaFactory {
         if (jsonMetaSchemas.get(defaultMetaSchemaURI) == null) {
             throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
         }
+        if (urlMap == null) {
+            throw new IllegalArgumentException("URL Mappings must not be null");
+        }
         this.mapper = mapper;
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
         this.urlFetcher = urlFetcher;
         this.jsonMetaSchemas = jsonMetaSchemas;
+        this.urlMap = urlMap;
     }
 
     /**
@@ -135,7 +147,8 @@ public class JsonSchemaFactory {
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
                 .urlFetcher(blueprint.urlFetcher)
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
-                .objectMapper(blueprint.mapper);
+                .objectMapper(blueprint.mapper)
+                .addUrlMappings(blueprint.urlMap);
     }
     
     private JsonSchema newJsonSchema(JsonNode schemaNode, SchemaValidatorsConfig config) {
@@ -191,8 +204,11 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(URL schemaURL, SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
+            Map<URL, URL> map = (config != null) ? config.getUrlMappings() : new HashMap<URL, URL>(urlMap);
+            map.putAll(urlMap);
+            URL mappedURL = map.getOrDefault(schemaURL, schemaURL);
             try {
-                inputStream = urlFetcher.fetch(schemaURL);
+                inputStream = urlFetcher.fetch(mappedURL);
                 JsonNode schemaNode = mapper.readTree(inputStream);
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 

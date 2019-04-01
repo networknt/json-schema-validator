@@ -1,0 +1,10 @@
+[
+    {
+        "publicURL": "http://json-schema.org/draft-04/schema#",
+        "localURL": "resource:/draftv4.schema.json" 
+    },
+    {
+        "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/url_mapping/url-mapping.schema.json",
+        "localURL": "resource:/tests/url_mapping/url-mapping.schema.json"
+    }
+]
