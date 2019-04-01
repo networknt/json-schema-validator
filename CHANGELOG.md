@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.5 - 2019-04-01
+
+### Added
+
+### Changed
+
+- fixes #127 update license copyright and add NOTICE
+- fixes #125 feat: Add URL mappings. Thanks @rhwood
+
 ## 1.0.4 - 2019-03-14
 
 ### Added
