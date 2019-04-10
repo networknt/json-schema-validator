@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.6 - 2019-04-10
+
+### Added
+
+### Changed
+
+- fixes #132 minimum/maximum validation of integral numbers prone to overflow. Thanks @kosty
+- fixes #123 Add link to Javadocs. Thanks @rhwood
+
 ## 1.0.5 - 2019-04-01
 
 ### Added
