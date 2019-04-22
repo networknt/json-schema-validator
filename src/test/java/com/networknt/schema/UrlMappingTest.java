@@ -130,6 +130,17 @@ public class UrlMappingTest {
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
 
+    @Test
+    public void testMappingsForRef() throws IOException {
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
+        URL mappings = URLFactory.toURL("resource:tests/url_mapping/schema-with-ref-mapping.json");
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setUrlMappings(getUrlMappingsFromUrl(mappings));
+        JsonSchema schema = instance.getSchema(URLFactory.toURL("resource:tests/url_mapping/schema-with-ref.json"),
+                config);
+        assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
+    }
+
     private Map<URL, URL> getUrlMappingsFromUrl(URL url) throws MalformedURLException, IOException {
         HashMap<URL, URL> map = new HashMap<URL, URL>();
         for (JsonNode mapping : mapper.readTree(url)) {
