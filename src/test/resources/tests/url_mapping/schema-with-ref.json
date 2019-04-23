@@ -1,21 +1,10 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "json-object-with-schema",
-    "type": "object",
-    "description": "A JSON object and the schema to evaluate it against",
+    "type": "array",
     "properties": {
-        "for": {
-            "type": "object",
-            "description": "The object to evaluate"
-        },
         "schema": {
-            "$ref": "http://example.com/invalid/schema/url",
-            "description": "The Schema to evaluate the object against (using invalid URL to force failure if mapping is not correct)"
+            "$ref": "http://example.com/invalid/schema/url"
         }
-    },
-    "additionalProperties": false,
-    "required": [
-        "for",
-        "schema"
-    ]
+    }
 }

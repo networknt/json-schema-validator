@@ -138,7 +138,7 @@ public class UrlMappingTest {
         config.setUrlMappings(getUrlMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(URLFactory.toURL("resource:tests/url_mapping/schema-with-ref.json"),
                 config);
-        assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
+        assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }
 
     private Map<URL, URL> getUrlMappingsFromUrl(URL url) throws MalformedURLException, IOException {

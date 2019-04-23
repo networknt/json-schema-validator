@@ -62,7 +62,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             
             try {
                 URL url = URLFactory.toURL(schemaUrl);
-                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url);
+                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url, validationContext.getConfig());
             } catch (MalformedURLException e) {
                 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaUrl);
                 parentSchema = validationContext.getJsonSchemaFactory().getSchema(is);
