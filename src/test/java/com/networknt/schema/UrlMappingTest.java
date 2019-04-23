@@ -130,11 +130,11 @@ public class UrlMappingTest {
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
 
-    private Map<URL, URL> getUrlMappingsFromUrl(URL url) throws MalformedURLException, IOException {
-        HashMap<URL, URL> map = new HashMap<URL, URL>();
+    private Map<String, String> getUrlMappingsFromUrl(URL url) throws MalformedURLException, IOException {
+        HashMap<String, String> map = new HashMap<String, String>();
         for (JsonNode mapping : mapper.readTree(url)) {
-            map.put(URLFactory.toURL(mapping.get("publicURL").asText()),
-                    URLFactory.toURL(mapping.get("localURL").asText()));
+            map.put(mapping.get("publicURL").asText(),
+                    mapping.get("localURL").asText());
         }
         return map;
     }
