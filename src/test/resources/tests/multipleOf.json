@@ -56,5 +56,38 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "by small number",
+        "schema": {
+            "multipleOf": 0.01
+        },
+        "tests": [
+            {
+                "description": "9313.7 is a multiple of 0.01",
+                "data": 9313.7,
+                "valid": true
+            },
+            {
+                "description": "9313.9 is a multiple of 0.01",
+                "data": 9313.9,
+                "valid": true
+            },
+            {
+                "description": "9313.8 is a multiple of 0.01",
+                "data": 9313.8,
+                "valid": true
+            },
+            {
+                "description": "9313.8 is a multiple of 0.01",
+                "data": -9313.8861,
+                "valid": false
+            },
+            {
+                "description": "9313.8 is a multiple of 0.01",
+                "data": -9313.8,
+                "valid": true
+            }
+        ]
     }
 ]
