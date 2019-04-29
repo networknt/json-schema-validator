@@ -80,8 +80,13 @@
             },
             {
                 "description": "9313.8 is a multiple of 0.01",
-                "data": 9313.888,
+                "data": -9313.8861,
                 "valid": false
+            },
+            {
+                "description": "9313.8 is a multiple of 0.01",
+                "data": -9313.8,
+                "valid": true
             }
         ]
     }
