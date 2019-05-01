@@ -74,7 +74,11 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     long val = node.asLong();
-                    return node.isBigInteger() || lmin > val || (excluded && lmin >= val);
+                    if(node.isBigInteger()) {
+                        //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
+                        return node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MIN_VALUE))) < 0;
+                    }
+                    return lmin > val || (excluded && lmin >= val);
                 }
 
                 @Override
