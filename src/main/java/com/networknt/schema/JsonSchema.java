@@ -73,8 +73,8 @@ public class JsonSchema extends BaseJsonValidator {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.config = validationContext.getConfig();
-        this.validators = Collections.unmodifiableMap(this.read(schemaNode));
         this.currentUrl = this.combineCurrentUrlWithIds(currentUrl, schemaNode);
+        this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
     
     private URL combineCurrentUrlWithIds(URL currentUrl, JsonNode schemaNode) {

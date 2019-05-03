@@ -34,7 +34,7 @@
     {
         "description": "ref within remote ref",
         "schema": {
-            "$ref": "refRemoveSchema.json"
+            "$ref": "refRemoteSchema.json"
         },
         "tests": [
             {
