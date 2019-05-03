@@ -16,9 +16,9 @@
 
 package com.networknt.schema;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.URL;
 
 public class SchemaValidatorsConfig {
     /**
@@ -60,7 +60,7 @@ public class SchemaValidatorsConfig {
     public void setUrlMappings(Map<URL, URL> urlMappings) {
         this.urlMappings = urlMappings;
     }
-
+    
     public boolean isMissingNodeAsError() {
     	return missingNodeAsError;
     }

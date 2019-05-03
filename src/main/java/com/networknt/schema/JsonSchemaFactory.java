@@ -42,6 +42,7 @@ public class JsonSchemaFactory {
         private String defaultMetaSchemaURI;
         private Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private Map<URL, URL> urlMap = new HashMap<URL, URL>();
+        private URL rootSchemaUrl = null;
         
         public Builder objectMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
@@ -75,6 +76,12 @@ public class JsonSchemaFactory {
             return this;
         }
         
+        public Builder setRootSchemaUrl(URL rootSchemaUrl)
+        {
+            this.rootSchemaUrl = rootSchemaUrl;
+            return this;
+        }
+        
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
@@ -82,7 +89,8 @@ public class JsonSchemaFactory {
                     urlFetcher == null ? new StandardURLFetcher(): urlFetcher, 
                     defaultMetaSchemaURI, 
                     jsonMetaSchemas,
-                    urlMap
+                    urlMap,
+                    rootSchemaUrl
             );
         }
     }
@@ -92,8 +100,14 @@ public class JsonSchemaFactory {
     private final String defaultMetaSchemaURI;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<URL, URL> urlMap;
+    private final URL rootSchemaUrl;
 
-    private JsonSchemaFactory(ObjectMapper mapper, URLFetcher urlFetcher, String defaultMetaSchemaURI, Map<String, JsonMetaSchema> jsonMetaSchemas, Map<URL, URL> urlMap) {
+    private JsonSchemaFactory(
+            ObjectMapper mapper, 
+            URLFetcher urlFetcher, 
+            String defaultMetaSchemaURI, 
+            Map<String, JsonMetaSchema> jsonMetaSchemas, Map<URL, URL> urlMap,
+            URL rootSchemaUrl) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         }
@@ -117,6 +131,7 @@ public class JsonSchemaFactory {
         this.urlFetcher = urlFetcher;
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.urlMap = urlMap;
+        this.rootSchemaUrl = rootSchemaUrl;
     }
 
     /**
@@ -148,13 +163,14 @@ public class JsonSchemaFactory {
                 .urlFetcher(blueprint.urlFetcher)
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
                 .objectMapper(blueprint.mapper)
-                .addUrlMappings(blueprint.urlMap);
+                .addUrlMappings(blueprint.urlMap)
+                .setRootSchemaUrl(blueprint.rootSchemaUrl);
     }
     
     private JsonSchema newJsonSchema(JsonNode schemaNode, SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaNode);
+        JsonSchema jsonSchema = new JsonSchema(validationContext, this.rootSchemaUrl, schemaNode);
         return jsonSchema;
     }
 
@@ -213,8 +229,7 @@ public class JsonSchemaFactory {
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
                 if (idMatchesSourceUrl(jsonMetaSchema, schemaNode, schemaURL)) {
-                    
-                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), mappedURL, schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
                 return newJsonSchema(schemaNode, config);

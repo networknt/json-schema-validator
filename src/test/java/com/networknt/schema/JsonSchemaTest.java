@@ -266,6 +266,11 @@ public class JsonSchemaTest {
     }
 
     @Test
+    public void testRelativeRefRemoteValidator() throws Exception {
+        runTestFile("tests/relativeRefRemote.json");
+    }
+
+    @Test
     public void testRequiredValidator() throws Exception {
         runTestFile("tests/required.json");
     }
