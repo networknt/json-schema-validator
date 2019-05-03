@@ -16,9 +16,7 @@
 
 package com.networknt.schema;
 
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -35,9 +33,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     protected JsonSchema schema;
     
-    private static final String REF_DOMAIN = "/";
     private static final String REF_CURRENT = "#";
-    private static final String REF_RELATIVE = "../";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
