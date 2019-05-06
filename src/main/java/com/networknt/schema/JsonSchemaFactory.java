@@ -236,8 +236,17 @@ public class JsonSchemaFactory {
         return getSchema(schemaURL, new SchemaValidatorsConfig());
     }
 
+    public JsonSchema getSchema(URL schemaUrl, JsonNode jsonNode, SchemaValidatorsConfig config) {
+        return newJsonSchema(schemaUrl, jsonNode, config);
+    }
+    
+
     public JsonSchema getSchema(JsonNode jsonNode, SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
+    }
+
+    public JsonSchema getSchema(URL schemaUrl, JsonNode jsonNode) {
+        return newJsonSchema(schemaUrl, jsonNode, null);
     }
     
     public JsonSchema getSchema(JsonNode jsonNode) {
