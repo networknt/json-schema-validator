@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.7 - 2019-04-29
+
+### Added
+
+### Changed
+
+- fixes #140 Convert double to BigDecimal in MultipleOfValidator to make the validation more accurate. Thanks @jiachen1120
+
 ## 1.0.6 - 2019-04-10
 
 ### Added

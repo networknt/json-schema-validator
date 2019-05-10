@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 
@@ -44,8 +45,10 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
         if (node.isNumber()) {
             double nodeValue = node.doubleValue();
             if (divisor != 0) {
-                long multiples = Math.round(nodeValue / divisor);
-                if (Math.abs(multiples * divisor - nodeValue) > 1e-12) {
+                // convert to BigDecimal since double type is not accurate enough to do the division and multiple
+                BigDecimal accurateDividend = new BigDecimal(String.valueOf(nodeValue));
+                BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
+                if (Math.abs(accurateDividend.divideAndRemainder(accurateDivisor)[1].doubleValue()) > 1e-12) {
                     return Collections.singleton(buildValidationMessage(at, "" + divisor));
                 }
             }
