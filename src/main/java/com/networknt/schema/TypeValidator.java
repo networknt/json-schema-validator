@@ -24,14 +24,19 @@ import java.util.Collections;
 import java.util.Set;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
+    private static final String TYPE = "type";
+    private static final String ENUM = "enum";
+
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
 
     private JsonType schemaType;
+    private JsonNode parentSchemaNode;
     private UnionTypeValidator unionTypeValidator;
 
     public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         schemaType = TypeFactory.getSchemaNodeType(schemaNode);
+        parentSchemaNode = parentSchema.getSchemaNode();
 
         if (schemaType == JsonType.UNION) {
             unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
@@ -61,6 +66,11 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                 if (nullable != null && nullable.asBoolean()) {
                     return true;
                 }
+            }
+            // Skip the type validation when the schema is an enum object schema. Since the current type
+            // of node itself can be used for type validation.
+            if (isEnumObjectSchema(parentSchemaNode)) {
+                return true;
             }
             if(config.isTypeLoose()) {
                 if (nodeType == JsonType.STRING) {
@@ -212,6 +222,15 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (TypeFactory.getValueNodeType(node) == JsonType.STRING) {
                 return isNumeric(node.textValue());
             }
+        }
+        return false;
+    }
+
+    private static boolean isEnumObjectSchema(JsonNode schemaNode) {
+        JsonNode typeNode = schemaNode.get(TYPE);
+        JsonNode enumNode = schemaNode.get(ENUM);
+        if (typeNode != null && enumNode != null) {
+            return TypeFactory.getSchemaNodeType(typeNode) == JsonType.OBJECT && enumNode.isArray();
         }
         return false;
     }
