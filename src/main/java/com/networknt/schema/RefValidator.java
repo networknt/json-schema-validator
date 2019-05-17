@@ -64,7 +64,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             }
             
             // This should retrieve schemas regardless of the protocol that is in the url.
-            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUrl);
+            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUrl, validationContext.getConfig());
             
             if (index < 0) {
                 return parentSchema.findAncestor();
