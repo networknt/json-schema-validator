@@ -1,0 +1,68 @@
+[
+  {
+    "description": "simple enum object validation",
+    "schema": {
+      "properties": {
+        "foo": {
+          "type": "object",
+          "enum": [1, 2, 3]
+        },
+        "bar": {
+          "$ref": "#/properties/foo"
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "one of the enum is valid",
+        "data": {
+          "bar": 1
+        },
+        "valid": true
+      },
+      {
+        "description": "one of the enum is valid",
+        "isTypeLoose": true,
+        "data": {
+          "bar": "1"
+        },
+        "valid": true
+      },
+      {
+        "description": "something else is invalid",
+        "isTypeLoose": false,
+        "data": {
+          "bar": "1"
+        },
+        "valid": false
+      },
+      {
+        "description": "something else is invalid",
+        "data": {
+          "bar": 4
+        },
+        "valid": false
+      }
+    ]
+  },
+  {
+    "description": "fake enum object validation",
+    "schema": {
+          "type": "object",
+          "enum": [1, 2, {"key": "value"}]
+    },
+    "tests": [
+      {
+        "description": "one of the enum is invalid",
+        "data": 1,
+        "valid": false
+      },
+      {
+        "description": "one of the enum is valid",
+        "isTypeLoose": true,
+        "data": {"key": "value"},
+        "valid": true
+      }
+    ]
+  }
+]
