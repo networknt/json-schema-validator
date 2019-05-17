@@ -76,31 +76,6 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             doValidate(errors, 0, node, rootNode, at);
         }
-//        int i = 0;
-//        for (JsonNode n : node) {
-//            if (schema != null) {
-//                // validate with item schema (the whole array has the same item
-//                // schema)
-//                errors.addAll(schema.validate(n, rootNode, at + "[" + i + "]"));
-//            }
-//
-//            if (tupleSchema != null) {
-//                if (i < tupleSchema.size()) {
-//                    // validate against tuple schema
-//                    errors.addAll(tupleSchema.get(i).validate(n, rootNode, at + "[" + i + "]"));
-//                } else {
-//                    if (additionalSchema != null) {
-//                        // validate against additional item schema
-//                        errors.addAll(additionalSchema.validate(n, rootNode, at + "[" + i + "]"));
-//                    } else if (!additionalItems) {
-//                        // no additional item allowed, return error
-//                        errors.add(buildValidationMessage(at, "" + i));
-//                    }
-//                }
-//            }
-//
-//            i++;
-//        }
         return Collections.unmodifiableSet(errors);
     }
 

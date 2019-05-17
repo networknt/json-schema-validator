@@ -220,43 +220,43 @@
                 "valid": false
             },
             {
-                "description": "an integer is not an array",
+                "description": "an typeLoose integer is an array",
                 "data": 1,
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "a float is not an array",
+                "description": "a typeLoose float is an array",
                 "data": 1.1,
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "a string is not an array",
+                "description": "a typeLoose string is an array",
                 "data": "foo",
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "an object is not an array",
+                "description": "an typeLoose object is an array",
                 "data": {},
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "an array is an array",
+                "description": "an typeLoose array is an array",
                 "data": [],
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "a boolean is not an array",
+                "description": "a typeLoose boolean is an array",
                 "data": true,
                 "isTypeLoose": true,
                 "valid": true
             },
             {
-                "description": "null is not an array",
+                "description": "typeLoose null is an array",
                 "data": null,
                 "isTypeLoose": true,
                 "valid": true
