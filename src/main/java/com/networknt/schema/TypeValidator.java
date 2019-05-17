@@ -24,14 +24,20 @@ import java.util.Collections;
 import java.util.Set;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
+    private static final String TYPE = "type";
+    private static final String ENUM = "enum";
+    private static final String REF = "$ref";
+
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
 
     private JsonType schemaType;
+    private JsonSchema parentSchema;
     private UnionTypeValidator unionTypeValidator;
 
     public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         schemaType = TypeFactory.getSchemaNodeType(schemaNode);
+        this.parentSchema = parentSchema;
 
         if (schemaType == JsonType.UNION) {
             unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
@@ -61,6 +67,11 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                 if (nullable != null && nullable.asBoolean()) {
                     return true;
                 }
+            }
+            // Skip the type validation when the schema is an enum object schema. Since the current type
+            // of node itself can be used for type validation.
+            if (isEnumObjectSchema(parentSchema)) {
+                return true;
             }
             if(config.isTypeLoose()) {
                 if (nodeType == JsonType.STRING) {
@@ -212,6 +223,30 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (TypeFactory.getValueNodeType(node) == JsonType.STRING) {
                 return isNumeric(node.textValue());
             }
+        }
+        return false;
+    }
+
+    private static boolean isEnumObjectSchema(JsonSchema jsonSchema) {
+        // There are three conditions for enum object schema
+        // 1. The current schema contains key "type", and the value is object
+        // 2. The current schema contains key "enum", and the value is an array
+        // 3. The parent schema if refer from components, which means the corresponding enum object class would be generated
+        JsonNode typeNode = null;
+        JsonNode enumNode = null;
+        JsonNode refNode = null;
+
+        if (jsonSchema != null) {
+            if (jsonSchema.getSchemaNode() != null) {
+                typeNode = jsonSchema.getSchemaNode().get(TYPE);
+                enumNode = jsonSchema.getSchemaNode().get(ENUM);
+            }
+            if (jsonSchema.getParentSchema() != null && jsonSchema.getParentSchema().getSchemaNode() != null) {
+                refNode = jsonSchema.getParentSchema().getSchemaNode().get(REF);
+            }
+        }
+        if (typeNode != null && enumNode != null && refNode != null) {
+            return TypeFactory.getSchemaNodeType(typeNode) == JsonType.OBJECT && enumNode.isArray();
         }
         return false;
     }

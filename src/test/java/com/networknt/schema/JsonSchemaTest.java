@@ -293,6 +293,11 @@ public class JsonSchemaTest {
     public void testUniqueItemsValidator() throws Exception {
         runTestFile("tests/uniqueItems.json");
     }
+
+    @Test
+    public void testEnumObject() throws Exception {
+        runTestFile("tests/enumObject.json");
+    }
     
     @Test
     public void testIdSchemaWithUrl() throws Exception {
