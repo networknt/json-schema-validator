@@ -44,6 +44,10 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
             if (node.size() > max) {
                 return Collections.singleton(buildValidationMessage(at, "" + max));
             }
+        } else if (config.isTypeLoose()) {
+            if (1 > max) {
+                return Collections.singleton(buildValidationMessage(at, "" + max));
+            }
         }
 
         return Collections.emptySet();
