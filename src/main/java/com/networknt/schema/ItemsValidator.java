@@ -63,37 +63,43 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        if (!node.isArray()) {
+        if (!node.isArray() && !config.isTypeLoose()) {
             // ignores non-arrays
             return errors;
         }
-
-        int i = 0;
-        for (JsonNode n : node) {
-            if (schema != null) {
-                // validate with item schema (the whole array has the same item
-                // schema)
-                errors.addAll(schema.validate(n, rootNode, at + "[" + i + "]"));
+        if (node.isArray()) {
+            int i = 0;
+            for (JsonNode n : node) {
+                doValidate(errors, i, n, rootNode, at);
+                i++;
             }
-
-            if (tupleSchema != null) {
-                if (i < tupleSchema.size()) {
-                    // validate against tuple schema
-                    errors.addAll(tupleSchema.get(i).validate(n, rootNode, at + "[" + i + "]"));
-                } else {
-                    if (additionalSchema != null) {
-                        // validate against additional item schema
-                        errors.addAll(additionalSchema.validate(n, rootNode, at + "[" + i + "]"));
-                    } else if (!additionalItems) {
-                        // no additional item allowed, return error
-                        errors.add(buildValidationMessage(at, "" + i));
-                    }
-                }
-            }
-
-            i++;
+        } else {
+            doValidate(errors, 0, node, rootNode, at);
         }
         return Collections.unmodifiableSet(errors);
+    }
+
+    private void doValidate(Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, String at) {
+        if (schema != null) {
+            // validate with item schema (the whole array has the same item
+            // schema)
+            errors.addAll(schema.validate(node, rootNode, at + "[" + i + "]"));
+        }
+
+        if (tupleSchema != null) {
+            if (i < tupleSchema.size()) {
+                // validate against tuple schema
+                errors.addAll(tupleSchema.get(i).validate(node, rootNode, at + "[" + i + "]"));
+            } else {
+                if (additionalSchema != null) {
+                    // validate against additional item schema
+                    errors.addAll(additionalSchema.validate(node, rootNode, at + "[" + i + "]"));
+                } else if (!additionalItems) {
+                    // no additional item allowed, return error
+                    errors.add(buildValidationMessage(at, "" + i));
+                }
+            }
+        }
     }
 
 }

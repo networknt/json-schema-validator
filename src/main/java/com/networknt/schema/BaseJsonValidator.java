@@ -83,7 +83,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
             }
             else {
                 URL url = URLFactory.toURL(node.textValue());
-                return validationContext.getJsonSchemaFactory().getSchema(url);
+                return validationContext.getJsonSchemaFactory().getSchema(url, validationContext.getConfig());
             }
         } catch (MalformedURLException e) {
             return null;

@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.8 - 2019-05-17
+
+### Added
+
+### Changed
+
+- fixes #145 Fix bug parsing array query params when only one item present. Thanks @jiachen1120
+- fixes #142 validation for enum object type. Thanks @jiachen1120
+- fixes #136 Maps of URLs can have performance impacts. Thanks @rhwood
+- fixes #134 $ref external schema references do not use URL mappings. Thanks @rhwood
+
 ## 1.0.7 - 2019-04-29
 
 ### Added
