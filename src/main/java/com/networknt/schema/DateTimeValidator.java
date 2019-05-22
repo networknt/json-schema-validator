@@ -31,9 +31,6 @@ import java.util.regex.Pattern;
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
 
-    private final String DATE = "date";
-    private final String DATE_TIME = "date-time";
-
     private static final Pattern RFC3339_PATTERN = Pattern.compile(
             "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
                     + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
