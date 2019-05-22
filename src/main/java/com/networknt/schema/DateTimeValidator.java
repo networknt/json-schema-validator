@@ -56,7 +56,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
             return errors;
         }
         if (!isLegalDateTime(node.textValue())) {
-            errors.add(buildValidationMessage(at, node.textValue()));
+            errors.add(buildValidationMessage(at, node.textValue(), formatName));
         }
         return Collections.unmodifiableSet(errors);
     }
