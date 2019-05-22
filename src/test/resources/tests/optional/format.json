@@ -97,6 +97,21 @@
                 "description": "a valid date-time string",
                 "data": "2019-02-28T08:30:59.99999z",
                 "valid": true
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28",
+                "valid": false
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28-08:00",
+                "valid": false
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28Z",
+                "valid": false
             }
         ]
     },
@@ -112,6 +127,11 @@
             {
                 "description": "an invalid date string",
                 "data": "1963-12-35",
+                "valid": false
+            },
+            {
+                "description": "an invalid date string",
+                "data": "2019-02-28T08:30:59.99999z",
                 "valid": false
             },
             {

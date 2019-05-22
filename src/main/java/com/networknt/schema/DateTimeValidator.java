@@ -31,13 +31,18 @@ import java.util.regex.Pattern;
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
 
+    private final String formatName;
+    private final String DATE = "date";
+    private final String DATETIME = "date-time";
+
     private static final Pattern RFC3339_PATTERN = Pattern.compile(
             "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
                     + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
                     + "([Zz]|([+-])(\\d{2}):(\\d{2}))?");
 
-    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
+        this.formatName = formatName;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -82,9 +87,15 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
         String timeShiftHour = null;
         String timeShiftMinute = null;
 
+        if (!isTimeGiven && DATETIME.equals(formatName) || (isTimeGiven && DATE.equals(formatName))) {
+            logger.error("The supplied date/time format type does not match the specification, expected: " + formatName);
+            return false;
+        }
+
         if (!isTimeGiven && isTimeZoneShiftGiven) {
-            throw new NumberFormatException("Invalid date/time format, cannot specify time zone shift" +
+            logger.error("Invalid date/time format, cannot specify time zone shift" +
                     " without specifying time: " + string);
+            return false;
         }
 
         if (isTimeGiven) {
