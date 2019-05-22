@@ -71,7 +71,11 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     long val = node.asLong();
-                    return node.isBigInteger() || lm < val || (excludeEqual && lm <= val);
+                    if(node.isBigInteger()) {
+                        //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
+                        return node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0;
+                    }
+                    return lm < val || (excludeEqual && lm <= val);
                 }
 
                 @Override
