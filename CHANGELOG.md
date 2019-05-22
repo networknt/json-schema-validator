@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.9 - 2019-05-21
+
+### Added
+
+### Changed
+
+- fixes #147 Fails to validate MIN and MAX when number type is converted to BigInteger. Thanks @jiachen1120
+
 ## 1.0.8 - 2019-05-17
 
 ### Added
