@@ -63,7 +63,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     TYPE("type", "1029", new MessageFormat("{0}: {1} found, {2} expected")),
     UNION_TYPE("unionType", "1030", new MessageFormat("{0}: {1} found, but {2} is required")),
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat("{0}: the items in the array must be unique")),
-    DATETIME("date-time", "1034", new MessageFormat("{0}: {1} is not a legal {2}"));
+    DATETIME("date-time", "1034", new MessageFormat("{0}: {1} is an invalid date/time"));
 
 	private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
 

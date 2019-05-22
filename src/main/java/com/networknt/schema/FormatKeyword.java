@@ -47,7 +47,7 @@ public class FormatKeyword implements Keyword {
             format = formats.get(formatName);
             // Validate date and time separately
             if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
-                return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName, format);
+                return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext);
             }
         }
         return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);

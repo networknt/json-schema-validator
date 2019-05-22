@@ -65,13 +65,38 @@
             },
             {
                 "description": "an invalid date-time string",
-                "data": "2019-02-29T08:60:06Z",
+                "data": "2019-02-28T08:60:06Z",
                 "valid": false
             },
             {
                 "description": "an invalid date-time string",
-                "data": "2019-02-29T08:30:60Z",
+                "data": "2019-02-28T08:30:60Z",
                 "valid": false
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.12345+08:00",
+                "valid": true
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.12345-12:00",
+                "valid": true
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:30:59.12345-60:00",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:30:59.12345-12:60",
+                "valid": false
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.99999z",
+                "valid": true
             }
         ]
     },

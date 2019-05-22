@@ -25,7 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.regex.PatternSyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
@@ -33,13 +34,13 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private final String DATE = "date";
     private final String DATE_TIME = "date-time";
 
-    private final String formatName;
-    private final Format format;
+    private static final Pattern RFC3339_PATTERN = Pattern.compile(
+            "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
+                    + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
+                    + "([Zz]|([+-])(\\d{2}):(\\d{2}))?");
 
-    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName, Format format) {
+    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
-        this.formatName = formatName;
-        this.format = format;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -52,43 +53,81 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
         if (nodeType != JsonType.STRING) {
             return errors;
         }
-
-        if (formatName != null) {
-            if (formatName.equals(DATE) && !isLegalDate(node.textValue()) || (formatName.equals(DATE_TIME) && !isLegalDateTime(node.textValue()))) {
-                errors.add(buildValidationMessage(at, node.textValue(), formatName));
-            }
+        if (!isLegalDateTime(node.textValue())) {
+            errors.add(buildValidationMessage(at, node.textValue()));
         }
-
         return Collections.unmodifiableSet(errors);
     }
 
-    private boolean isLegalDate(String string) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setLenient(false);
-        return sdf.parse(string, new ParsePosition(0)) != null;
-    }
-
-    private boolean isLegalTime(String string) {
-        String time = string.split("\\.")[0];
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-        sdf.setLenient(false);
-        return sdf.parse(time, new ParsePosition(0)) != null;
-    }
-
     private boolean isLegalDateTime(String string) {
-        // Check the format
-        try {
-            if (!format.matches(string)) {
-                return false;
-            }
-        } catch (PatternSyntaxException pse) {
-            // String is considered valid if pattern is invalid
-            logger.error("Failed to apply pattern: Invalid RE syntax [" + format.getName() + "]", pse);
+        Matcher matcher = RFC3339_PATTERN.matcher(string);
+        StringBuilder pattern = new StringBuilder();
+        StringBuilder dateTime = new StringBuilder();
+        // Validate the format
+        if (!matcher.matches()) {
+            logger.error("Failed to apply RFC3339 pattern on " + string);
+            return false;
         }
-        // Check the contents
-        String[] dateTime = string.split("\\s|T|t", 2);
-        String date = dateTime[0];
-        String time = dateTime[1];
-        return isLegalDate(date) && isLegalTime(time);
+        // Validate the date/time content
+        String year = matcher.group(1);
+        String month = matcher.group(2);
+        String day = matcher.group(3);
+        dateTime.append(year).append('-').append(month).append('-').append(day);
+        pattern.append("yyyy-MM-dd");
+
+        boolean isTimeGiven = matcher.group(4) != null;
+        String timeZoneShiftRegexGroup = matcher.group(9);
+        boolean isTimeZoneShiftGiven = timeZoneShiftRegexGroup != null;
+        String hour = null;
+        String minute = null;
+        String second = null;
+        String milliseconds = null;
+        String timeShiftHour = null;
+        String timeShiftMinute = null;
+
+        if (!isTimeGiven && isTimeZoneShiftGiven) {
+            throw new NumberFormatException("Invalid date/time format, cannot specify time zone shift" +
+                    " without specifying time: " + string);
+        }
+
+        if (isTimeGiven) {
+            hour = matcher.group(5);
+            minute = matcher.group(6);
+            second = matcher.group(7);
+            dateTime.append('T').append(hour).append(':').append(minute).append(':').append(second);
+            pattern.append("'T'hh:mm:ss");
+            if (matcher.group(8) != null) {
+                // Normalize milliseconds to 3-length digit
+                milliseconds = matcher.group(8);
+                if (milliseconds.length() > 4) {
+                    milliseconds = milliseconds.substring(0, 4);
+                } else {
+                    while (milliseconds.length() < 4) {
+                        milliseconds += "0";
+                    }
+                }
+                dateTime.append(milliseconds);
+                pattern.append(".SSS");
+            }
+        }
+
+        if (isTimeGiven && isTimeZoneShiftGiven) {
+            if (Character.toUpperCase(timeZoneShiftRegexGroup.charAt(0)) == 'Z') {
+                dateTime.append('Z');
+                pattern.append("'Z'");
+            } else {
+                timeShiftHour = matcher.group(11);
+                timeShiftMinute = matcher.group(12);
+                dateTime.append(matcher.group(10).charAt(0)).append(timeShiftHour).append(':').append(timeShiftMinute);
+                pattern.append("XXX");
+            }
+        }
+        return validateDateTime(dateTime.toString(), pattern.toString());
+    }
+
+    private boolean validateDateTime(String dateTime, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        sdf.setLenient(false);
+        return sdf.parse(dateTime, new ParsePosition(0)) != null;
     }
 }
