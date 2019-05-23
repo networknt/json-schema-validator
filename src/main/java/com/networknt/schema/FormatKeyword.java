@@ -26,6 +26,9 @@ public class FormatKeyword implements Keyword {
     private final ValidatorTypeCode type;
     private final Map<String, Format> formats;
 
+    private final String DATE = "date";
+    private final String DATE_TIME = "date-time";
+
     public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
         this.type = type;
         this.formats = formats;
@@ -34,7 +37,7 @@ public class FormatKeyword implements Keyword {
     Collection<Format> getFormats() {
         return Collections.unmodifiableCollection(formats.values());
     }
-    
+
     @Override
     public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
             throws Exception {
@@ -42,15 +45,16 @@ public class FormatKeyword implements Keyword {
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = formats.get(formatName);
+            // Validate date and time separately
+            if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
+                return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+            }
         }
-
         return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
     }
-    
+
     @Override
     public String getValue() {
         return type.getValue();
     }
-    
-    
 }

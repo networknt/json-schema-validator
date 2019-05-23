@@ -52,6 +52,66 @@
                 "description": "only RFC3339 not all of ISO 8601 are valid",
                 "data": "2013-350T01:01:01",
                 "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-29T08:30:06Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T13:30:06Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:60:06Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:30:60Z",
+                "valid": false
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.12345+08:00",
+                "valid": true
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.12345-12:00",
+                "valid": true
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:30:59.12345-60:00",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-02-28T08:30:59.12345-12:60",
+                "valid": false
+            },
+            {
+                "description": "a valid date-time string",
+                "data": "2019-02-28T08:30:59.99999z",
+                "valid": true
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28",
+                "valid": false
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28-08:00",
+                "valid": false
+            },
+            {
+                "description": "an incomplete date-time string",
+                "data": "2019-02-28Z",
+                "valid": false
             }
         ]
     },
@@ -70,7 +130,12 @@
                 "valid": false
             },
             {
-                "description": "an invalid datee string",
+                "description": "an invalid date string",
+                "data": "2019-02-28T08:30:59.99999z",
+                "valid": false
+            },
+            {
+                "description": "a valid date string",
                 "data": "1963-12-31",
                 "valid": true
             },
@@ -78,6 +143,21 @@
                 "description": "only RFC3339 not all of ISO 8601 are valid",
                 "data": "2013-35",
                 "valid": false
+            },
+            {
+                "description": "an invalid date string",
+                "data": "2019-02-29",
+                "valid": false
+            },
+            {
+                "description": "an invalid date string",
+                "data": "2019-06-31",
+                "valid": false
+            },
+            {
+                "description": "a valid date string",
+                "data": "2048-02-29",
+                "valid": true
             }
         ]
     },
