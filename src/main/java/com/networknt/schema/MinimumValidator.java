@@ -76,7 +76,9 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
                     long val = node.asLong();
                     if(node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        return node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MIN_VALUE))) < 0;
+                        if(node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MIN_VALUE))) < 0) {
+                            return true;
+                        }
                     }
                     return lmin > val || (excluded && lmin >= val);
                 }

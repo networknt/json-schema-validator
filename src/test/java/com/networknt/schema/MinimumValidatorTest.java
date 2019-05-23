@@ -35,11 +35,14 @@ public class MinimumValidatorTest {
 
     private static ObjectMapper mapper;
     private static ObjectMapper bigDecimalMapper;
+    private static ObjectMapper bigIntegerMapper;
 
     @Before
     public void setUp() {
         mapper = new ObjectMapper();
         bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+
     }
 
     @Test
@@ -217,6 +220,165 @@ public class MinimumValidatorTest {
 
             Set<ValidationMessage> messages = v.validate(doc);
             assertTrue(format("Expecing no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
+        }
+    }
+    @Test
+    public void BigIntegerBothWithinLongRangePositive() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"10",         "20"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerBothWithinLongRangeNegative() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"20",         "10"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerOverflow() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775807",         "-9223372036854775809"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerNotOverflow() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775809",         "-9223372036854775807"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerBothAboveLongRangePositive() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775810",         "-9223372036854775809"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerBothAboveLongRangeNegative() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775809",         "-9223372036854775810"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerNotOverflowOnLongRangeEdge() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775808",         "-9223372036854775808"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecing no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void BigIntegerOverflowOnLongRangeEdge() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-9223372036854775809",         "-9223372036854775809"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 }
