@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.10 - 2019-05-22
+
+### Added
+
+### Changed
+
+- fixes #138 validation of date fields. Thanks @jiachen1120
+
 ## 1.0.9 - 2019-05-21
 
 ### Added
