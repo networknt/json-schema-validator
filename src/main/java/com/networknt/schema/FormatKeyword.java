@@ -28,6 +28,7 @@ public class FormatKeyword implements Keyword {
 
     private final String DATE = "date";
     private final String DATE_TIME = "date-time";
+    private final String UUID = "uuid";
 
     public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
         this.type = type;
@@ -48,6 +49,8 @@ public class FormatKeyword implements Keyword {
             // Validate date and time separately
             if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
                 return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+            } else if (formatName.equals(UUID)) {
+                return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             }
         }
         return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
