@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.11 - 2019-05-28
+
+### Added
+
+### Changed
+
+- fixes #151 add validation for string type uuid. Thanks @chenyan71
+
 ## 1.0.10 - 2019-05-22
 
 ### Added
