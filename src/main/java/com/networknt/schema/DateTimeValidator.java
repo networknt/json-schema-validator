@@ -103,7 +103,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
             minute = matcher.group(6);
             second = matcher.group(7);
             dateTime.append('T').append(hour).append(':').append(minute).append(':').append(second);
-            pattern.append("'T'hh:mm:ss");
+            pattern.append("'T'HH:mm:ss");
             if (matcher.group(8) != null) {
                 // Normalize milliseconds to 3-length digit
                 milliseconds = matcher.group(8);

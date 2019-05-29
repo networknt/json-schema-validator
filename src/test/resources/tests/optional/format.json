@@ -9,6 +9,21 @@
                 "valid": true
             },
             {
+                "description": "a valid date-time string",
+                "data": "2019-07-24T00:00:01-04:00",
+                "valid": true
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-07-24T24:00:01-04:00",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "2019-07-24T25/:00:01-04:00",
+                "valid": false
+            },
+            {
                 "description": "an invalid date-time string",
                 "data": "06/19/1963 08:30:06 PST",
                 "valid": false
@@ -59,9 +74,9 @@
                 "valid": false
             },
             {
-                "description": "an invalid date-time string",
+                "description": "a valid date-time string",
                 "data": "2019-02-28T13:30:06Z",
-                "valid": false
+                "valid": true
             },
             {
                 "description": "an invalid date-time string",
