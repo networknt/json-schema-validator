@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.13 - 2019-06-05
+
+### Added
+
+### Changed
+
+- fixes #158 date-time format should consider colon in timezone optional. Thanks @chuwy
+
 ## 1.0.12 - 2019-05-30
 
 ### Added
