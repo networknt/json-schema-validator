@@ -9,6 +9,11 @@
                 "valid": true
             },
             {
+                "description": "a valid date-time string without colon",
+                "data": "2018-07-27T00:00:01.000-0300",
+                "valid": true
+            },
+            {
                 "description": "a valid date-time string",
                 "data": "2019-07-24T00:00:01-04:00",
                 "valid": true

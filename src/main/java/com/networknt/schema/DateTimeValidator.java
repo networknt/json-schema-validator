@@ -38,7 +38,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private static final Pattern RFC3339_PATTERN = Pattern.compile(
             "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
                     + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
-                    + "([Zz]|([+-])(\\d{2}):(\\d{2}))?");
+                    + "([Zz]|([+-])(\\d{2}):?(\\d{2}))?");
 
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
