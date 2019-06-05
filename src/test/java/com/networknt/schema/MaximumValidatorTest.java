@@ -63,7 +63,7 @@ public class MaximumValidatorTest {
             JsonNode doc = mapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
+            assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -86,7 +86,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigDecimalMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
+            assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -109,7 +109,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigDecimalMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
+            assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -198,7 +198,7 @@ public class MaximumValidatorTest {
             JsonNode doc = mapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
+            assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -218,7 +218,7 @@ public class MaximumValidatorTest {
             JsonNode doc = mapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -238,7 +238,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -298,7 +298,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -318,7 +318,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -358,7 +358,7 @@ public class MaximumValidatorTest {
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
         }
     }
 
@@ -378,7 +378,47 @@ public class MaximumValidatorTest {
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testIntegerTypeWithFloatMaxPositive() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"37.7",         "37"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testIntegerTypeWithFloatMaxNegative() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"37.7",         "38"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = bigIntegerMapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
         }
     }
 }

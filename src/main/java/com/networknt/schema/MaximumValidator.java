@@ -46,8 +46,8 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
-
-        if (!JsonType.INTEGER.toString().equals(getNodeFieldType())) {
+        //if the schema type is not integer, or the maximum value is not an integer, try to compare using double values;
+        if (!JsonType.INTEGER.toString().equals(getNodeFieldType()) || !JsonType.INTEGER.toString().equals(schemaNode.getNodeType())) {
             // "number" or no type
             // by default treat value as double: compatible with previous behavior
             final double dm = schemaNode.doubleValue();
