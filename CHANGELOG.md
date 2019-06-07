@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.14 - 2019-06-06
+
+### Added
+
+### Changed
+
+- fixes #163 update typeLoose to false as before merging the PR 141
+- fixes #162 bump up java version to 1.8
+- fixes #141 Improved Ref Validator. Thanks @jawaff
+
 ## 1.0.13 - 2019-06-05
 
 ### Added
