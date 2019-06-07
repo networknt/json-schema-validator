@@ -87,7 +87,7 @@ public class JsonSchemaTest {
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
                     // if test file do not contains typeLoose flag, use default value: true.
-                    config.setTypeLoose((typeLooseNode == null) ? true : typeLooseNode.asBoolean());
+                    config.setTypeLoose((typeLooseNode == null) ? false : typeLooseNode.asBoolean());
                     JsonSchema schema = validatorFactory.getSchema(testCaseFileUrl, testCase.get("schema"), config);
                     List<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
