@@ -16,13 +16,21 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.url.URLFactory;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -34,27 +42,60 @@ public class JsonSchema extends BaseJsonValidator {
     protected final Map<String, JsonValidator> validators;
     private final ValidationContext validationContext;
     
+    /**
+     * This is the current url of this schema. This url could refer to the url of this schema's file
+     * or it could potentially be a url that has been altered by an id. An 'id' is able to completely overwrite
+     * the current url or add onto it. This is necessary so that '$ref's are able to be relative to a
+     * combination of the current schema file's url and 'id' urls visible to this schema.
+     * 
+     * This can be null. If it is null, then the creation of relative urls will fail. However, an absolute
+     * 'id' would still be able to specify an absolute url.
+     */
+    private final URL currentUrl;
+    
     private JsonValidator requiredValidator = null;
 
-    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode) {
-        this(validationContext,  "#", schemaNode, null);
+    public JsonSchema(ValidationContext validationContext, URL baseUrl, JsonNode schemaNode) {
+        this(validationContext, "#", baseUrl, schemaNode, null);
     }
 
-    public JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validationContext, String schemaPath, URL currentUrl, JsonNode schemaNode,
                JsonSchema parent) {
-        this(validationContext,  schemaPath, schemaNode, parent, false);
+        this(validationContext,  schemaPath, currentUrl, schemaNode, parent, false);
     }
 
-    public JsonSchema(ValidationContext validationContext,  String schemaPath, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validationContext, URL baseUrl, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
+        this(validationContext, "#", baseUrl, schemaNode, null, suppressSubSchemaRetrieval);
+    }
+
+    private JsonSchema(ValidationContext validationContext,  String schemaPath, URL currentUrl, JsonNode schemaNode,
                JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.config = validationContext.getConfig();
+        this.currentUrl = this.combineCurrentUrlWithIds(currentUrl, schemaNode);
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
-
-    public JsonSchema(ValidationContext validationContext,  JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
-        this(validationContext, "#", schemaNode, null, suppressSubSchemaRetrieval);
+    
+    private URL combineCurrentUrlWithIds(URL currentUrl, JsonNode schemaNode) {
+      final JsonNode idNode = schemaNode.get("id");
+      if (idNode == null) {
+        return currentUrl;
+      } else {
+        try
+        {
+          return URLFactory.toURL(currentUrl, idNode.asText());
+        }
+        catch (MalformedURLException e)
+        {
+          throw new IllegalArgumentException(String.format("Invalid 'id' in schema: %s", schemaNode), e);
+        }
+      }
+    }
+    
+    public URL getCurrentUrl()
+    {
+      return this.currentUrl;
     }
 
     /**
