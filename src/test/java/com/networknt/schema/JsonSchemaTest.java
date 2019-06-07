@@ -279,6 +279,7 @@ public class JsonSchemaTest {
         runTestFile("tests/required.json");
     }
 
+
     @Test
     public void testTypeValidator() throws Exception {
         runTestFile("tests/type.json");
@@ -309,4 +310,10 @@ public class JsonSchemaTest {
         runTestFile("tests/classpath/schema.json");
     }
 
+
+
+    @Test
+    public void testUUIDValidator() throws Exception {
+        runTestFile("tests/uuid.json");
+    }
 }

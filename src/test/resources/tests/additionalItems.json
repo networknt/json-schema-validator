@@ -78,5 +78,39 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalItems for size 1 array",
+        "schema": {
+            "items": {},
+            "additionalItems": false
+        },
+        "tests": [
+            {
+                "description":
+                "items defaults to empty schema so everything is valid",
+                "data": "string",
+                "isTypeLoose": true,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "additionalItems are allowed by default for size 1 array",
+        "schema": {"items": [{"type": "integer"}]},
+        "tests": [
+            {
+                "description": "valid size 1 array match the schema",
+                "data": 1,
+                "isTypeLoose": true,
+                "valid": true
+            },
+            {
+                "description": "invalid size 1 array doesn't match the schema",
+                "data": "string",
+                "isTypeLoose": true,
+                "valid": false
+            }
+        ]
     }
 ]

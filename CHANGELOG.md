@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.13 - 2019-06-05
+
+### Added
+
+### Changed
+
+- fixes #158 date-time format should consider colon in timezone optional. Thanks @chuwy
+
+## 1.0.12 - 2019-05-30
+
+### Added
+
+### Changed
+
+- fixes #155 Fix date-time validation. Thanks @jiachen1120
+
+## 1.0.11 - 2019-05-28
+
+### Added
+
+### Changed
+
+- fixes #151 add validation for string type uuid. Thanks @chenyan71
+
+## 1.0.10 - 2019-05-22
+
+### Added
+
+### Changed
+
+- fixes #138 validation of date fields. Thanks @jiachen1120
+
+## 1.0.9 - 2019-05-21
+
+### Added
+
+### Changed
+
+- fixes #147 Fails to validate MIN and MAX when number type is converted to BigInteger. Thanks @jiachen1120
+
+## 1.0.8 - 2019-05-17
+
+### Added
+
+### Changed
+
+- fixes #145 Fix bug parsing array query params when only one item present. Thanks @jiachen1120
+- fixes #142 validation for enum object type. Thanks @jiachen1120
+- fixes #136 Maps of URLs can have performance impacts. Thanks @rhwood
+- fixes #134 $ref external schema references do not use URL mappings. Thanks @rhwood
+
 ## 1.0.7 - 2019-04-29
 
 ### Added

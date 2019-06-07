@@ -24,5 +24,17 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "minItems validation for size 1 array",
+        "schema": {"minItems": 2},
+        "tests": [
+            {
+                "description": "shorter is invalid",
+                "data": 1,
+                "isTypeLoose": true,
+                "valid": false
+            }
+        ]
     }
 ]

@@ -44,6 +44,10 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
             if (node.size() < min) {
                 return Collections.singleton(buildValidationMessage(at, "" + min));
             }
+        } else if (config.isTypeLoose()) {
+            if (1 < min) {
+                return Collections.singleton(buildValidationMessage(at, "" + min));
+            }
         }
 
         return Collections.emptySet();

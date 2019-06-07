@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.13</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -61,7 +61,7 @@
         <java.version>1.6</java.version>
         <java.testversion>1.7</java.testversion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.jackson>2.9.8</version.jackson>
+        <version.jackson>2.9.9</version.jackson>
         <version.slf4j>1.7.25</version.slf4j>
         <version.common-lang3>3.5</version.common-lang3>
         <version.logback>1.2.3</version.logback>
