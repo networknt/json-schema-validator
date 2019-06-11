@@ -33,12 +33,23 @@ public class URLFactory {
   private static final ClasspathURLStreamHandler sClasspathURLStreamHandler = new ClasspathURLStreamHandler();
 
   /**
-   * Creates an {@link URL} based on the provided string
-   * @param pURL the url
+   * Creates an {@link URL} based on the provided string and parent url.
+   * @param parentUrl the parent URL of the given url (if no parent exists, then this can be null).
+   * @param url the url
    * @return a {@link URL}
    * @throws MalformedURLException if the url is not a proper URL
    */
-  public static URL toURL(final String pURL) throws MalformedURLException {
-    return new URL(null, pURL, sClasspathURLStreamHandler.supports(pURL) ? sClasspathURLStreamHandler : null);
+  public static URL toURL(final URL parentUrl, final String url) throws MalformedURLException {
+    return new URL(parentUrl, url, sClasspathURLStreamHandler.supports(url) ? sClasspathURLStreamHandler : null);
+  }
+  
+  /**
+   * Creates an {@link URL} based on the provided string
+   * @param url the url
+   * @return a {@link URL}
+   * @throws MalformedURLException if the url is not a proper URL
+   */
+  public static URL toURL(final String url) throws MalformedURLException {
+    return new URL(null, url, sClasspathURLStreamHandler.supports(url) ? sClasspathURLStreamHandler : null);
   }
 }

@@ -16,7 +16,6 @@
 
 package com.networknt.schema;
 
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -34,9 +33,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     protected JsonSchema schema;
     
-    private static final String REF_DOMAIN = "/";
     private static final String REF_CURRENT = "#";
-    private static final String REF_RELATIVE = "../";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
@@ -50,23 +47,25 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     static JsonSchema getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
         if (!refValue.startsWith(REF_CURRENT)) {
-            // handle remote ref
-            String schemaUrl = refValue;
-        	    int index = refValue.indexOf(REF_CURRENT);
+            // This will be the url extracted from the refValue (this may be a relative or absolute Url).
+            final String refUrl;
+            final int index = refValue.indexOf(REF_CURRENT);
             if (index > 0) {
-                schemaUrl = schemaUrl.substring(0, index);
-            }
-            if(isRelativePath(schemaUrl)){
-                schemaUrl = obtainAbsolutePath(parentSchema, schemaUrl);
+                refUrl = refValue.substring(0, index);
+            } else {
+                refUrl = refValue;
             }
             
-            try {
-                URL url = URLFactory.toURL(schemaUrl);
-                parentSchema = validationContext.getJsonSchemaFactory().getSchema(url, validationContext.getConfig());
-            } catch (MalformedURLException e) {
-                InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaUrl);
-                parentSchema = validationContext.getJsonSchemaFactory().getSchema(is);
+            // This will determine the correct absolute url for the refUrl. This decision will take into
+            // account the current url of the parent schema.
+            URL schemaUrl = determineSchemaUrl(parentSchema, refUrl);
+            if (schemaUrl == null) {
+              return null;
             }
+            
+            // This should retrieve schemas regardless of the protocol that is in the url.
+            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUrl, validationContext.getConfig());
+            
             if (index < 0) {
                 return parentSchema.findAncestor();
             } else {
@@ -78,41 +77,28 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                return new JsonSchema(validationContext, refValue, node, parentSchema);
+                return new JsonSchema(validationContext, refValue, parentSchema.getCurrentUrl(), node, parentSchema);
             }
         }
         return null;
     }
-    
-    private static boolean isRelativePath(String schemaUrl) {
-    	return !schemaUrl.startsWith("http");
-    }
-    
-    private static String obtainAbsolutePath(JsonSchema parentSchema, String schemaUrl) {
-    	String baseSchemaUrl = parentSchema.findAncestor().getSchemaNode().get("id").textValue();
-		int index = baseSchemaUrl.lastIndexOf("/");
-		baseSchemaUrl = baseSchemaUrl.substring(0, index);
-		
-		String schemaRef = schemaUrl;
-		
-		if(schemaRef.startsWith(REF_DOMAIN)){
-			// from domain add ref
-			try {
-				URL url = URLFactory.toURL(baseSchemaUrl);
-				baseSchemaUrl = url.getProtocol()+"//"+url.getHost();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-		}else if(schemaRef.startsWith(REF_RELATIVE)){
-			// relative from schema
-			while(schemaRef.startsWith(REF_RELATIVE)){
-				index = baseSchemaUrl.lastIndexOf("/");
-				baseSchemaUrl = baseSchemaUrl.substring(0, index);
-				schemaRef = schemaRef.replaceFirst(REF_RELATIVE, "");
-			}
-		}
-		schemaRef = baseSchemaUrl +"/"+ schemaRef;
-		return schemaRef;
+
+    private static URL determineSchemaUrl(JsonSchema parentSchema, String refUrl) {
+        URL schemaUrl;
+        try {
+            // If the refUrl is an absolute url, then this will succeed.
+            schemaUrl = URLFactory.toURL(refUrl);
+        } catch (MalformedURLException e) {
+            try {
+                // If the refUrl is a valid relative url in the context of the parent schema's url,
+                // then this will succeed.
+                schemaUrl = URLFactory.toURL(parentSchema.getCurrentUrl(), refUrl);
+            } catch (MalformedURLException e2) {
+                // We are unable to resolve the reference at this point.
+                schemaUrl = null;
+            }
+        }
+        return schemaUrl;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
