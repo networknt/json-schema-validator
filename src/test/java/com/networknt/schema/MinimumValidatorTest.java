@@ -139,13 +139,28 @@ public class MinimumValidatorTest {
 
             // document parsed with BigDecimal
             doc = bigDecimalMapper.readTree(value);
-            messages = v.validate(doc);
-            assertTrue(format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value), messages.isEmpty());
+            Set<ValidationMessage> messages2 = v.validate(doc);
+
+            //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
+            if(Double.valueOf(minimum) == Double.NEGATIVE_INFINITY) {
+                /**
+                 * {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"} will be false
+                 * because the different between two mappers, without using big decimal, it loses some precises.
+                 */
+                assertTrue(format("Minimum %s and value %s are equal, thus no schema violation should be reported", minimum, value), messages2.isEmpty());
+            } else {
+                assertFalse(format("Minimum %s is larger than value %s ,  should be validation error reported", minimum, value), messages2.isEmpty());
+            }
 
             // schema and document parsed with BigDecimal
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            messages = v.validate(doc);
-            assertTrue(format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value), messages.isEmpty());
+            Set<ValidationMessage> messages3 = v.validate(doc);
+            //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
+            if(minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum) == Double.NEGATIVE_INFINITY) {
+                assertTrue(format("Minimum %s and value %s are equal, thus no schema violation should be reported", minimum, value), messages3.isEmpty());
+            } else {
+                assertFalse(format("Minimum %s is larger than value %s ,  should be validation error reported", minimum, value), messages3.isEmpty());
+            }
         }
     }
 
@@ -166,7 +181,7 @@ public class MinimumValidatorTest {
 
         doc = bigDecimalMapper.readTree(content);
         messages = v.validate(doc);
-        assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        assertFalse("Validation should not succeed because content is using bigDecimalMapper, and smaller than the minimum", messages.isEmpty());
 
         /**
          * Note: technically this is where -1.7976931348623158e+308 rounding to -1.7976931348623157e+308 could be
@@ -177,7 +192,30 @@ public class MinimumValidatorTest {
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
+        assertFalse("Validation should not succeed because content is using bigDecimalMapper, and smaller than the minimum", messages.isEmpty());
+    }
+
+    /**
+     * BigDecimalMapper issue, it doesn't work as expected, it will treat -1.7976931348623157e+309 as INFINITY instead of as it is.
+     */
+    @Test
+    public void doubleValueCoarsingExceedRange() throws IOException {
+        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": -1.7976931348623159e+308 }";
+        String content = "-1.7976931348623160e+308";
+
+        JsonNode doc = mapper.readTree(content);
+        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+
+        Set<ValidationMessage> messages = v.validate(doc);
         assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+
+        doc = bigDecimalMapper.readTree(content);
+        messages = v.validate(doc);
+        assertTrue("Validation should succeed due to the bug of BigDecimal option of mapper", messages.isEmpty());
+
+        v = factory.getSchema(bigDecimalMapper.readTree(schema));
+        messages = v.validate(doc);
+        assertTrue("Validation should succeed due to the bug of BigDecimal option of mapper", messages.isEmpty());
     }
 
     @Test
@@ -379,6 +417,86 @@ public class MinimumValidatorTest {
 
             Set<ValidationMessage> messages = v.validate(doc);
             assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMinimumDoubleValue() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-1E309",         "-1000"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as value %s is greater than minimum %s", value, minimum), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMinimumDoubleValueNegative() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"-1000",         "-1E309"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting  validation errors as value %s is smaller than minimum %s", value, minimum), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMinimumDoubleValueWithNumberType() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"1000",         "1000.1"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as value %s is greater than minimum %s", value, minimum), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMinimumDoubleValueWithNumberTypeNegative() throws IOException {
+        String[][] values = {
+//            minimum,                       value
+                {"1000.1",         "1000"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String minimum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting  validation errors as value %s is smaller than minimum %s", value, minimum), messages.isEmpty());
         }
     }
 }
