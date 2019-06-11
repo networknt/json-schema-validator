@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
@@ -46,34 +47,17 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
-        //if the schema type is not integer, or the maximum value is not an integer, try to compare using double values;
-        if (!JsonType.INTEGER.toString().equals(getNodeFieldType()) || !JsonType.INTEGER.toString().equals(schemaNode.getNodeType())) {
-            // "number" or no type
-            // by default treat value as double: compatible with previous behavior
-            final double dm = schemaNode.doubleValue();
-            typedMaximum = new ThresholdMixin() {
-                @Override
-                public boolean crossesThreshold(JsonNode node) {
-                    double value = node.asDouble();
-                    return greaterThan(value, dm) || (excludeEqual && MaximumValidator.this.equals(value, dm));
-                }
 
-                @Override
-                public String thresholdValue() {
-                    return String.valueOf(dm);
-                }
-            };
-
-        } else if ( schemaNode.isLong() || schemaNode.isInt() ) {
+        if (( schemaNode.isLong() || schemaNode.isInt() ) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     long val = node.asLong();
-                    if(node.isBigInteger()) {
+                    if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        if(node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0) {
+                        if (node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0) {
                             return true;
                         }
                     }
@@ -85,20 +69,22 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
                     return String.valueOf(lm);
                 }
             };
-
         } else {
-            // "integer" outside long range
-            final BigInteger bim = new BigInteger(schemaNode.asText());
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    int cmp = bim.compareTo(node.bigIntegerValue());
-                    return cmp < 0 || (excludeEqual && cmp <= 0);
+                    if(schemaNode.doubleValue() == Double.POSITIVE_INFINITY) {
+                        return false;
+                    }
+                    final BigDecimal max = new BigDecimal(schemaNode.asText());
+                    if(node.doubleValue() == Double.POSITIVE_INFINITY) {return true;}
+                    BigDecimal value = new BigDecimal(node.asText());
+                    return value.compareTo(max) > 0 || (excludeEqual && value.compareTo(max) == 0);
                 }
 
                 @Override
                 public String thresholdValue() {
-                    return String.valueOf(bim);
+                    return schemaNode.asText();
                 }
             };
         }
@@ -117,5 +103,4 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
         }
         return Collections.emptySet();
     }
-
 }

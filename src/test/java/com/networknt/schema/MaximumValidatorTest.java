@@ -40,6 +40,8 @@ public class MaximumValidatorTest {
     @Before
     public void setUp() {
         mapper = new ObjectMapper();
+        // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
+        // https://github.com/FasterXML/jackson-databind/issues/1770
         bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
     }
@@ -137,14 +139,25 @@ public class MaximumValidatorTest {
             assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
 
             // document parsed with BigDecimal
+
             doc = bigDecimalMapper.readTree(value);
-            messages = v.validate(doc);
-            assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
+            Set<ValidationMessage> messages2 = v.validate(doc);
+            if(Double.valueOf(maximum) == Double.POSITIVE_INFINITY) {
+                assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages2.isEmpty());
+            } else {
+                assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages2.isEmpty());
+            }
+
 
             // schema and document parsed with BigDecimal
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            messages = v.validate(doc);
-            assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
+            Set<ValidationMessage> messages3 = v.validate(doc);
+            //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
+            if(maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum) == Double.POSITIVE_INFINITY) {
+                assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages3.isEmpty());
+            } else {
+                assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages3.isEmpty());
+            }
         }
     }
 
@@ -165,7 +178,9 @@ public class MaximumValidatorTest {
 
         doc = bigDecimalMapper.readTree(content);
         messages = v.validate(doc);
-        assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
+        // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
+        assertFalse("Validation should not succeed because content is using bigDecimalMapper, and bigger than the maximum", messages.isEmpty());
 
         /**
          * Note: technically this is where 1.7976931348623158e+308 rounding to 1.7976931348623157e+308 could be spotted,
@@ -176,7 +191,7 @@ public class MaximumValidatorTest {
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
-        assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        assertFalse("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
     }
 
     @Test
@@ -419,6 +434,86 @@ public class MaximumValidatorTest {
 
             Set<ValidationMessage> messages = v.validate(doc);
             assertFalse(format("Expecting validation error with maximum %s and value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMaximumDoubleValue() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"1E39",         "1000"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMaximumDoubleValueNegative() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"1000",         "1E39"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting  validation errors as value %s is greater than maximum %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMaximumDoubleValueWithNumberType() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"1000.1",         "1000"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertTrue(format("Expecting no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
+        }
+    }
+
+    @Test
+    public void testMaximumDoubleValueWithNumberTypeNegative() throws IOException {
+        String[][] values = {
+//            maximum,                       value
+                {"1000",         "1000.1"}
+        };
+
+        for(String[] aTestCycle : values) {
+            String maximum = aTestCycle[0];
+            String value = aTestCycle[1];
+            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
+
+            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonNode doc = mapper.readTree(value);
+
+            Set<ValidationMessage> messages = v.validate(doc);
+            assertFalse(format("Expecting  validation errors as value %s is greater than maximum %s", maximum, value), messages.isEmpty());
         }
     }
 }
