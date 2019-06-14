@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.15 - 2019-06-14
+
+### Added
+
+### Changed
+
+- fixes #160 when schema type is integer but max/min value is a float point number. Thanks @BalloonWen
+
 ## 1.0.14 - 2019-06-06
 
 ### Added
