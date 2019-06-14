@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
@@ -50,24 +51,7 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
 
-        if (!JsonType.INTEGER.toString().equals(getNodeFieldType())) {
-            // "number" or no type
-            // by default treat value as double: compatible with previous behavior
-            final double dmin = schemaNode.doubleValue();
-            typedMinimum = new ThresholdMixin() {
-                @Override
-                public boolean crossesThreshold(JsonNode node) {
-                    double value = node.asDouble();
-                    return lessThan(value, dmin) || (excluded && MinimumValidator.this.equals(value, dmin));
-                }
-
-                @Override
-                public String thresholdValue() {
-                    return String.valueOf(dmin);
-                }
-            };
-
-        } else if ( schemaNode.isLong() || schemaNode.isInt() ) {
+        if ( schemaNode.isLong() || schemaNode.isInt() && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
             typedMinimum = new ThresholdMixin() {
@@ -90,18 +74,21 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
             };
 
         } else {
-            // "integer" outside long range
-            final BigInteger bimin = new BigInteger(schemaNode.asText());
             typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    int cmp = bimin.compareTo(node.bigIntegerValue());
-                    return cmp > 0 || (excluded && cmp >= 0);
+                    if(schemaNode.doubleValue() == Double.NEGATIVE_INFINITY) {
+                        return false;
+                    }
+                    final BigDecimal min = new BigDecimal(schemaNode.asText());
+                    if(node.doubleValue() == Double.NEGATIVE_INFINITY) {return true;}
+                    BigDecimal value = new BigDecimal(node.asText());
+                    return value.compareTo(min) < 0 || (excluded && value.compareTo(min) == 0);
                 }
 
                 @Override
                 public String thresholdValue() {
-                    return String.valueOf(bimin);
+                    return schemaNode.asText();
                 }
             };
         }
