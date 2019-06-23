@@ -16,8 +16,7 @@
 
 package com.networknt.schema;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Set;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.URLFactory;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -47,24 +45,24 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     static JsonSchema getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
         if (!refValue.startsWith(REF_CURRENT)) {
-            // This will be the url extracted from the refValue (this may be a relative or absolute Url).
-            final String refUrl;
+            // This will be the uri extracted from the refValue (this may be a relative or absolute uri).
+            final String refUri;
             final int index = refValue.indexOf(REF_CURRENT);
             if (index > 0) {
-                refUrl = refValue.substring(0, index);
+            	refUri = refValue.substring(0, index);
             } else {
-                refUrl = refValue;
+            	refUri = refValue;
             }
             
-            // This will determine the correct absolute url for the refUrl. This decision will take into
-            // account the current url of the parent schema.
-            URL schemaUrl = determineSchemaUrl(parentSchema, refUrl);
-            if (schemaUrl == null) {
+            // This will determine the correct absolute uri for the refUri. This decision will take into
+            // account the current uri of the parent schema.
+            URI schemaUri = determineSchemaUri(parentSchema, refUri);
+            if (schemaUri == null) {
               return null;
             }
             
-            // This should retrieve schemas regardless of the protocol that is in the url.
-            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUrl, validationContext.getConfig());
+            // This should retrieve schemas regardless of the protocol that is in the uri.
+            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUri, validationContext.getConfig());
             
             if (index < 0) {
                 return parentSchema.findAncestor();
@@ -77,28 +75,29 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                return new JsonSchema(validationContext, refValue, parentSchema.getCurrentUrl(), node, parentSchema);
+                return new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
             }
         }
         return null;
     }
 
-    private static URL determineSchemaUrl(JsonSchema parentSchema, String refUrl) {
-        URL schemaUrl;
-        try {
-            // If the refUrl is an absolute url, then this will succeed.
-            schemaUrl = URLFactory.toURL(refUrl);
-        } catch (MalformedURLException e) {
-            try {
-                // If the refUrl is a valid relative url in the context of the parent schema's url,
-                // then this will succeed.
-                schemaUrl = URLFactory.toURL(parentSchema.getCurrentUrl(), refUrl);
-            } catch (MalformedURLException e2) {
-                // We are unable to resolve the reference at this point.
-                schemaUrl = null;
+    private static URI determineSchemaUri(final JsonSchema parentSchema, final String refUri) {
+    	URI schemaUri;
+    	final URI currentUri = parentSchema.getCurrentUri();
+    	try
+    	{
+            if (currentUri == null)
+            {
+    	        schemaUri = URI.create(refUri);
             }
-        }
-        return schemaUrl;
+            else
+            {
+                schemaUri = currentUri.resolve(URI.create(refUri));
+            }
+    	} catch (IllegalArgumentException e) {
+    	    schemaUri = null;
+    	}
+        return schemaUri;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {

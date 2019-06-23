@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.networknt.schema.url;
+package com.networknt.schema.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
-public interface URLFetcher {
-    InputStream fetch(URL url) throws IOException;
+/**
+ * Standard URI fetcher that assumes uses {@link URL#openStream()} for fetching.
+ */
+public class DefaultURLFetcher implements URIFetcher {
+    @Override
+    public InputStream fetch(final URI uri) throws IOException {
+        return uri.toURL().openStream();
+    }
 }

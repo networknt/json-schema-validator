@@ -16,7 +16,6 @@
 
 package com.networknt.schema;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class SchemaValidatorsConfig {
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory} 
      * may have been built with.
      */
-    private Map<String, String> urlMappings = new HashMap<String, String>();
+    private Map<String, String> uriMappings = new HashMap<String, String>();
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -53,13 +52,13 @@ public class SchemaValidatorsConfig {
         this.typeLoose = typeLoose;
     }
 
-    public Map<String, String> getUrlMappings() {
+    public Map<String, String> getUriMappings() {
         // return a copy of the mappings
-        return new HashMap<String, String>(urlMappings);
+        return new HashMap<String, String>(uriMappings);
     }
 
-    public void setUrlMappings(Map<String, String> urlMappings) {
-        this.urlMappings = urlMappings;
+    public void setUriMappings(Map<String, String> uriMappings) {
+        this.uriMappings = uriMappings;
     }
     
     public boolean isMissingNodeAsError() {
@@ -84,6 +83,6 @@ public class SchemaValidatorsConfig {
 
     private void loadDefaultConfig() {
         this.typeLoose = true;
-        this.urlMappings = new HashMap<String, String>();
+        this.uriMappings = new HashMap<String, String>();
     }
 }

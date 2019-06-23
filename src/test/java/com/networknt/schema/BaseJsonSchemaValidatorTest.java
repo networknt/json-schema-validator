@@ -16,11 +16,12 @@
 
 package com.networknt.schema;
 
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Created by steve on 22/10/16.
@@ -62,9 +63,9 @@ public class BaseJsonSchemaValidatorTest {
         return schema;
     }
 
-    protected JsonSchema getJsonSchemaFromUrl(String url) throws Exception {
+    protected JsonSchema getJsonSchemaFromUrl(String uri) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
-        JsonSchema schema = factory.getSchema(new URL(url));
+        JsonSchema schema = factory.getSchema(new URI(uri));
         return schema;
     }
 

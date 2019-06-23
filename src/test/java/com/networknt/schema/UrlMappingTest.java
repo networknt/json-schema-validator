@@ -11,7 +11,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
-import com.networknt.schema.url.URLFactory;
+import com.networknt.schema.uri.DefaultURLFactory;
 
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class UrlMappingTest {
      */
     @Test
     public void testBuilderUrlMappingUrl() throws IOException {
-        URL mappings = URLFactory.toURL("resource:tests/url_mapping/url-mapping.json");
+        URL mappings = DefaultURLFactory.toURL("resource:tests/url_mapping/url-mapping.json");
         JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
@@ -68,7 +68,7 @@ public class UrlMappingTest {
         } catch (Exception ex) {
             fail("Unexpected exception thrown");
         }
-        URL mappings = URLFactory.toURL("resource:tests/url_mapping/invalid-schema-url.json");
+        URL mappings = DefaultURLFactory.toURL("resource:tests/url_mapping/invalid-schema-url.json");
         JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
@@ -88,7 +88,7 @@ public class UrlMappingTest {
     @Test
     public void testValidatorConfigUrlMappingUrl() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
-        URL mappings = URLFactory.toURL("resource:tests/url_mapping/url-mapping.json");
+        URL mappings = DefaultURLFactory.toURL("resource:tests/url_mapping/url-mapping.json");
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setUrlMappings(getUrlMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(new URL(
@@ -124,7 +124,7 @@ public class UrlMappingTest {
         } catch (Exception ex) {
             fail("Unexpected exception thrown");
         }
-        URL mappings = URLFactory.toURL("resource:tests/url_mapping/invalid-schema-url.json");
+        URL mappings = DefaultURLFactory.toURL("resource:tests/url_mapping/invalid-schema-url.json");
         config.setUrlMappings(getUrlMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(example, config);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
@@ -133,10 +133,10 @@ public class UrlMappingTest {
     @Test
     public void testMappingsForRef() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
-        URL mappings = URLFactory.toURL("resource:tests/url_mapping/schema-with-ref-mapping.json");
+        URL mappings = DefaultURLFactory.toURL("resource:tests/url_mapping/schema-with-ref-mapping.json");
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setUrlMappings(getUrlMappingsFromUrl(mappings));
-        JsonSchema schema = instance.getSchema(URLFactory.toURL("resource:tests/url_mapping/schema-with-ref.json"),
+        JsonSchema schema = instance.getSchema(DefaultURLFactory.toURL("resource:tests/url_mapping/schema-with-ref.json"),
                 config);
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }

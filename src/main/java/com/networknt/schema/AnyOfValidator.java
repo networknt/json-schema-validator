@@ -16,16 +16,16 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -36,7 +36,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUrl(), schemaNode.get(i), parentSchema));
+            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode.get(i), parentSchema));
         }
     }
 
@@ -64,7 +64,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             allErrors.addAll(errors);
         }
         if (!expectedTypeList.isEmpty()) {
-            return Collections.singleton(buildValidationMessage(at, StringUtils.join(expectedTypeList)));
+            return Collections.singleton(buildValidationMessage(at, expectedTypeList.toArray(new String[expectedTypeList.size()])));
         }
         return Collections.unmodifiableSet(allErrors);
     }

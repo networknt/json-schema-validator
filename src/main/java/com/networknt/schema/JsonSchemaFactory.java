@@ -18,7 +18,7 @@ package com.networknt.schema;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.url.StandardURLFetcher;
-import com.networknt.schema.url.URLFactory;
-import com.networknt.schema.url.URLFetcher;
+import com.networknt.schema.uri.ClasspathURIFetcher;
+import com.networknt.schema.uri.DefaultURLFetcher;
+import com.networknt.schema.uri.URIFetcher;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -39,40 +39,57 @@ public class JsonSchemaFactory {
     
     public static class Builder {
         private ObjectMapper objectMapper = new ObjectMapper();
-        private URLFetcher urlFetcher;
+        private Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
         private String defaultMetaSchemaURI;
         private Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
-        private Map<String, String> urlMap = new HashMap<String, String>();
+        private Map<String, String> uriMap = new HashMap<String, String>();
         
-        public Builder objectMapper(ObjectMapper objectMapper) {
+        public Builder() {
+        	// By default we add support for custom classpath URIs.
+        	final URIFetcher classpathUriFetcher = new ClasspathURIFetcher();
+        	for (final String scheme : ClasspathURIFetcher.SUPPORTED_SCHEMES) {
+                this.uriFetcherMap.put(scheme, classpathUriFetcher);
+        	}
+        }
+        
+        public Builder objectMapper(final ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
             return this;
         }
         
-        public Builder urlFetcher(URLFetcher urlFetcher) {
-            this.urlFetcher = urlFetcher;
+        /**
+         * Maps a number of scheme to a {@link URIFetcher}.
+         * @param uriFetcher the uri fetcher that will be used for the given schemes.
+         * @param scheme the scheme that the uri fetcher will be assocaited with.
+         * @return this builder.
+         */
+        public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {
+            for (final String scheme : schemes)
+        	{
+                this.uriFetcherMap.put(scheme, uriFetcher);
+        	}
             return this;
         }
         
-        public Builder defaultMetaSchemaURI(String defaultMetaSchemaURI) {
+        public Builder defaultMetaSchemaURI(final String defaultMetaSchemaURI) {
             this.defaultMetaSchemaURI = defaultMetaSchemaURI;
             return this;
         }
         
-        public Builder addMetaSchema(JsonMetaSchema jsonMetaSchema) {
+        public Builder addMetaSchema(final JsonMetaSchema jsonMetaSchema) {
             this.jsonMetaSchemas.put(jsonMetaSchema.getUri(), jsonMetaSchema);
             return this;
         }
         
-        public Builder addMetaSchemas(Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
+        public Builder addMetaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
             for (JsonMetaSchema jsonMetaSchema: jsonMetaSchemas) {
                 this.jsonMetaSchemas.put(jsonMetaSchema.getUri(), jsonMetaSchema);
             }
             return this;
         }
         
-        public Builder addUrlMappings(Map<String, String> map) {
-            this.urlMap.putAll(map);
+        public Builder addUriMappings(final Map<String, String> map) {
+            this.uriMap.putAll(map);
             return this;
         }
         
@@ -80,30 +97,32 @@ public class JsonSchemaFactory {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
                     objectMapper == null ? new ObjectMapper() : objectMapper, 
-                    urlFetcher == null ? new StandardURLFetcher(): urlFetcher, 
+                    uriFetcherMap, 
                     defaultMetaSchemaURI, 
                     jsonMetaSchemas,
-                    urlMap
+                    uriMap
             );
         }
     }
     
+    private static final URIFetcher DEFAULT_URI_FETCHER = new DefaultURLFetcher();
+    
     private final ObjectMapper mapper;
-    private final URLFetcher urlFetcher;
+    private final Map<String, URIFetcher> uriFetcherMap;
     private final String defaultMetaSchemaURI;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
-    private final Map<String, String> urlMap;
+    private final Map<String, String> uriMap;
 
     private JsonSchemaFactory(
-            ObjectMapper mapper, 
-            URLFetcher urlFetcher, 
-            String defaultMetaSchemaURI, 
-            Map<String, JsonMetaSchema> jsonMetaSchemas, 
-            Map<String, String> urlMap) {
+            final ObjectMapper mapper, 
+            final Map<String, URIFetcher> uriFetcherMap, 
+            final String defaultMetaSchemaURI, 
+            final Map<String, JsonMetaSchema> jsonMetaSchemas, 
+            final Map<String, String> uriMap) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         }
-        if (urlFetcher == null) {
+        if (uriFetcherMap == null) {
             throw new IllegalArgumentException("URLFetcher must not be null");
         }
         if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
@@ -115,14 +134,14 @@ public class JsonSchemaFactory {
         if (jsonMetaSchemas.get(defaultMetaSchemaURI) == null) {
             throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
         }
-        if (urlMap == null) {
+        if (uriMap == null) {
             throw new IllegalArgumentException("URL Mappings must not be null");
         }
         this.mapper = mapper;
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
-        this.urlFetcher = urlFetcher;
+        this.uriFetcherMap = uriFetcherMap;
         this.jsonMetaSchemas = jsonMetaSchemas;
-        this.urlMap = urlMap;
+        this.uriMap = uriMap;
     }
 
     /**
@@ -148,28 +167,33 @@ public class JsonSchemaFactory {
                 .build();
     }
     
-    public static Builder builder(JsonSchemaFactory blueprint) {
-        return builder()
+    public static Builder builder(final JsonSchemaFactory blueprint) {
+        Builder builder = builder()
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
-                .urlFetcher(blueprint.urlFetcher)
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
                 .objectMapper(blueprint.mapper)
-                .addUrlMappings(blueprint.urlMap);
+                .addUriMappings(blueprint.uriMap);
+        
+        for (Map.Entry<String, URIFetcher> entry : blueprint.uriFetcherMap.entrySet())
+        {
+            builder = builder.uriFetcher(entry.getValue(), entry.getKey());
+        }
+        return builder;
     }
     
-    private JsonSchema newJsonSchema(URL schemaUrl, JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUrl, schemaNode);
+        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode);
         return jsonSchema;
     }
 
-    protected ValidationContext createValidationContext(JsonNode schemaNode) {
+    protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
         return new ValidationContext(jsonMetaSchema, this);
     }
 
-    private JsonMetaSchema findMetaSchemaForSchema(JsonNode schemaNode) {
+    private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI: uriNode.textValue();
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
@@ -179,7 +203,7 @@ public class JsonSchemaFactory {
         return jsonMetaSchema;
     }
     
-    public JsonSchema getSchema(String schema, SchemaValidatorsConfig config) {
+    public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schema);
             return newJsonSchema(null, schemaNode, config);
@@ -189,11 +213,11 @@ public class JsonSchemaFactory {
         }
     }
 
-    public JsonSchema getSchema(String schema) {
+    public JsonSchema getSchema(final String schema) {
         return getSchema(schema, null);
     }
     
-    public JsonSchema getSchema(InputStream schemaStream, SchemaValidatorsConfig config) {
+    public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schemaStream);
             return newJsonSchema(null, schemaNode, config);
@@ -203,26 +227,34 @@ public class JsonSchemaFactory {
         }
     }
 
-    public JsonSchema getSchema(InputStream schemaStream) {
+    public JsonSchema getSchema(final InputStream schemaStream) {
         return getSchema(schemaStream, null);
     }
     
-    public JsonSchema getSchema(URL schemaURL, SchemaValidatorsConfig config) {
+    public JsonSchema getSchema(final URI schemaUri, final SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
-            Map<String, String> map = (config != null) ? config.getUrlMappings() : new HashMap<String, String>(urlMap);
-            map.putAll(urlMap);
-            URL mappedURL = URLFactory.toURL(map.getOrDefault(schemaURL.toString(), schemaURL.toString()));
+            final Map<String, String> map = (config != null) ? config.getUriMappings() : new HashMap<String, String>(uriMap);
+            map.putAll(uriMap);
+            
+            final URI mappedUri;
             try {
-                inputStream = urlFetcher.fetch(mappedURL);
-                JsonNode schemaNode = mapper.readTree(inputStream);
+                mappedUri = URI.create(map.getOrDefault(schemaUri.toString(), schemaUri.toString()));
+            } catch (IllegalArgumentException e) {
+                logger.error("Failed to create URI.", e);
+                throw new JsonSchemaException(e);
+            }
+            try {
+            	final URIFetcher uriFetcher = this.uriFetcherMap.getOrDefault(mappedUri.getScheme(), DEFAULT_URI_FETCHER);
+                inputStream = uriFetcher.fetch(mappedUri);
+                final JsonNode schemaNode = mapper.readTree(inputStream);
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
-                if (idMatchesSourceUrl(jsonMetaSchema, schemaNode, schemaURL)) {
-                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), mappedURL, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
+                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
-                return newJsonSchema(mappedURL, schemaNode, config);
+                return newJsonSchema(mappedUri, schemaNode, config);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
@@ -234,36 +266,36 @@ public class JsonSchemaFactory {
         }
     }
 
-    public JsonSchema getSchema(URL schemaURL) {
-        return getSchema(schemaURL, new SchemaValidatorsConfig());
+    public JsonSchema getSchema(final URI schemaUri) {
+        return getSchema(schemaUri, new SchemaValidatorsConfig());
     }
 
-    public JsonSchema getSchema(URL schemaUrl, JsonNode jsonNode, SchemaValidatorsConfig config) {
-        return newJsonSchema(schemaUrl, jsonNode, config);
+    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+        return newJsonSchema(schemaUri, jsonNode, config);
     }
     
 
-    public JsonSchema getSchema(JsonNode jsonNode, SchemaValidatorsConfig config) {
+    public JsonSchema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
     }
 
-    public JsonSchema getSchema(URL schemaUrl, JsonNode jsonNode) {
-        return newJsonSchema(schemaUrl, jsonNode, null);
+    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
+        return newJsonSchema(schemaUri, jsonNode, null);
     }
     
-    public JsonSchema getSchema(JsonNode jsonNode) {
+    public JsonSchema getSchema(final JsonNode jsonNode) {
         return newJsonSchema(null, jsonNode, null);
     }
 
-    private boolean idMatchesSourceUrl(JsonMetaSchema metaSchema, JsonNode schema, URL schemaUrl) {
+    private boolean idMatchesSourceUri(final JsonMetaSchema metaSchema, final JsonNode schema, final URI schemaUri) {
 
         String id = metaSchema.readId(schema);
         if (id == null || id.isEmpty()) {
             return false;
         }
-        boolean result = id.equals(schemaUrl.toString());
+        boolean result = id.equals(schemaUri.toString());
         if (logger.isDebugEnabled()) {
-            logger.debug("Matching " + id + " to " + schemaUrl.toString() + ": " + result);
+            logger.debug("Matching " + id + " to " + schemaUri.toString() + ": " + result);
         }
         return result;
     }

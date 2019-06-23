@@ -20,6 +20,7 @@ import static io.undertow.Handlers.resource;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.networknt.schema.url.URLFactory;
 
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
@@ -70,7 +70,7 @@ public class JsonSchemaTest {
     }
 
     private void runTestFile(String testCaseFile) throws Exception {
-        final URL testCaseFileUrl = URLFactory.toURL("classpath:" + testCaseFile);
+        final URI testCaseFileUri = URI.create("classpath:" + testCaseFile);
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(testCaseFile);
         ArrayNode testCases = (ArrayNode) mapper.readTree(in);
@@ -88,7 +88,7 @@ public class JsonSchemaTest {
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
                     // if test file do not contains typeLoose flag, use default value: true.
                     config.setTypeLoose((typeLooseNode == null) ? false : typeLooseNode.asBoolean());
-                    JsonSchema schema = validatorFactory.getSchema(testCaseFileUrl, testCase.get("schema"), config);
+                    JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), config);
                     List<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
                     errors.addAll(schema.validate(node));
