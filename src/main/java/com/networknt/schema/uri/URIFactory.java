@@ -17,12 +17,24 @@
 package com.networknt.schema.uri;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 
 /**
- * The URIFetcher interface defines how file streams are able to be fetched given a {@link URI}.
+ * The URIFactory interface defines how {@link URI}s are able to be combined and created.
  */
-public interface URIFetcher {
-  InputStream fetch(URI uri) throws IOException;
+public interface URIFactory {
+  /**
+   * @param uri Some uri string.
+   * @return The converted {@link URI}.
+   * @throws IOException if there was a problem creating the {@link URI}.
+   */
+  URI create(String uri) throws IOException;
+  
+  /**
+   * @param baseURI The base {@link URI}.
+   * @param segment The segment to add to the base {@link URI}. 
+   * @return The combined {@link URI}.
+   * @throws IOException if there was a problem creating the {@link URI}.
+   */
+  URI create(URI baseURI, String segment) throws IOException;
 }
