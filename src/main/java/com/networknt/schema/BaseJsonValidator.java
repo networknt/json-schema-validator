@@ -16,14 +16,13 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.URLFactory;
+import java.net.URI;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class BaseJsonValidator implements JsonValidator {
     private String schemaPath;
@@ -71,22 +70,23 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     
-    private static JsonSchema obtainSubSchemaNode(JsonNode schemaNode, ValidationContext validationContext){
-        JsonNode node = schemaNode.get("id");
+    private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext){
+        final JsonNode node = schemaNode.get("id");
         if(node == null) return null;
     	if(node.equals(schemaNode.get("$schema"))) return null;
 
-        try {
-            String text = node.textValue();
-            if (text == null) {
+        final String text = node.textValue();
+        if (text == null) {
+            return null;
+        }
+        else {
+        	final URI uri;
+            try {
+                uri = validationContext.getJsonSchemaFactory().getURIFactory().create(node.textValue());
+            } catch (IllegalArgumentException e) {
                 return null;
             }
-            else {
-                URL url = URLFactory.toURL(node.textValue());
-                return validationContext.getJsonSchemaFactory().getSchema(url, validationContext.getConfig());
-            }
-        } catch (MalformedURLException e) {
-            return null;
+            return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
         }
     }
 

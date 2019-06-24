@@ -17,8 +17,7 @@
 package com.networknt.schema;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.url.URLFactory;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -43,59 +41,56 @@ public class JsonSchema extends BaseJsonValidator {
     private final ValidationContext validationContext;
     
     /**
-     * This is the current url of this schema. This url could refer to the url of this schema's file
-     * or it could potentially be a url that has been altered by an id. An 'id' is able to completely overwrite
-     * the current url or add onto it. This is necessary so that '$ref's are able to be relative to a
-     * combination of the current schema file's url and 'id' urls visible to this schema.
+     * This is the current uri of this schema. This uri could refer to the uri of this schema's file
+     * or it could potentially be a uri that has been altered by an id. An 'id' is able to completely overwrite
+     * the current uri or add onto it. This is necessary so that '$ref's are able to be relative to a
+     * combination of the current schema file's uri and 'id' uris visible to this schema.
      * 
-     * This can be null. If it is null, then the creation of relative urls will fail. However, an absolute
-     * 'id' would still be able to specify an absolute url.
+     * This can be null. If it is null, then the creation of relative uris will fail. However, an absolute
+     * 'id' would still be able to specify an absolute uri.
      */
-    private final URL currentUrl;
+    private final URI currentUri;
     
     private JsonValidator requiredValidator = null;
 
-    public JsonSchema(ValidationContext validationContext, URL baseUrl, JsonNode schemaNode) {
-        this(validationContext, "#", baseUrl, schemaNode, null);
+    public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
+        this(validationContext, "#", baseUri, schemaNode, null);
     }
 
-    public JsonSchema(ValidationContext validationContext, String schemaPath, URL currentUrl, JsonNode schemaNode,
+    public JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                JsonSchema parent) {
-        this(validationContext,  schemaPath, currentUrl, schemaNode, parent, false);
+        this(validationContext,  schemaPath, currentUri, schemaNode, parent, false);
     }
 
-    public JsonSchema(ValidationContext validationContext, URL baseUrl, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
-        this(validationContext, "#", baseUrl, schemaNode, null, suppressSubSchemaRetrieval);
+    public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
+        this(validationContext, "#", baseUri, schemaNode, null, suppressSubSchemaRetrieval);
     }
 
-    private JsonSchema(ValidationContext validationContext,  String schemaPath, URL currentUrl, JsonNode schemaNode,
+    private JsonSchema(ValidationContext validationContext,  String schemaPath, URI currentUri, JsonNode schemaNode,
                JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.config = validationContext.getConfig();
-        this.currentUrl = this.combineCurrentUrlWithIds(currentUrl, schemaNode);
+        this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
     
-    private URL combineCurrentUrlWithIds(URL currentUrl, JsonNode schemaNode) {
+    private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
       final JsonNode idNode = schemaNode.get("id");
       if (idNode == null) {
-        return currentUrl;
+        return currentUri;
       } else {
-        try
-        {
-          return URLFactory.toURL(currentUrl, idNode.asText());
-        }
-        catch (MalformedURLException e)
-        {
-          throw new IllegalArgumentException(String.format("Invalid 'id' in schema: %s", schemaNode), e);
+        try {
+          return this.validationContext.getJsonSchemaFactory().getURIFactory().create(currentUri, idNode.asText());
+        } catch (IllegalArgumentException e) {
+          throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, idNode.asText(), currentUri.toString()));
         }
       }
     }
     
-    public URL getCurrentUrl()
+    public URI getCurrentUri()
     {
-      return this.currentUrl;
+      return this.currentUri;
     }
 
     /**

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.networknt.schema.url;
+package com.networknt.schema.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An {@link URLStreamHandler} capable of loading resources from the classpath.
@@ -28,12 +32,8 @@ import java.net.URLStreamHandler;
  * @author <a href="mailto:kenneth.waldenstroem@gmail.com">Kenneth Waldenstrom</a>
  */
 class ClasspathURLStreamHandler extends URLStreamHandler {
-  private final static String CLASSPATH_PREFIX = "classpath:";
-  private final static String RESOURCE_PREFIX = "resource:";
-
-  boolean supports(final String pURL) {
-    return pURL.startsWith(CLASSPATH_PREFIX) || pURL.startsWith(RESOURCE_PREFIX);
-  }
+  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
+    Arrays.asList("classpath", "resource")));
 
   @Override
   protected URLConnection openConnection(final URL pURL) throws IOException {

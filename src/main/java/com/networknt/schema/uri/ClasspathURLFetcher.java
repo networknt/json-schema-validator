@@ -14,12 +14,28 @@
  * limitations under the License.
  */
 
-package com.networknt.schema.url;
+package com.networknt.schema.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Set;
 
-public interface URLFetcher {
-    InputStream fetch(URL url) throws IOException;
+/**
+ * A URIfetcher that uses {@link URL#openStream()} for fetching and assumes given {@link URI}s
+ * are actualy {@link URL}s.
+ */
+public final class ClasspathURLFetcher implements URIFetcher {
+  // This fetcher handles the {@link URL}s created with the {@link ClasspathURIFactory}.
+  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(ClasspathURLFactory.SUPPORTED_SCHEMES);
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public InputStream fetch(final URI uri) throws IOException {
+    return ClasspathURLFactory.convert(uri).openStream();
+  }
 }
