@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.uri.URIFactory;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -56,7 +57,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             
             // This will determine the correct absolute uri for the refUri. This decision will take into
             // account the current uri of the parent schema.
-            URI schemaUri = determineSchemaUri(parentSchema, refUri);
+            URI schemaUri = determineSchemaUri(validationContext.getJsonSchemaFactory().getURIFactory(), parentSchema, refUri);
             if (schemaUri == null) {
               return null;
             }
@@ -81,18 +82,18 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         return null;
     }
 
-    private static URI determineSchemaUri(final JsonSchema parentSchema, final String refUri) {
+    private static URI determineSchemaUri(final URIFactory uriFactory, final JsonSchema parentSchema, final String refUri) {
     	URI schemaUri;
     	final URI currentUri = parentSchema.getCurrentUri();
     	try
     	{
             if (currentUri == null)
             {
-    	        schemaUri = URI.create(refUri);
+    	        schemaUri = uriFactory.create(refUri);
             }
             else
             {
-                schemaUri = currentUri.resolve(URI.create(refUri));
+                schemaUri = uriFactory.create(currentUri, refUri);
             }
     	} catch (IllegalArgumentException e) {
     	    schemaUri = null;

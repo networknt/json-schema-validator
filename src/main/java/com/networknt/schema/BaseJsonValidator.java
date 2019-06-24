@@ -82,7 +82,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         else {
         	final URI uri;
             try {
-                uri = URI.create(node.textValue());
+                uri = validationContext.getJsonSchemaFactory().getURIFactory().create(node.textValue());
             } catch (IllegalArgumentException e) {
                 return null;
             }

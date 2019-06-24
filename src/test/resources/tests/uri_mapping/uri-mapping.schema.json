@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "json-schema-validator-url-mapping",
+    "title": "json-schema-validator-uri-mapping",
     "type": "array",
     "description": "Data portion of message from JMRI to client for type \"node\"",
     "items": {

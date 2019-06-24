@@ -20,13 +20,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * Standard URI fetcher that assumes uses {@link URL#openStream()} for fetching.
+ * A URIfetcher that uses {@link URL#openStream()} for fetching and assumes given {@link URI}s
+ * are actualy {@link URL}s.
  */
-public class DefaultURLFetcher implements URIFetcher {
-    @Override
-    public InputStream fetch(final URI uri) throws IOException {
-        return uri.toURL().openStream();
-    }
+public final class URLFetcher implements URIFetcher {
+  // These supported schemes are defined in {@link #URL(String, String, int, String)}.
+  // This fetcher also supports the {@link URL}s created with the {@link ClasspathURIFactory}.
+  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(URLFactory.SUPPORTED_SCHEMES);
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public InputStream fetch(final URI uri) throws IOException {
+    return uri.toURL().openStream();
+  }
 }

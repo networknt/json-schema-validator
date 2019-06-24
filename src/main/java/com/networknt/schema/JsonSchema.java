@@ -80,11 +80,11 @@ public class JsonSchema extends BaseJsonValidator {
       if (idNode == null) {
         return currentUri;
       } else {
-    	try {
-          return currentUri.resolve(idNode.asText());
-    	} catch (IllegalArgumentException e) {
-    	  throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, idNode.asText(), currentUri.toString()));
-    	}
+        try {
+          return this.validationContext.getJsonSchemaFactory().getURIFactory().create(currentUri, idNode.asText());
+        } catch (IllegalArgumentException e) {
+          throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, idNode.asText(), currentUri.toString()));
+        }
       }
     }
     
