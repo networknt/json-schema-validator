@@ -33,7 +33,7 @@ public final class ClasspathURLFactory implements URIFactory {
   public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(
     ClasspathURLStreamHandler.SUPPORTED_SCHEMES);
   
-  static URL convert(final URI uri) throws MalformedURLException {
+  public static URL convert(final URI uri) throws MalformedURLException {
     return new URL(null, uri.toString(), STREAM_HANDLER);
   }
   
