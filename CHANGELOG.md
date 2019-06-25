@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.16 - 2019-06-24
+
+### Added
+
+### Changed
+
+- fixes #166 Allow using URN and not just URLs. Thanks @jawaff
+
 ## 1.0.15 - 2019-06-14
 
 ### Added
