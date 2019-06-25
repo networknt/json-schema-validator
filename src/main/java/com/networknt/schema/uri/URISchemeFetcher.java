@@ -44,9 +44,9 @@ public class URISchemeFetcher implements URIFetcher {
    */
   public InputStream fetch(final URI uri) throws IOException {
     final URIFetcher uriFetcher = this.uriFetchers.get(uri.getScheme());
-	if (uriFetcher == null) {
+    if (uriFetcher == null) {
       throw new IllegalArgumentException(String.format("Unsupported URI scheme encountered: %s", uri.getScheme()));
-	}
+    }
     return uriFetcher.fetch(uri);
   }
 }
