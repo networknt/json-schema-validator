@@ -39,7 +39,8 @@ public class URISchemeFetcher implements URIFetcher {
   }
   
   /**
-   * {@inheritdoc}
+   * @param uri URI
+   * @return InputStream
    */
   public InputStream fetch(final URI uri) throws IOException {
     final URIFetcher uriFetcher = this.uriFetchers.get(uri.getScheme());

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A URIFactory that uses {@link #URL(String)} and {@link #URL(URL, String) for creating {@link URI}s.
+ * A URIFactory that uses URL for creating {@link URI}s.
  */
 public final class URLFactory implements URIFactory {
   // These supported schemes are defined in {@link #URL(String, String, int, String)}.
@@ -34,7 +34,8 @@ public final class URLFactory implements URIFactory {
     Arrays.asList("http", "https", "ftp", "file", "jar")));
   
   /**
-   * {@inheritDoc}
+   * @param uri String
+   * @return URI
    */
   @Override
   public URI create(final String uri)
@@ -47,7 +48,9 @@ public final class URLFactory implements URIFactory {
   }
 
   /**
-   * {@inheritDoc}
+   * @param baseURI URI
+   * @param segment String
+   * @return URI
    */
   @Override
   public URI create(final URI baseURI, final String segment)

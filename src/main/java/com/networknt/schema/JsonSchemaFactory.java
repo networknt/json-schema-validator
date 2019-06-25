@@ -85,7 +85,7 @@ public class JsonSchemaFactory {
         /**
          * Maps a number of schemes to a {@link URIFactory}.
          * @param uriFactory the uri factory that will be used for the given schemes.
-         * @param scheme the scheme that the uri factory will be assocaited with.
+         * @param schemes the scheme that the uri factory will be assocaited with.
          * @return this builder.
          */
         public Builder uriFactory(final URIFactory uriFactory, final String... schemes) {
@@ -99,7 +99,7 @@ public class JsonSchemaFactory {
         /**
          * Maps a number of schemes to a {@link URIFetcher}.
          * @param uriFetcher the uri fetcher that will be used for the given schemes.
-         * @param scheme the scheme that the uri fetcher will be assocaited with.
+         * @param schemes the scheme that the uri fetcher will be assocaited with.
          * @return this builder.
          */
         public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {

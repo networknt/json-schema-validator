@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * A URIFactory that uses {@link #URL(String)} and {@link #URL(URL, String) for creating {@link URI}s.
+ * A URIFactory that uses URL for creating {@link URI}s.
  */
 public final class ClasspathURLFactory implements URIFactory {
   static final URLStreamHandler STREAM_HANDLER = new ClasspathURLStreamHandler();

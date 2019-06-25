@@ -58,7 +58,8 @@ public class URISchemeFactory implements URIFactory{
   }
   
   /**
-   * {@inheritdoc}
+   * @param uri String
+   * @return URI
    */
   public URI create(final String uri) {
     final String scheme = this.getScheme(uri);
@@ -71,7 +72,10 @@ public class URISchemeFactory implements URIFactory{
   }
   
   /**
-   * {@inheritdoc}
+   * @param baseURI base URI
+   * @param segment URI segment
+   * @return URI
+   *
    */
   public URI create(final URI baseURI, final String segment) {
     if (baseURI == null) {
