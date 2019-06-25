@@ -17,19 +17,25 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.uri.URIFactory;
 
 public class ValidationContext {
+    private final URIFactory uriFactory;
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
     
-    public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
+    public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
+        if (uriFactory == null) {
+            throw new IllegalArgumentException("URIFactory must not be null");
+        }
         if (metaSchema == null) {
             throw new IllegalArgumentException("JsonMetaSchema must not be null");
         }
         if (jsonSchemaFactory == null) {
             throw new IllegalArgumentException("JsonSchemaFactory must not be null");
         }
+        this.uriFactory = uriFactory;
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
     }
@@ -37,6 +43,10 @@ public class ValidationContext {
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
         return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
+    }
+    
+    public URIFactory getURIFactory() {
+        return this.uriFactory;
     }
     
     public JsonSchemaFactory getJsonSchemaFactory() {

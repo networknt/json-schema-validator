@@ -81,7 +81,7 @@ public class JsonSchema extends BaseJsonValidator {
         return currentUri;
       } else {
         try {
-          return this.validationContext.getJsonSchemaFactory().getURIFactory().create(currentUri, idNode.asText());
+          return this.validationContext.getURIFactory().create(currentUri, idNode.asText());
         } catch (IllegalArgumentException e) {
           throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, idNode.asText(), currentUri.toString()));
         }

@@ -233,7 +233,7 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(jsonMetaSchema, this);
+        return new ValidationContext(this.uriFactory, jsonMetaSchema, this);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -246,10 +246,6 @@ public class JsonSchemaFactory {
         return jsonMetaSchema;
     }
 	
-	public URIFactory getURIFactory() {
-        return this.uriFactory;
-    }
-    
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = mapper.readTree(schema);
@@ -286,7 +282,7 @@ public class JsonSchemaFactory {
             
             final URI mappedUri;
             try {
-                mappedUri = URI.create(map.getOrDefault(schemaUri.toString(), schemaUri.toString()));
+                mappedUri = this.uriFactory.create(map.getOrDefault(schemaUri.toString(), schemaUri.toString()));
             } catch (IllegalArgumentException e) {
                 logger.error("Failed to create URI.", e);
                 throw new JsonSchemaException(e);
@@ -297,7 +293,7 @@ public class JsonSchemaFactory {
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    return new JsonSchema(new ValidationContext(jsonMetaSchema, this), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    return new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
                 return newJsonSchema(mappedUri, schemaNode, config);
