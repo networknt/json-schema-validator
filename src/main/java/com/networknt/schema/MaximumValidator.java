@@ -48,20 +48,26 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
 
+        final String maximumText = schemaNode.asText();
         if (( schemaNode.isLong() || schemaNode.isInt() ) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    long val = node.asLong();
                     if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        if (node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0) {
-                            return true;
-                        }
+                        int compare = node.bigIntegerValue().compareTo(new BigInteger(schemaNode.asText()));
+                        return compare > 0 || (excludeEqual && compare == 0);
+
+                    } else if (node.isTextual()) {
+                        BigDecimal max = new BigDecimal(maximumText);
+                        BigDecimal value = new BigDecimal(node.asText());
+                        int compare = value.compareTo(max);
+                        return compare > 0 || (excludeEqual && compare == 0);
                     }
-                    return lm < val || (excludeEqual && lm <= val);
+                    long val = node.asLong();
+                    return lm < val || (excludeEqual && lm == val);
                 }
 
                 @Override
@@ -73,18 +79,27 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
             typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    if(schemaNode.doubleValue() == Double.POSITIVE_INFINITY) {
+                    if (schemaNode.isDouble() && schemaNode.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
-                    final BigDecimal max = new BigDecimal(schemaNode.asText());
-                    if(node.doubleValue() == Double.POSITIVE_INFINITY) {return true;}
+                    if (schemaNode.isDouble() && schemaNode.doubleValue() == Double.NEGATIVE_INFINITY) {
+                        return true;
+                    }
+                    if (node.isDouble() && node.doubleValue() == Double.NEGATIVE_INFINITY) {
+                        return false;
+                    }
+                    if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
+                        return true;
+                    }
+                    final BigDecimal max = new BigDecimal(maximumText);
                     BigDecimal value = new BigDecimal(node.asText());
-                    return value.compareTo(max) > 0 || (excludeEqual && value.compareTo(max) == 0);
+                    int compare = value.compareTo(max);
+                    return compare > 0 || (excludeEqual && compare == 0);
                 }
 
                 @Override
                 public String thresholdValue() {
-                    return schemaNode.asText();
+                    return maximumText;
                 }
             };
         }

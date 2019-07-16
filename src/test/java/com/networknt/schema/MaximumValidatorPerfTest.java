@@ -1,22 +1,29 @@
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
+
 @Ignore
 public class MaximumValidatorPerfTest {
     MaximumValidatorTest test = new MaximumValidatorTest();
 
     @Test
     public void testTime() throws InvocationTargetException, IllegalAccessException {
-        test.setUp();
         String[] testMethodsToBeExecuted = {"testMaximumDoubleValue"};
         List<Method> testMethods = getTestMethods(testMethodsToBeExecuted);
         long start = System.currentTimeMillis();
