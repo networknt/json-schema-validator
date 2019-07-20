@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.17 - 2019-07-20
+
+### Added
+
+### Changed
+
+- fixes #174 Insights into performance gains of tuning min/max validators. Thanks @kosty
+- fixes #171 Support minimum/maximum on quoted numerals. Thanks @kosty
+
 ## 1.0.16 - 2019-06-24
 
 ### Added
