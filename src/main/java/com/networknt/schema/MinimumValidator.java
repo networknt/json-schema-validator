@@ -29,7 +29,7 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
     private static final Logger logger = LoggerFactory.getLogger(MinimumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MINIMUM = "exclusiveMinimum";
 
-    private boolean excluded = false;
+    private boolean excludeEqual = false;
 
     /**
      *  In order to limit number of `if` statements in `validate` method, all the
@@ -46,25 +46,32 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
 
         JsonNode exclusiveMinimumNode = getParentSchema().getSchemaNode().get(PROPERTY_EXCLUSIVE_MINIMUM);
         if (exclusiveMinimumNode != null && exclusiveMinimumNode.isBoolean()) {
-            excluded = exclusiveMinimumNode.booleanValue();
+            excludeEqual = exclusiveMinimumNode.booleanValue();
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
 
-        if ( schemaNode.isLong() || schemaNode.isInt() && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
+        final String minimumText = schemaNode.asText();
+        if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
             typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    long val = node.asLong();
-                    if(node.isBigInteger()) {
+                    if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        if(node.bigIntegerValue().compareTo(new BigInteger(String.valueOf(Long.MIN_VALUE))) < 0) {
-                            return true;
-                        }
+                        int compare = node.bigIntegerValue().compareTo(new BigInteger(minimumText));
+                        return compare < 0 || (excludeEqual && compare == 0);
+
+                    } else if (node.isTextual()) {
+                        BigDecimal min = new BigDecimal(minimumText);
+                        BigDecimal value = new BigDecimal(node.asText());
+                        int compare = value.compareTo(min);
+                        return compare < 0 || (excludeEqual && compare == 0);
+
                     }
-                    return lmin > val || (excluded && lmin >= val);
+                    long val = node.asLong();
+                    return lmin > val || (excludeEqual && lmin == val);
                 }
 
                 @Override
@@ -77,18 +84,28 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
             typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
-                    if(schemaNode.doubleValue() == Double.NEGATIVE_INFINITY) {
+                    // jackson's BIG_DECIMAL parsing is limited. see https://github.com/FasterXML/jackson-databind/issues/1770
+                    if (schemaNode.isDouble() && schemaNode.doubleValue() == Double.NEGATIVE_INFINITY) {
                         return false;
                     }
-                    final BigDecimal min = new BigDecimal(schemaNode.asText());
-                    if(node.doubleValue() == Double.NEGATIVE_INFINITY) {return true;}
+                    if (schemaNode.isDouble() && schemaNode.doubleValue() == Double.POSITIVE_INFINITY) {
+                        return true;
+                    }
+                    if (node.isDouble() && node.doubleValue() == Double.NEGATIVE_INFINITY) {
+                        return true;
+                    }
+                    if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
+                        return false;
+                    }
+                    final BigDecimal min = new BigDecimal(minimumText);
                     BigDecimal value = new BigDecimal(node.asText());
-                    return value.compareTo(min) < 0 || (excluded && value.compareTo(min) == 0);
+                    int compare = value.compareTo(min);
+                    return compare < 0 || (excludeEqual && compare == 0);
                 }
 
                 @Override
                 public String thresholdValue() {
-                    return schemaNode.asText();
+                    return minimumText;
                 }
             };
         }

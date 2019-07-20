@@ -26,11 +26,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import static com.networknt.schema.MaximumValidatorTest.augmentWithQuotes;
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MinimumValidatorTest {
+    private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
+    private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}";
+    private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }";
+    private static final String NEGATIVE_MESSAGE_TEMPLATE = "Expecting validation errors, value %s is smaller than minimum %s";
+    private static final String POSITIVT_MESSAGE_TEMPLATE = "Expecting no validation errors, value %s is greater than minimum %s";
     private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
 
     private static ObjectMapper mapper;
@@ -40,78 +46,99 @@ public class MinimumValidatorTest {
     @Before
     public void setUp() {
         mapper = new ObjectMapper();
+        // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
+        // https://github.com/FasterXML/jackson-databind/issues/1770
+        // https://github.com/FasterXML/jackson-databind/issues/2087
         bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
 
     }
 
     @Test
-    public void doubleValueOverflow() throws IOException {
-        String[][] values = {
-//            minimum,                           value
-            {"-1.7976931348623157e+308",         "-1.7976931348623159e+308"},
-            {"-1.7976931348623156e+308",         "-1.7976931348623157e+308"},
-//          See a {@link #doubleValueCoarsing() doubleValueCoarsing} test notes below
-//            {"-1.7976931348623157e+308",         "-1.7976931348623158e+308"},
-        };
+    public void positiveNumber() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
+//            minimum,                       value
+                {"1000",         "1000.1"},
+        });
 
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
+        expectNoMessages(values, NUMBER, mapper);
     }
 
     @Test
-    public void documentParsedWithBigDecimal() throws IOException {
-        String[][] values = {
+    public void negativeNumber() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                           value
             {"-1.7976931348623157e+308",         "-1.7976931348623159e+308"},
             {"-1.7976931348623156e+308",         "-1.7976931348623157e+308"},
+            {"-1000",                            "-1E309"},
+            {"1000.1",                           "1000"},
 //          See a {@link #doubleValueCoarsing() doubleValueCoarsing} test notes below
 //            {"-1.7976931348623157e+308",         "-1.7976931348623158e+308"},
-        };
+        });
 
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }", minimum);
+        expectSomeMessages(values, NUMBER, mapper, mapper);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigDecimalMapper.readTree(value);
+        expectSomeMessages(values, NUMBER, mapper, bigDecimalMapper);
 
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
+        expectSomeMessages(values, NUMBER, bigDecimalMapper, bigDecimalMapper);
     }
 
     @Test
-    public void documentAndSchemaParsedWithBigDecimal() throws IOException {
-        String[][] values = {
-//            minimum,                            value
-            {"-1.7976931348623157e+308",         "-1.7976931348623159e+308"},
-            {"-1.7976931348623156e+308",         "-1.7976931348623157e+308"},
-//          See a {@link #doubleValueCoarsing() doubleValueCoarsing} test notes below
-//            {"-1.7976931348623157e+308", "-1.7976931348623158e+308"},
-        };
+    public void positiveInteger() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
+//            minimum,                       value
+                {"-1E309",         "-1000"},
+                {"-9223372036854775808",         "-9223372036854775808"},
+        });
 
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }", minimum);
+        expectNoMessages(values, INTEGER, mapper);
+        expectNoMessages(values, INTEGER, mapper, bigIntegerMapper);
+    }
 
-            JsonSchema v = factory.getSchema(bigDecimalMapper.readTree(schema));
-            JsonNode doc = bigDecimalMapper.readTree(value);
+    @Test
+    public void negativeInteger() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
+//            minimum,                value
+            {"-9223372036854775800",  "-9223372036854775855"},
+            {"-9223372036854775808",  "-9223372036854775809"},
+            {"-9223372036854775808",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
+            {"-9223372036854775807",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
+            {"-9223372036854776000",  "-9223372036854776001"},
+        });
+        expectSomeMessages(values, INTEGER, mapper, mapper);
+    }
 
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
+    @Test
+    public void positiveExclusiveInteger() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
+//                minimum,                       value
+                {"-9223372036854775000",         "-9223372036854774988"},
+                {"10",         "20"},
+//                threshold in outside long range
+                {"-9223372036854775809",         "-9223372036854775807"},
+//                both threshold and value are outside long range
+                {"-9223372036854775810",         "-9223372036854775809"},
+        });
+
+        expectNoMessages(values, EXCLUSIVE_INTEGER, mapper);
+
+        expectNoMessages(values, EXCLUSIVE_INTEGER, bigIntegerMapper);
+    }
+
+    @Test
+    public void negativeExclusiveInteger() throws IOException {
+        String[][] values = augmentWithQuotes(new String[][]{
+//            minimum,                       value
+                {"20",         "10"},
+
+//                value is outside long range
+                {"-9223372036854775807",         "-9223372036854775809"},
+
+//                both threshold and value are outside long range
+                {"-9223372036854775809",         "-9223372036854775810"},
+        });
+
+        expectSomeMessages(values, EXCLUSIVE_INTEGER, mapper, bigIntegerMapper);
     }
 
     @Test
@@ -119,17 +146,31 @@ public class MinimumValidatorTest {
         String[][] values = {
 //            minimum,                            value
             {"-1.79769313486231571E+308",        "-1.79769313486231572e+308"},
+//            while underflow in not captures in previous case (unquoted number is parsed as double)
+//            it is captured if value is passed as string, which is correctly parsed by BidDecimal
+//            thus effective comparison is between
+//            minimum -1.7976931348623157E+308  and
+//            value   -1.79769313486231572e+308
+//            {"-1.79769313486231571E+308",        "\"-1.79769313486231572e+308\""},
             {"-1.7976931348623157E+309",         "-1.7976931348623157e+309"},
+            {"-1.7976931348623157E+309",         "\"-1.7976931348623157e+309\""},
             {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"},
+//            Similar to statements above
+//            minimum -1.0E+308  and
+//            value   -1.000000000000000000000001E+308
+//            {"-1.000000000000000000000001E+308", "\"-1.000000000000000000000001E+308\""},
             {"-1.000000000000000000000001E+400", "-1.000000000000000000000001E+401"},
+            {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000001E+401\""},
             {"-1.000000000000000000000001E+400", "-1.000000000000000000000002E+400"},
-            {"-1.000000000000000000000001E+400", "-1.0000000000000000000000011E+400"}
+            {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000002E+400\""},
+            {"-1.000000000000000000000001E+400", "-1.0000000000000000000000011E+400"},
+            {"-1.000000000000000000000001E+400", "\"-1.0000000000000000000000011E+400\""},
         };
 
         for(String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }", minimum);
+            String schema = format(NUMBER, minimum);
 
             // Schema and document parsed with just double
             JsonSchema v = factory.getSchema(mapper.readTree(schema));
@@ -142,8 +183,8 @@ public class MinimumValidatorTest {
             Set<ValidationMessage> messages2 = v.validate(doc);
 
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if(Double.valueOf(minimum) == Double.NEGATIVE_INFINITY) {
-                /**
+            if(Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
+                /*
                  * {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"} will be false
                  * because the different between two mappers, without using big decimal, it loses some precises.
                  */
@@ -156,7 +197,7 @@ public class MinimumValidatorTest {
             v = factory.getSchema(bigDecimalMapper.readTree(schema));
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if(minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum) == Double.NEGATIVE_INFINITY) {
+            if(minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
                 assertTrue(format("Minimum %s and value %s are equal, thus no schema violation should be reported", minimum, value), messages3.isEmpty());
             } else {
                 assertFalse(format("Minimum %s is larger than value %s ,  should be validation error reported", minimum, value), messages3.isEmpty());
@@ -183,7 +224,7 @@ public class MinimumValidatorTest {
         messages = v.validate(doc);
         assertFalse("Validation should not succeed because content is using bigDecimalMapper, and smaller than the minimum", messages.isEmpty());
 
-        /**
+        /*
          * Note: technically this is where -1.7976931348623158e+308 rounding to -1.7976931348623157e+308 could be
          *       spotted, yet it requires a dedicated case of comparison BigDecimal to BigDecimal. Since values below
          *       -1.7976931348623158e+308 are parsed as Infinity anyways (jackson uses double as primary type with later
@@ -218,285 +259,35 @@ public class MinimumValidatorTest {
         assertTrue("Validation should succeed due to the bug of BigDecimal option of mapper", messages.isEmpty());
     }
 
-    @Test
-    public void longUnderMinValueOverflow() throws IOException {
-        String[][] values = {
-//            minimum,                value
-            {"-9223372036854775800",  "-9223372036854775855"},
-            {"-9223372036854775808",  "-9223372036854775809"},
-            {"-9223372036854775808",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
-            {"-9223372036854775807",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
-            {"-9223372036854776000",  "-9223372036854776001"}
-        };
-        for(String[] aTestCycle : values) {
+    private void expectSomeMessages(String[][] values, String number, ObjectMapper mapper, ObjectMapper mapper2) throws IOException {
+        for (String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }", minimum);
+            String schema = format(number, minimum);
 
             JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
+            JsonNode doc = mapper2.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
+            assertFalse(format(MinimumValidatorTest.NEGATIVE_MESSAGE_TEMPLATE, value, minimum), messages.isEmpty());
         }
     }
 
-    @Test
-    public void longValueOverflowWithInverseEffect() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-            {"-9223372036854775000",         "-9223372036854774988"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
-        }
+    private void expectNoMessages(String[][] values, String number, ObjectMapper mapper) throws IOException {
+        expectNoMessages(values, number, mapper, mapper);
     }
-    @Test
-    public void BigIntegerBothWithinLongRangePositive() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"10",         "20"}
-        };
 
-        for(String[] aTestCycle : values) {
+    private void expectNoMessages(String[][] values, String integer, ObjectMapper mapper, ObjectMapper bigIntegerMapper) throws IOException {
+        for (String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
+            String schema = format(integer, minimum);
 
             JsonSchema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerBothWithinLongRangeNegative() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"20",         "10"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecting validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerOverflow() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775807",         "-9223372036854775809"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerNotOverflow() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775809",         "-9223372036854775807"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerBothAboveLongRangePositive() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775810",         "-9223372036854775809"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecting no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerBothAboveLongRangeNegative() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775809",         "-9223372036854775810"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": true}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecing validation error with minimum %s and value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerNotOverflowOnLongRangeEdge() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775808",         "-9223372036854775808"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as minimum %s is lesser than value %s", minimum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void BigIntegerOverflowOnLongRangeEdge() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-9223372036854775809",         "-9223372036854775809"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String maximum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": false}", maximum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = bigIntegerMapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecing no validation errors as maximum %s is greater than value %s", maximum, value), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void testMinimumDoubleValue() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-1E309",         "-1000"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecting no validation errors as value %s is greater than minimum %s", value, minimum), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void testMinimumDoubleValueNegative() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"-1000",         "-1E309"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecting  validation errors as value %s is smaller than minimum %s", value, minimum), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void testMinimumDoubleValueWithNumberType() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"1000",         "1000.1"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Expecting no validation errors as value %s is greater than minimum %s", value, minimum), messages.isEmpty());
-        }
-    }
-
-    @Test
-    public void testMinimumDoubleValueWithNumberTypeNegative() throws IOException {
-        String[][] values = {
-//            minimum,                       value
-                {"1000.1",         "1000"}
-        };
-
-        for(String[] aTestCycle : values) {
-            String minimum = aTestCycle[0];
-            String value = aTestCycle[1];
-            String schema = format("{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s, \"exclusiveMinimum\": false}", minimum);
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
-            JsonNode doc = mapper.readTree(value);
-
-            Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format("Expecting  validation errors as value %s is smaller than minimum %s", value, minimum), messages.isEmpty());
+            assertTrue(format(MinimumValidatorTest.POSITIVT_MESSAGE_TEMPLATE, value, minimum), messages.isEmpty());
         }
     }
 }
