@@ -95,16 +95,25 @@ public class JsonSchemaTest {
 
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
-                            System.out.println("---- test case filed ----");
+                            System.out.println("---- test case failed ----");
                             System.out.println("schema: " + schema.toString());
                             System.out.println("data: " + test.get("data"));
                         }
                         Assert.assertEquals(0, errors.size());
                     } else {
                         if (errors.isEmpty()) {
-                            System.out.println("---- test case filed ----");
+                            System.out.println("---- test case failed ----");
                             System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
+                        } else {
+                            JsonNode errorCount = test.get("errorCount");
+                            if (errorCount != null && errorCount.isInt() && errors.size() != errorCount.asInt()) {
+                                System.out.println("---- test case failed ----");
+                                System.out.println("schema: " + schema);
+                                System.out.println("data: " + test.get("data"));
+                                System.out.println("errors: " + errors);
+                                Assert.assertEquals("expected error count", errorCount.asInt(), errors.size());
+                            }
                         }
                         Assert.assertEquals(false, errors.isEmpty());
                     }

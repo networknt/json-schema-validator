@@ -45,7 +45,6 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
         String typeValidatorName = "anyOf/type";
-        List<String> expectedTypeList = new ArrayList<String>();
 
         for (JsonSchema schema : schemas) {
             if (schema.validators.containsKey(typeValidatorName)) {
@@ -53,7 +52,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 //If schema has type validator and node type doesn't match with schemaType then ignore it
                 //For union type, it is must to call TypeValidator
                 if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                    expectedTypeList.add(typeValidator.getSchemaType().toString());
+                    allErrors.add(buildValidationMessage(at, typeValidator.getSchemaType().toString()));
                     continue;
                 }
             }
@@ -62,9 +61,6 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 return errors;
             }
             allErrors.addAll(errors);
-        }
-        if (!expectedTypeList.isEmpty()) {
-            return Collections.singleton(buildValidationMessage(at, expectedTypeList.toArray(new String[expectedTypeList.size()])));
         }
         return Collections.unmodifiableSet(allErrors);
     }
