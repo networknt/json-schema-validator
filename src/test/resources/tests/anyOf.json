@@ -94,5 +94,110 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "all errors are listed",
+        "schema": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "test": {
+                            "type": "string",
+                            "enum": [ "A", "B" ]
+                        }
+                    }
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "neither anyOf valid",
+                "data": {
+                    "test": "C"
+                },
+                "valid": false,
+                "errorCount": 2
+            },
+            {
+                "description": "first anyOf valid",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "second anyOf valid",
+                "data": {
+                    "test": "A"
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "all errors are listed",
+        "schema": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "test": {
+                                "type": "string",
+                                "enum": [ "A", "B" ]
+                            }
+                        }
+                    },
+                    {
+                    "type": "null"
+                    }
+                ]
+            }
+        },
+        "tests": [
+            {
+                "description": "neither anyOf valid",
+                "data": [{
+                    "test": "C"
+                }],
+                "valid": false,
+                "errorCount": 2
+            },
+            {
+                "description": "first anyOf valid",
+                "data": [null],
+                "valid": true
+            },
+            {
+                "description": "second anyOf valid",
+                "data": [{
+                    "test": "A"
+                }],
+                "valid": true
+            },
+            {
+                "description": "mixed anyOf valid",
+                "data": [{
+                    "test": "A"
+                }, null, {
+                    "test": 2
+                }],
+                "valid": false,
+                "errorCount": 3
+            },
+            {
+                "description": "mixed anyOf valid",
+                "data": [{
+                    "test": "A"
+                }, null, {
+                    "test": 2
+                }, 2],
+                "valid": false,
+                "errorCount": 5
+            }
+        ]
     }
 ]
