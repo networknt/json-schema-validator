@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.18 - 2019-07-29
+
+### Added
+
+### Changed
+
+- fixes #173 AnyOfValidator ignores all previous validations errors if any of the type does not match. Thanks @grssam
+
 ## 1.0.17 - 2019-07-20
 
 ### Added
