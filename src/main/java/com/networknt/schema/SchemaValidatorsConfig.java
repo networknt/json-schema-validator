@@ -30,13 +30,7 @@ public class SchemaValidatorsConfig {
      * if set to false, then the validator will report an error
      */
     private boolean missingNodeAsError = false;
-    
-    /**
-     * if HAS_ELEMENT_VALIDATION_ERROR = true, the caller can decide, in conjunction with a missing node flag
-     * on how to treat the error
-     */
-    private boolean elementValidationError = false;
-    
+
     /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory} 
@@ -68,15 +62,7 @@ public class SchemaValidatorsConfig {
     public void setMissingNodeAsError(boolean missingNodeAsError) {
     	this.missingNodeAsError = missingNodeAsError;
     }
-    
-    public boolean hasElementValidationError() {
-    	return elementValidationError;
-    }
-    
-    public void setElementValidationError(boolean elementValidationError) {
-    	this.elementValidationError = elementValidationError;
-    }
-    
+
     public SchemaValidatorsConfig() {
         loadDefaultConfig();
     }
