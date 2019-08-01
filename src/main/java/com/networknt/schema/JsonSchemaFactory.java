@@ -245,6 +245,14 @@ public class JsonSchemaFactory {
         }
         return jsonMetaSchema;
     }
+    
+    /**
+     * @return A shared {@link URI} factory that is used for creating the URI references in schemas.
+     */
+    public URIFactory getUriFactory()
+    {
+    	return this.uriFactory;
+    }
 	
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
