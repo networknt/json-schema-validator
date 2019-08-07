@@ -16,6 +16,9 @@
 
 package com.networknt.schema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
 
@@ -24,7 +27,8 @@ public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
-    
+    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
+
     public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
         if (uriFactory == null) {
             throw new IllegalArgumentException("URIFactory must not be null");
@@ -39,16 +43,16 @@ public class ValidationContext {
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
     }
-    
+
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
         return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
     }
-    
+
     public URIFactory getURIFactory() {
         return this.uriFactory;
     }
-    
+
     public JsonSchemaFactory getJsonSchemaFactory() {
         return jsonSchemaFactory;
     }
@@ -60,4 +64,13 @@ public class ValidationContext {
     public void setConfig(SchemaValidatorsConfig config) {
         this.config = config;
     }
+
+    public void setReferenceParsingInProgress(String refValue, JsonSchemaRef ref) {
+        refParsingInProgress.put(refValue, ref);
+    }
+
+    public JsonSchemaRef getReferenceParsingInProgress(String refValue) {
+        return refParsingInProgress.get(refValue);
+    }
+
 }

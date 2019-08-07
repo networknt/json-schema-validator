@@ -30,8 +30,8 @@ import com.networknt.schema.uri.URIFactory;
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
-    protected JsonSchema schema;
-    
+    protected JsonSchemaRef schema;
+
     private static final String REF_CURRENT = "#";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -44,7 +44,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         }
     }
 
-    static JsonSchema getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
+    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
         if (!refValue.startsWith(REF_CURRENT)) {
             // This will be the uri extracted from the refValue (this may be a relative or absolute uri).
             final String refUri;
@@ -66,17 +66,24 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUri, validationContext.getConfig());
             
             if (index < 0) {
-                return parentSchema.findAncestor();
+                return new JsonSchemaRef(parentSchema.findAncestor());
             } else {
                 refValue = refValue.substring(index);
             }
         }
         if (refValue.equals(REF_CURRENT)) {
-            return parentSchema.findAncestor();
+            return new JsonSchemaRef(parentSchema.findAncestor());
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                return new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
+                JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValue);
+                if (ref == null) {
+                    ref = new JsonSchemaRef(validationContext, refValue);
+                    validationContext.setReferenceParsingInProgress(refValue, ref);
+                    JsonSchema ret = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
+                    ref.set(ret);
+                }
+                return ref;
             }
         }
         return null;
