@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.19 - 2019-08-13
+
+### Added
+
+### Changed
+
+- fixes #182 Jackson-databind vulnerability version update
+- fixes #180 Stack overflow when using recursive references, $ref. Thanks @davidvisiedo
+- fixes #96 stackOverflowError loading schema file. Thanks @davidvisiedo
+- fixes #44 Validator hang on validation. Thanks @davidvisiedo
+- fixes #28 Validator hangs on large json data files. Thanks @davidvisiedo
+- fixes #13 Cannot get the validation result with self-reference schema. Thanks @davidvisiedo
+- fixes #177 OneOf Validator Incorrectly Failing. Thanks @jawaff
+
 ## 1.0.18 - 2019-07-29
 
 ### Added
