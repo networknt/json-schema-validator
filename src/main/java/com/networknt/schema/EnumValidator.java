@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,17 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
                 separator = ", ";
             }
 
+            // check if the parent schema declares the fields as nullable
+            if(config.getHandleNullableField()) {
+	            JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
+	            if (nullable != null && nullable.asBoolean()) {
+	            	nodes.add(NullNode.getInstance());
+	            	separator = ", ";
+	            	sb.append(separator);
+	            	sb.append("null");
+	            }
+            }
+            //
             sb.append(']');
 
             error = sb.toString();
