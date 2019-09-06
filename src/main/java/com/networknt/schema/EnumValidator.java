@@ -52,7 +52,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             }
 
             // check if the parent schema declares the fields as nullable
-            if(config.getHandleNullableField()) {
+            if(config.isHandleNullableField()) {
 	            JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
 	            if (nullable != null && nullable.asBoolean()) {
 	            	nodes.add(NullNode.getInstance());

@@ -73,7 +73,7 @@ public class SchemaValidatorsConfig {
     	this.missingNodeAsError = missingNodeAsError;
     }
 
-    public boolean getHandleNullableField() {
+    public boolean isHandleNullableField() {
 		return handleNullableField;
 	}
 
