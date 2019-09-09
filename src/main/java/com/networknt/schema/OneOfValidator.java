@@ -134,11 +134,18 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         // this validator considers a missing node as an error
         // set it here to true, however re-set it to its original value upon finishing the validation
         boolean missingNodeAsError = config.isMissingNodeAsError();
-        config.setMissingNodeAsError(true);
+        config.setMissingNodeAsError(false);
 
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
+        // validate that only a single element has been received in the oneOf node
+        // validation should not continue, as it contradicts the oneOf requirement of only one
+        if(node.isObject() && node.size()>1) {
+        	errors = Collections.singleton(buildValidationMessage(at, ""));
+        	return Collections.unmodifiableSet(errors);
+        }
+        	
         for (ShortcutValidator validator : schemas) {
             if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
@@ -150,6 +157,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             if (schemaErrors.isEmpty()) {
                 numberOfValidSchema++;
                 errors = new LinkedHashSet<ValidationMessage>();
+                
+                // a valid schema has been identified, and the node was an object, break the loop
+                if(node.isObject())
+                	break;
             }
             if(numberOfValidSchema == 0){
                 errors.addAll(schemaErrors);
@@ -169,6 +180,8 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 errors.add(buildValidationMessage(at, ""));
             }
         }
+        
+        // validated upfront
         if (numberOfValidSchema > 1) {
             errors = Collections.singleton(buildValidationMessage(at, ""));
         }
