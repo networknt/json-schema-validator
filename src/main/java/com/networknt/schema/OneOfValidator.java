@@ -161,7 +161,16 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 // a valid schema has been identified, and the node was an object, break the loop
                 if(node.isObject())
                 	break;
+            } else {
+                if(node.isObject()) {
+                    if(numberOfValidSchema == 0){
+                        errors.addAll(schemaErrors);
+                	}                	
+                
+                	break;
+                }
             }
+            
             if(numberOfValidSchema == 0){
                 errors.addAll(schemaErrors);
         	}
