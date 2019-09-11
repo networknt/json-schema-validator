@@ -26,11 +26,17 @@ public class SchemaValidatorsConfig {
     private boolean typeLoose;
     
     /**
-     * if IS_MISSING_NODE_AS_ERROR = true, the validator will ignore the missing node.
-     * if set to false, then the validator will report an error
+     * Flag set when a node has matched
+     * Works in conjunction with the next flag: isComplexValidator, to be used for complex validators such as oneOf, for ex
      */
-    private boolean missingNodeAsError = false;
-
+    private boolean matchedNode = true;
+    
+    /**
+     * Flag set if complex validators such as oneOf, for ex, neeed to have their properties validated.
+     * The PropertiesValidator is not aware generally of a complex validator is being validated or a simple poperty tree
+     */
+    private boolean isComplexValidator = false;
+    
     /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory} 
@@ -65,14 +71,6 @@ public class SchemaValidatorsConfig {
         this.uriMappings = uriMappings;
     }
     
-    public boolean isMissingNodeAsError() {
-    	return missingNodeAsError;
-    }
-    
-    public void setMissingNodeAsError(boolean missingNodeAsError) {
-    	this.missingNodeAsError = missingNodeAsError;
-    }
-
     public boolean isHandleNullableField() {
 		return handleNullableField;
 	}
@@ -89,4 +87,19 @@ public class SchemaValidatorsConfig {
         this.typeLoose = true;
         this.uriMappings = new HashMap<String, String>();
     }
+    
+    public void setMatchedNode(boolean matchedNode) {
+    	this.matchedNode = matchedNode;
+    }
+    public boolean hasMatchedNode() {
+    	return matchedNode;
+    }
+
+	public boolean isComplexValidator() {
+		return isComplexValidator;
+	}
+
+	public void setComplexValidator(boolean isComplexValidator) {
+		this.isComplexValidator = isComplexValidator;
+	}
 }

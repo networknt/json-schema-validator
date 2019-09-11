@@ -46,15 +46,33 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             JsonNode propertyNode = node.get(entry.getKey());
 
             if (propertyNode != null) {
+            	// check whether this is a complex validator. save the state
+            	boolean isComplex = config.isComplexValidator();
+            	// if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
+            	if(config.isComplexValidator()) {
+            		config.setMatchedNode(true);
+            	}
+            	// reset the complex validator for child element validation, and reset it after the return from the recursive call
+            	config.setComplexValidator(false);
+            	//validate the child element(s)
                 errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
+                // reset the complex flag to the original value before the recursive call
+                config.setComplexValidator(isComplex);
+                // if this was a complex validator, the node has matched and has been validated
+            	if(config.isComplexValidator()) {
+            		config.setMatchedNode(true);
+            	}
             } else {
-            	// if a node could not be found, treat is as error/continue, depending on the SchemaValidatorsConfig
-            	//if(config.isMissingNodeAsError()) {
-            		if(getParentSchema().hasRequiredValidator())
-                		errors.addAll(getParentSchema().getRequiredValidator().validate(node,  rootNode, at));     
-            	//	else 
-                //		errors.add(buildValidationMessage(at, node.toString()));
-            	//}
+            	// decide which behavior to eomploy when validator has not matched
+            	if(config.isComplexValidator()) {
+            		// this was a complex validator (ex oneOf) and the node has not been matched
+            		config.setMatchedNode(false);
+            		return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
+            	}
+            		
+            	// check whether the node which has not matched was mandatory or not
+        		if(getParentSchema().hasRequiredValidator())
+            		errors.addAll(getParentSchema().getRequiredValidator().validate(node,  rootNode, at));     
             }
         }
 

@@ -131,10 +131,8 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        // this validator considers a missing node as an error
-        // set it here to true, however re-set it to its original value upon finishing the validation
-        boolean missingNodeAsError = config.isMissingNodeAsError();
-        config.setMissingNodeAsError(false);
+        // this is a complex validator, we set the flag to true
+        config.setComplexValidator(true);
 
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -149,33 +147,28 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         for (ShortcutValidator validator : schemas) {
             if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
-                // we can bail out
+                // we can bail out of the validation
                 continue;
             }
+            
+            // get the current validator
             JsonSchema schema = validator.schema;
-        	    Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
+        	Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
+        	
+        	// check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
+            	// check whether there are no errors HOWEVER we have validated the exact validator
+            	if(!config.hasMatchedNode())
+            		continue;
+            	
                 numberOfValidSchema++;
                 errors = new LinkedHashSet<ValidationMessage>();
-                
-                // a valid schema has been identified, and the node was an object, break the loop
-                if(node.isObject())
-                	break;
             } else {
-                if(node.isObject()) {
-                    if(numberOfValidSchema == 0){
-                        errors.addAll(schemaErrors);
-                	}                	
-                
-                	break;
-                }
-            }
-            
-            if(numberOfValidSchema == 0){
-                errors.addAll(schemaErrors);
-        	}
+            	errors.addAll(schemaErrors);
+            }                	
         }
 
+        // no valid schema has been found after validating all schema validators
         if (numberOfValidSchema == 0) {
             for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext();) {
                 ValidationMessage msg = it.next();
@@ -188,15 +181,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 // ensure there is always an error reported if number of valid schemas is 0
                 errors.add(buildValidationMessage(at, ""));
             }
+        } else {
+        	errors.clear();
         }
         
         // validated upfront
         if (numberOfValidSchema > 1) {
             errors = Collections.singleton(buildValidationMessage(at, ""));
         }
-
-        // reset the flag for error handling
-        config.setMissingNodeAsError(missingNodeAsError);
 
         return Collections.unmodifiableSet(errors);
     }
