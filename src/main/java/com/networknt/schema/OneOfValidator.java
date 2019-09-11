@@ -132,7 +132,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         // this is a complex validator, we set the flag to true
-        config.setComplexValidator(true);
+        ValidatorState state = new ValidatorState();
+        state.setComplexValidator(true);
+        validatorState.set(state);
 
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -158,7 +160,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         	// check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
             	// check whether there are no errors HOWEVER we have validated the exact validator
-            	if(!config.hasMatchedNode())
+            	if(!state.hasMatchedNode())
             		continue;
             	
                 numberOfValidSchema++;
@@ -190,6 +192,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             errors = Collections.singleton(buildValidationMessage(at, ""));
         }
 
+        // reset the ValidatorState object in the ThreadLocal
+        validatorState.remove();
+        
         return Collections.unmodifiableSet(errors);
     }
 

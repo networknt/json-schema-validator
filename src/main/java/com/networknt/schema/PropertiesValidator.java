@@ -41,32 +41,42 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
+        // get the Validator state object storing validation data
+        ValidatorState state = validatorState.get();
+        if(state == null) {
+        	// if one has not been created, instantiate one
+        	state = new ValidatorState();
+        	validatorState.set(state);
+        }
+        
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
 
             if (propertyNode != null) {
             	// check whether this is a complex validator. save the state
-            	boolean isComplex = config.isComplexValidator();
+            	boolean isComplex = state.isComplexValidator();
             	// if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
-            	if(config.isComplexValidator()) {
-            		config.setMatchedNode(true);
+            	if(state.isComplexValidator()) {
+            		state.setMatchedNode(true);
             	}
             	// reset the complex validator for child element validation, and reset it after the return from the recursive call
-            	config.setComplexValidator(false);
+            	state.setComplexValidator(false);
+            	
             	//validate the child element(s)
                 errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
+                
                 // reset the complex flag to the original value before the recursive call
-                config.setComplexValidator(isComplex);
+                state.setComplexValidator(isComplex);
                 // if this was a complex validator, the node has matched and has been validated
-            	if(config.isComplexValidator()) {
-            		config.setMatchedNode(true);
+            	if(state.isComplexValidator()) {
+            		state.setMatchedNode(true);
             	}
             } else {
             	// decide which behavior to eomploy when validator has not matched
-            	if(config.isComplexValidator()) {
+            	if(state.isComplexValidator()) {
             		// this was a complex validator (ex oneOf) and the node has not been matched
-            		config.setMatchedNode(false);
+            		state.setMatchedNode(false);
             		return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
             	}
             		

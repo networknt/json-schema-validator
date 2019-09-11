@@ -36,6 +36,10 @@ public abstract class BaseJsonValidator implements JsonValidator {
      */
     protected SchemaValidatorsConfig config;
 
+    /**
+     * ThreadLocal to allow to pass state in recursive validator calls
+     */
+    protected final static ThreadLocal<ValidatorState> validatorState = new ThreadLocal<ValidatorState>();
     
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
