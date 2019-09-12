@@ -26,12 +26,6 @@ public class SchemaValidatorsConfig {
     private boolean typeLoose;
     
     /**
-     * if IS_MISSING_NODE_AS_ERROR = true, the validator will ignore the missing node.
-     * if set to false, then the validator will report an error
-     */
-    private boolean missingNodeAsError = false;
-
-    /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory} 
      * may have been built with.
@@ -65,14 +59,6 @@ public class SchemaValidatorsConfig {
         this.uriMappings = uriMappings;
     }
     
-    public boolean isMissingNodeAsError() {
-    	return missingNodeAsError;
-    }
-    
-    public void setMissingNodeAsError(boolean missingNodeAsError) {
-    	this.missingNodeAsError = missingNodeAsError;
-    }
-
     public boolean isHandleNullableField() {
 		return handleNullableField;
 	}
