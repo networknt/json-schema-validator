@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.20 - 2019-09-10
+
+### Added
+
+### Changed
+
+- fixes #183 Validation error when field is nullable and consumer sends in a null value. Thanks @ddobrin
+- fixes #185 Validation issue in oneOf when elements have optional fields. Thanks @ddobrin
+
 ## 1.0.19 - 2019-08-13
 
 ### Added
