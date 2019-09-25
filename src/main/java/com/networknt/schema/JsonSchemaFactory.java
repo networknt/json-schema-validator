@@ -185,9 +185,7 @@ public class JsonSchemaFactory {
 
     /**
      * Builder without keywords or formats.
-     * 
-     * Use {@link #getDraftV4()} instead, or if you need a builder based on Draft4, use
-     * 
+     *
      * <code>
      * JsonSchemaFactory.builder(JsonSchemaFactory.getDraftV4()).build();
      * </code>
