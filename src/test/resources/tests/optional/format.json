@@ -220,6 +220,16 @@
                 "description": "an invalid e-mail address",
                 "data": "2962",
                 "valid": false
+            },
+            {
+                "description": "an invalid e-mail address with wrong domain",
+                "data": "steve@gmail.nn",
+                "valid": false
+            },
+            {
+                "description": "an invalid emmail with two @",
+                "data": "gmail@@gmail.com",
+                "valid": false
             }
         ]
     },
