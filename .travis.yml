@@ -1,3 +1,5 @@
+Build dist: trusty
+
 language: java
 
 cache:
