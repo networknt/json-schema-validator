@@ -1,4 +1,4 @@
-Build dist: trusty
+dist: trusty
 
 language: java
 
