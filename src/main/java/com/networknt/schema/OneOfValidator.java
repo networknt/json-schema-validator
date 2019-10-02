@@ -141,10 +141,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
         // validate that only a single element has been received in the oneOf node
         // validation should not continue, as it contradicts the oneOf requirement of only one
-        if(node.isObject() && node.size()>1) {
-        	errors = Collections.singleton(buildValidationMessage(at, ""));
-        	return Collections.unmodifiableSet(errors);
-        }
+//        if(node.isObject() && node.size()>1) {
+//        	errors = Collections.singleton(buildValidationMessage(at, ""));
+//        	return Collections.unmodifiableSet(errors);
+//        }
         	
         for (ShortcutValidator validator : schemas) {
             if (!validator.allConstantsMatch(node)) {
