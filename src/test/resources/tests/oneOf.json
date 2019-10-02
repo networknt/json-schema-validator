@@ -68,56 +68,55 @@
     {
         "description": "oneOf with objects and type pattern",
         "schema": {
-			"oneOf": [
-				{
-					"type": "object",
-					"required": [
-						"type"
-					],
-					"properties": {
-						"type": {
-							"enum": [
-								"TYPE_1"
-							]
-						}
-					}
-				},			
-				{
-					"type": "object",
-					"required": [
-						"type"
-					],
-					"properties": {
-						"type": {
-							"enum": [
-								"TYPE_2"
-							]
-						}
-					}
-				}
-				
-			]
-		},
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "color": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        }
+                    }
+                },          
+                {
+                    "type": "object",
+                    "required": [
+                        "type"
+                    ],
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "TYPE_2"
+                            ]
+                        }
+                    }
+                }
+                
+            ]
+        },
         "tests": [
             {
                 "description": "first oneOf valid",
                 "data": {
-				    "type": "TYPE_1"
-				},
+                    "color": "black",
+                    "id": "abc"
+                },
                 "valid": true
             },
             {
                 "description": "second oneOf valid",
                 "data": {
-				    "type": "TYPE_2"
-				},
+                    "type": "TYPE_2"
+                },
                 "valid": true
             },
             {
                 "description": "neither oneOf valid",
                 "data": {
-				    "type": "INVALID_TYPE"
-				},
+                    "type": "INVALID_TYPE"
+                },
                 "valid": false
             }
         ]
@@ -125,53 +124,54 @@
     {
         "description": "oneOf with objects and regex pattern",
         "schema": {
-			"oneOf": [
-				{
-					"type": "object",
-					"required": [
-						"type"
-					],
-					"properties": {
-						"type": {
-						  "type": "string",
-						  "pattern": "^TYPE_1$"
-						}
-					}
-				},
-				{
-					"type": "object",
-					"required": [
-						"type"
-					],
-					"properties": {
-						"type": {
-						  "type": "string",
-						  "pattern": "^TYPE_2$"
-						}
-					}
-				}
-			]
-		},
+            "oneOf": [
+                {
+                    "type": "object",
+                  
+                    "required": [
+                        "type"
+                    ],
+                    "properties": {
+                        "type": {
+                          "type": "string",
+                          "pattern": "^TYPE_1$"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type"
+                    ],
+                    "properties": {
+                        "type": {
+                          "type": "string",
+                          "pattern": "^TYPE_2$"
+                        }
+                    }
+                }
+            ]
+        },
         "tests": [
             {
                 "description": "first oneOf valid",
                 "data": {
-				    "type": "TYPE_1"
-				},
+                    "type": "TYPE_1"
+                },
                 "valid": true
             },
             {
                 "description": "second oneOf valid",
                 "data": {
-				    "type": "TYPE_2"
-				},
+                    "type": "TYPE_2"
+                },
                 "valid": true
             },
             {
                 "description": "neither oneOf valid",
                 "data": {
-				    "type": "INVALID_TYPE"
-				},
+                    "type": "INVALID_TYPE"
+                },
                 "valid": false
             }
         ]
