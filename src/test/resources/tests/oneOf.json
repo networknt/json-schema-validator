@@ -71,15 +71,17 @@
             "oneOf": [
                 {
                     "type": "object",
+                    "required": [
+                        "type"
+                    ],
                     "properties": {
-                        "color": {
-                          "type": "string"
-                        },
-                        "id": {
-                          "type": "string"
+                        "type": {
+                            "enum": [
+                                "TYPE_1"
+                            ]
                         }
                     }
-                },          
+                },
                 {
                     "type": "object",
                     "required": [
@@ -93,7 +95,62 @@
                         }
                     }
                 }
-                
+
+            ]
+        },
+        "tests": [
+            {
+                "description": "first oneOf valid",
+                "data": {
+                    "type": "TYPE_1"
+                },
+                "valid": true
+            },
+            {
+                "description": "second oneOf valid",
+                "data": {
+                    "type": "TYPE_2"
+                },
+                "valid": true
+            },
+            {
+                "description": "neither oneOf valid",
+                "data": {
+                    "type": "INVALID_TYPE"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "oneOf with objects and type pattern",
+        "schema": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "color": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type"
+                    ],
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "TYPE_2"
+                            ]
+                        }
+                    }
+                }
+
             ]
         },
         "tests": [
@@ -127,7 +184,7 @@
             "oneOf": [
                 {
                     "type": "object",
-                  
+
                     "required": [
                         "type"
                     ],
