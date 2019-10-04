@@ -231,7 +231,7 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, jsonMetaSchema, this);
+        return new ValidationContext(this.uriFactory, jsonMetaSchema, this, null);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -299,7 +299,7 @@ public class JsonSchemaFactory {
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    return new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    return new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 }
 
                 return newJsonSchema(mappedUri, schemaNode, config);
