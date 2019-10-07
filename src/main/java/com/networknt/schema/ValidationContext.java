@@ -29,7 +29,7 @@ public class ValidationContext {
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
 
-    public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory) {
+    public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
         if (uriFactory == null) {
             throw new IllegalArgumentException("URIFactory must not be null");
         }
@@ -42,6 +42,7 @@ public class ValidationContext {
         this.uriFactory = uriFactory;
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
+        this.config = config;
     }
 
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
