@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.21 - 2019-10-17
+
+### Added
+
+### Changed
+
+- fixes #192 upgrade jackson to 2.9.10
+- fixes #190 OneOfValidator cannot validate object with multiple properties.Thanks @ddobrin
+- fixes #188 couldnot validate the email format in json schema
+- fixes #187 SchemaValidatorsConfig not propagated
+
 ## 1.0.20 - 2019-09-10
 
 ### Added
