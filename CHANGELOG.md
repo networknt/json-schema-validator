@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.22 - 2019-10-22
+
+### Added
+
+### Changed
+
+- fixes #200 Use with obfuscation.Thanks @complex1ty
+
 ## 1.0.21 - 2019-10-17
 
 ### Added
