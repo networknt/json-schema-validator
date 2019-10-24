@@ -40,8 +40,8 @@ import com.networknt.schema.uri.URLFetcher;
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
-    
-    
+
+
     public static class Builder {
         private ObjectMapper objectMapper = new ObjectMapper();
         private String defaultMetaSchemaURI;
@@ -49,7 +49,7 @@ public class JsonSchemaFactory {
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
-        
+
         public Builder() {
             // Adds support for creating {@link URL}s.
             final URIFactory urlFactory = new URLFactory();
@@ -130,7 +130,7 @@ public class JsonSchemaFactory {
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
-                    objectMapper == null ? new ObjectMapper() : objectMapper, 
+                    objectMapper == null ? new ObjectMapper() : objectMapper,
                     defaultMetaSchemaURI, 
                     new URISchemeFactory(uriFactoryMap),
                     new URISchemeFetcher(uriFetcherMap), 
@@ -148,11 +148,11 @@ public class JsonSchemaFactory {
     private final Map<String, String> uriMap;
 
     private JsonSchemaFactory(
-            final ObjectMapper mapper, 
-            final String defaultMetaSchemaURI, 
-            final URISchemeFactory uriFactory, 
-            final URISchemeFetcher uriFetcher, 
-            final Map<String, JsonMetaSchema> jsonMetaSchemas, 
+            final ObjectMapper mapper,
+            final String defaultMetaSchemaURI,
+            final URISchemeFactory uriFactory,
+            final URISchemeFetcher uriFetcher,
+            final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final Map<String, String> uriMap) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");

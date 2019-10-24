@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "A product from Acme's catalog",
+  "title": "Product",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "The unique identifier for a product"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 10,
+      "description": "Name of the product"
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "price"
+  ]
+}

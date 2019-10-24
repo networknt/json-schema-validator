@@ -17,25 +17,26 @@
 package com.networknt.schema;
 
 import static io.undertow.Handlers.resource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import io.undertow.Undertow;
+import io.undertow.server.handlers.resource.FileResourceManager;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import io.undertow.Undertow;
-import io.undertow.server.handlers.resource.FileResourceManager;
 
 public class JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -73,7 +74,7 @@ public class JsonSchemaTest {
         final URI testCaseFileUri = URI.create("classpath:" + testCaseFile);
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(testCaseFile);
-        ArrayNode testCases = (ArrayNode) mapper.readTree(in);
+        ArrayNode testCases = mapper.readValue(in, ArrayNode.class);
 
         for (int j = 0; j < testCases.size(); j++) {
             try {
@@ -99,7 +100,7 @@ public class JsonSchemaTest {
                             System.out.println("schema: " + schema.toString());
                             System.out.println("data: " + test.get("data"));
                         }
-                        Assert.assertEquals(0, errors.size());
+                        assertEquals(0, errors.size());
                     } else {
                         if (errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
@@ -112,10 +113,10 @@ public class JsonSchemaTest {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                Assert.assertEquals("expected error count", errorCount.asInt(), errors.size());
+                                assertEquals("expected error count", errorCount.asInt(), errors.size());
                             }
                         }
-                        Assert.assertEquals(false, errors.isEmpty());
+                        assertEquals(false, errors.isEmpty());
                     }
                 }
             } catch (JsonSchemaException e) {
@@ -324,5 +325,81 @@ public class JsonSchemaTest {
     @Test
     public void testUUIDValidator() throws Exception {
         runTestFile("tests/uuid.json");
+    }
+
+    /**
+     * Although, the data file has three errors, but only on is reported
+     */
+    @Test
+    public void testFailFast_AllErrors() throws IOException {
+        try {
+            validateFailingFastSchemaFor("product.schema.json", "product-all-errors-data.json");
+            fail("Exception must be thrown");
+        } catch (JsonSchemaException e) {
+            final Set<ValidationMessage> messages = e.getValidationMessages();
+            assertEquals(1, messages.size());
+        }
+    }
+
+    /**
+     * File contains only one error and that is reported.
+     */
+    @Test
+    public void testFailFast_OneErrors() throws IOException {
+        try {
+            validateFailingFastSchemaFor("product.schema.json", "product-one-error-data.json");
+            fail("Exception must be thrown");
+        } catch (JsonSchemaException e) {
+            final Set<ValidationMessage> messages = e.getValidationMessages();
+            assertEquals(1, messages.size());
+        }
+    }
+
+    /**
+     * Although, the file contains two errors, but only one is reported
+     */
+    @Test
+    public void testFailFast_TwoErrors() throws IOException {
+        try {
+            validateFailingFastSchemaFor("product.schema.json", "product-two-errors-data.json");
+            fail("Exception must be thrown");
+        } catch (JsonSchemaException e) {
+            final Set<ValidationMessage> messages = e.getValidationMessages();
+            assertEquals(1, messages.size());
+        }
+    }
+
+    /**
+     * The file contains no errors, in ths case {@link Set}&lt;{@link ValidationMessage}&gt; must be empty
+     */
+    @Test
+    public void testFailFast_NoErrors() throws IOException {
+        try {
+            final Set<ValidationMessage> messages = validateFailingFastSchemaFor("product.schema.json", "product-no-errors-data.json");
+            assertTrue(messages.isEmpty());
+        } catch (JsonSchemaException e) {
+            fail("Must not get an errors");
+        }
+    }
+
+    private Set<ValidationMessage> validateFailingFastSchemaFor(final String schemaFileName, final String dataFileName) throws IOException {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode schema = getJsonNodeFromResource(objectMapper, schemaFileName);
+        final JsonNode dataFile = getJsonNodeFromResource(objectMapper, dataFileName);
+        final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setFailFast(true);
+        return JsonSchemaFactory
+            .builder(JsonSchemaFactory.getInstance())
+            .objectMapper(objectMapper)
+            .build()
+            .getSchema(schema, config)
+            .validate(dataFile);
+    }
+
+    private JsonNode getJsonNodeFromResource(final ObjectMapper mapper, final String locationInTestResources) throws IOException {
+        return mapper.readTree(
+            Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("tests" + System.getProperty("file.separator") + locationInTestResources));
+
     }
 }

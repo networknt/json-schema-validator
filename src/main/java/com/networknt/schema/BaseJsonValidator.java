@@ -35,26 +35,30 @@ public abstract class BaseJsonValidator implements JsonValidator {
      * SchemaValidatorsConfig can only get and set in validationContext
      */
     protected SchemaValidatorsConfig config;
+    protected final boolean failFast;
 
     /**
      * ThreadLocal to allow to pass state in recursive validator calls
      */
     protected final static ThreadLocal<ValidatorState> validatorState = new ThreadLocal<ValidatorState>();
-    
+
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-    	this(schemaPath, schemaNode, parentSchema, validatorType, false );
+    	this(schemaPath, schemaNode, parentSchema, validatorType, false ,
+          validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
     	this.config = validationContext.getConfig() == null ? new SchemaValidatorsConfig() : validationContext.getConfig();
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval) {
+                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
+
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
+        this.failFast = failFast;
     }
 
     protected String getSchemaPath() {
@@ -68,12 +72,12 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected JsonSchema getParentSchema() {
         return parentSchema;
     }
-    
+
     protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
         return suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(schemaNode, validationContext);
     }
 
-    
+
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext){
         final JsonNode node = schemaNode.get("id");
         if(node == null) return null;
@@ -122,7 +126,11 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        return ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
+        final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
+        if (failFast) {
+            throw new JsonSchemaException(message);
+        }
+        return message;
     }
 
     protected void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {

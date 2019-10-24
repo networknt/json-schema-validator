@@ -16,14 +16,21 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SchemaValidatorsConfig {
     /**
      * when validate type, if TYPE_LOOSE = true, will try to convert string to different types to match the type defined in schema.
      */
     private boolean typeLoose;
+
+    /**
+     * When set to true, validator process is stop immediately when a very first validation error is discovered.
+     */
+    private boolean failFast;
     
     /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
@@ -48,6 +55,19 @@ public class SchemaValidatorsConfig {
 
     public void setTypeLoose(boolean typeLoose) {
         this.typeLoose = typeLoose;
+    }
+
+    /**
+     * When enabled, {@link JsonValidator#validate(JsonNode, JsonNode, String)}
+     * or {@link JsonValidator#validate(JsonNode)} doesn't return any {@link Set}&lt;{@link ValidationMessage}&gt;,
+     * instead a {@link JsonSchemaException} is thrown as soon as a validation errors is discovered.
+     * */
+    public void setFailFast(final boolean failFast) {
+        this.failFast = failFast;
+    }
+
+    public boolean isFailFast(){
+        return this.failFast;
     }
 
     public Map<String, String> getUriMappings() {
