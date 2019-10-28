@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.23 - 2019-10-28
+
+### Added
+
+### Changed
+
+- fixes #199 More than a million validation errors crashes the application. Thanks @khiftikhar
+
+
 ## 1.0.22 - 2019-10-22
 
 ### Added
