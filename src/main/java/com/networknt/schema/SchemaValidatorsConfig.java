@@ -88,11 +88,5 @@ public class SchemaValidatorsConfig {
 	}
 
 	public SchemaValidatorsConfig() {
-        loadDefaultConfig();
-    }
-
-    private void loadDefaultConfig() {
-        this.typeLoose = true;
-        this.uriMappings = new HashMap<String, String>();
     }
 }

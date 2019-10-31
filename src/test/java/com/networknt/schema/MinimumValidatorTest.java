@@ -171,9 +171,11 @@ public class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, minimum);
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setTypeLoose(true);
 
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
             Set<ValidationMessage> messages = v.validate(doc);
             assertTrue(format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value), messages.isEmpty());
@@ -194,7 +196,7 @@ public class MinimumValidatorTest {
             }
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema));
+            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if(minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
@@ -282,8 +284,10 @@ public class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(integer, minimum);
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setTypeLoose(true);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);

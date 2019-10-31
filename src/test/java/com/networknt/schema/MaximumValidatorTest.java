@@ -185,9 +185,10 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, maximum);
-
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setTypeLoose(true);
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
             Set<ValidationMessage> messages = v.validate(doc);
             assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
@@ -204,7 +205,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema));
+            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if(maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
@@ -291,8 +292,10 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setTypeLoose(true);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
