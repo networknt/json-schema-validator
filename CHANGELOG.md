@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.24 - 2019-10-28
+
+### Added
+
+### Changed
+
+- fixes #203 String for Number should fail with the default SchemaValidatorsConfig
+
 ## 1.0.23 - 2019-10-28
 
 ### Added
