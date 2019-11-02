@@ -102,18 +102,31 @@ I have just updated the test suites from the [official website](https://github.c
 Thanks to the following people who have contributed to this project. If you are using this library, please consider to be a sponsor for one of the contributors. 
 
 [@stevehu](https://github.com/sponsors/stevehu)
+
 [@jiachen1120](https://github.com/jiachen1120)
+
 [@BalloonWen](https://github.com/BalloonWen)
+
 [@eskabetxe](https://github.com/eskabetxe)
+
 [@ddobrin](https://github.com/ddobrin)
+
 [@ehrmann](https://github.com/ehrmann)
+
 [@rhwood](https://github.com/rhwood)
+
 [@nitin1891](https://github.com/nitin1891)
+
 [@jawaff](https://github.com/jawaff)
+
 [@kosty](https://github.com/kosty)
+
 [@chenyan71](https://github.com/chenyan71)
+
 [@chrisken](https://github.com/chrisken)
+
 [@NicholasAzar](https://github.com/NicholasAzar)
+
 [@basinilya](https://github.com/basinilya)
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
