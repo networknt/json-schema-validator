@@ -65,7 +65,8 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat("{0}: the items in the array must be unique"), UniqueItemsValidator.class),
     DATETIME("date-time", "1034", new MessageFormat("{0}: {1} is an invalid {2}"), null),
     UUID("uuid", "1035", new MessageFormat("{0}: {1} is an invalid {2}"), null),
-    ID("id", "1036", new MessageFormat("{0}: {1} is an invalid segment for URI {2}"), null);
+    ID("id", "1036", new MessageFormat("{0}: {1} is an invalid segment for URI {2}"), null),
+    IF_THEN_ELSE("if", "1037", null, IfValidator.class);
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
 

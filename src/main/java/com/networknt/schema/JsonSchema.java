@@ -145,13 +145,13 @@ public class JsonSchema extends BaseJsonValidator {
         Iterator<String> pnames = schemaNode.fieldNames();
         while (pnames.hasNext()) {
             String pname = pnames.next();
-            JsonNode n = schemaNode.get(pname);
+            JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
 
-            JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, n, this);
+            JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this);
             if (validator != null) {
                 validators.put(getSchemaPath() + "/" + pname, validator);
                 
-                if(pname.equals("required"))
+                if (pname.equals("required"))
                 	requiredValidator = validator;
             }
 
