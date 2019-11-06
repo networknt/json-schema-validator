@@ -320,11 +320,14 @@ public class JsonSchemaTest {
         runTestFile("tests/classpath/schema.json");
     }
 
-
-
     @Test
     public void testUUIDValidator() throws Exception {
         runTestFile("tests/uuid.json");
+    }
+
+    @Test
+    public void testIfValidator() throws Exception {
+        runTestFile("tests/if.json");
     }
 
     /**
