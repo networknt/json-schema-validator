@@ -71,7 +71,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.24</version>
+    <version>1.0.25</version>
 </dependency>
 ```
 
@@ -79,13 +79,15 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.24");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.25");
 }
 ```
 
 For the latest version, please check the [release](https://github.com/networknt/json-schema-validator/releases) page. 
 
 ## [Quick Start](doc/quickstart.md)
+
+## [Validators](doc/validators.md)
 
 ## [Configuration](doc/config.md)
 

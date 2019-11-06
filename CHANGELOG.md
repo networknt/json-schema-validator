@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.25 - 2019-11-06
+
+### Added
+
+### Changed
+
+- fixes #206 IF-THEN-ELSE Conditional (Draft 7). Thanks @andersonf
+
 ## 1.0.24 - 2019-10-28
 
 ### Added
