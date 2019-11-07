@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.26 - 2019-11-07
+
+### Added
+
+### Changed
+
+- fixes #208 error when same ref name in different ref files. Thanks @andersonf
+
 ## 1.0.25 - 2019-11-06
 
 ### Added

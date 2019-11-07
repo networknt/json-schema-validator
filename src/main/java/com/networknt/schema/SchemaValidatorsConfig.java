@@ -61,7 +61,9 @@ public class SchemaValidatorsConfig {
      * When enabled, {@link JsonValidator#validate(JsonNode, JsonNode, String)}
      * or {@link JsonValidator#validate(JsonNode)} doesn't return any {@link Set}&lt;{@link ValidationMessage}&gt;,
      * instead a {@link JsonSchemaException} is thrown as soon as a validation errors is discovered.
-     * */
+     *
+     * @param failFast boolean
+     */
     public void setFailFast(final boolean failFast) {
         this.failFast = failFast;
     }
