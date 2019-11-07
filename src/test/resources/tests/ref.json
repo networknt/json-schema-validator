@@ -96,6 +96,29 @@
         ]
     },
     {
+        "description": "nested refs with duplicate ref values for different files",
+        "schema": {
+            "definitions": {
+                "a": {"$ref": "subSchemas.json#/definitions/a"},
+                "b": {"$ref": "#/definitions/a"},
+                "c": {"$ref": "#/definitions/b"}
+            },
+            "$ref": "#/definitions/c"
+        },
+        "tests": [
+            {
+                "description": "nested ref valid",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "nested ref invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "remote ref, containing refs itself",
         "schema": {"$ref": "http://json-schema.org/draft-04/schema#"},
         "tests": [

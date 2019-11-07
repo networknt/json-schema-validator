@@ -45,6 +45,8 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
+        final String refValueOriginal = refValue;
+
         if (!refValue.startsWith(REF_CURRENT)) {
             // This will be the uri extracted from the refValue (this may be a relative or absolute uri).
             final String refUri;
@@ -76,10 +78,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             JsonNode node = parentSchema.getRefSchemaNode(refValue);
             if (node != null) {
-                JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValue);
+                JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
                 if (ref == null) {
                     ref = new JsonSchemaRef(validationContext, refValue);
-                    validationContext.setReferenceParsingInProgress(refValue, ref);
+                    validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
                     JsonSchema ret = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
                     ref.set(ret);
                 }
