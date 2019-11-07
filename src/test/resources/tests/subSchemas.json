@@ -4,5 +4,8 @@
 	},
 	"refToInteger" : {
 		"$ref" : "#/integer"
+	},
+	"definitions" : {
+		"a" : { "type": "integer" }
 	}
 }
