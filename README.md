@@ -7,7 +7,8 @@
 [Javadocs](https://www.javadoc.io/doc/com.networknt/json-schema-validator) |
 [Contribution Guide](https://doc.networknt.com/contribute/) |
 
-[![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator)
+[![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator) [![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
+
 
 This is a Java implementation of the [JSON Schema Core Draft v4-v7](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
 
