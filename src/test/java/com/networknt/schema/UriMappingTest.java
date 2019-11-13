@@ -99,7 +99,7 @@ public class UriMappingTest {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setUriMappings(getUriMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(this.urlFactory.create(
-                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/uri_mapping/uri-mapping.schema.json"),
+                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/uri_mapping/uri-mapping.schema.json"),
                 config);
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
