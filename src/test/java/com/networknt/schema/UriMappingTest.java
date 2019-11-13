@@ -43,7 +43,7 @@ public class UriMappingTest {
                 .addUriMappings(getUriMappingsFromUrl(mappings));
         JsonSchemaFactory instance = builder.build();
         JsonSchema schema = instance.getSchema(this.urlFactory.create(
-                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/uri_mapping/uri-mapping.schema.json"));
+                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
 
