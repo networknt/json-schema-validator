@@ -5,6 +5,6 @@
     },
     {
         "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/uri_mapping/uri-mapping.schema.json",
-        "localURL": "resource:/tests/uri_mapping/uri-mapping.schema.json"
+        "localURL": "resource:/draft4/uri_mapping/uri-mapping.schema.json"
     }
 ]

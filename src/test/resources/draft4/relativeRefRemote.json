@@ -88,7 +88,7 @@
     },
     {
         "description": "domain reference with ref",
-        "schema": {"$ref": "/tests/integer.json"},
+        "schema": {"$ref": "/draft4/integer.json"},
         "tests": [
             {
                 "description": "remote ref valid",
