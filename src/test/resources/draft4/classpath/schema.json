@@ -2,7 +2,7 @@
   {
     "description": "Sub schema in classpath",
     "schema": {
-      "id": "classpath:/tests/classpath/sub-schema.json",
+      "id": "classpath:/draft4/classpath/sub-schema.json",
       "type": "object",
       "properties": {
         "features": {

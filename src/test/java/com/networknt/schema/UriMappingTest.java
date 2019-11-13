@@ -35,7 +35,7 @@ public class UriMappingTest {
     @Test
     public void testBuilderUriMappingUri() throws IOException {
         URL mappings = ClasspathURLFactory.convert(
-                this.classpathURLFactory.create("resource:tests/uri_mapping/uri-mapping.json"));
+                this.classpathURLFactory.create("resource:draft4/uri_mapping/uri-mapping.json"));
         JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
@@ -43,7 +43,7 @@ public class UriMappingTest {
                 .addUriMappings(getUriMappingsFromUrl(mappings));
         JsonSchemaFactory instance = builder.build();
         JsonSchema schema = instance.getSchema(this.urlFactory.create(
-                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/tests/uri_mapping/uri-mapping.schema.json"));
+                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
 
@@ -74,7 +74,7 @@ public class UriMappingTest {
             fail("Unexpected exception thrown");
         }
         URL mappings = ClasspathURLFactory.convert(
-          this.classpathURLFactory.create("resource:tests/uri_mapping/invalid-schema-uri.json"));
+          this.classpathURLFactory.create("resource:draft4/uri_mapping/invalid-schema-uri.json"));
         JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
@@ -95,7 +95,7 @@ public class UriMappingTest {
     public void testValidatorConfigUriMappingUri() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
         URL mappings = ClasspathURLFactory.convert(
-                this.classpathURLFactory.create("resource:tests/uri_mapping/uri-mapping.json"));
+                this.classpathURLFactory.create("resource:draft4/uri_mapping/uri-mapping.json"));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setUriMappings(getUriMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(this.urlFactory.create(
@@ -132,7 +132,7 @@ public class UriMappingTest {
             fail("Unexpected exception thrown");
         }
         URL mappings = ClasspathURLFactory.convert(
-                this.classpathURLFactory.create("resource:tests/uri_mapping/invalid-schema-uri.json"));
+                this.classpathURLFactory.create("resource:draft4/uri_mapping/invalid-schema-uri.json"));
         config.setUriMappings(getUriMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(example, config);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
@@ -142,10 +142,10 @@ public class UriMappingTest {
     public void testMappingsForRef() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
         URL mappings = ClasspathURLFactory.convert(
-                this.classpathURLFactory.create("resource:tests/uri_mapping/schema-with-ref-mapping.json"));
+                this.classpathURLFactory.create("resource:draft4/uri_mapping/schema-with-ref-mapping.json"));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setUriMappings(getUriMappingsFromUrl(mappings));
-        JsonSchema schema = instance.getSchema(this.classpathURLFactory.create("resource:tests/uri_mapping/schema-with-ref.json"),
+        JsonSchema schema = instance.getSchema(this.classpathURLFactory.create("resource:draft4/uri_mapping/schema-with-ref.json"),
                 config);
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }

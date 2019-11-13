@@ -52,7 +52,7 @@ public class JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/tests"), 100)))
+                            new File("./src/test/resources/draft4"), 100)))
                     .build();
             server.start();
         }
@@ -136,198 +136,198 @@ public class JsonSchemaTest {
 
     @Test
     public void testBignumValidator() throws Exception {
-        runTestFile("tests/optional/bignum.json");
+        runTestFile("draft4/optional/bignum.json");
     }
 
     @Test
     public void testFormatValidator() throws Exception {
-        runTestFile("tests/optional/format.json");
+        runTestFile("draft4/optional/format.json");
     }
 
     @Test
     public void testComplexSchema() throws Exception {
-        runTestFile("tests/optional/complex.json");
+        runTestFile("draft4/optional/complex.json");
     }
 
     @Test
     public void testZeroTerminatedFloatsValidator() throws Exception {
-        runTestFile("tests/optional/zeroTerminatedFloats.json");
+        runTestFile("draft4/optional/zeroTerminatedFloats.json");
     }
 
     @Test
     public void testAdditionalItemsValidator() throws Exception {
-        runTestFile("tests/additionalItems.json");
+        runTestFile("draft4/additionalItems.json");
     }
 
     @Test
     public void testAdditionalPropertiesValidator() throws Exception {
-        runTestFile("tests/additionalProperties.json");
+        runTestFile("draft4/additionalProperties.json");
     }
 
     @Test
     public void testAllOfValidator() throws Exception {
-        runTestFile("tests/allOf.json");
+        runTestFile("draft4/allOf.json");
     }
 
     @Test
     public void testAnyOFValidator() throws Exception {
-        runTestFile("tests/anyOf.json");
+        runTestFile("draft4/anyOf.json");
     }
 
     @Test
     public void testDefaultValidator() throws Exception {
-        runTestFile("tests/default.json");
+        runTestFile("draft4/default.json");
     }
 
     @Test
     public void testDefinitionsValidator() throws Exception {
-        runTestFile("tests/definitions.json");
+        runTestFile("draft4/definitions.json");
     }
 
     @Test
     public void testDependenciesValidator() throws Exception {
-        runTestFile("tests/dependencies.json");
+        runTestFile("draft4/dependencies.json");
     }
 
     @Test
     public void testEnumValidator() throws Exception {
-        runTestFile("tests/enum.json");
+        runTestFile("draft4/enum.json");
     }
 
     @Test
     public void testItemsValidator() throws Exception {
-        runTestFile("tests/items.json");
+        runTestFile("draft4/items.json");
     }
 
     @Test
     public void testMaximumValidator() throws Exception {
-        runTestFile("tests/maximum.json");
+        runTestFile("draft4/maximum.json");
     }
 
     @Test
     public void testMaxItemsValidator() throws Exception {
-        runTestFile("tests/maxItems.json");
+        runTestFile("draft4/maxItems.json");
     }
 
     @Test
     public void testMaxLengthValidator() throws Exception {
-        runTestFile("tests/maxLength.json");
+        runTestFile("draft4/maxLength.json");
     }
 
     @Test
     public void testMaxPropertiesValidator() throws Exception {
-        runTestFile("tests/maxProperties.json");
+        runTestFile("draft4/maxProperties.json");
     }
 
     @Test
     public void testMinimumValidator() throws Exception {
-        runTestFile("tests/minimum.json");
+        runTestFile("draft4/minimum.json");
     }
 
     @Test
     public void testMinItemsValidator() throws Exception {
-        runTestFile("tests/minItems.json");
+        runTestFile("draft4/minItems.json");
     }
 
     @Test
     public void testMinLengthValidator() throws Exception {
-        runTestFile("tests/minLength.json");
+        runTestFile("draft4/minLength.json");
     }
 
     @Test
     public void testMinPropertiesValidator() throws Exception {
-        runTestFile("tests/minProperties.json");
+        runTestFile("draft4/minProperties.json");
     }
 
     @Test
     public void testMultipleOfValidator() throws Exception {
-        runTestFile("tests/multipleOf.json");
+        runTestFile("draft4/multipleOf.json");
     }
 
     @Test
     public void testNotValidator() throws Exception {
-        runTestFile("tests/not.json");
+        runTestFile("draft4/not.json");
     }
 
     @Test
     public void testOneOfValidator() throws Exception {
-        runTestFile("tests/oneOf.json");
+        runTestFile("draft4/oneOf.json");
     }
     
     @Test
     public void testPatternValidator() throws Exception {
-        runTestFile("tests/pattern.json");
+        runTestFile("draft4/pattern.json");
     }
 
     @Test
     public void testPatternPropertiesValidator() throws Exception {
-        runTestFile("tests/patternProperties.json");
+        runTestFile("draft4/patternProperties.json");
     }
 
     @Test
     public void testPropertiesValidator() throws Exception {
-        runTestFile("tests/properties.json");
+        runTestFile("draft4/properties.json");
     }
 
     @Test
     public void testRefValidator() throws Exception {
-        runTestFile("tests/ref.json");
+        runTestFile("draft4/ref.json");
     }
 
     @Test
     public void testRefRemoteValidator() throws Exception {
-        runTestFile("tests/refRemote.json");
+        runTestFile("draft4/refRemote.json");
     }
 
     @Test
     public void testRelativeRefRemoteValidator() throws Exception {
-        runTestFile("tests/relativeRefRemote.json");
+        runTestFile("draft4/relativeRefRemote.json");
     }
 
     @Test
     public void testRequiredValidator() throws Exception {
-        runTestFile("tests/required.json");
+        runTestFile("draft4/required.json");
     }
 
 
     @Test
     public void testTypeValidator() throws Exception {
-        runTestFile("tests/type.json");
+        runTestFile("draft4/type.json");
     }
 
     @Test
     public void testUnionTypeValidator() throws Exception {
-        runTestFile("tests/union_type.json");
+        runTestFile("draft4/union_type.json");
     }
 
     @Test
     public void testUniqueItemsValidator() throws Exception {
-        runTestFile("tests/uniqueItems.json");
+        runTestFile("draft4/uniqueItems.json");
     }
 
     @Test
     public void testEnumObject() throws Exception {
-        runTestFile("tests/enumObject.json");
+        runTestFile("draft4/enumObject.json");
     }
     
     @Test
     public void testIdSchemaWithUrl() throws Exception {
-        runTestFile("tests/id_schema/property.json");
+        runTestFile("draft4/id_schema/property.json");
     }
 
     @Test
     public void testSchemaFromClasspath() throws Exception {
-        runTestFile("tests/classpath/schema.json");
+        runTestFile("draft4/classpath/schema.json");
     }
 
     @Test
     public void testUUIDValidator() throws Exception {
-        runTestFile("tests/uuid.json");
+        runTestFile("draft4/uuid.json");
     }
 
     @Test
     public void testIfValidator() throws Exception {
-        runTestFile("tests/if.json");
+        runTestFile("draft4/if.json");
     }
 
     /**
@@ -402,7 +402,7 @@ public class JsonSchemaTest {
     private JsonNode getJsonNodeFromResource(final ObjectMapper mapper, final String locationInTestResources) throws IOException {
         return mapper.readTree(
             Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("tests" + System.getProperty("file.separator") + locationInTestResources));
+                .getResourceAsStream("draft4" + System.getProperty("file.separator") + locationInTestResources));
 
     }
 }
