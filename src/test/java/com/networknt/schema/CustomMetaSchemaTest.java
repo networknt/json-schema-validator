@@ -108,12 +108,12 @@ public class CustomMetaSchemaTest {
     public void customMetaSchemaWithIgnoredKeyword() throws JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonMetaSchema metaSchema = JsonMetaSchema
-                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01#", JsonMetaSchema.getDraftV4())
+                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01#", JsonMetaSchema.getV4())
                 // Generated UI uses enumNames to render Labels for enum values
                 .addKeyword(new EnumNamesKeyword())
                 .build();
         
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance()).addMetaSchema(metaSchema).build();
+        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).addMetaSchema(metaSchema).build();
         final JsonSchema schema = validatorFactory.getSchema("{\n" + 
                 "  \"$schema\":\n" + 
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\",\n" + 

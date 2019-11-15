@@ -48,7 +48,7 @@ public class SchemaValidatorsConfig {
      * validator using the SchemaValidator to handle it.
      */
     private boolean handleNullableField = true;
-    
+
     public boolean isTypeLoose() {
         return typeLoose;
     }
@@ -89,6 +89,6 @@ public class SchemaValidatorsConfig {
 		this.handleNullableField = handleNullableField;
 	}
 
-	public SchemaValidatorsConfig() {
+    public SchemaValidatorsConfig() {
     }
 }

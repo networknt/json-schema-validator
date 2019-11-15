@@ -17,7 +17,12 @@
 package com.networknt.schema;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 public class ValidatorTypeCodeTest {
 
@@ -37,5 +42,18 @@ public class ValidatorTypeCodeTest {
     public void testFromValueMissing() {
         assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing"));
     }
+
+    @Test
+    public void testIfThenElseNotInV4() {
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
+        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
+    }
+
+    @Test
+    public void testExclusiveMaximumNotInV4() {
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
+        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
+    }
+
 
 }
