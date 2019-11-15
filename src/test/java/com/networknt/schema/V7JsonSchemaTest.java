@@ -107,8 +107,206 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    public void testBignumValidator() throws Exception {
+    public void testOptionalBignumValidator() throws Exception {
         runTestFile("draft7/optional/bignum.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalContentValidator() throws Exception {
+        runTestFile("draft7/optional/content.json");
+    }
+
+    @Test
+    @Ignore
+    public void testEcmascriptRegexValidator() throws Exception {
+        runTestFile("draft7/optional/ecmascript-regex.json");
+    }
+
+    @Test
+    @Ignore
+    public void testZeroTerminatedFloatsValidator() throws Exception {
+        runTestFile("draft7/optional/zeroTerminatedFloats.json");
+    }
+
+    @Test
+    public void testOptionalFormatDateValidator() throws Exception {
+        runTestFile("draft7/optional/format/date.json");
+    }
+
+    @Test
+    public void testOptionalFormatDateTimeValidator() throws Exception {
+        runTestFile("draft7/optional/format/date-time.json");
+    }
+
+    @Test
+    public void testOptionalFormatEmailValidator() throws Exception {
+        runTestFile("draft7/optional/format/email.json");
+    }
+
+    @Test
+    public void testOptionalFormatHostnameValidator() throws Exception {
+        runTestFile("draft7/optional/format/hostname.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatIdnEmailValidator() throws Exception {
+        runTestFile("draft7/optional/format/idn-email.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatIdnHostnameValidator() throws Exception {
+        runTestFile("draft7/optional/format/idn-hostname.json");
+    }
+
+    @Test
+    public void testOptionalFormatIpv4Validator() throws Exception {
+        runTestFile("draft7/optional/format/ipv4.json");
+    }
+
+    @Test
+    public void testOptionalFormatIpv6Validator() throws Exception {
+        runTestFile("draft7/optional/format/ipv6.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatIriValidator() throws Exception {
+        runTestFile("draft7/optional/format/iri.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatIriReferenceValidator() throws Exception {
+        runTestFile("draft7/optional/format/iri-reference.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatJsonPointerValidator() throws Exception {
+        runTestFile("draft7/optional/format/json-pointer.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatRegexValidator() throws Exception {
+        runTestFile("draft7/optional/format/regex.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatRelativeJsonPointerValidator() throws Exception {
+        runTestFile("draft7/optional/format/relative-json-pointer.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatTimeValidator() throws Exception {
+        runTestFile("draft7/optional/format/time.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatUriValidator() throws Exception {
+        runTestFile("draft7/optional/format/uri.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatUriReferenceValidator() throws Exception {
+        runTestFile("draft7/optional/format/uri-reference.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOptionalFormatUriTemplateValidator() throws Exception {
+        runTestFile("draft7/optional/format/uri-template.json");
+    }
+
+    @Test
+    public void testAdditionalItemsValidator() throws Exception {
+        runTestFile("draft7/additionalItems.json");
+    }
+
+    @Test
+    public void testAdditionalPropertiesValidator() throws Exception {
+        runTestFile("draft7/additionalProperties.json");
+    }
+
+    @Test
+    @Ignore
+    public void testAllOfValidator() throws Exception {
+        runTestFile("draft7/allOf.json");
+    }
+
+    @Test
+    @Ignore
+    public void testAnchorValidator() throws Exception {
+        runTestFile("draft7/anchor.json");
+    }
+
+    @Test
+    @Ignore
+    public void testAnyOfValidator() throws Exception {
+        runTestFile("draft7/anyOf.json");
+    }
+
+    @Test
+    @Ignore
+    public void testBooleanSchemaValidator() throws Exception {
+        runTestFile("draft7/boolean_schema.json");
+    }
+
+    @Test
+    @Ignore
+    public void testConstValidator() throws Exception {
+        runTestFile("draft7/const.json");
+    }
+
+    @Test
+    @Ignore
+    public void testContainsValidator() throws Exception {
+        runTestFile("draft7/contains.json");
+    }
+
+    @Test
+    public void testDefaultValidator() throws Exception {
+        runTestFile("draft7/default.json");
+    }
+
+    @Test
+    @Ignore
+    public void testDefsValidator() throws Exception {
+        runTestFile("draft7/defs.json");
+    }
+
+    @Test
+    @Ignore
+    public void testDependenciesValidator() throws Exception {
+        runTestFile("draft7/dependencies.json");
+    }
+
+    @Test
+    @Ignore
+    public void testEnumValidator() throws Exception {
+        runTestFile("draft7/enum.json");
+    }
+
+    @Test
+    public void testExclusiveMaximumValidator() throws Exception {
+        runTestFile("draft7/exclusiveMaximum.json");
+    }
+
+    @Test
+    public void testExclusiveMinimumValidator() throws Exception {
+        runTestFile("draft7/exclusiveMinimum.json");
+    }
+
+    @Test
+    public void testFormatValidator() throws Exception {
+        runTestFile("draft7/format.json");
     }
 
     @Test
@@ -120,6 +318,119 @@ public class V7JsonSchemaTest {
     @Ignore
     public void testIfThenElseValidator() throws Exception {
         runTestFile("draft7/if-then-else.json");
+    }
+
+    @Test
+    @Ignore
+    public void testItemsValidator() throws Exception {
+        runTestFile("draft7/items.json");
+    }
+
+    @Test
+    public void testMaximumValidator() throws Exception {
+        runTestFile("draft7/maximum.json");
+    }
+
+    @Test
+    public void testMaxItemsValidator() throws Exception {
+        runTestFile("draft7/maxItems.json");
+    }
+
+    @Test
+    public void testMaxLengthValidator() throws Exception {
+        runTestFile("draft7/maxLength.json");
+    }
+
+    @Test
+    public void testMaxPropertiesValidator() throws Exception {
+        runTestFile("draft7/maxProperties.json");
+    }
+
+    @Test
+    public void testMinimumValidator() throws Exception {
+        runTestFile("draft7/minimum.json");
+    }
+
+    @Test
+    public void testMinItemsValidator() throws Exception {
+        runTestFile("draft7/minItems.json");
+    }
+
+    @Test
+    public void testMinLengthValidator() throws Exception {
+        runTestFile("draft7/minLength.json");
+    }
+
+    @Test
+    public void testMinPropertiesValidator() throws Exception {
+        runTestFile("draft7/minProperties.json");
+    }
+
+    @Test
+    public void testMultipleOfValidator() throws Exception {
+        runTestFile("draft7/multipleOf.json");
+    }
+
+    @Test
+    @Ignore
+    public void testNotValidator() throws Exception {
+        runTestFile("draft7/not.json");
+    }
+
+    @Test
+    @Ignore
+    public void testOneOfValidator() throws Exception {
+        runTestFile("draft7/oneOf.json");
+    }
+
+    @Test
+    public void testPatternValidator() throws Exception {
+        runTestFile("draft7/pattern.json");
+    }
+
+    @Test
+    @Ignore
+    public void testPatternPropertiesValidator() throws Exception {
+        runTestFile("draft7/patternProperties.json");
+    }
+
+    @Test
+    @Ignore
+    public void testPropertiesValidator() throws Exception {
+        runTestFile("draft7/properties.json");
+    }
+
+    @Test
+    @Ignore
+    public void testPropertyNamesValidator() throws Exception {
+        runTestFile("draft7/propertyNames.json");
+    }
+
+    @Test
+    @Ignore
+    public void testRefValidator() throws Exception {
+        runTestFile("draft7/ref.json");
+    }
+
+    @Test
+    @Ignore
+    public void testRefRemoteValidator() throws Exception {
+        runTestFile("draft7/refRemote.json");
+    }
+
+    @Test
+    public void testRequiredValidator() throws Exception {
+        runTestFile("draft7/required.json");
+    }
+
+    @Test
+    public void testTypeValidator() throws Exception {
+        runTestFile("draft7/type.json");
+    }
+
+    @Test
+    public void testUniqueItemsValidator() throws Exception {
+        runTestFile("draft7/uniqueItems.json");
     }
 
 }
