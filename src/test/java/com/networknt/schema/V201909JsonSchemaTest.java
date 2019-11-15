@@ -116,6 +116,32 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
+    public void testFormatDateValidator() throws Exception {
+        runTestFile("draft2019-09/optional/format/date.json");
+    }
+
+    @Test
+    public void testFormatDateTimeValidator() throws Exception {
+        runTestFile("draft2019-09/optional/format/date-time.json");
+    }
+
+    @Test
+    public void testFormatEmailValidator() throws Exception {
+        runTestFile("draft2019-09/optional/format/email.json");
+    }
+
+    @Test
+    public void testFormatHostnameValidator() throws Exception {
+        runTestFile("draft2019-09/optional/format/hostname.json");
+    }
+
+    @Test
+    @Ignore
+    public void testFormatIdnEmailValidator() throws Exception {
+        runTestFile("draft2019-09/optional/format/idn-email.json");
+    }
+
+    @Test
     public void testIfValidator() throws Exception {
         runTestFile("draft2019-09/if.json");
     }
