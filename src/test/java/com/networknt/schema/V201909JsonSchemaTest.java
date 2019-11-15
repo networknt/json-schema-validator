@@ -240,7 +240,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testAllOfValidator() throws Exception {
         runTestFile("draft2019-09/allOf.json");
     }
@@ -252,13 +251,11 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testAnyOfValidator() throws Exception {
         runTestFile("draft2019-09/anyOf.json");
     }
 
     @Test
-    @Ignore
     public void testBooleanSchemaValidator() throws Exception {
         runTestFile("draft2019-09/boolean_schema.json");
     }
@@ -376,13 +373,11 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testNotValidator() throws Exception {
         runTestFile("draft2019-09/not.json");
     }
 
     @Test
-    @Ignore
     public void testOneOfValidator() throws Exception {
         runTestFile("draft2019-09/oneOf.json");
     }
@@ -393,13 +388,11 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testPatternPropertiesValidator() throws Exception {
         runTestFile("draft2019-09/patternProperties.json");
     }
 
     @Test
-    @Ignore
     public void testPropertiesValidator() throws Exception {
         runTestFile("draft2019-09/properties.json");
     }
@@ -438,3 +431,4 @@ public class V201909JsonSchemaTest {
     }
 
 }
+    

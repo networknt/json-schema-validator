@@ -68,7 +68,9 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ID("id", "1036", new MessageFormat("{0}: {1} is an invalid segment for URI {2}"), null, 15),
     IF_THEN_ELSE("if", "1037", null, IfValidator.class, 12),  // V7|V201909
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", new MessageFormat("{0}: must have a exclusive maximum value of {1}"), ExclusiveMaximumValidator.class, 14),  // V6|V7|V201909
-    EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", new MessageFormat("{0}: must have a exclusive minimum value of {1}"), ExclusiveMinimumValidator.class, 14);
+    EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", new MessageFormat("{0}: must have a exclusive minimum value of {1}"), ExclusiveMinimumValidator.class, 14),
+    TRUE("true", "1040", null, TrueValidator.class, 14),
+    FALSE("false", "1041", new MessageFormat("Boolean schema false is not valid"), FalseValidator.class, 14);
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
     private static SpecVersion specVersion = new SpecVersion();
