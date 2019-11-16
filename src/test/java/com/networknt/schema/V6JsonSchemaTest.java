@@ -183,7 +183,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testEnumValidator() throws Exception {
         runTestFile("draft6/enum.json");
     }

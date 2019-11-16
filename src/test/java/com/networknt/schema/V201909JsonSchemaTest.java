@@ -289,7 +289,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testEnumValidator() throws Exception {
         runTestFile("draft2019-09/enum.json");
     }

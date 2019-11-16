@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
 import org.slf4j.Logger;
@@ -44,7 +45,12 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             String separator = "";
 
             for (JsonNode n : schemaNode) {
-                nodes.add(n);
+                if(n.isNumber()) {
+                    // convert to DecimalNode for number comparison
+                    nodes.add(DecimalNode.valueOf(n.decimalValue()));
+                } else {
+                    nodes.add(n);
+                }
 
                 sb.append(separator);
                 sb.append(n.asText());
@@ -77,7 +83,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-
+        if(node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
         if (!nodes.contains(node) && !(config.isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             errors.add(buildValidationMessage(at, error));
         }

@@ -285,7 +285,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testEnumValidator() throws Exception {
         runTestFile("draft7/enum.json");
     }
