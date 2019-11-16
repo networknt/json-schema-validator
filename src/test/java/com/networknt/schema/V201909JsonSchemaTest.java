@@ -261,7 +261,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testConstValidator() throws Exception {
         runTestFile("draft2019-09/const.json");
     }

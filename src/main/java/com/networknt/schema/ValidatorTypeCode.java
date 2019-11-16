@@ -70,7 +70,8 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", new MessageFormat("{0}: must have a exclusive maximum value of {1}"), ExclusiveMaximumValidator.class, 14),  // V6|V7|V201909
     EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", new MessageFormat("{0}: must have a exclusive minimum value of {1}"), ExclusiveMinimumValidator.class, 14),
     TRUE("true", "1040", null, TrueValidator.class, 14),
-    FALSE("false", "1041", new MessageFormat("Boolean schema false is not valid"), FalseValidator.class, 14);
+    FALSE("false", "1041", new MessageFormat("Boolean schema false is not valid"), FalseValidator.class, 14),
+    CONST("const", "1042", new MessageFormat("{0}: must be a constant value {1}"), ConstValidator.class, 14);
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
     private static SpecVersion specVersion = new SpecVersion();
