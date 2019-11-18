@@ -305,12 +305,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    public void testIfValidator() throws Exception {
-        runTestFile("draft7/if.json");
-    }
-
-    @Test
-    @Ignore
     public void testIfThenElseValidator() throws Exception {
         runTestFile("draft7/if-then-else.json");
     }

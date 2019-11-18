@@ -54,7 +54,7 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> ifErrors = ifSchema.validate(node, rootNode, at);
         if (ifErrors.isEmpty() && thenSchema != null) {
             errors.addAll(thenSchema.validate(node, rootNode, at));
-        } else if (thenSchema != null && elseSchema != null) {
+        } else if (!ifErrors.isEmpty() && elseSchema != null) {
             errors.addAll(elseSchema.validate(node, rootNode, at));
         }
 
