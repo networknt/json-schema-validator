@@ -38,12 +38,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class JsonSchemaTest {
+public class V4JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
     protected JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance()).objectMapper(mapper).build();
     protected static Undertow server = null;
 
-    public JsonSchemaTest() {
+    public V4JsonSchemaTest() {
     }
 
     @BeforeClass
@@ -129,7 +129,7 @@ public class JsonSchemaTest {
     public void testLoadingWithId() throws Exception {
         URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
         JsonNode schemaJson = mapper.readTree(url);
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         @SuppressWarnings("unused")
         JsonSchema schema = factory.getSchema(schemaJson);
     }
@@ -325,11 +325,6 @@ public class JsonSchemaTest {
         runTestFile("draft4/uuid.json");
     }
 
-    @Test
-    public void testIfValidator() throws Exception {
-        runTestFile("draft4/if.json");
-    }
-
     /**
      * Although, the data file has three errors, but only on is reported
      */
@@ -392,7 +387,7 @@ public class JsonSchemaTest {
         final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setFailFast(true);
         return JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance())
+            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
             .objectMapper(objectMapper)
             .build()
             .getSchema(schema, config)

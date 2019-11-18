@@ -197,11 +197,36 @@ public class JsonSchemaFactory {
     }
     
     public static JsonSchemaFactory getInstance() {
-        JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
-        return builder()
-                .defaultMetaSchemaURI(draftV4.getUri())
-                .addMetaSchema(draftV4)
-                .build();
+        return getInstance(SpecVersion.VersionFlag.V4);
+    }
+
+    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
+        if(versionFlag == SpecVersion.VersionFlag.V201909) {
+            JsonMetaSchema v201909 = JsonMetaSchema.getV201909();
+            return builder()
+                    .defaultMetaSchemaURI(v201909.getUri())
+                    .addMetaSchema(v201909)
+                    .build();
+        } else if(versionFlag == SpecVersion.VersionFlag.V7) {
+            JsonMetaSchema v7 = JsonMetaSchema.getV7();
+            return builder()
+                    .defaultMetaSchemaURI(v7.getUri())
+                    .addMetaSchema(v7)
+                    .build();
+        } else if(versionFlag == SpecVersion.VersionFlag.V6) {
+            JsonMetaSchema v6 = JsonMetaSchema.getV6();
+            return builder()
+                    .defaultMetaSchemaURI(v6.getUri())
+                    .addMetaSchema(v6)
+                    .build();
+        } else if(versionFlag == SpecVersion.VersionFlag.V4) {
+            JsonMetaSchema v4 = JsonMetaSchema.getV4();
+            return builder()
+                    .defaultMetaSchemaURI(v4.getUri())
+                    .addMetaSchema(v4)
+                    .build();
+        }
+        return null;
     }
     
     public static Builder builder(final JsonSchemaFactory blueprint) {

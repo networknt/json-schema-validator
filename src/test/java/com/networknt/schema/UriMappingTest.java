@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
 import com.networknt.schema.uri.ClasspathURLFactory;
 import com.networknt.schema.uri.URLFactory;
+import org.junit.experimental.theories.internal.SpecificDataPointsSupplier;
 
 public class UriMappingTest {
 
@@ -36,7 +37,7 @@ public class UriMappingTest {
     public void testBuilderUriMappingUri() throws IOException {
         URL mappings = ClasspathURLFactory.convert(
                 this.classpathURLFactory.create("resource:draft4/uri_mapping/uri-mapping.json"));
-        JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
+        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
                 .addMetaSchema(draftV4)
@@ -57,7 +58,7 @@ public class UriMappingTest {
      */
     @Test
     public void testBuilderExampleMappings() throws IOException {
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         URI example = this.urlFactory.create("http://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
@@ -75,7 +76,7 @@ public class UriMappingTest {
         }
         URL mappings = ClasspathURLFactory.convert(
           this.classpathURLFactory.create("resource:draft4/uri_mapping/invalid-schema-uri.json"));
-        JsonMetaSchema draftV4 = JsonMetaSchema.getDraftV4();
+        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
                 .addMetaSchema(draftV4)
@@ -93,7 +94,7 @@ public class UriMappingTest {
      */
     @Test
     public void testValidatorConfigUriMappingUri() throws IOException {
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         URL mappings = ClasspathURLFactory.convert(
                 this.classpathURLFactory.create("resource:draft4/uri_mapping/uri-mapping.json"));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
@@ -114,7 +115,7 @@ public class UriMappingTest {
      */
     @Test
     public void testValidatorConfigExampleMappings() throws IOException {
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         URI example = this.urlFactory.create("http://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
@@ -140,7 +141,7 @@ public class UriMappingTest {
 
     @Test
     public void testMappingsForRef() throws IOException {
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance();
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         URL mappings = ClasspathURLFactory.convert(
                 this.classpathURLFactory.create("resource:draft4/uri_mapping/schema-with-ref-mapping.json"));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();

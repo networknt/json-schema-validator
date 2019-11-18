@@ -38,41 +38,48 @@ public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory
             .getLogger(JsonMetaSchema.class);
     private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<String, String>();
-    
-    private static class DraftV4 {
+
+    static PatternFormat pattern(String name, String regex) {
+        return new PatternFormat(name, regex);
+    }
+    public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<Format>();
+
+    // this section contains formats that is common for all specification versions.
+    static {
+        COMMON_BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ip-address",
+                "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv4",
+                "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv6",
+                "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uri", "(^[a-zA-Z][a-zA-Z0-9+-.]*:[^\\s]*$)|(^//[^\\s]*$)"));
+        COMMON_BUILTIN_FORMATS.add(pattern("color",
+                "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
+        COMMON_BUILTIN_FORMATS.add(pattern("hostname",
+                "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
+    }
+
+    private static class V4 {
         private static String URI = "http://json-schema.org/draft-04/schema#";
-        // Draft 6 uses "$id"
-        private static final String DRAFT_4_ID = "id";
-        public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>();
+        private static final String ID = "id";
+
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
         static {
-            BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}$"));
-            BUILTIN_FORMATS.add(pattern("ip-address",
-                    "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
-            BUILTIN_FORMATS.add(pattern("ipv4", 
-                    "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
-            BUILTIN_FORMATS.add(pattern("ipv6", 
-                    "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$"));
-            BUILTIN_FORMATS.add(pattern("uri", "(^[a-zA-Z][a-zA-Z0-9+-.]*:[^\\s]*$)|(^//[^\\s]*$)"));
-            BUILTIN_FORMATS.add(pattern("color", 
-                    "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
-            BUILTIN_FORMATS.add(pattern("hostname", 
-                    "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$"));
-            BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
-            BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));
-            BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
-            BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
-            BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
+            // add version specific formats here.
+            //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
         }
 
-        static PatternFormat pattern(String name, String regex) {
-            return new PatternFormat(name, regex);
-        }
-        
         public static JsonMetaSchema getInstance() {
             return new Builder(URI)
-                    .idKeyword(DRAFT_4_ID)
+                    .idKeyword(ID)
                     .addFormats(BUILTIN_FORMATS)
-                    .addKeywords(ValidatorTypeCode.getNonFormatKeywords())
+                    .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4))
                     // keywords that may validly exist, but have no validation aspect to them
                     .addKeywords(Arrays.asList(
                             new NonValidationKeyword("$schema"),
@@ -85,7 +92,92 @@ public class JsonMetaSchema {
                     .build();
         }
     }
-    
+
+    private static class V6 {
+        private static String URI = "http://json-schema.org/draft-06/schema#";
+        // Draft 6 uses "$id"
+        private static final String ID = "$id";
+
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        static {
+            // add version specific formats here.
+            //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+        }
+
+        public static JsonMetaSchema getInstance() {
+            return new Builder(URI)
+                    .idKeyword(ID)
+                    .addFormats(BUILTIN_FORMATS)
+                    .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V6))
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .addKeywords(Arrays.asList(
+                            new NonValidationKeyword("$schema"),
+                            new NonValidationKeyword("$id"),
+                            new NonValidationKeyword("title"),
+                            new NonValidationKeyword("description"),
+                            new NonValidationKeyword("default"),
+                            new NonValidationKeyword("definitions")
+                    ))
+                    .build();
+        }
+    }
+
+    private static class V7 {
+        private static String URI = "http://json-schema.org/draft-07/schema#";
+        private static final String ID = "$id";
+
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        static {
+            // add version specific formats here.
+            //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+        }
+
+        public static JsonMetaSchema getInstance() {
+            return new Builder(URI)
+                    .idKeyword(ID)
+                    .addFormats(BUILTIN_FORMATS)
+                    .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .addKeywords(Arrays.asList(
+                            new NonValidationKeyword("$schema"),
+                            new NonValidationKeyword("$id"),
+                            new NonValidationKeyword("title"),
+                            new NonValidationKeyword("description"),
+                            new NonValidationKeyword("default"),
+                            new NonValidationKeyword("definitions")
+                    ))
+                    .build();
+        }
+    }
+
+    private static class V201909 {
+        private static String URI = "http://json-schema.org/draft/2019-09/schema#";
+        private static final String ID = "$id";
+
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        static {
+            // add version specific formats here.
+            //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+        }
+
+        public static JsonMetaSchema getInstance() {
+            return new Builder(URI)
+                    .idKeyword(ID)
+                    .addFormats(BUILTIN_FORMATS)
+                    .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .addKeywords(Arrays.asList(
+                            new NonValidationKeyword("$schema"),
+                            new NonValidationKeyword("$id"),
+                            new NonValidationKeyword("title"),
+                            new NonValidationKeyword("description"),
+                            new NonValidationKeyword("default"),
+                            new NonValidationKeyword("definitions")
+                    ))
+                    .build();
+        }
+    }
+
     public static class Builder {
         private Map<String, Keyword> keywords = new HashMap<String, Keyword>();
         private Map<String, Format> formats = new HashMap<String, Format>();
@@ -172,14 +264,26 @@ public class JsonMetaSchema {
         this.keywords = keywords;
     }
 
-    public static JsonMetaSchema getDraftV4() {
-        return DraftV4.getInstance();
+    public static JsonMetaSchema getV4() {
+        return V4.getInstance();
     }
-    
+
+    public static JsonMetaSchema getV6() {
+        return V6.getInstance();
+    }
+
+    public static JsonMetaSchema getV7() {
+        return V7.getInstance();
+    }
+
+    public static JsonMetaSchema getV201909() {
+        return V201909.getInstance();
+    }
+
     /**
      * Builder without keywords or formats.
      * 
-     * Use {@link #getDraftV4()} for the Draft 4 Metaschema, or if you need a builder based on Draft4, use
+     * Use {@link #getV4()} for the Draft 4 Metaschema, or if you need a builder based on Draft4, use
      * 
      * <code>
      * JsonMetaSchema.builder("http://your-metaschema-uri", JsonSchemaFactory.getDraftV4()).build();

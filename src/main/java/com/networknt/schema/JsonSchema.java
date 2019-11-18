@@ -142,19 +142,29 @@ public class JsonSchema extends BaseJsonValidator {
 
     private Map<String, JsonValidator> read(JsonNode schemaNode) {
         Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
-        Iterator<String> pnames = schemaNode.fieldNames();
-        while (pnames.hasNext()) {
-            String pname = pnames.next();
-            JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
-
-            JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this);
-            if (validator != null) {
-                validators.put(getSchemaPath() + "/" + pname, validator);
-                
-                if (pname.equals("required"))
-                	requiredValidator = validator;
+        if(schemaNode.isBoolean()) {
+            if(schemaNode.booleanValue()) {
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "true", schemaNode, this);
+                validators.put(getSchemaPath() + "/true", validator);
+            } else {
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "false", schemaNode, this);
+                validators.put(getSchemaPath() + "/false", validator);
             }
+        } else {
+            Iterator<String> pnames = schemaNode.fieldNames();
+            while (pnames.hasNext()) {
+                String pname = pnames.next();
+                JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
 
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this);
+                if (validator != null) {
+                    validators.put(getSchemaPath() + "/" + pname, validator);
+
+                    if (pname.equals("required"))
+                        requiredValidator = validator;
+                }
+
+            }
         }
         return validators;
     }
