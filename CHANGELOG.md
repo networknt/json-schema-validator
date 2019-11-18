@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.27 - 2019-11-18
+
+### Added
+
+### Changed
+
+- fixes #216 Fix remote ref to follow redirects. Thanks @andersonf
+- fixes #214 the if-then-else.json is failed in test for V7 and V2019-09. Thanks @andersonf
+- fixes #54 support for draft V6, V7 and V2019-09
+- fixes #211 move the current test cases from tests to draft4 folder in the resource
+
 ## 1.0.26 - 2019-11-07
 
 ### Added
