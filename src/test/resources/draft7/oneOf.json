@@ -115,7 +115,8 @@
             "oneOf": [
                 {
                     "properties": {
-                        "bar": {"type": "integer"}
+                        "bar": {"type": "integer"},
+                        "baz": {"type": "integer"}
                     },
                     "required": ["bar"]
                 },
