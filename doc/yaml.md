@@ -12,5 +12,14 @@ Add the dependency
         </dependency>
 ```
 
-and created object mapper using yaml factory i.e ObjectMapper objMapper =new ObjectMapper(new YAMLFactory());
+and create object mapper using yaml factory i.e `ObjectMapper objMapper =new ObjectMapper(new YAMLFactory());`
+
+#### Example
+```
+JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).objectMapper(mapper).build(); /* Using draft-07. You can choose anyother draft.*/
+        JsonSchema schema = factory.getSchema(YamlOperations.class.getClassLoader().getResourceAsStream("your-schema.json"));
+
+        JsonNode jsonNode = mapper.readTree(YamlOperations.class.getClassLoader().getResourceAsStream("your-file.yaml"));
+        Set<ValidationMessage> validateMsg = schema.validate(jsonNode);
+```
 
