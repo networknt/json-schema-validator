@@ -19,17 +19,39 @@ package com.networknt.schema;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@RunWith(Parameterized.class)
 public class CustomMetaSchemaTest {
+    @Parameterized.Parameters
+    public static Collection<?> parameters() {
+      return Arrays.asList(new Object[][] {
+         { JsonMetaSchema.getV4(), SpecVersion.VersionFlag.V4 },
+         { JsonMetaSchema.getV6(), SpecVersion.VersionFlag.V6 },
+         { JsonMetaSchema.getV7(), SpecVersion.VersionFlag.V7 },
+         { JsonMetaSchema.getV201909(), SpecVersion.VersionFlag.V201909 }
+      });
+    }
+    
+    private final JsonMetaSchema baseMetaSchema;
+    private final SpecVersion.VersionFlag specVersion;
+    
+    public CustomMetaSchemaTest(final JsonMetaSchema baseMetaSchema, final SpecVersion.VersionFlag specVersion) {
+        this.baseMetaSchema = baseMetaSchema;
+        this.specVersion = specVersion;
+    }
 
     /**
      * Introduces the keyword "enumNames".
@@ -108,12 +130,14 @@ public class CustomMetaSchemaTest {
     public void customMetaSchemaWithIgnoredKeyword() throws JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonMetaSchema metaSchema = JsonMetaSchema
-                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01#", JsonMetaSchema.getV4())
+                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01#", this.baseMetaSchema)
                 // Generated UI uses enumNames to render Labels for enum values
                 .addKeyword(new EnumNamesKeyword())
                 .build();
         
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).addMetaSchema(metaSchema).build();
+        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(this.specVersion))
+                .addMetaSchema(metaSchema)
+                .build();
         final JsonSchema schema = validatorFactory.getSchema("{\n" + 
                 "  \"$schema\":\n" + 
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\",\n" + 

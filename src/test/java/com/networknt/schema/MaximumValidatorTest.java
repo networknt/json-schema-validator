@@ -16,34 +16,62 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@RunWith(Parameterized.class)
 public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
-    private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s }";
-    private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
-    private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
-
-    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-
-    private static ObjectMapper mapper = new ObjectMapper();
+    @Parameterized.Parameters
+    public static Collection<?> parameters() {
+      return Arrays.asList(new Object[][] {
+         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V4 },
+         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V6 },
+         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V7 },
+         { "http://json-schema.org/draft/2019-09/schema#", SpecVersion.VersionFlag.V201909 }
+      });
+    }
+    
+    private static ObjectMapper MAPPER = new ObjectMapper();
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
     // https://github.com/FasterXML/jackson-databind/issues/1770
     // https://github.com/FasterXML/jackson-databind/issues/2087
-    private static ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-    private static ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+    private static ObjectMapper BIG_DECIMAL_MAPPER = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    private static ObjectMapper BIG_INTEGER_MAPPER = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+    
+    private final String integerTemplate;
+    private final String numberTemplate;
+    private final String exclusiveIntegerTemplate;
+    private final JsonSchemaFactory factory;
+    
+    public MaximumValidatorTest(final String draftUrl, final SpecVersion.VersionFlag specVersion) {
+        super(specVersion);
+        this.integerTemplate = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"integer\", \"maximum\": %%s }",
+                draftUrl);
+        this.numberTemplate = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"number\", \"maximum\": %%s }",
+                draftUrl);
+        this.exclusiveIntegerTemplate = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"integer\", \"maximum\": %%s, \"exclusiveMaximum\": true}",
+                draftUrl);
+        this.factory = JsonSchemaFactory.getInstance(specVersion);
+    }
 
     static String[][] augmentWithQuotes(String[][] values) {
         return Arrays.stream(values)
@@ -59,7 +87,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"1000",         "1E3"},
         });
 
-        expectNoMessages(values, NUMBER);
+        expectNoMessages(values, numberTemplate);
 
     }
 
@@ -78,11 +106,11 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 //            {"1.7976931348623157e+308",         "1.7976931348623158e+308"},
         });
 
-        expectSomeMessages(values, NUMBER);
+        expectSomeMessages(values, numberTemplate);
 
-        expectSomeMessages(values, NUMBER, mapper, bigDecimalMapper);
+        expectSomeMessages(values, numberTemplate, MAPPER, BIG_DECIMAL_MAPPER);
 
-        expectSomeMessages(values, NUMBER, bigDecimalMapper, bigDecimalMapper);
+        expectSomeMessages(values, numberTemplate, BIG_DECIMAL_MAPPER, BIG_DECIMAL_MAPPER);
     }
 
     @Test
@@ -99,9 +127,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"1E39",         "1000"},
         });
 
-        expectNoMessages(values, INTEGER);
+        expectNoMessages(values, integerTemplate);
 
-        expectNoMessages(values, INTEGER, bigIntegerMapper);
+        expectNoMessages(values, integerTemplate, BIG_INTEGER_MAPPER);
     }
 
     @Test
@@ -117,9 +145,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"37.7",         "38"},
         });
 
-        expectSomeMessages(values, INTEGER);
+        expectSomeMessages(values, integerTemplate);
 
-        expectSomeMessages(values, INTEGER, mapper, bigIntegerMapper);
+        expectSomeMessages(values, integerTemplate, MAPPER, BIG_INTEGER_MAPPER);
     }
 
     @Test
@@ -136,9 +164,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"9223372036854775809",         "9223372036854775808"},
         });
 
-        expectNoMessages(values, EXCLUSIVE_INTEGER);
+        expectNoMessages(values, exclusiveIntegerTemplate);
 
-        expectNoMessages(values, EXCLUSIVE_INTEGER, bigIntegerMapper);
+        expectNoMessages(values, exclusiveIntegerTemplate, BIG_INTEGER_MAPPER);
     }
 
     @Test
@@ -154,9 +182,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"9223372036854775808",         "9223372036854775809"},
         });
 
-        expectSomeMessages(values, EXCLUSIVE_INTEGER);
+        expectSomeMessages(values, exclusiveIntegerTemplate);
 
-        expectSomeMessages(values, EXCLUSIVE_INTEGER, mapper, bigIntegerMapper);
+        expectSomeMessages(values, exclusiveIntegerTemplate, MAPPER, BIG_INTEGER_MAPPER);
     }
 
     @Test
@@ -184,18 +212,18 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         for(String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
-            String schema = format(NUMBER, maximum);
+            String schema = format(numberTemplate, maximum);
             SchemaValidatorsConfig config = new SchemaValidatorsConfig();
             config.setTypeLoose(true);
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
-            JsonNode doc = mapper.readTree(value);
+            JsonSchema v = factory.getSchema(MAPPER.readTree(schema), config);
+            JsonNode doc = MAPPER.readTree(value);
             Set<ValidationMessage> messages = v.validate(doc);
             assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
 
             // document parsed with BigDecimal
 
-            doc = bigDecimalMapper.readTree(value);
+            doc = BIG_DECIMAL_MAPPER.readTree(value);
             Set<ValidationMessage> messages2 = v.validate(doc);
             if(Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages2.isEmpty());
@@ -205,7 +233,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
+            v = factory.getSchema(BIG_DECIMAL_MAPPER.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if(maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
@@ -225,13 +253,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623157e+308 }";
         String content = "1.7976931348623158e+308";
 
-        JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        JsonNode doc = MAPPER.readTree(content);
+        JsonSchema v = factory.getSchema(MAPPER.readTree(schema));
 
         Set<ValidationMessage> messages = v.validate(doc);
         assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
 
-        doc = bigDecimalMapper.readTree(content);
+        doc = BIG_DECIMAL_MAPPER.readTree(content);
         messages = v.validate(doc);
         // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
         // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
@@ -244,7 +272,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          *       "upcasting" to BigDecimal, if property is set) adding a dedicated code block just for this one case
          *       seems infeasible.
          */
-        v = factory.getSchema(bigDecimalMapper.readTree(schema));
+        v = factory.getSchema(BIG_DECIMAL_MAPPER.readTree(schema));
         messages = v.validate(doc);
         assertFalse("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
     }
@@ -257,13 +285,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }";
         String content = "1.7976931348623160e+308";
 
-        JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        JsonNode doc = MAPPER.readTree(content);
+        JsonSchema v = factory.getSchema(MAPPER.readTree(schema));
 
         Set<ValidationMessage> messages = v.validate(doc);
         assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
 
-        doc = bigDecimalMapper.readTree(content);
+        doc = BIG_DECIMAL_MAPPER.readTree(content);
         messages = v.validate(doc);
         // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
         // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
@@ -276,18 +304,18 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          *       "upcasting" to BigDecimal, if property is set) adding a dedicated code block just for this one case
          *       seems infeasible.
          */
-        v = factory.getSchema(bigDecimalMapper.readTree(schema));
+        v = factory.getSchema(BIG_DECIMAL_MAPPER.readTree(schema));
         messages = v.validate(doc);
         assertTrue("Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY", messages.isEmpty());
     }
 
     private static final String POSITIVE_TEST_CASE_TEMPLATE = "Expecting no validation errors, maximum %s is greater than value %s";
 
-    private static void expectNoMessages(String[][] values, String schemaTemplate) throws IOException {
-        expectNoMessages(values, schemaTemplate, mapper);
+    private void expectNoMessages(String[][] values, String schemaTemplate) throws IOException {
+        expectNoMessages(values, schemaTemplate, MAPPER);
     }
 
-    private static void expectNoMessages(String[][] values, String schemaTemplate, ObjectMapper mapper) throws IOException {
+    private void expectNoMessages(String[][] values, String schemaTemplate, ObjectMapper mapper) throws IOException {
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
@@ -305,11 +333,11 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
     private static final String NEGATIVE_TEST_CASE_TEMPLATE = "Expecting validation error, value %s is greater than maximum %s";
 
-    private static void expectSomeMessages(String[][] values, String schemaTemplate) throws IOException {
-        expectSomeMessages(values, schemaTemplate, mapper, mapper);
+    private void expectSomeMessages(String[][] values, String schemaTemplate) throws IOException {
+        expectSomeMessages(values, schemaTemplate, MAPPER, MAPPER);
     }
 
-    private static void expectSomeMessages(String[][] values, String schemaTemplate, ObjectMapper mapper, ObjectMapper mapper2) throws IOException {
+    private void expectSomeMessages(String[][] values, String schemaTemplate, ObjectMapper mapper, ObjectMapper mapper2) throws IOException {
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];

@@ -27,6 +27,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Created by steve on 22/10/16.
  */
 public class BaseJsonSchemaValidatorTest {
+    protected final SpecVersion.VersionFlag specVersion;
+    
+    protected BaseJsonSchemaValidatorTest(final SpecVersion.VersionFlag specVersion) {
+        this.specVersion = specVersion;
+    }
+    
     protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
@@ -49,7 +55,7 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(this.specVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
         JsonSchema schema = factory.getSchema(is);
@@ -58,19 +64,19 @@ public class BaseJsonSchemaValidatorTest {
 
 
     protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(this.specVersion);
         JsonSchema schema = factory.getSchema(schemaContent);
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String uri) throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(this.specVersion);
         JsonSchema schema = factory.getSchema(new URI(uri));
         return schema;
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(this.specVersion);
         JsonSchema schema = factory.getSchema(jsonNode);
         return schema;
     }
