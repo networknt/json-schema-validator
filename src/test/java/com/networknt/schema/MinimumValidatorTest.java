@@ -42,8 +42,8 @@ public class MinimumValidatorTest {
     public static Collection<?> parameters() {
       return Arrays.asList(new Object[][] {
          { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V4 },
-         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V6 },
-         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V7 },
+         { "http://json-schema.org/draft-06/schema#", SpecVersion.VersionFlag.V6 },
+         { "http://json-schema.org/draft-07/schema#", SpecVersion.VersionFlag.V7 },
          { "http://json-schema.org/draft/2019-09/schema#", SpecVersion.VersionFlag.V201909 }
       });
     }
@@ -52,6 +52,7 @@ public class MinimumValidatorTest {
     private static ObjectMapper BIG_DECIMAL_MAPPER;
     private static ObjectMapper BIG_INTEGER_MAPPER;
     
+    private final String draftUrl;
     private final String numberTemplate;
     private final String exclusiveIntegerTemplate;
     private final String integerTemplate;
@@ -71,6 +72,7 @@ public class MinimumValidatorTest {
     }
     
     public MinimumValidatorTest(final String draftUrl, final SpecVersion.VersionFlag specVersion) {
+        this.draftUrl = draftUrl;
         this.numberTemplate = String.format(
                 "{ \"$schema\":\"%s\", \"type\": \"number\", \"minimum\": %%s }",
                 draftUrl);
@@ -244,7 +246,9 @@ public class MinimumValidatorTest {
      */
     @Test
     public void doubleValueCoarsing() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": -1.7976931348623157e+308 }";
+        String schema = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"number\", \"minimum\": -1.7976931348623157e+308 }",
+                this.draftUrl);
         String content = "-1.7976931348623158e+308";
 
         JsonNode doc = MAPPER.readTree(content);
@@ -274,7 +278,9 @@ public class MinimumValidatorTest {
      */
     @Test
     public void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": -1.7976931348623159e+308 }";
+        String schema = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"number\", \"minimum\": -1.7976931348623159e+308 }",
+                this.draftUrl);
         String content = "-1.7976931348623160e+308";
 
         JsonNode doc = MAPPER.readTree(content);

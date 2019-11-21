@@ -41,8 +41,8 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     public static Collection<?> parameters() {
       return Arrays.asList(new Object[][] {
          { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V4 },
-         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V6 },
-         { "http://json-schema.org/draft-04/schema#", SpecVersion.VersionFlag.V7 },
+         { "http://json-schema.org/draft-06/schema#", SpecVersion.VersionFlag.V6 },
+         { "http://json-schema.org/draft-07/schema#", SpecVersion.VersionFlag.V7 },
          { "http://json-schema.org/draft/2019-09/schema#", SpecVersion.VersionFlag.V201909 }
       });
     }
@@ -54,6 +54,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static ObjectMapper BIG_DECIMAL_MAPPER = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
     private static ObjectMapper BIG_INTEGER_MAPPER = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
     
+    private final String draftUrl;
     private final String integerTemplate;
     private final String numberTemplate;
     private final String exclusiveIntegerTemplate;
@@ -61,6 +62,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     
     public MaximumValidatorTest(final String draftUrl, final SpecVersion.VersionFlag specVersion) {
         super(specVersion);
+        this.draftUrl = draftUrl;
         this.integerTemplate = String.format(
                 "{ \"$schema\":\"%s\", \"type\": \"integer\", \"maximum\": %%s }",
                 draftUrl);
@@ -250,7 +252,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      */
     @Test
     public void doubleValueCoarsing() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623157e+308 }";
+        String schema = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"number\", \"maximum\": 1.7976931348623157e+308 }",
+                this.draftUrl);
         String content = "1.7976931348623158e+308";
 
         JsonNode doc = MAPPER.readTree(content);
@@ -282,7 +286,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      */
     @Test
     public void doubleValueCoarsingExceedRange() throws IOException {
-        String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }";
+        String schema = String.format(
+                "{ \"$schema\":\"%s\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }",
+                this.draftUrl);
         String content = "1.7976931348623160e+308";
 
         JsonNode doc = MAPPER.readTree(content);
