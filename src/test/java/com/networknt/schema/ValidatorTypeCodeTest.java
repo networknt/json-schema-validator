@@ -17,15 +17,35 @@
 package com.networknt.schema;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import java.util.List;
-
+@RunWith(Parameterized.class)
 public class ValidatorTypeCodeTest {
+    @Parameterized.Parameters
+    public static Collection<?> parameters() {
+      return Arrays.asList(new Object[][] {
+         { SpecVersion.VersionFlag.V4 },
+         { SpecVersion.VersionFlag.V6 },
+         { SpecVersion.VersionFlag.V7 },
+         { SpecVersion.VersionFlag.V201909 }
+      });
+    }
 
+    private final SpecVersion.VersionFlag specVersion;
+    
+    public ValidatorTypeCodeTest(final SpecVersion.VersionFlag specVersion) {
+        super();
+        this.specVersion = specVersion;
+    }
+    
     @Test
     public void testFromValueString() {
         assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("additionalProperties"));
@@ -45,15 +65,26 @@ public class ValidatorTypeCodeTest {
 
     @Test
     public void testIfThenElseNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
-        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(this.specVersion);
+        boolean isInList = list.contains(ValidatorTypeCode.fromValue("if"));
+        if (SpecVersion.VersionFlag.V4 == this.specVersion
+                || SpecVersion.VersionFlag.V6 == this.specVersion) {
+            Assert.assertFalse(isInList);
+        }
+        else {
+            Assert.assertTrue(isInList);
+        }
     }
 
     @Test
     public void testExclusiveMaximumNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
-        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(this.specVersion);
+        boolean isInList = list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum"));
+        if (SpecVersion.VersionFlag.V4 == this.specVersion) {
+            Assert.assertFalse(isInList);
+        }
+        else {
+            Assert.assertTrue(isInList);
+        }
     }
-
-
 }

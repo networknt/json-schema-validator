@@ -44,7 +44,6 @@ public class UriMappingTest {
     private final JsonMetaSchema metaSchema;
     private final SpecVersion.VersionFlag specVersion;
     
-    // This constructor is where the parameters are injected by Junit.
     public UriMappingTest(
             final String resourcePrefix, 
             final JsonMetaSchema metaSchema, 
