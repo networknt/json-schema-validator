@@ -1,0 +1,10 @@
+[
+    {
+        "publicURL": "http://json-schema.org/draft/2019-09/schema#",
+        "localURL": "resource:/draft2019-09.schema.json"
+    },
+    {
+        "publicURL": "http://example.com/invalid/schema/url",
+        "localURL": "resource:/draft2019-09/uri_mapping/example-schema.json"
+    }
+]
