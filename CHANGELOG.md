@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.28 - 2019-11-25
+
+### Added
+
+### Changed
+
+- fixes #219 Fix for oneOf when not all properties are matched. Thanks @aznan2
+
 ## 1.0.27 - 2019-11-18
 
 ### Added

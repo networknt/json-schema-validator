@@ -10,7 +10,7 @@
 [![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator) [![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
 
 
-This is a Java implementation of the [JSON Schema Core Draft v4-v7](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
+This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7 and v2019-09](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
 
 ## Why this library
 
@@ -29,6 +29,14 @@ You can run the performance tests for three libraries from [https://github.com/n
 #### Parser
 
 It uses Jackson that is the most popular JSON parser in Java. If you are using Jackson parser already in your project, it is natural to choose this library over others for schema validation. 
+
+#### YAML Support
+
+The library works with JSON and YAML on both schema definitions and input data. 
+
+#### OpenAPI Support
+
+The OpenAPI 3.0 specification is using JSON schema to validate the request/response, but there are some differences. With a configuration file, you can enable the library to work with OpenAPI 3.0 validation. 
 
 #### Dependency
 
@@ -72,7 +80,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.27</version>
+    <version>1.0.28</version>
 </dependency>
 ```
 
@@ -80,7 +88,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.27");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.28");
 }
 ```
 
