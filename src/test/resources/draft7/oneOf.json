@@ -115,8 +115,7 @@
             "oneOf": [
                 {
                     "properties": {
-                        "bar": {"type": "integer"},
-                        "baz": {"type": "integer"}
+                        "bar": {"type": "integer"}
                     },
                     "required": ["bar"]
                 },
@@ -200,6 +199,48 @@
             {
                 "description": "both valid - invalid",
                 "data": {"foo": 1, "bar": 2, "baz" : 3},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "oneOf with missing optional property",
+        "schema": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "bar": true,
+                        "baz": true
+                    },
+                    "required": ["bar"]
+                },
+                {
+                    "properties": {
+                        "foo": true
+                    },
+                    "required": ["foo"]
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "first oneOf valid",
+                "data": {"bar": 8},
+                "valid": true
+            },
+            {
+                "description": "second oneOf valid",
+                "data": {"foo": "foo"},
+                "valid": true
+            },
+            {
+                "description": "both oneOf valid",
+                "data": {"foo": "foo", "bar": 8},
+                "valid": false
+            },
+            {
+                "description": "neither oneOf valid",
+                "data": {"baz": "quux"},
                 "valid": false
             }
         ]
