@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.27</version>
+    <version>1.0.27-CGM</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -48,17 +48,13 @@
         <url>https://github.com:networknt/json-schema-validator.git</url>
     </scm>
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>life.release</id>
+            <url>https://artifactory.cgm.ag/cgm.life.partner.release/</url>
         </repository>
     </distributionManagement>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>1.6</java.version>
         <java.testversion>1.8</java.testversion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jackson>2.10.0</version.jackson>
@@ -145,17 +141,6 @@
                 <version>4.2.1</version>
                 <extensions>true</extensions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
             <!--
 			<plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-release-plugin</artifactId><version>2.5.3</version></plugin>
             -->
@@ -192,6 +177,8 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <testSource>${java.testversion}</testSource>
+                    <testTarget>${java.testversion}</testTarget>
                 </configuration>
                 <executions>
                     <execution>
@@ -291,7 +278,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${version.jacoco}</version>
+                        <version>0.7.9</version>
                         <executions>
                             <!-- The Executions for merging -->
                             <execution>

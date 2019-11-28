@@ -313,7 +313,7 @@ public class JsonSchemaFactory {
             
             final URI mappedUri;
             try {
-                mappedUri = this.uriFactory.create(map.getOrDefault(schemaUri.toString(), schemaUri.toString()));
+                mappedUri = this.uriFactory.create(map.get(schemaUri.toString())!=null ? map.get(schemaUri.toString()) : schemaUri.toString());
             } catch (IllegalArgumentException e) {
                 logger.error("Failed to create URI.", e);
                 throw new JsonSchemaException(e);

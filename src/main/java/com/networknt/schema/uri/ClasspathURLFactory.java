@@ -45,7 +45,9 @@ public final class ClasspathURLFactory implements URIFactory {
   {
     try {
       return new URL(null, uri, STREAM_HANDLER).toURI();
-    } catch (MalformedURLException | URISyntaxException e) {
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("Unable to create URI.", e);
+    } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Unable to create URI.", e);
     }
   }
@@ -58,7 +60,9 @@ public final class ClasspathURLFactory implements URIFactory {
   {
     try {
       return new URL(convert(baseURI), segment, STREAM_HANDLER).toURI();
-    } catch (MalformedURLException | URISyntaxException e) {
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("Unable to create URI.", e);
+    } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Unable to create URI.", e);
     }
   }

@@ -34,7 +34,7 @@ public class ExclusiveMinimumValidator extends BaseJsonValidator implements Json
      */
     private final ThresholdMixin typedMinimum;
 
-    public ExclusiveMinimumValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ExclusiveMinimumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MINIMUM, validationContext);
 
         if (!schemaNode.isNumber()) {

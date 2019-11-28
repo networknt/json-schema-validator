@@ -69,7 +69,7 @@ public class JsonMetaSchema {
         private static String URI = "http://json-schema.org/draft-04/schema#";
         private static final String ID = "id";
 
-        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
         static {
             // add version specific formats here.
             //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
@@ -98,7 +98,7 @@ public class JsonMetaSchema {
         // Draft 6 uses "$id"
         private static final String ID = "$id";
 
-        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
         static {
             // add version specific formats here.
             //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
@@ -126,7 +126,7 @@ public class JsonMetaSchema {
         private static String URI = "http://json-schema.org/draft-07/schema#";
         private static final String ID = "$id";
 
-        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
         static {
             // add version specific formats here.
             //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
@@ -154,7 +154,7 @@ public class JsonMetaSchema {
         private static String URI = "http://json-schema.org/draft/2019-09/schema#";
         private static final String ID = "$id";
 
-        public static final List<Format> BUILTIN_FORMATS = new ArrayList<>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+        public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
         static {
             // add version specific formats here.
             //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
