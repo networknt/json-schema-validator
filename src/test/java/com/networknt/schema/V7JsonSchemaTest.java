@@ -241,12 +241,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
-    public void testAnchorValidator() throws Exception {
-        runTestFile("draft7/anchor.json");
-    }
-
-    @Test
     public void testAnyOfValidator() throws Exception {
         runTestFile("draft7/anyOf.json");
     }
@@ -279,7 +273,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft7/dependencies.json");
     }

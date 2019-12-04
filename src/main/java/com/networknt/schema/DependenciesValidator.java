@@ -43,7 +43,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                 for (int i = 0; i < pvalue.size(); i++) {
                     depsProps.add(pvalue.get(i).asText());
                 }
-            } else if (pvalue.isObject()) {
+            } else if (pvalue.isObject() || pvalue.isBoolean()) {
                 schemaDeps.put(pname, new JsonSchema(validationContext, pname, parentSchema.getCurrentUri(), pvalue, parentSchema));
             }
         }

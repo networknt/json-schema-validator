@@ -283,7 +283,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft2019-09/dependencies.json");
     }

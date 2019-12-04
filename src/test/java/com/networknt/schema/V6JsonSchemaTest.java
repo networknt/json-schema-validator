@@ -176,7 +176,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft6/dependencies.json");
     }
