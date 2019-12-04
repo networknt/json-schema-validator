@@ -37,7 +37,7 @@ public class V201909JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/draft2019-09"), 100)))
+                            new File("./src/test/resources/remotes"), 100)))
                     .build();
             server.start();
         }
