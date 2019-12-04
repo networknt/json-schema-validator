@@ -155,7 +155,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testConstValidator() throws Exception {
         runTestFile("draft6/const.json");
     }
