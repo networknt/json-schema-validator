@@ -314,7 +314,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testItemsValidator() throws Exception {
         runTestFile("draft2019-09/items.json");
     }

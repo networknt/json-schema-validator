@@ -37,7 +37,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
 
     public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
-        if (schemaNode.isObject()) {
+        if (schemaNode.isObject() || schemaNode.isBoolean()) {
             schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
         } else {
             tupleSchema = new ArrayList<JsonSchema>();
