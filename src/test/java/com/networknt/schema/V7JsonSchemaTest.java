@@ -267,9 +267,8 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDefsValidator() throws Exception {
-        runTestFile("draft7/defs.json");
+        runTestFile("draft7/definitions.json");
     }
 
     @Test
