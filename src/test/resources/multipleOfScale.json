@@ -1,0 +1,28 @@
+[
+    {
+        "description": "by deep scale",
+        "schema": {"multipleOf": 0.25},
+        "tests": [
+            {
+                "description": "8.75 is multiple of 0.25",
+                "data": 8.75,
+                "valid": true
+            },
+            {
+                "description": "8.750000000001 is not multiple of 0.25",
+                "data": 8.750000000001,
+                "valid": false
+            },
+            {
+                "description": "8.7500000000001 is not multiple of 0.25",
+                "data": 8.7500000000001,
+                "valid": false
+            },
+            {
+                "description": "8.75000000000001 is not multiple of 0.25",
+                "data": 8.75000000000001,
+                "valid": false
+            }
+        ]
+    }
+]
