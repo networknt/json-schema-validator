@@ -151,7 +151,7 @@ public class JsonMetaSchema {
     }
 
     private static class V201909 {
-        private static String URI = "http://json-schema.org/draft/2019-09/schema#";
+        private static String URI = "https://json-schema.org/draft/2019-09/schema";
         private static final String ID = "$id";
 
         public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
@@ -172,7 +172,8 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("title"),
                             new NonValidationKeyword("description"),
                             new NonValidationKeyword("default"),
-                            new NonValidationKeyword("definitions")
+                            new NonValidationKeyword("definitions"),
+                            new NonValidationKeyword("$defs")  // newly added in 2018-09 release.
                     ))
                     .build();
         }

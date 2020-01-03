@@ -1,0 +1,35 @@
+[
+  {
+    "description": "id as schema",
+    "schema": {
+		"id": "http://localhost:1234/id_schema/schema/features.json",
+		"title": "property object",
+		"type": "object",
+        "properties": {
+            "featuresInteger": {
+		      "$ref": "#/featuresInteger"
+		    },
+		    "featuresBoolean": {
+		      "$ref": "#/featuresBoolean"
+		    }
+        },
+        "additionalProperties": false
+    },
+    "tests": [
+        {
+            "data": {
+		                "featuresInteger": 4,
+		                "featuresBoolean": true
+		            },
+            "valid": true
+        },
+        {
+            "data": {
+		                "featuresInteger": 4.0,
+		                "featuresBoolean": true
+		            },
+            "valid": false
+        }
+    ]
+  }
+]

@@ -128,6 +128,9 @@
             "oneOf": [
                 {
                     "type": "object",
+                    "required": [
+                        "id"
+                    ],
                     "properties": {
                         "color": {
                           "type": "string"
@@ -175,6 +178,13 @@
                     "type": "INVALID_TYPE"
                 },
                 "valid": false
+            },
+            {
+                "description": "first oneOf missing property but still valid",
+                "data": {
+                    "id": "abc"
+                },
+                "valid": true
             }
         ]
     },

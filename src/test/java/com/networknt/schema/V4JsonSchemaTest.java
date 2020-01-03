@@ -52,7 +52,7 @@ public class V4JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/draft4"), 100)))
+                            new File("./src/test/resources/remotes"), 100)))
                     .build();
             server.start();
         }
@@ -312,7 +312,7 @@ public class V4JsonSchemaTest {
     
     @Test
     public void testIdSchemaWithUrl() throws Exception {
-        runTestFile("draft4/id_schema/property.json");
+        runTestFile("draft4/property.json");
     }
 
     @Test

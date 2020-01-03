@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.29 - 2019-12-16
+
+### Added
+
+### Changed
+
+- Update description in pom.xml to match readme.md. Thanks @reftel 
+- fixes #232 update meta schema URI to https
+- fixes #229 move the remotes to resource from draftv4
+- fixes #228 support boolean schema in the dependencies validator
+- enable const validator test for v6
+- fixes #224 support boolean schema for the item validator
+- fixes #222 add document for URL mapping
+
+## 1.0.28 - 2019-11-25
+
+### Added
+
+### Changed
+
+- fixes #219 Fix for oneOf when not all properties are matched. Thanks @aznan2
+
 ## 1.0.27 - 2019-11-18
 
 ### Added

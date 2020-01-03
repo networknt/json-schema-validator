@@ -33,7 +33,7 @@ public class V6JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/draft6"), 100)))
+                            new File("./src/test/resources/remotes"), 100)))
                     .build();
             server.start();
         }
@@ -155,7 +155,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testConstValidator() throws Exception {
         runTestFile("draft6/const.json");
     }
@@ -177,7 +176,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft6/dependencies.json");
     }
@@ -203,7 +201,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testItemsValidator() throws Exception {
         runTestFile("draft6/items.json");
     }

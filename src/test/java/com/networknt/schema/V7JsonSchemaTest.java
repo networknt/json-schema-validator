@@ -33,7 +33,7 @@ public class V7JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/draft7"), 100)))
+                            new File("./src/test/resources/remotes"), 100)))
                     .build();
             server.start();
         }
@@ -241,12 +241,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
-    public void testAnchorValidator() throws Exception {
-        runTestFile("draft7/anchor.json");
-    }
-
-    @Test
     public void testAnyOfValidator() throws Exception {
         runTestFile("draft7/anyOf.json");
     }
@@ -273,13 +267,11 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDefsValidator() throws Exception {
-        runTestFile("draft7/defs.json");
+        runTestFile("draft7/definitions.json");
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft7/dependencies.json");
     }
@@ -310,7 +302,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testItemsValidator() throws Exception {
         runTestFile("draft7/items.json");
     }
@@ -416,6 +407,11 @@ public class V7JsonSchemaTest {
     @Test
     public void testUniqueItemsValidator() throws Exception {
         runTestFile("draft7/uniqueItems.json");
+    }
+
+    @Test
+    public void testMultipleOfScale() throws Exception {
+        runTestFile("multipleOfScale.json");
     }
 
 }

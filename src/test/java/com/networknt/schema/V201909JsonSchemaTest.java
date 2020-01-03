@@ -37,7 +37,7 @@ public class V201909JsonSchemaTest {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/draft2019-09"), 100)))
+                            new File("./src/test/resources/remotes"), 100)))
                     .build();
             server.start();
         }
@@ -283,7 +283,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testDependenciesValidator() throws Exception {
         runTestFile("draft2019-09/dependencies.json");
     }
@@ -314,7 +313,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testItemsValidator() throws Exception {
         runTestFile("draft2019-09/items.json");
     }
