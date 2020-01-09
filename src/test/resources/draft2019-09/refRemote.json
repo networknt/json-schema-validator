@@ -99,37 +99,6 @@
         ]
     },
     {
-        "description": "base URI change - change folder in subschema",
-        "schema": {
-            "$id": "http://localhost:1234/scope_change_defs2.json",
-            "type" : "object",
-            "properties": {"list": {"$ref": "#/$defs/baz/$defs/bar"}},
-            "$defs": {
-                "baz": {
-                    "$id": "folder/",
-                    "$defs": {
-                        "bar": {
-                            "type": "array",
-                            "items": {"$ref": "folderInteger.json"}
-                        }
-                    }
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "number is valid",
-                "data": {"list": [1]},
-                "valid": true
-            },
-            {
-                "description": "string is invalid",
-                "data": {"list": ["a"]},
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "root ref in remote ref",
         "schema": {
             "$id": "http://localhost:1234/object",
