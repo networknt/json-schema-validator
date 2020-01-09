@@ -288,9 +288,14 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testRefRemoteValidator() throws Exception {
         runTestFile("draft6/refRemote.json");
+    }
+
+    @Test
+    @Ignore
+    public void testRefRemoteValidator_Ignored() throws Exception {
+        runTestFile("draft6/refRemote_ignored.json");
     }
 
     @Test

@@ -50,6 +50,10 @@ public class ValidationContext {
         return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
     }
 
+    public String resolveSchemaId(JsonNode schemaNode) {
+        return metaSchema.readId(schemaNode);
+    }
+
     public URIFactory getURIFactory() {
         return this.uriFactory;
     }

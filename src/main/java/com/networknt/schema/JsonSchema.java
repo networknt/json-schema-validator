@@ -75,18 +75,18 @@ public class JsonSchema extends BaseJsonValidator {
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
-    
+
     private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
-      final JsonNode idNode = schemaNode.get("id");
-      if (idNode == null) {
-        return currentUri;
-      } else {
-        try {
-          return this.validationContext.getURIFactory().create(currentUri, idNode.asText());
-        } catch (IllegalArgumentException e) {
-          throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, idNode.asText(), currentUri.toString()));
+        final String id = validationContext.resolveSchemaId(schemaNode);
+        if (id == null) {
+            return currentUri;
+        } else {
+            try {
+                return this.validationContext.getURIFactory().create(currentUri, id);
+            } catch (IllegalArgumentException e) {
+                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri.toString()));
+            }
         }
-      }
     }
     
     public URI getCurrentUri()

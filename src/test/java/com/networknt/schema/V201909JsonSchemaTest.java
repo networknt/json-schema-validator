@@ -11,17 +11,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static io.undertow.Handlers.resource;
-import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 public class V201909JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -400,9 +396,14 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testRefRemoteValidator() throws Exception {
         runTestFile("draft2019-09/refRemote.json");
+    }
+
+    @Test
+    @Ignore
+    public void testRefRemoteValidator_Ignored() throws Exception {
+        runTestFile("draft2019-09/refRemote_ignored.json");
     }
 
     @Test
