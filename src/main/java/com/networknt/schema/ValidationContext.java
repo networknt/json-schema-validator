@@ -27,7 +27,7 @@ public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
-    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
+    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
 
     public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
         if (uriFactory == null) {

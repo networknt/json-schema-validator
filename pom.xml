@@ -58,7 +58,7 @@
         </repository>
     </distributionManagement>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>1.6</java.version>
         <java.testversion>1.8</java.testversion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jackson>2.10.0</version.jackson>
@@ -192,6 +192,8 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <testSource>${java.testversion}</testSource>
+                    <testTarget>${java.testversion}</testTarget>
                 </configuration>
                 <executions>
                     <execution>
@@ -291,7 +293,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${version.jacoco}</version>
+                        <version>0.7.9</version>
                         <executions>
                             <!-- The Executions for merging -->
                             <execution>

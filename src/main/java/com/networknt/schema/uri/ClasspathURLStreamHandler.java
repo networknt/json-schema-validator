@@ -32,7 +32,7 @@ import java.util.Set;
  * @author <a href="mailto:kenneth.waldenstroem@gmail.com">Kenneth Waldenstrom</a>
  */
 class ClasspathURLStreamHandler extends URLStreamHandler {
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
+  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
     Arrays.asList("classpath", "resource")));
 
   @Override

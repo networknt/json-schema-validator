@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public final class URLFactory implements URIFactory {
   // These supported schemes are defined in {@link #URL(String, String, int, String)}.
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
+  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
     Arrays.asList("http", "https", "ftp", "file", "jar")));
   
   /**
@@ -42,7 +42,9 @@ public final class URLFactory implements URIFactory {
   {
     try {
       return new URL(uri).toURI();
-    } catch (MalformedURLException | URISyntaxException e) {
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("Unable to create URI.", e);
+    } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Unable to create URI.", e);
     }
   }
@@ -57,7 +59,9 @@ public final class URLFactory implements URIFactory {
   {
     try {
       return new URL(baseURI.toURL(), segment).toURI();
-    } catch (MalformedURLException | URISyntaxException e) {
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("Unable to create URI.", e);
+    } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Unable to create URI.", e);
     }
   }
