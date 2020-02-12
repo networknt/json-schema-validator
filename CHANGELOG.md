@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.30 - 2020-02-11
+
+### Added
+
+### Changed
+
+- fixes #244 Android 6 support. Thanks @msattel
+- fixes #247 Resolve schema id from the schema document (for v6 and above). Thanks @martin-sladecek
+- fixes #243 Improve accuracy of rounding with multipleOf. Thanks @seamusv
+- fixes #242 add customized fetcher and meta schema doc
+
 ## 1.0.29 - 2019-12-16
 
 ### Added
