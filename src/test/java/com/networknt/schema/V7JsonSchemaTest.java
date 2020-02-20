@@ -256,7 +256,6 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testContainsValidator() throws Exception {
         runTestFile("draft7/contains.json");
     }

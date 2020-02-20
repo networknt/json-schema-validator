@@ -71,7 +71,8 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", new MessageFormat("{0}: must have a exclusive minimum value of {1}"), ExclusiveMinimumValidator.class, 14),
     TRUE("true", "1040", null, TrueValidator.class, 14),
     FALSE("false", "1041", new MessageFormat("Boolean schema false is not valid"), FalseValidator.class, 14),
-    CONST("const", "1042", new MessageFormat("{0}: must be a constant value {1}"), ConstValidator.class, 14);
+    CONST("const", "1042", new MessageFormat("{0}: must be a constant value {1}"), ConstValidator.class, 14),
+    CONTAINS("contains", "1043", new MessageFormat("{0}: does not contain an element that passes these validations: {1}"), ContainsValidator.class, 14);
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
     private static SpecVersion specVersion = new SpecVersion();

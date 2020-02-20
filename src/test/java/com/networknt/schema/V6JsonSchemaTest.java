@@ -160,7 +160,6 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testContainsValidator() throws Exception {
         runTestFile("draft6/contains.json");
     }
