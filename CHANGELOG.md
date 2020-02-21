@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.31 - 2020-02-21
+
+### Added
+
+### Changed
+
+- fixes #226 Implements contains. Thanks @Asamsig
+
 ## 1.0.30 - 2020-02-11
 
 ### Added
