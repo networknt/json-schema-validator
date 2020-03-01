@@ -1,0 +1,19 @@
+{
+  "id": "/draft4/cyclic/Element",
+  "type": "object",
+  "datatype": true,
+  "category": "fhir",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "[A-Za-z0-9\\-\\.]{1,64}"
+    },
+    "extension": {
+      "type": "array",
+      "items": {
+        "$ref": "/draft4/cyclic/Extension"
+      }
+    }
+  },
+  "additionalProperties": false
+}

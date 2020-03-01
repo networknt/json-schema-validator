@@ -1,0 +1,19 @@
+{
+  "id": "/draft4/cyclic/Extension",
+  "type": "object",
+  "datatype": true,
+  "category": "fhir",
+  "properties": {
+    "url": {
+      "type": "string",
+      "format": "url"
+    },
+    "valueElement": {
+      "$ref": "/draft4/cyclic/Element"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "url"
+  ]
+}
