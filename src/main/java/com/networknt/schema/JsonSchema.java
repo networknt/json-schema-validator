@@ -169,13 +169,34 @@ public class JsonSchema extends BaseJsonValidator {
         return validators;
     }
 
-    public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        for (JsonValidator v : validators.values()) {
-            errors.addAll(v.validate(jsonNode, rootNode, at));
-        }
-        return errors;
+	public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+		Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+		for (JsonValidator v : validators.values()) {
+			errors.addAll(v.validate(jsonNode, rootNode, at));
+		}
+		return errors;
+	}
+    
+    public Set<ValidationMessage> validateAndCollect(JsonNode node) {
+        return validateAndCollect(node, node, AT_ROOT);
     }
+
+    
+	/**
+	 * 
+	 * This method both validates and collects the data in a CollectionContext
+	 * @param jsonNode
+	 * @param rootNode
+	 * @param at
+	 * @return
+	 */
+	protected Set<ValidationMessage> validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+		CollectorContext collectorContext = CollectorContext.INSTANCE;
+		collectorContext.reset();
+		Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+		collectorContext.load();
+		return errors;
+	}
 
     @Override
     public String toString() {
@@ -189,4 +210,5 @@ public class JsonSchema extends BaseJsonValidator {
 	public JsonValidator getRequiredValidator() {
 		return requiredValidator;
 	}
+
 }
