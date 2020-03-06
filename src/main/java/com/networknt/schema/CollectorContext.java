@@ -15,12 +15,12 @@ public enum CollectorContext {
 	/**
 	 * Map for holding the collector type and {@link Collector}
 	 */
-	private Map<String, Collector<?>> collectorMap = new HashMap<>();
+	private Map<String, Collector<?>> collectorMap = new HashMap<String, Collector<?>>();
 
 	/**
 	 * Map for holding the collector type and {@link Collector} class collect method output.
 	 */
-	private Map<String, Object> collectorLoadMap = new HashMap<>();
+	private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
 
 	public <E> void add(String collectorType, Collector<E> collector) {
 		collectorMap.put(collectorType, collector);
