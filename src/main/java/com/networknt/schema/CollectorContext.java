@@ -5,12 +5,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A Single Context for holding the output returned by the {@link Collector} implementations.
+ * Context for holding the output returned by the {@link Collector}
+ * implementations.
  *
  */
-public enum CollectorContext {
+public class CollectorContext {
 
-	INSTANCE;
+	static final String COLLECTOR_CONTEXT_THREAD_LOCAL_KEY = "COLLECTOR_CONTEXT_THREAD_LOCAL_KEY";
+
+	// Get an instance from thread info (which uses ThreadLocal).
+	public static CollectorContext getInstance() {
+		return (CollectorContext) ThreadInfo.get(COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+	}
 
 	/**
 	 * Map for holding the collector type and {@link Collector}
@@ -18,7 +24,8 @@ public enum CollectorContext {
 	private Map<String, Collector<?>> collectorMap = new HashMap<String, Collector<?>>();
 
 	/**
-	 * Map for holding the collector type and {@link Collector} class collect method output.
+	 * Map for holding the collector type and {@link Collector} class collect method
+	 * output.
 	 */
 	private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
 

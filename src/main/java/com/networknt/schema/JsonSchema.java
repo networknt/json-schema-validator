@@ -177,25 +177,34 @@ public class JsonSchema extends BaseJsonValidator {
 		return errors;
 	}
     
-    public Set<ValidationMessage> validateAndCollect(JsonNode node) {
+    public ValidationResult validateAndCollect(JsonNode node) {
         return validateAndCollect(node, node, AT_ROOT);
     }
 
     
 	/**
 	 * 
-	 * This method both validates and collects the data in a CollectionContext
+	 * This method both validates and collects the data in a CollectionContext.
 	 * @param jsonNode
 	 * @param rootNode
 	 * @param at
 	 * @return
 	 */
-	protected Set<ValidationMessage> validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
-		CollectorContext collectorContext = CollectorContext.INSTANCE;
-		collectorContext.reset();
-		Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-		collectorContext.load();
-		return errors;
+	protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+		try {
+			// Create the collector context object.
+			CollectorContext collectorContext = new CollectorContext();
+			// Set the collector context in thread info, this is unique for every thread.
+			ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+			Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+			// Load all the data from collectors into the context.
+			collectorContext.load();
+			// Collect errors and collector context into validation result.
+			ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+			return validationResult;
+		} finally {
+			ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+		}
 	}
 
     @Override

@@ -110,6 +110,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Customized MetaSchema](doc/cust-meta.md)
 
+## [Collector Context](doc/collector_context.md)
+
 
 ## Known issues
 
