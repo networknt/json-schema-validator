@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.32 - 2020-03-07
+
+### Added
+
+### Changed
+
+- fixes #260 Changes for adding collector context. Thanks @prashanthjos
+
 ## 1.0.31 - 2020-02-21
 
 ### Added
