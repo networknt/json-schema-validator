@@ -169,13 +169,43 @@ public class JsonSchema extends BaseJsonValidator {
         return validators;
     }
 
-    public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        for (JsonValidator v : validators.values()) {
-            errors.addAll(v.validate(jsonNode, rootNode, at));
-        }
-        return errors;
+	public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+		Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+		for (JsonValidator v : validators.values()) {
+			errors.addAll(v.validate(jsonNode, rootNode, at));
+		}
+		return errors;
+	}
+    
+    public ValidationResult validateAndCollect(JsonNode node) {
+        return validateAndCollect(node, node, AT_ROOT);
     }
+
+    
+	/**
+	 * 
+	 * This method both validates and collects the data in a CollectionContext.
+	 * @param jsonNode
+	 * @param rootNode
+	 * @param at
+	 * @return
+	 */
+	protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+		try {
+			// Create the collector context object.
+			CollectorContext collectorContext = new CollectorContext();
+			// Set the collector context in thread info, this is unique for every thread.
+			ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+			Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+			// Load all the data from collectors into the context.
+			collectorContext.load();
+			// Collect errors and collector context into validation result.
+			ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+			return validationResult;
+		} finally {
+			ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+		}
+	}
 
     @Override
     public String toString() {
@@ -189,4 +219,5 @@ public class JsonSchema extends BaseJsonValidator {
 	public JsonValidator getRequiredValidator() {
 		return requiredValidator;
 	}
+
 }
