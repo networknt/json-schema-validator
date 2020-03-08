@@ -23,9 +23,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
@@ -46,9 +44,11 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
 
     static String[][] augmentWithQuotes(String[][] values) {
-        return Arrays.stream(values)
-                .flatMap(pair -> Stream.of(pair, new String[]{pair[0], format("\"%s\"", pair[1])}))
-                .toArray(String[][]::new);
+        for(int i = 0; i < values.length; i++) {
+            String[] pair = values[i];
+            values[i] = new String[]{pair[0], format("\"%s\"", pair[1])};
+        }
+        return values;
     }
 
     @Test
