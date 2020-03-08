@@ -16,11 +16,12 @@
 
 package com.networknt.schema;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ValidationContext {
     private final URIFactory uriFactory;
@@ -28,6 +29,7 @@ public class ValidationContext {
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
+    private static final Map<String, JsonValidator> validatorCache = new ConcurrentHashMap<String, JsonValidator>();
 
     public ValidationContext(URIFactory uriFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
         if (uriFactory == null) {
@@ -47,7 +49,10 @@ public class ValidationContext {
 
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
-        return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema);
+        if (!validatorCache.containsKey(schemaPath)) {
+            validatorCache.put(schemaPath, metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema));
+        }
+        return validatorCache.get(schemaPath);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
