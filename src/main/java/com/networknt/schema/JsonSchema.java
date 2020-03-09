@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     protected final Map<String, JsonValidator> validators;
+    private final String idKeyword;
     private final ValidationContext validationContext;
     
     /**
@@ -72,6 +73,7 @@ public class JsonSchema extends BaseJsonValidator {
             validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
         this.validationContext = validationContext;
         this.config = validationContext.getConfig();
+        this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         this.validators = Collections.unmodifiableMap(this.read(schemaNode));
     }
@@ -119,14 +121,17 @@ public class JsonSchema extends BaseJsonValidator {
                     node = node.get(key);
                 }
                 if (node == null){
-                    JsonSchema subSchema = schema.fetchSubSchemaNode(validationContext);
-                    if (subSchema != null) {
-                        node = subSchema.getRefSchemaNode(ref);
-                    }
+                    node = handleNullNode(ref, schema);
                 }
                 if (node == null){
                     break;
                 }
+            }
+        }
+        else if (ref.startsWith("#") && ref.length() > 1) {
+            node = getNodeById(ref, node);
+            if(node == null) {
+                node = handleNullNode(ref, schema);
             }
         }
         return node;
@@ -138,6 +143,37 @@ public class JsonSchema extends BaseJsonValidator {
             ancestor = this.getParentSchema().findAncestor();
         }
         return ancestor;
+    }
+
+    private JsonNode handleNullNode(String ref, JsonSchema schema) {
+        JsonSchema subSchema = schema.fetchSubSchemaNode(validationContext);
+        if (subSchema != null) {
+            return subSchema.getRefSchemaNode(ref);
+        }
+        return null;
+    }
+
+    private JsonNode getNodeById(String ref, JsonNode node) {
+        if (nodeContainsRef(ref, node)) {
+            return node;
+        } else {
+            Iterator<JsonNode> children = node.elements();
+            while (children.hasNext()) {
+                JsonNode refNode = getNodeById(ref, children.next());
+                if (refNode != null) {
+                    return refNode;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean nodeContainsRef(String ref, JsonNode node) {
+        JsonNode id = node.get(idKeyword);
+        if (id != null) {
+            return ref.equals(id.asText());
+        }
+        return false;
     }
 
     private Map<String, JsonValidator> read(JsonNode schemaNode) {

@@ -1,0 +1,54 @@
+[
+  {
+    "description": "refer to subschema by a unique name ($id)",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "cars": {
+          "type": "array",
+          "items": {
+            "$ref": "#car"
+          }
+        }
+      },
+      "definitions": {
+        "car": {
+          "id": "#car",
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "model"
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "invalid when element referenced by id is invalid",
+        "data": {
+          "cars": [
+            {
+
+            }
+          ]
+        },
+        "valid": false
+      },
+      {
+        "description": "valid when element referenced by id is valid",
+        "data": {
+          "cars": [
+            {
+              "model": "BMW"
+            }
+          ]
+        },
+        "valid": true
+      }
+    ]
+  }
+]

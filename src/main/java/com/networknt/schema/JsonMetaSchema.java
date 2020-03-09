@@ -325,7 +325,11 @@ public class JsonMetaSchema {
     public String getUri() {
         return uri;
     }
-    
+
+    public String getIdKeyword() {
+        return idKeyword;
+    }
+
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
             JsonSchema parentSchema) {
         

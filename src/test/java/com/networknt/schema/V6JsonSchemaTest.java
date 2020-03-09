@@ -292,6 +292,11 @@ public class V6JsonSchemaTest {
     }
 
     @Test
+    public void testRefIdReference() throws Exception {
+        runTestFile("draft6/idRef.json");
+    }
+
+    @Test
     @Ignore
     public void testRefRemoteValidator_Ignored() throws Exception {
         runTestFile("draft6/refRemote_ignored.json");
