@@ -78,4 +78,7 @@ public class ValidationContext {
         return refParsingInProgress.get(refValue);
     }
 
+    protected JsonMetaSchema getMetaSchema() {
+        return metaSchema;
+    }
 }

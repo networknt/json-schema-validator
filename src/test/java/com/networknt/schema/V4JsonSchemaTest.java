@@ -280,6 +280,11 @@ public class V4JsonSchemaTest {
     }
 
     @Test
+    public void testRefIdReference() throws Exception {
+        runTestFile("draft4/idRef.json");
+    }
+
+    @Test
     public void testRelativeRefRemoteValidator() throws Exception {
         runTestFile("draft4/relativeRefRemote.json");
     }
@@ -288,7 +293,6 @@ public class V4JsonSchemaTest {
     public void testRequiredValidator() throws Exception {
         runTestFile("draft4/required.json");
     }
-
 
     @Test
     public void testTypeValidator() throws Exception {
