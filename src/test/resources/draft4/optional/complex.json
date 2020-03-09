@@ -2,598 +2,807 @@
   {
     "description": "test on complex schema",
     "schema": {
-      "additionalProperties" : false,
-      "type" : "object",
-      "properties" : {
-        "prop249" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalItems" : false,
-            "type" : "array",
-            "items" : {
-              "type" : "string"
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "prop249": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalItems": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
-          } ]
+          ]
         },
-        "prop398" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalProperties" : false,
-            "type" : "object",
-            "properties" : {
-              "prop395" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "string"
-                } ]
-              },
-              "prop397" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "string"
-                } ]
-              },
-              "prop389" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "string"
-                } ]
-              },
-              "prop396" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "string"
-                } ]
-              }
+        "prop398": {
+          "anyOf": [
+            {
+              "type": "null"
             },
-            "required" : [ ]
-          } ]
-        },
-        "prop388" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
-        },
-        "lockinbenefits" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalProperties" : false,
-            "type" : "object",
-            "properties" : {
-              "freeShipping" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "additionalProperties" : false,
-                  "type" : "object",
-                  "properties" : {
-                    "actualBenefit" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "prop395": {
+                  "anyOf": [
+                    {
+                      "type": "null"
                     },
-                    "potentialBenefits" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
-                    },
-                    "eligibleBenefits" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
+                    {
+                      "type": "string"
                     }
-                  },
-                  "required" : [ ]
-                } ]
-              },
-              "hasEarlyAccess" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "boolean"
-                } ]
-              },
-              "fastShipping" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "additionalProperties" : false,
-                  "type" : "object",
-                  "properties" : {
-                    "actualBenefit" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
-                    },
-                    "potentialBenefits" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
-                    },
-                    "eligibleBenefits" : {
-                      "anyOf" : [ {
-                        "type" : "null"
-                      }, {
-                        "type" : "string"
-                      } ]
-                    }
-                  },
-                  "required" : [ ]
-                } ]
-              }
-            },
-            "required" : [ ]
-          } ]
-        },
-        "prop248" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
-        },
-        "prop237" : {
-          "type" : "string"
-        },
-        "prop250" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
-        },
-        "prop389" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
-        },
-        "prop387" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
-        },
-        "prop247" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
-        },
-        "prop252" : {
-          "type" : "string"
-        },
-        "prop392" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalItems" : false,
-            "type" : "array",
-            "items" : {
-              "additionalProperties" : false,
-              "type" : "object",
-              "properties" : {
-                "prop391" : {
-                  "type" : "string"
+                  ]
                 },
-                "prop390" : {
-                  "type" : "string"
+                "prop397": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "prop389": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "prop396": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
                 }
               },
-              "required" : [ "prop391", "prop390" ]
+              "required": []
             }
-          } ]
+          ]
         },
-        "prop240" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
-        },
-        "prop241" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
-        },
-        "prop246" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalProperties" : false,
-            "type" : "object",
-            "properties" : {
-              "prop245" : {
-                "maximum" : 2147483647,
-                "type" : "integer",
-                "minimum" : -2147483648
-              },
-              "prop244" : {
-                "maximum" : 2147483647,
-                "type" : "integer",
-                "minimum" : -2147483648
-              },
-              "prop243" : {
-                "maximum" : 1.7976931348623157E308,
-                "type" : "number",
-                "minimum" : -1.7976931348623157E308
-              },
-              "prop242" : {
-                "maximum" : 2147483647,
-                "type" : "integer",
-                "minimum" : -2147483648
-              }
+        "prop388": {
+          "anyOf": [
+            {
+              "type": "null"
             },
-            "required" : [ "prop245", "prop244", "prop243", "prop242" ]
-          } ]
+            {
+              "type": "boolean"
+            }
+          ]
         },
-        "prop385" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalItems" : false,
-            "type" : "array",
-            "items" : {
-              "additionalProperties" : false,
-              "type" : "object",
-              "properties" : {
-                "prop269" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "maximum" : 2147483647,
-                    "type" : "integer",
-                    "minimum" : -2147483648
-                  } ]
-                },
-                "prop284" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "additionalItems" : false,
-                    "type" : "array",
-                    "items" : {
-                      "additionalProperties" : false,
-                      "type" : "object",
-                      "properties" : {
-                        "prop282" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "boolean"
-                          } ]
-                        },
-                        "prop283" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "boolean"
-                          } ]
-                        },
-                        "prop281" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "additionalProperties" : false,
-                            "type" : "object",
-                            "properties" : {
-                              "prop280" : {
-                                "type" : "string"
-                              },
-                              "prop279" : {
-                                "maximum" : 2147483647,
-                                "type" : "integer",
-                                "minimum" : -2147483648
-                              }
+        "lockinbenefits": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "freeShipping": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "properties": {
+                        "actualBenefit": {
+                          "anyOf": [
+                            {
+                              "type": "null"
                             },
-                            "required" : [ "prop280", "prop279" ]
-                          } ]
+                            {
+                              "type": "string"
+                            }
+                          ]
                         },
-                        "shownOnProductPage" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "boolean"
-                          } ]
+                        "potentialBenefits": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
                         },
-                        "prop278" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "boolean"
-                          } ]
-                        },
-                        "prop277" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "maximum" : 9223372036854775807,
-                            "type" : "integer",
-                            "minimum" : -9223372036854775808
-                          } ]
-                        },
-                        "prop276" : {
-                          "type" : "string"
+                        "eligibleBenefits": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
                         }
                       },
-                      "required" : [ "prop276" ]
+                      "required": []
                     }
-                  } ]
+                  ]
                 },
-                "prop267" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "additionalItems" : false,
-                    "type" : "array",
-                    "items" : {
-                      "additionalProperties" : false,
-                      "type" : "object",
-                      "properties" : {
-                        "prop255" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "string"
-                          } ]
-                        },
-                        "type" : {
-                          "anyOf" : [ {
-                            "type" : "null"
-                          }, {
-                            "type" : "string"
-                          } ]
-                        }
-                      },
-                      "required" : [ ]
-                    }
-                  } ]
-                },
-                "prop271" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "maximum" : 2147483647,
-                    "type" : "integer",
-                    "minimum" : -2147483648
-                  } ]
-                },
-                "prop270" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "maximum" : 2147483647,
-                    "type" : "integer",
-                    "minimum" : -2147483648
-                  } ]
-                },
-                "prop272" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "maximum" : 2147483647,
-                    "type" : "integer",
-                    "minimum" : -2147483648
-                  } ]
-                },
-                "prop274" : {
-                  "type" : "string"
-                },
-                "prop285" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "additionalItems" : false,
-                    "type" : "array",
-                    "items" : {
-                      "type" : "string"
-                    }
-                  } ]
-                },
-                "prop268" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "type" : "boolean"
-                  } ]
-                },
-                "displayedFinalPrice" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "maximum" : 2147483647,
-                    "type" : "integer",
-                    "minimum" : -2147483648
-                  } ]
-                },
-                "prop254" : {
-                  "type" : "string"
-                },
-                "prop253" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "type" : "boolean"
-                  } ]
-                },
-                "showMRP" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "type" : "boolean"
-                  } ]
-                },
-                "exchangeDetails" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "additionalProperties" : false,
-                    "type" : "object",
-                    "properties" : {
-                      "pincode" : {
-                        "anyOf" : [ {
-                          "type" : "null"
-                        }, {
-                          "maximum" : 2147483647,
-                          "type" : "integer",
-                          "minimum" : -2147483648
-                        } ]
-                      },
-                      "offerId" : {
-                        "type" : "string"
-                      },
-                      "prop278" : {
-                        "anyOf" : [ {
-                          "type" : "null"
-                        }, {
-                          "type" : "boolean"
-                        } ]
-                      }
+                "hasEarlyAccess": {
+                  "anyOf": [
+                    {
+                      "type": "null"
                     },
-                    "required" : [ "offerId" ]
-                  } ]
+                    {
+                      "type": "boolean"
+                    }
+                  ]
                 },
-                "prop275" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "type" : "string"
-                  } ]
-                },
-                "prop277" : {
-                  "anyOf" : [ {
-                    "type" : "null"
-                  }, {
-                    "pattern" : "^(19[7-9][0-9]|2\\d{3})-((((0[13578])|(1[02]))-(([0-2][0-9])|(3[01])))|(((0[469])|(11))-(([0-2][0-9])|(30)))|(02-?[0-2][0-9]))([tT ]([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(\\.\\d+)?([zZ]|[+-]\\d{2}(:|)\\d{2}|\\b)|\\b)$",
-                    "type" : "string"
-                  } ]
-                },
-                "prop273" : {
-                  "type" : "string"
+                "fastShipping": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "properties": {
+                        "actualBenefit": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "potentialBenefits": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "eligibleBenefits": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "required": []
+                    }
+                  ]
                 }
               },
-              "required" : [ "prop274", "prop254", "prop273" ]
+              "required": []
             }
-          } ]
+          ]
         },
-        "prop399" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
+        "prop248": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
         },
-        "prop393" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
+        "prop237": {
+          "type": "string"
         },
-        "prop239" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalProperties" : false,
-            "type" : "object",
-            "properties" : {
-              "prop238" : {
-                "type" : "boolean"
-              },
-              "type" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "additionalItems" : false,
-                  "type" : "array",
-                  "items" : {
-                    "type" : "string"
+        "prop250": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "prop389": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "prop387": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "prop247": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "prop252": {
+          "type": "string"
+        },
+        "prop392": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalItems": false,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "prop391": {
+                    "type": "string"
+                  },
+                  "prop390": {
+                    "type": "string"
                   }
-                } ]
+                },
+                "required": [
+                  "prop391",
+                  "prop390"
+                ]
               }
+            }
+          ]
+        },
+        "prop240": {
+          "anyOf": [
+            {
+              "type": "null"
             },
-            "required" : [ "prop238" ]
-          } ]
+            {
+              "type": "string"
+            }
+          ]
         },
-        "latestVersion" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "string"
-          } ]
+        "prop241": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
         },
-        "exchangeDetails" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "additionalProperties" : false,
-            "type" : "object",
-            "properties" : {
-              "pincode" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "maximum" : 2147483647,
-                  "type" : "integer",
-                  "minimum" : -2147483648
-                } ]
+        "prop246": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "prop245": {
+                  "maximum": 2147483647,
+                  "type": "integer",
+                  "minimum": -2147483648
+                },
+                "prop244": {
+                  "maximum": 2147483647,
+                  "type": "integer",
+                  "minimum": -2147483648
+                },
+                "prop243": {
+                  "maximum": 1.7976931348623157E308,
+                  "type": "number",
+                  "minimum": -1.7976931348623157E308
+                },
+                "prop242": {
+                  "maximum": 2147483647,
+                  "type": "integer",
+                  "minimum": -2147483648
+                }
               },
-              "offerId" : {
-                "type" : "string"
-              },
-              "prop278" : {
-                "anyOf" : [ {
-                  "type" : "null"
-                }, {
-                  "type" : "boolean"
-                } ]
+              "required": [
+                "prop245",
+                "prop244",
+                "prop243",
+                "prop242"
+              ]
+            }
+          ]
+        },
+        "prop385": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalItems": false,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "properties": {
+                  "prop269": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "maximum": 2147483647,
+                        "type": "integer",
+                        "minimum": -2147483648
+                      }
+                    ]
+                  },
+                  "prop284": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "additionalItems": false,
+                        "type": "array",
+                        "items": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "properties": {
+                            "prop282": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ]
+                            },
+                            "prop283": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ]
+                            },
+                            "prop281": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "additionalProperties": false,
+                                  "type": "object",
+                                  "properties": {
+                                    "prop280": {
+                                      "type": "string"
+                                    },
+                                    "prop279": {
+                                      "maximum": 2147483647,
+                                      "type": "integer",
+                                      "minimum": -2147483648
+                                    }
+                                  },
+                                  "required": [
+                                    "prop280",
+                                    "prop279"
+                                  ]
+                                }
+                              ]
+                            },
+                            "shownOnProductPage": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ]
+                            },
+                            "prop278": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ]
+                            },
+                            "prop277": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "maximum": 9223372036854775807,
+                                  "type": "integer",
+                                  "minimum": -9223372036854775808
+                                }
+                              ]
+                            },
+                            "prop276": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "prop276"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "prop267": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "additionalItems": false,
+                        "type": "array",
+                        "items": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "properties": {
+                            "prop255": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "type": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          },
+                          "required": []
+                        }
+                      }
+                    ]
+                  },
+                  "prop271": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "maximum": 2147483647,
+                        "type": "integer",
+                        "minimum": -2147483648
+                      }
+                    ]
+                  },
+                  "prop270": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "maximum": 2147483647,
+                        "type": "integer",
+                        "minimum": -2147483648
+                      }
+                    ]
+                  },
+                  "prop272": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "maximum": 2147483647,
+                        "type": "integer",
+                        "minimum": -2147483648
+                      }
+                    ]
+                  },
+                  "prop274": {
+                    "type": "string"
+                  },
+                  "prop285": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "additionalItems": false,
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "prop268": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  "displayedFinalPrice": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "maximum": 2147483647,
+                        "type": "integer",
+                        "minimum": -2147483648
+                      }
+                    ]
+                  },
+                  "prop254": {
+                    "type": "string"
+                  },
+                  "prop253": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  "showMRP": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  },
+                  "exchangeDetails": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "properties": {
+                          "pincode": {
+                            "anyOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "maximum": 2147483647,
+                                "type": "integer",
+                                "minimum": -2147483648
+                              }
+                            ]
+                          },
+                          "offerId": {
+                            "type": "string"
+                          },
+                          "prop278": {
+                            "anyOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "boolean"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "offerId"
+                        ]
+                      }
+                    ]
+                  },
+                  "prop275": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "prop277": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "pattern": "^(19[7-9][0-9]|2\\d{3})-((((0[13578])|(1[02]))-(([0-2][0-9])|(3[01])))|(((0[469])|(11))-(([0-2][0-9])|(30)))|(02-?[0-2][0-9]))([tT ]([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(\\.\\d+)?([zZ]|[+-]\\d{2}(:|)\\d{2}|\\b)|\\b)$",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "prop273": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "prop274",
+                  "prop254",
+                  "prop273"
+                ]
               }
+            }
+          ]
+        },
+        "prop399": {
+          "anyOf": [
+            {
+              "type": "null"
             },
-            "required" : [ "offerId" ]
-          } ]
+            {
+              "type": "string"
+            }
+          ]
         },
-        "prop386" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "type" : "boolean"
-          } ]
+        "prop393": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
         },
-        "prop251" : {
-          "anyOf" : [ {
-            "type" : "null"
-          }, {
-            "maximum" : 2147483647,
-            "type" : "integer",
-            "minimum" : -2147483648
-          } ]
+        "prop239": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "prop238": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "additionalItems": false,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "prop238"
+              ]
+            }
+          ]
+        },
+        "latestVersion": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "exchangeDetails": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "pincode": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "maximum": 2147483647,
+                      "type": "integer",
+                      "minimum": -2147483648
+                    }
+                  ]
+                },
+                "offerId": {
+                  "type": "string"
+                },
+                "prop278": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "offerId"
+              ]
+            }
+          ]
+        },
+        "prop386": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        },
+        "prop251": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "maximum": 2147483647,
+              "type": "integer",
+              "minimum": -2147483648
+            }
+          ]
         }
       },
-      "required" : [ "prop237", "prop252" ]
+      "required": [
+        "prop237",
+        "prop252"
+      ]
     },
     "tests": [
       {

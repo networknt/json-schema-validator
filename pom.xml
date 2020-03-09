@@ -14,8 +14,9 @@
   ~ limitations under the License.
   -->
 <project
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
@@ -245,7 +246,7 @@
                         <configuration>
                             <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                        </configuration>                        
+                        </configuration>
                     </execution>
                     <!-- End Executions for unit tests -->
                     <!-- The Executions for integration tests -->
@@ -322,7 +323,8 @@
                                 </goals>
                                 <configuration>
                                     <dataFile>${project.build.directory}/coverage-reports/aggregate.exec</dataFile>
-                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate
+                                    </outputDirectory>
                                 </configuration>
                             </execution>
                             <!-- End Executions for merging -->
@@ -330,7 +332,7 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>        
+        </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>

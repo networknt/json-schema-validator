@@ -29,7 +29,7 @@ public class V201909JsonSchemaTest {
 
     @BeforeClass
     public static void setUp() {
-        if(server == null) {
+        if (server == null) {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
@@ -41,7 +41,7 @@ public class V201909JsonSchemaTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if(server != null) {
+        if (server != null) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {

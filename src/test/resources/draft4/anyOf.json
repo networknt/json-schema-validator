@@ -1,203 +1,224 @@
 [
-    {
-        "description": "anyOf",
-        "schema": {
-            "anyOf": [
-                {
-                    "type": "integer"
-                },
-                {
-                    "minimum": 2
-                }
-            ]
+  {
+    "description": "anyOf",
+    "schema": {
+      "anyOf": [
+        {
+          "type": "integer"
         },
-        "tests": [
-            {
-                "description": "first anyOf valid",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "second anyOf valid",
-                "data": 2.5,
-                "valid": true
-            },
-            {
-                "description": "both anyOf valid",
-                "data": 3,
-                "valid": true
-            },
-            {
-                "description": "neither anyOf valid",
-                "data": 1.5,
-                "valid": false
-            }
-        ]
+        {
+          "minimum": 2
+        }
+      ]
     },
-    {
-        "description": "anyOf with base schema",
-        "schema": {
-            "type": "string",
-            "anyOf" : [
-                {
-                    "maxLength": 2
-                },
-                {
-                    "minLength": 4
-                }
-            ]
+    "tests": [
+      {
+        "description": "first anyOf valid",
+        "data": 1,
+        "valid": true
+      },
+      {
+        "description": "second anyOf valid",
+        "data": 2.5,
+        "valid": true
+      },
+      {
+        "description": "both anyOf valid",
+        "data": 3,
+        "valid": true
+      },
+      {
+        "description": "neither anyOf valid",
+        "data": 1.5,
+        "valid": false
+      }
+    ]
+  },
+  {
+    "description": "anyOf with base schema",
+    "schema": {
+      "type": "string",
+      "anyOf": [
+        {
+          "maxLength": 2
         },
-        "tests": [
-            {
-                "description": "mismatch base schema",
-                "data": 3,
-                "valid": false
-            },
-            {
-                "description": "one anyOf valid",
-                "data": "foobar",
-                "valid": true
-            },
-            {
-                "description": "both anyOf invalid",
-                "data": "foo",
-                "valid": false
-            }
-        ]
+        {
+          "minLength": 4
+        }
+      ]
     },
-    {
-        "description": "anyOf",
-        "schema": {
-            "anyOf": [
-                {
-                    "type": "integer"
-                },
-                {
-                    "type": "string"
-                }
-            ]
+    "tests": [
+      {
+        "description": "mismatch base schema",
+        "data": 3,
+        "valid": false
+      },
+      {
+        "description": "one anyOf valid",
+        "data": "foobar",
+        "valid": true
+      },
+      {
+        "description": "both anyOf invalid",
+        "data": "foo",
+        "valid": false
+      }
+    ]
+  },
+  {
+    "description": "anyOf",
+    "schema": {
+      "anyOf": [
+        {
+          "type": "integer"
         },
-        "tests": [
-            {
-                "description": "neither anyOf valid",
-                "data": true,
-                "valid": false
-            },
-            {
-                "description": "first anyOf valid",
-                "data": "test",
-                "valid": true
-            },
-            {
-                "description": "second anyOf valid",
-                "data": 3,
-                "valid": true
-            }
-        ]
+        {
+          "type": "string"
+        }
+      ]
     },
-    {
-        "description": "all errors are listed",
-        "schema": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "test": {
-                            "type": "string",
-                            "enum": [ "A", "B" ]
-                        }
-                    }
-                },
-                {
-                    "type": "null"
-                }
-            ]
+    "tests": [
+      {
+        "description": "neither anyOf valid",
+        "data": true,
+        "valid": false
+      },
+      {
+        "description": "first anyOf valid",
+        "data": "test",
+        "valid": true
+      },
+      {
+        "description": "second anyOf valid",
+        "data": 3,
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "all errors are listed",
+    "schema": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "test": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            }
+          }
         },
-        "tests": [
-            {
-                "description": "neither anyOf valid",
-                "data": {
-                    "test": "C"
-                },
-                "valid": false,
-                "errorCount": 2
-            },
-            {
-                "description": "first anyOf valid",
-                "data": null,
-                "valid": true
-            },
-            {
-                "description": "second anyOf valid",
-                "data": {
-                    "test": "A"
-                },
-                "valid": true
-            }
-        ]
+        {
+          "type": "null"
+        }
+      ]
     },
-    {
-        "description": "all errors are listed",
-        "schema": {
-            "type": "array",
-            "items": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "properties": {
-                            "test": {
-                                "type": "string",
-                                "enum": [ "A", "B" ]
-                            }
-                        }
-                    },
-                    {
-                    "type": "null"
-                    }
+    "tests": [
+      {
+        "description": "neither anyOf valid",
+        "data": {
+          "test": "C"
+        },
+        "valid": false,
+        "errorCount": 2
+      },
+      {
+        "description": "first anyOf valid",
+        "data": null,
+        "valid": true
+      },
+      {
+        "description": "second anyOf valid",
+        "data": {
+          "test": "A"
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "all errors are listed",
+    "schema": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "test": {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B"
                 ]
+              }
             }
-        },
-        "tests": [
-            {
-                "description": "neither anyOf valid",
-                "data": [{
-                    "test": "C"
-                }],
-                "valid": false,
-                "errorCount": 2
-            },
-            {
-                "description": "first anyOf valid",
-                "data": [null],
-                "valid": true
-            },
-            {
-                "description": "second anyOf valid",
-                "data": [{
-                    "test": "A"
-                }],
-                "valid": true
-            },
-            {
-                "description": "mixed anyOf valid",
-                "data": [{
-                    "test": "A"
-                }, null, {
-                    "test": 2
-                }],
-                "valid": false,
-                "errorCount": 3
-            },
-            {
-                "description": "mixed anyOf valid",
-                "data": [{
-                    "test": "A"
-                }, null, {
-                    "test": 2
-                }, 2],
-                "valid": false,
-                "errorCount": 5
-            }
+          },
+          {
+            "type": "null"
+          }
         ]
-    }
+      }
+    },
+    "tests": [
+      {
+        "description": "neither anyOf valid",
+        "data": [
+          {
+            "test": "C"
+          }
+        ],
+        "valid": false,
+        "errorCount": 2
+      },
+      {
+        "description": "first anyOf valid",
+        "data": [
+          null
+        ],
+        "valid": true
+      },
+      {
+        "description": "second anyOf valid",
+        "data": [
+          {
+            "test": "A"
+          }
+        ],
+        "valid": true
+      },
+      {
+        "description": "mixed anyOf valid",
+        "data": [
+          {
+            "test": "A"
+          },
+          null,
+          {
+            "test": 2
+          }
+        ],
+        "valid": false,
+        "errorCount": 3
+      },
+      {
+        "description": "mixed anyOf valid",
+        "data": [
+          {
+            "test": "A"
+          },
+          null,
+          {
+            "test": 2
+          },
+          2
+        ],
+        "valid": false,
+        "errorCount": 5
+      }
+    ]
+  }
 ]

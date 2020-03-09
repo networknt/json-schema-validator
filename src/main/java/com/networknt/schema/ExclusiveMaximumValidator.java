@@ -40,7 +40,7 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
         parseErrorCode(getValidatorType().getErrorCodeKey());
 
         final String maximumText = schemaNode.asText();
-        if (( schemaNode.isLong() || schemaNode.isInt() ) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             typedMaximum = new ThresholdMixin() {

@@ -1,28 +1,30 @@
 [
-    {
-        "description": "uuid format validation",
-        "schema": {"format": "uuid"},
-        "tests": [
-            {
-                "description": "invalid uuid",
-                "data": "df984f5c-59bd-48e3sac87-b03d574b37e9",
-                "valid": false
-            },
-            {
-                "description": "valid uuid string",
-                "data": "df984f5c-59bd-48e3-ac87-b03d574b37e9",
-                "valid": true
-            },
-            {
-                "description": "too short, it is invalid",
-                "data": "5fc03087d-d265-11e7-b8c6-83e29cd24f",
-                "valid": false
-            },
-            {
-                "description": "two long, length is greater than 36",
-                "data": "5fc03087d-d265-11e7-b8c6-83e29cd24f42333",
-                "valid": false
-            }
-        ]
-    }
+  {
+    "description": "uuid format validation",
+    "schema": {
+      "format": "uuid"
+    },
+    "tests": [
+      {
+        "description": "invalid uuid",
+        "data": "df984f5c-59bd-48e3sac87-b03d574b37e9",
+        "valid": false
+      },
+      {
+        "description": "valid uuid string",
+        "data": "df984f5c-59bd-48e3-ac87-b03d574b37e9",
+        "valid": true
+      },
+      {
+        "description": "too short, it is invalid",
+        "data": "5fc03087d-d265-11e7-b8c6-83e29cd24f",
+        "valid": false
+      },
+      {
+        "description": "two long, length is greater than 36",
+        "data": "5fc03087d-d265-11e7-b8c6-83e29cd24f42333",
+        "valid": false
+      }
+    ]
+  }
 ]

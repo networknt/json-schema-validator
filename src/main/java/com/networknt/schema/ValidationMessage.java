@@ -54,11 +54,11 @@ public class ValidationMessage {
     void setArguments(String[] arguments) {
         this.arguments = arguments;
     }
-    
+
     void setDetails(Map<String, Object> details) {
         this.details = details;
     }
-    
+
     public Map<String, Object> getDetails() {
         return details;
     }
@@ -114,14 +114,14 @@ public class ValidationMessage {
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String... arguments) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).arguments(arguments)
-                    .format(errorMessageType.getMessageFormat()).type(type);
+                .format(errorMessageType.getMessageFormat()).type(type);
         return builder.build();
     }
-    
+
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, Map<String, Object> details) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).details(details)
-        .format(errorMessageType.getMessageFormat()).type(type);
+                .format(errorMessageType.getMessageFormat()).type(type);
         return builder.build();
     }
 
@@ -152,7 +152,7 @@ public class ValidationMessage {
             this.arguments = arguments;
             return this;
         }
-        
+
         public Builder details(Map<String, Object> details) {
             this.details = details;
             return this;

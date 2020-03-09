@@ -1,10 +1,10 @@
 [
-    {
-        "publicURL": "http://json-schema.org/draft-04/schema#",
-        "localURL": "resource:/draftv4.schema.json" 
-    },
-    {
-        "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/uri_mapping/uri-mapping.schema.json",
-        "localURL": "resource:/draft4/uri_mapping/uri-mapping.schema.json"
-    }
+  {
+    "publicURL": "http://json-schema.org/draft-04/schema#",
+    "localURL": "resource:/draftv4.schema.json"
+  },
+  {
+    "publicURL": "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/uri_mapping/uri-mapping.schema.json",
+    "localURL": "resource:/draft4/uri_mapping/uri-mapping.schema.json"
+  }
 ]

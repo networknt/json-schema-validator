@@ -29,7 +29,7 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
     protected int min;
 
     public MinPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-            ValidationContext validationContext) {
+                                  ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
         if (schemaNode.isIntegralNumber()) {
             min = schemaNode.intValue();
