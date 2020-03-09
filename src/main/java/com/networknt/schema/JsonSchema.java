@@ -82,6 +82,8 @@ public class JsonSchema extends BaseJsonValidator {
         final String id = validationContext.resolveSchemaId(schemaNode);
         if (id == null) {
             return currentUri;
+        } else if (isUriFragmentWithNoContext(currentUri, id)) {
+            return null;
         } else {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
@@ -89,6 +91,10 @@ public class JsonSchema extends BaseJsonValidator {
                 throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri.toString()));
             }
         }
+    }
+
+    private boolean isUriFragmentWithNoContext(URI currentUri, String id) {
+        return id.startsWith("#") && currentUri == null;
     }
     
     public URI getCurrentUri()
