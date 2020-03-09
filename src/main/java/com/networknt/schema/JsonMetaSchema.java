@@ -345,6 +345,7 @@ public class JsonMetaSchema {
             return kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof JsonSchemaException) {
+                logger.error("Error:", e);
                 throw (JsonSchemaException) e.getTargetException();
             } else {
                 logger.warn("Could not load validator " + keyword);

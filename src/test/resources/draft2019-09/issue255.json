@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "cars": {
+      "type": "array",
+      "items": {
+        "$ref": "#car"
+      }
+    }
+  },
+  "definitions": {
+    "car": {
+      "$id": "#car",
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "$ref": "#manufacturer"
+        }
+      },
+      "required": ["model", "manufacturer"]
+    },
+    "manufacturer": {
+      "$id": "#manufacturer",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "factories": {
+          "type": "array",
+          "items": {
+            "$ref": "#factory"
+          }
+        }
+      }
+    },
+    "factory": {
+      "$id": "#factory",
+      "type": "object",
+      "properties": {
+        "location": {
+          "$ref": "#location"
+        }
+      }
+    },
+    "location": {
+      "$id": "#location",
+      "type": "object",
+      "properties": {
+        "country": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "employees": {
+          "type": "array",
+          "items": {
+            "$ref": "#employee"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "employee": {
+      "$id": "#employee",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "maxProperties": 3
+    }
+  }
+}
