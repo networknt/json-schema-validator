@@ -73,22 +73,22 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (isEnumObjectSchema(parentSchema)) {
                 return true;
             }
-            if(config.isTypeLoose()) {
+            if (config.isTypeLoose()) {
                 // if typeLoose is true, everything can be a size 1 array
                 if (schemaType == JsonType.ARRAY) {
                     return true;
                 }
                 if (nodeType == JsonType.STRING) {
-                    if(schemaType == JsonType.INTEGER) {
-                        if(isInteger(node.textValue())) {
+                    if (schemaType == JsonType.INTEGER) {
+                        if (isInteger(node.textValue())) {
                             return true;
                         }
-                    } else if(schemaType == JsonType.BOOLEAN) {
-                        if(isBoolean(node.textValue())) {
+                    } else if (schemaType == JsonType.BOOLEAN) {
+                        if (isBoolean(node.textValue())) {
                             return true;
                         }
-                    } else if(schemaType == JsonType.NUMBER) {
-                        if(isNumeric(node.textValue())) {
+                    } else if (schemaType == JsonType.NUMBER) {
+                        if (isNumeric(node.textValue())) {
                             return true;
                         }
                     }
@@ -161,14 +161,14 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
 
         if (c == CHAR_0) {
             // TODO: if leading zeros are supported (counter to JSON spec) handle it here
-            if (i < len){
+            if (i < len) {
                 c = str.charAt(i++);
                 if (c != DOT && c != CHAR_E && c != CHAR_e) {
                     return false;
                 }
             }
         } else if (CHAR_1 <= c && c <= CHAR_9) {
-            while ( i < len && CHAR_0 <= c  && c <= CHAR_9 ) {
+            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
                 c = str.charAt(i++);
             }
         } else {
@@ -180,13 +180,13 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                 return false;
             }
             c = str.charAt(i++);
-            while ( i < len && CHAR_0 <= c  && c <= CHAR_9 ) {
+            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
                 c = str.charAt(i++);
             }
         }
 
         if (c == CHAR_E || c == CHAR_e) {
-            if (i >= len ) {
+            if (i >= len) {
                 return false;
             }
             c = str.charAt(i++);
@@ -196,12 +196,12 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                 }
                 c = str.charAt(i++);
             }
-            while ( i < len && CHAR_0 <= c  && c <= CHAR_9 ) {
+            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
                 c = str.charAt(i++);
             }
         }
 
-        return i >= len && (CHAR_0 <= c  && c <= CHAR_9);
+        return i >= len && (CHAR_0 <= c && c <= CHAR_9);
     }
 
     private static final char CHAR_0 = '0';
@@ -216,7 +216,8 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     /**
      * Check if the type of the JsonNode's value is number based on the
      * status of typeLoose flag.
-     * @param node the JsonNode to check
+     *
+     * @param node        the JsonNode to check
      * @param isTypeLoose The flag to show whether typeLoose is enabled
      * @return boolean to indicate if it is a number
      */

@@ -21,7 +21,10 @@
           "$ref": "#manufacturer"
         }
       },
-      "required": ["model", "manufacturer"]
+      "required": [
+        "model",
+        "manufacturer"
+      ]
     },
     "manufacturer": {
       "$id": "#manufacturer",

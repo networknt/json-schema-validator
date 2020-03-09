@@ -32,70 +32,68 @@ import java.util.Set;
  * @author <a href="mailto:kenneth.waldenstroem@gmail.com">Kenneth Waldenstrom</a>
  */
 class ClasspathURLStreamHandler extends URLStreamHandler {
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
-    Arrays.asList("classpath", "resource")));
-
-  @Override
-  protected URLConnection openConnection(final URL pURL) throws IOException {
-    return new ClassPathURLConnection(pURL);
-  }
-
-  class ClassPathURLConnection extends URLConnection {
-
-    private Class<?> mHost = null;
-
-    protected ClassPathURLConnection(URL pURL) {
-      super(pURL);
-    }
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
+            Arrays.asList("classpath", "resource")));
 
     @Override
-    public final void connect() throws IOException {
-      String className = url.getHost();
-      try {
-        if (className != null && className.length() > 0) {
-          mHost = Class.forName(className);
-        }
-        connected = true;
-      }
-      catch (ClassNotFoundException e) {
-        throw new IOException("Class not found: " + e.toString());
-      }
+    protected URLConnection openConnection(final URL pURL) throws IOException {
+        return new ClassPathURLConnection(pURL);
     }
 
-    @Override
-    public final InputStream getInputStream() throws IOException {
-      if (!connected) {
-        connect();
-      }
-      return getResourceAsStream(url);
-    }
+    class ClassPathURLConnection extends URLConnection {
 
-    private InputStream getResourceAsStream(URL pURL) throws IOException {
-      String path = pURL.getPath();
+        private Class<?> mHost = null;
 
-      if (path.startsWith("/")) {
-        path = path.substring(1);
-      }
-
-      InputStream stream;
-      if (mHost != null) {
-        stream = mHost.getClassLoader().getResourceAsStream(path);
-      }
-      else {
-        stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-        if (stream == null) {
-          stream = getClass().getClassLoader().getResourceAsStream(path);
+        protected ClassPathURLConnection(URL pURL) {
+            super(pURL);
         }
-        if (stream == null) {
-          stream = ClassLoader.getSystemResourceAsStream(path);
+
+        @Override
+        public final void connect() throws IOException {
+            String className = url.getHost();
+            try {
+                if (className != null && className.length() > 0) {
+                    mHost = Class.forName(className);
+                }
+                connected = true;
+            } catch (ClassNotFoundException e) {
+                throw new IOException("Class not found: " + e.toString());
+            }
         }
-      }
-      if (stream == null) {
-        throw new IOException("Resource " + path + " not found in classpath.");
-      }
-      return stream;
+
+        @Override
+        public final InputStream getInputStream() throws IOException {
+            if (!connected) {
+                connect();
+            }
+            return getResourceAsStream(url);
+        }
+
+        private InputStream getResourceAsStream(URL pURL) throws IOException {
+            String path = pURL.getPath();
+
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+
+            InputStream stream;
+            if (mHost != null) {
+                stream = mHost.getClassLoader().getResourceAsStream(path);
+            } else {
+                stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+                if (stream == null) {
+                    stream = getClass().getClassLoader().getResourceAsStream(path);
+                }
+                if (stream == null) {
+                    stream = ClassLoader.getSystemResourceAsStream(path);
+                }
+            }
+            if (stream == null) {
+                throw new IOException("Resource " + path + " not found in classpath.");
+            }
+            return stream;
+        }
     }
-  }
 
 
 }

@@ -16,16 +16,15 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.uri.URIFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.uri.URIFactory;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -52,21 +51,21 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             final String refUri;
             final int index = refValue.indexOf(REF_CURRENT);
             if (index > 0) {
-            	refUri = refValue.substring(0, index);
+                refUri = refValue.substring(0, index);
             } else {
-            	refUri = refValue;
+                refUri = refValue;
             }
-            
+
             // This will determine the correct absolute uri for the refUri. This decision will take into
             // account the current uri of the parent schema.
             URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parentSchema, refUri);
             if (schemaUri == null) {
-              return null;
+                return null;
             }
-            
+
             // This should retrieve schemas regardless of the protocol that is in the uri.
             parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUri, validationContext.getConfig());
-            
+
             if (index < 0) {
                 return new JsonSchemaRef(parentSchema.findAncestor());
             } else {
@@ -92,21 +91,17 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     private static URI determineSchemaUri(final URIFactory uriFactory, final JsonSchema parentSchema, final String refUri) {
-    	URI schemaUri;
-    	final URI currentUri = parentSchema.getCurrentUri();
-    	try
-    	{
-            if (currentUri == null)
-            {
-    	        schemaUri = uriFactory.create(refUri);
-            }
-            else
-            {
+        URI schemaUri;
+        final URI currentUri = parentSchema.getCurrentUri();
+        try {
+            if (currentUri == null) {
+                schemaUri = uriFactory.create(refUri);
+            } else {
                 schemaUri = uriFactory.create(currentUri, refUri);
             }
-    	} catch (IllegalArgumentException e) {
-    	    schemaUri = null;
-    	}
+        } catch (IllegalArgumentException e) {
+            schemaUri = null;
+        }
         return schemaUri;
     }
 

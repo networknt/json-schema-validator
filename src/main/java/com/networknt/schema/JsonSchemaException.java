@@ -27,7 +27,7 @@ public class JsonSchemaException extends RuntimeException {
         super(validationMessage.getMessage());
         this.validationMessage = validationMessage;
     }
-    
+
     public JsonSchemaException(String message) {
         super(message);
     }

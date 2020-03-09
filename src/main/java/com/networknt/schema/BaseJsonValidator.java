@@ -16,13 +16,12 @@
 
 package com.networknt.schema;
 
-import java.net.URI;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.net.URI;
+import java.util.Set;
 
 public abstract class BaseJsonValidator implements JsonValidator {
     private String schemaPath;
@@ -44,9 +43,9 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-    	this(schemaPath, schemaNode, parentSchema, validatorType, false ,
-          validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
-    	this.config = validationContext.getConfig() == null ? new SchemaValidatorsConfig() : validationContext.getConfig();
+        this(schemaPath, schemaNode, parentSchema, validatorType, false,
+                validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+        this.config = validationContext.getConfig() == null ? new SchemaValidatorsConfig() : validationContext.getConfig();
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
@@ -78,17 +77,16 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
 
-    private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext){
+    private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
-        if(node == null) return null;
-    	if(node.equals(schemaNode.get("$schema"))) return null;
+        if (node == null) return null;
+        if (node.equals(schemaNode.get("$schema"))) return null;
 
         final String text = node.textValue();
         if (text == null) {
             return null;
-        }
-        else {
-        	final URI uri;
+        } else {
+            final URI uri;
             try {
                 uri = validationContext.getURIFactory().create(node.textValue());
             } catch (IllegalArgumentException e) {

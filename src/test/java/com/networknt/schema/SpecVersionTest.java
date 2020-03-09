@@ -37,9 +37,9 @@ public class SpecVersionTest {
     public void testAllVersionValue() {
         long numericVersionCode =
                 SpecVersion.VersionFlag.V201909.getVersionFlagValue()
-                | SpecVersion.VersionFlag.V4.getVersionFlagValue()
-                | SpecVersion.VersionFlag.V6.getVersionFlagValue()
-                | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 15
+                        | SpecVersion.VersionFlag.V4.getVersionFlagValue()
+                        | SpecVersion.VersionFlag.V6.getVersionFlagValue()
+                        | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 15
         Assert.assertEquals(numericVersionCode, 15);
 
     }

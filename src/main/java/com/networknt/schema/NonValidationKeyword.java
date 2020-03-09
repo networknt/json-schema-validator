@@ -16,10 +16,10 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.Collections;
 import java.util.Set;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Used for Keywords that have no validation aspect, but are part of the metaschema.
@@ -40,10 +40,10 @@ public class NonValidationKeyword extends AbstractKeyword {
     public NonValidationKeyword(String keyword) {
         super(keyword);
     }
-    
+
     @Override
     public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-            ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                      ValidationContext validationContext) throws JsonSchemaException, Exception {
         return new Validator(getValue());
     }
 }

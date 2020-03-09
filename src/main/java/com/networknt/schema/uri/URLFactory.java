@@ -29,40 +29,38 @@ import java.util.Set;
  * A URIFactory that uses URL for creating {@link URI}s.
  */
 public final class URLFactory implements URIFactory {
-  // These supported schemes are defined in {@link #URL(String, String, int, String)}.
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
-    Arrays.asList("http", "https", "ftp", "file", "jar")));
-  
-  /**
-   * @param uri String
-   * @return URI
-   */
-  @Override
-  public URI create(final String uri)
-  {
-    try {
-      return new URL(uri).toURI();
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    }
-  }
+    // These supported schemes are defined in {@link #URL(String, String, int, String)}.
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
+            Arrays.asList("http", "https", "ftp", "file", "jar")));
 
-  /**
-   * @param baseURI URI
-   * @param segment String
-   * @return URI
-   */
-  @Override
-  public URI create(final URI baseURI, final String segment)
-  {
-    try {
-      return new URL(baseURI.toURL(), segment).toURI();
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
+    /**
+     * @param uri String
+     * @return URI
+     */
+    @Override
+    public URI create(final String uri) {
+        try {
+            return new URL(uri).toURI();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        }
     }
-  }
+
+    /**
+     * @param baseURI URI
+     * @param segment String
+     * @return URI
+     */
+    @Override
+    public URI create(final URI baseURI, final String segment) {
+        try {
+            return new URL(baseURI.toURL(), segment).toURI();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        }
+    }
 }

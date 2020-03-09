@@ -1,12 +1,12 @@
 package com.networknt.schema;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.Set;
 
 /**
  * Use this object instead a JsonSchema for references.
- *
+ * <p>
  * This reference may be empty (if the reference is being parsed) or with data (after the reference has been parsed),
  * helping to prevent recursive reference to cause an infinite loop.
  */

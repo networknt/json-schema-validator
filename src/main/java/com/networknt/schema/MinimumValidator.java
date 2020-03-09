@@ -32,8 +32,8 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
     private boolean excludeEqual = false;
 
     /**
-     *  In order to limit number of `if` statements in `validate` method, all the
-     *  logic of picking the right comparison is abstracted into a mixin.
+     * In order to limit number of `if` statements in `validate` method, all the
+     * logic of picking the right comparison is abstracted into a mixin.
      */
     private final ThresholdMixin typedMinimum;
 

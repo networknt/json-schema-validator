@@ -1,10 +1,10 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "json-object-with-schema",
-    "type": "array",
-    "properties": {
-        "schema": {
-            "$ref": "http://example.com/invalid/schema/url"
-        }
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "json-object-with-schema",
+  "type": "array",
+  "properties": {
+    "schema": {
+      "$ref": "http://example.com/invalid/schema/url"
     }
+  }
 }

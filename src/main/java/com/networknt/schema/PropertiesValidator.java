@@ -43,10 +43,10 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
         // get the Validator state object storing validation data
         ValidatorState state = validatorState.get();
-        if(state == null) {
-        	// if one has not been created, instantiate one
-        	state = new ValidatorState();
-        	validatorState.set(state);
+        if (state == null) {
+            // if one has not been created, instantiate one
+            state = new ValidatorState();
+            validatorState.set(state);
         }
 
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
@@ -54,40 +54,40 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             JsonNode propertyNode = node.get(entry.getKey());
 
             if (propertyNode != null) {
-            	// check whether this is a complex validator. save the state
-            	boolean isComplex = state.isComplexValidator();
-            	// if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
-            	if(state.isComplexValidator()) {
-            		state.setMatchedNode(true);
-            	}
-            	// reset the complex validator for child element validation, and reset it after the return from the recursive call
-            	state.setComplexValidator(false);
-
-            	//validate the child element(s)
-              errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
-
-              // reset the complex flag to the original value before the recursive call
-              state.setComplexValidator(isComplex);
-              // if this was a complex validator, the node has matched and has been validated
-            	if(state.isComplexValidator()) {
-            		state.setMatchedNode(true);
-            	}
-            } else {
-              // check whether the node which has not matched was mandatory or not
-              if (getParentSchema().hasRequiredValidator()) {
-                Set<ValidationMessage> requiredErrors = getParentSchema().getRequiredValidator().validate(node, rootNode, at);
-
-                if(!requiredErrors.isEmpty()) {
-                  // the node was mandatory, decide which behavior to employ when validator has not matched
-                  if (state.isComplexValidator()) {
-                    // this was a complex validator (ex oneOf) and the node has not been matched
-                    state.setMatchedNode(false);
-                    return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
-                  } else {
-                    errors.addAll(requiredErrors);
-                  }
+                // check whether this is a complex validator. save the state
+                boolean isComplex = state.isComplexValidator();
+                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
+                if (state.isComplexValidator()) {
+                    state.setMatchedNode(true);
                 }
-              }
+                // reset the complex validator for child element validation, and reset it after the return from the recursive call
+                state.setComplexValidator(false);
+
+                //validate the child element(s)
+                errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
+
+                // reset the complex flag to the original value before the recursive call
+                state.setComplexValidator(isComplex);
+                // if this was a complex validator, the node has matched and has been validated
+                if (state.isComplexValidator()) {
+                    state.setMatchedNode(true);
+                }
+            } else {
+                // check whether the node which has not matched was mandatory or not
+                if (getParentSchema().hasRequiredValidator()) {
+                    Set<ValidationMessage> requiredErrors = getParentSchema().getRequiredValidator().validate(node, rootNode, at);
+
+                    if (!requiredErrors.isEmpty()) {
+                        // the node was mandatory, decide which behavior to employ when validator has not matched
+                        if (state.isComplexValidator()) {
+                            // this was a complex validator (ex oneOf) and the node has not been matched
+                            state.setMatchedNode(false);
+                            return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
+                        } else {
+                            errors.addAll(requiredErrors);
+                        }
+                    }
+                }
             }
         }
 

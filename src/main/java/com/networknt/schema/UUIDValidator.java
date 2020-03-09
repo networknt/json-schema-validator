@@ -16,14 +16,13 @@
 
 package com.networknt.schema;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class UUIDValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UUIDValidator.class);
@@ -54,7 +53,7 @@ public class UUIDValidator extends BaseJsonValidator implements JsonValidator {
         return Collections.unmodifiableSet(errors);
     }
 
-    public boolean isUUID(String s){
+    public boolean isUUID(String s) {
         return s.matches(regex);
     }
 }

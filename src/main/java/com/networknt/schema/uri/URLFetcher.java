@@ -60,7 +60,7 @@ public final class URLFetcher implements URIFetcher {
                 HttpURLConnection http = (HttpURLConnection) c;
                 int stat = http.getResponseCode();
                 if (stat >= 300 && stat <= 307 && stat != 306
-                    && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                        && stat != HttpURLConnection.HTTP_NOT_MODIFIED) {
                     URL base = http.getURL();
                     String loc = http.getHeaderField("Location");
                     URL target = null;
@@ -71,10 +71,10 @@ public final class URLFetcher implements URIFetcher {
                     // Redirection should be allowed only for HTTP and HTTPS
                     // and should be limited to 5 redirections at most.
                     if (target == null
-                        || !(target.getProtocol().equals("http")
-                        || target.getProtocol().equals("https"))
-                        || redirects >= 5) {
-                            throw new SecurityException("illegal URL redirect");
+                            || !(target.getProtocol().equals("http")
+                            || target.getProtocol().equals("https"))
+                            || redirects >= 5) {
+                        throw new SecurityException("illegal URL redirect");
                     }
                     redir = true;
                     c = target.openConnection();

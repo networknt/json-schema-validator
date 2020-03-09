@@ -16,14 +16,14 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", new MessageFormat(
@@ -34,7 +34,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     DEPENDENCIES("dependencies", "1007", new MessageFormat("{0}: has an error with dependencies {1}"), DependenciesValidator.class, 15),
     EDITS("edits", "1005", new MessageFormat("{0}: has an error with 'edits'"), null, 15),
     ENUM("enum", "1008", new MessageFormat("{0}: does not have a value in the enumeration {1}"), EnumValidator.class, 15),
-    FORMAT("format", "1009", new MessageFormat("{0}: does not match the {1} pattern {2}"), null, 15){
+    FORMAT("format", "1009", new MessageFormat("{0}: does not match the {1} pattern {2}"), null, 15) {
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
                 throws Exception {
@@ -76,6 +76,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
     private static SpecVersion specVersion = new SpecVersion();
+
     static {
         for (ValidatorTypeCode c : values()) {
             constants.put(c.value, c);
@@ -101,7 +102,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
 
     public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFlag versionFlag) {
         final List<ValidatorTypeCode> result = new ArrayList<ValidatorTypeCode>();
-        for (ValidatorTypeCode keyword: values()) {
+        for (ValidatorTypeCode keyword : values()) {
             if (!FORMAT.equals(keyword) && specVersion.getVersionFlags(keyword.versionCode).contains(versionFlag)) {
                 result.add(keyword);
             }
@@ -117,7 +118,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
             return constant;
         }
     }
-    
+
     public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {
         if (validator == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());
@@ -125,10 +126,10 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         // if the config version is not match the validator
         @SuppressWarnings("unchecked")
         Constructor<JsonValidator> c = ((Class<JsonValidator>) validator).getConstructor(
-                new Class[] { String.class, JsonNode.class, JsonSchema.class, ValidationContext.class });
+                new Class[]{String.class, JsonNode.class, JsonSchema.class, ValidationContext.class});
         return c.newInstance(schemaPath + "/" + getValue(), schemaNode, parentSchema, validationContext);
     }
-    
+
     @Override
     public String toString() {
         return this.value;

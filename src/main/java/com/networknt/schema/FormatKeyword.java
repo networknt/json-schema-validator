@@ -16,12 +16,12 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.format.EmailValidator;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.format.EmailValidator;
 
 public class FormatKeyword implements Keyword {
     private final ValidatorTypeCode type;

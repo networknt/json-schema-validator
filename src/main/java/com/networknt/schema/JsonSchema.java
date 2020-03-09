@@ -16,19 +16,14 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -40,18 +35,18 @@ public class JsonSchema extends BaseJsonValidator {
     protected final Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
-    
+
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
      * or it could potentially be a uri that has been altered by an id. An 'id' is able to completely overwrite
      * the current uri or add onto it. This is necessary so that '$ref's are able to be relative to a
      * combination of the current schema file's uri and 'id' uris visible to this schema.
-     * 
+     * <p>
      * This can be null. If it is null, then the creation of relative uris will fail. However, an absolute
      * 'id' would still be able to specify an absolute uri.
      */
     private final URI currentUri;
-    
+
     private JsonValidator requiredValidator = null;
 
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
@@ -59,18 +54,18 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
-               JsonSchema parent) {
-        this(validationContext,  schemaPath, currentUri, schemaNode, parent, false);
+                      JsonSchema parent) {
+        this(validationContext, schemaPath, currentUri, schemaNode, parent, false);
     }
 
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
         this(validationContext, "#", baseUri, schemaNode, null, suppressSubSchemaRetrieval);
     }
 
-    private JsonSchema(ValidationContext validationContext,  String schemaPath, URI currentUri, JsonNode schemaNode,
-               JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+    private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
+                       JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-            validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+                validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
         this.validationContext = validationContext;
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
@@ -96,10 +91,9 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean isUriFragmentWithNoContext(URI currentUri, String id) {
         return id.startsWith("#") && currentUri == null;
     }
-    
-    public URI getCurrentUri()
-    {
-      return this.currentUri;
+
+    public URI getCurrentUri() {
+        return this.currentUri;
     }
 
     /**
@@ -126,17 +120,16 @@ public class JsonSchema extends BaseJsonValidator {
                 } else {
                     node = node.get(key);
                 }
-                if (node == null){
+                if (node == null) {
                     node = handleNullNode(ref, schema);
                 }
-                if (node == null){
+                if (node == null) {
                     break;
                 }
             }
-        }
-        else if (ref.startsWith("#") && ref.length() > 1) {
+        } else if (ref.startsWith("#") && ref.length() > 1) {
             node = getNodeById(ref, node);
-            if(node == null) {
+            if (node == null) {
                 node = handleNullNode(ref, schema);
             }
         }
@@ -184,8 +177,8 @@ public class JsonSchema extends BaseJsonValidator {
 
     private Map<String, JsonValidator> read(JsonNode schemaNode) {
         Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
-        if(schemaNode.isBoolean()) {
-            if(schemaNode.booleanValue()) {
+        if (schemaNode.isBoolean()) {
+            if (schemaNode.booleanValue()) {
                 JsonValidator validator = validationContext.newValidator(getSchemaPath(), "true", schemaNode, this);
                 validators.put(getSchemaPath() + "/true", validator);
             } else {
@@ -211,43 +204,43 @@ public class JsonSchema extends BaseJsonValidator {
         return validators;
     }
 
-	public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
-		Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-		for (JsonValidator v : validators.values()) {
-			errors.addAll(v.validate(jsonNode, rootNode, at));
-		}
-		return errors;
-	}
-    
+    public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        for (JsonValidator v : validators.values()) {
+            errors.addAll(v.validate(jsonNode, rootNode, at));
+        }
+        return errors;
+    }
+
     public ValidationResult validateAndCollect(JsonNode node) {
         return validateAndCollect(node, node, AT_ROOT);
     }
 
-    
-	/**
-	 * 
-	 * This method both validates and collects the data in a CollectionContext.
-	 * @param jsonNode
-	 * @param rootNode
-	 * @param at
-	 * @return
-	 */
-	protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
-		try {
-			// Create the collector context object.
-			CollectorContext collectorContext = new CollectorContext();
-			// Set the collector context in thread info, this is unique for every thread.
-			ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
-			Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-			// Load all the data from collectors into the context.
-			collectorContext.load();
-			// Collect errors and collector context into validation result.
-			ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-			return validationResult;
-		} finally {
-			ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
-		}
-	}
+
+    /**
+     * This method both validates and collects the data in a CollectionContext.
+     *
+     * @param jsonNode JsonNode
+     * @param rootNode JsonNode
+     * @param at String of path
+     * @return ValidationResult
+     */
+    protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+        try {
+            // Create the collector context object.
+            CollectorContext collectorContext = new CollectorContext();
+            // Set the collector context in thread info, this is unique for every thread.
+            ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+            Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+            // Load all the data from collectors into the context.
+            collectorContext.load();
+            // Collect errors and collector context into validation result.
+            ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+            return validationResult;
+        } finally {
+            ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+        }
+    }
 
     @Override
     public String toString() {
@@ -255,11 +248,11 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public boolean hasRequiredValidator() {
-    	return requiredValidator != null ? true : false;
+        return requiredValidator != null ? true : false;
     }
-    
-	public JsonValidator getRequiredValidator() {
-		return requiredValidator;
-	}
+
+    public JsonValidator getRequiredValidator() {
+        return requiredValidator;
+    }
 
 }

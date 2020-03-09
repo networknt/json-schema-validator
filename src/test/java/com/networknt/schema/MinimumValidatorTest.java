@@ -58,7 +58,7 @@ public class MinimumValidatorTest {
     public void positiveNumber() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                       value
-                {"1000",         "1000.1"},
+                {"1000", "1000.1"},
         });
 
         expectNoMessages(values, NUMBER, mapper);
@@ -68,10 +68,10 @@ public class MinimumValidatorTest {
     public void negativeNumber() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                           value
-            {"-1.7976931348623157e+308",         "-1.7976931348623159e+308"},
-            {"-1.7976931348623156e+308",         "-1.7976931348623157e+308"},
-            {"-1000",                            "-1E309"},
-            {"1000.1",                           "1000"},
+                {"-1.7976931348623157e+308", "-1.7976931348623159e+308"},
+                {"-1.7976931348623156e+308", "-1.7976931348623157e+308"},
+                {"-1000", "-1E309"},
+                {"1000.1", "1000"},
 //          See a {@link #doubleValueCoarsing() doubleValueCoarsing} test notes below
 //            {"-1.7976931348623157e+308",         "-1.7976931348623158e+308"},
         });
@@ -87,8 +87,8 @@ public class MinimumValidatorTest {
     public void positiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                       value
-                {"-1E309",         "-1000"},
-                {"-9223372036854775808",         "-9223372036854775808"},
+                {"-1E309", "-1000"},
+                {"-9223372036854775808", "-9223372036854775808"},
         });
 
         expectNoMessages(values, INTEGER, mapper);
@@ -99,11 +99,11 @@ public class MinimumValidatorTest {
     public void negativeInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                value
-            {"-9223372036854775800",  "-9223372036854775855"},
-            {"-9223372036854775808",  "-9223372036854775809"},
-            {"-9223372036854775808",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
-            {"-9223372036854775807",  new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
-            {"-9223372036854776000",  "-9223372036854776001"},
+                {"-9223372036854775800", "-9223372036854775855"},
+                {"-9223372036854775808", "-9223372036854775809"},
+                {"-9223372036854775808", new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
+                {"-9223372036854775807", new BigDecimal(String.valueOf(-Double.MAX_VALUE)).subtract(BigDecimal.ONE).toString()},
+                {"-9223372036854776000", "-9223372036854776001"},
         });
         expectSomeMessages(values, INTEGER, mapper, mapper);
     }
@@ -112,12 +112,12 @@ public class MinimumValidatorTest {
     public void positiveExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //                minimum,                       value
-                {"-9223372036854775000",         "-9223372036854774988"},
-                {"10",         "20"},
+                {"-9223372036854775000", "-9223372036854774988"},
+                {"10", "20"},
 //                threshold in outside long range
-                {"-9223372036854775809",         "-9223372036854775807"},
+                {"-9223372036854775809", "-9223372036854775807"},
 //                both threshold and value are outside long range
-                {"-9223372036854775810",         "-9223372036854775809"},
+                {"-9223372036854775810", "-9223372036854775809"},
         });
 
         expectNoMessages(values, EXCLUSIVE_INTEGER, mapper);
@@ -129,13 +129,13 @@ public class MinimumValidatorTest {
     public void negativeExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            minimum,                       value
-                {"20",         "10"},
+                {"20", "10"},
 
 //                value is outside long range
-                {"-9223372036854775807",         "-9223372036854775809"},
+                {"-9223372036854775807", "-9223372036854775809"},
 
 //                both threshold and value are outside long range
-                {"-9223372036854775809",         "-9223372036854775810"},
+                {"-9223372036854775809", "-9223372036854775810"},
         });
 
         expectSomeMessages(values, EXCLUSIVE_INTEGER, mapper, bigIntegerMapper);
@@ -145,29 +145,29 @@ public class MinimumValidatorTest {
     public void negativeDoubleOverflowTest() throws IOException {
         String[][] values = {
 //            minimum,                            value
-            {"-1.79769313486231571E+308",        "-1.79769313486231572e+308"},
+                {"-1.79769313486231571E+308", "-1.79769313486231572e+308"},
 //            while underflow in not captures in previous case (unquoted number is parsed as double)
 //            it is captured if value is passed as string, which is correctly parsed by BidDecimal
 //            thus effective comparison is between
 //            minimum -1.7976931348623157E+308  and
 //            value   -1.79769313486231572e+308
 //            {"-1.79769313486231571E+308",        "\"-1.79769313486231572e+308\""},
-            {"-1.7976931348623157E+309",         "-1.7976931348623157e+309"},
-            {"-1.7976931348623157E+309",         "\"-1.7976931348623157e+309\""},
-            {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"},
+                {"-1.7976931348623157E+309", "-1.7976931348623157e+309"},
+                {"-1.7976931348623157E+309", "\"-1.7976931348623157e+309\""},
+                {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"},
 //            Similar to statements above
 //            minimum -1.0E+308  and
 //            value   -1.000000000000000000000001E+308
 //            {"-1.000000000000000000000001E+308", "\"-1.000000000000000000000001E+308\""},
-            {"-1.000000000000000000000001E+400", "-1.000000000000000000000001E+401"},
-            {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000001E+401\""},
-            {"-1.000000000000000000000001E+400", "-1.000000000000000000000002E+400"},
-            {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000002E+400\""},
-            {"-1.000000000000000000000001E+400", "-1.0000000000000000000000011E+400"},
-            {"-1.000000000000000000000001E+400", "\"-1.0000000000000000000000011E+400\""},
+                {"-1.000000000000000000000001E+400", "-1.000000000000000000000001E+401"},
+                {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000001E+401\""},
+                {"-1.000000000000000000000001E+400", "-1.000000000000000000000002E+400"},
+                {"-1.000000000000000000000001E+400", "\"-1.000000000000000000000002E+400\""},
+                {"-1.000000000000000000000001E+400", "-1.0000000000000000000000011E+400"},
+                {"-1.000000000000000000000001E+400", "\"-1.0000000000000000000000011E+400\""},
         };
 
-        for(String[] aTestCycle : values) {
+        for (String[] aTestCycle : values) {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, minimum);
@@ -185,7 +185,7 @@ public class MinimumValidatorTest {
             Set<ValidationMessage> messages2 = v.validate(doc);
 
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if(Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
+            if (Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
                 /*
                  * {"-1.000000000000000000000001E+308", "-1.000000000000000000000001E+308"} will be false
                  * because the different between two mappers, without using big decimal, it loses some precises.
@@ -199,7 +199,7 @@ public class MinimumValidatorTest {
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if(minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
+            if (minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
                 assertTrue(format("Minimum %s and value %s are equal, thus no schema violation should be reported", minimum, value), messages3.isEmpty());
             } else {
                 assertFalse(format("Minimum %s is larger than value %s ,  should be validation error reported", minimum, value), messages3.isEmpty());
@@ -208,8 +208,8 @@ public class MinimumValidatorTest {
     }
 
     /**
-     *  value of -1.7976931348623158e+308 is not converted to NEGATIVE_INFINITY for some reason
-     *  the only way to spot this is to use BigDecimal for schema (and for document)
+     * value of -1.7976931348623158e+308 is not converted to NEGATIVE_INFINITY for some reason
+     * the only way to spot this is to use BigDecimal for schema (and for document)
      */
     @Test
     public void doubleValueCoarsing() throws IOException {

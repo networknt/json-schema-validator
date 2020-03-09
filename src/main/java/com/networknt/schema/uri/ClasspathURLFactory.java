@@ -16,11 +16,7 @@
 
 package com.networknt.schema.uri;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLStreamHandler;
+import java.net.*;
 import java.util.Collections;
 import java.util.Set;
 
@@ -28,42 +24,40 @@ import java.util.Set;
  * A URIFactory that uses URL for creating {@link URI}s.
  */
 public final class ClasspathURLFactory implements URIFactory {
-  static final URLStreamHandler STREAM_HANDLER = new ClasspathURLStreamHandler();
-  
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(
-    ClasspathURLStreamHandler.SUPPORTED_SCHEMES);
-  
-  public static URL convert(final URI uri) throws MalformedURLException {
-    return new URL(null, uri.toString(), STREAM_HANDLER);
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public URI create(final String uri)
-  {
-    try {
-      return new URL(null, uri, STREAM_HANDLER).toURI();
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    }
-  }
+    static final URLStreamHandler STREAM_HANDLER = new ClasspathURLStreamHandler();
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public URI create(final URI baseURI, final String segment)
-  {
-    try {
-      return new URL(convert(baseURI), segment, STREAM_HANDLER).toURI();
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Unable to create URI.", e);
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(
+            ClasspathURLStreamHandler.SUPPORTED_SCHEMES);
+
+    public static URL convert(final URI uri) throws MalformedURLException {
+        return new URL(null, uri.toString(), STREAM_HANDLER);
     }
-  }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public URI create(final String uri) {
+        try {
+            return new URL(null, uri, STREAM_HANDLER).toURI();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public URI create(final URI baseURI, final String segment) {
+        try {
+            return new URL(convert(baseURI), segment, STREAM_HANDLER).toURI();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to create URI.", e);
+        }
+    }
 }
