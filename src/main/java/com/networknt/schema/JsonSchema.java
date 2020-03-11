@@ -198,7 +198,7 @@ public class JsonSchema extends BaseJsonValidator {
 			ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
 			Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
 			// Load all the data from collectors into the context.
-			collectorContext.load();
+			collectorContext.loadCollectors();
 			// Collect errors and collector context into validation result.
 			ValidationResult validationResult = new ValidationResult(errors, collectorContext);
 			return validationResult;
