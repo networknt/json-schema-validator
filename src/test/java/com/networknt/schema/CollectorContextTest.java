@@ -1,14 +1,20 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CollectorContextTest {
 
@@ -274,7 +280,7 @@ public class CollectorContextTest {
 
 	}
 
-	private class CustomCollector implements Collector<List<String>> {
+	private class CustomCollector extends AbstractCollector<List<String>> {
 
 		List<String> returnList = new ArrayList<String>();
 

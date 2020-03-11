@@ -33,7 +33,7 @@ public class CollectorContext {
 	/**
 	 * 
 	 * Adds a collector with give name. Preserving this method for backward
-	 * compatibility . *
+	 * compatibility.
 	 * 
 	 * @param <E>
 	 * @param name

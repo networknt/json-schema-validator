@@ -15,8 +15,7 @@ public interface Collector<E> {
 	 * method and could be used when the same collector is used for collecting data
 	 * at multiple touch points or accumulating data at same touch point.
 	 */
-	public default void combine(Object object) {
-	};
+	public void combine(Object object);
 
 	/**
 	 * Final method called by the framework that returns the actual collected data.
