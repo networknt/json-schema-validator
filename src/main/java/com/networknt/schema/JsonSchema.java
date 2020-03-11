@@ -254,5 +254,9 @@ public class JsonSchema extends BaseJsonValidator {
     public JsonValidator getRequiredValidator() {
         return requiredValidator;
     }
+    
+    public Map<String, JsonValidator> getValidators() {
+    	return validators;
+    }
 
 }
