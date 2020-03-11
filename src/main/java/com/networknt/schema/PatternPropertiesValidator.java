@@ -30,7 +30,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
     private Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
 
     public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-            ValidationContext validationContext) {
+                                      ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
         if (!schemaNode.isObject()) {
             throw new JsonSchemaException("patternProperties must be an object node");

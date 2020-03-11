@@ -16,11 +16,11 @@
 
 package com.networknt.schema;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ValidationContext {
     private final URIFactory uriFactory;
@@ -78,4 +78,7 @@ public class ValidationContext {
         return refParsingInProgress.get(refValue);
     }
 
+    protected JsonMetaSchema getMetaSchema() {
+        return metaSchema;
+    }
 }

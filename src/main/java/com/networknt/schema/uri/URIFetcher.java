@@ -24,5 +24,5 @@ import java.net.URI;
  * The URIFetcher interface defines how file streams are able to be fetched given a {@link URI}.
  */
 public interface URIFetcher {
-  InputStream fetch(URI uri) throws IOException;
+    InputStream fetch(URI uri) throws IOException;
 }

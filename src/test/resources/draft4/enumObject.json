@@ -5,7 +5,11 @@
       "properties": {
         "foo": {
           "type": "object",
-          "enum": [1, 2, 3]
+          "enum": [
+            1,
+            2,
+            3
+          ]
         },
         "bar": {
           "$ref": "#/properties/foo"
@@ -48,8 +52,14 @@
   {
     "description": "fake enum object validation",
     "schema": {
-          "type": "object",
-          "enum": [1, 2, {"key": "value"}]
+      "type": "object",
+      "enum": [
+        1,
+        2,
+        {
+          "key": "value"
+        }
+      ]
     },
     "tests": [
       {
@@ -60,7 +70,9 @@
       {
         "description": "one of the enum is valid",
         "isTypeLoose": true,
-        "data": {"key": "value"},
+        "data": {
+          "key": "value"
+        },
         "valid": true
       }
     ]

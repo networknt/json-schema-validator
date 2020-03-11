@@ -28,14 +28,14 @@ import java.util.Set;
  * are actualy {@link URL}s.
  */
 public final class ClasspathURLFetcher implements URIFetcher {
-  // This fetcher handles the {@link URL}s created with the {@link ClasspathURIFactory}.
-  public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(ClasspathURLFactory.SUPPORTED_SCHEMES);
-  
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public InputStream fetch(final URI uri) throws IOException {
-    return ClasspathURLFactory.convert(uri).openStream();
-  }
+    // This fetcher handles the {@link URL}s created with the {@link ClasspathURIFactory}.
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(ClasspathURLFactory.SUPPORTED_SCHEMES);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InputStream fetch(final URI uri) throws IOException {
+        return ClasspathURLFactory.convert(uri).openStream();
+    }
 }

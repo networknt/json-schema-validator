@@ -16,19 +16,11 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.*;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -40,17 +32,17 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         private final Map<String, String> constants;
 
         ShortcutValidator(JsonNode schemaNode, JsonSchema parentSchema,
-                ValidationContext validationContext, JsonSchema schema) {
+                          ValidationContext validationContext, JsonSchema schema) {
             JsonNode refNode = schemaNode.get(ValidatorTypeCode.REF.getValue());
-            JsonSchema resolvedRefSchema = refNode != null && refNode.isTextual() ? RefValidator.getRefSchema(parentSchema, validationContext,refNode.textValue()).getSchema() : null;
+            JsonSchema resolvedRefSchema = refNode != null && refNode.isTextual() ? RefValidator.getRefSchema(parentSchema, validationContext, refNode.textValue()).getSchema() : null;
             this.constants = extractConstants(schemaNode, resolvedRefSchema);
             this.schema = schema;
         }
 
         private Map<String, String> extractConstants(JsonNode schemaNode, JsonSchema resolvedRefSchema) {
-            Map<String, String> refMap = resolvedRefSchema != null ?  extractConstants(resolvedRefSchema.getSchemaNode()) : Collections.<String,String>emptyMap();
+            Map<String, String> refMap = resolvedRefSchema != null ? extractConstants(resolvedRefSchema.getSchemaNode()) : Collections.<String, String>emptyMap();
             Map<String, String> schemaMap = extractConstants(schemaNode);
-            if (refMap.isEmpty() ) {
+            if (refMap.isEmpty()) {
                 return schemaMap;
             }
             if (schemaMap.isEmpty()) {
@@ -68,7 +60,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 return result;
             }
 
-            JsonNode propertiesNode  = schemaNode.get("properties");
+            JsonNode propertiesNode = schemaNode.get("properties");
             if (propertiesNode == null || !propertiesNode.isObject()) {
                 return result;
             }
@@ -83,12 +75,13 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
             return result;
         }
+
         private String getConstantFieldValue(JsonNode jsonNode) {
             if (jsonNode == null || !jsonNode.isObject() || !jsonNode.has("enum")) {
                 return null;
             }
             JsonNode enumNode = jsonNode.get("enum");
-            if (enumNode == null || !enumNode.isArray() ) {
+            if (enumNode == null || !enumNode.isArray()) {
                 return null;
             }
             if (enumNode.size() != 1) {
@@ -102,7 +95,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         public boolean allConstantsMatch(JsonNode node) {
-            for (Map.Entry<String, String> e: constants.entrySet()) {
+            for (Map.Entry<String, String> e : constants.entrySet()) {
                 JsonNode valueNode = node.get(e.getKey());
                 if (valueNode != null && valueNode.isTextual()) {
                     boolean match = e.getValue().equals(valueNode.textValue());
@@ -145,34 +138,34 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 //        	errors = Collections.singleton(buildValidationMessage(at, ""));
 //        	return Collections.unmodifiableSet(errors);
 //        }
-        	
+
         for (ShortcutValidator validator : schemas) {
             if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
                 // we can bail out of the validation
                 continue;
             }
-            
+
             // get the current validator
             JsonSchema schema = validator.schema;
-        	Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
-        	
-        	// check if any validation errors have occurred
+            Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
+
+            // check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
-            	// check whether there are no errors HOWEVER we have validated the exact validator
-            	if(!state.hasMatchedNode())
-            		continue;
-            	
+                // check whether there are no errors HOWEVER we have validated the exact validator
+                if (!state.hasMatchedNode())
+                    continue;
+
                 numberOfValidSchema++;
                 errors = new LinkedHashSet<ValidationMessage>();
             } else {
-            	errors.addAll(schemaErrors);
-            }                	
+                errors.addAll(schemaErrors);
+            }
         }
 
         // no valid schema has been found after validating all schema validators
         if (numberOfValidSchema == 0) {
-            for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext();) {
+            for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext(); ) {
                 ValidationMessage msg = it.next();
 
                 if (ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(msg.getType())) {
@@ -184,9 +177,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 errors.add(buildValidationMessage(at, ""));
             }
         } else {
-        	errors.clear();
+            errors.clear();
         }
-        
+
         // validated upfront
         if (numberOfValidSchema > 1) {
             errors = Collections.singleton(buildValidationMessage(at, ""));
@@ -194,7 +187,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
         // reset the ValidatorState object in the ThreadLocal
         validatorState.remove();
-        
+
         return Collections.unmodifiableSet(errors);
     }
 

@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.33 - 2020-03-09
+
+### Added
+
+### Changed
+
+- fixes #264 Handling JSONPointer (URI fragment identifier) with no base uri. Thanks @rzukowski
+- fixes #255 Dereferencing subschemas by $id with $ref in the same file does not seem to work. Thanks @rzukowski
+
+## 1.0.32 - 2020-03-07
+
+### Added
+
+### Changed
+
+- fixes #260 Changes for adding collector context. Thanks @prashanthjos
+
 ## 1.0.31 - 2020-02-21
 
 ### Added

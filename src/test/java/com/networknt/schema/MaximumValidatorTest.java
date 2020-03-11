@@ -23,9 +23,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertFalse;
@@ -46,17 +44,19 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
 
     static String[][] augmentWithQuotes(String[][] values) {
-        return Arrays.stream(values)
-                .flatMap(pair -> Stream.of(pair, new String[]{pair[0], format("\"%s\"", pair[1])}))
-                .toArray(String[][]::new);
+        for (int i = 0; i < values.length; i++) {
+            String[] pair = values[i];
+            values[i] = new String[]{pair[0], format("\"%s\"", pair[1])};
+        }
+        return values;
     }
 
     @Test
     public void positiveNumber() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
-                {"1000.1",       "1000"},
-                {"1000",         "1E3"},
+                {"1000.1", "1000"},
+                {"1000", "1E3"},
         });
 
         expectNoMessages(values, NUMBER);
@@ -68,11 +68,11 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                           value
 //            These values overflow 64bit IEEE 754
-            {"1.7976931348623157e+308",         "1.7976931348623159e+308"},
-            {"1.7976931348623156e+308",         "1.7976931348623157e+308"},
+                {"1.7976931348623157e+308", "1.7976931348623159e+308"},
+                {"1.7976931348623156e+308", "1.7976931348623157e+308"},
 
 //            Here, threshold is parsed as integral number, yet payload is 'number'
-            {"1000",                            "1000.1"},
+                {"1000", "1000.1"},
 
 //          See a {@link #doubleValueCoarsing() doubleValueCoarsing} test notes below
 //            {"1.7976931348623157e+308",         "1.7976931348623158e+308"},
@@ -89,14 +89,14 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     public void positiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
-                {"9223372036854775807",         "9223372036854775807"},
-                {"9223372036854775808",         "9223372036854775808"},
+                {"9223372036854775807", "9223372036854775807"},
+                {"9223372036854775808", "9223372036854775808"},
 
 //                testIntegerTypeWithFloatMaxPositive
-                {"37.7",         "37"},
+                {"37.7", "37"},
 
 //                testMaximumDoubleValue
-                {"1E39",         "1000"},
+                {"1E39", "1000"},
         });
 
         expectNoMessages(values, INTEGER);
@@ -108,13 +108,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     public void negativeInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                value
-                {"9223372036854775800",  "9223372036854775855"},
-                {"9223372036854775807",  "9223372036854775808"},
-                {"9223372036854775807",  new BigDecimal(String.valueOf(Double.MAX_VALUE)).add(BigDecimal.ONE).toString()},
-                {"9223372036854775806",  new BigDecimal(String.valueOf(Double.MAX_VALUE)).add(BigDecimal.ONE).toString()},
-                {"9223372036854776000",  "9223372036854776001"},
-                {"1000",         "1E39"},
-                {"37.7",         "38"},
+                {"9223372036854775800", "9223372036854775855"},
+                {"9223372036854775807", "9223372036854775808"},
+                {"9223372036854775807", new BigDecimal(String.valueOf(Double.MAX_VALUE)).add(BigDecimal.ONE).toString()},
+                {"9223372036854775806", new BigDecimal(String.valueOf(Double.MAX_VALUE)).add(BigDecimal.ONE).toString()},
+                {"9223372036854776000", "9223372036854776001"},
+                {"1000", "1E39"},
+                {"37.7", "38"},
         });
 
         expectSomeMessages(values, INTEGER);
@@ -126,14 +126,14 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     public void positiveExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
-                {"9223372036854775000",         "9223372036854774988"},
-                {"20",         "10"},
+                {"9223372036854775000", "9223372036854774988"},
+                {"20", "10"},
 
 //                threshold outside long range
-                {"9223372036854775809",         "9223372036854775806"},
+                {"9223372036854775809", "9223372036854775806"},
 
 //                both threshold and value are outside long range
-                {"9223372036854775809",         "9223372036854775808"},
+                {"9223372036854775809", "9223372036854775808"},
         });
 
         expectNoMessages(values, EXCLUSIVE_INTEGER);
@@ -145,13 +145,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     public void negativeExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
-                {"10",         "20"},
+                {"10", "20"},
 
 //                value outside long range
-                {"9223372036854775806",         "9223372036854775808"},
+                {"9223372036854775806", "9223372036854775808"},
 
 //                both threshold and value are outside long range
-                {"9223372036854775808",         "9223372036854775809"},
+                {"9223372036854775808", "9223372036854775809"},
         });
 
         expectSomeMessages(values, EXCLUSIVE_INTEGER);
@@ -164,15 +164,15 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String[][] values = new String[][]{
 //            maximum,                           value
 //                both of these get parsed into double (with a precision loss) as  1.7976931348623157E+308
-                {"1.79769313486231571E+308",        "1.79769313486231572e+308"},
+                {"1.79769313486231571E+308", "1.79769313486231572e+308"},
 //                while underflow in not captures in previous case (unquoted number is parsed as double)
 //                it is captured if value is passed as string, which is correctly parsed by BidDecimal
 //                thus effective comparison is between
 //                maximum 1.7976931348623157E+308  and
 //                value   1.79769313486231572e+308
 //                {"1.79769313486231571E+308",        "\"1.79769313486231572e+308\""},
-                {"1.7976931348623157E+309",         "1.7976931348623157e+309"},
-                {"1.7976931348623157E+309",         "\"1.7976931348623157e+309\""},
+                {"1.7976931348623157E+309", "1.7976931348623157e+309"},
+                {"1.7976931348623157E+309", "\"1.7976931348623157e+309\""},
                 {"1.000000000000000000000001E+400", "1.000000000000000000000001E+401"},
                 {"1.000000000000000000000001E+400", "\"1.000000000000000000000001E+401\""},
                 {"1.000000000000000000000001E+400", "1.000000000000000000000002E+400"},
@@ -181,7 +181,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"1.000000000000000000000001E+400", "\"1.0000000000000000000000011E+400\""},
         };
 
-        for(String[] aTestCycle : values) {
+        for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, maximum);
@@ -197,7 +197,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
             doc = bigDecimalMapper.readTree(value);
             Set<ValidationMessage> messages2 = v.validate(doc);
-            if(Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
+            if (Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages2.isEmpty());
             } else {
                 assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages2.isEmpty());
@@ -208,7 +208,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if(maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
+            if (maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages3.isEmpty());
             } else {
                 assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages3.isEmpty());
@@ -217,8 +217,8 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     /**
-     *  value of 1.7976931348623158e+308 is not converted to POSITIVE_INFINITY for some reason
-     *  the only way to spot this is to use BigDecimal for schema (and for document)
+     * value of 1.7976931348623158e+308 is not converted to POSITIVE_INFINITY for some reason
+     * the only way to spot this is to use BigDecimal for schema (and for document)
      */
     @Test
     public void doubleValueCoarsing() throws IOException {

@@ -58,11 +58,14 @@ public class InetAddressValidator implements Serializable {
      */
     private static final InetAddressValidator VALIDATOR = new InetAddressValidator();
 
-    /** IPv4 RegexValidator */
+    /**
+     * IPv4 RegexValidator
+     */
     private final RegexValidator ipv4Validator = new RegexValidator(IPV4_REGEX);
 
     /**
      * Returns the singleton instance of this validator.
+     *
      * @return the singleton instance of this validator
      */
     public static InetAddressValidator getInstance() {
@@ -71,6 +74,7 @@ public class InetAddressValidator implements Serializable {
 
     /**
      * Checks if the specified string is a valid IP address.
+     *
      * @param inetAddress the string to validate
      * @return true if the string validates as an IP address
      */
@@ -80,6 +84,7 @@ public class InetAddressValidator implements Serializable {
 
     /**
      * Validates an IPv4 address. Returns true if valid.
+     *
      * @param inet4Address the IPv4 address to validate
      * @return true if the argument contains a valid IPv4 address
      */
@@ -101,7 +106,7 @@ public class InetAddressValidator implements Serializable {
 
             try {
                 iIpSegment = Integer.parseInt(ipSegment);
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 return false;
             }
 
@@ -120,9 +125,9 @@ public class InetAddressValidator implements Serializable {
 
     /**
      * Validates an IPv6 address. Returns true if valid.
+     *
      * @param inet6Address the IPv6 address to validate
      * @return true if the argument contains a valid IPv6 address
-     *
      * @since 1.4.1
      */
     public boolean isValidInet6Address(String inet6Address) {

@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
-    @Test(expected=JsonSchemaException.class)
+    @Test(expected = JsonSchemaException.class)
     public void testInvalidPatternPropertiesValidator() throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");

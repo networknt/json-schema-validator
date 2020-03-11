@@ -17,8 +17,8 @@
 package com.networknt.schema.format;
 
 import java.io.Serializable;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <b>Regular Expression</b> validation (using JDK 1.4+ regex support).
@@ -78,7 +78,7 @@ public class RegexValidator implements Serializable {
      * regular expression.
      *
      * @param regex The regular expression this validator will
-     * validate against
+     *              validate against
      */
     public RegexValidator(String regex) {
         this(regex, true);
@@ -88,13 +88,13 @@ public class RegexValidator implements Serializable {
      * Construct a validator for a single regular expression
      * with the specified case sensitivity.
      *
-     * @param regex The regular expression this validator will
-     * validate against
+     * @param regex         The regular expression this validator will
+     *                      validate against
      * @param caseSensitive when <code>true</code> matching is <i>case
-     * sensitive</i>, otherwise matching is <i>case in-sensitive</i>
+     *                      sensitive</i>, otherwise matching is <i>case in-sensitive</i>
      */
     public RegexValidator(String regex, boolean caseSensitive) {
-        this(new String[] {regex}, caseSensitive);
+        this(new String[]{regex}, caseSensitive);
     }
 
     /**
@@ -102,7 +102,7 @@ public class RegexValidator implements Serializable {
      * of the set of regular expressions.
      *
      * @param regexs The set of regular expressions this validator will
-     * validate against
+     *               validate against
      */
     public RegexValidator(String[] regexs) {
         this(regexs, true);
@@ -112,22 +112,22 @@ public class RegexValidator implements Serializable {
      * Construct a validator that matches any one of the set of regular
      * expressions with the specified case sensitivity.
      *
-     * @param regexs The set of regular expressions this validator will
-     * validate against
+     * @param regexs        The set of regular expressions this validator will
+     *                      validate against
      * @param caseSensitive when <code>true</code> matching is <i>case
-     * sensitive</i>, otherwise matching is <i>case in-sensitive</i>
+     *                      sensitive</i>, otherwise matching is <i>case in-sensitive</i>
      */
     public RegexValidator(String[] regexs, boolean caseSensitive) {
         if (regexs == null || regexs.length == 0) {
             throw new IllegalArgumentException("Regular expressions are missing");
         }
         patterns = new Pattern[regexs.length];
-        int flags =  (caseSensitive ? 0: Pattern.CASE_INSENSITIVE);
+        int flags = (caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
         for (int i = 0; i < regexs.length; i++) {
             if (regexs[i] == null || regexs[i].length() == 0) {
                 throw new IllegalArgumentException("Regular expression[" + i + "] is missing");
             }
-            patterns[i] =  Pattern.compile(regexs[i], flags);
+            patterns[i] = Pattern.compile(regexs[i], flags);
         }
     }
 
@@ -168,7 +168,7 @@ public class RegexValidator implements Serializable {
                 int count = matcher.groupCount();
                 String[] groups = new String[count];
                 for (int j = 0; j < count; j++) {
-                    groups[j] = matcher.group(j+1);
+                    groups[j] = matcher.group(j + 1);
                 }
                 return groups;
             }
@@ -198,7 +198,7 @@ public class RegexValidator implements Serializable {
                 }
                 StringBuilder buffer = new StringBuilder();
                 for (int j = 0; j < count; j++) {
-                    String component = matcher.group(j+1);
+                    String component = matcher.group(j + 1);
                     if (component != null) {
                         buffer.append(component);
                     }
@@ -211,6 +211,7 @@ public class RegexValidator implements Serializable {
 
     /**
      * Provide a String representation of this validator.
+     *
      * @return A String representation of this validator
      */
     @Override

@@ -4,9 +4,10 @@ package com.networknt.schema;
  * Basic interface that allows the implementers to collect the information and
  * return it.
  *
- * @param <E>
+ * @param <E> element
  */
 public interface Collector<E> {
+
 
 	/**
 	 * This method should be called by the intermediate touch points that want to
@@ -23,5 +24,6 @@ public interface Collector<E> {
 	 * multiple touch points, only this method can be implemented.
 	 */
 	public E collect();
+
 
 }

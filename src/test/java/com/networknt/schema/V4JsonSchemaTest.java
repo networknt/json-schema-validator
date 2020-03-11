@@ -16,16 +16,15 @@
 
 package com.networknt.schema;
 
-import static io.undertow.Handlers.resource;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,9 +33,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import static io.undertow.Handlers.resource;
+import static org.junit.Assert.*;
 
 public class V4JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -48,7 +47,7 @@ public class V4JsonSchemaTest {
 
     @BeforeClass
     public static void setUp() {
-        if(server == null) {
+        if (server == null) {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
@@ -60,7 +59,7 @@ public class V4JsonSchemaTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if(server != null) {
+        if (server != null) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
@@ -253,7 +252,7 @@ public class V4JsonSchemaTest {
     public void testOneOfValidator() throws Exception {
         runTestFile("draft4/oneOf.json");
     }
-    
+
     @Test
     public void testPatternValidator() throws Exception {
         runTestFile("draft4/pattern.json");
@@ -280,6 +279,11 @@ public class V4JsonSchemaTest {
     }
 
     @Test
+    public void testRefIdReference() throws Exception {
+        runTestFile("draft4/idRef.json");
+    }
+
+    @Test
     public void testRelativeRefRemoteValidator() throws Exception {
         runTestFile("draft4/relativeRefRemote.json");
     }
@@ -288,7 +292,6 @@ public class V4JsonSchemaTest {
     public void testRequiredValidator() throws Exception {
         runTestFile("draft4/required.json");
     }
-
 
     @Test
     public void testTypeValidator() throws Exception {
@@ -309,7 +312,7 @@ public class V4JsonSchemaTest {
     public void testEnumObject() throws Exception {
         runTestFile("draft4/enumObject.json");
     }
-    
+
     @Test
     public void testIdSchemaWithUrl() throws Exception {
         runTestFile("draft4/property.json");
@@ -387,17 +390,17 @@ public class V4JsonSchemaTest {
         final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setFailFast(true);
         return JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-            .objectMapper(objectMapper)
-            .build()
-            .getSchema(schema, config)
-            .validate(dataFile);
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
+                .objectMapper(objectMapper)
+                .build()
+                .getSchema(schema, config)
+                .validate(dataFile);
     }
 
     private JsonNode getJsonNodeFromResource(final ObjectMapper mapper, final String locationInTestResources) throws IOException {
         return mapper.readTree(
-            Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft4" + System.getProperty("file.separator") + locationInTestResources));
+                Thread.currentThread().getContextClassLoader()
+                        .getResourceAsStream("draft4" + System.getProperty("file.separator") + locationInTestResources));
 
     }
 }

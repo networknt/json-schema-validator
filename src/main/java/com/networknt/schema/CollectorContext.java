@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * Context for holding the output returned by the {@link Collector}
  * implementations.
- *
  */
 public class CollectorContext {
 

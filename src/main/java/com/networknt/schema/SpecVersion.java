@@ -7,10 +7,10 @@ public class SpecVersion {
 
     public enum VersionFlag {
 
-        V4(1<<0),
-        V6(1<<1),
-        V7(1<<2),
-        V201909(1<<3);
+        V4(1 << 0),
+        V6(1 << 1),
+        V7(1 << 2),
+        V201909(1 << 3);
 
 
         private final long versionFlagValue;
@@ -19,7 +19,7 @@ public class SpecVersion {
             this.versionFlagValue = versionFlagValue;
         }
 
-        public long getVersionFlagValue(){
+        public long getVersionFlagValue() {
             return versionFlagValue;
         }
     }
@@ -27,14 +27,15 @@ public class SpecVersion {
 
     /**
      * Translates a numeric version code into a Set of VersionFlag enums
+     *
      * @param versionValue long
      * @return EnumSet representing a version
      */
     public EnumSet<VersionFlag> getVersionFlags(long versionValue) {
         EnumSet versionFlags = EnumSet.noneOf(VersionFlag.class);
-        for(VersionFlag flag : VersionFlag.values()) {
+        for (VersionFlag flag : VersionFlag.values()) {
             long flagValue = flag.versionFlagValue;
-            if((flagValue&versionValue ) == flagValue ) {
+            if ((flagValue & versionValue) == flagValue) {
                 versionFlags.add(flag);
             }
         }
@@ -44,12 +45,13 @@ public class SpecVersion {
 
     /**
      * Translates a set of VersionFlag enums into a long version code
+     *
      * @param flags set of versionFlags
      * @return numeric representation of the spec version
      */
     public long getVersionValue(Set<VersionFlag> flags) {
         long value = 0;
-        for(VersionFlag flag : flags) {
+        for (VersionFlag flag : flags) {
             value = value | flag.versionFlagValue;
         }
         return value;

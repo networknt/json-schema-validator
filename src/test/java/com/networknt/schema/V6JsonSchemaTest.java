@@ -29,7 +29,7 @@ public class V6JsonSchemaTest {
 
     @BeforeClass
     public static void setUp() {
-        if(server == null) {
+        if (server == null) {
             server = Undertow.builder()
                     .addHttpListener(1234, "localhost")
                     .setHandler(resource(new FileResourceManager(
@@ -41,7 +41,7 @@ public class V6JsonSchemaTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        if(server != null) {
+        if (server != null) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
@@ -289,6 +289,11 @@ public class V6JsonSchemaTest {
     @Test
     public void testRefRemoteValidator() throws Exception {
         runTestFile("draft6/refRemote.json");
+    }
+
+    @Test
+    public void testRefIdReference() throws Exception {
+        runTestFile("draft6/idRef.json");
     }
 
     @Test

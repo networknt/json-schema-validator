@@ -1,35 +1,47 @@
 [
-    {
-        "description": "base URI change - change folder in subschema",
-        "schema": {
-            "$id": "http://localhost:1234/scope_change_defs2.json",
-            "type" : "object",
-            "properties": {
-                "list": {"$ref": "#/definitions/baz/definitions/bar"}
-            },
-            "definitions": {
-                "baz": {
-                    "$id": "folder/",
-                    "definitions": {
-                        "bar": {
-                            "type": "array",
-                            "items": {"$ref": "folderInteger.json"}
-                        }
-                    }
-                }
+  {
+    "description": "base URI change - change folder in subschema",
+    "schema": {
+      "$id": "http://localhost:1234/scope_change_defs2.json",
+      "type": "object",
+      "properties": {
+        "list": {
+          "$ref": "#/definitions/baz/definitions/bar"
+        }
+      },
+      "definitions": {
+        "baz": {
+          "$id": "folder/",
+          "definitions": {
+            "bar": {
+              "type": "array",
+              "items": {
+                "$ref": "folderInteger.json"
+              }
             }
+          }
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "number is valid",
+        "data": {
+          "list": [
+            1
+          ]
         },
-        "tests": [
-            {
-                "description": "number is valid",
-                "data": {"list": [1]},
-                "valid": true
-            },
-            {
-                "description": "string is invalid",
-                "data": {"list": ["a"]},
-                "valid": false
-            }
-        ]
-    }
+        "valid": true
+      },
+      {
+        "description": "string is invalid",
+        "data": {
+          "list": [
+            "a"
+          ]
+        },
+        "valid": false
+      }
+    ]
+  }
 ]

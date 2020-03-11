@@ -1,5 +1,5 @@
 {
-    "id": "it must be integer",
-    "name": "too short",
-    "price": "it should be number"
+  "id": "it must be integer",
+  "name": "too short",
+  "price": "it should be number"
 }

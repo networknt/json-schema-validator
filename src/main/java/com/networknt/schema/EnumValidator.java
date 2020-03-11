@@ -19,13 +19,12 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class EnumValidator extends BaseJsonValidator implements JsonValidator {
@@ -35,7 +34,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     private final String error;
 
     public EnumValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-            super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
 
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<JsonNode>();
@@ -45,7 +44,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             String separator = "";
 
             for (JsonNode n : schemaNode) {
-                if(n.isNumber()) {
+                if (n.isNumber()) {
                     // convert to DecimalNode for number comparison
                     nodes.add(DecimalNode.valueOf(n.decimalValue()));
                 } else {
@@ -58,14 +57,14 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             }
 
             // check if the parent schema declares the fields as nullable
-            if(config.isHandleNullableField()) {
-	            JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
-	            if (nullable != null && nullable.asBoolean()) {
-	            	nodes.add(NullNode.getInstance());
-	            	separator = ", ";
-	            	sb.append(separator);
-	            	sb.append("null");
-	            }
+            if (config.isHandleNullableField()) {
+                JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
+                if (nullable != null && nullable.asBoolean()) {
+                    nodes.add(NullNode.getInstance());
+                    separator = ", ";
+                    sb.append(separator);
+                    sb.append("null");
+                }
             }
             //
             sb.append(']');
@@ -83,7 +82,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        if(node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
+        if (node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
         if (!nodes.contains(node) && !(config.isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             errors.add(buildValidationMessage(at, error));
         }
@@ -93,6 +92,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
     /**
      * Check whether enum contains the value of the JsonNode if the typeLoose is enabled.
+     *
      * @param node JsonNode to check
      */
     private boolean isTypeLooseContainsInEnum(JsonNode node) {

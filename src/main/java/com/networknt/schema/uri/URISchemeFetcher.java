@@ -25,28 +25,28 @@ import java.util.Map;
  * The URISchemeFetcher will proxy to other {@link URIFetcher}s based on the scheme being used.
  */
 public class URISchemeFetcher implements URIFetcher {
-  private final Map<String, URIFetcher> uriFetchers;
-  
-  public URISchemeFetcher(final Map<String, URIFetcher> uriFetchers) {
-    if (uriFetchers == null) {
-      throw new IllegalArgumentException("URIFetcher map must not be null");
+    private final Map<String, URIFetcher> uriFetchers;
+
+    public URISchemeFetcher(final Map<String, URIFetcher> uriFetchers) {
+        if (uriFetchers == null) {
+            throw new IllegalArgumentException("URIFetcher map must not be null");
+        }
+        this.uriFetchers = uriFetchers;
     }
-    this.uriFetchers = uriFetchers;
-  }
-  
-  public Map<String, URIFetcher> getURIFetchers() {
-    return this.uriFetchers;
-  }
-  
-  /**
-   * @param uri URI
-   * @return InputStream
-   */
-  public InputStream fetch(final URI uri) throws IOException {
-    final URIFetcher uriFetcher = this.uriFetchers.get(uri.getScheme());
-    if (uriFetcher == null) {
-      throw new IllegalArgumentException(String.format("Unsupported URI scheme encountered: %s", uri.getScheme()));
+
+    public Map<String, URIFetcher> getURIFetchers() {
+        return this.uriFetchers;
     }
-    return uriFetcher.fetch(uri);
-  }
+
+    /**
+     * @param uri URI
+     * @return InputStream
+     */
+    public InputStream fetch(final URI uri) throws IOException {
+        final URIFetcher uriFetcher = this.uriFetchers.get(uri.getScheme());
+        if (uriFetcher == null) {
+            throw new IllegalArgumentException(String.format("Unsupported URI scheme encountered: %s", uri.getScheme()));
+        }
+        return uriFetcher.fetch(uri);
+    }
 }
