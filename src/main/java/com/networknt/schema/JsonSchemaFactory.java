@@ -237,7 +237,7 @@ public class JsonSchemaFactory {
         return builder;
     }
 
-    private JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
+    protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
         JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode);

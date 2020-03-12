@@ -1,213 +1,370 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CollectorContextTest {
 
-    private static final String SAMPLE_COLLECTOR_TYPE = "sampleCollectorType";
+	private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
 
-    private JsonSchema jsonSchema;
+	private JsonSchema jsonSchema;
 
+	private JsonSchema jsonSchemaForCombine;
+	
+	
+	@Before
+	public void setup() throws Exception {
+		setupSchema();
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testCollectorContextWithKeyword() throws Exception {
+		ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
+		Assert.assertEquals(0, validationResult.getValidationMessages().size());
+		List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
+		Assert.assertEquals(0, validationResult.getValidationMessages().size());
+		Assert.assertEquals(2, contextValues.size());
+		Assert.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
+		Assert.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testCollectorContextWithMultiplThreads() throws Exception {
 
-    @Before
-    public void setup() throws Exception {
-        setupSchema();
-    }
+		ValidationThread validationRunnable1 = new ValidationThread("{\"test-property1\":\"sample1\" }", "thread1");
+		ValidationThread validationRunnable2 = new ValidationThread("{\"test-property1\":\"sample2\" }", "thread2");
+		ValidationThread validationRunnable3 = new ValidationThread("{\"test-property1\":\"sample3\" }", "thread3");
 
+		// This simulates calling the validateAndCollect method from three different
+		// threads.It should be noted that all these three threads use same
+		// json schema instance.Create three threads with there own Runnables.
+		Thread thread1 = new Thread(validationRunnable1);
+		Thread thread2 = new Thread(validationRunnable2);
+		Thread thread3 = new Thread(validationRunnable3);
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testCollectorContextWithKeyword() throws Exception {
-        ValidationResult validationResult = validate("{\"test-property\":\"sample\" }");
-        Assert.assertEquals(0, validationResult.getValidationMessages().size());
-        List<String> contextValue = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_TYPE);
-        Assert.assertEquals(contextValue.get(0), "actual_value_added_to_context");
-    }
+		thread1.start();
+		thread2.start();
+		thread3.start();
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testCollectorContextWithMultiplThreads() throws Exception {
+		thread1.join();
+		thread2.join();
+		thread3.join();
 
-        ValidationThread validationRunnable1 = new ValidationThread("{\"test-property\":\"sample1\" }", "thread1");
-        ValidationThread validationRunnable2 = new ValidationThread("{\"test-property\":\"sample2\" }", "thread2");
-        ValidationThread validationRunnable3 = new ValidationThread("{\"test-property\":\"sample3\" }", "thread3");
+		ValidationResult validationResult1 = validationRunnable1.getValidationResult();
+		ValidationResult validationResult2 = validationRunnable2.getValidationResult();
+		ValidationResult validationResult3 = validationRunnable3.getValidationResult();
 
-        // This simulates calling the validateAndCollect method from three different
-        // threads.It should be noted that all these three threads use same
-        // json schema instance.Create three threads with there own Runnables.
-        Thread thread1 = new Thread(validationRunnable1);
-        Thread thread2 = new Thread(validationRunnable2);
-        Thread thread3 = new Thread(validationRunnable3);
+		Assert.assertEquals(0, validationResult1.getValidationMessages().size());
+		Assert.assertEquals(0, validationResult2.getValidationMessages().size());
+		Assert.assertEquals(0, validationResult3.getValidationMessages().size());
 
-        thread1.start();
-        thread2.start();
-        thread3.start();
+		List<String> contextValue1 = (List<String>) validationResult1.getCollectorContext().get(SAMPLE_COLLECTOR);
+		List<String> contextValue2 = (List<String>) validationResult2.getCollectorContext().get(SAMPLE_COLLECTOR);
+		List<String> contextValue3 = (List<String>) validationResult3.getCollectorContext().get(SAMPLE_COLLECTOR);
 
-        thread1.join();
-        thread2.join();
-        thread3.join();
+		Assert.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
+		Assert.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
+		Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+		List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
+		Assert.assertEquals(values.size(), 4);
+	}
+	
+	private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
+		JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
+				.addKeyword(new CustomKeyword()).addKeyword(new CustomKeyword1()).addFormat(new Format() {
+					
+					@SuppressWarnings("unchecked")
+					@Override
+					public boolean matches(String value) {
+						CollectorContext collectorContext = CollectorContext.getInstance();
+						if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
+							collectorContext.add(SAMPLE_COLLECTOR, new ArrayList<String>());
+						}
+						List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR);
+						returnList.add(value);
+						return true;
+					}
+					
+					@Override
+					public String getName() {
+						return "sample-format";
+					}
+					
+					// Return null. As are just testing collection context.
+					@Override
+					public String getErrorMessageDescription() {
+						return null;
+					}
+				}).build();
+		return jsonMetaSchema;
+	}
 
-        ValidationResult validationResult1 = validationRunnable1.getValidationResult();
-        ValidationResult validationResult2 = validationRunnable2.getValidationResult();
-        ValidationResult validationResult3 = validationRunnable3.getValidationResult();
+	private void setupSchema() throws Exception {
+		final JsonMetaSchema metaSchema = getJsonMetaSchema(
+				"https://github.com/networknt/json-schema-validator/tests/schemas/example01#");
+		final JsonSchemaFactory schemaFactory = JsonSchemaFactory
+				.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+				.build();
+		this.jsonSchema = schemaFactory.getSchema(getSchemaString());
+		this.jsonSchemaForCombine = schemaFactory.getSchema(getSchemaStringMultipleProperties());
+	}
+	
+	private String getSchemaString() {
+		return "{"
+				+ "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+				+ "\"title\" : \"Sample test schema\",\n"
+				+ "\"description\" : \"Sample schema definition\","
+				+ "\"type\" : \"object\","
+				+ "\"properties\" :"
+				+ "{"
+					+ "\"test-property1\" : "
+					+ "{"
+							+ "\"title\": \"Test Property1\","
+							+ "\"type\": \"string\", "
+							+ "\"custom-keyword\":[\"x\",\"y\"]"
+					+ "},"
+					+ "\"test-property2\" : "
+					+ "{"
+							+ "\"title\": \"Test Property2\","
+							+ "\"type\": \"string\", "
+							+ "\"custom-keyword\":[\"x\",\"y\"]"
+					+ "}"
+				+ "},"
+				+"\"additionalProperties\":\"false\","
+				+ "\"required\": [\"test-property1\"]\n" 
+		+ "}";
+	}
+	
+	private String getSchemaStringMultipleProperties() {
+		return "{"
+				+ "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+				+ "\"title\" : \"Sample test schema\","
+				+ "\"description\" : \"Sample schema definition\","
+				+ "\"type\" : \"object\","
+				+ "\"properties\" :"
+				+ "{"
+					+ "\"property1\" : "
+					+ "{"
+							+ "\"title\": \"Property1\","
+							+ "\"type\": \"string\", "
+							+ "\"custom-keyword1\":[\"x\",\"y\"],"
+							+ "\"format\":\"sample-format\""
+					+ "},"
+					+ "\"property2\" : "
+					+ "{"
+							+ "\"title\": \"Property2\","
+							+ "\"type\": \"string\", "
+							+ "\"custom-keyword1\":[\"x\",\"y\"]"
+					+ "},"
+					+ "\"property3\" : "
+					+ "{"
+							+ "\"title\": \"Property3\","
+							+ "\"type\": \"string\", "
+							+ "\"custom-keyword1\":[\"x\",\"y\"]"
+					+ "}"
+				+ "}"
+		+ "}";
+	}
+	
+	
+	
+	
+	private class ValidationThread implements Runnable {
 
-        Assert.assertEquals(0, validationResult1.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult2.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult3.getValidationMessages().size());
+		private String data;
+		
+		private String name;
 
-        List<String> contextValue1 = (List<String>) validationResult1.getCollectorContext().get(SAMPLE_COLLECTOR_TYPE);
-        List<String> contextValue2 = (List<String>) validationResult2.getCollectorContext().get(SAMPLE_COLLECTOR_TYPE);
-        List<String> contextValue3 = (List<String>) validationResult3.getCollectorContext().get(SAMPLE_COLLECTOR_TYPE);
+		private ValidationResult validationResult;
 
-        Assert.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
-        Assert.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
-        Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
-    }
+		ValidationThread(String data,String name) {
+			this.name = name;
+			this.data = data;
+		}
 
-    private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
-        JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
-                .addKeyword(new CustomKeyword()).build();
-        return jsonMetaSchema;
-    }
+		@Override
+		public void run() {
+			try {
+				this.validationResult = validate(data);
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
-    private void setupSchema() throws Exception {
-        final JsonMetaSchema metaSchema = getJsonMetaSchema(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01#");
-        final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
-                .build();
-        this.jsonSchema = schemaFactory.getSchema(getSchemaString());
-    }
+		ValidationResult getValidationResult() {
+			return this.validationResult;
+		}
+		
+		@Override
+		public String toString() {
+			return "ValidationThread [data=" + data + ", name=" + name + ", validationResult=" + validationResult + "]";
+		}
 
-    private String getSchemaString() {
-        return "{"
-                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
-                + "\"title\" : \"Sample test schema\",\n"
-                + "\"description\" : \"Sample schema definition\","
-                + "\"type\" : \"object\","
-                + "\"properties\" :"
-                + "{"
-                + "\"test-property\" : "
-                + "{"
-                + "\"title\": \"Test Property\","
-                + "\"type\": \"string\", "
-                + "\"custom-keyword\":[\"x\",\"y\"]"
-                + "}"
-                + "},"
-                + "\"required\": [\"test-property\"]\n"
-                + "}";
-    }
+	}
 
+	/**
+	 *
+	 * Our own custom keyword. In this case we don't use this keyword. It is just
+	 * for demonstration purpose.
+	 * 
+	 */
+	private class CustomKeyword implements Keyword {
+		@Override
+		public String getValue() {
+			return "custom-keyword";
+		}
 
-    private class ValidationThread implements Runnable {
+		@Override
+		public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+				ValidationContext validationContext) throws JsonSchemaException, Exception {
+			if (schemaNode != null && schemaNode.isArray()) {
+				return new CustomValidator();
+			}
+			return null;
+		}
+	}
+	
 
-        private String data;
+	/**
+	 *
+	 * We will be collecting information/data by adding the data in the form of
+	 * collectors into collector context object while we are validating this node.
+	 * This will be helpful in cases where we don't want to revisit the entire JSON
+	 * document again just for gathering this kind of information.
+	 * 
+	 */
+	private class CustomValidator implements JsonValidator {
 
-        private String name;
+		@Override
+		public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+			// Get an instance of collector context.
+			CollectorContext collectorContext = CollectorContext.getInstance();
+			if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
+				collectorContext.add(SAMPLE_COLLECTOR, new CustomCollector());
+			}
+			collectorContext.combineWithCollector(SAMPLE_COLLECTOR, node.textValue());
+			return new TreeSet<ValidationMessage>();
+		}
 
-        private ValidationResult validationResult;
+		@Override
+		public Set<ValidationMessage> validate(JsonNode rootNode) {
+			return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
+		}
 
-        ValidationThread(String data, String name) {
-            this.name = name;
-            this.data = data;
-        }
+	}
 
-        @Override
-        public void run() {
-            try {
-                this.validationResult = validate(data);
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+	private class CustomCollector extends AbstractCollector<List<String>> {
 
-        ValidationResult getValidationResult() {
-            return this.validationResult;
-        }
+		List<String> returnList = new ArrayList<String>();
 
-        @Override
-        public String toString() {
-            return "ValidationThread [data=" + data + ", name=" + name + ", validationResult=" + validationResult + "]";
-        }
+		private Map<String, String> referenceMap = null;
 
-    }
+		public CustomCollector() {
+			referenceMap = getDatasourceMap();
+		}
 
-    /**
-     * Our own custom keyword. In this case we don't use this keyword. It is just
-     * for demonstration purpose.
-     */
-    private class CustomKeyword implements Keyword {
-        @Override
-        public String getValue() {
-            return "custom-keyword";
-        }
+		@Override
+		public List<String> collect() {
+			return returnList;
+		}
 
-        @Override
-        public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
-            if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator();
-            }
-            return null;
-        }
-    }
+		@Override
+		public void combine(Object object) {
+			returnList.add(referenceMap.get((String) object));
+		}
 
-    /**
-     * We will be collecting information/data by adding the data in the form of
-     * collectors into collector context object while we are validating this node.
-     * This will be helpful in cases where we don't want to revisit the entire JSON
-     * document again just for gathering this kind of information. In this test case
-     * we try to add the data into collector based on the value of the node. For the
-     * purpose of this test case we use a map to derive the data to be added to the
-     * collector but it can be any other data source.
-     */
-    private class CustomValidator implements JsonValidator {
-        @Override
-        public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-            // Get an instance of collector context.
-            CollectorContext collectorContext = CollectorContext.getInstance();
-            collectorContext.add(SAMPLE_COLLECTOR_TYPE, new Collector<List<String>>() {
-                @Override
-                public List<String> collect() {
-                    List<String> references = new ArrayList<String>();
-                    references.add(getDatasourceMap().get(node.textValue()));
-                    return references;
-                }
-            });
-            return new TreeSet<ValidationMessage>();
-        }
+	}
+	
+	/**
+	 *
+	 * Our own custom keyword. In this case we don't use this keyword. It is just
+	 * for demonstration purpose.
+	 * 
+	 */
+	private class CustomKeyword1 implements Keyword {
+		@Override
+		public String getValue() {
+			return "custom-keyword1";
+		}
 
-        @Override
-        public Set<ValidationMessage> validate(JsonNode rootNode) {
-            return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
-        }
+		@Override
+		public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+				ValidationContext validationContext) throws JsonSchemaException, Exception {
+			if (schemaNode != null && schemaNode.isArray()) {
+				return new CustomValidator1();
+			}
+			return null;
+		}
+	}
+	
+	/**
+	 *
+	 * We will be collecting information/data by adding the data in the form of
+	 * collectors into collector context object while we are validating this node.
+	 * This will be helpful in cases where we don't want to revisit the entire JSON
+	 * document again just for gathering this kind of information. In this test case
+	 * we expect this validator to be called multiple times as the associated
+	 * keyword has been used multiple times in JSON Schema. 
+	 * 
+	 */
+	private class CustomValidator1 implements JsonValidator {
+		@SuppressWarnings("unchecked")
+		@Override
+		public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+			// Get an instance of collector context.
+			CollectorContext collectorContext = CollectorContext.getInstance();
+			// If collector type is not added to context add one.
+			if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
+				collectorContext.add(SAMPLE_COLLECTOR, new ArrayList<String>());
+			}
+			List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR);
+			returnList.add(node.textValue());
+			return new TreeSet<ValidationMessage>();
+		}
 
-    }
+		@Override
+		public Set<ValidationMessage> validate(JsonNode rootNode) {
+			return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
+		}
+	}
 
-    private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return this.jsonSchema.validateAndCollect(objectMapper.readTree(jsonData));
-    }
+	private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		return this.jsonSchema.validateAndCollect(objectMapper.readTree(jsonData));
+	}
 
-    private Map<String, String> getDatasourceMap() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("sample", "actual_value_added_to_context");
-        map.put("sample1", "actual_value_added_to_context1");
-        map.put("sample2", "actual_value_added_to_context2");
-        map.put("sample3", "actual_value_added_to_context3");
-        return map;
-    }
-
+	private Map<String, String> getDatasourceMap() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("sample1", "actual_value_added_to_context1");
+		map.put("sample2", "actual_value_added_to_context2");
+		map.put("sample3", "actual_value_added_to_context3");
+		return map;
+	}
 }
