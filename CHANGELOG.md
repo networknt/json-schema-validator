@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.34 - 2020-03-12
+
+### Added
+
+### Changed
+
+- fixes #268 Collector Context changes to handle simple Objects. Thanks @prashanthjos
+- fixes #266 reformat the code and resolve javadoc warnnings
+
 ## 1.0.33 - 2020-03-09
 
 ### Added
