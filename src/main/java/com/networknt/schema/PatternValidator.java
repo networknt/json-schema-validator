@@ -17,6 +17,11 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jcodings.specific.UTF8Encoding;
+import org.joni.Option;
+import org.joni.Regex;
+import org.joni.Syntax;
+import org.joni.exception.SyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +35,8 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
     private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
 
     private String pattern;
-    private Pattern p;
+    private Pattern compiledPattern;
+    private Regex compiledRegex;
 
     public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
@@ -38,10 +44,41 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
         pattern = "";
         if (schemaNode != null && schemaNode.isTextual()) {
             pattern = schemaNode.textValue();
-            p = Pattern.compile(pattern);
+            try {
+                compileRegexPattern(pattern, validationContext.getConfig().isEcma262Validator());
+            } catch (PatternSyntaxException pse) {
+                logger.error("Failed to compile pattern : Invalid syntax [" + pattern + "]", pse);
+                throw pse;
+            } catch (SyntaxException se) {
+                logger.error("Failed to compile pattern : Invalid syntax [" + pattern + "]", se);
+                throw se;
+            }
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
+    }
+
+    private void compileRegexPattern(String regex, boolean useEcma262Validator) {
+        if (useEcma262Validator) {
+            byte[] regexBytes = regex.getBytes();
+            this.compiledRegex = new Regex(regexBytes, 0, regexBytes.length, Option.NONE, UTF8Encoding.INSTANCE, Syntax.ECMAScript);
+        } else {
+            compiledPattern = Pattern.compile(pattern);
+        }
+    }
+
+    private boolean matches(String value) {
+        if (compiledRegex == null && compiledPattern == null) {
+            return true;
+        }
+
+        if (compiledPattern == null) {
+            byte[] bytes = value.getBytes();
+            return compiledRegex.matcher(bytes).search(0, bytes.length, Option.NONE) >= 0;
+        } else {
+            return compiledPattern.matcher(value).find();
+        }
+
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -52,18 +89,14 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
             return Collections.emptySet();
         }
 
-        if (p != null) {
-            try {
-                Matcher m = p.matcher(node.asText());
-                if (!m.find()) {
-                    return Collections.singleton(buildValidationMessage(at, pattern));
-                }
-            } catch (PatternSyntaxException pse) {
-                logger.error("Failed to apply pattern on " + at + ": Invalid syntax [" + pattern + "]", pse);
+        try {
+            if (!matches(node.asText())) {
+                return Collections.singleton(buildValidationMessage(at, pattern));
             }
+        } catch (PatternSyntaxException pse) {
+            logger.error("Failed to apply pattern on " + at + ": Invalid syntax [" + pattern + "]", pse);
         }
 
         return Collections.emptySet();
     }
-
 }

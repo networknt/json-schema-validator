@@ -34,6 +34,11 @@ public class SchemaValidatorsConfig {
     private boolean failFast;
 
     /**
+     * When set to true, use ECMA-262 compatible validator
+     */
+    private boolean ecma262Validator;
+
+    /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory}
      * may have been built with.
@@ -88,6 +93,14 @@ public class SchemaValidatorsConfig {
 
     public void setHandleNullableField(boolean handleNullableField) {
         this.handleNullableField = handleNullableField;
+    }
+
+    public boolean isEcma262Validator() {
+        return ecma262Validator;
+    }
+
+    public void setEcma262Validator(boolean ecma262Validator) {
+        this.ecma262Validator = ecma262Validator;
     }
 
     public SchemaValidatorsConfig() {
