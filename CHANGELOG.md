@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.35 - 2020-03-13
+
+### Added
+
+### Changed
+
+- fixes #272 Use ECMA-262 validator when requested. Thanks @eirnym
+
 ## 1.0.34 - 2020-03-12
 
 ### Added
