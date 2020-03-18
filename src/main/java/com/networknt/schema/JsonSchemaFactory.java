@@ -188,6 +188,14 @@ public class JsonSchemaFactory {
         return new Builder();
     }
 
+    /**
+     * @deprecated
+     * This is a method that is kept to ensure backward compatible. You shouldn't use it anymore.
+     * Please specify the draft version when get an instance.
+     *
+     * @return JsonSchemaFactory
+     */
+    @Deprecated
     public static JsonSchemaFactory getInstance() {
         return getInstance(SpecVersion.VersionFlag.V4);
     }

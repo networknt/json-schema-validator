@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 
 public class V4JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
-    protected JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance()).objectMapper(mapper).build();
+    protected JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
     protected static Undertow server = null;
 
     public V4JsonSchemaTest() {
