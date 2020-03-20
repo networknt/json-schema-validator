@@ -61,6 +61,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             // account the current uri of the parent schema.
             URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parentSchema, refUri);
             if (schemaUri == null) {
+                // the URNFactory is optional
+                if (validationContext.getURNFactory() == null) {
+                    return null;
+                }
                 // If the uri dose't determinate try to determinate with urn factory
                 schemaUri = determineSchemaUrn(validationContext.getURNFactory(), refUri);
                 if (schemaUri == null) {
