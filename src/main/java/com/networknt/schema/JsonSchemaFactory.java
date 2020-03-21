@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.uri.*;
+import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ public class JsonSchemaFactory {
         private String defaultMetaSchemaURI;
         private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
+        private URNFactory urnFactory;
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
 
@@ -121,6 +123,11 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        public Builder addUrnFactory(URNFactory urnFactory) {
+            this.urnFactory = urnFactory;
+            return this;
+        }
+
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
@@ -128,6 +135,7 @@ public class JsonSchemaFactory {
                     defaultMetaSchemaURI,
                     new URISchemeFactory(uriFactoryMap),
                     new URISchemeFetcher(uriFetcherMap),
+                    urnFactory,
                     jsonMetaSchemas,
                     uriMap
             );
@@ -138,15 +146,18 @@ public class JsonSchemaFactory {
     private final String defaultMetaSchemaURI;
     private final URISchemeFactory uriFactory;
     private final URISchemeFetcher uriFetcher;
+    private final URNFactory urnFactory;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
+
 
     private JsonSchemaFactory(
             final ObjectMapper mapper,
             final String defaultMetaSchemaURI,
             final URISchemeFactory uriFactory,
             final URISchemeFetcher uriFetcher,
+            final URNFactory urnFactory,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final Map<String, String> uriMap) {
         if (mapper == null) {
@@ -174,6 +185,7 @@ public class JsonSchemaFactory {
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
         this.uriFactory = uriFactory;
         this.uriFetcher = uriFetcher;
+        this.urnFactory = urnFactory;
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.uriMap = uriMap;
     }
@@ -258,7 +270,7 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, jsonMetaSchema, this, null);
+        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -330,7 +342,7 @@ public class JsonSchemaFactory {
 
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    jsonSchema = new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    jsonSchema = new JsonSchema(new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
