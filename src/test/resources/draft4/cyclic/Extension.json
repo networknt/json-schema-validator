@@ -1,0 +1,19 @@
+{
+  "id": "Extension.json",
+  "type": "object",
+  "datatype": true,
+  "category": "fhir",
+  "properties": {
+    "url": {
+      "type": "string",
+      "format": "url"
+    },
+    "valueElement": {
+      "$ref": "Element.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "url"
+  ]
+}

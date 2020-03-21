@@ -28,6 +28,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -138,6 +140,7 @@ public class JsonSchemaFactory {
     private final URISchemeFetcher uriFetcher;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
+    private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
 
     private JsonSchemaFactory(
             final ObjectMapper mapper,
@@ -248,7 +251,8 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode);
+        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode)
+            .initialize();
         return jsonSchema;
     }
 
@@ -315,16 +319,27 @@ public class JsonSchemaFactory {
                 logger.error("Failed to create URI.", e);
                 throw new JsonSchemaException(e);
             }
+
+            if (uriSchemaCache.containsKey(mappedUri))
+                return uriSchemaCache.get(mappedUri);
+
             try {
                 inputStream = this.uriFetcher.fetch(mappedUri);
                 final JsonNode schemaNode = mapper.readTree(inputStream);
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
+                JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    return new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    jsonSchema = new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                } else {
+                    final ValidationContext validationContext = createValidationContext(schemaNode);
+                    validationContext.setConfig(config);
+                    jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
                 }
+                uriSchemaCache.put(mappedUri, jsonSchema);
+                jsonSchema.initialize();
 
-                return newJsonSchema(mappedUri, schemaNode, config);
+                return jsonSchema;
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
