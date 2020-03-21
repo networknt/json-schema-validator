@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  */
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
-    protected final Map<String, JsonValidator> validators;
+    protected Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
 
@@ -70,7 +70,11 @@ public class JsonSchema extends BaseJsonValidator {
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
-        this.validators = Collections.unmodifiableMap(this.read(schemaNode));
+    }
+
+    JsonSchema initialize() {
+        this.validators = Collections.unmodifiableMap(this.read(getSchemaNode()));
+        return this;
     }
 
     private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
