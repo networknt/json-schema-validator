@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
+import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,15 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             // account the current uri of the parent schema.
             URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parentSchema, refUri);
             if (schemaUri == null) {
-                return null;
+                // the URNFactory is optional
+                if (validationContext.getURNFactory() == null) {
+                    return null;
+                }
+                // If the uri dose't determinate try to determinate with urn factory
+                schemaUri = determineSchemaUrn(validationContext.getURNFactory(), refUri);
+                if (schemaUri == null) {
+                    return null;
+                }
             }
 
             // This should retrieve schemas regardless of the protocol that is in the uri.
@@ -103,6 +112,16 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             schemaUri = null;
         }
         return schemaUri;
+    }
+
+    private static URI determineSchemaUrn(final URNFactory urnFactory, final String refUri) {
+        URI schemaUrn;
+        try {
+            schemaUrn = urnFactory.create(refUri);
+        } catch (IllegalArgumentException e) {
+            schemaUrn = null;
+        }
+        return schemaUrn;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
