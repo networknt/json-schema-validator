@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.36 - 2020-03-22
+
+### Added
+
+### Changed
+
+- fixes #258 Cyclic dependencies result in StackOverflowError. Thanks @francesc79
+
 ## 1.0.35 - 2020-03-13
 
 ### Added
