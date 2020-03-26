@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- fixes #273 make the getInstance() deprecated
 - fixes #258 Cyclic dependencies result in StackOverflowError. Thanks @francesc79
 
 ## 1.0.35 - 2020-03-13
