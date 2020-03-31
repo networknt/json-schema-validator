@@ -156,7 +156,7 @@ Thanks to the following people who have contributed to this project. If you are 
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 
-If you are a contributor, please join the [GitHub Sponsors](https://github.com/sponsors) and swithch the link to your sponsors dashboard via a PR.
+If you are a contributor, please join the [GitHub Sponsors](https://github.com/sponsors) and switch the link to your sponsors dashboard via a PR.
 
 ## Sponsors
 

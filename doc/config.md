@@ -26,7 +26,7 @@ When typeLoose is true, the validator will convert strings to different types to
 
 * failFast
 
-When set to true, the validation process stops immediately when the first error occurs. This mostly used on microservices that is designed to [fail-fast](https://www.networknt.com/architecture/fail-fast/), or users don't want to see hundreds of errors for a big payload. Please be aware that the validator throws an exception in the case the first error occurs. To learn how to use it, please follow the [test case](https://github.com/networknt/json-schema-validator/blob/master/src/test/java/com/networknt/schema/JsonSchemaTest.java#L352). 
+When set to true, the validation process stops immediately when the first error occurs. This mostly used on microservices that is designed to [fail-fast](https://www.networknt.com/architecture/fail-fast/), or users don't want to see hundreds of errors for a big payload. Please be aware that the validator throws an exception in the case the first error occurs. To learn how to use it, please follow the [test case](https://github.com/networknt/json-schema-validator/blob/master/src/test/java/com/networknt/schema/V4JsonSchemaTest.java#L352). 
 
 * handleNullableField
 
