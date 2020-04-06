@@ -45,7 +45,7 @@ public class PatternValidator extends BaseJsonValidator implements JsonValidator
         if (schemaNode != null && schemaNode.isTextual()) {
             pattern = schemaNode.textValue();
             try {
-                compileRegexPattern(pattern, validationContext.getConfig().isEcma262Validator());
+                compileRegexPattern(pattern, validationContext.getConfig() != null && validationContext.getConfig().isEcma262Validator());
             } catch (PatternSyntaxException pse) {
                 logger.error("Failed to compile pattern : Invalid syntax [" + pattern + "]", pse);
                 throw pse;
