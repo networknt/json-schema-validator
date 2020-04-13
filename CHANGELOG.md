@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.38 - 2020-04-12
+
+### Added
+
+### Changed
+
+- fixes #281 EmailValidator use ValidatorTypeCode Datetime
+
 ## 1.0.37 - 2020-04-06
 
 ### Added
