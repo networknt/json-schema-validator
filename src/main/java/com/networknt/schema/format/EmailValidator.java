@@ -136,7 +136,7 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public EmailValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
         this.formatName = formatName;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
