@@ -80,7 +80,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.33</version>
+    <version>1.0.38</version>
 </dependency>
 ```
 
@@ -88,7 +88,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.33");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.38");
 }
 ```
 
@@ -112,6 +112,7 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Collector Context](doc/collector_context.md)
 
+## [ECMA-262 Regex](doc/ecma-262.md)
 
 ## Known issues
 
@@ -155,7 +156,7 @@ Thanks to the following people who have contributed to this project. If you are 
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 
-If you are a contributor, please join the [GitHub Sponsors](https://github.com/sponsors) and swithch the link to your sponsors dashboard via a PR.
+If you are a contributor, please join the [GitHub Sponsors](https://github.com/sponsors) and switch the link to your sponsors dashboard via a PR.
 
 ## Sponsors
 

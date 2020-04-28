@@ -31,7 +31,8 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode.get(i), parentSchema));
+            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode.get(i), parentSchema)
+                .initialize());
         }
     }
 

@@ -36,4 +36,16 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
         Set<ValidationMessage> errors = schema.validate(node);
         Assert.assertEquals(errors.size(), 0);
     }
+
+    @Test(expected = JsonSchemaException.class)
+    public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setEcma262Validator(true);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
+
+        JsonNode node = getJsonNodeFromStringContent("");
+        Set<ValidationMessage> errors = schema.validate(node);
+        Assert.assertEquals(errors.size(), 0);
+    }
 }

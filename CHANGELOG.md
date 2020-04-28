@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.38 - 2020-04-12
+
+### Added
+
+### Changed
+
+- fixes #281 EmailValidator use ValidatorTypeCode Datetime
+
+## 1.0.37 - 2020-04-06
+
+### Added
+
+### Changed
+
+- fixes #280 NullPointerException in regex pattern validation if no SchemaValidatorsConfig is passed. Thanks @waizuwolf
+
+## 1.0.36 - 2020-03-22
+
+### Added
+
+### Changed
+
+- fixes #273 make the getInstance() deprecated
+- fixes #258 Cyclic dependencies result in StackOverflowError. Thanks @francesc79
+
+## 1.0.35 - 2020-03-13
+
+### Added
+
+### Changed
+
+- fixes #272 Use ECMA-262 validator when requested. Thanks @eirnym
+
+## 1.0.34 - 2020-03-12
+
+### Added
+
+### Changed
+
+- fixes #268 Collector Context changes to handle simple Objects. Thanks @prashanthjos
+- fixes #266 reformat the code and resolve javadoc warnnings
+
 ## 1.0.33 - 2020-03-09
 
 ### Added

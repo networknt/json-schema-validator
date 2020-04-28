@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.uri.*;
+import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -39,6 +42,7 @@ public class JsonSchemaFactory {
         private String defaultMetaSchemaURI;
         private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
+        private URNFactory urnFactory;
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
 
@@ -119,6 +123,11 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        public Builder addUrnFactory(URNFactory urnFactory) {
+            this.urnFactory = urnFactory;
+            return this;
+        }
+
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
@@ -126,6 +135,7 @@ public class JsonSchemaFactory {
                     defaultMetaSchemaURI,
                     new URISchemeFactory(uriFactoryMap),
                     new URISchemeFetcher(uriFetcherMap),
+                    urnFactory,
                     jsonMetaSchemas,
                     uriMap
             );
@@ -136,14 +146,18 @@ public class JsonSchemaFactory {
     private final String defaultMetaSchemaURI;
     private final URISchemeFactory uriFactory;
     private final URISchemeFetcher uriFetcher;
+    private final URNFactory urnFactory;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
+    private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
+
 
     private JsonSchemaFactory(
             final ObjectMapper mapper,
             final String defaultMetaSchemaURI,
             final URISchemeFactory uriFactory,
             final URISchemeFetcher uriFetcher,
+            final URNFactory urnFactory,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final Map<String, String> uriMap) {
         if (mapper == null) {
@@ -171,6 +185,7 @@ public class JsonSchemaFactory {
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
         this.uriFactory = uriFactory;
         this.uriFetcher = uriFetcher;
+        this.urnFactory = urnFactory;
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.uriMap = uriMap;
     }
@@ -188,6 +203,14 @@ public class JsonSchemaFactory {
         return new Builder();
     }
 
+    /**
+     * @deprecated
+     * This is a method that is kept to ensure backward compatible. You shouldn't use it anymore.
+     * Please specify the draft version when get an instance.
+     *
+     * @return JsonSchemaFactory
+     */
+    @Deprecated
     public static JsonSchemaFactory getInstance() {
         return getInstance(SpecVersion.VersionFlag.V4);
     }
@@ -240,13 +263,14 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode);
+        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode)
+            .initialize();
         return jsonSchema;
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, jsonMetaSchema, this, null);
+        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -307,16 +331,27 @@ public class JsonSchemaFactory {
                 logger.error("Failed to create URI.", e);
                 throw new JsonSchemaException(e);
             }
+
+            if (uriSchemaCache.containsKey(mappedUri))
+                return uriSchemaCache.get(mappedUri);
+
             try {
                 inputStream = this.uriFetcher.fetch(mappedUri);
                 final JsonNode schemaNode = mapper.readTree(inputStream);
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
+                JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    return new JsonSchema(new ValidationContext(this.uriFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                    jsonSchema = new JsonSchema(new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+                } else {
+                    final ValidationContext validationContext = createValidationContext(schemaNode);
+                    validationContext.setConfig(config);
+                    jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
                 }
+                uriSchemaCache.put(mappedUri, jsonSchema);
+                jsonSchema.initialize();
 
-                return newJsonSchema(mappedUri, schemaNode, config);
+                return jsonSchema;
             } finally {
                 if (inputStream != null) {
                     inputStream.close();

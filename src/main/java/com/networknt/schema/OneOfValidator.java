@@ -114,7 +114,8 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
-            JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema);
+            JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema)
+                .initialize();
             schemas.add(new ShortcutValidator(childNode, parentSchema, validationContext, childSchema));
         }
 
