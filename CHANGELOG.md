@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.39 - 2020-04-28
+
+### Added
+
+### Changed
+
+- fixes #289 Adding getAll method on CollectorContext class. Thanks @prashanthjos
+
 ## 1.0.38 - 2020-04-12
 
 ### Added
