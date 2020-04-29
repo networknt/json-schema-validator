@@ -28,6 +28,8 @@ import java.util.*;
 public class CollectorContextTest {
 
     private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
+    
+    private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOtherType";
 
     private JsonSchema jsonSchema;
 
@@ -92,14 +94,29 @@ public class CollectorContextTest {
         Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
     }
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
+				.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+		List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
+		List<String> values1 = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_OTHER);
+		Assert.assertEquals(values.size(), 1);
+		Assert.assertEquals(values1.size(), 3);
+	}
+    
     @SuppressWarnings("unchecked")
-    @Test
-    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-        Assert.assertEquals(values.size(), 4);
-    }
+	@Test
+	public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
+				.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+		Map<String, Object> map = validationResult.getCollectorContext().getAll();
+		Iterator<Object> collectionIterator = map.values().iterator();
+		Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 1);
+		Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 3);
+	}
 
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
@@ -340,10 +357,10 @@ public class CollectorContextTest {
             // Get an instance of collector context.
             CollectorContext collectorContext = CollectorContext.getInstance();
             // If collector type is not added to context add one.
-            if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
-                collectorContext.add(SAMPLE_COLLECTOR, new ArrayList<String>());
+            if (collectorContext.get(SAMPLE_COLLECTOR_OTHER) == null) {
+                collectorContext.add(SAMPLE_COLLECTOR_OTHER, new ArrayList<String>());
             }
-            List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR);
+            List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER);
             returnList.add(node.textValue());
             return new TreeSet<ValidationMessage>();
         }
