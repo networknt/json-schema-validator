@@ -13,3 +13,70 @@ If `if` is valid, `then` must also be valid (and `else` is ignored.) If `if` is 
 
 For usage, please refer to the test cases at https://github.com/networknt/json-schema-validator/blob/master/src/test/resources/draft7/if-then-else.json
 
+### Custom Validators
+````
+@Bean
+public JsonSchemaFactory mySchemaFactory() {
+    // base on JsonMetaSchema.V201909 copy code below
+    String URI = "https://json-schema.org/draft/2019-09/schema";
+    String ID = "$id";
+    List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
+
+    JsonMetaSchema myJsonMetaSchema = new JsonMetaSchema.Builder(URI)
+            .idKeyword(ID)
+            .addFormats(BUILTIN_FORMATS)
+            .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
+            // keywords that may validly exist, but have no validation aspect to them
+            .addKeywords(Arrays.asList(
+                    new NonValidationKeyword("$schema"),
+                    new NonValidationKeyword("$id"),
+                    new NonValidationKeyword("title"),
+                    new NonValidationKeyword("description"),
+                    new NonValidationKeyword("default"),
+                    new NonValidationKeyword("definitions"),
+                    new NonValidationKeyword("$defs")  // newly added in 2018-09 release.
+            ))
+            // add your custom keyword
+            .addKeyword(new GroovyKeyword())
+            .build();
+
+    return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(myJsonMetaSchema.getUri())
+            .addMetaSchema(myJsonMetaSchema)
+            .build();
+}
+
+public class GroovyKeyword extends AbstractKeyword {
+    private static final Logger logger = LoggerFactory.getLogger(GroovyKeyword.class);
+
+    public GroovyKeyword() {
+        super("groovy");
+    }
+
+    @Override
+    public AbstractJsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+        // you can read validator config here
+        String config = schemaNode.asText();
+        return new AbstractJsonValidator(this.getValue()) {
+            @Override
+            public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+                // you can do validate here
+                logger.info("config:{} path:{} node:{}", config, at, node);
+
+                return Collections.emptySet();
+            }
+        };
+    }
+}
+````
+You can use GroovyKeyword like below:
+````
+{
+  "type": "object",
+  "properties": {
+    "someProperty": {
+      "type": "string",
+      "groovy": "SomeScript.groovy"
+    }
+  }
+}
+````
