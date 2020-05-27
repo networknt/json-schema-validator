@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.40 - 2020-05-27
+
+### Added
+
+### Changed
+
+- fixes #294 fixes unknownMetaSchema error with normalized URI
+
 ## 1.0.39 - 2020-04-28
 
 ### Added
