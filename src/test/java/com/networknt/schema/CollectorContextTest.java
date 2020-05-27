@@ -150,7 +150,7 @@ public class CollectorContextTest {
 
     private void setupSchema() throws Exception {
         final JsonMetaSchema metaSchema = getJsonMetaSchema(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01#");
+                "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
                 .build();
@@ -160,7 +160,7 @@ public class CollectorContextTest {
 
     private String getSchemaString() {
         return "{"
-                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\","
                 + "\"title\" : \"Sample test schema\",\n"
                 + "\"description\" : \"Sample schema definition\","
                 + "\"type\" : \"object\","
@@ -186,7 +186,7 @@ public class CollectorContextTest {
 
     private String getSchemaStringMultipleProperties() {
         return "{"
-                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\","
                 + "\"title\" : \"Sample test schema\","
                 + "\"description\" : \"Sample schema definition\","
                 + "\"type\" : \"object\","

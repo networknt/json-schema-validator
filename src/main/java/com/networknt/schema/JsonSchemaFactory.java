@@ -25,7 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -275,7 +278,7 @@ public class JsonSchemaFactory {
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
-        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : uriNode.textValue();
+        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
         if (jsonMetaSchema == null) {
             throw new JsonSchemaException("Unknown Metaschema: " + uri);
@@ -395,5 +398,15 @@ public class JsonSchemaFactory {
             logger.debug("Matching " + id + " to " + schemaUri.toString() + ": " + result);
         }
         return result;
+    }
+
+    static protected String normalizeMetaSchemaUri(String u) {
+        try {
+            URI uri = new URI(u);
+            URI newUri = new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
+            return newUri.toString();
+        } catch (URISyntaxException e) {
+            throw new JsonSchemaException("Wrong MetaSchema URI: " + u);
+        }
     }
 }

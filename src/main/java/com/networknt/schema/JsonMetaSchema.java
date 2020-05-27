@@ -60,7 +60,7 @@ public class JsonMetaSchema {
     }
 
     private static class V4 {
-        private static String URI = "http://json-schema.org/draft-04/schema#";
+        private static String URI = "https://json-schema.org/draft-04/schema";
         private static final String ID = "id";
 
         public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
@@ -89,7 +89,7 @@ public class JsonMetaSchema {
     }
 
     private static class V6 {
-        private static String URI = "http://json-schema.org/draft-06/schema#";
+        private static String URI = "https://json-schema.org/draft-06/schema";
         // Draft 6 uses "$id"
         private static final String ID = "$id";
 
@@ -119,7 +119,7 @@ public class JsonMetaSchema {
     }
 
     private static class V7 {
-        private static String URI = "http://json-schema.org/draft-07/schema#";
+        private static String URI = "https://json-schema.org/draft-07/schema";
         private static final String ID = "$id";
 
         public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
