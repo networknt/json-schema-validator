@@ -33,7 +33,7 @@ public class UUIDValidator extends BaseJsonValidator implements JsonValidator {
     private static final String regex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
 
     public UUIDValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UUID, validationContext);
         this.formatName = formatName;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
