@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 
 public class CyclicDependencyTest {
 
-
     @Test
     public void whenDependencyBetweenSchemaThenValidationSuccessful() throws Exception {
 
