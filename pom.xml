@@ -151,6 +151,17 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>4.2.1</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            org.jcodings;resolution:=optional,
+                            org.jcodings.specific;resolution:=optional,
+                            org.joni;resolution:=optional,
+                            org.joni.exception;resolution:=optional,
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
