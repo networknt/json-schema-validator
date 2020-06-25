@@ -19,8 +19,10 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -30,17 +32,17 @@ public class BaseJsonSchemaValidatorTest {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
+    protected JsonNode getJsonNodeFromClasspath(String name) throws IOException {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
         return mapper.readTree(is1);
     }
 
-    protected JsonNode getJsonNodeFromStringContent(String content) throws Exception {
+    protected JsonNode getJsonNodeFromStringContent(String content) throws IOException {
         return mapper.readTree(content);
     }
 
-    protected JsonNode getJsonNodeFromUrl(String url) throws Exception {
+    protected JsonNode getJsonNodeFromUrl(String url) throws IOException {
         return mapper.readTree(new URL(url));
     }
 
@@ -56,7 +58,7 @@ public class BaseJsonSchemaValidatorTest {
         return factory.getSchema(schemaContent);
     }
 
-    protected JsonSchema getJsonSchemaFromUrl(String uri) throws Exception {
+    protected JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         return factory.getSchema(new URI(uri));
     }
