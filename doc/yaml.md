@@ -5,11 +5,11 @@ One of the features of this library is to validate the YAML file in addition to 
 Add the dependency
 
 ```
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.10.1</version>
-        </dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-yaml</artifactId>
+    <version>2.10.1</version>
+</dependency>
 ```
 
 and create object mapper using yaml factory i.e `ObjectMapper objMapper =new ObjectMapper(new YAMLFactory());`
@@ -17,9 +17,9 @@ and create object mapper using yaml factory i.e `ObjectMapper objMapper =new Obj
 #### Example
 ```
 JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).objectMapper(mapper).build(); /* Using draft-07. You can choose anyother draft.*/
-        JsonSchema schema = factory.getSchema(YamlOperations.class.getClassLoader().getResourceAsStream("your-schema.json"));
+JsonSchema schema = factory.getSchema(YamlOperations.class.getClassLoader().getResourceAsStream("your-schema.json"));
 
-        JsonNode jsonNode = mapper.readTree(YamlOperations.class.getClassLoader().getResourceAsStream("your-file.yaml"));
-        Set<ValidationMessage> validateMsg = schema.validate(jsonNode);
+JsonNode jsonNode = mapper.readTree(YamlOperations.class.getClassLoader().getResourceAsStream("your-file.yaml"));
+Set<ValidationMessage> validateMsg = schema.validate(jsonNode);
 ```
 

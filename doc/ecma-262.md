@@ -13,17 +13,17 @@ If you want to ensure full compliance, use the org.jruby.joni. It is 1.5 times s
 Here is the test case that shows how to pass a config object to use the ECMA-262 library.
 
 ```
-    @Test(expected = JsonSchemaException.class)
-    public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setEcma262Validator(true);
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
+@Test(expected = JsonSchemaException.class)
+public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
+    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+    config.setEcma262Validator(true);
+    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
-        JsonNode node = getJsonNodeFromStringContent("");
-        Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(errors.size(), 0);
-    }
+    JsonNode node = getJsonNodeFromStringContent("");
+    Set<ValidationMessage> errors = schema.validate(node);
+    Assert.assertEquals(errors.size(), 0);
+}
 ```
 
 

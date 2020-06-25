@@ -17,13 +17,17 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * This class is used to detect schema version
+ *
+ * @author Subhajitdas298
+ * @since 25/06/20
+ */
 public class SpecVersionDetector {
 
+    // Schema tag
     private static final String SCHEMA_TAG = "$schema";
-
-    private static ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Detects schema version based on the schema tag
