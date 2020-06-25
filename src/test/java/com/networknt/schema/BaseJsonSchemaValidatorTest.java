@@ -27,51 +27,49 @@ import java.net.URL;
  * Created by steve on 22/10/16.
  */
 public class BaseJsonSchemaValidatorTest {
+
+    private ObjectMapper mapper = new ObjectMapper();
+
     protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(is1);
-        return node;
+        return mapper.readTree(is1);
     }
 
     protected JsonNode getJsonNodeFromStringContent(String content) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(content);
-        return node;
+        return mapper.readTree(content);
     }
 
     protected JsonNode getJsonNodeFromUrl(String url) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(new URL(url));
-        return node;
+        return mapper.readTree(new URL(url));
     }
 
-    protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
+    protected JsonSchema getJsonSchemaFromClasspath(String name) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(name);
-        JsonSchema schema = factory.getSchema(is);
-        return schema;
+        return factory.getSchema(is);
     }
 
-
-    protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) throws Exception {
+    protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema(schemaContent);
-        return schema;
+        return factory.getSchema(schemaContent);
     }
 
     protected JsonSchema getJsonSchemaFromUrl(String uri) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema(new URI(uri));
-        return schema;
+        return factory.getSchema(new URI(uri));
     }
 
-    protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) throws Exception {
+    protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema(jsonNode);
-        return schema;
+        return factory.getSchema(jsonNode);
     }
+
+    // Automatically detect version for given JsonNode
+    protected JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
+        return factory.getSchema(jsonNode);
+    }
+
 }
