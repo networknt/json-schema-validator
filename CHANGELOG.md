@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.42 - 2020-06-30
+
+### Added
+
+### Changed
+
+- fixes #311 Split the PatternValidator into 2 classes. Thanks @Buuhuu
+
 ## 1.0.41 - 2020-06-25
 
 ### Added
