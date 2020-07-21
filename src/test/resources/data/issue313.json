@@ -1,0 +1,8 @@
+{
+  "properties": {
+    "field1": {
+      "type": "invalid-type",
+      "description": "string"
+    }
+  }
+}
