@@ -398,7 +398,6 @@ public class V201909JsonSchemaTest {
     }
 
     @Test
-    @Ignore
     public void testPropertyNamesValidator() throws Exception {
         runTestFile("draft2019-09/propertyNames.json");
     }
