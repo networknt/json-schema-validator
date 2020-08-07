@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -162,23 +163,17 @@ public class JsonSchemaFactory {
             final Map<String, String> uriMap) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
-        }
-        if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
+        } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
-        }
-        if (uriFactory == null) {
+        } else if (uriFactory == null) {
             throw new IllegalArgumentException("URIFactory must not be null");
-        }
-        if (uriFetcher == null) {
+        } else if (uriFetcher == null) {
             throw new IllegalArgumentException("URIFetcher must not be null");
-        }
-        if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
+        } else if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
             throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
-        }
-        if (jsonMetaSchemas.get(defaultMetaSchemaURI) == null) {
+        } else if (jsonMetaSchemas.get(defaultMetaSchemaURI) == null) {
             throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
-        }
-        if (uriMap == null) {
+        } else if (uriMap == null) {
             throw new IllegalArgumentException("URL Mappings must not be null");
         }
         this.mapper = mapper;
@@ -216,32 +211,25 @@ public class JsonSchemaFactory {
     }
 
     public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
-        if (versionFlag == SpecVersion.VersionFlag.V201909) {
-            JsonMetaSchema v201909 = JsonMetaSchema.getV201909();
-            return builder()
-                    .defaultMetaSchemaURI(v201909.getUri())
-                    .addMetaSchema(v201909)
-                    .build();
-        } else if (versionFlag == SpecVersion.VersionFlag.V7) {
-            JsonMetaSchema v7 = JsonMetaSchema.getV7();
-            return builder()
-                    .defaultMetaSchemaURI(v7.getUri())
-                    .addMetaSchema(v7)
-                    .build();
-        } else if (versionFlag == SpecVersion.VersionFlag.V6) {
-            JsonMetaSchema v6 = JsonMetaSchema.getV6();
-            return builder()
-                    .defaultMetaSchemaURI(v6.getUri())
-                    .addMetaSchema(v6)
-                    .build();
-        } else if (versionFlag == SpecVersion.VersionFlag.V4) {
-            JsonMetaSchema v4 = JsonMetaSchema.getV4();
-            return builder()
-                    .defaultMetaSchemaURI(v4.getUri())
-                    .addMetaSchema(v4)
-                    .build();
+        JsonMetaSchema metaSchema = null;
+        switch (versionFlag) {
+            case V201909:
+                metaSchema = JsonMetaSchema.getV201909();
+                break;
+            case V7:
+                metaSchema = JsonMetaSchema.getV7();
+                break;
+            case V6:
+                metaSchema = JsonMetaSchema.getV6();
+                break;
+            case V4:
+                metaSchema = JsonMetaSchema.getV4();
+                break;
         }
-        return null;
+        return builder()
+                .defaultMetaSchemaURI(metaSchema.getUri())
+                .addMetaSchema(metaSchema)
+                .build();
     }
 
     public static Builder builder(final JsonSchemaFactory blueprint) {
@@ -263,9 +251,7 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        JsonSchema jsonSchema = new JsonSchema(validationContext, schemaUri, schemaNode)
-            .initialize();
-        return jsonSchema;
+        return new JsonSchema(validationContext, schemaUri, schemaNode).initialize();
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -275,10 +261,10 @@ public class JsonSchemaFactory {
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
-        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : uriNode.textValue();
+        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
         if (jsonMetaSchema == null) {
-            throw new JsonSchemaException("Unknown Metaschema: " + uri);
+            throw new JsonSchemaException("Unknown MetaSchema: " + uri);
         }
         return jsonMetaSchema;
     }
@@ -321,7 +307,7 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(final URI schemaUri, final SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
-            final Map<String, String> map = (config != null) ? config.getUriMappings() : new HashMap<String, String>(uriMap);
+            final Map<String, String> map = (config != null) ? config.getUriMappings() : new HashMap<String, String>();
             map.putAll(uriMap);
 
             final URI mappedUri;
@@ -385,7 +371,6 @@ public class JsonSchemaFactory {
     }
 
     private boolean idMatchesSourceUri(final JsonMetaSchema metaSchema, final JsonNode schema, final URI schemaUri) {
-
         String id = metaSchema.readId(schema);
         if (id == null || id.isEmpty()) {
             return false;
@@ -395,5 +380,15 @@ public class JsonSchemaFactory {
             logger.debug("Matching " + id + " to " + schemaUri.toString() + ": " + result);
         }
         return result;
+    }
+
+    static protected String normalizeMetaSchemaUri(String u) {
+        try {
+            URI uri = new URI(u);
+            URI newUri = new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
+            return newUri.toString();
+        } catch (URISyntaxException e) {
+            throw new JsonSchemaException("Wrong MetaSchema URI: " + u);
+        }
     }
 }

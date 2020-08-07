@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.42 - 2020-06-30
+
+### Added
+
+### Changed
+
+- fixes #311 Split the PatternValidator into 2 classes. Thanks @Buuhuu
+
+## 1.0.41 - 2020-06-25
+
+### Added
+
+### Changed
+
+- fixes #307 Make runtime dependency to org.jruby.joni:joni optional. Thanks @Buuhuu
+- fixes #305 Automatically determine schema version from schema file. Thanks @Subhajitdas298
+- fixes #297 ValidationContext using is not correct in UUIDValidator. Thanks @qiunju
+
+
+## 1.0.40 - 2020-05-27
+
+### Added
+
+### Changed
+
+- fixes #294 fixes unknownMetaSchema error with normalized URI
+
+## 1.0.39 - 2020-04-28
+
+### Added
+
+### Changed
+
+- fixes #289 Adding getAll method on CollectorContext class. Thanks @prashanthjos
+
 ## 1.0.38 - 2020-04-12
 
 ### Added

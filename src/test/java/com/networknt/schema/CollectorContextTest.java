@@ -28,7 +28,7 @@ import java.util.*;
 public class CollectorContextTest {
 
     private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
-    
+
     private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOtherType";
 
     private JsonSchema jsonSchema;
@@ -94,29 +94,29 @@ public class CollectorContextTest {
         Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
     }
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
-				.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-		List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-		List<String> values1 = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_OTHER);
-		Assert.assertEquals(values.size(), 1);
-		Assert.assertEquals(values1.size(), 3);
-	}
-    
     @SuppressWarnings("unchecked")
-	@Test
-	public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
-				.readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-		Map<String, Object> map = validationResult.getCollectorContext().getAll();
-		Iterator<Object> collectionIterator = map.values().iterator();
-		Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 1);
-		Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 3);
-	}
+    @Test
+    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
+                .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+        List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
+        List<String> values1 = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_OTHER);
+        Assert.assertEquals(values.size(), 1);
+        Assert.assertEquals(values1.size(), 3);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
+                .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+        Map<String, Object> map = validationResult.getCollectorContext().getAll();
+        Iterator<Object> collectionIterator = map.values().iterator();
+        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 1);
+        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 3);
+    }
 
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
@@ -150,7 +150,7 @@ public class CollectorContextTest {
 
     private void setupSchema() throws Exception {
         final JsonMetaSchema metaSchema = getJsonMetaSchema(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01#");
+                "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
                 .build();
@@ -160,7 +160,7 @@ public class CollectorContextTest {
 
     private String getSchemaString() {
         return "{"
-                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\","
                 + "\"title\" : \"Sample test schema\",\n"
                 + "\"description\" : \"Sample schema definition\","
                 + "\"type\" : \"object\","
@@ -186,7 +186,7 @@ public class CollectorContextTest {
 
     private String getSchemaStringMultipleProperties() {
         return "{"
-                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01#\","
+                + "\"$schema\": \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\","
                 + "\"title\" : \"Sample test schema\","
                 + "\"description\" : \"Sample schema definition\","
                 + "\"type\" : \"object\","

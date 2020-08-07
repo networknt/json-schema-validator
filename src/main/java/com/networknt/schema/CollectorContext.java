@@ -26,115 +26,114 @@ import java.util.Set;
  */
 public class CollectorContext {
 
-	// Using a namespace string as key in ThreadLocal so that it is unique in
-	// ThreadLocal.
-	static final String COLLECTOR_CONTEXT_THREAD_LOCAL_KEY = "com.networknt.schema.CollectorKey";
+    // Using a namespace string as key in ThreadLocal so that it is unique in
+    // ThreadLocal.
+    static final String COLLECTOR_CONTEXT_THREAD_LOCAL_KEY = "com.networknt.schema.CollectorKey";
 
-	// Get an instance from thread info (which uses ThreadLocal).
-	public static CollectorContext getInstance() {
-		return (CollectorContext) ThreadInfo.get(COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
-	}
+    // Get an instance from thread info (which uses ThreadLocal).
+    public static CollectorContext getInstance() {
+        return (CollectorContext) ThreadInfo.get(COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+    }
 
-	/**
-	 * Map for holding the name and {@link Collector} or a simple Object.
-	 */
-	private Map<String, Object> collectorMap = new HashMap<String, Object>();
+    /**
+     * Map for holding the name and {@link Collector} or a simple Object.
+     */
+    private Map<String, Object> collectorMap = new HashMap<String, Object>();
 
-	/**
-	 * Map for holding the name and {@link Collector} class collect method output.
-	 */
-	private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
+    /**
+     * Map for holding the name and {@link Collector} class collect method output.
+     */
+    private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
 
-	/**
-	 * Adds a collector with give name. Preserving this method for backward
-	 * compatibility.
-	 *
-	 * @param <E>       element
-	 * @param name      String
-	 * @param collector Collector
-	 */
-	public <E> void add(String name, Collector<E> collector) {
-		collectorMap.put(name, collector);
-	}
+    /**
+     * Adds a collector with give name. Preserving this method for backward
+     * compatibility.
+     *
+     * @param <E>       element
+     * @param name      String
+     * @param collector Collector
+     */
+    public <E> void add(String name, Collector<E> collector) {
+        collectorMap.put(name, collector);
+    }
 
-	/**
-	 * Adds a collector or a simple object with give name.
-	 *
-	 * @param <E>    element
-	 * @param object Object
-	 * @param name   String
-	 *
-	 */
-	public <E> void add(String name, Object object) {
-		collectorMap.put(name, object);
-	}
+    /**
+     * Adds a collector or a simple object with give name.
+     *
+     * @param <E>    element
+     * @param object Object
+     * @param name   String
+     */
+    public <E> void add(String name, Object object) {
+        collectorMap.put(name, object);
+    }
 
-	/**
-	 * Gets the data associated with a given name. Please note if you are collecting
-	 * {@link Collector} instances you should wait till the validation is complete
-	 * to gather all data.
-	 * <p>
-	 * When {@link CollectorContext} is used to collect {@link Collector} instances
-	 * for a particular key, this method will return the {@link Collector} instance
-	 * as long as {@link #loadCollectors} method is not called. Once
-	 * the {@link #loadCollectors} method is called this method will
-	 * return the actual data collected by collector.
-	 *
-	 * @param name String
-	 * @return Object
-	 */
-	public Object get(String name) {
-		Object object = collectorMap.get(name);
-		if (object instanceof Collector<?> && (collectorLoadMap.get(name) != null)) {
-			return collectorLoadMap.get(name);
-		}
-		return collectorMap.get(name);
-	}
-	
-	/**
-	 * Returns all the collected data. Please look into {@link #get(String)} method for more details.
-	 */
-	public Map<String,Object> getAll() {
-		Map<String,Object> mergedMap = new HashMap<String, Object>();
-		mergedMap.putAll(collectorMap);
-		mergedMap.putAll(collectorLoadMap);
-		return mergedMap;
-	}
+    /**
+     * Gets the data associated with a given name. Please note if you are collecting
+     * {@link Collector} instances you should wait till the validation is complete
+     * to gather all data.
+     * <p>
+     * When {@link CollectorContext} is used to collect {@link Collector} instances
+     * for a particular key, this method will return the {@link Collector} instance
+     * as long as {@link #loadCollectors} method is not called. Once
+     * the {@link #loadCollectors} method is called this method will
+     * return the actual data collected by collector.
+     *
+     * @param name String
+     * @return Object
+     */
+    public Object get(String name) {
+        Object object = collectorMap.get(name);
+        if (object instanceof Collector<?> && (collectorLoadMap.get(name) != null)) {
+            return collectorLoadMap.get(name);
+        }
+        return collectorMap.get(name);
+    }
 
-	/**
-	 * Combines data with Collector identified by the given name.
-	 *
-	 * @param name String
-	 * @param data Object
-	 */
-	public void combineWithCollector(String name, Object data) {
-		Object object = collectorMap.get(name);
-		if (object instanceof Collector<?>) {
-			Collector<?> collector = (Collector<?>) object;
-			collector.combine(data);
-		}
-	}
+    /**
+     * Returns all the collected data. Please look into {@link #get(String)} method for more details.
+     */
+    public Map<String, Object> getAll() {
+        Map<String, Object> mergedMap = new HashMap<String, Object>();
+        mergedMap.putAll(collectorMap);
+        mergedMap.putAll(collectorLoadMap);
+        return mergedMap;
+    }
 
-	/**
-	 * Reset the context
-	 */
-	void reset() {
-		this.collectorMap = new HashMap<String, Object>();
-		this.collectorLoadMap = new HashMap<String, Object>();
-	}
+    /**
+     * Combines data with Collector identified by the given name.
+     *
+     * @param name String
+     * @param data Object
+     */
+    public void combineWithCollector(String name, Object data) {
+        Object object = collectorMap.get(name);
+        if (object instanceof Collector<?>) {
+            Collector<?> collector = (Collector<?>) object;
+            collector.combine(data);
+        }
+    }
 
-	/**
-	 * Loads data from all collectors.
-	 */
-	void loadCollectors() {
-		Set<Entry<String, Object>> entrySet = collectorMap.entrySet();
-		for (Entry<String, Object> entry : entrySet) {
-			if (entry.getValue() instanceof Collector<?>) {
-				Collector<?> collector = (Collector<?>) entry.getValue();
-				collectorLoadMap.put(entry.getKey(), collector.collect());
-			}
-		}
+    /**
+     * Reset the context
+     */
+    void reset() {
+        this.collectorMap = new HashMap<String, Object>();
+        this.collectorLoadMap = new HashMap<String, Object>();
+    }
 
-	}
+    /**
+     * Loads data from all collectors.
+     */
+    void loadCollectors() {
+        Set<Entry<String, Object>> entrySet = collectorMap.entrySet();
+        for (Entry<String, Object> entry : entrySet) {
+            if (entry.getValue() instanceof Collector<?>) {
+                Collector<?> collector = (Collector<?>) entry.getValue();
+                collectorLoadMap.put(entry.getKey(), collector.collect());
+            }
+        }
+
+    }
 
 }

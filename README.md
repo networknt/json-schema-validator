@@ -45,21 +45,23 @@ Following the design principle of the Light Platform, this library has minimum d
 Here are the dependencies. 
 
 ```
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${version.jackson}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${version.slf4j}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${version.common-lang3}</version>
-        </dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>${version.jackson}</version>
+</dependency>
+
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>${version.slf4j}</version>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>${version.common-lang3}</version>
+</dependency>
 ```
 
 #### Community
@@ -80,7 +82,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.38</version>
+    <version>1.0.42</version>
 </dependency>
 ```
 
@@ -88,7 +90,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.38");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.42");
 }
 ```
 
@@ -110,7 +112,7 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Customized MetaSchema](doc/cust-meta.md)
 
-## [Collector Context](doc/collector_context.md)
+## [Collector Context](doc/collector-context.md)
 
 ## [ECMA-262 Regex](doc/ecma-262.md)
 
