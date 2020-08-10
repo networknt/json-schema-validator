@@ -47,7 +47,8 @@ public class ContainsValidator extends BaseJsonValidator implements JsonValidato
             return Collections.emptySet();
         }
 
-        if (node.isEmpty()) {
+        // to support jackson < 2.10
+        if (node.size() == 0) {
             // Array was empty
             return buildErrorMessageSet(at);
         } else if (node.isArray()) {
