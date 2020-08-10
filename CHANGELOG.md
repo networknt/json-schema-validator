@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.43 - 2020-08-10
+
+### Added
+
+### Changed
+
+- fixes #317 Compatible with Jackson 2.9.x. Thanks @pan3793
+- fixes #315 implement propertyNames validator for v6, v7 and v2019-09
+
 ## 1.0.42 - 2020-06-30
 
 ### Added
