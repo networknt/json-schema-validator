@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 public class CollectorContextTest {
@@ -96,7 +97,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException {
+    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
@@ -108,7 +109,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException {
+    public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
