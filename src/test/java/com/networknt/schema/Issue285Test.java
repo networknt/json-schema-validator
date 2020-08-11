@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -52,7 +53,7 @@ public class Issue285Test {
     // In this case the "lastName" should be a string.
     // The result is as expected and we get an validation error.
     @Test
-    public void nestedValidation() throws JsonProcessingException {
+    public void nestedValidation() throws IOException {
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
 
@@ -93,7 +94,7 @@ public class Issue285Test {
     // The result is not as expected and we get no validation error.
     @Test
     @Ignore
-    public void nestedTypeValidation() throws JsonProcessingException, URISyntaxException {
+    public void nestedTypeValidation() throws IOException, URISyntaxException {
         URI uri = new URI("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
@@ -116,7 +117,7 @@ public class Issue285Test {
     // In this case the toplevel type declaration isn't valid and should raise an error.
     // The result is as expected and we get no validation error: '[$.type: does not have a value in the enumeration [array, boolean, integer, null, number, object, string], $.type: should be valid to any of the schemas array]'.
     @Test
-    public void typeValidation() throws JsonProcessingException, URISyntaxException {
+    public void typeValidation() throws IOException, URISyntaxException {
         URI uri = new URI("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
