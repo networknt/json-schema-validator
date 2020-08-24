@@ -94,5 +94,21 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
         return Collections.unmodifiableSet(errors);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		if (shouldValidateSchema) {
+			return validate(node, rootNode, at);
+		} else {
+			for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
+				JsonSchema propertySchema = entry.getValue();
+				JsonNode propertyNode = node.get(entry.getKey());
+				if (propertyNode != null) {
+					propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(), false);
+				}
+			}
+			return new LinkedHashSet<ValidationMessage>();
+		}
+	}
 
 }

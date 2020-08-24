@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,5 +48,26 @@ public interface JsonValidator {
      * list if there is no error.
      */
     Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at);
+    
+	/**
+	 * 
+	 * This method gives the capability to walk through the given JsonNode, allowing
+	 * functionality beyond validation like collecting information,handling cross
+	 * cutting concerns like logging or instrumentation. This method also performs
+	 * the validation if {@code shouldValidateSchema} is set to true. <br>
+	 * <br>
+	 * {@link BaseJsonValidator#walk(JsonNode, JsonNode, String, List, boolean)}
+	 * provides a default implementation of this method. However keywords that parse
+	 * sub-schemas should override this method to call walk method on those
+	 * subschemas.
+	 * 
+	 * @param node
+	 * @param rootNode
+	 * @param at
+	 * @param jsonWalkListeners
+	 * @param shouldValidateSchema
+	 * @return
+	 */
+	Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema);
 
 }

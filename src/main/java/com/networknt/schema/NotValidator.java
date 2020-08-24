@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class NotValidator extends BaseJsonValidator implements JsonValidator {
@@ -44,6 +45,15 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
             return Collections.singleton(buildValidationMessage(at, schema.toString()));
         }
         return Collections.emptySet();
+    }
+    
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    	if (shouldValidateSchema) {
+    		return validate(node, rootNode, at);
+    	}
+    	schema.walk(node, rootNode, at, shouldValidateSchema);
+    	return new LinkedHashSet<ValidationMessage>();
     }
 
 }

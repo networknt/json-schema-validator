@@ -52,6 +52,11 @@ public class PatternValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         return delegate.validate(node, rootNode, at);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		return delegate.walk(node, rootNode, at, shouldValidateSchema);
+	}
 
     private static class PatternValidatorJava extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
@@ -156,4 +161,5 @@ public class PatternValidator implements JsonValidator {
             return Collections.emptySet();
         }
     }
+
 }

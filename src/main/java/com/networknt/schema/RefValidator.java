@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
@@ -133,6 +134,18 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             return Collections.emptySet();
         }
+    }
+    
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    	if (shouldValidateSchema) {
+    		return validate(node, rootNode, at);
+    	}
+    	 if (schema != null) {
+             return schema.walk(node, rootNode, at,shouldValidateSchema);
+         } else {
+             return new LinkedHashSet<ValidationMessage>();
+         }
     }
 
 }
