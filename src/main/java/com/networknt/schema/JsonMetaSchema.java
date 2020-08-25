@@ -333,8 +333,7 @@ public class JsonMetaSchema {
         try {
             Keyword kw = keywords.get(keyword);
             if (kw == null) {
-                if (!UNKNOWN_KEYWORDS.containsKey(keyword)) {
-                    UNKNOWN_KEYWORDS.put(keyword, keyword);
+                if (UNKNOWN_KEYWORDS.put(keyword, keyword) == null) {
                     logger.warn("Unknown keyword " + keyword + " - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword");
                 }
                 return null;
