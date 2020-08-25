@@ -92,6 +92,7 @@ public class CollectorContext {
 
     /**
      * Returns all the collected data. Please look into {@link #get(String)} method for more details.
+     * @return Map
      */
     public Map<String, Object> getAll() {
         Map<String, Object> mergedMap = new HashMap<String, Object>();

@@ -61,7 +61,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                 }
             }
         } else {
-            if(!schemaValue && node.isObject() && !node.isEmpty()) {
+            if(!schemaValue && node.isObject() && node.size() != 0) {
                 errors.add(buildValidationMessage(at + "." + node, "false"));
             }
         }

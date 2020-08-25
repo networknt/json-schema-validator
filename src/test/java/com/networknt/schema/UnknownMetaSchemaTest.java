@@ -1,11 +1,11 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Set;
 
 public class UnknownMetaSchemaTest {
@@ -17,7 +17,7 @@ public class UnknownMetaSchemaTest {
     private String json = "{\"data\":1}";
 
     @Test
-    public void testSchema1() throws JsonProcessingException {
+    public void testSchema1() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
@@ -31,7 +31,7 @@ public class UnknownMetaSchemaTest {
     }
 
     @Test
-    public void testSchema2() throws JsonProcessingException {
+    public void testSchema2() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
@@ -44,7 +44,7 @@ public class UnknownMetaSchemaTest {
         }
     }
     @Test
-    public void testSchema3() throws JsonProcessingException {
+    public void testSchema3() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
