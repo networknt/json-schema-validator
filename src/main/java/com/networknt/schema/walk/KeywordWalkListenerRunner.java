@@ -1,35 +1,63 @@
 package com.networknt.schema.walk;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 
 public class KeywordWalkListenerRunner {
 
-	private Collection<KeywordWalkListener> jsonKeywordWalkListeners;
+	private Map<String, List<KeywordWalkListener>> keywordWalkListenersMap;
 
-	public KeywordWalkListenerRunner(Collection<KeywordWalkListener> jsonKeywordWalkListeners) {
-		this.jsonKeywordWalkListeners = jsonKeywordWalkListeners;
+	public KeywordWalkListenerRunner(Map<String, List<KeywordWalkListener>> keywordWalkListenersMap) {
+		this.keywordWalkListenersMap = keywordWalkListenersMap;
 	}
 
 	public void runPreWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
 			JsonNode schemaNode, JsonSchema parentSchema) {
-		KeywordWalkEvent keywordWalkEvent = constructKeywordWalkEvent(getKeywordName(keyWordPath), node, rootNode, at,
-				schemaPath, schemaNode, parentSchema);
-		for (KeywordWalkListener jsonKeywordWalkListener : jsonKeywordWalkListeners) {
-			jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
+		String keyword = getKeywordName(keyWordPath);
+		KeywordWalkEvent keywordWalkEvent = constructKeywordWalkEvent(keyword, node, rootNode, at, schemaPath,
+				schemaNode, parentSchema);
+		List<KeywordWalkListener> allKeywordListeners = keywordWalkListenersMap
+				.get(JsonSchemaFactory.ALL_KEYWORD_WALK_LISTENER_KEY);
+		// Run Listeners that are setup for all keywords.
+		if (allKeywordListeners != null) {
+			for (KeywordWalkListener jsonKeywordWalkListener : allKeywordListeners) {
+				jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
+			}
+		}
+		// Run Listeners that are setup only for this keyword.
+		List<KeywordWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
+		if (currentKeywordListeners != null) {
+			for (KeywordWalkListener jsonKeywordWalkListener : currentKeywordListeners) {
+				jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
+			}
 		}
 	}
 
 	public void runPostWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
 			JsonNode schemaNode, JsonSchema parentSchema, Set<ValidationMessage> validationMessages) {
-		KeywordWalkEvent keywordWalkEvent = constructKeywordWalkEvent(getKeywordName(keyWordPath), node, rootNode, at,
-				schemaPath, schemaNode, parentSchema);
-		for (KeywordWalkListener jsonKeywordWalkListener : jsonKeywordWalkListeners) {
-			jsonKeywordWalkListener.onWalkEnd(keywordWalkEvent, validationMessages);
+		String keyword = getKeywordName(keyWordPath);
+		KeywordWalkEvent keywordWalkEvent = constructKeywordWalkEvent(keyword, node, rootNode, at, schemaPath,
+				schemaNode, parentSchema);
+		List<KeywordWalkListener> allKeywordListeners = keywordWalkListenersMap
+				.get(JsonSchemaFactory.ALL_KEYWORD_WALK_LISTENER_KEY);
+		// Run Listeners that are setup for all keywords.
+		if (allKeywordListeners != null) {
+			for (KeywordWalkListener jsonKeywordWalkListener : allKeywordListeners) {
+				jsonKeywordWalkListener.onWalkEnd(keywordWalkEvent, validationMessages);
+			}
+		}
+		// Run Listeners that are setup only for this keyword.
+		List<KeywordWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
+		if (currentKeywordListeners != null) {
+			for (KeywordWalkListener jsonKeywordWalkListener : currentKeywordListeners) {
+				jsonKeywordWalkListener.onWalkEnd(keywordWalkEvent, validationMessages);
+			}
 		}
 	}
 

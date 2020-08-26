@@ -32,11 +32,11 @@ public class ValidationContext {
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
-	private List<KeywordWalkListener> jsonKeywordWalkListeners;
+	private final Map<String, List<KeywordWalkListener>> keywordWalkListenersMap;
 
 	public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
 			JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config,
-			List<KeywordWalkListener> jsonKeywordWalkListeners) {
+			Map<String, List<KeywordWalkListener>> keywordWalkListenersMap) {
 		if (uriFactory == null) {
 			throw new IllegalArgumentException("URIFactory must not be null");
 		}
@@ -51,7 +51,7 @@ public class ValidationContext {
 		this.metaSchema = metaSchema;
 		this.jsonSchemaFactory = jsonSchemaFactory;
 		this.config = config;
-		this.jsonKeywordWalkListeners = jsonKeywordWalkListeners;
+		this.keywordWalkListenersMap = keywordWalkListenersMap;
 	}
 
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
@@ -95,8 +95,8 @@ public class ValidationContext {
         return metaSchema;
     }
 
-	public List<KeywordWalkListener> getJsonKeywordWalkListeners() {
-		return jsonKeywordWalkListeners;
+	public Map<String, List<KeywordWalkListener>> getKeywordWalkListenersMap() {
+		return keywordWalkListenersMap;
 	}
 
 }

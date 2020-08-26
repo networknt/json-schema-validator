@@ -1,0 +1,7 @@
+{
+    "property1": "sample1",
+    "property2": "sample2",
+    "property3": {
+        "street_address":"test-address"
+    }
+}

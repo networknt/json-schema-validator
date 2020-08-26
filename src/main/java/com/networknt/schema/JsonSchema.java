@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.walk.KeywordWalkListener;
+import com.networknt.schema.walk.JsonWalker;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
 
 /**
@@ -43,8 +43,7 @@ public class JsonSchema extends BaseJsonValidator {
     protected Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
-    protected KeywordWalkListenerRunner jsonKeywordWalkListenerRunner;
-    protected List<KeywordWalkListener> jsonKeywordWalkListeners;
+    private KeywordWalkListenerRunner keywordWalkListenerRunner;
 
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
@@ -80,8 +79,7 @@ public class JsonSchema extends BaseJsonValidator {
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
-        this.jsonKeywordWalkListeners = validationContext.getJsonKeywordWalkListeners();
-        this.jsonKeywordWalkListenerRunner = new KeywordWalkListenerRunner(jsonKeywordWalkListeners);
+        this.keywordWalkListenerRunner = new KeywordWalkListenerRunner(validationContext.getKeywordWalkListenersMap());
     }
 
     JsonSchema initialize() {
@@ -285,21 +283,19 @@ public class JsonSchema extends BaseJsonValidator {
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		Iterator<String> schemaPathWithKeywordIterator = validators.keySet().iterator();
-		Iterator<JsonValidator> validatorsIterator = validators.values().iterator();
-		// Walk through all the validator's.
-		while (schemaPathWithKeywordIterator.hasNext() && validatorsIterator.hasNext()) {
-			JsonValidator jsonValidator = validatorsIterator.next();
-			String schemaPathWithKeyword = schemaPathWithKeywordIterator.next();
+		// Walk through all the JSONWalker's.
+		for (Entry<String, JsonValidator> entry : validators.entrySet()) {
+			JsonWalker jsonWalker = entry.getValue();
+			String schemaPathWithKeyword = entry.getKey();
 			try {
 				// Call all the pre-walk listeners.
-				jsonKeywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+				keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
 						schemaNode, parentSchema);
-				validationMessages.addAll(jsonValidator.walk(node, rootNode, AT_ROOT, shouldValidateSchema));
+				validationMessages.addAll(jsonWalker.walk(node, rootNode, AT_ROOT, shouldValidateSchema));
 			} finally {
 				// Call all the post-walk listeners.
-				jsonKeywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at,
-						schemaPath, schemaNode, parentSchema, validationMessages);
+				keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+						schemaNode, parentSchema, validationMessages);
 			}
 		}
 		return validationMessages;
