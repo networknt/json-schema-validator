@@ -288,10 +288,12 @@ public class JsonSchema extends BaseJsonValidator {
 			JsonWalker jsonWalker = entry.getValue();
 			String schemaPathWithKeyword = entry.getKey();
 			try {
-				// Call all the pre-walk listeners.
-				keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-						schemaNode, parentSchema);
-				validationMessages.addAll(jsonWalker.walk(node, rootNode, AT_ROOT, shouldValidateSchema));
+				// Call all the pre-walk listeners. If all the pre-walk listeners return true
+				// then continue to walk method.
+				if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+						schemaNode, parentSchema)) {
+					validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
+				}
 			} finally {
 				// Call all the post-walk listeners.
 				keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,

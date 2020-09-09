@@ -36,7 +36,8 @@ public class JsonWalkTest {
 		final JsonSchemaFactory schemaFactory = JsonSchemaFactory
 				.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
 				.addKeywordWalkListener(new AllKeywordListener())
-				.addKeywordWalkListener("$ref", new RefKeywordListener()).build();
+				.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener())
+				.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new PropertiesKeywordListener()).build();
 		this.jsonSchema = schemaFactory.getSchema(getSchema());
 	}
 
@@ -53,12 +54,16 @@ public class JsonWalkTest {
 				objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
 		JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_COLLECTOR);
 		assertTrue(collectedNode.equals(objectMapper.readTree("{" + 
-				"    \"PROPERTY1\": \"sample1\"," + 
-				"    \"PROPERTY2\": \"sample2\"," + 
-				"    \"property3\": {" + 
-				"        \"street_address\":\"test-address\"" + 
-				"    }" + 
-				"}")));
+				"    \"PROPERTY1\": \"sample1\","
+				+"    \"PROPERTY2\": \"sample2\"," 
+				+"    \"property3\": {" 
+				+"        \"street_address\":\"test-address\"," 
+				+"        \"phone_number\": {" 
+				+"            \"country-code\": \"091\"," 
+				+"            \"number\": \"123456789\"" 
+				+"          }"
+				+"     }" 
+				+"}")));
 	}
 
 	private InputStream getSchema() {
@@ -111,7 +116,7 @@ public class JsonWalkTest {
 
 	private class AllKeywordListener implements KeywordWalkListener {
 		@Override
-		public void onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
 			ObjectMapper mapper = new ObjectMapper();
 			String keyWordName = keywordWalkEvent.getKeyWordName();
 			JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
@@ -124,6 +129,7 @@ public class JsonWalkTest {
 				objectNode.put(keywordWalkEvent.getSchemaNode().get("title").textValue().toUpperCase(),
 						keywordWalkEvent.getNode().textValue());
 			}
+			return true;
 		}
 
 		@Override
@@ -135,19 +141,38 @@ public class JsonWalkTest {
 	private class RefKeywordListener implements KeywordWalkListener {
 
 		@Override
-		public void onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
 			ObjectMapper mapper = new ObjectMapper();
 			CollectorContext collectorContext = CollectorContext.getInstance();
 			if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
 				collectorContext.add(SAMPLE_COLLECTOR, mapper.createObjectNode());
 			}
 			ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_COLLECTOR);
-			objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(), keywordWalkEvent.getNode());
+			objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(),
+					keywordWalkEvent.getNode());
+			return false;
 		}
 
 		@Override
 		public void onWalkEnd(KeywordWalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+			
+		}
+	}
+	
+	private class PropertiesKeywordListener implements KeywordWalkListener {
 
+		@Override
+		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+			JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
+			if(schemaNode.get("title").textValue().equals("Property3")) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public void onWalkEnd(KeywordWalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+			
 		}
 	}
 

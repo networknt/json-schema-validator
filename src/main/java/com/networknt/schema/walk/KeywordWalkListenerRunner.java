@@ -17,26 +17,33 @@ public class KeywordWalkListenerRunner {
 		this.keywordWalkListenersMap = keywordWalkListenersMap;
 	}
 
-	public void runPreWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
+	public boolean runPreWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
 			JsonNode schemaNode, JsonSchema parentSchema) {
 		String keyword = getKeywordName(keyWordPath);
+		boolean continueRunningListenersAndWalk = true;
 		KeywordWalkEvent keywordWalkEvent = constructKeywordWalkEvent(keyword, node, rootNode, at, schemaPath,
 				schemaNode, parentSchema);
 		List<KeywordWalkListener> allKeywordListeners = keywordWalkListenersMap
 				.get(JsonSchemaFactory.ALL_KEYWORD_WALK_LISTENER_KEY);
-		// Run Listeners that are setup for all keywords.
-		if (allKeywordListeners != null) {
-			for (KeywordWalkListener jsonKeywordWalkListener : allKeywordListeners) {
-				jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
-			}
-		}
 		// Run Listeners that are setup only for this keyword.
 		List<KeywordWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
 		if (currentKeywordListeners != null) {
 			for (KeywordWalkListener jsonKeywordWalkListener : currentKeywordListeners) {
-				jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
+				if (!jsonKeywordWalkListener.onWalkStart(keywordWalkEvent)) {
+					continueRunningListenersAndWalk = false;
+					break;
+				}
 			}
 		}
+		if (continueRunningListenersAndWalk) {
+			// Run Listeners that are setup for all keywords.
+			if (allKeywordListeners != null) {
+				for (KeywordWalkListener jsonKeywordWalkListener : allKeywordListeners) {
+					jsonKeywordWalkListener.onWalkStart(keywordWalkEvent);
+				}
+			}
+		}
+		return continueRunningListenersAndWalk;
 	}
 
 	public void runPostWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
