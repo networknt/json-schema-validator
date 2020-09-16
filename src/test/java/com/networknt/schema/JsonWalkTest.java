@@ -14,8 +14,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.walk.KeywordWalkEvent;
-import com.networknt.schema.walk.KeywordWalkListener;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkListener;
 
 public class JsonWalkTest {
 
@@ -114,9 +114,9 @@ public class JsonWalkTest {
 		}
 	}
 
-	private class AllKeywordListener implements KeywordWalkListener {
+	private class AllKeywordListener implements WalkListener {
 		@Override
-		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+		public boolean onWalkStart(WalkEvent keywordWalkEvent) {
 			ObjectMapper mapper = new ObjectMapper();
 			String keyWordName = keywordWalkEvent.getKeyWordName();
 			JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
@@ -133,15 +133,15 @@ public class JsonWalkTest {
 		}
 
 		@Override
-		public void onWalkEnd(KeywordWalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+		public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
 
 		}
 	}
 
-	private class RefKeywordListener implements KeywordWalkListener {
+	private class RefKeywordListener implements WalkListener {
 
 		@Override
-		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+		public boolean onWalkStart(WalkEvent keywordWalkEvent) {
 			ObjectMapper mapper = new ObjectMapper();
 			CollectorContext collectorContext = CollectorContext.getInstance();
 			if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
@@ -154,15 +154,15 @@ public class JsonWalkTest {
 		}
 
 		@Override
-		public void onWalkEnd(KeywordWalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+		public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
 			
 		}
 	}
 	
-	private class PropertiesKeywordListener implements KeywordWalkListener {
+	private class PropertiesKeywordListener implements WalkListener {
 
 		@Override
-		public boolean onWalkStart(KeywordWalkEvent keywordWalkEvent) {
+		public boolean onWalkStart(WalkEvent keywordWalkEvent) {
 			JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
 			if(schemaNode.get("title").textValue().equals("Property3")) {
 				return false;
@@ -171,7 +171,7 @@ public class JsonWalkTest {
 		}
 
 		@Override
-		public void onWalkEnd(KeywordWalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+		public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
 			
 		}
 	}

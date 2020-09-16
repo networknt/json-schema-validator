@@ -5,10 +5,10 @@ import com.networknt.schema.JsonSchema;
 
 /**
  * 
- * Encapsulation of Walk data that is passed into the {@link KeywordWalkListener}.
+ * Encapsulation of Walk data that is passed into the {@link WalkListener}.
  *
  */
-public class KeywordWalkEvent {
+public class WalkEvent {
 
 	private String schemaPath;
 	private JsonNode schemaNode;
@@ -47,10 +47,10 @@ public class KeywordWalkEvent {
 	}
 
 	static class KeywordWalkEventBuilder {
-		private KeywordWalkEvent keywordWalkEvent = null;
+		private WalkEvent keywordWalkEvent = null;
 
 		KeywordWalkEventBuilder() {
-			keywordWalkEvent = new KeywordWalkEvent();
+			keywordWalkEvent = new WalkEvent();
 		}
 
 		public KeywordWalkEventBuilder schemaPath(String schemaPath) {
@@ -88,7 +88,7 @@ public class KeywordWalkEvent {
 			return this;
 		}
 
-		public KeywordWalkEvent build() {
+		public WalkEvent build() {
 			return keywordWalkEvent;
 		}
 

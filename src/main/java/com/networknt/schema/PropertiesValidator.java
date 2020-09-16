@@ -17,6 +17,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
+import com.networknt.schema.walk.WalkListenerRunner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private Map<String, JsonSchema> schemas;
+    private WalkListenerRunner propertyWalkListenerRunner;
 
     public PropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
@@ -35,6 +39,8 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema)
                 .initialize());
         }
+		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(
+				validationContext.getPropertyWalkListeners());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -100,14 +106,22 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 		if (shouldValidateSchema) {
 			return validate(node, rootNode, at);
 		} else {
+			HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+			boolean executeWalk = true;
 			for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
 				JsonSchema propertySchema = entry.getValue();
 				JsonNode propertyNode = node.get(entry.getKey());
-				if (propertyNode != null) {
+				executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
+						propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema());
+				if (propertyNode != null && executeWalk) {
 					propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(), false);
 				}
+				propertyWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
+						rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema(), validationMessages);
 			}
-			return new LinkedHashSet<ValidationMessage>();
+			return validationMessages;
 		}
 	}
 

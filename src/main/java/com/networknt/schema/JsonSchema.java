@@ -30,8 +30,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonWalker;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.WalkListenerRunner;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -43,7 +44,7 @@ public class JsonSchema extends BaseJsonValidator {
     protected Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
-    private KeywordWalkListenerRunner keywordWalkListenerRunner;
+    private WalkListenerRunner keywordWalkListenerRunner;
 
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
@@ -79,7 +80,7 @@ public class JsonSchema extends BaseJsonValidator {
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
-        this.keywordWalkListenerRunner = new KeywordWalkListenerRunner(validationContext.getKeywordWalkListenersMap());
+        this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(validationContext.getKeywordWalkListenersMap());
     }
 
     JsonSchema initialize() {

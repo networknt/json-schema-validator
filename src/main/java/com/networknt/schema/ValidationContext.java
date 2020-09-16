@@ -23,7 +23,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
-import com.networknt.schema.walk.KeywordWalkListener;
+import com.networknt.schema.walk.WalkListener;
 
 public class ValidationContext {
     private final URIFactory uriFactory;
@@ -32,11 +32,12 @@ public class ValidationContext {
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
-	private final Map<String, List<KeywordWalkListener>> keywordWalkListenersMap;
+	private final Map<String, List<WalkListener>> keywordWalkListenersMap;
+	private List<WalkListener> propertyWalkListeners;
 
 	public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
 			JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config,
-			Map<String, List<KeywordWalkListener>> keywordWalkListenersMap) {
+			Map<String, List<WalkListener>> keywordWalkListenersMap, List<WalkListener> propertyWalkListeners) {
 		if (uriFactory == null) {
 			throw new IllegalArgumentException("URIFactory must not be null");
 		}
@@ -52,6 +53,7 @@ public class ValidationContext {
 		this.jsonSchemaFactory = jsonSchemaFactory;
 		this.config = config;
 		this.keywordWalkListenersMap = keywordWalkListenersMap;
+		this.propertyWalkListeners = propertyWalkListeners;
 	}
 
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
@@ -95,8 +97,12 @@ public class ValidationContext {
         return metaSchema;
     }
 
-	public Map<String, List<KeywordWalkListener>> getKeywordWalkListenersMap() {
+	public Map<String, List<WalkListener>> getKeywordWalkListenersMap() {
 		return keywordWalkListenersMap;
+	}
+
+	public List<WalkListener> getPropertyWalkListeners() {
+		return propertyWalkListeners;
 	}
 
 }

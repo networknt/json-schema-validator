@@ -100,5 +100,43 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		if (shouldValidateSchema) {
+			return validate(node, rootNode, at);
+		} else {
+			HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+			if (node.isArray()) {
+				int i = 0;
+				for (JsonNode n : node) {
+					doWalk(i, n, rootNode, at);
+					i++;
+				}
+			} else {
+				doWalk(0, node, rootNode, at);
+			}
+			return validationMessages;
+		}
+	}
+
+	private void doWalk(int i, JsonNode node, JsonNode rootNode, String at) {
+		if (schema != null) {
+			// Walk the schema.
+			schema.walk(node, rootNode, at + "[" + i + "]", false);
+		}
+
+		if (tupleSchema != null) {
+			if (i < tupleSchema.size()) {
+				// walk tuple schema
+				tupleSchema.get(i).walk(node, rootNode, at + "[" + i + "]", false);
+			} else {
+				if (additionalSchema != null) {
+					// walk additional item schema
+					additionalSchema.walk(node, rootNode, at + "[" + i + "]", false);
+				}
+			}
+		}
+	}
 
 }
