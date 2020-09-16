@@ -64,7 +64,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jackson>2.10.4</version.jackson>
         <version.slf4j>1.7.25</version.slf4j>
-        <version.common-lang3>3.5</version.common-lang3>
+        <version.common-lang3>3.7</version.common-lang3>
         <version.joni>2.1.31</version.joni>
         <version.logback>1.2.3</version.logback>
         <version.junit>4.12</version.junit>
@@ -164,6 +164,39 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>1.0.0.RC1</version>
+                <executions>
+                    <execution>
+                        <id>add-module-info</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <jvmVersion>9</jvmVersion>
+                            <module>
+                                <moduleInfoSource>
+                                    module com.networknt.schema {
+                                        requires com.fasterxml.jackson.databind;
+                                        requires org.apache.commons.lang3;
+                                        requires org.jruby.jcodings;
+                                        requires org.jruby.joni;
+                                        requires slf4j.api;
+
+                                        exports com.networknt.schema;
+                                        exports com.networknt.schema.format;
+                                        exports com.networknt.schema.uri;
+                                        exports com.networknt.schema.urn;
+                                    }
+                                </moduleInfoSource>
+                            </module>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.8</version>
@@ -193,13 +226,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <source>8</source>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -243,7 +279,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
+                <version>0.8.6</version>
                 <executions>
                     <execution>
                         <id>pre-unit-test</id>
@@ -311,7 +347,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.9</version>
+                        <version>0.8.6</version>
                         <executions>
                             <!-- The Executions for merging -->
                             <execution>
