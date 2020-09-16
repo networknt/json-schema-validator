@@ -63,7 +63,7 @@
         <java.testversion>1.8</java.testversion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jackson>2.10.4</version.jackson>
-        <version.slf4j>1.7.25</version.slf4j>
+        <version.slf4j>1.7.30</version.slf4j>
         <version.common-lang3>3.7</version.common-lang3>
         <version.joni>2.1.31</version.joni>
         <version.logback>1.2.3</version.logback>
@@ -179,11 +179,11 @@
                             <module>
                                 <moduleInfoSource>
                                     module com.networknt.schema {
-                                        requires com.fasterxml.jackson.databind;
+                                        requires transitive com.fasterxml.jackson.databind;
                                         requires org.apache.commons.lang3;
                                         requires org.jruby.jcodings;
                                         requires org.jruby.joni;
-                                        requires slf4j.api;
+                                        requires org.slf4j;
 
                                         exports com.networknt.schema;
                                         exports com.networknt.schema.format;
