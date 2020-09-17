@@ -114,6 +114,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Collector Context](doc/collector-context.md)
 
+## [JSON Schema Walkers and WalkListeners](doc/walkers.md)
+
 ## [ECMA-262 Regex](doc/ecma-262.md)
 
 ## Known issues
