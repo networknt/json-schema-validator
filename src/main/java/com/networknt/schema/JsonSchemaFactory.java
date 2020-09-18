@@ -20,10 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,13 +40,10 @@ import com.networknt.schema.uri.URISchemeFetcher;
 import com.networknt.schema.uri.URLFactory;
 import com.networknt.schema.uri.URLFetcher;
 import com.networknt.schema.urn.URNFactory;
-import com.networknt.schema.walk.WalkListener;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
-    // This is just a constant for listening to all Keywords.
-    public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
 
 
     public static class Builder {
@@ -59,8 +54,7 @@ public class JsonSchemaFactory {
         private URNFactory urnFactory;
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
-		private final Map<String, List<WalkListener>> keywordWalkListenersMap = new HashMap<String, List<WalkListener>>();
-		private final List<WalkListener> propertyWalkListeners = new ArrayList<WalkListener>();
+		
 
         public Builder() {
             // Adds support for creating {@link URL}s.
@@ -144,52 +138,7 @@ public class JsonSchemaFactory {
             return this;
         }
         
-		public Builder addKeywordWalkListener(WalkListener keywordWalkListener) {
-			if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-				List<WalkListener> keywordWalkListeners = new ArrayList<WalkListener>();
-				keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListeners);
-			}
-			keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).add(keywordWalkListener);
-			return this;
-		}
 		
-		public Builder addKeywordWalkListener(String keyword, WalkListener keywordWalkListener) {
-			if (keywordWalkListenersMap.get(keyword) == null) {
-				List<WalkListener> keywordWalkListeners = new ArrayList<WalkListener>();
-				keywordWalkListenersMap.put(keyword, keywordWalkListeners);
-			}
-			keywordWalkListenersMap.get(keyword).add(keywordWalkListener);
-			return this;
-		}
-        
-       
-		public Builder addKeywordWalkListeners(List<WalkListener> keywordWalkListeners) {
-			if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-				List<WalkListener> ikeywordWalkListeners = new ArrayList<WalkListener>();
-				keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, ikeywordWalkListeners);
-			}
-			keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).addAll(keywordWalkListeners);
-			return this;
-		}
-		
-		public Builder addKeywordWalkListeners(String keyword, List<WalkListener> keywordWalkListeners) {
-			if (keywordWalkListenersMap.get(keyword) == null) {
-				List<WalkListener> ikeywordWalkListeners = new ArrayList<WalkListener>();
-				keywordWalkListenersMap.put(keyword, ikeywordWalkListeners);
-			}
-			keywordWalkListenersMap.get(keyword).addAll(keywordWalkListeners);
-			return this;
-		}
-		
-		public Builder addPropertyWalkListeners(List<WalkListener> propertyWalkListeners) {
-			this.propertyWalkListeners.addAll(propertyWalkListeners);
-			return this;
-		}
-
-		public Builder addPropertyWalkListener(WalkListener propertyWalkListener) {
-			this.propertyWalkListeners.add(propertyWalkListener);
-			return this;
-		}
 
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
@@ -200,9 +149,7 @@ public class JsonSchemaFactory {
                     new URISchemeFetcher(uriFetcherMap),
                     urnFactory,
                     jsonMetaSchemas,
-                    uriMap,
-                    keywordWalkListenersMap,
-                    propertyWalkListeners
+                    uriMap
             );
         }
     }
@@ -215,8 +162,6 @@ public class JsonSchemaFactory {
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
-	private final Map<String, List<WalkListener>> keywordWalkListenersMap;
-	private final List<WalkListener> propertyWalkListeners;
 
 
     private JsonSchemaFactory(
@@ -226,9 +171,7 @@ public class JsonSchemaFactory {
             final URISchemeFetcher uriFetcher,
             final URNFactory urnFactory,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
-            final Map<String, String> uriMap, 
-            final Map<String, List<WalkListener>> keywordWalkListenersMap, 
-            final List<WalkListener> propertyWalkListeners) {
+            final Map<String, String> uriMap) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
@@ -251,8 +194,6 @@ public class JsonSchemaFactory {
         this.urnFactory = urnFactory;
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.uriMap = uriMap;
-        this.keywordWalkListenersMap = keywordWalkListenersMap;
-        this.propertyWalkListeners = propertyWalkListeners;
     }
 
     /**
@@ -326,8 +267,7 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-		return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null,
-				this.keywordWalkListenersMap, this.propertyWalkListeners);
+		return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -400,8 +340,7 @@ public class JsonSchemaFactory {
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
 					jsonSchema = new JsonSchema(
-							new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config,
-									this.keywordWalkListenersMap, this.propertyWalkListeners),
+							new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config),
 							mappedUri, schemaNode, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);

@@ -134,15 +134,18 @@ private class PropertiesKeywordListener implements WalkListener {
 ```
 If the onWalkStart method returns false, the actual walk method execution is skipped.
 
-Walk listeners can be added by using the JsonSchemaFactory class.
+Walk listeners can be added by using the SchemaValidatorsConfig class.
 
 ```
+SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+    schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
+    schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+    schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+            new PropertiesKeywordListener());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
-                .addKeywordWalkListener(new AllKeywordListener())
-                .addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener())
-                .addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new PropertiesKeywordListener()).build();
-this.jsonSchema = schemaFactory.getSchema(getSchema());
+        .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+        .build();
+this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
                 
 ```
 
@@ -151,11 +154,12 @@ There are two kinds of walk listeners, keyword walk listeners and property walk 
 Both property walk listeners and keyword walk listener are modeled by using the same WalkListener interface. Following is an example of how to add a property walk listener.
 
 ```
+SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+schemaValidatorsConfig.addPropertyWalkListener(new ExampleProperties());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
-                .addKeywordWalkListener(new AllKeywordListener())
-                .addPropertyWalkListener(new ExampleProperties()).build();
-this.jsonSchema = schemaFactory.getSchema(getSchema());
+                .build();
+this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
                 
 ```
 

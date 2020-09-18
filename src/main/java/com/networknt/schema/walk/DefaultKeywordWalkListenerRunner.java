@@ -7,6 +7,7 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationMessage;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
@@ -30,7 +31,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 		if (continueRunningListenersAndWalk) {
 			// Run Listeners that are setup for all keywords.
 			List<WalkListener> allKeywordListeners = keywordWalkListenersMap
-					.get(JsonSchemaFactory.ALL_KEYWORD_WALK_LISTENER_KEY);
+					.get(SchemaValidatorsConfig.ALL_KEYWORD_WALK_LISTENER_KEY);
 			runPreWalkListeners(allKeywordListeners, keywordWalkEvent);
 		}
 		return continueRunningListenersAndWalk;
@@ -47,7 +48,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 		runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, validationMessages);
 		// Run Listeners that are setup for all keywords.
 		List<WalkListener> allKeywordListeners = keywordWalkListenersMap
-				.get(JsonSchemaFactory.ALL_KEYWORD_WALK_LISTENER_KEY);
+				.get(SchemaValidatorsConfig.ALL_KEYWORD_WALK_LISTENER_KEY);
 		runPostWalkListeners(allKeywordListeners, keywordWalkEvent, validationMessages);
 	}
 

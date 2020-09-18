@@ -40,7 +40,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                 .initialize());
         }
 		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(
-				validationContext.getPropertyWalkListeners());
+				config.getPropertyWalkListeners());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {

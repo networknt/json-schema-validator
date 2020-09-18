@@ -33,12 +33,15 @@ public class JsonWalkTest {
 	private void setupSchema() throws Exception {
 		final JsonMetaSchema metaSchema = getJsonMetaSchema(
 				"https://github.com/networknt/json-schema-validator/tests/schemas/example01");
+		SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+		schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
+		schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+		schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+				new PropertiesKeywordListener());
 		final JsonSchemaFactory schemaFactory = JsonSchemaFactory
 				.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
-				.addKeywordWalkListener(new AllKeywordListener())
-				.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener())
-				.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new PropertiesKeywordListener()).build();
-		this.jsonSchema = schemaFactory.getSchema(getSchema());
+				.build();
+		this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
 	}
 
 	private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
