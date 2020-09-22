@@ -50,14 +50,17 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		// Check if validation is needed. Else just walk through the schemas.
-		if (shouldValidateSchema) {
-			return validate(node, rootNode, at);
-		}
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+
 		for (JsonSchema schema : schemas) {
-			schema.walk(node, rootNode, at, shouldValidateSchema);
+			// Check if validation is needed.
+			if (shouldValidateSchema) {
+				validationMessages.addAll(schema.validate(node, rootNode, at));
+			}
+			// Walk through the schema
+			validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
 		}
-		return new LinkedHashSet<ValidationMessage>();
+		return Collections.unmodifiableSet(validationMessages);
 	}
 
 }

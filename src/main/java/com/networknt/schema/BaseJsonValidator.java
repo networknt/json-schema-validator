@@ -62,7 +62,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.failFast = failFast;
     }
 
-    protected String getSchemaPath() {
+    public String getSchemaPath() {
         return schemaPath;
     }
 

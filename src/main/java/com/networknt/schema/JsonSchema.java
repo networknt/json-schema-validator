@@ -80,7 +80,9 @@ public class JsonSchema extends BaseJsonValidator {
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
-        this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(config.getKeywordWalkListenersMap());
+		if (config != null) {
+			this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(config.getKeywordWalkListenersMap());
+		}
     }
 
     JsonSchema initialize() {

@@ -103,10 +103,10 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
 		if (shouldValidateSchema) {
-			return validate(node, rootNode, at);
+			validationMessages.addAll(validate(node, rootNode, at));
 		} else {
-			HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
 			boolean executeWalk = true;
 			for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
 				JsonSchema propertySchema = entry.getValue();
@@ -115,14 +115,20 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 						propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
 						propertySchema.getSchemaNode(), propertySchema.getParentSchema());
 				if (propertyNode != null && executeWalk) {
-					propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(), false);
+					validationMessages.addAll(propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(),
+							shouldValidateSchema));
 				}
 				propertyWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
 						rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
 						propertySchema.getSchemaNode(), propertySchema.getParentSchema(), validationMessages);
 			}
-			return validationMessages;
 		}
+		return validationMessages;
 	}
+
+	public Map<String, JsonSchema> getSchemas() {
+		return schemas;
+	}
+
 
 }

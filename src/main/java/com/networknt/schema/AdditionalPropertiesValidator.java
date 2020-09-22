@@ -110,7 +110,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
 		}
 		// Validate schema if required.
 		if (shouldValidateSchema) {
-			return validate(node, rootNode, at);
+			validationMessages.addAll(validate(node, rootNode, at));
 		}
 		for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
 			String pname = it.next();
@@ -129,8 +129,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
 			if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
 				if (allowAdditionalProperties) {
 					if (additionalPropertiesSchema != null) {
-						additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname,
-								shouldValidateSchema);
+						validationMessages.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname,
+								shouldValidateSchema));
 					}
 				}
 			}

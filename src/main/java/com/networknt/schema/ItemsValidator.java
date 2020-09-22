@@ -103,40 +103,54 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		if (shouldValidateSchema) {
-			return validate(node, rootNode, at);
-		} else {
-			HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-			if (node.isArray()) {
-				int i = 0;
-				for (JsonNode n : node) {
-					doWalk(i, n, rootNode, at);
-					i++;
-				}
-			} else {
-				doWalk(0, node, rootNode, at);
+		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (node.isArray()) {
+			int i = 0;
+			for (JsonNode n : node) {
+				doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
+				i++;
 			}
-			return validationMessages;
+		} else {
+			doWalk(validationMessages, 0, node, rootNode, at, shouldValidateSchema);
 		}
+		return validationMessages;
 	}
 
-	private void doWalk(int i, JsonNode node, JsonNode rootNode, String at) {
+	private void doWalk(HashSet<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode,
+			String at, boolean shouldValidateSchema) {
 		if (schema != null) {
+			if (shouldValidateSchema) {
+				validationMessages.addAll(schema.validate(node, rootNode, at));
+			}
 			// Walk the schema.
-			schema.walk(node, rootNode, at + "[" + i + "]", false);
+			validationMessages.addAll(schema.walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
 		}
 
 		if (tupleSchema != null) {
 			if (i < tupleSchema.size()) {
+				if (shouldValidateSchema) {
+					validationMessages.addAll(tupleSchema.get(i).validate(node, rootNode, at));
+				}
 				// walk tuple schema
-				tupleSchema.get(i).walk(node, rootNode, at + "[" + i + "]", false);
+				validationMessages.addAll(tupleSchema.get(i).walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
 			} else {
 				if (additionalSchema != null) {
+					if (shouldValidateSchema) {
+						validationMessages.addAll(additionalSchema.validate(node, rootNode, at));
+					}
 					// walk additional item schema
-					additionalSchema.walk(node, rootNode, at + "[" + i + "]", false);
+					validationMessages.addAll(additionalSchema.walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
 				}
 			}
 		}
+	}
+
+	public List<JsonSchema> getTupleSchema() {
+		return this.tupleSchema;
+	}
+
+	public JsonSchema getSchema() {
+		return schema;
 	}
 
 }

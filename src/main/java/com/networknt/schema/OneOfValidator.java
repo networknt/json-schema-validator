@@ -107,6 +107,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             return true;
         }
 
+		private JsonSchema getSchema() {
+			return schema;
+		}
+
     }
 
     public OneOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -190,6 +194,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         validatorState.remove();
 
         return Collections.unmodifiableSet(errors);
+    }
+    
+    public List<JsonSchema> getChildSchemas() {
+    	List<JsonSchema> childJsonSchemas = new ArrayList<JsonSchema>();
+    	for (ShortcutValidator shortcutValidator: schemas ) {
+    		childJsonSchemas.add(shortcutValidator.getSchema());
+    	}
+    	return childJsonSchemas;
     }
 
 }
