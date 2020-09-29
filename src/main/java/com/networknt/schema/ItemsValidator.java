@@ -104,7 +104,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		if (node.isArray()) {
+		if (node != null && node.isArray()) {
 			int i = 0;
 			for (JsonNode n : node) {
 				doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);

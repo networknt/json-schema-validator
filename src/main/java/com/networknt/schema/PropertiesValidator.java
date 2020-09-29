@@ -30,9 +30,11 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private Map<String, JsonSchema> schemas;
     private WalkListenerRunner propertyWalkListenerRunner;
+    private ValidationContext validationContext;
 
     public PropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
+        this.validationContext = validationContext;
         schemas = new HashMap<String, JsonSchema>();
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -110,17 +112,19 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 			boolean executeWalk = true;
 			for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
 				JsonSchema propertySchema = entry.getValue();
-				JsonNode propertyNode = node.get(entry.getKey());
+				JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
 				executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
 						propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
-						propertySchema.getSchemaNode(), propertySchema.getParentSchema());
-				if (propertyNode != null && executeWalk) {
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
+						validationContext.getJsonSchemaFactory());
+				if (executeWalk) {
 					validationMessages.addAll(propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(),
 							shouldValidateSchema));
 				}
 				propertyWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
 						rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
-						propertySchema.getSchemaNode(), propertySchema.getParentSchema(), validationMessages);
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
+						validationContext.getJsonSchemaFactory(), validationMessages);
 			}
 		}
 		return validationMessages;

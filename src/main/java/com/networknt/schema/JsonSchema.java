@@ -294,13 +294,13 @@ public class JsonSchema extends BaseJsonValidator {
 				// Call all the pre-walk listeners. If all the pre-walk listeners return true
 				// then continue to walk method.
 				if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-						schemaNode, parentSchema)) {
+						schemaNode, parentSchema, validationContext.getJsonSchemaFactory())) {
 					validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
 				}
 			} finally {
 				// Call all the post-walk listeners.
 				keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-						schemaNode, parentSchema, validationMessages);
+						schemaNode, parentSchema, validationContext.getJsonSchemaFactory(), validationMessages);
 			}
 		}
 		return validationMessages;

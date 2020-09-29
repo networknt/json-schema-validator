@@ -1,7 +1,10 @@
 package com.networknt.schema.walk;
 
+import java.net.URI;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
 
 /**
  * 
@@ -17,6 +20,7 @@ public class WalkEvent {
 	private JsonNode node;
 	private JsonNode rootNode;
 	private String at;
+	private JsonSchemaFactory currentJsonSchemaFactory;
 
 	public String getSchemaPath() {
 		return schemaPath;
@@ -44,6 +48,10 @@ public class WalkEvent {
 
 	public String getAt() {
 		return at;
+	}
+
+	public JsonSchema getRefSchema(URI schemaUri) {
+		return currentJsonSchemaFactory.getSchema(schemaUri);
 	}
 
 	static class KeywordWalkEventBuilder {
@@ -88,6 +96,11 @@ public class WalkEvent {
 			return this;
 		}
 
+		public KeywordWalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
+			keywordWalkEvent.currentJsonSchemaFactory = currentJsonSchemaFactory;
+			return this;
+		}
+
 		public WalkEvent build() {
 			return keywordWalkEvent;
 		}
@@ -97,4 +110,5 @@ public class WalkEvent {
 	public static KeywordWalkEventBuilder builder() {
 		return new KeywordWalkEventBuilder();
 	}
+
 }

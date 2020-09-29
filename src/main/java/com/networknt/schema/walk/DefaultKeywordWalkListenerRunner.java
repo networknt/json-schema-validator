@@ -20,11 +20,12 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
 	@Override
 	public boolean runPreWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at,
-			String schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
+			String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+			JsonSchemaFactory currentJsonSchemaFactory) {
 		String keyword = getKeywordName(keyWordPath);
 		boolean continueRunningListenersAndWalk = true;
 		WalkEvent keywordWalkEvent = constructWalkEvent(keyword, node, rootNode, at, schemaPath, schemaNode,
-				parentSchema);
+				parentSchema, currentJsonSchemaFactory);
 		// Run Listeners that are setup only for this keyword.
 		List<WalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
 		continueRunningListenersAndWalk = runPreWalkListeners(currentKeywordListeners, keywordWalkEvent);
@@ -39,10 +40,11 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
 	@Override
 	public void runPostWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at, String schemaPath,
-			JsonNode schemaNode, JsonSchema parentSchema, Set<ValidationMessage> validationMessages) {
+			JsonNode schemaNode, JsonSchema parentSchema, JsonSchemaFactory currentJsonSchemaFactory,
+			Set<ValidationMessage> validationMessages) {
 		String keyword = getKeywordName(keyWordPath);
 		WalkEvent keywordWalkEvent = constructWalkEvent(keyword, node, rootNode, at, schemaPath, schemaNode,
-				parentSchema);
+				parentSchema, currentJsonSchemaFactory);
 		// Run Listeners that are setup only for this keyword.
 		List<WalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
 		runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, validationMessages);

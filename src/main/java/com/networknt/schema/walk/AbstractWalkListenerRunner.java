@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 
 public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
@@ -14,9 +15,11 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 	}
 
 	protected WalkEvent constructWalkEvent(String keyWordName, JsonNode node, JsonNode rootNode, String at,
-			String schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
+			String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+			JsonSchemaFactory currentJsonSchemaFactory) {
 		return WalkEvent.builder().at(at).keyWordName(keyWordName).node(node).parentSchema(parentSchema)
-				.rootNode(rootNode).schemaNode(schemaNode).schemaPath(schemaPath).build();
+				.rootNode(rootNode).schemaNode(schemaNode).schemaPath(schemaPath)
+				.currentJsonSchemaFactory(currentJsonSchemaFactory).build();
 	}
 
 	protected boolean runPreWalkListeners(List<WalkListener> walkListeners, WalkEvent walkEvent) {
