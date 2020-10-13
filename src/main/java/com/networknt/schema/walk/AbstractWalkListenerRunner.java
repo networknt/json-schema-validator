@@ -26,7 +26,7 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 		boolean continueRunningListenersAndWalk = true;
 		if (walkListeners != null) {
 			for (WalkListener walkListener : walkListeners) {
-				if (!walkListener.onWalkStart(walkEvent)) {
+				if (WalkMethodInvocation.SKIP_WALK.equals(walkListener.onWalkStart(walkEvent))) {
 					continueRunningListenersAndWalk = false;
 					break;
 				}

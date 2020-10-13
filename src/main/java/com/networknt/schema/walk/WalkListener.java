@@ -11,7 +11,7 @@ import com.networknt.schema.ValidationMessage;
  */
 public interface WalkListener {
 
-	public boolean onWalkStart(WalkEvent walkEvent);
+	public WalkMethodInvocation onWalkStart(WalkEvent walkEvent);
 
 	public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages);
 }

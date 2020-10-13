@@ -54,49 +54,49 @@ public class WalkEvent {
 		return currentJsonSchemaFactory.getSchema(schemaUri);
 	}
 
-	static class KeywordWalkEventBuilder {
+	static class WalkEventBuilder {
 		private WalkEvent keywordWalkEvent = null;
 
-		KeywordWalkEventBuilder() {
+		WalkEventBuilder() {
 			keywordWalkEvent = new WalkEvent();
 		}
 
-		public KeywordWalkEventBuilder schemaPath(String schemaPath) {
+		public WalkEventBuilder schemaPath(String schemaPath) {
 			keywordWalkEvent.schemaPath = schemaPath;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder schemaNode(JsonNode schemaNode) {
+		public WalkEventBuilder schemaNode(JsonNode schemaNode) {
 			keywordWalkEvent.schemaNode = schemaNode;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder parentSchema(JsonSchema parentSchema) {
+		public WalkEventBuilder parentSchema(JsonSchema parentSchema) {
 			keywordWalkEvent.parentSchema = parentSchema;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder keyWordName(String keyWordName) {
+		public WalkEventBuilder keyWordName(String keyWordName) {
 			keywordWalkEvent.keyWordName = keyWordName;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder node(JsonNode node) {
+		public WalkEventBuilder node(JsonNode node) {
 			keywordWalkEvent.node = node;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder rootNode(JsonNode rootNode) {
+		public WalkEventBuilder rootNode(JsonNode rootNode) {
 			keywordWalkEvent.rootNode = rootNode;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder at(String at) {
+		public WalkEventBuilder at(String at) {
 			keywordWalkEvent.at = at;
 			return this;
 		}
 
-		public KeywordWalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
+		public WalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
 			keywordWalkEvent.currentJsonSchemaFactory = currentJsonSchemaFactory;
 			return this;
 		}
@@ -107,8 +107,8 @@ public class WalkEvent {
 
 	}
 
-	public static KeywordWalkEventBuilder builder() {
-		return new KeywordWalkEventBuilder();
+	public static WalkEventBuilder builder() {
+		return new WalkEventBuilder();
 	}
 
 }
