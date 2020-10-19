@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonValidator;
 import com.networknt.schema.ValidationMessage;
 
-public interface JsonWalker {
+public interface JsonSchemaWalker {
 	/**
 	 * 
 	 * This method gives the capability to walk through the given JsonNode, allowing

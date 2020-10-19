@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 public class SchemaValidatorsConfig {
     /**
@@ -61,9 +61,9 @@ public class SchemaValidatorsConfig {
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
     
-    private final Map<String, List<WalkListener>> keywordWalkListenersMap = new HashMap<String, List<WalkListener>>();
+    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
     
-	private final List<WalkListener> propertyWalkListeners = new ArrayList<WalkListener>();
+	private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -113,52 +113,52 @@ public class SchemaValidatorsConfig {
         this.ecma262Validator = ecma262Validator;
     }
     
-    public void addKeywordWalkListener(WalkListener keywordWalkListener) {
+    public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
 		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-			List<WalkListener> keywordWalkListeners = new ArrayList<WalkListener>();
+			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 			keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListeners);
 		}
 		keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).add(keywordWalkListener);
 	}
 	
-	public void addKeywordWalkListener(String keyword, WalkListener keywordWalkListener) {
+	public void addKeywordWalkListener(String keyword, JsonSchemaWalkListener keywordWalkListener) {
 		if (keywordWalkListenersMap.get(keyword) == null) {
-			List<WalkListener> keywordWalkListeners = new ArrayList<WalkListener>();
+			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 			keywordWalkListenersMap.put(keyword, keywordWalkListeners);
 		}
 		keywordWalkListenersMap.get(keyword).add(keywordWalkListener);
 	}
     
    
-	public void addKeywordWalkListeners(List<WalkListener> keywordWalkListeners) {
+	public void addKeywordWalkListeners(List<JsonSchemaWalkListener> keywordWalkListeners) {
 		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-			List<WalkListener> ikeywordWalkListeners = new ArrayList<WalkListener>();
+			List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 			keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, ikeywordWalkListeners);
 		}
 		keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).addAll(keywordWalkListeners);
 	}
 	
-	public void addKeywordWalkListeners(String keyword, List<WalkListener> keywordWalkListeners) {
+	public void addKeywordWalkListeners(String keyword, List<JsonSchemaWalkListener> keywordWalkListeners) {
 		if (keywordWalkListenersMap.get(keyword) == null) {
-			List<WalkListener> ikeywordWalkListeners = new ArrayList<WalkListener>();
+			List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 			keywordWalkListenersMap.put(keyword, ikeywordWalkListeners);
 		}
 		keywordWalkListenersMap.get(keyword).addAll(keywordWalkListeners);
 	}
 	
-	public void addPropertyWalkListeners(List<WalkListener> propertyWalkListeners) {
+	public void addPropertyWalkListeners(List<JsonSchemaWalkListener> propertyWalkListeners) {
 		this.propertyWalkListeners.addAll(propertyWalkListeners);
 	}
 
-	public void addPropertyWalkListener(WalkListener propertyWalkListener) {
+	public void addPropertyWalkListener(JsonSchemaWalkListener propertyWalkListener) {
 		this.propertyWalkListeners.add(propertyWalkListener);
 	}
 	
-	public List<WalkListener> getPropertyWalkListeners() {
+	public List<JsonSchemaWalkListener> getPropertyWalkListeners() {
 		return this.propertyWalkListeners;
 	}
 
-	public Map<String, List<WalkListener>> getKeywordWalkListenersMap() {
+	public Map<String, List<JsonSchemaWalkListener>> getKeywordWalkListenersMap() {
 		return this.keywordWalkListenersMap;
 	}
 

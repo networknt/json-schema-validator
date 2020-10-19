@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
-import com.networknt.schema.walk.JsonWalker;
+import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 /**
@@ -288,7 +288,7 @@ public class JsonSchema extends BaseJsonValidator {
 		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
 		// Walk through all the JSONWalker's.
 		for (Entry<String, JsonValidator> entry : validators.entrySet()) {
-			JsonWalker jsonWalker = entry.getValue();
+			JsonSchemaWalker jsonWalker = entry.getValue();
 			String schemaPathWithKeyword = entry.getKey();
 			try {
 				// Call all the pre-walk listeners. If all the pre-walk listeners return true

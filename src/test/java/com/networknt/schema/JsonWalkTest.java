@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.WalkEvent;
-import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 public class JsonWalkTest {
 
@@ -117,7 +117,7 @@ public class JsonWalkTest {
         }
     }
 
-    private static class AllKeywordListener implements WalkListener {
+    private static class AllKeywordListener implements JsonSchemaWalkListener {
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
@@ -141,7 +141,7 @@ public class JsonWalkTest {
         }
     }
 
-    private static class RefKeywordListener implements WalkListener {
+    private static class RefKeywordListener implements JsonSchemaWalkListener {
 
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
@@ -162,7 +162,7 @@ public class JsonWalkTest {
         }
     }
 
-    private static class PropertiesKeywordListener implements WalkListener {
+    private static class PropertiesKeywordListener implements JsonSchemaWalkListener {
 
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {

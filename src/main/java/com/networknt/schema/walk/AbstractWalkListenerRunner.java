@@ -22,10 +22,10 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 				.currentJsonSchemaFactory(currentJsonSchemaFactory).build();
 	}
 
-	protected boolean runPreWalkListeners(List<WalkListener> walkListeners, WalkEvent walkEvent) {
+	protected boolean runPreWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent) {
 		boolean continueRunningListenersAndWalk = true;
 		if (walkListeners != null) {
-			for (WalkListener walkListener : walkListeners) {
+			for (JsonSchemaWalkListener walkListener : walkListeners) {
 				if (WalkFlow.SKIP.equals(walkListener.onWalkStart(walkEvent))) {
 					continueRunningListenersAndWalk = false;
 					break;
@@ -35,10 +35,10 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 		return continueRunningListenersAndWalk;
 	}
 
-	protected void runPostWalkListeners(List<WalkListener> walkListeners, WalkEvent walkEvent,
-			Set<ValidationMessage> validationMessages) {
+	protected void runPostWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent,
+										Set<ValidationMessage> validationMessages) {
 		if (walkListeners != null) {
-			for (WalkListener walkListener : walkListeners) {
+			for (JsonSchemaWalkListener walkListener : walkListeners) {
 				walkListener.onWalkEnd(walkEvent, validationMessages);
 			}
 		}

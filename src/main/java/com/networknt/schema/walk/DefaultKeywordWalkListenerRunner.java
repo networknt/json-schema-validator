@@ -12,9 +12,9 @@ import com.networknt.schema.ValidationMessage;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
-	private Map<String, List<WalkListener>> keywordWalkListenersMap;
+	private Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap;
 
-	public DefaultKeywordWalkListenerRunner(Map<String, List<WalkListener>> keywordWalkListenersMap) {
+	public DefaultKeywordWalkListenerRunner(Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap) {
 		this.keywordWalkListenersMap = keywordWalkListenersMap;
 	}
 
@@ -27,11 +27,11 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 		WalkEvent keywordWalkEvent = constructWalkEvent(keyword, node, rootNode, at, schemaPath, schemaNode,
 				parentSchema, currentJsonSchemaFactory);
 		// Run Listeners that are setup only for this keyword.
-		List<WalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
+		List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
 		continueRunningListenersAndWalk = runPreWalkListeners(currentKeywordListeners, keywordWalkEvent);
 		if (continueRunningListenersAndWalk) {
 			// Run Listeners that are setup for all keywords.
-			List<WalkListener> allKeywordListeners = keywordWalkListenersMap
+			List<JsonSchemaWalkListener> allKeywordListeners = keywordWalkListenersMap
 					.get(SchemaValidatorsConfig.ALL_KEYWORD_WALK_LISTENER_KEY);
 			runPreWalkListeners(allKeywordListeners, keywordWalkEvent);
 		}
@@ -46,10 +46,10 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 		WalkEvent keywordWalkEvent = constructWalkEvent(keyword, node, rootNode, at, schemaPath, schemaNode,
 				parentSchema, currentJsonSchemaFactory);
 		// Run Listeners that are setup only for this keyword.
-		List<WalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
+		List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
 		runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, validationMessages);
 		// Run Listeners that are setup for all keywords.
-		List<WalkListener> allKeywordListeners = keywordWalkListenersMap
+		List<JsonSchemaWalkListener> allKeywordListeners = keywordWalkListenersMap
 				.get(SchemaValidatorsConfig.ALL_KEYWORD_WALK_LISTENER_KEY);
 		runPostWalkListeners(allKeywordListeners, keywordWalkEvent, validationMessages);
 	}

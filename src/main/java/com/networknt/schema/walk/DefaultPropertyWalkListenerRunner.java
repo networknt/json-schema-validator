@@ -10,9 +10,9 @@ import com.networknt.schema.ValidationMessage;
 
 public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunner {
 
-	private List<WalkListener> propertyWalkListeners;
+	private List<JsonSchemaWalkListener> propertyWalkListeners;
 
-	public DefaultPropertyWalkListenerRunner(List<WalkListener> propertyWalkListeners) {
+	public DefaultPropertyWalkListenerRunner(List<JsonSchemaWalkListener> propertyWalkListeners) {
 		this.propertyWalkListeners = propertyWalkListeners;
 	}
 

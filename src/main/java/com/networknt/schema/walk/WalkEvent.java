@@ -8,7 +8,7 @@ import com.networknt.schema.JsonSchemaFactory;
 
 /**
  * 
- * Encapsulation of Walk data that is passed into the {@link WalkListener}.
+ * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
  *
  */
 public class WalkEvent {

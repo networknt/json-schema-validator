@@ -9,7 +9,7 @@ import com.networknt.schema.ValidationMessage;
  * Listener class that captures walkStart and walkEnd events.
  *
  */
-public interface WalkListener {
+public interface JsonSchemaWalkListener {
 
 	public WalkFlow onWalkStart(WalkEvent walkEvent);
 
