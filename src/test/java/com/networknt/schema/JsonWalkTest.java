@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.networknt.schema.walk.WalkMethodInvocation;
+import com.networknt.schema.walk.WalkFlow;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,13 +27,12 @@ public class JsonWalkTest {
     private static final String CUSTOM_KEYWORD = "custom-keyword";
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setupSchema();
     }
 
-    private void setupSchema() throws Exception {
-        final JsonMetaSchema metaSchema = getJsonMetaSchema(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
+    private void setupSchema() {
+        final JsonMetaSchema metaSchema = getJsonMetaSchema();
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
@@ -45,10 +44,10 @@ public class JsonWalkTest {
         this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
     }
 
-    private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
-        JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
+    private JsonMetaSchema getJsonMetaSchema() {
+        return JsonMetaSchema.builder(
+                "https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV201909())
                 .addKeyword(new CustomKeyword()).build();
-        return jsonMetaSchema;
     }
 
     @Test
@@ -57,7 +56,7 @@ public class JsonWalkTest {
         ValidationResult result = jsonSchema.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
         JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_COLLECTOR);
-        assertTrue(collectedNode.equals(objectMapper.readTree("{" +
+        assertEquals(collectedNode, (objectMapper.readTree("{" +
                 "    \"PROPERTY1\": \"sample1\","
                 + "    \"PROPERTY2\": \"sample2\","
                 + "    \"property3\": {"
@@ -77,7 +76,7 @@ public class JsonWalkTest {
     /**
      * Our own custom keyword.
      */
-    private class CustomKeyword implements Keyword {
+    private static class CustomKeyword implements Keyword {
         @Override
         public String getValue() {
             return "custom-keyword";
@@ -85,7 +84,7 @@ public class JsonWalkTest {
 
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                          ValidationContext validationContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator();
             }
@@ -98,7 +97,7 @@ public class JsonWalkTest {
          * This will be helpful in cases where we don't want to revisit the entire JSON
          * document again just for gathering this kind of information.
          */
-        private class CustomValidator implements JsonValidator {
+        private static class CustomValidator implements JsonValidator {
 
             @Override
             public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -118,9 +117,9 @@ public class JsonWalkTest {
         }
     }
 
-    private class AllKeywordListener implements WalkListener {
+    private static class AllKeywordListener implements WalkListener {
         @Override
-        public WalkMethodInvocation onWalkStart(WalkEvent keywordWalkEvent) {
+        public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
             String keyWordName = keywordWalkEvent.getKeyWordName();
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
@@ -133,7 +132,7 @@ public class JsonWalkTest {
                 objectNode.put(keywordWalkEvent.getSchemaNode().get("title").textValue().toUpperCase(),
                         keywordWalkEvent.getNode().textValue());
             }
-            return WalkMethodInvocation.CONTINUE_TO_WALK;
+            return WalkFlow.CONTINUE;
         }
 
         @Override
@@ -142,10 +141,10 @@ public class JsonWalkTest {
         }
     }
 
-    private class RefKeywordListener implements WalkListener {
+    private static class RefKeywordListener implements WalkListener {
 
         @Override
-        public WalkMethodInvocation onWalkStart(WalkEvent keywordWalkEvent) {
+        public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
             CollectorContext collectorContext = CollectorContext.getInstance();
             if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
@@ -154,7 +153,7 @@ public class JsonWalkTest {
             ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_COLLECTOR);
             objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(),
                     keywordWalkEvent.getNode());
-            return WalkMethodInvocation.SKIP_WALK;
+            return WalkFlow.SKIP;
         }
 
         @Override
@@ -163,15 +162,15 @@ public class JsonWalkTest {
         }
     }
 
-    private class PropertiesKeywordListener implements WalkListener {
+    private static class PropertiesKeywordListener implements WalkListener {
 
         @Override
-        public WalkMethodInvocation onWalkStart(WalkEvent keywordWalkEvent) {
+        public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
             if (schemaNode.get("title").textValue().equals("Property3")) {
-                return WalkMethodInvocation.SKIP_WALK;
+                return WalkFlow.SKIP;
             }
-            return WalkMethodInvocation.CONTINUE_TO_WALK;
+            return WalkFlow.CONTINUE;
         }
 
         @Override
