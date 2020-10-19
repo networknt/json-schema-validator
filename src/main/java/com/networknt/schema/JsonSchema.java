@@ -16,14 +16,23 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
+import com.networknt.schema.walk.JsonSchemaWalker;
+import com.networknt.schema.walk.WalkListenerRunner;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -35,6 +44,7 @@ public class JsonSchema extends BaseJsonValidator {
     protected Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
+    private WalkListenerRunner keywordWalkListenerRunner;
 
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
@@ -70,6 +80,9 @@ public class JsonSchema extends BaseJsonValidator {
         this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
+		if (config != null) {
+			this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(config.getKeywordWalkListenersMap());
+		}
     }
 
     JsonSchema initialize() {
@@ -179,6 +192,11 @@ public class JsonSchema extends BaseJsonValidator {
         return false;
     }
 
+    
+	/**
+	 * Please note that the key in {@link #validators} map is a schema path. It is
+	 * used in {@link KeywordWalkListenerRunner} to derive the keyword.
+	 */
     private Map<String, JsonValidator> read(JsonNode schemaNode) {
         Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
         if (schemaNode.isBoolean()) {
@@ -207,6 +225,8 @@ public class JsonSchema extends BaseJsonValidator {
         }
         return validators;
     }
+    
+    /************************ START OF VALIDATE METHODS **********************************/
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -245,6 +265,48 @@ public class JsonSchema extends BaseJsonValidator {
             ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
         }
     }
+    
+    /************************ END OF VALIDATE METHODS **********************************/
+    
+    /************************ START OF WALK METHODS **********************************/
+    
+    public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
+		// Create the collector context object.
+		CollectorContext collectorContext = new CollectorContext();
+		// Set the collector context in thread info, this is unique for every thread.
+		ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+		Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
+		// Load all the data from collectors into the context.
+		collectorContext.loadCollectors();
+		// Collect errors and collector context into validation result.
+		ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+		return validationResult;
+	}
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		// Walk through all the JSONWalker's.
+		for (Entry<String, JsonValidator> entry : validators.entrySet()) {
+			JsonSchemaWalker jsonWalker = entry.getValue();
+			String schemaPathWithKeyword = entry.getKey();
+			try {
+				// Call all the pre-walk listeners. If all the pre-walk listeners return true
+				// then continue to walk method.
+				if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+						schemaNode, parentSchema, validationContext.getJsonSchemaFactory())) {
+					validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
+				}
+			} finally {
+				// Call all the post-walk listeners.
+				keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+						schemaNode, parentSchema, validationContext.getJsonSchemaFactory(), validationMessages);
+			}
+		}
+		return validationMessages;
+	}
+	
+	 /************************ END OF WALK METHODS **********************************/
 
     @Override
     public String toString() {

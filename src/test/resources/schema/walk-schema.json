@@ -1,0 +1,75 @@
+{
+    "definitions": {
+        "phone-number": {
+            "country-code": {
+                "title": "country code",
+                "type": "string"
+            },
+            "number": {
+                "title": "number",
+                "type": "number"
+            }
+        },
+        "address": {
+            "type": "object",
+            "title": "Address",
+            "properties": {
+                "street_address": {
+                    "title": "StreetAddress",
+                    "type": "string"
+                },
+                "city": {
+                    "title": "City",
+                    "type": "string"
+                },
+                "state": {
+                    "title": "State",
+                    "type": "string"
+                },
+                "phone_number": {
+                    "title": "PhoneNumber",
+                    "type": "object",
+                    "$ref": "#/definitions/phone-number"
+                }
+            },
+            "required": [
+                "city",
+                "state"
+            ]
+        }
+    },
+    "$schema": "https://github.com/networknt/json-schema-validator/tests/schemas/example01",
+    "title": "Sample test schema ",
+    "description": "Sample schema definition",
+    "type": " object",
+    "properties": {
+        "property1": {
+            "title": "Property1",
+            "type": "string",
+            "custom-keyword": [
+                
+            ]
+        },
+        "property2": {
+            "title": "Property2",
+            "type ": "string",
+            "custom-keyword": [
+                
+            ]
+        },
+        "property3": {
+            "title": "Property3",
+            "$ref": "#/definitions/address",
+            "properties": {
+                "property3.1": {
+                    "title": "Property3.1",
+                    "type ": "string"
+                }
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "property1"
+    ]
+}

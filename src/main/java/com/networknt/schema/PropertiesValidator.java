@@ -17,6 +17,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
+import com.networknt.schema.walk.WalkListenerRunner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,15 +29,20 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private Map<String, JsonSchema> schemas;
+    private WalkListenerRunner propertyWalkListenerRunner;
+    private ValidationContext validationContext;
 
     public PropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
+        this.validationContext = validationContext;
         schemas = new HashMap<String, JsonSchema>();
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema)
                 .initialize());
         }
+		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(
+				config.getPropertyWalkListeners());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -94,5 +102,37 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
         return Collections.unmodifiableSet(errors);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (shouldValidateSchema) {
+			validationMessages.addAll(validate(node, rootNode, at));
+		} else {
+			boolean executeWalk = true;
+			for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
+				JsonSchema propertySchema = entry.getValue();
+				JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
+				executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
+						propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
+						validationContext.getJsonSchemaFactory());
+				if (executeWalk) {
+					validationMessages.addAll(propertySchema.walk(propertyNode, rootNode, at + "." + entry.getKey(),
+							shouldValidateSchema));
+				}
+				propertyWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
+						rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
+						propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
+						validationContext.getJsonSchemaFactory(), validationMessages);
+			}
+		}
+		return validationMessages;
+	}
+
+	public Map<String, JsonSchema> getSchemas() {
+		return schemas;
+	}
+
 
 }

@@ -34,12 +34,12 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema)
+            schema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema)
                 .initialize();
         } else {
             tupleSchema = new ArrayList<JsonSchema>();
             for (JsonNode s : schemaNode) {
-                tupleSchema.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), s, parentSchema)
+                tupleSchema.add(new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema)
                     .initialize());
             }
 
@@ -100,5 +100,57 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (node != null && node.isArray()) {
+			int i = 0;
+			for (JsonNode n : node) {
+				doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
+				i++;
+			}
+		} else {
+			doWalk(validationMessages, 0, node, rootNode, at, shouldValidateSchema);
+		}
+		return validationMessages;
+	}
+
+	private void doWalk(HashSet<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode,
+			String at, boolean shouldValidateSchema) {
+		if (schema != null) {
+			if (shouldValidateSchema) {
+				validationMessages.addAll(schema.validate(node, rootNode, at));
+			}
+			// Walk the schema.
+			validationMessages.addAll(schema.walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
+		}
+
+		if (tupleSchema != null) {
+			if (i < tupleSchema.size()) {
+				if (shouldValidateSchema) {
+					validationMessages.addAll(tupleSchema.get(i).validate(node, rootNode, at));
+				}
+				// walk tuple schema
+				validationMessages.addAll(tupleSchema.get(i).walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
+			} else {
+				if (additionalSchema != null) {
+					if (shouldValidateSchema) {
+						validationMessages.addAll(additionalSchema.validate(node, rootNode, at));
+					}
+					// walk additional item schema
+					validationMessages.addAll(additionalSchema.walk(node, rootNode, at + "[" + i + "]", shouldValidateSchema));
+				}
+			}
+		}
+	}
+
+	public List<JsonSchema> getTupleSchema() {
+		return this.tupleSchema;
+	}
+
+	public JsonSchema getSchema() {
+		return schema;
+	}
 
 }

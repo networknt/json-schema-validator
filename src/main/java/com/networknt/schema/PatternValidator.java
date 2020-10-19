@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -52,6 +53,16 @@ public class PatternValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         return delegate.validate(node, rootNode, at);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (shouldValidateSchema) {
+			validationMessages.addAll(validate(node, rootNode, at));
+		}
+		validationMessages.addAll(delegate.walk(node, rootNode, at, shouldValidateSchema));
+		return validationMessages;
+	}
 
     private static class PatternValidatorJava extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
@@ -156,4 +167,5 @@ public class PatternValidator implements JsonValidator {
             return Collections.emptySet();
         }
     }
+
 }

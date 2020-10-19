@@ -16,11 +16,14 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 public class SchemaValidatorsConfig {
     /**
@@ -54,6 +57,13 @@ public class SchemaValidatorsConfig {
      * validator using the SchemaValidator to handle it.
      */
     private boolean handleNullableField = true;
+    
+    // This is just a constant for listening to all Keywords.
+    public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
+    
+    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
+    
+	private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -102,7 +112,57 @@ public class SchemaValidatorsConfig {
     public void setEcma262Validator(boolean ecma262Validator) {
         this.ecma262Validator = ecma262Validator;
     }
+    
+    public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
+		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
+			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+			keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListeners);
+		}
+		keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).add(keywordWalkListener);
+	}
+	
+	public void addKeywordWalkListener(String keyword, JsonSchemaWalkListener keywordWalkListener) {
+		if (keywordWalkListenersMap.get(keyword) == null) {
+			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+			keywordWalkListenersMap.put(keyword, keywordWalkListeners);
+		}
+		keywordWalkListenersMap.get(keyword).add(keywordWalkListener);
+	}
+    
+   
+	public void addKeywordWalkListeners(List<JsonSchemaWalkListener> keywordWalkListeners) {
+		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
+			List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+			keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, ikeywordWalkListeners);
+		}
+		keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).addAll(keywordWalkListeners);
+	}
+	
+	public void addKeywordWalkListeners(String keyword, List<JsonSchemaWalkListener> keywordWalkListeners) {
+		if (keywordWalkListenersMap.get(keyword) == null) {
+			List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+			keywordWalkListenersMap.put(keyword, ikeywordWalkListeners);
+		}
+		keywordWalkListenersMap.get(keyword).addAll(keywordWalkListeners);
+	}
+	
+	public void addPropertyWalkListeners(List<JsonSchemaWalkListener> propertyWalkListeners) {
+		this.propertyWalkListeners.addAll(propertyWalkListeners);
+	}
+
+	public void addPropertyWalkListener(JsonSchemaWalkListener propertyWalkListener) {
+		this.propertyWalkListeners.add(propertyWalkListener);
+	}
+	
+	public List<JsonSchemaWalkListener> getPropertyWalkListeners() {
+		return this.propertyWalkListeners;
+	}
+
+	public Map<String, List<JsonSchemaWalkListener>> getKeywordWalkListenersMap() {
+		return this.keywordWalkListenersMap;
+	}
 
     public SchemaValidatorsConfig() {
     }
+	
 }

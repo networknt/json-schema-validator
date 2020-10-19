@@ -16,13 +16,6 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.*;
-import com.networknt.schema.urn.URNFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -32,6 +25,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.uri.ClasspathURLFactory;
+import com.networknt.schema.uri.ClasspathURLFetcher;
+import com.networknt.schema.uri.URIFactory;
+import com.networknt.schema.uri.URIFetcher;
+import com.networknt.schema.uri.URISchemeFactory;
+import com.networknt.schema.uri.URISchemeFetcher;
+import com.networknt.schema.uri.URLFactory;
+import com.networknt.schema.uri.URLFetcher;
+import com.networknt.schema.urn.URNFactory;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -46,6 +54,7 @@ public class JsonSchemaFactory {
         private URNFactory urnFactory;
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
+		
 
         public Builder() {
             // Adds support for creating {@link URL}s.
@@ -128,6 +137,8 @@ public class JsonSchemaFactory {
             this.urnFactory = urnFactory;
             return this;
         }
+        
+		
 
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
@@ -256,7 +267,7 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
+		return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -328,7 +339,9 @@ public class JsonSchemaFactory {
 
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    jsonSchema = new JsonSchema(new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config), mappedUri, schemaNode, true /*retrieved via id, resolving will not change anything*/);
+					jsonSchema = new JsonSchema(
+							new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config),
+							mappedUri, schemaNode, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);

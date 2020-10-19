@@ -26,7 +26,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
     private List<JsonSchema> schemas = new ArrayList<JsonSchema>();
-
+    
     public AllOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
         int size = schemaNode.size();
@@ -47,5 +47,20 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
 
         return Collections.unmodifiableSet(errors);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+
+		for (JsonSchema schema : schemas) {
+			// Check if validation is needed.
+			if (shouldValidateSchema) {
+				validationMessages.addAll(schema.validate(node, rootNode, at));
+			}
+			// Walk through the schema
+			validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+		}
+		return Collections.unmodifiableSet(validationMessages);
+	}
 
 }

@@ -52,4 +52,8 @@ public class JsonSchemaRef {
     public JsonSchema getSchema() {
         return schema;
     }
+
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		return schema.walk(node, rootNode, at, shouldValidateSchema);
+	}
 }

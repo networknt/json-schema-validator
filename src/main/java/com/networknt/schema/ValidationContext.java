@@ -16,12 +16,12 @@
 
 package com.networknt.schema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ValidationContext {
     private final URIFactory uriFactory;
@@ -31,22 +31,23 @@ public class ValidationContext {
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
 
-    public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
-        if (uriFactory == null) {
-            throw new IllegalArgumentException("URIFactory must not be null");
-        }
-        if (metaSchema == null) {
-            throw new IllegalArgumentException("JsonMetaSchema must not be null");
-        }
-        if (jsonSchemaFactory == null) {
-            throw new IllegalArgumentException("JsonSchemaFactory must not be null");
-        }
-        this.uriFactory = uriFactory;
-        this.urnFactory = urnFactory;
-        this.metaSchema = metaSchema;
-        this.jsonSchemaFactory = jsonSchemaFactory;
-        this.config = config;
-    }
+	public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
+			JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+		if (uriFactory == null) {
+			throw new IllegalArgumentException("URIFactory must not be null");
+		}
+		if (metaSchema == null) {
+			throw new IllegalArgumentException("JsonMetaSchema must not be null");
+		}
+		if (jsonSchemaFactory == null) {
+			throw new IllegalArgumentException("JsonSchemaFactory must not be null");
+		}
+		this.uriFactory = uriFactory;
+		this.urnFactory = urnFactory;
+		this.metaSchema = metaSchema;
+		this.jsonSchemaFactory = jsonSchemaFactory;
+		this.config = config;
+	}
 
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
@@ -88,4 +89,5 @@ public class ValidationContext {
     protected JsonMetaSchema getMetaSchema() {
         return metaSchema;
     }
+
 }

@@ -16,17 +16,19 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.net.URI;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.net.URI;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public abstract class BaseJsonValidator implements JsonValidator {
-    private String schemaPath;
-    private JsonNode schemaNode;
-    private JsonSchema parentSchema;
+    protected String schemaPath;
+    protected JsonNode schemaNode;
+    protected JsonSchema parentSchema;
     private boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
@@ -60,7 +62,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.failFast = failFast;
     }
 
-    protected String getSchemaPath() {
+    public String getSchemaPath() {
         return schemaPath;
     }
 
@@ -68,7 +70,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return schemaNode;
     }
 
-    protected JsonSchema getParentSchema() {
+    public JsonSchema getParentSchema() {
         return parentSchema;
     }
 
@@ -148,4 +150,18 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
         return null;
     }
+    
+	/**
+	 * This is default implementation of walk method. Its job is to call the
+	 * validate method if shouldValidateSchema is enabled.
+	 */
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (shouldValidateSchema) {
+			validationMessages = validate(node, rootNode, at);
+		}
+		return validationMessages;
+	}
+
 }

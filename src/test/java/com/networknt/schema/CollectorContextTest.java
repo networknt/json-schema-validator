@@ -299,6 +299,12 @@ public class CollectorContextTest {
             return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
         }
 
+		@Override
+		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+			// Ignore this method for testing.
+			return null;
+		}
+
     }
 
     private class CustomCollector extends AbstractCollector<List<String>> {
@@ -370,6 +376,12 @@ public class CollectorContextTest {
         public Set<ValidationMessage> validate(JsonNode rootNode) {
             return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
         }
+
+        @Override
+		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+			// Ignore this method for testing.
+			return null;
+		}
     }
 
     private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {

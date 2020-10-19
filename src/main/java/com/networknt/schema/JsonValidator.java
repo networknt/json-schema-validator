@@ -16,14 +16,15 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.walk.JsonSchemaWalker;
 
 /**
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
-public interface JsonValidator {
+public interface JsonValidator extends JsonSchemaWalker {
     public static final String AT_ROOT = "$";
 
 
@@ -47,5 +48,6 @@ public interface JsonValidator {
      * list if there is no error.
      */
     Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at);
+    
 
 }

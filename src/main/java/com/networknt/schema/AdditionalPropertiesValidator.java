@@ -101,5 +101,42 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         }
         return Collections.unmodifiableSet(errors);
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+		if (!node.isObject()) {
+			return validationMessages;
+		}
+		// Validate schema if required.
+		if (shouldValidateSchema) {
+			validationMessages.addAll(validate(node, rootNode, at));
+		}
+		for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+			String pname = it.next();
+			// skip the context items
+			if (pname.startsWith("#")) {
+				continue;
+			}
+			boolean handledByPatternProperties = false;
+			for (Pattern pattern : patternProperties) {
+				Matcher m = pattern.matcher(pname);
+				if (m.find()) {
+					handledByPatternProperties = true;
+					break;
+				}
+			}
+			if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
+				if (allowAdditionalProperties) {
+					if (additionalPropertiesSchema != null) {
+						validationMessages.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname,
+								shouldValidateSchema));
+					}
+				}
+			}
+		}
+
+		return validationMessages;
+	}
 
 }

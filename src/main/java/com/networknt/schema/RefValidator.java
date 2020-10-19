@@ -23,22 +23,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchemaRef schema;
+    
+    private JsonSchema parentSchema;
+    
+    private ValidationContext validationContext;
 
     private static final String REF_CURRENT = "#";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         schema = getRefSchema(parentSchema, validationContext, refValue);
+        this.parentSchema = parentSchema;
+        this.validationContext = validationContext;
         if (schema == null) {
             throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
         }
@@ -134,5 +142,22 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             return Collections.emptySet();
         }
     }
+    
+	@Override
+	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+
+		if (shouldValidateSchema) {
+			validationMessages.addAll(validate(node, rootNode, at));
+		}
+		if (schema != null) {
+			validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+		}
+		return validationMessages;
+	}
+
+	public JsonSchemaRef getSchemaRef() {
+		return schema;
+	}
 
 }
