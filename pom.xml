@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.43</version>
+    <version>1.0.44</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4, v6, v7 and v2019-09</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -164,6 +164,7 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.moditect</groupId>
                 <artifactId>moditect-maven-plugin</artifactId>
@@ -197,6 +198,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>

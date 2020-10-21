@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.44 - 2020-10-20
+
+### Added
+
+### Changed
+- fixes #336 Adding walk capabilities to networknt. Thanks @prashanthjos
+- fixes #332 Bump junit from 4.12 to 4.13.1
+- fixes #329 JRuby Joni dependency and its dependencies
+- fixes #328 Add $comment as a NonValidationKeyword for v7 and v2019 drafts. Thanks @kmalski
+- fixes #324 Generate module-info, fix build on JDK11 Thanks @handcraftedbits
+- fixes #323 FIX: potential duplicate log entry due to race condition Thanks @kkonrad
+- fixes #319 resolve a java doc warning in CollectorContext
+
 ## 1.0.43 - 2020-08-10
 
 ### Added
