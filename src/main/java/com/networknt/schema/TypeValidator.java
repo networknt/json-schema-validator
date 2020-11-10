@@ -51,7 +51,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public boolean equalsToSchemaType(JsonNode node) {
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
         // in the case that node type is not the same as schema type, try to convert node to the
         // same type of schema. In REST API, query parameters, path parameters and headers are all
         // string type and we must convert, otherwise, all schema validations will fail.
@@ -107,7 +107,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         if (!equalsToSchemaType(node)) {
-            JsonType nodeType = TypeFactory.getValueNodeType(node);
+            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
         return Collections.emptySet();
@@ -218,14 +218,14 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
      * status of typeLoose flag.
      *
      * @param node        the JsonNode to check
-     * @param isTypeLoose The flag to show whether typeLoose is enabled
+     * @param config      the SchemaValidatorsConfig to depend on
      * @return boolean to indicate if it is a number
      */
-    public static boolean isNumber(JsonNode node, boolean isTypeLoose) {
+    public static boolean isNumber(JsonNode node, SchemaValidatorsConfig config) {
         if (node.isNumber()) {
             return true;
-        } else if (isTypeLoose) {
-            if (TypeFactory.getValueNodeType(node) == JsonType.STRING) {
+        } else if (config.isTypeLoose()) {
+            if (TypeFactory.getValueNodeType(node, config) == JsonType.STRING) {
                 return isNumeric(node.textValue());
             }
         }

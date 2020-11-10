@@ -96,7 +96,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
      * @param node JsonNode to check
      */
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
-        if (TypeFactory.getValueNodeType(node) == JsonType.STRING) {
+        if (TypeFactory.getValueNodeType(node, super.config) == JsonType.STRING) {
             String nodeText = node.textValue();
             for (JsonNode n : nodes) {
                 String value = n.asText();

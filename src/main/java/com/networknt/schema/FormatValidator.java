@@ -41,7 +41,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
         if (nodeType != JsonType.STRING) {
             return errors;
         }

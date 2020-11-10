@@ -94,7 +94,7 @@ public class PatternValidator implements JsonValidator {
         public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
             debug(logger, node, rootNode, at);
 
-            JsonType nodeType = TypeFactory.getValueNodeType(node);
+            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
             if (nodeType != JsonType.STRING) {
                 return Collections.emptySet();
             }
@@ -151,7 +151,7 @@ public class PatternValidator implements JsonValidator {
         public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
             debug(logger, node, rootNode, at);
 
-            JsonType nodeType = TypeFactory.getValueNodeType(node);
+            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
             if (nodeType != JsonType.STRING) {
                 return Collections.emptySet();
             }

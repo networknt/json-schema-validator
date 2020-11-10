@@ -66,7 +66,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
 
         boolean valid = false;
 

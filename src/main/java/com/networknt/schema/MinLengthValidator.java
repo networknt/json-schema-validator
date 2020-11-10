@@ -41,7 +41,7 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
         if (nodeType != JsonType.STRING) {
             // ignore non-string types
             return Collections.emptySet();
