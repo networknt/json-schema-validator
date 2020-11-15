@@ -18,8 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import javax.xml.validation.Schema;
-
 public class TypeFactory {
     public static JsonType getSchemaNodeType(JsonNode node) {
         //Single Type Definition

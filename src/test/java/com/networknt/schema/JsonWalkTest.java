@@ -1,6 +1,13 @@
 package com.networknt.schema;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,15 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.networknt.schema.walk.WalkFlow;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.walk.WalkEvent;
-import com.networknt.schema.walk.JsonSchemaWalkListener;
+import static org.junit.Assert.assertEquals;
 
 public class JsonWalkTest {
 

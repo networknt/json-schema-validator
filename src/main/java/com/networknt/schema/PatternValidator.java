@@ -16,12 +16,7 @@
 
 package com.networknt.schema;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;
 import org.joni.Regex;
@@ -30,7 +25,11 @@ import org.joni.exception.SyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class PatternValidator implements JsonValidator {
 

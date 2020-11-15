@@ -16,14 +16,10 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
+
+import java.util.*;
 
 public class SchemaValidatorsConfig {
     /**

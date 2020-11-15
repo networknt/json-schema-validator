@@ -1,14 +1,14 @@
 package com.networknt.schema.walk;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationMessage;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 

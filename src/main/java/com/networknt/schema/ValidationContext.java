@@ -16,12 +16,12 @@
 
 package com.networknt.schema;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ValidationContext {
     private final URIFactory uriFactory;

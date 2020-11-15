@@ -1,10 +1,10 @@
 package com.networknt.schema.walk;
 
-import java.net.URI;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+
+import java.net.URI;
 
 /**
  * 

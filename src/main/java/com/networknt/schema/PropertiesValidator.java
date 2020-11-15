@@ -19,7 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static com.networknt.schema.TypeFactory.getValueNodeType;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
 
 public class TypeFactoryTest {
 

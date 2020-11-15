@@ -16,14 +16,13 @@
 
 package com.networknt.schema;
 
-import java.net.URI;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.net.URI;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public abstract class BaseJsonValidator implements JsonValidator {
     protected String schemaPath;
