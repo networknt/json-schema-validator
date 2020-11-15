@@ -42,6 +42,11 @@ public class SchemaValidatorsConfig {
     private boolean ecma262Validator;
 
     /**
+     * When set to true, use Java-specific semantics rather than native JavaScript semantics
+     */
+    private boolean javaSemantics;
+
+    /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory}
      * may have been built with.
@@ -112,7 +117,11 @@ public class SchemaValidatorsConfig {
     public void setEcma262Validator(boolean ecma262Validator) {
         this.ecma262Validator = ecma262Validator;
     }
-    
+
+    public boolean isJavaSemantics() { return javaSemantics; }
+
+    public void setJavaSemantics(boolean javaSemantics) { this.javaSemantics = javaSemantics; }
+
     public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
 		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
 			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
