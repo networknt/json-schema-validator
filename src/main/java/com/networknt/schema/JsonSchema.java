@@ -95,7 +95,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri.toString()));
+                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri == null ? "null" : currentUri.toString()));
             }
         }
     }
