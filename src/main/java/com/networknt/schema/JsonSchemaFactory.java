@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +89,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFactory(final URIFactory uriFactory, final String... schemes) {
+            return uriFactory(uriFactory, Arrays.asList(schemes));
+        }
+
+        public Builder uriFactory(final URIFactory uriFactory, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFactoryMap.put(scheme, uriFactory);
             }
@@ -102,6 +107,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {
+            return uriFetcher(uriFetcher, Arrays.asList(schemes));
+        }
+
+        public Builder uriFetcher(final URIFetcher uriFetcher, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFetcherMap.put(scheme, uriFetcher);
             }
