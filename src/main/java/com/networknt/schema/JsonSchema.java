@@ -264,7 +264,13 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ END OF VALIDATE METHODS **********************************/
     
     /************************ START OF WALK METHODS **********************************/
-    
+
+    /**
+     * Walk the JSON node
+     * @param node JsonNode
+     * @param shouldValidateSchema indicator on validation
+     * @return result of ValidationResult
+     */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
 		// Create the collector context object.
 		CollectorContext collectorContext = new CollectorContext();
