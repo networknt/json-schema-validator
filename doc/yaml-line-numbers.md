@@ -299,5 +299,5 @@ Within the `ValidationMessage` object is something called the 'path' of the erro
 Although not trivial, the steps outlined here give us a way to track back to the original source YAML for a variety of possible reporting cases:
 
 * JSON processing exceptions (mostly already done for us)
-* Issues flagged during validation of the YAML against the 
-* Anything we need to report during with source information during post processing of the validated JSON tree
+* Issues flagged during validation of the YAML against the schema
+* Anything we need to report with source information during post processing of the validated JSON tree
