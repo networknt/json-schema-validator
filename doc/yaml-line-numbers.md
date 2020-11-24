@@ -6,7 +6,7 @@ A great feature of json-schema-validator is it's ability to validate YAML docume
 
 ### Scenario 1, solution part 1 - capturing line details during initial parsing
 
-One solution is to use a custom [JsonNodeFactory](https://fasterxml.github.io/jackson-databind/javadoc/2.10/com/fasterxml/jackson/databind/node/JsonNodeFactory.html) that returns custom JsonNode objects which are created during initial parsing, and which record the original YAML locations that were being parsed at the time they were created. The shortened example below shows this
+One solution is to use a custom [JsonNodeFactory](https://fasterxml.github.io/jackson-databind/javadoc/2.10/com/fasterxml/jackson/databind/node/JsonNodeFactory.html) that returns custom JsonNode objects which are created during initial parsing, and which record the original YAML locations that were being parsed at the time they were created. The example below shows this
 
 ```
     public static class MyNodeFactory extends JsonNodeFactory
@@ -55,8 +55,8 @@ The example above includes a basic, but usable subset of all possible JsonNode t
 
 There are some important other things to note from the example:
 
-* Even in a reduced set, ObjectNode and NullNode should be included
-* The current return for methods that receive a null parameter value seems to be null rather than NullNode (based on inspecting the underlying `valueOf()` methods in the various `JsonNode` sub classes). Hence the implementation of the `textNode()` method above.
+* Even in a reduced set, `ObjectNode` and `NullNode` should be included
+* The current return for methods that receive a null parameter value seems to be null rather than `NullNode` (based on inspecting the underlying `valueOf()` methods in the various `JsonNode` sub classes). Hence the implementation of the `textNode()` method above.
 
 The actual work here is really being done by the YAMLParser - it holds the location of the token being parsed, and the current location in the file. The first of these gives us a line and column number we can use to flag where an error or problem was found, and the second (if needed) can let us calculate a span to the end of the error e.g. if we wanted to highlight or underline the text in error.
 
@@ -191,7 +191,7 @@ Those could be the same thing of course, but in our case we separated them as sh
 
 ### Scenario 1, solution part 3 - using the custom `JsonNodeFactory`
 
-One we have these pieces, we just need to tell the YAML library to use them, which involves a minor and simple modification to the normal sequence of processing.
+With the pieces we now have, we just need to tell the YAML library to make of use them, which involves a minor and simple modification to the normal sequence of processing.
 
 ```
     this.yamlFactory = new YAMLFactory();
@@ -204,7 +204,7 @@ One we have these pieces, we just need to tell the YAML library to use them, whi
 
         if (msgs.isEmpty())
         {
-            for (JsonNode item : jsonNode.get("tcList"))
+            for (JsonNode item : jsonNode.get("someItem"))
             {
                 processJsonItems(item);
             }
@@ -228,7 +228,7 @@ Some notes on what is happening here:
 * We instantiate our custom JsonNodeFactory with the YAMLParser reference, and the line locations get recorded for us as the file is parsed.
 * If any exceptions are thrown, they will already contain a JsonLocation object that we can use directly if needed
 * If we get no validation messages, we know the JSON tree matches the schema and we can do any post processing we need on the tree. We'll see how to report any issues with this in the next part
-* We'll look at how to line locations for ValidationMessage errors in Scenario 2
+* We'll look at how to get line locations for ValidationMessage errors in Scenario 2
 
 ### Scenario 1, solution part 4 - extracting the line details
 
