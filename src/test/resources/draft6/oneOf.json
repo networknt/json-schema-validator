@@ -189,6 +189,11 @@
           "bar": "quux"
         },
         "valid": false
+      },
+      {
+        "description": "neither oneOf given (complex)",
+        "data": {},
+        "valid": false
       }
     ]
   },

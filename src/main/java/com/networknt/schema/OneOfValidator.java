@@ -162,31 +162,12 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                     continue;
 
                 numberOfValidSchema++;
-                errors = new LinkedHashSet<ValidationMessage>();
-            } else {
-                errors.addAll(schemaErrors);
             }
         }
 
-        // no valid schema has been found after validating all schema validators
-        if (numberOfValidSchema == 0) {
-            for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext(); ) {
-                ValidationMessage msg = it.next();
 
-                if (ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(msg.getType())) {
-                    it.remove();
-                }
-            }
-            if (errors.isEmpty()) {
-                // ensure there is always an error reported if number of valid schemas is 0
-                errors.add(buildValidationMessage(at, ""));
-            }
-        } else {
-            errors.clear();
-        }
-
-        // validated upfront
-        if (numberOfValidSchema > 1) {
+        // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
+        if (numberOfValidSchema != 1) {
             errors = Collections.singleton(buildValidationMessage(at, ""));
         }
 
