@@ -107,9 +107,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             return true;
         }
 
-		private JsonSchema getSchema() {
-			return schema;
-		}
+        private JsonSchema getSchema() {
+            return schema;
+        }
 
     }
 
@@ -119,7 +119,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
             JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema)
-                .initialize();
+                    .initialize();
             schemas.add(new ShortcutValidator(childNode, parentSchema, validationContext, childSchema));
         }
 
@@ -144,11 +144,16 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 //        	return Collections.unmodifiableSet(errors);
 //        }
 
+        boolean allConstantsMatch=false;
         for (ShortcutValidator validator : schemas) {
             if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
                 // we can bail out of the validation
                 continue;
+            } else {
+                if (validator.constants.size()>0) {
+                    allConstantsMatch=true;
+                }
             }
 
             // get the current validator
@@ -173,7 +178,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             for (Iterator<ValidationMessage> it = errors.iterator(); it.hasNext(); ) {
                 ValidationMessage msg = it.next();
 
-                if (ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(msg.getType())) {
+                if (!allConstantsMatch && ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(msg.getType())) {
                     it.remove();
                 }
             }
@@ -195,13 +200,13 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
         return Collections.unmodifiableSet(errors);
     }
-    
+
     public List<JsonSchema> getChildSchemas() {
-    	List<JsonSchema> childJsonSchemas = new ArrayList<JsonSchema>();
-    	for (ShortcutValidator shortcutValidator: schemas ) {
-    		childJsonSchemas.add(shortcutValidator.getSchema());
-    	}
-    	return childJsonSchemas;
+        List<JsonSchema> childJsonSchemas = new ArrayList<JsonSchema>();
+        for (ShortcutValidator shortcutValidator: schemas ) {
+            childJsonSchemas.add(shortcutValidator.getSchema());
+        }
+        return childJsonSchemas;
     }
 
 }
