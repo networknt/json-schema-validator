@@ -126,6 +126,12 @@ I have just updated the test suites from the [official website](https://github.c
 
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
 
+## Projects
+
+The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-4j](https://github.com/networknt/light-graphql-4j) and [light-hybrid-4j](https://github.com/networknt/light-hybrid-4j) use this library to validate the request and response based on the specifications. If you are using other frameworks like Spring Boot, you can use the [OpenApiValidator](https://github.com/mservicetech/openapi-schema-validation), a generic OpenAPI 3.0 validator based on the OpenAPI 3.0 specification. 
+
+If you have a project using this library, please submit a PR to add your project below.
+
 ## Contributors
 
 Thanks to the following people who have contributed to this project. If you are using this library, please consider to be a sponsor for one of the contributors. 
