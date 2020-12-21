@@ -1,0 +1,24 @@
+{
+  "$id": "https://example.com/properties.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "oneOf": [
+    {
+      "required": [
+        "requiredprop"
+      ],
+      "properties": {
+        "requiredprop": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "properties": {
+        "forbiddenprop": {
+          "type": "null"
+        }
+      }
+    }
+  ]
+}
+
