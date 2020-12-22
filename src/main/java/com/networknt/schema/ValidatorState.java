@@ -29,6 +29,11 @@ public class ValidatorState {
      */
     private boolean isComplexValidator = false;
 
+    /**
+     * Flag to check if walking is enabled while validation is happening.
+     */
+    private boolean isWalkEnabled = false;
+
     public void setMatchedNode(boolean matchedNode) {
         this.matchedNode = matchedNode;
     }
@@ -43,6 +48,14 @@ public class ValidatorState {
 
     public void setComplexValidator(boolean isComplexValidator) {
         this.isComplexValidator = isComplexValidator;
+    }
+
+    public boolean isWalkEnabled() {
+        return isWalkEnabled;
+    }
+
+    public void setWalkEnabled(boolean isWalkEnabled) {
+        this.isWalkEnabled = isWalkEnabled;
     }
 
 }
