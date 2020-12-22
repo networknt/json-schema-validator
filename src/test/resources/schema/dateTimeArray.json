@@ -1,0 +1,10 @@
+{
+  "$id": "https://example.com/dateTimeTest.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "string",
+    "format": "date-time"
+  }
+}
+
