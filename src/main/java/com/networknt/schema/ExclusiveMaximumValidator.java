@@ -99,7 +99,7 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, config.isTypeLoose())) {
+        if (!TypeValidator.isNumber(node, super.config)) {
             // maximum only applies to numbers
             return Collections.emptySet();
         }

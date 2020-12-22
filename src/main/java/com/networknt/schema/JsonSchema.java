@@ -16,23 +16,18 @@
 
 package com.networknt.schema;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -100,7 +95,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri.toString()));
+                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(), ValidatorTypeCode.ID, id, currentUri == null ? "null" : currentUri.toString()));
             }
         }
     }
@@ -269,7 +264,13 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ END OF VALIDATE METHODS **********************************/
     
     /************************ START OF WALK METHODS **********************************/
-    
+
+    /**
+     * Walk the JSON node
+     * @param node JsonNode
+     * @param shouldValidateSchema indicator on validation
+     * @return result of ValidationResult
+     */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
 		// Create the collector context object.
 		CollectorContext collectorContext = new CollectorContext();

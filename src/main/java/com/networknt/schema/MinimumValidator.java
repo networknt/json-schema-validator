@@ -114,7 +114,7 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, config.isTypeLoose())) {
+        if (!TypeValidator.isNumber(node, super.config)) {
             // minimum only applies to numbers
             return Collections.emptySet();
         }

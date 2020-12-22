@@ -16,30 +16,23 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.uri.*;
+import com.networknt.schema.urn.URNFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.ClasspathURLFactory;
-import com.networknt.schema.uri.ClasspathURLFetcher;
-import com.networknt.schema.uri.URIFactory;
-import com.networknt.schema.uri.URIFetcher;
-import com.networknt.schema.uri.URISchemeFactory;
-import com.networknt.schema.uri.URISchemeFetcher;
-import com.networknt.schema.uri.URLFactory;
-import com.networknt.schema.uri.URLFetcher;
-import com.networknt.schema.urn.URNFactory;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -96,6 +89,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFactory(final URIFactory uriFactory, final String... schemes) {
+            return uriFactory(uriFactory, Arrays.asList(schemes));
+        }
+
+        public Builder uriFactory(final URIFactory uriFactory, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFactoryMap.put(scheme, uriFactory);
             }
@@ -110,6 +107,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {
+            return uriFetcher(uriFetcher, Arrays.asList(schemes));
+        }
+
+        public Builder uriFetcher(final URIFetcher uriFetcher, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFetcherMap.put(scheme, uriFetcher);
             }

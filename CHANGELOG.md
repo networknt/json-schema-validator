@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.45 - 2020-11-21
+
+### Added
+
+### Changed
+
+- fixes #350 Add builder method that accepts iterable Thanks @wheelerlaw
+- fixes #347 NPE at JsonSchema.combineCurrentUriWithIds(JsonSchema.java:90) Thanks @wheelerlaw
+- fixes #346 Update docs about javaSemantics flag Thanks @oguzhanunlu
+- fixes #345 optimize imports in the src folder
+- fixes #343 Improve type validation of numeric values Thanks @oguzhanunlu
+- fixes #341 Add contentMediaType, contentEncoding and examples as a NonValidationKeyword Thanks @jonnybbb
+- fixes #337 JSON Schema Walk Changes Thanks @prashanthjos
+
 ## 1.0.44 - 2020-10-20
 
 ### Added

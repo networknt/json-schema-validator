@@ -16,14 +16,10 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
+
+import java.util.*;
 
 public class SchemaValidatorsConfig {
     /**
@@ -40,6 +36,11 @@ public class SchemaValidatorsConfig {
      * When set to true, use ECMA-262 compatible validator
      */
     private boolean ecma262Validator;
+
+    /**
+     * When set to true, use Java-specific semantics rather than native JavaScript semantics
+     */
+    private boolean javaSemantics;
 
     /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
@@ -112,7 +113,11 @@ public class SchemaValidatorsConfig {
     public void setEcma262Validator(boolean ecma262Validator) {
         this.ecma262Validator = ecma262Validator;
     }
-    
+
+    public boolean isJavaSemantics() { return javaSemantics; }
+
+    public void setJavaSemantics(boolean javaSemantics) { this.javaSemantics = javaSemantics; }
+
     public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
 		if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
 			List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();

@@ -1,8 +1,8 @@
 package com.networknt.schema.walk;
 
-import java.util.Set;
-
 import com.networknt.schema.ValidationMessage;
+
+import java.util.Set;
 
 /**
  * 

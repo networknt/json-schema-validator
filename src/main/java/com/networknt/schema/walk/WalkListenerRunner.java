@@ -1,11 +1,11 @@
 package com.networknt.schema.walk;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
+
+import java.util.Set;
 
 public interface WalkListenerRunner {
 

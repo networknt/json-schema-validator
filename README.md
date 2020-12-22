@@ -82,7 +82,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.43</version>
+    <version>1.0.45</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.43");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.45");
 }
 ```
 
@@ -125,6 +125,12 @@ I have just updated the test suites from the [official website](https://github.c
 [#7](https://github.com/networknt/json-schema-validator/issues/7)
 
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
+
+## Projects
+
+The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-4j](https://github.com/networknt/light-graphql-4j) and [light-hybrid-4j](https://github.com/networknt/light-hybrid-4j) use this library to validate the request and response based on the specifications. If you are using other frameworks like Spring Boot, you can use the [OpenApiValidator](https://github.com/mservicetech/openapi-schema-validation), a generic OpenAPI 3.0 validator based on the OpenAPI 3.0 specification. 
+
+If you have a project using this library, please submit a PR to add your project below.
 
 ## Contributors
 

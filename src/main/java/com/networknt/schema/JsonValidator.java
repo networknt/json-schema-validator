@@ -16,10 +16,10 @@
 
 package com.networknt.schema;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.JsonSchemaWalker;
+
+import java.util.Set;
 
 /**
  * Standard json validator interface, implemented by all validators and JsonSchema.

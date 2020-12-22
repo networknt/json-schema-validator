@@ -1,0 +1,19 @@
+{
+  "$id": "test",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Test description",
+  "properties": {
+    "test": {
+      "description": "Sample property",
+      "examples": [
+        "hello",
+        "world"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "test"
+  ],
+  "type": "object"
+}

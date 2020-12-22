@@ -41,7 +41,7 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
         if (nodeType != JsonType.STRING) {
             // ignore no-string typs
             return Collections.emptySet();

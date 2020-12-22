@@ -57,7 +57,7 @@ public class TypeFactory {
         return JsonType.UNKNOWN;
     }
 
-    public static JsonType getValueNodeType(JsonNode node) {
+    public static JsonType getValueNodeType(JsonNode node, SchemaValidatorsConfig config) {
         if (node.isContainerNode()) {
             if (node.isObject())
                 return JsonType.OBJECT;
@@ -72,7 +72,10 @@ public class TypeFactory {
             if (node.isIntegralNumber())
                 return JsonType.INTEGER;
             if (node.isNumber())
-                return JsonType.NUMBER;
+                if (config.isJavaSemantics() && node.canConvertToLong() && (node.asText().indexOf('.') == -1))
+                    return JsonType.INTEGER;
+                else
+                    return JsonType.NUMBER;
             if (node.isBoolean())
                 return JsonType.BOOLEAN;
             if (node.isNull())

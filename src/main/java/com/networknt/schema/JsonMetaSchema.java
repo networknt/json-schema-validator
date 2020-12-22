@@ -142,7 +142,10 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("description"),
                             new NonValidationKeyword("default"),
                             new NonValidationKeyword("definitions"),
-                            new NonValidationKeyword("$comment")
+                            new NonValidationKeyword("$comment"),
+                            new NonValidationKeyword("contentMediaType"),
+                            new NonValidationKeyword("contentEncoding"),
+                            new NonValidationKeyword("examples")
                     ))
                     .build();
         }
@@ -173,7 +176,12 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("default"),
                             new NonValidationKeyword("definitions"),
                             new NonValidationKeyword("$comment"),
-                            new NonValidationKeyword("$defs")  // newly added in 2018-09 release.
+                            new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
+                            new NonValidationKeyword("$anchor"),
+                            new NonValidationKeyword("deprecated"),
+                            new NonValidationKeyword("contentMediaType"),
+                            new NonValidationKeyword("contentEncoding"),
+                            new NonValidationKeyword("examples")
                     ))
                     .build();
         }
