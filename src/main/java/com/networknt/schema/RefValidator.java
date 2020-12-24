@@ -144,15 +144,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-
-		if (shouldValidateSchema) {
-			validationMessages.addAll(validate(node, rootNode, at));
-		}
 		if (schema != null) {
-			validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+			return schema.walk(node, rootNode, at, shouldValidateSchema);
 		}
-		return validationMessages;
+		return Collections.emptySet();
 	}
 
 	public JsonSchemaRef getSchemaRef() {

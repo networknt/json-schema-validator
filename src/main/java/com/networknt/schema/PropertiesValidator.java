@@ -70,7 +70,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                 }
                  // reset the complex validator for child element validation, and reset it after the return from the recursive call
                 state.setComplexValidator(false);
-                // 
+                
                 if (!state.isWalkEnabled()) {
                     //validate the child element(s)
                     errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
@@ -111,14 +111,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
         if (shouldValidateSchema) {
-            // get the Validator state object storing validation data
-            ValidatorState state = validatorState.get();
-            if (state == null) {
-                // if one has not been created, instantiate one
-                state = new ValidatorState();
-                state.setWalkEnabled(true);
-                validatorState.set(state);
-            }
             validationMessages.addAll(validate(node, rootNode, at));
         } else {
             for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
