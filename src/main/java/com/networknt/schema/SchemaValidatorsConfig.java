@@ -64,7 +64,9 @@ public class SchemaValidatorsConfig {
     
     private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
     
-	private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    
+    private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -157,6 +159,14 @@ public class SchemaValidatorsConfig {
 
 	public void addPropertyWalkListener(JsonSchemaWalkListener propertyWalkListener) {
 		this.propertyWalkListeners.add(propertyWalkListener);
+    }
+    
+    public void addItemWalkListener(JsonSchemaWalkListener itemWalkListener) {
+		this.itemWalkListeners.add(itemWalkListener);
+    }
+    
+    public void addItemWalkListeners(List<JsonSchemaWalkListener> itemWalkListeners) {
+		this.itemWalkListeners.addAll(itemWalkListeners);
 	}
 	
 	public List<JsonSchemaWalkListener> getPropertyWalkListeners() {
@@ -165,6 +175,10 @@ public class SchemaValidatorsConfig {
 
 	public Map<String, List<JsonSchemaWalkListener>> getKeywordWalkListenersMap() {
 		return this.keywordWalkListenersMap;
+    }
+    
+	public List<JsonSchemaWalkListener> getArrayItemWalkListeners() {
+		return this.itemWalkListeners;
 	}
 
     public SchemaValidatorsConfig() {
