@@ -246,8 +246,12 @@ public class JsonSchema extends BaseJsonValidator {
      */
     protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
         try {
-            // Create the collector context object.
-            CollectorContext collectorContext = new CollectorContext();
+            CollectorContext collectorContext;
+            if(this.config !=null && this.config.getCollectorContext() != null){
+                collectorContext = this.config.getCollectorContext();
+            } else {
+                collectorContext = new CollectorContext();
+            }
             // Set the collector context in thread info, this is unique for every thread.
             ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
