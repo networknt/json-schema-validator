@@ -161,7 +161,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             if (!state.isWalkEnabled()) { 
                 schemaErrors = schema.validate(node, rootNode, at);
             } else {
-                schemaErrors = schema.walk(node, rootNode, at, state.isWalkEnabled());
+                schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabledWhileWalking());
             }
 
             // check if any validation errors have occurred

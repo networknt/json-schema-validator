@@ -281,7 +281,7 @@ public class JsonSchema extends BaseJsonValidator {
 		// Set the collector context in thread info, this is unique for every thread.
         ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
         // Set the walkEnabled flag in internal validator state.
-        setValidatorState(shouldValidateSchema);
+        setValidatorState(true, shouldValidateSchema);
         // Walk through the schema.
 		Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
 		// Load all the data from collectors into the context.
@@ -317,13 +317,14 @@ public class JsonSchema extends BaseJsonValidator {
 	
 	 /************************ END OF WALK METHODS **********************************/
 
-    private void setValidatorState(boolean shouldValidateSchema) {
+    private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
         // Get the Validator state object storing validation data
         ValidatorState state = validatorState.get();
         if (state == null) {
             // if one has not been created, instantiate one
             state = new ValidatorState();
-            state.setWalkEnabled(shouldValidateSchema);
+            state.setWalkEnabled(isWalkEnabled);
+            state.setValidationEnabledWhileWalking(shouldValidateSchema);
             validatorState.set(state);
         }
     }
