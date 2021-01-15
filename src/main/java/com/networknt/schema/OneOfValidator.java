@@ -150,6 +150,8 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
         for (ShortcutValidator validator : schemas) {
             Set<ValidationMessage> schemaErrors = null;
+            // Reset state in case the previous validator did not match
+            state.setMatchedNode(true);
             if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
                 // we can bail out of the validation
