@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.46 - 2020-12-30
+
+### Added
+
+### Changed
+
+- fixes #362 Date-time validation fails depending on local time zone Thanks @ennoruijters
+- fixes #361 Validation of oneOf depends on schema order @Thanks ennoruijters
+- fixes #360 add four project links to the README.md
+- fixes #354 OneOf validator is not throwing valid error if any of the child nodes has invalid schemas Thanks @prubdeploy
+- fixes #351 Add anchor and deprecated as NonValidationKeywords for v2019-09 draft Thanks @anicolasgar
+- fixes #340 YAML source location handling Thanks @ascertrobw
+
 ## 1.0.45 - 2020-11-21
 
 ### Added

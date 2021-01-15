@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -136,6 +137,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private boolean validateDateTime(String dateTime, String pattern) {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         sdf.setLenient(false);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.parse(dateTime, new ParsePosition(0)) != null;
     }
 }
