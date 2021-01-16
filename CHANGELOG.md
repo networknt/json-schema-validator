@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.47 - 2021-01-16
+
+### Added
+
+### Changed
+
+- fixes #368 Fixing Walk Listeners Issues. @Thanks prashanthjos
+- fixes #363 Date-time validation fails depending on local time zone. Thanks @ennoruijters
+
 ## 1.0.46 - 2020-12-30
 
 ### Added
