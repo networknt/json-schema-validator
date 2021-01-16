@@ -55,12 +55,7 @@ public class PatternValidator implements JsonValidator {
     
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		if (shouldValidateSchema) {
-			validationMessages.addAll(validate(node, rootNode, at));
-		}
-		validationMessages.addAll(delegate.walk(node, rootNode, at, shouldValidateSchema));
-		return validationMessages;
+		return delegate.walk(node, rootNode, at, shouldValidateSchema);
 	}
 
     private static class PatternValidatorJava extends BaseJsonValidator implements JsonValidator {

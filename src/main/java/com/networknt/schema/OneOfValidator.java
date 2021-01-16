@@ -129,10 +129,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
+        ValidatorState state = validatorState.get();
+        if (state == null) {
+            state = new ValidatorState();
+            validatorState.set(state);
+        }
         // this is a complex validator, we set the flag to true
-        ValidatorState state = new ValidatorState();
         state.setComplexValidator(true);
-        validatorState.set(state);
+        
 
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -145,6 +149,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 //        }
 
         for (ShortcutValidator validator : schemas) {
+            Set<ValidationMessage> schemaErrors = null;
             // Reset state in case the previous validator did not match
             state.setMatchedNode(true);
             if (!validator.allConstantsMatch(node)) {
@@ -155,7 +160,11 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
             // get the current validator
             JsonSchema schema = validator.schema;
-            Set<ValidationMessage> schemaErrors = schema.validate(node, rootNode, at);
+            if (!state.isWalkEnabled()) { 
+                schemaErrors = schema.validate(node, rootNode, at);
+            } else {
+                schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabledWhileWalking());
+            }
 
             // check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
@@ -185,6 +194,19 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     		childJsonSchemas.add(shortcutValidator.getSchema());
     	}
     	return childJsonSchemas;
+    }
+
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        if (shouldValidateSchema) {
+            validationMessages.addAll(validate(node, rootNode, at));
+        } else {
+            for (ShortcutValidator validator : schemas) {
+                validator.schema.walk(node, rootNode, at , shouldValidateSchema);
+            }
+        }
+        return validationMessages;
     }
 
 }

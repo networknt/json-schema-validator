@@ -61,10 +61,14 @@ public class SchemaValidatorsConfig {
     
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
-    
+
     private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
     
-	private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    
+    private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+
+    private CollectorContext collectorContext;
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -157,6 +161,14 @@ public class SchemaValidatorsConfig {
 
 	public void addPropertyWalkListener(JsonSchemaWalkListener propertyWalkListener) {
 		this.propertyWalkListeners.add(propertyWalkListener);
+    }
+    
+    public void addItemWalkListener(JsonSchemaWalkListener itemWalkListener) {
+		this.itemWalkListeners.add(itemWalkListener);
+    }
+    
+    public void addItemWalkListeners(List<JsonSchemaWalkListener> itemWalkListeners) {
+		this.itemWalkListeners.addAll(itemWalkListeners);
 	}
 	
 	public List<JsonSchemaWalkListener> getPropertyWalkListeners() {
@@ -165,9 +177,20 @@ public class SchemaValidatorsConfig {
 
 	public Map<String, List<JsonSchemaWalkListener>> getKeywordWalkListenersMap() {
 		return this.keywordWalkListenersMap;
+    }
+    
+	public List<JsonSchemaWalkListener> getArrayItemWalkListeners() {
+		return this.itemWalkListeners;
 	}
 
     public SchemaValidatorsConfig() {
+    }
+
+    public CollectorContext getCollectorContext() {
+        return collectorContext;
+    }
+    public void setCollectorContext(CollectorContext collectorContext) {
+        this.collectorContext = collectorContext;
     }
 	
 }

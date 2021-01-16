@@ -246,8 +246,12 @@ public class JsonSchema extends BaseJsonValidator {
      */
     protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
         try {
-            // Create the collector context object.
-            CollectorContext collectorContext = new CollectorContext();
+            CollectorContext collectorContext;
+            if(this.config !=null && this.config.getCollectorContext() != null){
+                collectorContext = this.config.getCollectorContext();
+            } else {
+                collectorContext = new CollectorContext();
+            }
             // Set the collector context in thread info, this is unique for every thread.
             ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
@@ -275,7 +279,10 @@ public class JsonSchema extends BaseJsonValidator {
 		// Create the collector context object.
 		CollectorContext collectorContext = new CollectorContext();
 		// Set the collector context in thread info, this is unique for every thread.
-		ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+        ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+        // Set the walkEnabled flag in internal validator state.
+        setValidatorState(true, shouldValidateSchema);
+        // Walk through the schema.
 		Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
 		// Load all the data from collectors into the context.
 		collectorContext.loadCollectors();
@@ -284,7 +291,8 @@ public class JsonSchema extends BaseJsonValidator {
 		return validationResult;
 	}
     
-	@Override
+
+    @Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
 		// Walk through all the JSONWalker's.
@@ -308,6 +316,18 @@ public class JsonSchema extends BaseJsonValidator {
 	}
 	
 	 /************************ END OF WALK METHODS **********************************/
+
+    private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
+        // Get the Validator state object storing validation data
+        ValidatorState state = validatorState.get();
+        if (state == null) {
+            // if one has not been created, instantiate one
+            state = new ValidatorState();
+            state.setWalkEnabled(isWalkEnabled);
+            state.setValidationEnabledWhileWalking(shouldValidateSchema);
+            validatorState.set(state);
+        }
+    }
 
     @Override
     public String toString() {

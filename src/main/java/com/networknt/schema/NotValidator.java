@@ -49,12 +49,7 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
     
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-    	Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>(); 
-    	if (shouldValidateSchema) {
-    		validationMessages.addAll(validate(node, rootNode, at));
-    	}
-    	validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
-    	return validationMessages;
+    	return schema.walk(node, rootNode, at, shouldValidateSchema);
     }
 
 }
