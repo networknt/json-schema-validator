@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class PropertyNamesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
@@ -57,6 +58,9 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                     }
                     if("minLength".equals(entry.getKey()) && pname.length() < entry.getValue().getSchemaNode().intValue()) {
                         errors.add(buildValidationMessage(at + "." + pname, "minLength"));
+                    }
+                    if("pattern".equals(entry.getKey()) && !Pattern.matches(entry.getValue().getSchemaNode().textValue(),pname)) {
+                        errors.add(buildValidationMessage(at + "." + pname, "pattern"));
                     }
                 }
             }
