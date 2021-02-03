@@ -126,7 +126,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
         final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
-        if (failFast && !isPartOfMultipleType()) {
+        if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
         return message;
@@ -163,7 +163,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return validationMessages;
     }
 
-    protected boolean isPartOfMultipleType(){
+    protected boolean isPartOfOneOfMultipleType(){
         return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
     }
 

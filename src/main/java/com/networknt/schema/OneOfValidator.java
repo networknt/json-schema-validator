@@ -182,9 +182,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         if(numberOfValidSchema > 1){
-            final ValidationMessage message = getBothSchemasValidErrorMsg(at);
-            if(failFast)
+            final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
+            if( failFast ) {
                 throw new JsonSchemaException(message);
+            }
             errors.add(message);
         }
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
@@ -192,7 +193,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             if (!childErrors.isEmpty()) {
                 errors.addAll(childErrors);
             }
-            if(failFast){
+            if( failFast ){
                 throw new JsonSchemaException(errors.toString());
             }
         }
@@ -225,7 +226,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         return validationMessages;
     }
 
-    private ValidationMessage getBothSchemasValidErrorMsg(String at){
+    private ValidationMessage getMultiSchemasValidErrorMsg(String at){
         String msg="";
         for(ShortcutValidator schema: schemas){
             String schemaValue = schema.getSchema().getSchemaNode().toString();
@@ -233,7 +234,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(),ValidatorTypeCode.ONE_OF ,
-                at, String.format("but both schemas {%s} are valid ",msg));
+                at, String.format("but more than one schemas {%s} are valid ",msg));
 
         return message;
     }
