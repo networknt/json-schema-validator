@@ -107,9 +107,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             return true;
         }
 
-		private JsonSchema getSchema() {
-			return schema;
-		}
+        private JsonSchema getSchema() {
+            return schema;
+        }
 
     }
 
@@ -119,7 +119,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
             JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema)
-                .initialize();
+                    .initialize();
             schemas.add(new ShortcutValidator(childNode, parentSchema, validationContext, childSchema));
         }
 
@@ -136,11 +136,11 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
         // this is a complex validator, we set the flag to true
         state.setComplexValidator(true);
-        
+
 
         int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-
+        Set<ValidationMessage> childErrors = new LinkedHashSet<ValidationMessage>();
         // validate that only a single element has been received in the oneOf node
         // validation should not continue, as it contradicts the oneOf requirement of only one
 //        if(node.isObject() && node.size()>1) {
@@ -152,15 +152,17 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             Set<ValidationMessage> schemaErrors = null;
             // Reset state in case the previous validator did not match
             state.setMatchedNode(true);
-            if (!validator.allConstantsMatch(node)) {
+
+            //This prevents from collecting all the  error messages in proper format.
+           /* if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
                 // we can bail out of the validation
                 continue;
-            }
+            }*/
 
             // get the current validator
             JsonSchema schema = validator.schema;
-            if (!state.isWalkEnabled()) { 
+            if (!state.isWalkEnabled()) {
                 schemaErrors = schema.validate(node, rootNode, at);
             } else {
                 schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabledWhileWalking());
@@ -174,26 +176,41 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
                 numberOfValidSchema++;
             }
+            childErrors.addAll(schemaErrors);
         }
 
 
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-        if (numberOfValidSchema != 1) {
-            errors = Collections.singleton(buildValidationMessage(at, ""));
+        if(numberOfValidSchema > 1){
+            final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
+            if( failFast ) {
+                throw new JsonSchemaException(message);
+            }
+            errors.add(message);
         }
+        // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
+        else if (numberOfValidSchema < 1) {
+            if (!childErrors.isEmpty()) {
+                errors.addAll(childErrors);
+            }
+            if( failFast ){
+                throw new JsonSchemaException(errors.toString());
+            }
+        }
+
 
         // reset the ValidatorState object in the ThreadLocal
         validatorState.remove();
 
         return Collections.unmodifiableSet(errors);
     }
-    
+
     public List<JsonSchema> getChildSchemas() {
-    	List<JsonSchema> childJsonSchemas = new ArrayList<JsonSchema>();
-    	for (ShortcutValidator shortcutValidator: schemas ) {
-    		childJsonSchemas.add(shortcutValidator.getSchema());
-    	}
-    	return childJsonSchemas;
+        List<JsonSchema> childJsonSchemas = new ArrayList<JsonSchema>();
+        for (ShortcutValidator shortcutValidator: schemas ) {
+            childJsonSchemas.add(shortcutValidator.getSchema());
+        }
+        return childJsonSchemas;
     }
 
     @Override
@@ -207,6 +224,19 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
         return validationMessages;
+    }
+
+    private ValidationMessage getMultiSchemasValidErrorMsg(String at){
+        String msg="";
+        for(ShortcutValidator schema: schemas){
+            String schemaValue = schema.getSchema().getSchemaNode().toString();
+            msg = msg.concat(schemaValue);
+        }
+
+        ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(),ValidatorTypeCode.ONE_OF ,
+                at, String.format("but more than one schemas {%s} are valid ",msg));
+
+        return message;
     }
 
 }
