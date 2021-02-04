@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.48 - 2021-02-04
+
+### Added
+
+### Changed
+
+- fixes #326 pattern validation for propertyNames. @Thanks @LeifRilbeATG
+- fixes #366 Fast fail issue with One Of Validator. Thanks @Krishna-capone
+
 ## 1.0.47 - 2021-01-16
 
 ### Added
