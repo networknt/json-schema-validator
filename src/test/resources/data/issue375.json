@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "longName123": {
+      "action": "doStuff"
+    },
+    "a": {
+      "action": "doMagic"
+    }
+  }
+}

@@ -35,7 +35,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
             for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
                 String pname = it.next();
                 schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema)
-                        .initialize());
+                    .initialize());
             }
         }
     }
@@ -53,14 +53,17 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                 }
                 for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
                     String pname = it.next();
-                    if("maxLength".equals(entry.getKey()) && pname.length() > entry.getValue().getSchemaNode().intValue()) {
-                        errors.add(buildValidationMessage(at + "." + pname, "maxLength"));
+                    int maxLength = entry.getValue().getSchemaNode().intValue();
+                    if("maxLength".equals(entry.getKey()) && pname.length() > maxLength) {
+                        errors.add(buildValidationMessage(at + "." + pname, "maxLength " + maxLength));
                     }
-                    if("minLength".equals(entry.getKey()) && pname.length() < entry.getValue().getSchemaNode().intValue()) {
-                        errors.add(buildValidationMessage(at + "." + pname, "minLength"));
+                    int minLength = entry.getValue().getSchemaNode().intValue();
+                    if("minLength".equals(entry.getKey()) && pname.length() < minLength) {
+                        errors.add(buildValidationMessage(at + "." + pname, "minLength " + minLength));
                     }
-                    if("pattern".equals(entry.getKey()) && !Pattern.matches(entry.getValue().getSchemaNode().textValue(),pname)) {
-                        errors.add(buildValidationMessage(at + "." + pname, "pattern"));
+                    String pattern = entry.getValue().getSchemaNode().textValue();
+                    if("pattern".equals(entry.getKey()) && !Pattern.matches(pattern,pname)) {
+                        errors.add(buildValidationMessage(at + "." + pname, "pattern " + pattern));
                     }
                 }
             }

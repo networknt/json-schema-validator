@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "title": "test",
+  "description": "asdasdint",
+  "type": "object",
+  "properties": {
+    "fields": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-zA-Z]+$",
+        "maxLength": 5,
+        "minLength": 3
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "action"
+        ]
+      }
+    }
+  }
+}
