@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.49 - 2021-02-17
+
+### Added
+
+### Changed
+
+- fixes #375 PropertyNames to return validator value on error. Thanks @Eivyses
+- fixes #335 Fixed parallel processing. @Thanks @mweber03
+
 ## 1.0.48 - 2021-02-04
 
 ### Added
