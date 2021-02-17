@@ -41,13 +41,12 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             schema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode,
-                    parentSchema).initialize();
+                    parentSchema);
         } else {
             tupleSchema = new ArrayList<JsonSchema>();
             for (JsonNode s : schemaNode) {
                 tupleSchema.add(
-                        new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema)
-                                .initialize());
+                        new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
             }
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
@@ -55,8 +54,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
                 if (addItemNode.isBoolean()) {
                     additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    additionalSchema = new JsonSchema(validationContext, parentSchema.getCurrentUri(), addItemNode)
-                            .initialize();
+                    additionalSchema = new JsonSchema(validationContext, parentSchema.getCurrentUri(), addItemNode);
                 }
             }
         }

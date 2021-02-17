@@ -97,8 +97,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
                 if (ref == null) {
                     ref = new JsonSchemaRef(validationContext, refValue);
                     validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
-                    JsonSchema ret = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema)
-                        .initialize();
+                    JsonSchema ret = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
                     ref.set(ret);
                 }
                 return ref;

@@ -263,7 +263,7 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        return new JsonSchema(validationContext, schemaUri, schemaNode).initialize();
+        return new JsonSchema(validationContext, schemaUri, schemaNode);
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -349,7 +349,6 @@ public class JsonSchemaFactory {
                     jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
                 }
                 uriSchemaCache.put(mappedUri, jsonSchema);
-                jsonSchema.initialize();
 
                 return jsonSchema;
             } finally {

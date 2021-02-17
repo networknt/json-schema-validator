@@ -34,8 +34,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
             schemas = new HashMap<String, JsonSchema>();
             for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
                 String pname = it.next();
-                schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema)
-                    .initialize());
+                schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema));
             }
         }
     }
