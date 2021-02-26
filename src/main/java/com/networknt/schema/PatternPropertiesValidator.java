@@ -38,8 +38,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
-            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema)
-                .initialize());
+            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema));
         }
     }
 

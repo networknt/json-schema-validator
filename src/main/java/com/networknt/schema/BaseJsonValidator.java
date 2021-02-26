@@ -126,7 +126,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
         final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
-        if (failFast) {
+        if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
         return message;
@@ -149,18 +149,22 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
         return null;
     }
-    
-	/**
-	 * This is default implementation of walk method. Its job is to call the
-	 * validate method if shouldValidateSchema is enabled.
-	 */
-	@Override
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		if (shouldValidateSchema) {
-			validationMessages = validate(node, rootNode, at);
-		}
-		return validationMessages;
-	}
+
+    /**
+     * This is default implementation of walk method. Its job is to call the
+     * validate method if shouldValidateSchema is enabled.
+     */
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        if (shouldValidateSchema) {
+            validationMessages = validate(node, rootNode, at);
+        }
+        return validationMessages;
+    }
+
+    protected boolean isPartOfOneOfMultipleType(){
+        return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
+    }
 
 }

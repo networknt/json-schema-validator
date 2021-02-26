@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.49 - 2021-02-17
+
+### Added
+
+### Changed
+
+- fixes #375 PropertyNames to return validator value on error. Thanks @Eivyses
+- fixes #335 Fixed parallel processing. @Thanks @mweber03
+
+## 1.0.48 - 2021-02-04
+
+### Added
+
+### Changed
+
+- fixes #326 pattern validation for propertyNames. @Thanks @LeifRilbeATG
+- fixes #366 Fast fail issue with One Of Validator. Thanks @Krishna-capone
+
+## 1.0.47 - 2021-01-16
+
+### Added
+
+### Changed
+
+- fixes #368 Fixing Walk Listeners Issues. @Thanks prashanthjos
+- fixes #363 Date-time validation fails depending on local time zone. Thanks @ennoruijters
+
 ## 1.0.46 - 2020-12-30
 
 ### Added
