@@ -31,8 +31,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode.get(i), parentSchema)
-                .initialize());
+            schemas.add(new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode.get(i), parentSchema));
         }
     }
 
@@ -43,8 +42,8 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         String typeValidatorName = "anyOf/type";
 
         for (JsonSchema schema : schemas) {
-            if (schema.validators.containsKey(typeValidatorName)) {
-                TypeValidator typeValidator = ((TypeValidator) schema.validators.get(typeValidatorName));
+            if (schema.getValidators().containsKey(typeValidatorName)) {
+                TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
                 //If schema has type validator and node type doesn't match with schemaType then ignore it
                 //For union type, it is must to call TypeValidator
                 if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {

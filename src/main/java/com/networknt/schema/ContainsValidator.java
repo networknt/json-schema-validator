@@ -31,8 +31,7 @@ public class ContainsValidator extends BaseJsonValidator implements JsonValidato
     public ContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema)
-                .initialize();
+            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());

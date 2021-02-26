@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  */
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
-    protected Map<String, JsonValidator> validators;
+    private Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
     private WalkListenerRunner keywordWalkListenerRunner;
@@ -78,11 +78,6 @@ public class JsonSchema extends BaseJsonValidator {
 		if (config != null) {
 			this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(config.getKeywordWalkListenersMap());
 		}
-    }
-
-    JsonSchema initialize() {
-        this.validators = Collections.unmodifiableMap(this.read(getSchemaNode()));
-        return this;
     }
 
     private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
@@ -225,7 +220,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        for (JsonValidator v : validators.values()) {
+        for (JsonValidator v : getValidators().values()) {
             errors.addAll(v.validate(jsonNode, rootNode, at));
         }
         return errors;
@@ -296,7 +291,7 @@ public class JsonSchema extends BaseJsonValidator {
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
 		// Walk through all the JSONWalker's.
-		for (Entry<String, JsonValidator> entry : validators.entrySet()) {
+		for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
 			JsonSchemaWalker jsonWalker = entry.getValue();
 			String schemaPathWithKeyword = entry.getKey();
 			try {
@@ -343,6 +338,9 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public Map<String, JsonValidator> getValidators() {
+        if (validators == null) {
+            validators = Collections.unmodifiableMap(this.read(getSchemaNode()));
+        }
         return validators;
     }
 
