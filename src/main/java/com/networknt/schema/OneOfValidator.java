@@ -237,5 +237,5 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         return message;
     }
 
-
+ 
 }
