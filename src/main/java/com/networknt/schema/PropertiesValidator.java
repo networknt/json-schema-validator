@@ -37,6 +37,10 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         schemas = new HashMap<String, JsonSchema>();
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
+            if ("coordinates".equals(pname)) {
+                // Quick fix to skip coordinates arrays
+                continue;
+            }
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema)
                 .initialize());
         }

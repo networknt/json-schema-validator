@@ -1,0 +1,55 @@
+[
+  {
+    "description": "Test modification in PropertiesValidator.java to skip 'coordinates' arrays",
+    "schema": {
+      "properties": {
+        "geometrie": {
+          "$ref": "#/LineString"
+        },
+        "bar": {
+          "type": "string"
+        }
+      },
+      "Point3D": {
+        "type": "array",
+        "description": "Point in 3D space",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "LineString": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "LineString"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/Point3D"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "Property 'coordinates' should not be validated",
+        "data": {
+          "geometrie": {
+            "type": "LineString",
+            "coordinates": [[1, 1], ["xxx"], [3, 3]]
+          },
+          "bar": "test"
+        },
+        "valid": true
+      }
+    ]
+  }
+]

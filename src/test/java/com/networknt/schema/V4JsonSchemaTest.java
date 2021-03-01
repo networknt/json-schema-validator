@@ -254,6 +254,11 @@ public class V4JsonSchemaTest {
     }
 
     @Test
+    public void testExcludedPropertiesValidator() throws Exception {
+        runTestFile("draft4/excluded_properties.json");
+    }
+
+    @Test
     public void testPatternValidator() throws Exception {
         runTestFile("draft4/pattern.json");
     }
