@@ -220,7 +220,12 @@ public class JsonSchema extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        // create and get the collector context.
+        createAndGetCollectorContext();
+        // Set the walkEnabled and isValidationEnabledWhileWalking flag in internal validator state.
+        setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
+            // Validate.
             errors.addAll(v.validate(jsonNode, rootNode, at));
         }
         return errors;
@@ -241,14 +246,9 @@ public class JsonSchema extends BaseJsonValidator {
      */
     protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
         try {
-            CollectorContext collectorContext;
-            if(this.config !=null && this.config.getCollectorContext() != null){
-                collectorContext = this.config.getCollectorContext();
-            } else {
-                collectorContext = new CollectorContext();
-            }
-            // Set the collector context in thread info, this is unique for every thread.
-            ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+            // create and get the collector context.
+            CollectorContext collectorContext = createAndGetCollectorContext();
+            // Valdiate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
@@ -271,58 +271,71 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-		// Create the collector context object.
-		CollectorContext collectorContext = new CollectorContext();
-		// Set the collector context in thread info, this is unique for every thread.
-        ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+        // create and get the collector context.
+        CollectorContext collectorContext = createAndGetCollectorContext();
         // Set the walkEnabled flag in internal validator state.
         setValidatorState(true, shouldValidateSchema);
         // Walk through the schema.
-		Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
-		// Load all the data from collectors into the context.
-		collectorContext.loadCollectors();
-		// Collect errors and collector context into validation result.
-		ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-		return validationResult;
-	}
+        Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
+        // Load all the data from collectors into the context.
+        collectorContext.loadCollectors();
+        // Collect errors and collector context into validation result.
+        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+        return validationResult;
+    }
     
 
     @Override
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		// Walk through all the JSONWalker's.
-		for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
-			JsonSchemaWalker jsonWalker = entry.getValue();
-			String schemaPathWithKeyword = entry.getKey();
-			try {
-				// Call all the pre-walk listeners. If all the pre-walk listeners return true
-				// then continue to walk method.
-				if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-						schemaNode, parentSchema, validationContext.getJsonSchemaFactory())) {
-					validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
-				}
-			} finally {
-				// Call all the post-walk listeners.
-				keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-						schemaNode, parentSchema, validationContext.getJsonSchemaFactory(), validationMessages);
-			}
-		}
-		return validationMessages;
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        // Walk through all the JSONWalker's.
+        for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
+            JsonSchemaWalker jsonWalker = entry.getValue();
+            String schemaPathWithKeyword = entry.getKey();
+            try {
+                // Call all the pre-walk listeners. If atleast one of the pre walk listeners
+                // returns SKIP_WALK, then skip the walk.
+                if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+                        schemaNode, parentSchema, validationContext.getJsonSchemaFactory())) {
+                    validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
+                }
+            } finally {
+                // Call all the post-walk listeners.
+                keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
+                        schemaNode, parentSchema, validationContext.getJsonSchemaFactory(), validationMessages);
+            }
+        }
+        return validationMessages;
 	}
 	
 	 /************************ END OF WALK METHODS **********************************/
 
-    private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
-        // Get the Validator state object storing validation data
-        ValidatorState state = validatorState.get();
-        if (state == null) {
-            // if one has not been created, instantiate one
-            state = new ValidatorState();
-            state.setWalkEnabled(isWalkEnabled);
-            state.setValidationEnabledWhileWalking(shouldValidateSchema);
-            validatorState.set(state);
-        }
-    }
+     private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
+         // Get the Validator state object storing validation data
+         Object stateObj = CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+         // if one has not been created, instantiate one
+         if (stateObj == null) {
+             ValidatorState state = new ValidatorState();
+             state.setWalkEnabled(isWalkEnabled);
+             state.setValidationEnabledWhileWalking(shouldValidateSchema);
+             CollectorContext.getInstance().add(ValidatorState.VALIDATOR_STATE_KEY, state);
+         }
+     }
+
+
+     public CollectorContext createAndGetCollectorContext() {
+        CollectorContext collectorContext = (CollectorContext) ThreadInfo.get(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+         if (collectorContext == null) {
+             if (this.config != null && this.config.getCollectorContext() != null) {
+                 collectorContext = this.config.getCollectorContext();
+             } else {
+                 collectorContext = new CollectorContext();
+             }
+             // Set the collector context in thread info, this is unique for every thread.
+             ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
+         }
+         return collectorContext;
+     }
 
     @Override
     public String toString() {
