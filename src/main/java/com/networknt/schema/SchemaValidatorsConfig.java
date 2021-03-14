@@ -43,6 +43,11 @@ public class SchemaValidatorsConfig {
     private boolean javaSemantics;
 
     /**
+     * When set to true, can interpret round doubles as integers
+     */
+    private boolean losslessNarrowing;
+
+    /**
      * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
      * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory}
      * may have been built with.
@@ -192,5 +197,12 @@ public class SchemaValidatorsConfig {
     public void setCollectorContext(CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
     }
-	
+
+    public boolean isLosslessNarrowing() {
+        return losslessNarrowing;
+    }
+
+    public void setLosslessNarrowing(boolean losslessNarrowing) {
+        this.losslessNarrowing = losslessNarrowing;
+    }
 }
