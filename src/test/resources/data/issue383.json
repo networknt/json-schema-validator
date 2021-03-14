@@ -1,0 +1,11 @@
+{
+  "validation": {
+    "all": [
+      {
+        "notEmpty": {
+          "field": "test"
+        }
+      }
+    ]
+  }
+}
