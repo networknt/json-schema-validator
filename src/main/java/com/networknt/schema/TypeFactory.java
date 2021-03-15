@@ -74,6 +74,8 @@ public class TypeFactory {
             if (node.isNumber())
                 if (config.isJavaSemantics() && node.canConvertToLong() && (node.asText().indexOf('.') == -1))
                     return JsonType.INTEGER;
+                else if (config.isLosslessNarrowing() && node.asText().endsWith(".0"))
+                    return JsonType.INTEGER;
                 else
                     return JsonType.NUMBER;
             if (node.isBoolean())

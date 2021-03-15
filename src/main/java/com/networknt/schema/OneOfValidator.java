@@ -196,6 +196,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
 
+        // Make sure to signal parent handlers we matched
+        if (errors.isEmpty())
+            state.setMatchedNode(true);
 
         // reset the ValidatorState object in the ThreadLocal
         validatorState.remove();
