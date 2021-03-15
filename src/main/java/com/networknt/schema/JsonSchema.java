@@ -220,8 +220,8 @@ public class JsonSchema extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        // create and get the collector context.
-        createAndGetCollectorContext();
+        // Get the collector context.
+        getCollectorContext();
         // Set the walkEnabled and isValidationEnabledWhileWalking flag in internal validator state.
         setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
@@ -235,19 +235,20 @@ public class JsonSchema extends BaseJsonValidator {
         return validateAndCollect(node, node, AT_ROOT);
     }
 
-
     /**
-     * This method both validates and collects the data in a CollectionContext.
+     * This method both validates and collects the data in a CollectorContext.
+     * Unlike others this methods cleans and removes everything from collector
+     * context before returning.
      *
      * @param jsonNode JsonNode
      * @param rootNode JsonNode
-     * @param at String path
+     * @param at       String path
      * @return ValidationResult
      */
     protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
         try {
-            // create and get the collector context.
-            CollectorContext collectorContext = createAndGetCollectorContext();
+            // Get the collector context from the thread local.
+            CollectorContext collectorContext = getCollectorContext();
             // Valdiate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
             // Load all the data from collectors into the context.
@@ -271,8 +272,8 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        // create and get the collector context.
-        CollectorContext collectorContext = createAndGetCollectorContext();
+        // Get the collector context from the thread local.
+        CollectorContext collectorContext = getCollectorContext();
         // Set the walkEnabled flag in internal validator state.
         setValidatorState(true, shouldValidateSchema);
         // Walk through the schema.
@@ -323,7 +324,7 @@ public class JsonSchema extends BaseJsonValidator {
      }
 
 
-     public CollectorContext createAndGetCollectorContext() {
+     public CollectorContext getCollectorContext() {
         CollectorContext collectorContext = (CollectorContext) ThreadInfo.get(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
          if (collectorContext == null) {
              if (this.config != null && this.config.getCollectorContext() != null) {
