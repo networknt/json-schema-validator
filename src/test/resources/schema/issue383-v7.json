@@ -1,0 +1,85 @@
+{
+  "type": "object",
+  "properties": {
+    "validation": {
+      "$ref": "#/definitions/predicateOrNull"
+    }
+  },
+  "definitions": {
+    "fieldRef": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "set": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ]
+    },
+    "patternPredicate": {
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": {
+            "notEmpty": {
+              "$ref": "#/definitions/fieldRef"
+            }
+          },
+          "required": [
+            "notEmpty"
+          ]
+        },
+        {
+          "properties": {
+            "notBlank": {
+              "$ref": "#/definitions/fieldRef"
+            }
+          },
+          "required": [
+            "notBlank"
+          ]
+        }
+      ]
+    },
+    "allPredicate": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/predicate"
+          }
+        }
+      },
+      "required": [
+        "all"
+      ]
+    },
+    "predicate": {
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/patternPredicate"
+        },
+        {
+          "$ref": "#/definitions/allPredicate"
+        }
+      ]
+    },
+    "predicateOrNull": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/predicate"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}
