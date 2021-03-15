@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 public class ValidatorState {
 
-    public static final String VALIDATOR_STATE_KEY = "com.networknt.schema.ValidatorState";
+    static final String VALIDATOR_STATE_KEY = "com.networknt.schema.ValidatorState";
 
     /**
      * Flag set when a node has matched Works in conjunction with the next flag:
@@ -40,7 +40,7 @@ public class ValidatorState {
     /**
      * Flag to check if validation is enabled while walking.
      */
-    private boolean isValidationEnabledWhileWalking = false;
+    private boolean isValidationEnabled = false;
 
     public void setMatchedNode(boolean matchedNode) {
         this.matchedNode = matchedNode;
@@ -66,12 +66,12 @@ public class ValidatorState {
         this.isWalkEnabled = isWalkEnabled;
     }
 
-    public boolean isValidationEnabledWhileWalking() {
-        return isValidationEnabledWhileWalking;
+    public boolean isValidationEnabled() {
+        return isValidationEnabled;
     }
 
-    public void setValidationEnabledWhileWalking(boolean isValidationEnabledWhileWalking) {
-        this.isValidationEnabledWhileWalking = isValidationEnabledWhileWalking;
+    public void setValidationEnabled(boolean isValidationEnabled) {
+        this.isValidationEnabled = isValidationEnabled;
     }
 
 }

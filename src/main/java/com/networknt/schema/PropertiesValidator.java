@@ -70,7 +70,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                     errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
                 } else {
                     // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                    walkSchema(entry, node, rootNode, at, state.isValidationEnabledWhileWalking(), errors);
+                    walkSchema(entry, node, rootNode, at, state.isValidationEnabled(), errors);
                 }
 
                 // reset the complex flag to the original value before the recursive call

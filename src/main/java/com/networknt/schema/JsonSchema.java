@@ -295,7 +295,7 @@ public class JsonSchema extends BaseJsonValidator {
             String schemaPathWithKeyword = entry.getKey();
             try {
                 // Call all the pre-walk listeners. If atleast one of the pre walk listeners
-                // returns SKIP_WALK, then skip the walk.
+                // returns SKIP, then skip the walk.
                 if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
                         schemaNode, parentSchema, validationContext.getJsonSchemaFactory())) {
                     validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
@@ -318,7 +318,7 @@ public class JsonSchema extends BaseJsonValidator {
          if (stateObj == null) {
              ValidatorState state = new ValidatorState();
              state.setWalkEnabled(isWalkEnabled);
-             state.setValidationEnabledWhileWalking(shouldValidateSchema);
+             state.setValidationEnabled(shouldValidateSchema);
              CollectorContext.getInstance().add(ValidatorState.VALIDATOR_STATE_KEY, state);
          }
      }

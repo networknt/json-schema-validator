@@ -159,7 +159,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             if (!state.isWalkEnabled()) {
                 schemaErrors = schema.validate(node, rootNode, at);
             } else {
-                schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabledWhileWalking());
+                schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
             }
 
             // check if any validation errors have occurred
@@ -192,11 +192,16 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
 
-
         // reset the ValidatorState object in the ThreadLocal
-        CollectorContext.getInstance().add(ValidatorState.VALIDATOR_STATE_KEY, null);
+        resetValidatorState();
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    private void resetValidatorState() {
+        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        state.setComplexValidator(false);
+        state.setMatchedNode(true);
     }
 
     public List<JsonSchema> getChildSchemas() {
