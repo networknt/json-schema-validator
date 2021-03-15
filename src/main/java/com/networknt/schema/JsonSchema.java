@@ -222,7 +222,7 @@ public class JsonSchema extends BaseJsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         // Get the collector context.
         getCollectorContext();
-        // Set the walkEnabled and isValidationEnabledWhileWalking flag in internal validator state.
+        // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
             // Validate.
