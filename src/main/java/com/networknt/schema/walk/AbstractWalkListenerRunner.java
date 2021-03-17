@@ -23,20 +23,23 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 	}
 
 	protected boolean runPreWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent) {
-		boolean continueRunningListenersAndWalk = true;
+		boolean continueToWalkMethod = true;
 		if (walkListeners != null) {
 			for (JsonSchemaWalkListener walkListener : walkListeners) {
-				if (WalkFlow.SKIP.equals(walkListener.onWalkStart(walkEvent))) {
-					continueRunningListenersAndWalk = false;
-					break;
+				WalkFlow walkFlow = walkListener.onWalkStart(walkEvent);
+				if (WalkFlow.SKIP.equals(walkFlow) || WalkFlow.ABORT.equals(walkFlow)) {
+					continueToWalkMethod = false;
+					if (WalkFlow.ABORT.equals(walkFlow)) {
+						break;
+					}
 				}
 			}
 		}
-		return continueRunningListenersAndWalk;
+		return continueToWalkMethod;
 	}
 
 	protected void runPostWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent,
-										Set<ValidationMessage> validationMessages) {
+			Set<ValidationMessage> validationMessages) {
 		if (walkListeners != null) {
 			for (JsonSchemaWalkListener walkListener : walkListeners) {
 				walkListener.onWalkEnd(walkEvent, validationMessages);

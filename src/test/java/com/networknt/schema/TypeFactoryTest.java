@@ -51,6 +51,7 @@ public class TypeFactoryTest {
         }
     }
 
+
     @Test
     public void testWithLosslessNarrowing() {
         schemaValidatorsConfig.setLosslessNarrowing(true);
@@ -73,5 +74,6 @@ public class TypeFactoryTest {
             assertSame(validValue, JsonType.NUMBER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
         }
+
     }
 }
