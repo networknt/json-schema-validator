@@ -75,4 +75,5 @@ public class TypeFactoryTest {
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
         }
 
+    }
 }
