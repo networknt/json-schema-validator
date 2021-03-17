@@ -51,23 +51,28 @@ public class TypeFactoryTest {
         }
     }
 
-    // @Test
-    // public void testWithLosslessNarrowing() {
-    //     schemaValidatorsConfig.setLosslessNarrowing(true);
-    //         assertSame(validValue, JsonType.INTEGER,
-    //                 getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig));
 
-    //         assertSame(validValue, JsonType.NUMBER,
-    //             getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
-    // }
+    @Test
+    public void testWithLosslessNarrowing() {
+        schemaValidatorsConfig.setLosslessNarrowing(true);
+        for (String validValue : validIntegralValues) {
+            assertSame(validValue, JsonType.INTEGER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig));
 
-    // @Test
-    // public void testWithoutLosslessNarrowing() {
-    //     schemaValidatorsConfig.setLosslessNarrowing(false);
-    //     assertSame(validValue, JsonType.NUMBER,
-    //             getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig));
+            assertSame(validValue, JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
+        }
+    }
 
-    //     assertSame(validValue, JsonType.NUMBER,
-    //             getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
-    // }
+    @Test
+    public void testWithoutLosslessNarrowing() {
+        schemaValidatorsConfig.setLosslessNarrowing(false);
+        for (String validValue : validIntegralValues) {
+            assertSame(validValue, JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig));
+
+            assertSame(validValue, JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig));
+        }
+
 }
