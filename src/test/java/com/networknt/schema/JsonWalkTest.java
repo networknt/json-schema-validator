@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,13 +23,18 @@ public class JsonWalkTest {
 
     private JsonSchema jsonSchema;
 
-    private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
+    private static final String SAMPLE_WALK_COLLECTOR_TYPE = "sampleWalkCollectorType";
 
     private static final String CUSTOM_KEYWORD = "custom-keyword";
 
     @Before
     public void setup() {
         setupSchema();
+    }
+
+    @After
+    public void cleanup() {
+       CollectorContext.getInstance().reset();
     }
 
     private void setupSchema() {
@@ -54,7 +61,7 @@ public class JsonWalkTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult result = jsonSchema.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
-        JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_COLLECTOR);
+        JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
         assertEquals(collectedNode, (objectMapper.readTree("{" +
                 "    \"PROPERTY1\": \"sample1\","
                 + "    \"PROPERTY2\": \"sample2\","
@@ -123,11 +130,11 @@ public class JsonWalkTest {
             String keyWordName = keywordWalkEvent.getKeyWordName();
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
             CollectorContext collectorContext = CollectorContext.getInstance();
-            if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
-                collectorContext.add(SAMPLE_COLLECTOR, mapper.createObjectNode());
+            if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
+                collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
             if (keyWordName.equals(CUSTOM_KEYWORD) && schemaNode.get(CUSTOM_KEYWORD).isArray()) {
-                ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_COLLECTOR);
+                ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
                 objectNode.put(keywordWalkEvent.getSchemaNode().get("title").textValue().toUpperCase(),
                         keywordWalkEvent.getNode().textValue());
             }
@@ -146,10 +153,10 @@ public class JsonWalkTest {
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
             CollectorContext collectorContext = CollectorContext.getInstance();
-            if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
-                collectorContext.add(SAMPLE_COLLECTOR, mapper.createObjectNode());
+            if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
+                collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
-            ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_COLLECTOR);
+            ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
             objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(),
                     keywordWalkEvent.getNode());
             return WalkFlow.SKIP;

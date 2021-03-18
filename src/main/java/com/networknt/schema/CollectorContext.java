@@ -118,7 +118,7 @@ public class CollectorContext {
     /**
      * Reset the context
      */
-    void reset() {
+    public void reset() {
         this.collectorMap = new HashMap<String, Object>();
         this.collectorLoadMap = new HashMap<String, Object>();
     }

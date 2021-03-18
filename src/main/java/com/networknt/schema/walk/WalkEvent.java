@@ -54,6 +54,10 @@ public class WalkEvent {
 		return currentJsonSchemaFactory.getSchema(schemaUri);
 	}
 
+	public JsonSchemaFactory getCurrentJsonSchemaFactory() {
+		return currentJsonSchemaFactory;
+	}
+
 	static class WalkEventBuilder {
 		private WalkEvent keywordWalkEvent = null;
 

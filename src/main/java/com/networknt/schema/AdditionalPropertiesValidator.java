@@ -93,9 +93,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                     errors.add(buildValidationMessage(at, pname));
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = validatorState.get();
+                        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabledWhileWalking()));
+                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled()));
                         } else {
                             errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, at + "." + pname));
                         }

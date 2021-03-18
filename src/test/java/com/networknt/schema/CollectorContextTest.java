@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,20 +30,25 @@ import java.util.*;
 
 public class CollectorContextTest {
 
-    private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
+    private static final String SAMPLE_COLLECTOR = "sampleCollector";
 
-    private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOtherType";
+    private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOther";
 
     private JsonSchema jsonSchema;
 
     private JsonSchema jsonSchemaForCombine;
-
 
     @Before
     public void setup() throws Exception {
         setupSchema();
     }
 
+    @After
+    public void cleanup() {
+        if (CollectorContext.getInstance() != null) {
+            CollectorContext.getInstance().reset();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     @Test
@@ -57,7 +64,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorContextWithMultiplThreads() throws Exception {
+    public void testCollectorContextWithMultipleThreads() throws Exception {
 
         ValidationThread validationRunnable1 = new ValidationThread("{\"test-property1\":\"sample1\" }", "thread1");
         ValidationThread validationRunnable2 = new ValidationThread("{\"test-property1\":\"sample2\" }", "thread2");
@@ -97,26 +104,13 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
-                .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-        List<String> values1 = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_OTHER);
-        Assert.assertEquals(values.size(), 1);
-        Assert.assertEquals(values1.size(), 3);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
     public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        Map<String, Object> map = validationResult.getCollectorContext().getAll();
-        Iterator<Object> collectionIterator = map.values().iterator();
-        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 1);
-        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 3);
+        CollectorContext collectorContext = validationResult.getCollectorContext();
+        Assert.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
+        Assert.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
 
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
@@ -216,7 +210,6 @@ public class CollectorContextTest {
                 + "}";
     }
 
-
     private class ValidationThread implements Runnable {
 
         private String data;
@@ -266,14 +259,13 @@ public class CollectorContextTest {
 
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
+                ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator();
             }
             return null;
         }
     }
-
 
     /**
      * We will be collecting information/data by adding the data in the form of
@@ -299,11 +291,11 @@ public class CollectorContextTest {
             return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
         }
 
-		@Override
-		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-			// Ignore this method for testing.
-			return null;
-		}
+        @Override
+        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+            // Ignore this method for testing.
+            return null;
+        }
 
     }
 
@@ -341,7 +333,7 @@ public class CollectorContextTest {
 
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
+                ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1();
             }
@@ -378,10 +370,10 @@ public class CollectorContextTest {
         }
 
         @Override
-		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-			// Ignore this method for testing.
-			return null;
-		}
+        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+            // Ignore this method for testing.
+            return null;
+        }
     }
 
     private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {

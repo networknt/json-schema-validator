@@ -49,12 +49,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         // get the Validator state object storing validation data
-        ValidatorState state = validatorState.get();
-        if (state == null) {
-            // if one has not been created, instantiate one
-            state = new ValidatorState();
-            validatorState.set(state);
-        }
+        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
 
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
@@ -75,7 +70,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                     errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
                 } else {
                     // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                    walkSchema(entry, node, rootNode, at, state.isValidationEnabledWhileWalking(), errors);
+                    walkSchema(entry, node, rootNode, at, state.isValidationEnabled(), errors);
                 }
 
                 // reset the complex flag to the original value before the recursive call
