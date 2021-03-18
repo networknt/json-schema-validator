@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.50 - 2021-03-18
+
+### Added
+
+### Changed
+
+- fixes #387 Resolve the test case errors for TypeFactoryTest
+- fixes #385 Fixing concurrency and compilation issues. Thanks @prashanthjos
+- fixes #383 Nested oneOf gives incorrect validation error. Thanks @JonasProgrammer
+- fixes #379 Add lossless narrowing convertion. Thanks @hkupty 
+- fixes #378 Upgrade Jackson to 2.12.1 and Undertow to 2.2.4.Final
+
 ## 1.0.49 - 2021-02-17
 
 ### Added
