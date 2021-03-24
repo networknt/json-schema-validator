@@ -54,6 +54,10 @@ public class FormatKeyword implements Keyword {
             } else if (formatName.equals(UUID)) {
                 return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             } else if (formatName.equals(EMAIL)) {
+                // override default EmailValidator, if exists "format: email" in formats Map
+                if (format != null) {
+                    return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
+                }
                 return new EmailValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             }
         }
