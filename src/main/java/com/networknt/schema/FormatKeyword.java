@@ -48,16 +48,16 @@ public class FormatKeyword implements Keyword {
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = formats.get(formatName);
+            // if you set custom format, override default Email/DateTime/UUID Validator
+            if (format != null) {
+                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
+            }
             // Validate date and time separately
             if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
                 return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             } else if (formatName.equals(UUID)) {
                 return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             } else if (formatName.equals(EMAIL)) {
-                // override default EmailValidator, if exists "format: email" in formats Map
-                if (format != null) {
-                    return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
-                }
                 return new EmailValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             }
         }
