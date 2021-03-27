@@ -80,3 +80,27 @@ You can use GroovyKeyword like below:
   }
 }
 ````
+
+### Override Email/UUID/DateTime Validator
+
+In this library, if the format keyword is "email", "uuid", "date", "date-time", default validator provided by the library will be used.
+
+If you want to override this behaivor, do as belows.
+
+```
+public JsonSchemaFactory mySchemaFactory() {
+    // base on JsonMetaSchema.V201909 copy code below
+    String URI = "https://json-schema.org/draft/2019-09/schema";
+    String ID = "$id";
+
+    JsonMetaSchema overrideEmailValidatorMetaSchema = new JsonMetaSchema.Builder(URI)
+            .idKeyword(ID)
+            // Override EmailValidator
+            .addFormat(new PatternFormat("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"))
+            .build();
+
+    return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideEmailValidatorMetaSchema.getUri())
+            .addMetaSchema(overrideEmailValidatorMetaSchema)
+            .build();
+}
+```
