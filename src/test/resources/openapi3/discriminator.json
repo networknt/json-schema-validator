@@ -1,0 +1,283 @@
+[
+    {
+        "description": "discriminator with anyOf/allOf",
+        "schema": {
+            "anyOf": [
+                {
+                    "$ref": "#/components/schemas/Room"
+                },
+                {
+                    "$ref": "#/components/schemas/BedRoom"
+                },
+                {
+                    "$ref": "#/components/schemas/KidsBedRoom"
+                },
+                {
+                    "$ref": "#/components/schemas/Kitchen"
+                },
+                {
+                    "$ref": "#/components/schemas/GuestRoom"
+                }
+            ],
+            "components": {
+                "schemas": {
+                    "Room": {
+                        "type": "object",
+                        "properties": {
+                            "@type": {
+                                "type": "string"
+                            },
+                            "floor": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "@type"
+                        ],
+                        "discriminator": {
+                            "propertyName": "@type",
+                            "mapping": {
+                                "bed": "#/components/schemas/BedRoom"
+                            }
+                        }
+                    },
+                    "BedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "numberOfBeds": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "numberOfBeds"
+                                ]
+                            }
+                        ],
+                        "discriminator": {
+                            "mapping": {
+                                "guest": "#/components/schemas/GuestRoom"
+                            }
+                        }
+                    },
+                    "KidsBedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BedRoom"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "isTidy": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "isTidy"
+                                ]
+                            }
+                        ]
+                    },
+                    "GuestRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BedRoom"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "guest": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "guest"
+                                ]
+                            }
+                        ]
+                    },
+                    "Kitchen": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "hasMicrowaveOven": {
+                                        "type": "boolean"
+                                    },
+                                    "equipment": {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Pot"
+                                                },
+                                                {
+                                                    "$ref": "#/components/schemas/Blender"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "hasMicrowaveOven"
+                                ]
+                            }
+                        ]
+                    },
+                    "KitchenEquipment": {
+                        "type": "object",
+                        "properties": {
+                            "@type": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "@type"
+                        ],
+                        "discriminator": {
+                            "propertyName": "@type"
+                        }
+                    },
+                    "Pot": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KitchenEquipment"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "capacity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "capacity"
+                                ]
+                            }
+                        ]
+                    },
+                    "Blender": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KitchenEquipment"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "maxSpeed": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "maxSpeed"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "mapping to base type",
+                "data": {
+                    "@type": "Room"
+                },
+                "valid": true
+            },
+            {
+                "description": "mapped to Bedroom",
+                "data": {
+                    "@type": "bed",
+                    "numberOfBeds": 2
+                },
+                "valid": true
+            },
+            {
+                "description": "mapped to Kitchen",
+                "data": {
+                    "@type": "Kitchen",
+                    "hasMicrowaveOven": true,
+                    "equipment": [
+                        {
+                            "@type": "Blender",
+                            "maxSpeed": 1500
+                        },
+                        {
+                            "@type": "Pot",
+                            "capacity": 5
+                        }
+                    ]
+                },
+                "valid": true
+            },
+            {
+                "description": "mapped to KidsBedRoom",
+                "data": {
+                    "@type": "KidsBedRoom",
+                    "numberOfBeds": 1,
+                    "isTidy": false
+                },
+                "valid": true
+            },
+            {
+                "description": "mapped to Bedroom with missing number of beds",
+                "data": {
+                    "@type": "bed"
+                },
+                "valid": false
+            },
+            {
+                "description": "mapped to KidsBedroom with missing number of beds",
+                "data": {
+                    "@type": "KidsBedRoom",
+                    "isTidy": true
+                },
+                "valid": false
+            },
+            {
+                "description": "mapped to KidsBedroom with missing tidiness",
+                "data": {
+                    "@type": "KidsBedRoom",
+                    "numberOfBeds": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "mapped to GuestRoom with correct @type (mapping override on BedRoom)",
+                "data": {
+                    "@type": "guest",
+                    "numberOfBeds": 9,
+                    "guest": "Steve"
+                },
+                "valid": true
+            },
+            {
+                "description": "mapped to GuestRoom with incorrect @type (mapping override on BedRoom)",
+                "data": {
+                    "@type": "GuestRoom",
+                    "guest": "Steve"
+                },
+                "valid": false
+            },
+            {
+                "description": "mapped to invalid Room",
+                "data": {
+                    "@type": "Bathroom"
+                },
+                "valid": false
+            }
+        ]
+    }
+]
