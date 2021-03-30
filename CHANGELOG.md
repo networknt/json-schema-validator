@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.51 - 2021-03-30
+
+### Added
+
+### Changed
+
+- fixes #392 NPE due to concurrency bug. Thanks @Keymaster65
+- fixes #391 override default EmailValidator, if set custom email format. Thanks @whirosan
+- fixes #390 Add discriminator support. Thanks @FWiesner
+
 ## 1.0.50 - 2021-03-18
 
 ### Added
