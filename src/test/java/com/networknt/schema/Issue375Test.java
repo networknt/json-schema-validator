@@ -53,9 +53,9 @@ public class Issue375Test {
         }
 
         List<String> expectedMessages = Arrays.asList(
-            "Property name $.fields.longName123 is not valid for validation: maxLength 5",
-            "Property name $.fields.longName123 is not valid for validation: pattern ^[a-zA-Z]+$",
-            "Property name $.fields.a is not valid for validation: minLength 3");
+            "Property name $.fields.longName123 is not valid for validation: may only be 5 characters long",
+            "Property name $.fields.longName123 is not valid for validation: does not match the regex pattern ^[a-zA-Z]+$",
+            "Property name $.fields.a is not valid for validation: must be at least 3 characters long");
         MatcherAssert.assertThat(errorMessages, Matchers.containsInAnyOrder(expectedMessages.toArray()));
     }
 }

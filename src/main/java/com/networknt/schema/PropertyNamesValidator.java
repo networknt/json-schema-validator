@@ -15,60 +15,40 @@
  */
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 public class PropertyNamesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
-    private Map<String, JsonSchema> schemas;
-    private boolean schemaValue = false;
+    private final JsonSchema innerSchema;
     public PropertyNamesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
-        if(schemaNode.isBoolean()) {
-            schemaValue = schemaNode.booleanValue();
-        } else {
-            schemas = new HashMap<String, JsonSchema>();
-            for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
-                String pname = it.next();
-                schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema));
-            }
-        }
+        innerSchema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        if(schemas != null) {
-            for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
-                JsonNode propertyNode = node.get(entry.getKey());
-                // check propertyNames
-                if (!node.isObject()) {
-                    continue;
-                }
-                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                    String pname = it.next();
-                    int maxLength = entry.getValue().getSchemaNode().intValue();
-                    if("maxLength".equals(entry.getKey()) && pname.length() > maxLength) {
-                        errors.add(buildValidationMessage(at + "." + pname, "maxLength " + maxLength));
-                    }
-                    int minLength = entry.getValue().getSchemaNode().intValue();
-                    if("minLength".equals(entry.getKey()) && pname.length() < minLength) {
-                        errors.add(buildValidationMessage(at + "." + pname, "minLength " + minLength));
-                    }
-                    String pattern = entry.getValue().getSchemaNode().textValue();
-                    if("pattern".equals(entry.getKey()) && !Pattern.matches(pattern,pname)) {
-                        errors.add(buildValidationMessage(at + "." + pname, "pattern " + pattern));
-                    }
-                }
-            }
-        } else {
-            if(!schemaValue && node.isObject() && node.size() != 0) {
-                errors.add(buildValidationMessage(at + "." + node, "false"));
+        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+            final String pname = it.next();
+            final TextNode pnameText = TextNode.valueOf(pname);
+            final Set<ValidationMessage> schemaErrors = innerSchema.validate(pnameText, node, at + "." + pname);
+            for (final ValidationMessage schemaError : schemaErrors) {
+                final String path = schemaError.getPath();
+                String msg = schemaError.getMessage();
+                if (msg.startsWith(path))
+                    msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
+
+                errors.add(buildValidationMessage(schemaError.getPath(), msg));
             }
         }
         return Collections.unmodifiableSet(errors);
