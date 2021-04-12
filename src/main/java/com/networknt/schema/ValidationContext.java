@@ -90,7 +90,10 @@ public class ValidationContext {
     }
 
     public DiscriminatorContext getCurrentDiscriminatorContext() {
-        return discriminatorContexts.peek();
+        if (!discriminatorContexts.empty()) {
+            return discriminatorContexts.peek();
+        }
+        return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
     }
 
     public void enterDiscriminatorContext(final DiscriminatorContext ctx, String at) {
@@ -124,6 +127,15 @@ public class ValidationContext {
 
         public boolean isDiscriminatorMatchFound() {
             return discriminatorMatchFound;
+        }
+
+        /**
+         * Returns true if we have a discriminator active. In this case no valid match in anyOf should lead to validation failure
+         *
+         * @return true in case there are discriminator candidates
+         */
+        public boolean isActive() {
+            return !discriminators.isEmpty();
         }
     }
 }
