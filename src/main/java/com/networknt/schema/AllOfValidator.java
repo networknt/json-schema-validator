@@ -63,20 +63,22 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                     if (null != $ref) {
                         final ValidationContext.DiscriminatorContext currentDiscriminatorContext = validationContext
                                 .getCurrentDiscriminatorContext();
-                        final ObjectNode discriminator = currentDiscriminatorContext
-                                .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
-                        if (null != discriminator) {
-                            registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, parentSchema, at);
-                            // now we have to check whether we have hit the right target
-                            final String discriminatorPropertyName = discriminator.get("propertyName").asText();
-                            final String discriminatorPropertyValue = node.get(discriminatorPropertyName).textValue();
+                        if (null != currentDiscriminatorContext) {
+                            final ObjectNode discriminator = currentDiscriminatorContext
+                                    .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
+                            if (null != discriminator) {
+                                registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, parentSchema, at);
+                                // now we have to check whether we have hit the right target
+                                final String discriminatorPropertyName = discriminator.get("propertyName").asText();
+                                final String discriminatorPropertyValue = node.get(discriminatorPropertyName).textValue();
 
-                            final JsonSchema jsonSchema = parentSchema;
-                            checkDiscriminatorMatch(
-                                    currentDiscriminatorContext,
-                                    discriminator,
-                                    discriminatorPropertyValue,
-                                    jsonSchema);
+                                final JsonSchema jsonSchema = parentSchema;
+                                checkDiscriminatorMatch(
+                                        currentDiscriminatorContext,
+                                        discriminator,
+                                        discriminatorPropertyValue,
+                                        jsonSchema);
+                            }
                         }
                     }
                 }
@@ -85,8 +87,6 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
 
         return Collections.unmodifiableSet(errors);
     }
-
-
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {

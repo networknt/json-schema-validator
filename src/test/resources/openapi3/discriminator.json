@@ -279,5 +279,245 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "Issue #398 - $ref pointing to base type with discriminator and w/o anyOf",
+        "schema": {
+            "$ref": "#/components/schemas/Room",
+            "components": {
+                "schemas": {
+                    "Room": {
+                        "type": "object",
+                        "properties": {
+                            "@type": {
+                                "type": "string"
+                            },
+                            "floor": {
+                                "type": "integer"
+                            },
+                            "nextRoom": {
+                                "anyOf": [
+                                    {"$ref":"#/components/schemas/Room" },
+                                    {"$ref":"#/components/schemas/BedRoom" }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "@type"
+                        ],
+                        "discriminator": {
+                            "propertyName": "@type"
+                        }
+                    },
+                    "BedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "numberOfBeds": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "numberOfBeds"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "$ref without anyOf and therefore no discriminator context",
+                "data": {
+                    "@type": "Room"
+                },
+                "valid": true
+            },
+            {
+                "description": "schema with discriminator and recursion with invalid BedRoom",
+                "data": {
+                    "@type": "can be ignored - discriminator not in use on root schema",
+                    "numberOfBeds": 42,
+                    "nextRoom": {
+                        "@type": "BedRoom",
+                        "floor": 1
+                    }
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "Issue #398 - $ref pointing to extended type with discriminator and w/o anyOf",
+        "schema": {
+            "$ref": "#/components/schemas/BedRoom",
+            "components": {
+                "schemas": {
+                    "Room": {
+                        "type": "object",
+                        "properties": {
+                            "@type": {
+                                "type": "string"
+                            },
+                            "floor": {
+                                "type": "integer"
+                            },
+                            "nextRoom": {
+                                "anyOf": [
+                                    {"$ref": "#/components/schemas/Room"},
+                                    {"$ref": "#/components/schemas/BedRoom"}
+                                ]
+                            }
+                        },
+                        "required": [
+                            "@type"
+                        ],
+                        "discriminator": {
+                            "propertyName": "@type"
+                        }
+                    },
+                    "BedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "numberOfBeds": {
+                                        "type": "integer"
+                                    },
+                                    "nextRoom": {
+                                        "anyOf": [
+                                            {"$ref": "#/components/schemas/Room"},
+                                            {"$ref": "#/components/schemas/BedRoom"}
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "numberOfBeds"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "$ref without anyOf and therefore no discriminator context",
+                "data": {
+                    "@type": "can be ignored - discriminator not in use on root schema",
+                    "numberOfBeds": 42,
+                    "nextRoom": {
+                        "@type": "Room",
+                        "floor": 3
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "schema with discriminator and recursion with valid BedRoom",
+                "data": {
+                    "@type": "can be ignored - discriminator not in use on root schema",
+                    "numberOfBeds": 42,
+                    "nextRoom": {
+                        "@type": "BedRoom",
+                        "floor": 1,
+                        "numberOfBeds": 12345
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "schema with discriminator and recursion with invalid BedRoom",
+                "data": {
+                    "@type": "can be ignored - discriminator not in use on root schema",
+                    "numberOfBeds": 42,
+                    "nextRoom": {
+                        "@type": "BedRoom",
+                        "floor": 1
+                    }
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "Issue #398 - invalid discriminator specification has to lead to failed validation",
+        "schema": {
+            "anyOf": [
+                {"$ref": "#/components/schemas/Room"},
+                {"$ref": "#/components/schemas/BedRoom"}
+            ],
+            "components": {
+                "schemas": {
+                    "Room": {
+                        "type": "object",
+                        "properties": {
+                            "@type": {
+                                "type": "string"
+                            },
+                            "floor": {
+                                "type": "integer"
+                            },
+                            "nextRoom": {
+                                "anyOf": [
+                                    {"$ref": "#/components/schemas/Room"},
+                                    {"$ref": "#/components/schemas/BedRoom"}
+                                ]
+                            }
+                        },
+                        "required": [
+                            "@type"
+                        ],
+                        "discriminator": {
+                            "propertyName": "@type"
+                        }
+                    },
+                    "BedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "numberOfBeds": {
+                                        "type": "integer"
+                                    },
+                                    "nextRoom": {
+                                        "anyOf": [
+                                            {"$ref": "#/components/schemas/Room"},
+                                            {"$ref": "#/components/schemas/BedRoom"}
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "numberOfBeds"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "$ref without anyOf and therefore no discriminator context",
+                "data": {
+                    "@type": "illegal discriminator property value"
+                },
+                "valid": false
+            }
+        ]
     }
 ]

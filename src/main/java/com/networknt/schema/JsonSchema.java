@@ -82,7 +82,7 @@ public class JsonSchema extends BaseJsonValidator {
 
             if (config.isOpenAPI3StyleDiscriminators()) {
                 ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-                if (null != discriminator) {
+                if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
                     validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaPath, discriminator);
                 }
             }
@@ -245,11 +245,22 @@ public class JsonSchema extends BaseJsonValidator {
             if (null != discriminator) {
                 final DiscriminatorContext discriminatorContext = validationContext.getCurrentDiscriminatorContext();
                 if (null != discriminatorContext) {
+                    final ObjectNode discriminatorToUse;
                     final ObjectNode discriminatorFromContext = discriminatorContext.getDiscriminatorForPath(schemaPath);
-                    final String discriminatorPropertyName = discriminatorFromContext.get("propertyName").asText();
+                    if (null == discriminatorFromContext) {
+                        // register the current discriminator. This can only happen when the current context discriminator
+                        // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
+                        // used for validation before allOf validation has kicked in
+                        discriminatorContext.registerDiscriminator(schemaPath, discriminator);
+                        discriminatorToUse = discriminator;
+                    } else{
+                        discriminatorToUse = discriminatorFromContext;
+                    }
+
+                    final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
                     final String discriminatorPropertyValue = jsonNode.get(discriminatorPropertyName).asText();
                     checkDiscriminatorMatch(discriminatorContext,
-                                            discriminatorFromContext,
+                                            discriminatorToUse,
                                             discriminatorPropertyValue,
                                             this);
                 }

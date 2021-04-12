@@ -83,7 +83,12 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
                 allErrors.addAll(errors);
-//                allErrors.add(renderMissingMatchValidationMessage(at));
+            }
+
+            if (config.isOpenAPI3StyleDiscriminators() && discriminatorContext.isActive()) {
+               final Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+               errors.add(buildValidationMessage(at, "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
+               return Collections.unmodifiableSet(errors);
             }
         } finally {
             if (config.isOpenAPI3StyleDiscriminators()) {
@@ -91,12 +96,5 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
         return Collections.unmodifiableSet(allErrors);
-    }
-
-    private ValidationMessage renderMissingMatchValidationMessage(final String at) {
-        if (config.isOpenAPI3StyleDiscriminators()) {
-            return super.buildValidationMessage(at, "and no match could be found (respecting discriminators). " + REMARK);
-        }
-        return super.buildValidationMessage(at, "and no match could be found. " + REMARK);
     }
 }
