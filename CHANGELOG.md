@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.52 - 2021-04-13
+
+### Added
+
+### Changed
+
+- fixes #398 Two issues with OpenAPI 3 discriminators. Thanks @FWiesner
+- fixes #396 Implement propertyNames in terms full schema validation. Thanks @JonasProgrammer
+
 ## 1.0.51 - 2021-03-30
 
 ### Added
