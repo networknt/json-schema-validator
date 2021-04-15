@@ -64,10 +64,10 @@ public class UnknownMetaSchemaTest {
         String uri03 = "http://json-schema.org/draft-07/schema?key=value";
         String uri04 = "http://json-schema.org/draft-07/schema?key=value&key2=value2";
         String expected = "https://json-schema.org/draft-07/schema";
-        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01));
-        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02));
-        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03));
-        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04));
+        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01, true));
+        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02, true));
+        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03, true));
+        Assert.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04, true));
 
     }
 }

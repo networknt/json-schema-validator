@@ -39,7 +39,7 @@ public class SpecVersionDetector {
         if (!jsonNode.has(SCHEMA_TAG))
             throw new JsonSchemaException("Schema tag not present");
 
-        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(jsonNode.get(SCHEMA_TAG).asText());
+        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(jsonNode.get(SCHEMA_TAG).asText(), true);
         if (schemaUri.equals(JsonMetaSchema.getV4().getUri()))
             return SpecVersion.VersionFlag.V4;
         else if (schemaUri.equals(JsonMetaSchema.getV6().getUri()))
