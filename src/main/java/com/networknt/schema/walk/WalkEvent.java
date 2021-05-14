@@ -58,7 +58,7 @@ public class WalkEvent {
 		return currentJsonSchemaFactory;
 	}
 
-	static class WalkEventBuilder {
+	public static class WalkEventBuilder {
 		private WalkEvent keywordWalkEvent = null;
 
 		WalkEventBuilder() {

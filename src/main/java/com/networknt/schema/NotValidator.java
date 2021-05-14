@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class NotValidator extends BaseJsonValidator implements JsonValidator {

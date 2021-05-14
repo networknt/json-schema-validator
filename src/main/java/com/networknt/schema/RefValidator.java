@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
