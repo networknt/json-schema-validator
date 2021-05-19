@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 
+## 1.0.53 - 2021-05-19
+
+### Added
+
+### Changed
+
+- fixes #400 Introduce forceHttps flag in JsonSchemaFactory.Builder. Thanks @hisener
+
 ### Changed
 
 ## 1.0.52 - 2021-04-13
