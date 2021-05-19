@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
 ### Added
+
+### Changed
 
 ## 1.0.53 - 2021-05-19
 
@@ -14,8 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - fixes #400 Introduce forceHttps flag in JsonSchemaFactory.Builder. Thanks @hisener
-
-### Changed
 
 ## 1.0.52 - 2021-04-13
 
