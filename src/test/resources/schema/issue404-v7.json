@@ -1,0 +1,14 @@
+{
+  "$id": "https://example.com/address.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "foo": {
+      "type": "object",
+      "enum": [1, 2, 3]
+    },
+    "bar": {
+      "$ref": "#/properties/foo"
+    }
+  }
+}
