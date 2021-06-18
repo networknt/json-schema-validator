@@ -197,9 +197,9 @@
         "valid": true
       },
       {
-        "description": "a valid protocol-relative URI",
+        "description": "a scheme is mandatory in URI",
         "data": "//foo.bar/?baz=qux#quux",
-        "valid": true
+        "valid": false
       },
       {
         "description": "an invalid URI",
@@ -209,6 +209,11 @@
       {
         "description": "an invalid URI though valid URI reference",
         "data": "abc",
+        "valid": false
+      },
+      {
+        "description": "an invalid query string",
+        "data": "http://foo.bar/?baz=q|ux#quux",
         "valid": false
       }
     ]
