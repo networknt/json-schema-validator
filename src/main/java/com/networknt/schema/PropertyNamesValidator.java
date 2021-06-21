@@ -53,4 +53,10 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
         }
         return Collections.unmodifiableSet(errors);
     }
+
+
+    @Override
+    public void preloadJsonSchema() {
+        innerSchema.initializeValidators();
+    }
 }

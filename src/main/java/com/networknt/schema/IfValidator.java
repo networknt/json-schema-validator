@@ -27,23 +27,31 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
 
     private static final ArrayList<String> KEYWORDS = new ArrayList<String>(Arrays.asList("if", "then", "else"));
 
-    private JsonSchema ifSchema;
-    private JsonSchema thenSchema;
-    private JsonSchema elseSchema;
+    private final JsonSchema ifSchema;
+    private final JsonSchema thenSchema;
+    private final JsonSchema elseSchema;
 
     public IfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
 
+        JsonSchema foundIfSchema = null;
+        JsonSchema foundThenSchema = null;
+        JsonSchema foundElseSchema = null;
+
         for (final String keyword : KEYWORDS) {
             final JsonNode node = schemaNode.get(keyword);
             if (keyword.equals("if")) {
-                ifSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundIfSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                thenSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundThenSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                elseSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundElseSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
             }
         }
+
+        ifSchema = foundIfSchema;
+        thenSchema = foundThenSchema;
+        elseSchema = foundElseSchema;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -61,4 +69,16 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
         return Collections.unmodifiableSet(errors);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        if(null != ifSchema) {
+            ifSchema.initializeValidators();
+        }
+        if(null != thenSchema) {
+            thenSchema.initializeValidators();
+        }
+        if(null != elseSchema) {
+            elseSchema.initializeValidators();
+        }
+    }
 }

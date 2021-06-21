@@ -27,20 +27,18 @@ import java.util.*;
 public class PropertiesValidator extends BaseJsonValidator implements JsonValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
-    private Map<String, JsonSchema> schemas;
-    private WalkListenerRunner propertyWalkListenerRunner;
-    private ValidationContext validationContext;
+    private final Map<String, JsonSchema> schemas = new HashMap<String, JsonSchema>();
+    private final WalkListenerRunner propertyWalkListenerRunner;
+    private final ValidationContext validationContext;
 
     public PropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
         this.validationContext = validationContext;
-        schemas = new HashMap<String, JsonSchema>();
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema));
         }
-		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(
-                config.getPropertyWalkListeners());    
+		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(config.getPropertyWalkListeners());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -136,4 +134,9 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         return schemas;
     }
 
+
+    @Override
+    public void preloadJsonSchema() {
+        preloadJsonSchemas(schemas.values());
+    }
 }

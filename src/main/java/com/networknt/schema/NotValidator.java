@@ -27,7 +27,7 @@ import java.util.Set;
 public class NotValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
-    private JsonSchema schema;
+    private final JsonSchema schema;
 
     public NotValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
@@ -51,4 +51,10 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
     	return schema.walk(node, rootNode, at, shouldValidateSchema);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        if (null != schema) {
+            schema.initializeValidators();
+        }
+    }
 }

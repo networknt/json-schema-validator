@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -164,6 +165,17 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return validationMessages;
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        // do nothing by default - to be overridden in subclasses
+    }
+
+    protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
+        for (final JsonSchema schema: schemas) {
+            schema.initializeValidators();
+        }
+    }
+
     protected boolean isPartOfOneOfMultipleType() {
         return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
     }
@@ -285,5 +297,4 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
         return true;
     }
-
 }

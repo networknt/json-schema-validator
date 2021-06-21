@@ -97,4 +97,9 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         }
         return Collections.unmodifiableSet(allErrors);
     }
+
+    @Override
+    public void preloadJsonSchema() {
+        preloadJsonSchemas(schemas);
+    }
 }

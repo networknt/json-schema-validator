@@ -162,4 +162,8 @@ public class PatternValidator implements JsonValidator {
         }
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        // not used and the validator does not inherit from BaseJsonValidator
+    }
 }

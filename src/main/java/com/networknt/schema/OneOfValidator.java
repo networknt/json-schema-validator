@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
-    private List<ShortcutValidator> schemas = new ArrayList<ShortcutValidator>();
+    private final List<ShortcutValidator> schemas = new ArrayList<ShortcutValidator>();
 
     private static class ShortcutValidator {
         private final JsonSchema schema;
@@ -236,11 +236,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             msg = msg.concat(schemaValue);
         }
 
-        ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(),ValidatorTypeCode.ONE_OF ,
-                at, String.format("but more than one schemas {%s} are valid ",msg));
-
-        return message;
+        return ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ONE_OF ,
+                                    at, String.format("but more than one schemas {%s} are valid ",msg));
     }
 
- 
+    @Override
+    public void preloadJsonSchema() {
+        for (final ShortcutValidator scValidator: schemas) {
+            scValidator.getSchema().initializeValidators();
+        }
+    }
 }
