@@ -16,20 +16,25 @@
 
 package com.networknt.schema;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -253,7 +258,7 @@ public class JsonSchema extends BaseJsonValidator {
                         // used for validation before allOf validation has kicked in
                         discriminatorContext.registerDiscriminator(schemaPath, discriminator);
                         discriminatorToUse = discriminator;
-                    } else{
+                    } else {
                         discriminatorToUse = discriminatorFromContext;
                     }
 
@@ -408,4 +413,18 @@ public class JsonSchema extends BaseJsonValidator {
         return validators;
     }
 
+    /**
+     * Initializes the validators' {@link com.networknt.schema.JsonSchema} instances.
+     * For avoiding issues with concurrency, in 1.0.49 the {@link com.networknt.schema.JsonSchema} instances affiliated with
+     * validators were modified to no more preload the schema and lazy loading is used instead.
+     * <p>This comes with the issue that this way you cannot rely on validating important schema features, in particular
+     * <code>$ref</code> resolution at instantiation from {@link com.networknt.schema.JsonSchemaFactory}.</p>
+     * <p>By calling <code>initializeValidators</code> you can enforce preloading of the {@link com.networknt.schema.JsonSchema}
+     * instances of the validators.</p>
+     */
+    public void initializeValidators() {
+        for (final JsonValidator validator : getValidators().values()) {
+            validator.preloadJsonSchema();
+        }
+    }
 }

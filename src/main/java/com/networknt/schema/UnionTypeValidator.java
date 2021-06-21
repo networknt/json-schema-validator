@@ -28,12 +28,11 @@ import java.util.Set;
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
-    private List<JsonValidator> schemas;
-    private String error;
+    private final List<JsonValidator> schemas = new ArrayList<JsonValidator>();
+    private final String error;
 
     public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);
-        schemas = new ArrayList<JsonValidator>();
 
         StringBuilder errorBuilder = new StringBuilder();
 
@@ -84,4 +83,10 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         return Collections.emptySet();
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        for (final JsonValidator validator : schemas) {
+            validator.preloadJsonSchema();
+        }
+    }
 }

@@ -33,10 +33,6 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchemaRef schema;
-    
-    private JsonSchema parentSchema;
-    
-    private ValidationContext validationContext;
 
     private static final String REF_CURRENT = "#";
 
@@ -44,10 +40,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         schema = getRefSchema(parentSchema, validationContext, refValue);
-        this.parentSchema = parentSchema;
-        this.validationContext = validationContext;
         if (schema == null) {
-            throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
+            throw new JsonSchemaException(
+                    ValidationMessage.of(ValidatorTypeCode.REF.getValue(),
+                                                               CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
         }
     }
 
@@ -139,7 +135,7 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             return Collections.emptySet();
         }
     }
-    
+
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		if (schema != null) {
@@ -152,4 +148,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 		return schema;
 	}
 
+
+    @Override
+    public void preloadJsonSchema() {
+        schema.getSchema().initializeValidators();
+    }
 }

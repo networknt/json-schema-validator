@@ -106,4 +106,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         return Collections.unmodifiableSet(errors);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        additionalPropertiesSchema.initializeValidators();
+    }
 }
