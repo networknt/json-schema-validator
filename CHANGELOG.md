@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.54 - 2021-65-22
+
+### Added
+
+### Changed
+
+- fixes #408 uri format regexp is validating invalid URI. Thanks @vmaurin
+- fixes #406 Behavior change of $ref resolution. Thanks @FWiesner
+
 ## 1.0.53 - 2021-05-19
 
 ### Added
