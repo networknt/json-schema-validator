@@ -202,6 +202,16 @@
         "valid": true
       },
       {
+        "description": "empty query string",
+        "data": "http://json-schema.org/?",
+        "valid": true
+      },
+      {
+        "description": "empty query string and fragment",
+        "data": "http://json-schema.org/?#",
+        "valid": true
+      },
+      {
         "description": "a scheme is mandatory in URI",
         "data": "//foo.bar/?baz=qux#quux",
         "valid": false
