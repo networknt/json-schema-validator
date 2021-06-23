@@ -197,6 +197,11 @@
         "valid": true
       },
       {
+        "description": "empty fragment",
+        "data": "http://json-schema.org/draft-07/schema#",
+        "valid": true
+      },
+      {
         "description": "a scheme is mandatory in URI",
         "data": "//foo.bar/?baz=qux#quux",
         "valid": false
