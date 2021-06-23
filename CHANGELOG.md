@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.55 - 2021-65-23
+
+### Added
+
+### Changed
+
+- fixes #411 uri format regexp is fixed to support empty fragment and query string. Thanks @vmaurin
+
 ## 1.0.54 - 2021-65-22
 
 ### Added
