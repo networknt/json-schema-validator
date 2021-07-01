@@ -47,6 +47,7 @@ public class JsonSchema extends BaseJsonValidator {
     private final String idKeyword;
     private final ValidationContext validationContext;
     private WalkListenerRunner keywordWalkListenerRunner;
+    private boolean validatorsLoaded = false;
 
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
@@ -423,8 +424,11 @@ public class JsonSchema extends BaseJsonValidator {
      * instances of the validators.</p>
      */
     public void initializeValidators() {
-        for (final JsonValidator validator : getValidators().values()) {
-            validator.preloadJsonSchema();
+        if (!validatorsLoaded) {
+            validatorsLoaded = true;
+            for (final JsonValidator validator : getValidators().values()) {
+                validator.preloadJsonSchema();
+            }
         }
     }
 }
