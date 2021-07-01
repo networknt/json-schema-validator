@@ -9,6 +9,8 @@ import org.junit.function.ThrowingRunnable;
 
 public class Issue406Test {
     protected static final String INVALID_$REF_SCHEMA = "{\"$ref\":\"urn:unresolved\"}";
+    protected static final String CIRCULAR_$REF_SCHEMA = "{\"$ref\":\"#/nestedSchema\","
+            + "\"nestedSchema\":{\"$ref\":\"#/nestedSchema\"}}";
 
     @Test
     public void testPreloadingNotHappening() {
@@ -30,5 +32,12 @@ public class Issue406Test {
                                     schema.initializeValidators();
                                 }
                             });
+    }
+
+    @Test
+    public void testPreloadingHappeningForCircularDependency() {
+        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        final JsonSchema schema = factory.getSchema(CIRCULAR_$REF_SCHEMA);
+        schema.initializeValidators();
     }
 }
