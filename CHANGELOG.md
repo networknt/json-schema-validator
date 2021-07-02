@@ -10,7 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-## 1.0.55 - 2021-65-23
+## 1.0.56 - 2021-07-02
+
+### Added
+
+### Changed
+
+- fixes #416 Circular $ref occurrences with schema.initializeValidators() lead to StackOverflowError. Thanks @FWiesner
+- fixes #414 Simplify the uri format validation regexp. Thanks @vmaurin
+
+## 1.0.55 - 2021-06-23
 
 ### Added
 
@@ -18,7 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - fixes #411 uri format regexp is fixed to support empty fragment and query string. Thanks @vmaurin
 
-## 1.0.54 - 2021-65-22
+## 1.0.54 - 2021-06-22
 
 ### Added
 
