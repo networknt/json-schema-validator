@@ -213,10 +213,12 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("$comment"),
                             new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
                             new NonValidationKeyword("$anchor"),
+                            new NonValidationKeyword("additionalItems"),
                             new NonValidationKeyword("deprecated"),
                             new NonValidationKeyword("contentMediaType"),
                             new NonValidationKeyword("contentEncoding"),
-                            new NonValidationKeyword("examples")
+                            new NonValidationKeyword("examples"),
+                            new NonValidationKeyword("then")
                     ))
                     .build();
         }
