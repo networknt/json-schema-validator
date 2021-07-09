@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.57 - 2021-07-09
+
+### Added
+
+### Changed
+
+- fixes #423 make sure additionalPropertiesSchema is not null in AdditionalPropertiesValidator. Thanks @flozano
+- fixes #421 Wrong validation of MultipleOfValidator. Thanks @ubergrohman
+- fixes #418 201909 false flag keywords additonalItems and then. Thanks @pgalbraith
+
+
 ## 1.0.56 - 2021-07-02
 
 ### Added
