@@ -108,6 +108,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
 
     @Override
     public void preloadJsonSchema() {
-        additionalPropertiesSchema.initializeValidators();
+        if(additionalPropertiesSchema!=null) {
+            additionalPropertiesSchema.initializeValidators();
+        }
     }
 }
