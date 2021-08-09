@@ -3,7 +3,7 @@
 
 There could be usecases where we want collect the information while we are validating the data. A simple example could be fetching some value from a database or from a microservice based on the data (which could be a text or a JSON object. It should be noted that this should be a simple operation or validation might take more time to complete.) in a given JSON node and the schema keyword we are using. 
 
-The fetched data can be stored some where so that it can be used later after the validation is done. Since the current validation logic already parses the data and schema, both validation and collecting the required information can be done in one go.
+The fetched data can be stored somewhere so that it can be used later after the validation is done. Since the current validation logic already parses the data and schema, both validation and collecting the required information can be done in one go.
 
 CollectorContext and Collector classes are designed to work with this usecase.
 
