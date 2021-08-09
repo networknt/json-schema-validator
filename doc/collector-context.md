@@ -5,7 +5,7 @@ There could be usecases where we want collect the information while we are valid
 
 The fetched data can be stored somewhere so that it can be used later after the validation is done. Since the current validation logic already parses the data and schema, both validation and collecting the required information can be done in one go.
 
-CollectorContext and Collector classes are designed to work with this usecase.
+CollectorContext and Collector classes are designed to work with this use case.
 
 #### How to use CollectorContext
 
