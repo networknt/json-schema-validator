@@ -13,7 +13,7 @@ Objects of CollectorContext live on ThreadLocal which is unique for every thread
 
 CollectorContext instance can be obtained by calling the getInstance static method on CollectorContext. This method gives an instance from the ThreadLocal for the current thread.
 
-Collectors are added to CollectorContext. Collectors allows to collect the objects. A Collector is added to CollectorContext with a name and corresponding Collector instance.
+Collectors are added to CollectorContext. Collectors allow to collect the objects. A Collector is added to CollectorContext with a name and corresponding Collector instance.
 
 ```
 CollectorContext collectorContext = CollectorContext.getInstance();
