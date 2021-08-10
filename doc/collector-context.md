@@ -9,11 +9,11 @@ CollectorContext and Collector classes are designed to work with this use case.
 
 #### How to use CollectorContext
 
-Objects of CollectorContext live on ThreadLocal which is unique for every thread. This allows users to add objects to context at many points in the framework like Formats,Validators (Effectively CollectorContext can be used at any touch point in the validateAndCollect method thread call).
+Objects of CollectorContext live on ThreadLocal which is unique for every thread. This allows users to add objects to context at many points in the framework like Formats, Validators (Effectively CollectorContext can be used at any touch point in the validateAndCollect method thread call).
 
-CollectorContext instance can be obtained by calling the getInstance static method on CollectorContext.This method gives an instance from the ThreadLocal for the current thread.
+CollectorContext instance can be obtained by calling the getInstance static method on CollectorContext. This method gives an instance from the ThreadLocal for the current thread.
 
-Collectors are added to CollectorContext. Collectors allows to collect the objects. A Collector is added to CollectorContext with a name and corresponding Collector instance.
+Collectors are added to CollectorContext. Collectors allow to collect the objects. A Collector is added to CollectorContext with a name and corresponding Collector instance.
 
 ```
 CollectorContext collectorContext = CollectorContext.getInstance();
@@ -27,7 +27,7 @@ collectorContext.add(SAMPLE_COLLECTOR_NAME, new Collector<List<String>>() {
 });
 ```
 
-However there might be usecases where we want to add a simple Object like String,Integer, etc into the Context. This can be done the same way a collector is added to the context.
+However there might be use cases where we want to add a simple Object like String, Integer, etc, into the Context. This can be done the same way a collector is added to the context.
 
 ```
 CollectorContext collectorContext = CollectorContext.getInstance();
@@ -47,7 +47,7 @@ To validate the schema with the ability to use CollectorContext, validateAndColl
 
 Note that CollectorContext will be removed from ThreadLocal once validateAndCollect method returns. Also the data collected by Collectors is loaded into CollectorContext only after all the validations are done.
 
-There might be usecases where a collector needs to collect the data at multiple touch points. For example one usecase might be collecting data in a validator and a formatter.If you are using a Collector rather than a Object, the combine method of the Collector allows to define how we want to combine the data into existing Collector.CollectorContext combineWithCollector method calls the combine method on the Collector. User just needs to call the CollectorContext combineWithCollector method every time some data needs to merged into existing Collector. The collect method on the Collector is called by the framework at the end of validation to return the data that was collected.
+There might be usecases where a collector needs to collect the data at multiple touch points. For example one usecase might be collecting data in a validator and a formatter. If you are using a Collector rather than a Object, the combine method of the Collector allows to define how we want to combine the data into existing Collector. CollectorContext combineWithCollector method calls the combine method on the Collector. User just needs to call the CollectorContext combineWithCollector method every time some data needs to merged into existing Collector. The collect method on the Collector is called by the framework at the end of validation to return the data that was collected.
 
 ```
  class CustomCollector implements Collector<List<String>> {
@@ -79,7 +79,7 @@ collectorContext.combineWithCollector(SAMPLE_COLLECTOR, node.textValue());
 
 ```
 
-One important thing to note when using Collectors is if we call get method on CollectorContext before the validation is complete, We would get back a Collector instance that was added to CollectorContext.
+One important thing to note when using Collectors is if we call get method on CollectorContext before the validation is complete, we would get back a Collector instance that was added to CollectorContext.
 
 ```
 // Returns Collector before validation is done.
