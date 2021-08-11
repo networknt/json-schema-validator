@@ -158,6 +158,11 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 continue;
             }*/
 
+            //Check to see if it is already validated.
+            if(!childErrors.isEmpty() && JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, super.config))){
+                continue;
+            }
+
             // get the current validator
             JsonSchema schema = validator.schema;
             if (!state.isWalkEnabled()) {
@@ -166,15 +171,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
             }
 
+
             // check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
                 // check whether there are no errors HOWEVER we have validated the exact validator
                 if (!state.hasMatchedNode())
                     continue;
-                else {
+                else
                     numberOfValidSchema++;
-                    break;
-                }
             }
             childErrors.addAll(schemaErrors);
         }

@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,19 +69,6 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             }
 
             ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
-
-            if(state.isComplexValidator()){
-                JsonNode oneOfNode = parentSchema.getParentSchema().getSchemaNode().get("oneOf");
-                if(oneOfNode != null){
-                    Iterator iterator = oneOfNode.elements();
-                    while (iterator.hasNext()){
-                        JsonNode oneOfTypeNode = (JsonNode) iterator.next();
-                        if(oneOfTypeNode.get("type").asText().equals(nodeType.toString())) //If the nodeType is oneOf the type defined in the oneOf , return true
-                            return true;
-                    }
-                }
-            }
-
             if(JsonType.NULL.equals(nodeType) ){
                 if((state.isComplexValidator() && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config)) || JsonNodeUtil.isNodeNullable(this.getParentSchema().getSchemaNode()) ){
                     return true;
@@ -113,6 +101,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             }
+
             return false;
         }
         return true;
