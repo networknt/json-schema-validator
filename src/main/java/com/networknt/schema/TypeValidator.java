@@ -17,10 +17,13 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
@@ -59,15 +62,31 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (schemaType == JsonType.ANY) {
                 return true;
             }
+
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
-            if (nodeType == JsonType.NULL) {
-                JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
-                if (nullable != null && nullable.asBoolean()) {
+
+            ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+
+            if(state.isComplexValidator()){
+                JsonNode oneOfNode = parentSchema.getParentSchema().getSchemaNode().get("oneOf");
+                if(oneOfNode != null){
+                    Iterator iterator = oneOfNode.elements();
+                    while (iterator.hasNext()){
+                        JsonNode oneOfTypeNode = (JsonNode) iterator.next();
+                        if(oneOfTypeNode.get("type").asText().equals(nodeType.toString())) //If the nodeType is oneOf the type defined in the oneOf , return true
+                            return true;
+                    }
+                }
+            }
+
+            if(JsonType.NULL.equals(nodeType) ){
+                if((state.isComplexValidator() && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config)) || JsonNodeUtil.isNodeNullable(this.getParentSchema().getSchemaNode()) ){
                     return true;
                 }
             }
+
             // Skip the type validation when the schema is an enum object schema. Since the current type
             // of node itself can be used for type validation.
             if (isEnumObjectSchema(parentSchema)) {
