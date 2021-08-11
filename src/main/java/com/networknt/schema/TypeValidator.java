@@ -114,7 +114,8 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             return unionTypeValidator.validate(node, rootNode, at);
         }
 
-        if (!equalsToSchemaType(node)) {
+        //if (!equalsToSchemaType(node)) {
+        if(!JsonNodeUtil.equalsToSchemaType(node,schemaType, parentSchema, super.config)){
             JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
