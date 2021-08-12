@@ -17,6 +17,10 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,6 +158,11 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 continue;
             }*/
 
+            //Check to see if it is already validated.
+            if(!childErrors.isEmpty() && JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, super.config))){
+                continue;
+            }
+
             // get the current validator
             JsonSchema schema = validator.schema;
             if (!state.isWalkEnabled()) {
@@ -162,25 +171,27 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
             }
 
+
             // check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
                 // check whether there are no errors HOWEVER we have validated the exact validator
                 if (!state.hasMatchedNode())
                     continue;
-
-                numberOfValidSchema++;
+                else
+                    numberOfValidSchema++;
             }
             childErrors.addAll(schemaErrors);
         }
-
-
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         if(numberOfValidSchema > 1){
-            final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
-            if( failFast ) {
-                throw new JsonSchemaException(message);
+            // check if the parent schema declares the fields as nullable
+            if (!JsonType.NULL.equals(TypeFactory.getValueNodeType(node,config)) || !JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode(),config) && !JsonNodeUtil.isChildNodeNullable((ArrayNode) schemaNode,config)) {
+                final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
+                if (failFast) {
+                    throw new JsonSchemaException(message);
+                }
+                errors.add(message);
             }
-            errors.add(message);
         }
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         else if (numberOfValidSchema < 1) {
