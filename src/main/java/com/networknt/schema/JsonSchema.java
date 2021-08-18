@@ -264,7 +264,8 @@ public class JsonSchema extends BaseJsonValidator {
                     }
 
                     final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
-                    final String discriminatorPropertyValue = jsonNode.get(discriminatorPropertyName).asText();
+                    final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
+                    final String discriminatorPropertyValue = discriminatorNode == null ? null : discriminatorNode.asText();
                     checkDiscriminatorMatch(discriminatorContext,
                                             discriminatorToUse,
                                             discriminatorPropertyValue,

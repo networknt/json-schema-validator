@@ -277,6 +277,75 @@
                     "@type": "Bathroom"
                 },
                 "valid": false
+            },
+            {
+                "description": "discriminator missing - falling back to default validation with failure as @type is mandatory",
+                "data": {
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "absent discriminator value as discriminator marked as non-mandatory (which is against OAS3 recommendations)",
+        "schema": {
+            "anyOf": [
+                {
+                    "$ref": "#/components/schemas/Room"
+                },
+                {
+                    "$ref": "#/components/schemas/BedRoom"
+                }
+            ],
+            "components": {
+                "schemas": {
+                    "Room": {
+                        "type": "object",
+                        "properties": {
+                            "intOrStringType": {
+                                "type": "integer"
+                            }
+                        },
+                        "discriminator": {
+                            "propertyName": "@type",
+                            "mapping": {
+                                "bed": "#/components/schemas/BedRoom"
+                            }
+                        }
+                    },
+                    "BedRoom": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Room"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "intOrStringType": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "discriminator missing - falling back to default anyOf behavior",
+                "data": {
+                    "intOrStringType": 4
+                },
+                "valid": true
+            },
+            {
+                "description": "discriminator missing - with constructed schema conflict",
+                "data": {
+                    "intOrStringType": "cannot match due to allOf"
+                },
+                "valid": false
             }
         ]
     },
