@@ -208,10 +208,12 @@ public class JsonSchema extends BaseJsonValidator {
         Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "true", schemaNode, this);
+                final String customMessage = getCustomMessage(schemaNode, "true");
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "true", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/true", validator);
             } else {
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "false", schemaNode, this);
+                final String customMessage = getCustomMessage(schemaNode, "false");
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "false", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/false", validator);
             }
         } else {
@@ -219,8 +221,8 @@ public class JsonSchema extends BaseJsonValidator {
             while (pnames.hasNext()) {
                 String pname = pnames.next();
                 JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
-
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this);
+                String customMessage = getCustomMessage(schemaNode, pname);
+                JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
                 if (validator != null) {
                     validators.put(getSchemaPath() + "/" + pname, validator);
 
@@ -232,6 +234,24 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
         return validators;
+    }
+
+    private String getCustomMessage(JsonNode schemaNode, String pname) {
+        final JsonSchema parentSchema = getParentSchema();
+        final JsonNode message = getMessageNode(schemaNode, parentSchema);
+        if(message != null && message.get(pname) != null) {
+            return message.get(pname).asText();
+        }
+        return null;
+    }
+
+    private JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema) {
+        JsonNode nodeContainingMessage;
+        if (parentSchema == null)
+            nodeContainingMessage  = schemaNode;
+        else
+            nodeContainingMessage = parentSchema.schemaNode;
+        return nodeContainingMessage.get("message");
     }
 
     /************************ START OF VALIDATE METHODS **********************************/

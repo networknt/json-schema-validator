@@ -16,6 +16,8 @@
 
 package com.networknt.schema;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Map;
@@ -114,7 +116,8 @@ public class ValidationMessage {
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String... arguments) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).arguments(arguments)
-                .format(errorMessageType.getMessageFormat()).type(type);
+                .format(errorMessageType.getMessageFormat()).type(type)
+                .customMessage(errorMessageType.getCustomMessage());
         return builder.build();
     }
 
@@ -132,6 +135,7 @@ public class ValidationMessage {
         private String[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
+        private String customMessage;
 
         public Builder type(String type) {
             this.type = type;
@@ -163,6 +167,11 @@ public class ValidationMessage {
             return this;
         }
 
+        public Builder customMessage(String customMessage) {
+            this.customMessage = customMessage;
+            return this;
+        }
+
         public ValidationMessage build() {
             ValidationMessage msg = new ValidationMessage();
             msg.setType(type);
@@ -179,7 +188,12 @@ public class ValidationMessage {
                         objs[i] = arguments[i - 1];
                     }
                 }
-                msg.setMessage(format.format(objs));
+                if(StringUtils.isNotBlank(customMessage)) {
+                    msg.setMessage(customMessage);
+                } else {
+                    msg.setMessage(format.format(objs));
+                }
+
             }
 
             return msg;
