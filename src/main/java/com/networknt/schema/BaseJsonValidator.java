@@ -195,6 +195,11 @@ public abstract class BaseJsonValidator implements JsonValidator {
                                                   final ObjectNode discriminator,
                                                   final String discriminatorPropertyValue,
                                                   final JsonSchema jsonSchema) {
+        if (discriminatorPropertyValue == null) {
+            currentDiscriminatorContext.markMatch();
+            return;
+        }
+
         final JsonNode discriminatorMapping = discriminator.get("mapping");
         if (null == discriminatorMapping) {
             checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
