@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 /**
  * Created by leaves chen leaves615@gmail.com on 2021/8/23.
  *
- * @Author leaves chen leaves615@gmail.com
+ * @author leaves chen leaves615@gmail.com
  */
 public class I18nSupport {
     private static final String BASE_NAME = "jsv-messages";
