@@ -68,4 +68,11 @@ public class FormatKeyword implements Keyword {
     public String getValue() {
         return type.getValue();
     }
+
+    @Override
+    public void setCustomMessage(String message) {
+        type.setCustomMessage(message);
+    }
+
+
 }

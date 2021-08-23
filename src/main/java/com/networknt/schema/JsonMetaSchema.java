@@ -181,7 +181,8 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("$comment"),
                             new NonValidationKeyword("contentMediaType"),
                             new NonValidationKeyword("contentEncoding"),
-                            new NonValidationKeyword("examples")
+                            new NonValidationKeyword("examples"),
+                            new NonValidationKeyword("message")
                     ))
                     .build();
         }
@@ -375,8 +376,9 @@ public class JsonMetaSchema {
         return idKeyword;
     }
 
+
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema) {
+                                      JsonSchema parentSchema, String customMessage) {
 
         try {
             Keyword kw = keywords.get(keyword);
@@ -386,6 +388,7 @@ public class JsonMetaSchema {
                 }
                 return null;
             }
+            kw.setCustomMessage(customMessage);
             return kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof JsonSchemaException) {
