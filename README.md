@@ -118,6 +118,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [ECMA-262 Regex](doc/ecma-262.md)
 
+## [Custom Message](doc/cust-msg.md)
+
 ## Known issues
 
 I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases, in my opinion, but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java language itself.
