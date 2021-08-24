@@ -70,7 +70,10 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                                 registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, parentSchema, at);
                                 // now we have to check whether we have hit the right target
                                 final String discriminatorPropertyName = discriminator.get("propertyName").asText();
-                                final String discriminatorPropertyValue = node.get(discriminatorPropertyName).textValue();
+                                final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
+                                final String discriminatorPropertyValue = discriminatorNode == null
+                                        ? null
+                                        : discriminatorNode.textValue();
 
                                 final JsonSchema jsonSchema = parentSchema;
                                 checkDiscriminatorMatch(

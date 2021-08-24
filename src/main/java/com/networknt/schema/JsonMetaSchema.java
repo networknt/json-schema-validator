@@ -117,7 +117,8 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("title"),
                             new NonValidationKeyword("description"),
                             new NonValidationKeyword("default"),
-                            new NonValidationKeyword("definitions")
+                            new NonValidationKeyword("definitions"),
+                            new NonValidationKeyword("exampleSetFlag")
                     ))
                     .build();
         }

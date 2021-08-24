@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.58 - 2021-08-23
+
+### Added
+- 
+- fixes #439 add i18n support for ValidationMessage. Thanks @leaves615
+- fixes #438 Adding custom message support in the schema. Thanks @adilath18
+
+### Changed
+
+- fixes #436 Relaxation of the discriminator validation. Thanks FWiesner
+- fixes #435 Added exampleSetFlag to nonValidationKeyword. Thanks @ShubhamRwt
+- fixes #428 A schema with nullable oneOf does not work as expect. Thanks @rongyj
+- fixes #429 Update collector-context.md. Thanks @Petapath
+- fixes #425 Cannot distinguish the "TextNode" and the "ArrayNode" with single value for oneOf. Thanks @rongyj
+
 ## 1.0.57 - 2021-07-09
 
 ### Added

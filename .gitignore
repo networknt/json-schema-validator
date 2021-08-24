@@ -9,6 +9,8 @@ dist/
 .settings
 .metadata/
 *.iml
+*.ipr
+*.iws
 *.log
 *.tmp
 *.zip

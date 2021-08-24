@@ -1,64 +1,79 @@
-/*
- * Copyright (c) 2016 Network New Technologies Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.networknt.schema;
+package com.networknt.schema.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.networknt.schema.utils.JsonNodeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.*;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
-public class TypeValidator extends BaseJsonValidator implements JsonValidator {
+public class JsonNodeUtil {
     private static final String TYPE = "type";
     private static final String ENUM = "enum";
     private static final String REF = "$ref";
+    private static final String NULLABLE = "nullable";
 
-    private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
-
-    private JsonType schemaType;
-    private JsonSchema parentSchema;
-    private UnionTypeValidator unionTypeValidator;
-
-    public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
-        schemaType = TypeFactory.getSchemaNodeType(schemaNode);
-        this.parentSchema = parentSchema;
-
-        if (schemaType == JsonType.UNION) {
-            unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
+    public static boolean isNodeNullable(JsonNode schema){
+        JsonNode nullable = schema.get(NULLABLE);
+        if (nullable != null && nullable.asBoolean()) {
+            return true;
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
+        return false;
     }
 
-    public JsonType getSchemaType() {
-        return schemaType;
+    //Check to see if a JsonNode is nullable with checking the isHandleNullableField
+    public static boolean isNodeNullable(JsonNode schema, SchemaValidatorsConfig config){
+        // check if the parent schema declares the fields as nullable
+        if (config.isHandleNullableField()) {
+            return isNodeNullable(schema);
+        }
+        return false;
     }
 
-    public boolean equalsToSchemaType(JsonNode node) {
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+    //Check to see if any child node for the OneOf SchemaNode is nullable
+    public static boolean isChildNodeNullable(ArrayNode oneOfSchemaNode,SchemaValidatorsConfig config){
+        Iterator iterator = oneOfSchemaNode.elements();
+        while(iterator.hasNext()){
+            //If one of the child Node for oneOf is nullable, it means the whole oneOf is nullable
+            if (isNodeNullable((JsonNode)iterator.next(),config)) return true;
+        }
+        return false;
+    }
+
+    public static boolean matchOneOfTypeNode(JsonNode oneOfSchemaNode, JsonType nodeType  ){
+        Iterator iterator = oneOfSchemaNode.elements();
+        while (iterator.hasNext()){
+            JsonNode oneOfTypeNode = (JsonNode) iterator.next();
+            JsonNode typeTextNode = oneOfTypeNode.get(TYPE);
+            if(typeTextNode != null && typeTextNode.asText().equals(nodeType.toString())) //If the nodeType is oneOf the type defined in the oneOf , return true
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean equalsToSchemaType(JsonNode node, JsonSchema schema, SchemaValidatorsConfig config) {
         // in the case that node type is not the same as schema type, try to convert node to the
         // same type of schema. In REST API, query parameters, path parameters and headers are all
         // string type and we must convert, otherwise, all schema validations will fail.
+        JsonType schemaType = getSchemaJsonType(schema);
+        return equalsToSchemaType(node,schemaType,schema.getParentSchema(),config);
+
+    }
+
+    public static JsonType getSchemaJsonType(JsonSchema schema){
+        JsonNode typeNode = schema.getSchemaNode().get(TYPE);
+        if(typeNode!= null) return JsonType.valueOf(typeNode.asText().toUpperCase());
+        return JsonType.UNKNOWN;
+    }
+
+
+
+    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, JsonSchema parentSchema, SchemaValidatorsConfig config) {
+        // in the case that node type is not the same as schema type, try to convert node to the
+        // same type of schema. In REST API, query parameters, path parameters and headers are all
+        // string type and we must convert, otherwise, all schema validations will fail.
+
+        JsonType nodeType = TypeFactory.getValueNodeType(node, config);
+
         if (nodeType != schemaType) {
             if (schemaType == JsonType.ANY) {
                 return true;
@@ -70,7 +85,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
 
             ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
             if(JsonType.NULL.equals(nodeType) ){
-                if((state.isComplexValidator() && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config)) || JsonNodeUtil.isNodeNullable(this.getParentSchema().getSchemaNode()) ){
+                if(state.isComplexValidator() && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config) || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode()) ){
                     return true;
                 }
             }
@@ -106,22 +121,6 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
         }
         return true;
     }
-
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-
-        if (schemaType == JsonType.UNION) {
-            return unionTypeValidator.validate(node, rootNode, at);
-        }
-
-        //if (!equalsToSchemaType(node)) {
-        if(!JsonNodeUtil.equalsToSchemaType(node,schemaType, parentSchema, super.config)){
-            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
-            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
-        }
-        return Collections.emptySet();
-    }
-
     public static boolean isInteger(String str) {
         if (str == null || str.equals("")) {
             return false;
