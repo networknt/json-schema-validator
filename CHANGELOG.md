@@ -5,9 +5,101 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
 ### Added
 
 ### Changed
+
+## 1.0.58 - 2021-08-23
+
+### Added
+- 
+- fixes #439 add i18n support for ValidationMessage. Thanks @leaves615
+- fixes #438 Adding custom message support in the schema. Thanks @adilath18
+
+### Changed
+
+- fixes #436 Relaxation of the discriminator validation. Thanks FWiesner
+- fixes #435 Added exampleSetFlag to nonValidationKeyword. Thanks @ShubhamRwt
+- fixes #428 A schema with nullable oneOf does not work as expect. Thanks @rongyj
+- fixes #429 Update collector-context.md. Thanks @Petapath
+- fixes #425 Cannot distinguish the "TextNode" and the "ArrayNode" with single value for oneOf. Thanks @rongyj
+
+## 1.0.57 - 2021-07-09
+
+### Added
+
+### Changed
+
+- fixes #423 make sure additionalPropertiesSchema is not null in AdditionalPropertiesValidator. Thanks @flozano
+- fixes #421 Wrong validation of MultipleOfValidator. Thanks @ubergrohman
+- fixes #418 201909 false flag keywords additonalItems and then. Thanks @pgalbraith
+
+
+## 1.0.56 - 2021-07-02
+
+### Added
+
+### Changed
+
+- fixes #416 Circular $ref occurrences with schema.initializeValidators() lead to StackOverflowError. Thanks @FWiesner
+- fixes #414 Simplify the uri format validation regexp. Thanks @vmaurin
+
+## 1.0.55 - 2021-06-23
+
+### Added
+
+### Changed
+
+- fixes #411 uri format regexp is fixed to support empty fragment and query string. Thanks @vmaurin
+
+## 1.0.54 - 2021-06-22
+
+### Added
+
+### Changed
+
+- fixes #408 uri format regexp is validating invalid URI. Thanks @vmaurin
+- fixes #406 Behavior change of $ref resolution. Thanks @FWiesner
+
+## 1.0.53 - 2021-05-19
+
+### Added
+
+### Changed
+
+- fixes #400 Introduce forceHttps flag in JsonSchemaFactory.Builder. Thanks @hisener
+
+## 1.0.52 - 2021-04-13
+
+### Added
+
+### Changed
+
+- fixes #398 Two issues with OpenAPI 3 discriminators. Thanks @FWiesner
+- fixes #396 Implement propertyNames in terms full schema validation. Thanks @JonasProgrammer
+
+## 1.0.51 - 2021-03-30
+
+### Added
+
+### Changed
+
+- fixes #392 NPE due to concurrency bug. Thanks @Keymaster65
+- fixes #391 override default EmailValidator, if set custom email format. Thanks @whirosan
+- fixes #390 Add discriminator support. Thanks @FWiesner
+
+## 1.0.50 - 2021-03-18
+
+### Added
+
+### Changed
+
+- fixes #387 Resolve the test case errors for TypeFactoryTest
+- fixes #385 Fixing concurrency and compilation issues. Thanks @prashanthjos
+- fixes #383 Nested oneOf gives incorrect validation error. Thanks @JonasProgrammer
+- fixes #379 Add lossless narrowing convertion. Thanks @hkupty 
+- fixes #378 Upgrade Jackson to 2.12.1 and Undertow to 2.2.4.Final
 
 ## 1.0.49 - 2021-02-17
 

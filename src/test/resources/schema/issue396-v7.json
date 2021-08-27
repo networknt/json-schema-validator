@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "propertyNames": {
+    "anyOf": [
+      {
+        "minLength": 10
+      },
+      {
+        "$ref": "#/definitions/props"
+      },
+      {
+        "oneOf": [
+          {
+            "enum": [
+              "z",
+              "a",
+              "b"
+            ]
+          },
+          {
+            "$ref": "#/definitions/xyz"
+          }
+        ]
+      }
+    ]
+  },
+  "definitions": {
+    "props": {
+      "minLength": 2,
+      "pattern": "[A-Z]"
+    },
+    "xyz": {
+      "enum": [
+        "x",
+        "y",
+        "z"
+      ]
+    }
+  }
+}

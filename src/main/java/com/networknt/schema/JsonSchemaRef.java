@@ -28,20 +28,9 @@ import java.util.Set;
 
 public class JsonSchemaRef {
 
-    private JsonSchema schema;
-    private ValidationContext validationContext;
-    private String refValue;
-
-    public JsonSchemaRef(ValidationContext validationContext, String refValue) {
-        this.validationContext = validationContext;
-        this.refValue = refValue;
-    }
+    private final JsonSchema schema;
 
     public JsonSchemaRef(JsonSchema schema) {
-        this.schema = schema;
-    }
-
-    public void set(JsonSchema schema) {
         this.schema = schema;
     }
 

@@ -17,10 +17,14 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
@@ -59,15 +63,18 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             if (schemaType == JsonType.ANY) {
                 return true;
             }
+
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
-            if (nodeType == JsonType.NULL) {
-                JsonNode nullable = this.getParentSchema().getSchemaNode().get("nullable");
-                if (nullable != null && nullable.asBoolean()) {
+
+            ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+            if(JsonType.NULL.equals(nodeType) ){
+                if((state.isComplexValidator() && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config)) || JsonNodeUtil.isNodeNullable(this.getParentSchema().getSchemaNode()) ){
                     return true;
                 }
             }
+
             // Skip the type validation when the schema is an enum object schema. Since the current type
             // of node itself can be used for type validation.
             if (isEnumObjectSchema(parentSchema)) {
@@ -94,6 +101,7 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             }
+
             return false;
         }
         return true;
@@ -106,7 +114,8 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             return unionTypeValidator.validate(node, rootNode, at);
         }
 
-        if (!equalsToSchemaType(node)) {
+        //if (!equalsToSchemaType(node)) {
+        if(!JsonNodeUtil.equalsToSchemaType(node,schemaType, parentSchema, super.config)){
             JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }

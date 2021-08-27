@@ -82,7 +82,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.49</version>
+    <version>1.0.58</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.49");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.58");
 }
 ```
 
@@ -117,6 +117,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 ## [JSON Schema Walkers and WalkListeners](doc/walkers.md)
 
 ## [ECMA-262 Regex](doc/ecma-262.md)
+
+## [Custom Message](doc/cust-msg.md)
 
 ## Known issues
 
