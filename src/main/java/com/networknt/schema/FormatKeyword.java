@@ -48,6 +48,10 @@ public class FormatKeyword implements Keyword {
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = formats.get(formatName);
+            // if you set custom format, override default Email/DateTime/UUID Validator
+            if (format != null) {
+                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
+            }
             // Validate date and time separately
             if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
                 return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
@@ -64,4 +68,11 @@ public class FormatKeyword implements Keyword {
     public String getValue() {
         return type.getValue();
     }
+
+    @Override
+    public void setCustomMessage(String message) {
+        type.setCustomMessage(message);
+    }
+
+
 }

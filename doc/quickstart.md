@@ -69,6 +69,10 @@ class Sample extends BaseJsonSchemaValidatorTest {
         JsonNode schemaNode = getJsonNodeFromStringContent(
             "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
         JsonSchema schema = getJsonSchemaFromJsonNodeAutomaticVersion(schemaNode);
+        
+        schema.initializeValidators(); // by default all schemas are loaded lazily. You can load them eagerly via
+                                       // initializeValidators() 
+        
         JsonNode node = getJsonNodeFromStringContent("{\"id\": \"2\"}");
         Set<ValidationMessage> errors = schema.validate(node);
         assertThat(errors.size(), is(1));
