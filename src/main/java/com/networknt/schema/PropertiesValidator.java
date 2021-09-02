@@ -28,7 +28,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new HashMap<String, JsonSchema>();
-    private final WalkListenerRunner propertyWalkListenerRunner;
     private final ValidationContext validationContext;
 
     public PropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -38,11 +37,12 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             String pname = it.next();
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema));
         }
-		propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(config.getPropertyWalkListeners());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+
+        WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -68,7 +68,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                     errors.addAll(propertySchema.validate(propertyNode, rootNode, at + "." + entry.getKey()));
                 } else {
                     // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                    walkSchema(entry, node, rootNode, at, state.isValidationEnabled(), errors);
+                    walkSchema(entry, node, rootNode, at, state.isValidationEnabled(), errors, propertyWalkListenerRunner);
                 }
 
                 // reset the complex flag to the original value before the recursive call
@@ -105,15 +105,16 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         if (shouldValidateSchema) {
             validationMessages.addAll(validate(node, rootNode, at));
         } else {
+            WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
             for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
-                walkSchema(entry, node, rootNode, at, shouldValidateSchema, validationMessages);
+                walkSchema(entry, node, rootNode, at, shouldValidateSchema, validationMessages, propertyWalkListenerRunner);
             }
         }
         return validationMessages;
     }
 
     private void walkSchema(Map.Entry<String, JsonSchema> entry, JsonNode node, JsonNode rootNode, String at,
-            boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+                            boolean shouldValidateSchema, Set<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),

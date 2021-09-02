@@ -29,10 +29,12 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;
+    private final ValidationContext validationContext;
 
     public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
         this.format = format;
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -41,7 +43,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return errors;
         }

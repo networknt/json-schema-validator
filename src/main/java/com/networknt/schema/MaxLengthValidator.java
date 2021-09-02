@@ -26,6 +26,8 @@ import java.util.Set;
 public class MaxLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxLengthValidator.class);
 
+    private final ValidationContext validationContext;
+
     private int maxLength;
 
     public MaxLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -34,14 +36,14 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         if (schemaNode != null && schemaNode.isIntegralNumber()) {
             maxLength = schemaNode.intValue();
         }
-
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             // ignore no-string typs
             return Collections.emptySet();

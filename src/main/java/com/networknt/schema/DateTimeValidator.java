@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
 
+    private final ValidationContext validationContext;
+
     private final String formatName;
     private final String DATE = "date";
     private final String DATETIME = "date-time";
@@ -44,6 +46,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
         this.formatName = formatName;
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -52,7 +55,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return errors;
         }

@@ -74,6 +74,9 @@ public class ValidationContext {
     }
 
     public SchemaValidatorsConfig getConfig() {
+        if (config == null) {
+            config = new SchemaValidatorsConfig();
+        }
         return config;
     }
 

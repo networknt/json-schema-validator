@@ -37,6 +37,8 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
      */
     private final ThresholdMixin typedMinimum;
 
+    private final ValidationContext validationContext;
+
     public MinimumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MINIMUM, validationContext);
 
@@ -109,12 +111,13 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
                 }
             };
         }
+        this.validationContext = validationContext;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, super.config)) {
+        if (!TypeValidator.isNumber(node, this.validationContext.getConfig())) {
             // minimum only applies to numbers
             return Collections.emptySet();
         }

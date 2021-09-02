@@ -95,7 +95,7 @@ public class JsonNodeUtil {
             if (isEnumObjectSchema(parentSchema)) {
                 return true;
             }
-            if (config.isTypeLoose()) {
+            if (config != null && config.isTypeLoose()) {
                 // if typeLoose is true, everything can be a size 1 array
                 if (schemaType == JsonType.ARRAY) {
                     return true;
