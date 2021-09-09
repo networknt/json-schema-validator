@@ -296,11 +296,6 @@ public class CollectorContextTest {
             // Ignore this method for testing.
             return null;
         }
-
-        @Override
-        public void preloadJsonSchema() {
-            // not used in testing
-        }
     }
 
     private class CustomCollector extends AbstractCollector<List<String>> {
@@ -377,11 +372,6 @@ public class CollectorContextTest {
         public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
-        }
-
-        @Override
-        public void preloadJsonSchema() {
-            // not used in testing
         }
     }
 

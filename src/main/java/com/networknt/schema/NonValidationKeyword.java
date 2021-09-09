@@ -35,11 +35,6 @@ public class NonValidationKeyword extends AbstractKeyword {
         public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
             return Collections.emptySet();
         }
-
-        @Override
-        public void preloadJsonSchema() {
-            // not used and the Validator is not extending from BaseJsonValidator
-        }
     }
 
     public NonValidationKeyword(String keyword) {

@@ -165,11 +165,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return validationMessages;
     }
 
-    @Override
-    public void preloadJsonSchema() {
-        // do nothing by default - to be overridden in subclasses
-    }
-
     protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
         for (final JsonSchema schema: schemas) {
             schema.initializeValidators();
