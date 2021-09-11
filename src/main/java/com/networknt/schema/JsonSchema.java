@@ -19,6 +19,7 @@ package com.networknt.schema;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.sql.Ref;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +37,8 @@ import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
 
+import javax.xml.validation.Schema;
+
 /**
  * This is the core of json constraint implementation. It parses json constraint
  * file and generates JsonValidators. The class is thread safe, once it is
@@ -46,7 +49,6 @@ public class JsonSchema extends BaseJsonValidator {
     private Map<String, JsonValidator> validators;
     private final String idKeyword;
     private final ValidationContext validationContext;
-    private WalkListenerRunner keywordWalkListenerRunner;
     private boolean validatorsLoaded = false;
 
     /**
@@ -80,19 +82,20 @@ public class JsonSchema extends BaseJsonValidator {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
               validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
         this.validationContext = validationContext;
-        this.config = validationContext.getConfig();
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
-        if (config != null) {
-            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(config.getKeywordWalkListenersMap());
-
-            if (config.isOpenAPI3StyleDiscriminators()) {
+        if (validationContext.getConfig() != null) {
+            if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
                 if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
                     validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaPath, discriminator);
                 }
             }
         }
+    }
+
+    ValidationContext getValidationContext() {
+        return this.validationContext;
     }
 
     private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
@@ -257,6 +260,7 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+        SchemaValidatorsConfig config = validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         // Get the collector context.
         getCollectorContext();
@@ -353,6 +357,7 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
         // Walk through all the JSONWalker's.
         for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
             JsonSchemaWalker jsonWalker = entry.getValue();
@@ -401,11 +406,12 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public CollectorContext getCollectorContext() {
+        SchemaValidatorsConfig config = validationContext.getConfig();
         CollectorContext collectorContext = (CollectorContext) ThreadInfo
                 .get(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
         if (collectorContext == null) {
-            if (this.config != null && this.config.getCollectorContext() != null) {
-                collectorContext = this.config.getCollectorContext();
+            if (config != null && config.getCollectorContext() != null) {
+                collectorContext = config.getCollectorContext();
             } else {
                 collectorContext = new CollectorContext();
             }

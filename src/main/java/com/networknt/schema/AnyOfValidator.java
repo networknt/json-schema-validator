@@ -37,13 +37,13 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             schemas.add(new JsonSchema(validationContext,
-                                       getValidatorType().getValue(),
-                                       parentSchema.getCurrentUri(),
-                                       schemaNode.get(i),
-                                       parentSchema));
+                    getValidatorType().getValue(),
+                    parentSchema.getCurrentUri(),
+                    schemaNode.get(i),
+                    parentSchema));
         }
 
-        if (config.isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             this.discriminatorContext = new ValidationContext.DiscriminatorContext();
         } else {
             this.discriminatorContext = null;
@@ -53,7 +53,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (config.isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
         }
 
@@ -72,9 +72,9 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
                 Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
-                if (errors.isEmpty() && !config.isOpenAPI3StyleDiscriminators()) {
+                if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
                     return errors;
-                } else if (config.isOpenAPI3StyleDiscriminators()) {
+                } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     if (discriminatorContext.isDiscriminatorMatchFound()) {
                         if (!errors.isEmpty()) {
                             errors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
@@ -85,13 +85,13 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 allErrors.addAll(errors);
             }
 
-            if (config.isOpenAPI3StyleDiscriminators() && discriminatorContext.isActive()) {
-               final Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
-               errors.add(buildValidationMessage(at, "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
-               return Collections.unmodifiableSet(errors);
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && discriminatorContext.isActive()) {
+                final Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+                errors.add(buildValidationMessage(at, "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
+                return Collections.unmodifiableSet(errors);
             }
         } finally {
-            if (config.isOpenAPI3StyleDiscriminators()) {
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 validationContext.leaveDiscriminatorContextImmediately(at);
             }
         }

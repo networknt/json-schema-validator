@@ -338,8 +338,14 @@ public class JsonSchemaFactory {
                 throw new JsonSchemaException(e);
             }
 
-            if (uriSchemaCache.containsKey(mappedUri))
-                return uriSchemaCache.get(mappedUri);
+            if (uriSchemaCache.containsKey(mappedUri)) {
+                JsonSchema cachedUriSchema =  uriSchemaCache.get(mappedUri);
+                // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+                // these schemas will be cached along with config. We have to replace the config for cached $ref references
+                // with the latest config.
+                cachedUriSchema.getValidationContext().setConfig(config);
+                return cachedUriSchema;
+            }
 
             try {
                 inputStream = this.uriFetcher.fetch(mappedUri);

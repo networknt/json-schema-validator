@@ -62,6 +62,8 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
     private final boolean allowTld = false;
     private final String formatName;
 
+    private final ValidationContext validationContext;
+
     /**
      * <p>Checks if a field has a valid e-mail address.</p>
      *
@@ -138,6 +140,7 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
     public EmailValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
         this.formatName = formatName;
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -147,7 +150,7 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return errors;
         }

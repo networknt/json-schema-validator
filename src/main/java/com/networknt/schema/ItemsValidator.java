@@ -33,7 +33,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     private final List<JsonSchema> tupleSchema;
     private boolean additionalItems = true;
     private final JsonSchema additionalSchema;
-    private final WalkListenerRunner arrayItemWalkListenerRunner;
+    private WalkListenerRunner arrayItemWalkListenerRunner;
     private final ValidationContext validationContext;
 
     public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
@@ -61,7 +61,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
                 }
             }
         }
-        arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(config.getArrayItemWalkListeners());
+        arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
 
         this.validationContext = validationContext;
 
@@ -76,7 +76,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        if (!node.isArray() && !config.isTypeLoose()) {
+        if (!node.isArray() && !this.validationContext.getConfig().isTypeLoose()) {
             // ignores non-arrays
             return errors;
         }

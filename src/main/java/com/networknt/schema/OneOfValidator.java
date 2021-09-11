@@ -27,13 +27,17 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
+
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
     private final List<ShortcutValidator> schemas = new ArrayList<ShortcutValidator>();
 
+    private final ValidationContext validationContext;
+
     private static class ShortcutValidator {
         private final JsonSchema schema;
         private final Map<String, String> constants;
+        private final ValidationContext validationContext;
 
         ShortcutValidator(JsonNode schemaNode, JsonSchema parentSchema,
                           ValidationContext validationContext, JsonSchema schema) {
@@ -41,6 +45,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             JsonSchema resolvedRefSchema = refNode != null && refNode.isTextual() ? RefValidator.getRefSchema(parentSchema, validationContext, refNode.textValue()).getSchema() : null;
             this.constants = extractConstants(schemaNode, resolvedRefSchema);
             this.schema = schema;
+            this.validationContext = validationContext;
         }
 
         private Map<String, String> extractConstants(JsonNode schemaNode, JsonSchema resolvedRefSchema) {
@@ -125,7 +130,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema);
             schemas.add(new ShortcutValidator(childNode, parentSchema, validationContext, childSchema));
         }
-
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -159,7 +164,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }*/
 
             //Check to see if it is already validated.
-            if(!childErrors.isEmpty() && JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, super.config))){
+            if(!childErrors.isEmpty() && JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, this.validationContext.getConfig()))){
                 continue;
             }
 
@@ -167,7 +172,8 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             JsonSchema schema = validator.schema;
 
             //Skip the validation when the current node is oneOf type and it is not equal to schemaType.
-            if(JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, super.config)) && !JsonNodeUtil.equalsToSchemaType(node,schema,config) && !(JsonType.UNKNOWN.equals(JsonNodeUtil.getSchemaJsonType(schema)))){
+            if (JsonNodeUtil.matchOneOfTypeNode(schemaNode, TypeFactory.getValueNodeType(node, this.validationContext.getConfig())) &&
+                    !JsonNodeUtil.equalsToSchemaType(node, schema, this.validationContext.getConfig()) && !(JsonType.UNKNOWN.equals(JsonNodeUtil.getSchemaJsonType(schema)))) {
                 continue;
             }
 
@@ -189,9 +195,11 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             childErrors.addAll(schemaErrors);
         }
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-        if(numberOfValidSchema > 1){
+        if (numberOfValidSchema > 1) {
             // check if the parent schema declares the fields as nullable
-            if (!JsonType.NULL.equals(TypeFactory.getValueNodeType(node,config)) || !JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode(),config) && !JsonNodeUtil.isChildNodeNullable((ArrayNode) schemaNode,config)) {
+            if (!JsonType.NULL.equals(TypeFactory.getValueNodeType(node, this.validationContext.getConfig())) ||
+                    !JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode(), this.validationContext.getConfig()) &&
+                            !JsonNodeUtil.isChildNodeNullable((ArrayNode) schemaNode, this.validationContext.getConfig())) {
                 final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
                 if (failFast) {
                     throw new JsonSchemaException(message);

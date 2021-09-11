@@ -34,11 +34,14 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     protected JsonSchemaRef schema;
 
+    private JsonSchema parentSchema;
+
     private static final String REF_CURRENT = "#";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
+        this.parentSchema = parentSchema;
         schema = getRefSchema(parentSchema, validationContext, refValue);
         if (schema == null) {
             throw new JsonSchemaException(
@@ -128,7 +131,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
         if (schema != null) {
             return schema.validate(node, rootNode, at);
         } else {
@@ -138,6 +144,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
 		if (schema != null) {
 			return schema.walk(node, rootNode, at, shouldValidateSchema);
 		}

@@ -35,7 +35,10 @@ public class PatternValidator implements JsonValidator {
 
     private final JsonValidator delegate;
 
+    private final ValidationContext validationContext;
+
     public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        this.validationContext = validationContext;
          if (validationContext.getConfig() != null && validationContext.getConfig().isEcma262Validator()) {
              delegate = new PatternValidatorEcma262(schemaPath, schemaNode, parentSchema, validationContext);
          } else {
@@ -60,7 +63,7 @@ public class PatternValidator implements JsonValidator {
 
     private static class PatternValidatorJava extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
-
+        private final ValidationContext validationContext;
         private String pattern;
         private Pattern compiledPattern;
 
@@ -77,7 +80,7 @@ public class PatternValidator implements JsonValidator {
                     throw pse;
                 }
             }
-
+            this.validationContext = validationContext;
             parseErrorCode(getValidatorType().getErrorCodeKey());
         }
 
@@ -88,7 +91,7 @@ public class PatternValidator implements JsonValidator {
         public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
             debug(logger, node, rootNode, at);
 
-            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+            JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
             if (nodeType != JsonType.STRING) {
                 return Collections.emptySet();
             }
@@ -107,7 +110,7 @@ public class PatternValidator implements JsonValidator {
 
     private static class PatternValidatorEcma262 extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
-
+        private final ValidationContext validationContext;
         private String pattern;
         private Regex compiledRegex;
 
@@ -124,7 +127,7 @@ public class PatternValidator implements JsonValidator {
                     throw se;
                 }
             }
-
+            this.validationContext = validationContext;
             parseErrorCode(getValidatorType().getErrorCodeKey());
         }
 
@@ -145,7 +148,7 @@ public class PatternValidator implements JsonValidator {
         public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
             debug(logger, node, rootNode, at);
 
-            JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+            JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
             if (nodeType != JsonType.STRING) {
                 return Collections.emptySet();
             }

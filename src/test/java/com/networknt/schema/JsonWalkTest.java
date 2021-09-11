@@ -23,6 +23,8 @@ public class JsonWalkTest {
 
     private JsonSchema jsonSchema;
 
+    private JsonSchema jsonSchema1;
+
     private static final String SAMPLE_WALK_COLLECTOR_TYPE = "sampleWalkCollectorType";
 
     private static final String CUSTOM_KEYWORD = "custom-keyword";
@@ -39,6 +41,7 @@ public class JsonWalkTest {
 
     private void setupSchema() {
         final JsonMetaSchema metaSchema = getJsonMetaSchema();
+        // Create Schema.
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
@@ -48,6 +51,12 @@ public class JsonWalkTest {
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
                 .build();
         this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
+        // Create another Schema.
+        SchemaValidatorsConfig schemaValidatorsConfig1 = new SchemaValidatorsConfig();
+        schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+        schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+                new PropertiesKeywordListener());
+        this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1);
     }
 
     private JsonMetaSchema getJsonMetaSchema() {
@@ -65,6 +74,41 @@ public class JsonWalkTest {
         assertEquals(collectedNode, (objectMapper.readTree("{" +
                 "    \"PROPERTY1\": \"sample1\","
                 + "    \"PROPERTY2\": \"sample2\","
+                + "    \"property3\": {"
+                + "        \"street_address\":\"test-address\","
+                + "        \"phone_number\": {"
+                + "            \"country-code\": \"091\","
+                + "            \"number\": \"123456789\""
+                + "          }"
+                + "     }"
+                + "}")));
+    }
+
+    @Test
+    public void testWalkWithDifferentListeners() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // This instance of schema contains all listeners.
+        ValidationResult result = jsonSchema.walk(
+                objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
+        JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
+        assertEquals(collectedNode, (objectMapper.readTree("{" +
+                "    \"PROPERTY1\": \"sample1\","
+                + "    \"PROPERTY2\": \"sample2\","
+                + "    \"property3\": {"
+                + "        \"street_address\":\"test-address\","
+                + "        \"phone_number\": {"
+                + "            \"country-code\": \"091\","
+                + "            \"number\": \"123456789\""
+                + "          }"
+                + "     }"
+                + "}")));
+        // This instance of schema contains one listener removed.
+        CollectorContext collectorContext = result.getCollectorContext();
+        collectorContext.reset();
+        result = jsonSchema1.walk(
+                objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
+        collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
+        assertEquals(collectedNode, (objectMapper.readTree("{"
                 + "    \"property3\": {"
                 + "        \"street_address\":\"test-address\","
                 + "        \"phone_number\": {"

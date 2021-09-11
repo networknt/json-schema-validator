@@ -26,6 +26,8 @@ import java.util.Set;
 public class MinLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinLengthValidator.class);
 
+    private final ValidationContext validationContext;
+
     private int minLength;
 
     public MinLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -34,14 +36,14 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         if (schemaNode != null && schemaNode.isIntegralNumber()) {
             minLength = schemaNode.intValue();
         }
-
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             // ignore non-string types
             return Collections.emptySet();

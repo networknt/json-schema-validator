@@ -26,6 +26,8 @@ import java.util.Set;
 public class MinItemsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinItemsValidator.class);
 
+    private final ValidationContext validationContext;
+
     private int min = 0;
 
     public MinItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -33,7 +35,7 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
         if (schemaNode.isIntegralNumber()) {
             min = schemaNode.intValue();
         }
-
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -44,7 +46,7 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
             if (node.size() < min) {
                 return Collections.singleton(buildValidationMessage(at, "" + min));
             }
-        } else if (config.isTypeLoose()) {
+        } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 < min) {
                 return Collections.singleton(buildValidationMessage(at, "" + min));
             }
