@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.59 - 2021-09-11
+
+### Changed
+
+- fixes #445 JsonValidator: mark preloadJsonSchema as default. Thanks @DaNizz97
+- fixes #443 $ref caching issue. Thanks @prashanthjos
+- fixes #426 Adding custom ValidatorTypeCodes. Thanks @adilath18
+
 ## 1.0.58 - 2021-08-23
 
 ### Added
