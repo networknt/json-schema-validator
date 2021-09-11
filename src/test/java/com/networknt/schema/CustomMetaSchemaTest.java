@@ -66,11 +66,6 @@ public class CustomMetaSchemaTest {
                 String valueName = enumNames.get(idx);
                 return fail(CustomErrorMessageType.of("tests.example.enumNames", new MessageFormat("{0}: enumName is {1}")), at, valueName);
             }
-
-            @Override
-            public void preloadJsonSchema() {
-                // not used in testing
-            }
         }
 
 

@@ -164,11 +164,6 @@ public class JsonWalkTest {
                                                boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
             }
-
-            @Override
-            public void preloadJsonSchema() {
-                // not used in testing
-            }
         }
     }
 
