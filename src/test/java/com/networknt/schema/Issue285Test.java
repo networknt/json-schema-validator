@@ -1,8 +1,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Issue285Test {
     private ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +92,7 @@ public class Issue285Test {
     // In this case a nested type declaration isn't valid and should raise an error.
     // The result is not as expected and we get no validation error.
     @Test
-    @Ignore
+    @Disabled
     public void nestedTypeValidation() throws IOException, URISyntaxException {
         URI uri = new URI("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);

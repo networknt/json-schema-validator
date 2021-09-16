@@ -17,8 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -27,25 +27,29 @@ import java.util.Set;
  */
 public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
-    @Test(expected = JsonSchemaException.class)
+    @Test
     public void testInvalidPatternPropertiesValidator() throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
+        Assertions.assertThrows(JsonSchemaException.class, () -> {
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
 
-        JsonNode node = getJsonNodeFromStringContent("");
-        Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(errors.size(), 0);
+            JsonNode node = getJsonNodeFromStringContent("");
+            Set<ValidationMessage> errors = schema.validate(node);
+            Assertions.assertEquals(errors.size(), 0);
+        });
     }
 
-    @Test(expected = JsonSchemaException.class)
+    @Test
     public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setEcma262Validator(true);
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
+        Assertions.assertThrows(JsonSchemaException.class, () -> {
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setEcma262Validator(true);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
-        JsonNode node = getJsonNodeFromStringContent("");
-        Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(errors.size(), 0);
+            JsonNode node = getJsonNodeFromStringContent("");
+            Set<ValidationMessage> errors = schema.validate(node);
+            Assertions.assertEquals(errors.size(), 0);
+        });
     }
 }

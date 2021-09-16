@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.undertow.Handlers.resource;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class V7JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -42,7 +42,7 @@ public class V7JsonSchemaTest {
     public V7JsonSchemaTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (server == null) {
             server = Undertow.builder()
@@ -54,7 +54,7 @@ public class V7JsonSchemaTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (server != null) {
             try {
@@ -109,7 +109,7 @@ public class V7JsonSchemaTest {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                assertEquals("expected error count", errorCount.asInt(), errors.size());
+                                assertEquals(errorCount.asInt(), errors.size(), "expected error count");
                             }
                         }
                         assertEquals(false, errors.isEmpty());
@@ -127,19 +127,19 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalContentValidator() throws Exception {
         runTestFile("draft7/optional/content.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEcmascriptRegexValidator() throws Exception {
         runTestFile("draft7/optional/ecmascript-regex.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testZeroTerminatedFloatsValidator() throws Exception {
         runTestFile("draft7/optional/zeroTerminatedFloats.json");
     }
@@ -165,13 +165,13 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatIdnEmailValidator() throws Exception {
         runTestFile("draft7/optional/format/idn-email.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatIdnHostnameValidator() throws Exception {
         runTestFile("draft7/optional/format/idn-hostname.json");
     }
@@ -187,55 +187,55 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatIriValidator() throws Exception {
         runTestFile("draft7/optional/format/iri.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatIriReferenceValidator() throws Exception {
         runTestFile("draft7/optional/format/iri-reference.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatJsonPointerValidator() throws Exception {
         runTestFile("draft7/optional/format/json-pointer.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatRegexValidator() throws Exception {
         runTestFile("draft7/optional/format/regex.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatRelativeJsonPointerValidator() throws Exception {
         runTestFile("draft7/optional/format/relative-json-pointer.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatTimeValidator() throws Exception {
         runTestFile("draft7/optional/format/time.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatUriValidator() throws Exception {
         runTestFile("draft7/optional/format/uri.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatUriReferenceValidator() throws Exception {
         runTestFile("draft7/optional/format/uri-reference.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatUriTemplateValidator() throws Exception {
         runTestFile("draft7/optional/format/uri-template.json");
     }
@@ -396,7 +396,7 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRefValidator() throws Exception {
         runTestFile("draft7/ref.json");
     }
@@ -412,7 +412,7 @@ public class V7JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRefRemoteValidator_Ignored() throws Exception {
         runTestFile("draft7/refRemote_ignored.json");
     }

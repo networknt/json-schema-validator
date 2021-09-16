@@ -15,8 +15,8 @@
  */
 package com.networknt.schema;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Ignore
+@Disabled
 public class MaximumValidatorPerfTest {
     MaximumValidatorTest test = new MaximumValidatorTest();
 

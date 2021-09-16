@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,12 +38,12 @@ public class CollectorContextTest {
 
     private JsonSchema jsonSchemaForCombine;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         setupSchema();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (CollectorContext.getInstance() != null) {
             CollectorContext.getInstance().reset();
@@ -54,12 +54,12 @@ public class CollectorContextTest {
     @Test
     public void testCollectorContextWithKeyword() throws Exception {
         ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
-        Assert.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
         List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-        Assert.assertEquals(0, validationResult.getValidationMessages().size());
-        Assert.assertEquals(2, contextValues.size());
-        Assert.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
-        Assert.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
+        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(2, contextValues.size());
+        Assertions.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
     }
 
     @SuppressWarnings("unchecked")
@@ -89,17 +89,17 @@ public class CollectorContextTest {
         ValidationResult validationResult2 = validationRunnable2.getValidationResult();
         ValidationResult validationResult3 = validationRunnable3.getValidationResult();
 
-        Assert.assertEquals(0, validationResult1.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult2.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult3.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult1.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult2.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult3.getValidationMessages().size());
 
         List<String> contextValue1 = (List<String>) validationResult1.getCollectorContext().get(SAMPLE_COLLECTOR);
         List<String> contextValue2 = (List<String>) validationResult2.getCollectorContext().get(SAMPLE_COLLECTOR);
         List<String> contextValue3 = (List<String>) validationResult3.getCollectorContext().get(SAMPLE_COLLECTOR);
 
-        Assert.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
-        Assert.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
-        Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
+        Assertions.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
+        Assertions.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
     }
 
     @SuppressWarnings("unchecked")
@@ -109,8 +109,8 @@ public class CollectorContextTest {
         ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
         CollectorContext collectorContext = validationResult.getCollectorContext();
-        Assert.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
-        Assert.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
+        Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
+        Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
 
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {

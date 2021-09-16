@@ -17,9 +17,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,7 +27,7 @@ import java.math.BigInteger;
 import static java.lang.String.format;
 import static java.lang.System.out;
 
-@Ignore
+@Disabled
 public class ThresholdMixinPerfTest {
     private static long thresholdIntegral = Long.MAX_VALUE - 1;
 
@@ -57,7 +57,7 @@ public class ThresholdMixinPerfTest {
     double baseTimeForDouble;
     private double baseTimeForLong;
 
-    @Before
+    @BeforeEach
     public void baseTimeEstimate() {
         baseTimeForDouble = getAvgTimeViaMixin(asDouble, valueDouble, executeTimes);
         out.println(format("Base execution time (comparing two DoubleNodes) %f ns", baseTimeForDouble));
