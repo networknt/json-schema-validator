@@ -16,11 +16,11 @@
 
 package com.networknt.schema;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.networknt.schema.TypeValidator.isNumeric;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TypeValidatorTest {
 
@@ -39,14 +39,14 @@ public class TypeValidatorTest {
     @Test
     public void testNumeicValues() {
         for (String validValue : validNumericValues) {
-            assertTrue(validValue, isNumeric(validValue));
+            assertTrue(isNumeric(validValue), validValue);
         }
     }
 
     @Test
     public void testNonNumeicValues() {
         for (String invalidValue : invalidNumericValues) {
-            assertFalse(invalidValue, isNumeric(invalidValue));
+            assertFalse(isNumeric(invalidValue), invalidValue);
         }
     }
 }

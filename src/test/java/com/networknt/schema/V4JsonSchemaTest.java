@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.undertow.Handlers.resource;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class V4JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -45,7 +45,7 @@ public class V4JsonSchemaTest {
     public V4JsonSchemaTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (server == null) {
             server = Undertow.builder()
@@ -57,7 +57,7 @@ public class V4JsonSchemaTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (server != null) {
             try {
@@ -112,7 +112,7 @@ public class V4JsonSchemaTest {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                assertEquals("expected error count", errorCount.asInt(), errors.size());
+                                assertEquals(errorCount.asInt(), errors.size(), "expected error count");
                             }
                         }
                         assertEquals(false, errors.isEmpty());

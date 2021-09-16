@@ -2,12 +2,13 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SpecVersionDetectorTest {
 
@@ -51,20 +52,24 @@ public class SpecVersionDetectorTest {
         assertEquals(SpecVersion.VersionFlag.V201909, flag);
     }
 
-    @Test(expected = JsonSchemaException.class)
+    @Test
     public void detectUnsupportedSchemaVersion() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("data/" + SCHEMA_TAG_JSON);
-        JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        assertThrows(JsonSchemaException.class, () -> {
+            InputStream in = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("data/" + SCHEMA_TAG_JSON);
+            JsonNode node = mapper.readTree(in);
+            SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        });
     }
 
-    @Test(expected = JsonSchemaException.class)
+    @Test
     public void detectMissingSchemaVersion() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("data/" + "schemaTagMissing.json");
-        JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        assertThrows(JsonSchemaException.class, () -> {
+            InputStream in = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("data/" + "schemaTagMissing.json");
+            JsonNode node = mapper.readTree(in);
+            SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        });
     }
 
 }

@@ -15,8 +15,8 @@
  */
 package com.networknt.schema;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class SpecVersionTest {
         Set versionFlags = EnumSet.of(
                 SpecVersion.VersionFlag.V4,
                 SpecVersion.VersionFlag.V201909);
-        Assert.assertEquals(ds.getVersionValue(versionFlags), 9); // 0001|1000
+        Assertions.assertEquals(ds.getVersionValue(versionFlags), 9); // 0001|1000
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SpecVersionTest {
                         | SpecVersion.VersionFlag.V4.getVersionFlagValue()
                         | SpecVersion.VersionFlag.V6.getVersionFlagValue()
                         | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 15
-        Assert.assertEquals(numericVersionCode, 15);
+        Assertions.assertEquals(numericVersionCode, 15);
 
     }
 }

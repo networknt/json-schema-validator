@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.undertow.Handlers.resource;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class V6JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -42,7 +42,7 @@ public class V6JsonSchemaTest {
     public V6JsonSchemaTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (server == null) {
             server = Undertow.builder()
@@ -54,7 +54,7 @@ public class V6JsonSchemaTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (server != null) {
             try {
@@ -109,7 +109,7 @@ public class V6JsonSchemaTest {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                assertEquals("expected error count", errorCount.asInt(), errors.size());
+                                assertEquals(errorCount.asInt(), errors.size(), "expected error count");
                             }
                         }
                         assertEquals(false, errors.isEmpty());
@@ -127,19 +127,19 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testEcmascriptRegexValidator() throws Exception {
         runTestFile("draft6/optional/ecmascript-regex.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testZeroTerminatedFloatsValidator() throws Exception {
         runTestFile("draft6/optional/zeroTerminatedFloats.json");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testOptionalFormatValidator() throws Exception {
         runTestFile("draft6/optional/format.json");
     }
@@ -295,7 +295,7 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRefValidator() throws Exception {
         runTestFile("draft6/ref.json");
     }
@@ -311,7 +311,7 @@ public class V6JsonSchemaTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRefRemoteValidator_Ignored() throws Exception {
         runTestFile("draft6/refRemote_ignored.json");
     }

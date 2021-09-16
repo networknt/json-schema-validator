@@ -3,8 +3,8 @@ package com.networknt.schema;
 import java.io.InputStream;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +30,6 @@ public class Issue383Test {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(0, errors.size());
+        Assertions.assertEquals(0, errors.size());
     }
 }
