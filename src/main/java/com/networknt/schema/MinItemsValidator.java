@@ -32,7 +32,7 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
 
     public MinItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_ITEMS, validationContext);
-        if (schemaNode.isIntegralNumber()) {
+        if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }
         this.validationContext = validationContext;
