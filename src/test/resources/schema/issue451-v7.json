@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/issue-451.json",
+  "title": "AllOf structuring payload",
+  "description": "Test description",
+  "type": "object",
+  "properties": {
+    "allOfAttr" : {
+      "allOf" : [
+        {"$ref":  "#/definitions/definition1"},
+        {"$ref":  "#/definitions/definition2"}
+      ]
+    },
+    "anyOfAttr" : {
+      "anyOf" : [
+        {"$ref":  "#/definitions/definition1"},
+        {"$ref":  "#/definitions/definition2"}
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "definition1" : {
+      "type": "object",
+      "properties": {
+        "a" : {"type": "string"},
+        "c" : {"type": "integer"}
+      },
+      "additionalProperties": false
+    },
+    "definition2" : {
+      "type": "object",
+      "properties": {
+        "x" : {"type": "number"},
+        "y" : {"type": "number"}
+      },
+      "required": ["x", "y"],
+      "additionalProperties": false
+    }
+  }
+}

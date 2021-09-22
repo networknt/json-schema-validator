@@ -99,6 +99,17 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+
+        for (JsonSchema schema : schemas) {
+            // Walk through the schema
+            validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+        }
+        return Collections.unmodifiableSet(validationMessages);
+    }
+
+    @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(schemas);
     }
