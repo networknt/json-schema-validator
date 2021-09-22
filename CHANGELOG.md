@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.60 - 2021-09-22
+
+### Changed
+
+- fixes #451 walk method for AnyOfValidator not implemented. Thanks @bartoszm
+- fixes #450 changed from isIntegralNumber to canConvertToExactIntegral to support. Thanks @mohsin-sq
+- fixes #449 Refactor JSON Schema Test Suite tests. Thanks @olegshtch
+- fixes #448 Test CI with JDK 11. Thanks @olegshtch
+- fixes #447 Bump JUnit version to 5.7.2. Thanks @olegshtch
+
 ## 1.0.59 - 2021-09-11
 
 ### Changed
