@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static io.undertow.Handlers.resource;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class OpenAPI30JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
@@ -28,7 +28,7 @@ public class OpenAPI30JsonSchemaTest {
     public OpenAPI30JsonSchemaTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (server == null) {
             server = Undertow.builder()
@@ -40,7 +40,7 @@ public class OpenAPI30JsonSchemaTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         if (server != null) {
             try {
@@ -103,7 +103,7 @@ public class OpenAPI30JsonSchemaTest {
                                 for (ValidationMessage error : errors) {
                                     System.out.println(error);
                                 }
-                                assertEquals("expected error count", errorCount.asInt(), errors.size());
+                                assertEquals(errorCount.asInt(), errors.size(), "expected error count");
                             }
                         }
                         assertFalse(errors.isEmpty());

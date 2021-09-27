@@ -7,9 +7,9 @@ import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonWalkTest {
 
@@ -29,12 +29,12 @@ public class JsonWalkTest {
 
     private static final String CUSTOM_KEYWORD = "custom-keyword";
 
-    @Before
+    @BeforeEach
     public void setup() {
         setupSchema();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
        CollectorContext.getInstance().reset();
     }
@@ -163,11 +163,6 @@ public class JsonWalkTest {
             public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at,
                                                boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
-            }
-
-            @Override
-            public void preloadJsonSchema() {
-                // not used in testing
             }
         }
     }

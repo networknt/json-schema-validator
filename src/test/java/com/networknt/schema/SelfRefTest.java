@@ -16,14 +16,14 @@
 
 package com.networknt.schema;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by stevehu on 2016-12-20.
  */
 public class SelfRefTest extends BaseJsonSchemaValidatorTest {
-    @Ignore("This test currently is failing because of a StackOverflow caused by a recursive $ref.")
+    @Disabled("This test currently is failing because of a StackOverflow caused by a recursive $ref.")
     @Test()
     public void testSelfRef() throws Exception {
         JsonSchema node = getJsonSchemaFromClasspath("selfRef.json");

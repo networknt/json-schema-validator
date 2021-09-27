@@ -164,9 +164,4 @@ public class PatternValidator implements JsonValidator {
             return Collections.emptySet();
         }
     }
-
-    @Override
-    public void preloadJsonSchema() {
-        // not used and the validator does not inherit from BaseJsonValidator
-    }
 }

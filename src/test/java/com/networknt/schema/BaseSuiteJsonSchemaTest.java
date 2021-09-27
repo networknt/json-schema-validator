@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020 Network New Technologies Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,7 +23,6 @@ import io.undertow.Undertow;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -17,17 +32,16 @@ import java.util.List;
 
 import static io.undertow.Handlers.resource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class Issue425Test {
+public abstract class BaseSuiteJsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
-    protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
-    protected static Undertow server = null;
-
-    public Issue425Test() {
-    }
-
+    protected JsonSchemaFactory validatorFactory;
+	protected static Undertow server = null;
+	
+	protected BaseSuiteJsonSchemaTest(SpecVersion.VersionFlag version) {
+		validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(version)).objectMapper(mapper).build();
+	}
+	
     @BeforeAll
     public static void setUp() {
         if (server == null) {
@@ -49,10 +63,11 @@ public class Issue425Test {
 
             }
             server.stop();
+			server = null;
         }
     }
-
-    private void runTestFile(String testCaseFile) throws Exception {
+	
+    protected void runTestFile(String testCaseFile) throws Exception {
         final URI testCaseFileUri = URI.create("classpath:" + testCaseFile);
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(testCaseFile);
@@ -66,29 +81,23 @@ public class Issue425Test {
                 ArrayNode testNodes = (ArrayNode) testCase.get("tests");
                 for (int i = 0; i < testNodes.size(); i++) {
                     JsonNode test = testNodes.get(i);
-                    System.out.println("=== " + test.get("description"));
                     JsonNode node = test.get("data");
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
                     // if test file do not contains typeLoose flag, use default value: true.
-                    config.setTypeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
-                    config.setOpenAPI3StyleDiscriminators(false);
+                    config.setTypeLoose((typeLooseNode == null) ? false : typeLooseNode.asBoolean());
                     JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), config);
+                    List<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
-                    List<ValidationMessage> errors = new ArrayList<ValidationMessage>(schema.validate(node));
+                    errors.addAll(schema.validate(node));
 
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
                             System.out.println("schema: " + schema.toString());
                             System.out.println("data: " + test.get("data"));
-                            System.out.println("errors:");
-                            for (ValidationMessage error : errors) {
-                                System.out.println(error);
-                            }
                         }
-                        if(test.get("data").get("values").asText().equals("3"))
-                            assertEquals(2, errors.size());
+                        assertEquals(0, errors.size());
                     } else {
                         if (errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
@@ -101,26 +110,15 @@ public class Issue425Test {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                for (ValidationMessage error : errors) {
-                                    System.out.println(error);
-                                }
                                 assertEquals(errorCount.asInt(), errors.size(), "expected error count");
                             }
                         }
-                        assertFalse(errors.isEmpty());
+                        assertEquals(false, errors.isEmpty());
                     }
-
                 }
-
-
             } catch (JsonSchemaException e) {
                 throw new IllegalStateException(String.format("Current schema should not be invalid: %s", testCaseFile), e);
             }
         }
-    }
-
-    @Test
-    public void testNullableOneOf() throws Exception {
-        runTestFile("data/issue425.json");
     }
 }

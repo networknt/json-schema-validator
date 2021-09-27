@@ -1,6 +1,7 @@
 package com.networknt.schema;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,12 +10,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class Issue366FailFast {
 
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     setupSchema();
   }
@@ -71,28 +72,32 @@ public class Issue366FailFast {
     assertTrue(errors.isEmpty());
   }
 
-  @Test(expected = JsonSchemaException.class)
+  @Test
   public void bothValid() throws Exception {
     String dataPath = "/data/issue366.json";
-
-    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-    List<JsonNode> testNodes = node.findValues("tests");
-    JsonNode testNode = testNodes.get(0).get(2);
-    JsonNode dataNode = testNode.get("data");
-    jsonSchema.validate(dataNode);
+    
+    assertThrows(JsonSchemaException.class, () -> {
+        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+        List<JsonNode> testNodes = node.findValues("tests");
+        JsonNode testNode = testNodes.get(0).get(2);
+        JsonNode dataNode = testNode.get("data");
+        jsonSchema.validate(dataNode);        
+    });
   }
 
-  @Test(expected = JsonSchemaException.class)
+  @Test
   public void neitherValid() throws Exception {
     String dataPath = "/data/issue366.json";
-
-    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-    List<JsonNode> testNodes = node.findValues("tests");
-    JsonNode testNode = testNodes.get(0).get(3);
-    JsonNode dataNode = testNode.get("data");
-    jsonSchema.validate(dataNode);
+    
+    assertThrows(JsonSchemaException.class, () -> {
+        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+        List<JsonNode> testNodes = node.findValues("tests");
+        JsonNode testNode = testNodes.get(0).get(3);
+        JsonNode dataNode = testNode.get("data");
+        jsonSchema.validate(dataNode);
+    });
   }
 
   private URI getSchema() {

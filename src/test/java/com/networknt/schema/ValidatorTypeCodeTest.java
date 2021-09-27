@@ -16,12 +16,12 @@
 
 package com.networknt.schema;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ValidatorTypeCodeTest {
 
@@ -37,21 +37,21 @@ public class ValidatorTypeCodeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFromValueMissing() {
-        assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing")));
     }
 
     @Test
     public void testIfThenElseNotInV4() {
         List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
-        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
+        Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
     }
 
     @Test
     public void testExclusiveMaximumNotInV4() {
         List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
-        Assert.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
+        Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
     }
 
 

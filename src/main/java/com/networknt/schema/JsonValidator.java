@@ -56,5 +56,7 @@ public interface JsonValidator extends JsonSchemaWalker {
      * are invalid (like <code>$ref</code> not resolving)
      * @since 1.0.54
      */
-    void preloadJsonSchema() throws JsonSchemaException;
+    default void preloadJsonSchema() throws JsonSchemaException {
+        // do nothing by default - to be overridden in subclasses
+    }
 }

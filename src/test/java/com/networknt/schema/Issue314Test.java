@@ -1,8 +1,8 @@
 package com.networknt.schema;
 
 import java.io.InputStream;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class Issue314Test {
     private static final JsonSchemaFactory FACTORY =
@@ -21,6 +21,6 @@ public class Issue314Test {
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         JsonSchema schema = FACTORY.getSchema(schemaInputStream);
 
-        Assert.assertNotNull(schema);
+        Assertions.assertNotNull(schema);
     }
 }

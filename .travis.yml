@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 
 language: java
 
@@ -7,7 +7,9 @@ cache:
     - $HOME/.m2
 
 jdk:
-  - oraclejdk8
+  - openjdk8
+  - openjdk11
+  - oraclejdk11
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

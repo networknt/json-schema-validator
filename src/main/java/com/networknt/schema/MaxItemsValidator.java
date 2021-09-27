@@ -33,7 +33,7 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
 
     public MaxItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_ITEMS, validationContext);
-        if (schemaNode.isIntegralNumber()) {
+        if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         }
         this.validationContext = validationContext;

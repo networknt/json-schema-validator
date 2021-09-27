@@ -3,9 +3,9 @@
  */
 package com.networknt.schema;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class Issue406Test {
     protected static final String INVALID_$REF_SCHEMA = "{\"$ref\":\"urn:unresolved\"}";
@@ -17,21 +17,21 @@ public class Issue406Test {
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         // not breaking - pass
-        Assert.assertNotNull(schema);
+        Assertions.assertNotNull(schema);
     }
 
     @Test
     public void testPreloadingHappening() {
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
-        Assert.assertThrows("#/$ref: Reference urn:unresolved cannot be resolved",
-                            JsonSchemaException.class,
-                            new ThrowingRunnable() {
+        Assertions.assertThrows(JsonSchemaException.class,
+                            new Executable() {
                                 @Override
-                                public void run() {
+                                public void execute() {
                                     schema.initializeValidators();
                                 }
-                            });
+                            },
+                            "#/$ref: Reference urn:unresolved cannot be resolved");
     }
 
     @Test
