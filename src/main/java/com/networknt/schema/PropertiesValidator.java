@@ -119,7 +119,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
                 propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
-                propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
+                propertySchema.getSchemaNode(), propertySchema.getParentSchema(), validationContext,
                 validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(
@@ -127,7 +127,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         }
         propertyWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode,
                 at + "." + entry.getKey(), propertySchema.getSchemaPath(), propertySchema.getSchemaNode(),
-                propertySchema.getParentSchema(), validationContext.getJsonSchemaFactory(), validationMessages);
+                propertySchema.getParentSchema(), validationContext, validationContext.getJsonSchemaFactory(), validationMessages);
 
     }
 
