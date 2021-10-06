@@ -18,7 +18,6 @@ import java.util.Set;
 /**
  * Validating anyOf walker
  */
-@SuppressWarnings("unchecked")
 public class Issue451Test {
 
     private static final String COLLECTOR_ID = "collector-451";
@@ -42,13 +41,11 @@ public class Issue451Test {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldWalkAnyOfProperties() {
         walk(null, false);
     }
 
-    @Disabled
     @Test
     public void shouldWalkAnyOfPropertiesWithWithPayloadAndValidation() throws Exception {
         JsonNode data = getJsonNodeFromStreamContent(Issue451Test.class.getResourceAsStream(
@@ -63,6 +60,7 @@ public class Issue451Test {
         walk(data, false);
     }
 
+    @SuppressWarnings("unchecked")
     private void walk(JsonNode data, boolean shouldValidate) {
         String schemaPath = "/schema/issue451-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

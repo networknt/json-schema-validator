@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -100,16 +101,21 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-
-        if (shouldValidateSchema) {
-            validationMessages.addAll(validate(node, rootNode, at));
-        } else {
-            for (JsonSchema schema : schemas) {
-                schema.walk(node, rootNode, at, shouldValidateSchema);
-            }
+        ArrayList<Set<ValidationMessage>> results = new ArrayList<>(schemas.size());
+        for (JsonSchema schema : schemas) {
+            results.add(schema.walk(node, rootNode, at, shouldValidateSchema));
         }
-        return validationMessages;
+        if(! shouldValidateSchema) {
+            return new LinkedHashSet<>();
+        }
+        boolean atLeastOneValid = results.stream()
+                .anyMatch(Set::isEmpty);
+        if(atLeastOneValid) {
+            return new LinkedHashSet<>();
+        }
+        return results.stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
