@@ -87,6 +87,8 @@ public class SchemaValidatorsConfig {
 
     private CollectorContext collectorContext;
 
+    private boolean loadCollectors = true;
+
     public boolean isTypeLoose() {
         return typeLoose;
     }
@@ -256,5 +258,13 @@ public class SchemaValidatorsConfig {
      */
     public void setOpenAPI3StyleDiscriminators(boolean openAPI3StyleDiscriminators) {
         this.openAPI3StyleDiscriminators = openAPI3StyleDiscriminators;
+    }
+
+    public void setLoadCollectors(boolean loadCollectors) {
+        this.loadCollectors = loadCollectors;
+    }
+
+    public boolean doLoadCollectors() {
+        return loadCollectors;
     }
 }
