@@ -7,7 +7,7 @@ import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -34,8 +34,19 @@ public class Issue451Test {
         return mapper.readTree(content);
     }
 
+
+    @BeforeAll
+    public static void beforeAll() {
+        reset();
+    }
+
     @AfterEach
     public void cleanup() {
+        reset();
+    }
+
+
+    private static void reset() {
         if (CollectorContext.getInstance() != null) {
             CollectorContext.getInstance().reset();
         }
