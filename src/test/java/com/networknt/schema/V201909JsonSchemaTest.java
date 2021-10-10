@@ -153,6 +153,11 @@ public class V201909JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     }
 
     @Test
+    public void testBundledIdResolution() throws Exception {
+        runTestFile("draft2019-09/bundled-example.json");
+    }
+
+    @Test
     public void testAllOfValidator() throws Exception {
         runTestFile("draft2019-09/allOf.json");
     }

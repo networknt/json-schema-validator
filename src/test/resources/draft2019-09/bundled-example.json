@@ -1,0 +1,50 @@
+[
+{
+  "description": "Referencing by $id",
+  "schema": {
+    "$id": "https://example.com/root.json",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "A": {
+        "$id": "https://example.com/a.json",
+        "type": "integer"
+      },
+      "B": {
+        "$id": "https://example.com/b.json",
+        "$defs": {
+          "x": { "type" : "string" },
+          "y": {"$ref": "a.json"}
+        },
+        "type": "object",
+        "properties": {
+          "x": {"$ref" :  "#/$defs/x"},
+          "y": {"$ref" :  "#/$defs/y"}
+        },
+        "required": ["x", "y"]
+      }
+    },
+    "properties": {
+      "p1": {"$ref": "#/$defs/A"},
+      "p2": {"$ref": "https://example.com/b.json"},
+      "p3": {"$ref": "b.json"}
+    }
+  },
+  "tests": [
+    {
+      "description": "valid data",
+      "data": {
+        "p1" : 1,
+        "p2" : {
+          "x" : "foo",
+          "y" : 1
+        },
+        "p3" : {
+          "x" : "bar",
+          "y" : 2
+        }
+      },
+      "valid": true
+    }
+  ]
+}
+]
