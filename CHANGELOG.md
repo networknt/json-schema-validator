@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.61 - 2021-10-09
+
+### Changed
+
+- fixes #461 1.0.60 Expects type To Be Array. Thanks @bartoszm
+- fixes #459 Correcting the ref listeners config in WalkEvent class when fetching the getRefSchema. Thanks @prashanthjos
+
 ## 1.0.60 - 2021-09-22
 
 ### Changed
