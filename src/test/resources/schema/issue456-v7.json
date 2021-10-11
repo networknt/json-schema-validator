@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/issue-456.json",
+  "title": "OneOf validates first child only",
+  "description": "Test description",
+  "type": "object",
+  "properties": {
+    "id": "string",
+    "details": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "__typename": {
+              "const": "T2"
+            }
+          },
+          "required": [
+            "name",
+            "__typename"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "__typename": {
+              "const": "T3"
+            }
+          },
+          "required": [
+            "description",
+            "__typename"
+          ]
+        }
+      ]
+    }
+  }
+}

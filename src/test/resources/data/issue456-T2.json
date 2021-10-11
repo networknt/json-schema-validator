@@ -1,0 +1,7 @@
+{
+  "id": "abc",
+  "details": {
+    "__typename": "T2",
+    "name": "Bob"
+  }
+}
