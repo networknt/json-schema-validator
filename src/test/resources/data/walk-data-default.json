@@ -1,0 +1,10 @@
+{
+  "outer": {
+    "mixedObject": {
+      "intValue_present": 11,
+      "intValue_null": null
+    },
+    "goodArray": ["hello", null],
+    "badArray": ["hello", null]
+  }
+}

@@ -19,7 +19,6 @@ package com.networknt.schema;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.sql.Ref;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,8 +35,6 @@ import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
-
-import javax.xml.validation.Schema;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -80,7 +77,8 @@ public class JsonSchema extends BaseJsonValidator {
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-                validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+              validationContext.getConfig() != null && validationContext.getConfig().getShouldApplyDefaults());
         this.validationContext = validationContext;
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
@@ -320,7 +318,7 @@ public class JsonSchema extends BaseJsonValidator {
             SchemaValidatorsConfig config = validationContext.getConfig();
             // Get the collector context from the thread local.
             CollectorContext collectorContext = getCollectorContext();
-            // Valdiate.
+            // Validate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
@@ -374,7 +372,7 @@ public class JsonSchema extends BaseJsonValidator {
             JsonSchemaWalker jsonWalker = entry.getValue();
             String schemaPathWithKeyword = entry.getKey();
             try {
-                // Call all the pre-walk listeners. If atleast one of the pre walk listeners
+                // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
                 if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword,
                         node,

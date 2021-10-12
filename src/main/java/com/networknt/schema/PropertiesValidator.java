@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -52,7 +53,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
-
             if (propertyNode != null) {
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
@@ -117,6 +117,12 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                             boolean shouldValidateSchema, Set<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
+        if (propertyNode instanceof ObjectNode && shouldApplyDefaults) {
+            JsonNode schemaPropertiesNode = propertySchema.getSchemaNode().get("properties");
+            if (schemaPropertiesNode != null) {
+                applyDefaults((ObjectNode) propertyNode, schemaPropertiesNode);
+            }
+        }
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
                 propertyNode, rootNode, at + "." + entry.getKey(), propertySchema.getSchemaPath(),
                 propertySchema.getSchemaNode(), propertySchema.getParentSchema(), validationContext,
@@ -129,6 +135,22 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                 at + "." + entry.getKey(), propertySchema.getSchemaPath(), propertySchema.getSchemaNode(),
                 propertySchema.getParentSchema(), validationContext, validationContext.getJsonSchemaFactory(), validationMessages);
 
+    }
+
+    private void applyDefaults(ObjectNode node, JsonNode schemaPropertiesNode) {
+        for (Iterator<Map.Entry<String, JsonNode>> iter = schemaPropertiesNode.fields(); iter.hasNext(); ) {
+            Map.Entry<String, JsonNode> entry = iter.next();
+            String name = entry.getKey();
+            JsonNode propertyNode = node.get(name);
+
+            if (propertyNode == null || propertyNode.isNull()) {
+                JsonNode defaultNode = entry.getValue().get("default");
+                if (defaultNode != null && !defaultNode.isNull()) {
+                    // mutate the input json
+                    node.set(name, defaultNode);
+                }
+            }
+        }
     }
 
     public Map<String, JsonSchema> getSchemas() {

@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Schema with default values ",
+  "type": "object",
+  "properties": {
+    "outer": {
+      "type": "object",
+      "properties": {
+        "mixedObject": {
+          "type": "object",
+          "properties": {
+            "intValue_present": {
+              "description": "the test data supplies a value for this attribute so the default is ignored",
+              "type": "integer",
+              "default": 5
+            },
+            "intValue_missing": {
+              "description": "the test data does not have this attribute, so default should be applied",
+              "type": "integer",
+              "default": 15
+            },
+            "intValue_null": {
+              "description": "the test data supplies the value null for this attribute so the default should be applied",
+              "type": "integer",
+              "default": 25
+            },
+            "intValue_missingButError": {
+              "description": "the test data does not have this attribute, so default should be applied, but the default is wrong so there should be an error",
+              "type": "integer",
+              "default": "thirty-five"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "intValue_present",
+            "intValue_missing",
+            "intValue_null",
+            "intValue_missingButError"
+          ]
+        },
+        "goodArray": {
+          "type": "array",
+          "items": {
+            "description": "if an item in the array is null, then default value should be applied",
+            "type": "string",
+            "default": "five"
+          }
+        },
+        "badArray": {
+          "type": "array",
+          "items": {
+            "description": "if an item in the array is null, then default value should be applied",
+            "type": "string",
+            "default": 5
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["mixedObject", "goodArray", "badArray"]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["outer"]
+}

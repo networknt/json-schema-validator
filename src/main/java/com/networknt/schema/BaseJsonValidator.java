@@ -38,15 +38,18 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private ErrorMessageType errorMessageType;
 
     protected final boolean failFast;
+    protected final boolean shouldApplyDefaults;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaPath, schemaNode, parentSchema, validatorType, false,
-             validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+             validationContext.getConfig() != null && validationContext.getConfig().getShouldApplyDefaults());
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
+                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast,
+                             boolean shouldApplyDefaults) {
 
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
@@ -55,6 +58,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
+        this.shouldApplyDefaults = shouldApplyDefaults;
     }
 
     public String getSchemaPath() {
