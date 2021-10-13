@@ -77,8 +77,7 @@ public class JsonSchema extends BaseJsonValidator {
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-              validationContext.getConfig() != null && validationContext.getConfig().getShouldApplyDefaults());
+              validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
         this.validationContext = validationContext;
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
