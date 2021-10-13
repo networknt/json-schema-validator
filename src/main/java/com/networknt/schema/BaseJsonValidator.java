@@ -38,18 +38,22 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private ErrorMessageType errorMessageType;
 
     protected final boolean failFast;
-    protected final boolean shouldApplyDefaults;
+    protected final ApplyDefaultsStrategy applyDefaultsStrategy;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, false,
-             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-             validationContext.getConfig() != null && validationContext.getConfig().getShouldApplyDefaults());
+        this.errorMessageType = validatorType;
+        this.schemaPath = schemaPath;
+        this.schemaNode = schemaNode;
+        this.parentSchema = parentSchema;
+        this.validatorType = validatorType;
+        this.suppressSubSchemaRetrieval = false;
+        this.failFast = validationContext.getConfig() != null && validationContext.getConfig().isFailFast();
+        this.applyDefaultsStrategy = validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null;
     }
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast,
-                             boolean shouldApplyDefaults) {
+                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
 
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
@@ -58,7 +62,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
-        this.shouldApplyDefaults = shouldApplyDefaults;
+        this.applyDefaultsStrategy = null;
     }
 
     public String getSchemaPath() {

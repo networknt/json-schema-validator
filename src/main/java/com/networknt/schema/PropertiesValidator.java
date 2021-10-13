@@ -117,10 +117,10 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                             boolean shouldValidateSchema, Set<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
-        if (propertyNode instanceof ObjectNode && shouldApplyDefaults) {
+        if (propertyNode instanceof ObjectNode && applyDefaultsStrategy.shouldApplyPropertyDefaults()) {
             JsonNode schemaPropertiesNode = propertySchema.getSchemaNode().get("properties");
             if (schemaPropertiesNode != null) {
-                applyDefaults((ObjectNode) propertyNode, schemaPropertiesNode);
+                applyPropertyDefaults((ObjectNode) propertyNode, schemaPropertiesNode, applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull());
             }
         }
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.PROPERTIES.getValue(),
@@ -137,13 +137,13 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
     }
 
-    private void applyDefaults(ObjectNode node, JsonNode schemaPropertiesNode) {
+    private static void applyPropertyDefaults(ObjectNode node, JsonNode schemaPropertiesNode, boolean applyPropertyDefaultsIfNull) {
         for (Iterator<Map.Entry<String, JsonNode>> iter = schemaPropertiesNode.fields(); iter.hasNext(); ) {
             Map.Entry<String, JsonNode> entry = iter.next();
             String name = entry.getKey();
             JsonNode propertyNode = node.get(name);
 
-            if (propertyNode == null || propertyNode.isNull()) {
+            if (propertyNode == null || (applyPropertyDefaultsIfNull && propertyNode.isNull())) {
                 JsonNode defaultNode = entry.getValue().get("default");
                 if (defaultNode != null && !defaultNode.isNull()) {
                     // mutate the input json

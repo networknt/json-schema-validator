@@ -40,7 +40,7 @@ public class SchemaValidatorsConfig {
     /**
      * When set to true, walker sets nodes that are missing or NullNode to the default value, if any, and mutate the input json.
      */
-    private boolean shouldApplyDefaults;
+    private ApplyDefaultsStrategy applyDefaultsStrategy;
 
     /**
      * When set to true, use ECMA-262 compatible validator
@@ -117,12 +117,12 @@ public class SchemaValidatorsConfig {
         return this.failFast;
     }
 
-    public void setShouldApplyDefaults(boolean shouldApplyDefaults) {
-        this.shouldApplyDefaults = shouldApplyDefaults;
+    public void setApplyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
+        this.applyDefaultsStrategy = applyDefaultsStrategy;
     }
 
-    public boolean getShouldApplyDefaults() {
-        return shouldApplyDefaults;
+    public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
+        return applyDefaultsStrategy;
     }
 
     public Map<String, String> getUriMappings() {
