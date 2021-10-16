@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.62 - 2021-10-16
+
+### Changed
+
+- fixes #456 OneOf only validate the first sub schema. This was a defect introduced in 1.0.58 and everyone should upgrade to 1.0.62 if you are using 1.0.58 to 1.0.61. 
+
 ## 1.0.61 - 2021-10-09
 
 ### Changed
