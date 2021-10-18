@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "properties": {
+    "pictures":{
+      "type":"array",
+      "maxItems":2,
+      "items":{
+        "type":"string"
+      }
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 10
+    }
+  }
+}
