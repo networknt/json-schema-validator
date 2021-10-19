@@ -2,6 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Schema with default values ",
   "type": "object",
+  "definitions": {
+    ""
+  },
   "properties": {
     "outer": {
       "type": "object",
@@ -15,17 +18,17 @@
               "default": 5
             },
             "intValue_missing": {
-              "description": "the test data does not have this attribute, so default should be applied",
+              "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it",
               "type": "integer",
               "default": 15
             },
             "intValue_null": {
-              "description": "the test data supplies the value null for this attribute so the default should be applied",
+              "description": "the test data supplies the value null for this attribute so the default should be applied if the ApplyDefaultsStrategy requires it",
               "type": "integer",
               "default": 25
             },
             "intValue_missingButError": {
-              "description": "the test data does not have this attribute, so default should be applied, but the default is wrong so there should be an error",
+              "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it, but the default is wrong so there should be an error",
               "type": "integer",
               "default": "thirty-five"
             }
@@ -41,7 +44,7 @@
         "goodArray": {
           "type": "array",
           "items": {
-            "description": "if an item in the array is null, then default value should be applied",
+            "description": "if an item in the array is null, then default value should be applied if the ApplyDefaultsStrategy requires it",
             "type": "string",
             "default": "five"
           }
@@ -49,7 +52,7 @@
         "badArray": {
           "type": "array",
           "items": {
-            "description": "if an item in the array is null, then default value should be applied",
+            "description": "if an item in the array is null, then default value should be applied if the ApplyDefaultsStrategy requires it, but the default is wrong so there should be an error",
             "type": "string",
             "default": 5
           }

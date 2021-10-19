@@ -7,6 +7,11 @@ public class ApplyDefaultsStrategy {
 
     /**
      * Specify which default values to apply.
+     * We can apply property defaults only if they are missing or if they are declared to be null in the input json,
+     * and we can apply array defaults if they are declared to be null in the input json.
+     *
+     * <p>Note that the walker changes the input object in place.
+     * If validation fails, the input object will be changed.
      *
      * @param applyPropertyDefaults if true then apply defaults inside json objects if the attribute is missing
      * @param applyPropertyDefaultsIfNull if true then apply defaults inside json objects if the attribute is explicitly null
