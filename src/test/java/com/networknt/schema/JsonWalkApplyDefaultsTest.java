@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
