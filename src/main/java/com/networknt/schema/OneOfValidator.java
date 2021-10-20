@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
@@ -184,6 +185,14 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         else if (numberOfValidSchema < 1) {
             if (!childErrors.isEmpty()) {
+                if (childErrors.size() > 1) {
+                    Set<ValidationMessage> notAdditionalPropertiesOnly = childErrors.stream()
+                            .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
+                            .collect(Collectors.toSet());
+                    if (notAdditionalPropertiesOnly.size() > 0) {
+                        childErrors = notAdditionalPropertiesOnly;
+                    }
+                }
                 errors.addAll(childErrors);
             }
             if( failFast ){
