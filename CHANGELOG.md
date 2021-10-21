@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.63 - 2021-10-21
+
+### Changed
+
+- fixes #470 OneOfValidator give incorrect message when the wrong json element is not the first one in the list. Thanks @jsu216
+- fixes #472 fix i18n doesn't work with locale CHINA. Thanks @wyzfzu
+
+
 ## 1.0.62 - 2021-10-16
 
 ### Changed
