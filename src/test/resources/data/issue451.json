@@ -1,0 +1,12 @@
+{
+  "allOfAttr" : {
+    "a": "foo",
+    "x": 1,
+    "y": "xx"
+  },
+  "anyOfAttr" : {
+    "a": "bar",
+    "x": 1
+  }
+
+}

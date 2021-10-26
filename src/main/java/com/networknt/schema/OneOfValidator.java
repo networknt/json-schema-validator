@@ -17,27 +17,20 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
-
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
     private final List<ShortcutValidator> schemas = new ArrayList<ShortcutValidator>();
 
-    private final ValidationContext validationContext;
-
     private static class ShortcutValidator {
         private final JsonSchema schema;
         private final Map<String, String> constants;
-        private final ValidationContext validationContext;
 
         ShortcutValidator(JsonNode schemaNode, JsonSchema parentSchema,
                           ValidationContext validationContext, JsonSchema schema) {
@@ -45,7 +38,6 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             JsonSchema resolvedRefSchema = refNode != null && refNode.isTextual() ? RefValidator.getRefSchema(parentSchema, validationContext, refNode.textValue()).getSchema() : null;
             this.constants = extractConstants(schemaNode, resolvedRefSchema);
             this.schema = schema;
-            this.validationContext = validationContext;
         }
 
         private Map<String, String> extractConstants(JsonNode schemaNode, JsonSchema resolvedRefSchema) {
@@ -130,7 +122,6 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             JsonSchema childSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), childNode, parentSchema);
             schemas.add(new ShortcutValidator(childNode, parentSchema, validationContext, childSchema));
         }
-        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -163,53 +154,45 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 continue;
             }*/
 
-            //Check to see if it is already validated.
-            if(!childErrors.isEmpty() && JsonNodeUtil.matchOneOfTypeNode(schemaNode,TypeFactory.getValueNodeType(node, this.validationContext.getConfig()))){
-                continue;
-            }
-
             // get the current validator
             JsonSchema schema = validator.schema;
-
-            //Skip the validation when the current node is oneOf type and it is not equal to schemaType.
-            if (JsonNodeUtil.matchOneOfTypeNode(schemaNode, TypeFactory.getValueNodeType(node, this.validationContext.getConfig())) &&
-                    !JsonNodeUtil.equalsToSchemaType(node, schema, this.validationContext.getConfig()) && !(JsonType.UNKNOWN.equals(JsonNodeUtil.getSchemaJsonType(schema)))) {
-                continue;
-            }
-
             if (!state.isWalkEnabled()) {
                 schemaErrors = schema.validate(node, rootNode, at);
             } else {
                 schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
             }
 
-
             // check if any validation errors have occurred
             if (schemaErrors.isEmpty()) {
                 // check whether there are no errors HOWEVER we have validated the exact validator
                 if (!state.hasMatchedNode())
                     continue;
-                else
-                    numberOfValidSchema++;
+
+                numberOfValidSchema++;
             }
             childErrors.addAll(schemaErrors);
         }
+
+
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-        if (numberOfValidSchema > 1) {
-            // check if the parent schema declares the fields as nullable
-            if (!JsonType.NULL.equals(TypeFactory.getValueNodeType(node, this.validationContext.getConfig())) ||
-                    !JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode(), this.validationContext.getConfig()) &&
-                            !JsonNodeUtil.isChildNodeNullable((ArrayNode) schemaNode, this.validationContext.getConfig())) {
-                final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
-                if (failFast) {
-                    throw new JsonSchemaException(message);
-                }
-                errors.add(message);
+        if(numberOfValidSchema > 1){
+            final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
+            if( failFast ) {
+                throw new JsonSchemaException(message);
             }
+            errors.add(message);
         }
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         else if (numberOfValidSchema < 1) {
             if (!childErrors.isEmpty()) {
+                if (childErrors.size() > 1) {
+                    Set<ValidationMessage> notAdditionalPropertiesOnly = childErrors.stream()
+                            .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
+                            .collect(Collectors.toSet());
+                    if (notAdditionalPropertiesOnly.size() > 0) {
+                        childErrors = notAdditionalPropertiesOnly;
+                    }
+                }
                 errors.addAll(childErrors);
             }
             if( failFast ){
@@ -262,7 +245,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         return ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ONE_OF ,
-                                    at, String.format("but more than one schemas {%s} are valid ",msg));
+                at, String.format("but more than one schemas {%s} are valid ",msg));
     }
 
     @Override

@@ -10,6 +10,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.63 - 2021-10-21
+
+### Changed
+
+- fixes #470 OneOfValidator give incorrect message when the wrong json element is not the first one in the list. Thanks @jsu216
+- fixes #472 fix i18n doesn't work with locale CHINA. Thanks @wyzfzu
+
+
+## 1.0.62 - 2021-10-16
+
+### Changed
+
+- fixes #456 OneOf only validate the first sub schema. This was a defect introduced in 1.0.58 and everyone should upgrade to 1.0.62 if you are using 1.0.58 to 1.0.61. 
+
+## 1.0.61 - 2021-10-09
+
+### Changed
+
+- fixes #461 1.0.60 Expects type To Be Array. Thanks @bartoszm
+- fixes #459 Correcting the ref listeners config in WalkEvent class when fetching the getRefSchema. Thanks @prashanthjos
+
 ## 1.0.60 - 2021-09-22
 
 ### Changed

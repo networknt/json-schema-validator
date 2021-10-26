@@ -1,6 +1,6 @@
 [Stack Overflow](https://stackoverflow.com/questions/tagged/light-4j) |
 [Google Group](https://groups.google.com/forum/#!forum/light-4j) |
-[Gitter Chat](https://gitter.im/networknt/light-rest-4j) |
+[Gitter Chat](https://gitter.im/networknt/json-schema-validator) |
 [Subreddit](https://www.reddit.com/r/lightapi/) |
 [Youtube](https://www.youtube.com/channel/UCHCRMWJVXw8iB7zKxF55Byw) |
 [Documentation](https://doc.networknt.com/library/json-schema-validator/) |
@@ -82,7 +82,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.60</version>
+    <version>1.0.63</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.60");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.63");
 }
 ```
 
