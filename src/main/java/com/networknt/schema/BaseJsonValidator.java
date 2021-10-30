@@ -68,7 +68,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
-        this.applyDefaultsStrategy = applyDefaultsStrategy;
+        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
     }
 
     public String getSchemaPath() {

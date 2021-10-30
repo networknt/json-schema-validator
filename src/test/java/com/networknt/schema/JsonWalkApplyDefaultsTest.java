@@ -72,34 +72,44 @@ class JsonWalkApplyDefaultsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "walkWithNoDefaults", "validateWithApplyAllDefaults"} )
+    @ValueSource(strings = { "walkWithEmptyStrategy", "walkWithNoDefaults", "validateWithApplyAllDefaults"} )
     void testApplyDefaults0(String method) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        JsonNode inputNodeOriginal = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        Set<ValidationMessage> validationMessages;
-        switch (method) {
-            case "walkWithNoDefaults": {
-                JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
-                validationMessages = jsonSchema.walk(inputNode, true).getValidationMessages();
-                break;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
+            JsonNode inputNodeOriginal = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
+            Set<ValidationMessage> validationMessages;
+            switch (method) {
+                case "walkWithEmptyStrategy": {
+                    JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
+                    validationMessages = jsonSchema.walk(inputNode, true).getValidationMessages();
+                    break;
+                }
+                case "walkWithNoDefaults": {
+                    // same empty strategy, but tests for NullPointerException
+                    JsonSchema jsonSchema = createSchema(null);
+                    validationMessages = jsonSchema.walk(inputNode, true).getValidationMessages();
+                    break;
+                }
+                case "validateWithApplyAllDefaults": {
+                    JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
+                    validationMessages = jsonSchema.validate(inputNode);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException();
             }
-            case "validateWithApplyAllDefaults": {
-                JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
-                validationMessages = jsonSchema.validate(inputNode);
-                break;
-            }
-            default: throw new UnsupportedOperationException();
+            assertThat(validationMessages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+                       Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missing: is missing but it is required",
+                                                   "$.outer.mixedObject.intValue_missingButError: is missing but it is required",
+                                                   "$.outer.mixedObject.intValue_null: null found, integer expected",
+                                                   "$.outer.goodArray[1]: null found, string expected",
+                                                   "$.outer.badArray[1]: null found, string expected",
+                                                   "$.outer.reference.stringValue_missing: is missing but it is required"));
+            assertEquals(inputNodeOriginal, inputNode);
+        } finally {
+            CollectorContext.getInstance().reset(); // necessary because we are calling both jsonSchema.walk and jsonSchema.validate
         }
-        assertThat(validationMessages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
-                   Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missing: is missing but it is required",
-                                               "$.outer.mixedObject.intValue_null: null found, integer expected",
-                                               "$.outer.mixedObject.intValue_missingButError: is missing but it is required",
-                                               "$.outer.goodArray[1]: null found, string expected",
-                                               "$.outer.badArray[1]: null found, string expected",
-                                               "$.outer.reference.stringValue_missing: is missing but it is required"));
-        assertEquals(inputNodeOriginal,  inputNode);
-        CollectorContext.getInstance().reset(); // necessary because we are calling both jsonSchema.walk and jsonSchema.validate
     }
 
     @Test
