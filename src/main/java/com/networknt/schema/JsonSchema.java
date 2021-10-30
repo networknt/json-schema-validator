@@ -20,12 +20,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,7 +79,8 @@ public class JsonSchema extends BaseJsonValidator {
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-              validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+              validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
         this.validationContext = validationContext;
         this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
@@ -205,7 +208,7 @@ public class JsonSchema extends BaseJsonValidator {
      * used in {@link com.networknt.schema.walk.DefaultKeywordWalkListenerRunner} to derive the keyword.
      */
     private Map<String, JsonValidator> read(JsonNode schemaNode) {
-        Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
+        Map<String, JsonValidator> validators = new TreeMap<>(VALIDATOR_SORT);
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
                 final String customMessage = getCustomMessage(schemaNode, "true");
@@ -235,6 +238,20 @@ public class JsonSchema extends BaseJsonValidator {
         }
         return validators;
     }
+
+    /**
+     * A comparator that sorts validators, such such that 'properties' comes before 'required',
+     * so that we can apply default values before validating required.
+     */
+    private static Comparator<String> VALIDATOR_SORT = (lhs, rhs) -> {
+        if (lhs.endsWith("/properties")) {
+            return -1;
+        }
+        if (rhs.endsWith("/properties")) {
+            return 1;
+        }
+        return lhs.compareTo(rhs);
+    };
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
         final JsonSchema parentSchema = getParentSchema();

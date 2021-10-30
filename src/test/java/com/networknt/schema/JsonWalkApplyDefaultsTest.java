@@ -31,8 +31,11 @@ class JsonWalkApplyDefaultsTest {
         } else {
             assertThat(result.getValidationMessages(), Matchers.empty());
         }
-        assertEquals("{\"outer\":{\"mixedObject\":{\"intValue_present\":11,\"intValue_null\":25,\"intValue_missing\":15,\"intValue_missingButError\":\"thirty-five\"},\"goodArray\":[\"hello\",\"five\"],\"badArray\":[\"hello\",5]}}",
-                     inputNode.toString());
+        // TODO: In Java 14 use text blocks
+        assertEquals(
+                objectMapper.readTree(
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_missing\":15,\"intValue_missing_notRequired\":25,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\"},\"goodArray\":[\"hello\",\"five\"],\"badArray\":[\"hello\",5],\"reference\":{\"stringValue_missing\":\"hello\"}}}"),
+                inputNode);
     }
 
     @Test
@@ -45,8 +48,10 @@ class JsonWalkApplyDefaultsTest {
                    Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missingButError: string found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected"));
-        assertEquals("{\"outer\":{\"mixedObject\":{\"intValue_present\":11,\"intValue_null\":25,\"intValue_missing\":15,\"intValue_missingButError\":\"thirty-five\"},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null]}}",
-                     inputNode.toString());
+        assertEquals(
+                objectMapper.readTree(
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_missing\":15,\"intValue_missing_notRequired\":25,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\"},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_missing\":\"hello\"}}}"),
+                inputNode);
     }
 
     @Test
@@ -60,8 +65,10 @@ class JsonWalkApplyDefaultsTest {
                                                "$.outer.mixedObject.intValue_missingButError: string found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected"));
-        assertEquals("{\"outer\":{\"mixedObject\":{\"intValue_present\":11,\"intValue_null\":null,\"intValue_missing\":15,\"intValue_missingButError\":\"thirty-five\"},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null]}}",
-                     inputNode.toString());
+        assertEquals(
+                objectMapper.readTree(
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_missing\":15,\"intValue_missing_notRequired\":25,\"intValue_null\":null,\"intValue_missingButError\":\"forty-five\"},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_missing\":\"hello\"}}}"),
+                inputNode);
     }
 
     @ParameterizedTest
@@ -89,7 +96,8 @@ class JsonWalkApplyDefaultsTest {
                                                "$.outer.mixedObject.intValue_null: null found, integer expected",
                                                "$.outer.mixedObject.intValue_missingButError: is missing but it is required",
                                                "$.outer.goodArray[1]: null found, string expected",
-                                               "$.outer.badArray[1]: null found, string expected"));
+                                               "$.outer.badArray[1]: null found, string expected",
+                                               "$.outer.reference.stringValue_missing: is missing but it is required"));
         assertEquals(inputNodeOriginal,  inputNode);
         CollectorContext.getInstance().reset(); // necessary because we are calling both jsonSchema.walk and jsonSchema.validate
     }

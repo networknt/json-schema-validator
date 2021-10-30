@@ -1,10 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Schema with default values ",
-  "type": "object",
+
   "definitions": {
-    ""
+    "RandomObject": {
+      "type": "object",
+      "properties": {
+        "stringValue_missing": {
+          "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it",
+          "type": "string",
+          "default": "hello"
+        }
+      },
+      "required": [
+        "stringValue_missing"
+      ]
+    }
   },
+
+  "type": "object",
   "properties": {
     "outer": {
       "type": "object",
@@ -22,15 +36,20 @@
               "type": "integer",
               "default": 15
             },
+            "intValue_missing_notRequired": {
+              "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it",
+              "type": "integer",
+              "default": 25
+            },
             "intValue_null": {
               "description": "the test data supplies the value null for this attribute so the default should be applied if the ApplyDefaultsStrategy requires it",
               "type": "integer",
-              "default": 25
+              "default": 35
             },
             "intValue_missingButError": {
               "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it, but the default is wrong so there should be an error",
               "type": "integer",
-              "default": "thirty-five"
+              "default": "forty-five"
             }
           },
           "additionalProperties": false,
@@ -41,6 +60,7 @@
             "intValue_missingButError"
           ]
         },
+
         "goodArray": {
           "type": "array",
           "items": {
@@ -49,6 +69,7 @@
             "default": "five"
           }
         },
+
         "badArray": {
           "type": "array",
           "items": {
@@ -56,10 +77,14 @@
             "type": "string",
             "default": 5
           }
+        },
+
+        "reference": {
+          "$ref": "#/definitions/RandomObject"
         }
       },
       "additionalProperties": false,
-      "required": ["mixedObject", "goodArray", "badArray"]
+      "required": ["mixedObject", "goodArray", "badArray", "reference"]
     }
   },
   "additionalProperties": false,
