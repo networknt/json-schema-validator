@@ -336,5 +336,15 @@ public class V201909JsonSchemaTest extends BaseSuiteJsonSchemaTest {
         runTestFile("draft2019-09/uniqueItems.json");
     }
 
+    @Test
+    public void testDependentRequiredValidator() throws Exception {
+        runTestFile("draft2019-09/dependentRequired.json");
+    }
+
+    @Test
+    public void testDependentSchemasValidator() throws Exception {
+        runTestFile("draft2019-09/dependentSchemas.json");
+    }
+
 }
     
