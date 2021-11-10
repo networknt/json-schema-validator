@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+
+## 1.0.64 - 2021-11-10
+
+### Changed
+
+- fixes #480 Time format validation supports milliseconds. Thanks @@MatusSivak
+- fixes #479 Add dependentRequired and dependentSchemas validators. Thanks @@kmalski
+
 ## 1.0.63 - 2021-10-21
 
 ### Changed
