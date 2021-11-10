@@ -40,7 +40,7 @@ public class JsonMetaSchema {
 
     // this section contains formats that is common for all specification versions.
     static {
-        COMMON_BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?$"));
         COMMON_BUILTIN_FORMATS.add(pattern("ip-address",
                 "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
         COMMON_BUILTIN_FORMATS.add(pattern("ipv4",
