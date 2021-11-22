@@ -35,7 +35,7 @@ public class Issue366FailFast {
 
     URI uri = getSchema();
 
-    InputStream in = getClass().getResourceAsStream("/draft7/issue366_schema.json");
+    InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
     JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
     this.jsonSchema = schemaFactory.getSchema(uri, testCases,schemaValidatorsConfig);
   }
@@ -75,21 +75,21 @@ public class Issue366FailFast {
   @Test
   public void bothValid() throws Exception {
     String dataPath = "/data/issue366.json";
-    
+
     assertThrows(JsonSchemaException.class, () -> {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
-        jsonSchema.validate(dataNode);        
+        jsonSchema.validate(dataNode);
     });
   }
 
   @Test
   public void neitherValid() throws Exception {
     String dataPath = "/data/issue366.json";
-    
+
     assertThrows(JsonSchemaException.class, () -> {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
