@@ -5,6 +5,7 @@
       "type": "string"
     },
     "country": {
+      "default": "United States of America",
       "enum": ["United States of America", "Canada", "Netherlands"]
     }
   },
@@ -19,7 +20,8 @@
     },
     {
       "if": {
-        "properties": { "country": { "const": "Canada" } }
+        "properties": { "country": { "const": "Canada" } },
+        "required": ["country"]
       },
       "then": {
         "properties": { "postal_code": { "pattern": "[A-Z][0-9][A-Z] [0-9][A-Z][0-9]" } }
@@ -27,7 +29,8 @@
     },
     {
       "if": {
-        "properties": { "country": { "const": "Netherlands" } }
+        "properties": { "country": { "const": "Netherlands" } },
+        "required": ["country"]
       },
       "then": {
         "properties": { "postal_code": { "pattern": "[0-9]{4} [A-Z]{2}" } }
