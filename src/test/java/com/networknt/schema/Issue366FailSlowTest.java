@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Issue366FailFast {
+public class Issue366FailSlowTest {
 
   @BeforeEach
   public void setup() throws IOException {
@@ -25,7 +25,6 @@ public class Issue366FailFast {
   private void setupSchema() throws IOException {
 
     SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-    schemaValidatorsConfig.setFailFast(true);
     JsonSchemaFactory schemaFactory = JsonSchemaFactory
         .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
         .objectMapper(objectMapper)
@@ -35,7 +34,7 @@ public class Issue366FailFast {
 
     URI uri = getSchema();
 
-    InputStream in = getClass().getResourceAsStream("/draft7/issue366_schema.json");
+    InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
     JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
     this.jsonSchema = schemaFactory.getSchema(uri, testCases,schemaValidatorsConfig);
   }
@@ -75,29 +74,29 @@ public class Issue366FailFast {
   @Test
   public void bothValid() throws Exception {
     String dataPath = "/data/issue366.json";
-    
-    assertThrows(JsonSchemaException.class, () -> {
-        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<JsonNode> testNodes = node.findValues("tests");
-        JsonNode testNode = testNodes.get(0).get(2);
-        JsonNode dataNode = testNode.get("data");
-        jsonSchema.validate(dataNode);        
-    });
+
+    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+    List<JsonNode> testNodes = node.findValues("tests");
+    JsonNode testNode = testNodes.get(0).get(2);
+    JsonNode dataNode = testNode.get("data");
+    Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+    assertTrue(!errors.isEmpty());
+    assertEquals(errors.size(),1);
   }
 
   @Test
   public void neitherValid() throws Exception {
     String dataPath = "/data/issue366.json";
-    
-    assertThrows(JsonSchemaException.class, () -> {
-        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<JsonNode> testNodes = node.findValues("tests");
-        JsonNode testNode = testNodes.get(0).get(3);
-        JsonNode dataNode = testNode.get("data");
-        jsonSchema.validate(dataNode);
-    });
+
+    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+    List<JsonNode> testNodes = node.findValues("tests");
+    JsonNode testNode = testNodes.get(0).get(3);
+    JsonNode dataNode = testNode.get("data");
+    Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+    assertTrue(!errors.isEmpty());
+    assertEquals(errors.size(),2);
   }
 
   private URI getSchema() {
