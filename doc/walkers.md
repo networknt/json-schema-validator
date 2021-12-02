@@ -1,6 +1,6 @@
 ### JSON Schema Walkers
 
-There can be use-cases where we need the capability to walk through the given JsonNode allowing functionality beyond validation like collecting information,handling cross cutting concerns like logging or instrumentation. JSON walkers were introduced to complement the validation functionality this library already provides.
+There can be use-cases where we need the capability to walk through the given JsonNode allowing functionality beyond validation like collecting information,handling cross cutting concerns like logging or instrumentation, or applying default values. JSON walkers were introduced to complement the validation functionality this library already provides.
 
 Currently, walking is defined at the validator instance level for all the built-in keywords.
 
@@ -238,3 +238,55 @@ Few important points to note about the flow.
    Our property listener would be invoked for each of the property defined in the "$ref" schema. 
 6. As mentioned earlier anywhere during the "Walk Flow", we can return a  WalkFlow.SKIP from onWalkStart method to stop the walk method of a particular "property schema" from being called. 
    Since the walk method will not be called any property or keyword listeners in the "property schema" will not be invoked.
+
+
+### Applying defaults
+
+In some use cases we may want to apply defaults while walking the schema.
+To accomplish this, create an ApplyDefaultsStrategy when creating a SchemaValidatorsConfig.
+The input object is changed in place, even if validation fails, or a fail-fast or some other exception is thrown.
+
+Here is the order of operations in walker.
+1. apply defaults
+1. run listeners
+1. validate if shouldValidateSchema is true
+
+Suppose the JSON schema is
+```json
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Schema with default values ",
+  "type": "object",
+  "properties": {
+    "intValue": {
+      "type": "integer",
+      "default": 15, 
+      "minimum": 20
+    }
+  },
+  "required": ["intValue"]
+}
+```
+
+A JSON file like
+```json
+{
+}
+```
+
+would normally fail validation as "intValue" is required.
+But if we apply defaults while walking, then required validation passes, and the object is changed in place.
+
+```java
+        JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+        schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
+        JsonSchema jsonSchema =  schemaFactory.getSchema(getClass().getClassLoader().getResourceAsStream("schema.json"), schemaValidatorsConfig);
+
+        JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data.json"));
+        ValidationResult result = jsonSchema.walk(inputNode, true);
+        assertThat(result.getValidationMessages(), Matchers.empty());
+        assertEquals("{\"intValue\":15}", inputNode.toString());
+        assertThat(result.getValidationMessages().stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+                   Matchers.containsInAnyOrder("$.intValue: must have a minimum value of 20."));
+```

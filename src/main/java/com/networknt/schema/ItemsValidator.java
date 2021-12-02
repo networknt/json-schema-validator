@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -118,9 +119,21 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        if (node != null && node.isArray()) {
+        if (node instanceof ArrayNode) {
+            ArrayNode arrayNode = (ArrayNode) node;
+            JsonNode defaultNode = null;
+            if (applyDefaultsStrategy.shouldApplyArrayDefaults() && schema != null) {
+                defaultNode = schema.getSchemaNode().get("default");
+                if (defaultNode != null && defaultNode.isNull()) {
+                    defaultNode = null;
+                }
+            }
             int i = 0;
-            for (JsonNode n : node) {
+            for (JsonNode n : arrayNode) {
+                if (n.isNull() && defaultNode != null) {
+                    arrayNode.set(i, defaultNode);
+                    n = defaultNode;
+                }
                 doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
                 i++;
             }

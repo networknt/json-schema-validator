@@ -38,16 +38,29 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private ErrorMessageType errorMessageType;
 
     protected final boolean failFast;
+    protected final ApplyDefaultsStrategy applyDefaultsStrategy;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaPath, schemaNode, parentSchema, validatorType, false,
-             validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
     }
 
+    // TODO: can this be made package private?
+    @Deprecated // use the BaseJsonValidator below
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
+        this(schemaPath, schemaNode, parentSchema, validatorType, false, failFast, null);
+    }
 
+    public BaseJsonValidator(String schemaPath,
+                             JsonNode schemaNode,
+                             JsonSchema parentSchema,
+                             ValidatorTypeCode validatorType,
+                             boolean suppressSubSchemaRetrieval,
+                             boolean failFast,
+                             ApplyDefaultsStrategy applyDefaultsStrategy) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
@@ -55,6 +68,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
+        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
     }
 
     public String getSchemaPath() {
