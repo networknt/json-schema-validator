@@ -70,7 +70,7 @@
         <version.junit>5.7.2</version.junit>
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.undertow>2.2.4.Final</version.undertow>
+        <version.undertow>2.2.14.Final</version.undertow>
     </properties>
     <dependencies>
         <dependency>
