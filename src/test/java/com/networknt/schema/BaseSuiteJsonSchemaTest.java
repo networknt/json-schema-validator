@@ -60,6 +60,7 @@ public abstract class BaseSuiteJsonSchemaTest {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
+				Thread.currentThread().interrupt();
 
             }
             server.stop();
