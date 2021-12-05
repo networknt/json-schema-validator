@@ -56,6 +56,7 @@ public class CollectorContextTest {
         ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
         Assertions.assertEquals(0, validationResult.getValidationMessages().size());
         List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
+        contextValues.sort(null);
         Assertions.assertEquals(0, validationResult.getValidationMessages().size());
         Assertions.assertEquals(2, contextValues.size());
         Assertions.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
