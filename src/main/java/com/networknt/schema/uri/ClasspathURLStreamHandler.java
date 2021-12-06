@@ -76,11 +76,14 @@ class ClasspathURLStreamHandler extends URLStreamHandler {
                 path = path.substring(1);
             }
 
-            InputStream stream;
+            InputStream stream = null;
             if (mHost != null) {
                 stream = mHost.getClassLoader().getResourceAsStream(path);
             } else {
-                stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                if (contextClassLoader != null) {
+                    stream = contextClassLoader.getResourceAsStream(path);
+                }
                 if (stream == null) {
                     stream = getClass().getClassLoader().getResourceAsStream(path);
                 }
