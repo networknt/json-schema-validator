@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/issue-470.json",
+  "title": "OneOf validation message",
+  "description": "Test description",
+  "type": "object",
+  "properties": {
+    "search": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "searchAge": {
+              "type": "object",
+              "properties": {
+                "age": {
+                  "type": "integer",
+                  "maximum": 150,
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "age"
+              ]
+            }
+          },
+          "required": [
+            "searchAge"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 20,
+              "minLength": 1
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}
