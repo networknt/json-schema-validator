@@ -186,9 +186,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         else if (numberOfValidSchema < 1) {
             if (!childErrors.isEmpty()) {
                 if (childErrors.size() > 1) {
-                    Set<ValidationMessage> notAdditionalPropertiesOnly = childErrors.stream()
+                    Set<ValidationMessage> notAdditionalPropertiesOnly = new LinkedHashSet<>(childErrors.stream()
                             .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
-                            .collect(Collectors.toSet());
+                            .sorted((vm1, vm2) -> compareValidationMessages(vm1, vm2))
+                            .collect(Collectors.toList()));
                     if (notAdditionalPropertiesOnly.size() > 0) {
                         childErrors = notAdditionalPropertiesOnly;
                     }
@@ -208,6 +209,44 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         resetValidatorState();
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    /**
+     * Sort <code>ValidationMessage</code> by its type
+     * @return
+     */
+    private static int compareValidationMessages(ValidationMessage vm1, ValidationMessage vm2) {
+        // ValidationMessage's type has smaller index in the list below has high priority
+        final List<String> typeCodes = Arrays.asList(
+                ValidatorTypeCode.TYPE.getValue(),
+                ValidatorTypeCode.DATETIME.getValue(),
+                ValidatorTypeCode.UUID.getValue(),
+                ValidatorTypeCode.ID.getValue(),
+                ValidatorTypeCode.EXCLUSIVE_MAXIMUM.getValue(),
+                ValidatorTypeCode.EXCLUSIVE_MINIMUM.getValue(),
+                ValidatorTypeCode.TRUE.getValue(),
+                ValidatorTypeCode.FALSE.getValue(),
+                ValidatorTypeCode.CONST.getValue(),
+                ValidatorTypeCode.CONTAINS.getValue(),
+                ValidatorTypeCode.PROPERTYNAMES.getValue()
+        );
+
+        final int index1 = typeCodes.indexOf(vm1.getType());
+        final int index2 = typeCodes.indexOf(vm2.getType());
+
+        if (index1 >= 0) {
+            if (index2 >= 0) {
+                return Integer.compare(index1, index2);
+            } else {
+                return -1;
+            }
+        } else {
+            if (index2 >= 0) {
+                return 1;
+            } else {
+                return vm1.getCode().compareTo(vm2.getCode());
+            }
+        }
     }
 
     private void resetValidatorState() {
