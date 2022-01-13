@@ -72,9 +72,9 @@ public class TypeFactory {
             if (node.isIntegralNumber())
                 return JsonType.INTEGER;
             if (node.isNumber())
-                if (config != null && config.isJavaSemantics() && node.canConvertToLong() && (node.asText().indexOf('.') == -1))
+                if (config != null && config.isJavaSemantics() && node.canConvertToExactIntegral())
                     return JsonType.INTEGER;
-                else if (config!= null && config.isLosslessNarrowing() && node.asText().endsWith(".0"))
+                else if (config != null && config.isLosslessNarrowing() && node.canConvertToExactIntegral())
                     return JsonType.INTEGER;
                 else
                     return JsonType.NUMBER;
