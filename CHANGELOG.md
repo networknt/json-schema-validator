@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- 
+- fixes #446 maxLength and minLength do not work when a number with a zero decimal is used
 
 ## 1.0.65 - 2022-01-07
 
