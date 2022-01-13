@@ -1,6 +1,6 @@
 [Stack Overflow](https://stackoverflow.com/questions/tagged/light-4j) |
 [Google Group](https://groups.google.com/forum/#!forum/light-4j) |
-[Gitter Chat](https://gitter.im/networknt/light-rest-4j) |
+[Gitter Chat](https://gitter.im/networknt/json-schema-validator) |
 [Subreddit](https://www.reddit.com/r/lightapi/) |
 [Youtube](https://www.youtube.com/channel/UCHCRMWJVXw8iB7zKxF55Byw) |
 [Documentation](https://doc.networknt.com/library/json-schema-validator/) |
@@ -82,7 +82,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.43</version>
+    <version>1.0.65</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ Gradle:
 
 ```
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.43");
+    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.65");
 }
 ```
 
@@ -118,6 +118,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [ECMA-262 Regex](doc/ecma-262.md)
 
+## [Custom Message](doc/cust-msg.md)
+
 ## Known issues
 
 I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases, in my opinion, but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java language itself.
@@ -125,6 +127,12 @@ I have just updated the test suites from the [official website](https://github.c
 [#7](https://github.com/networknt/json-schema-validator/issues/7)
 
 [#5](https://github.com/networknt/json-schema-validator/issues/5)
+
+## Projects
+
+The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-4j](https://github.com/networknt/light-graphql-4j) and [light-hybrid-4j](https://github.com/networknt/light-hybrid-4j) use this library to validate the request and response based on the specifications. If you are using other frameworks like Spring Boot, you can use the [OpenApiValidator](https://github.com/mservicetech/openapi-schema-validation), a generic OpenAPI 3.0 validator based on the OpenAPI 3.0 specification. 
+
+If you have a project using this library, please submit a PR to add your project below.
 
 ## Contributors
 

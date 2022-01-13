@@ -5,9 +5,216 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
 ### Added
 
 ### Changed
+
+## 1.0.65 - 2022-01-07
+
+### Changed
+
+- fixes #492 Sort ValidationMessage by its type. Thanks @jsu216
+- fixes #490 Handle the situation when context class loader is null. Thanks @vti and @Viacheslav Tykhanovskyi
+- fixes #489 Fix flakiness in CollectorContextTest. Thanks @pthariensflame
+- upgrade to logback 1.2.7 to resolve some x-ray warnnings
+- upgrade to undertow 2.2.14 to resolve some x-ray warnnings.
+- fixes #488 Fix violations of Sonar rule 2142. Thanks @khaes-kth
+- fixes #477 apply default in objects and arrays. Thanks @SiemelNaran
+- fixes #485 FailFast should not cause exception on if. Thanks @gareth-robinson
+- fixes #483 Add Java Syntax Highlighting to specversion.md. Thanks @JLLeitschuh
+- fixes #482 upgrade to joni 2.1.41 to resolve a security concern
+
+## 1.0.64 - 2021-11-10
+
+### Changed
+
+- fixes #480 Time format validation supports milliseconds. Thanks @@MatusSivak
+- fixes #479 Add dependentRequired and dependentSchemas validators. Thanks @@kmalski
+
+## 1.0.63 - 2021-10-21
+
+### Changed
+
+- fixes #470 OneOfValidator give incorrect message when the wrong json element is not the first one in the list. Thanks @jsu216
+- fixes #472 fix i18n doesn't work with locale CHINA. Thanks @wyzfzu
+
+
+## 1.0.62 - 2021-10-16
+
+### Changed
+
+- fixes #456 OneOf only validate the first sub schema. This was a defect introduced in 1.0.58 and everyone should upgrade to 1.0.62 if you are using 1.0.58 to 1.0.61. 
+
+## 1.0.61 - 2021-10-09
+
+### Changed
+
+- fixes #461 1.0.60 Expects type To Be Array. Thanks @bartoszm
+- fixes #459 Correcting the ref listeners config in WalkEvent class when fetching the getRefSchema. Thanks @prashanthjos
+
+## 1.0.60 - 2021-09-22
+
+### Changed
+
+- fixes #451 walk method for AnyOfValidator not implemented. Thanks @bartoszm
+- fixes #450 changed from isIntegralNumber to canConvertToExactIntegral to support. Thanks @mohsin-sq
+- fixes #449 Refactor JSON Schema Test Suite tests. Thanks @olegshtch
+- fixes #448 Test CI with JDK 11. Thanks @olegshtch
+- fixes #447 Bump JUnit version to 5.7.2. Thanks @olegshtch
+
+## 1.0.59 - 2021-09-11
+
+### Changed
+
+- fixes #445 JsonValidator: mark preloadJsonSchema as default. Thanks @DaNizz97
+- fixes #443 $ref caching issue. Thanks @prashanthjos
+- fixes #426 Adding custom ValidatorTypeCodes. Thanks @adilath18
+
+## 1.0.58 - 2021-08-23
+
+### Added
+- 
+- fixes #439 add i18n support for ValidationMessage. Thanks @leaves615
+- fixes #438 Adding custom message support in the schema. Thanks @adilath18
+
+### Changed
+
+- fixes #436 Relaxation of the discriminator validation. Thanks FWiesner
+- fixes #435 Added exampleSetFlag to nonValidationKeyword. Thanks @ShubhamRwt
+- fixes #428 A schema with nullable oneOf does not work as expect. Thanks @rongyj
+- fixes #429 Update collector-context.md. Thanks @Petapath
+- fixes #425 Cannot distinguish the "TextNode" and the "ArrayNode" with single value for oneOf. Thanks @rongyj
+
+## 1.0.57 - 2021-07-09
+
+### Added
+
+### Changed
+
+- fixes #423 make sure additionalPropertiesSchema is not null in AdditionalPropertiesValidator. Thanks @flozano
+- fixes #421 Wrong validation of MultipleOfValidator. Thanks @ubergrohman
+- fixes #418 201909 false flag keywords additonalItems and then. Thanks @pgalbraith
+
+
+## 1.0.56 - 2021-07-02
+
+### Added
+
+### Changed
+
+- fixes #416 Circular $ref occurrences with schema.initializeValidators() lead to StackOverflowError. Thanks @FWiesner
+- fixes #414 Simplify the uri format validation regexp. Thanks @vmaurin
+
+## 1.0.55 - 2021-06-23
+
+### Added
+
+### Changed
+
+- fixes #411 uri format regexp is fixed to support empty fragment and query string. Thanks @vmaurin
+
+## 1.0.54 - 2021-06-22
+
+### Added
+
+### Changed
+
+- fixes #408 uri format regexp is validating invalid URI. Thanks @vmaurin
+- fixes #406 Behavior change of $ref resolution. Thanks @FWiesner
+
+## 1.0.53 - 2021-05-19
+
+### Added
+
+### Changed
+
+- fixes #400 Introduce forceHttps flag in JsonSchemaFactory.Builder. Thanks @hisener
+
+## 1.0.52 - 2021-04-13
+
+### Added
+
+### Changed
+
+- fixes #398 Two issues with OpenAPI 3 discriminators. Thanks @FWiesner
+- fixes #396 Implement propertyNames in terms full schema validation. Thanks @JonasProgrammer
+
+## 1.0.51 - 2021-03-30
+
+### Added
+
+### Changed
+
+- fixes #392 NPE due to concurrency bug. Thanks @Keymaster65
+- fixes #391 override default EmailValidator, if set custom email format. Thanks @whirosan
+- fixes #390 Add discriminator support. Thanks @FWiesner
+
+## 1.0.50 - 2021-03-18
+
+### Added
+
+### Changed
+
+- fixes #387 Resolve the test case errors for TypeFactoryTest
+- fixes #385 Fixing concurrency and compilation issues. Thanks @prashanthjos
+- fixes #383 Nested oneOf gives incorrect validation error. Thanks @JonasProgrammer
+- fixes #379 Add lossless narrowing convertion. Thanks @hkupty 
+- fixes #378 Upgrade Jackson to 2.12.1 and Undertow to 2.2.4.Final
+
+## 1.0.49 - 2021-02-17
+
+### Added
+
+### Changed
+
+- fixes #375 PropertyNames to return validator value on error. Thanks @Eivyses
+- fixes #335 Fixed parallel processing. @Thanks @mweber03
+
+## 1.0.48 - 2021-02-04
+
+### Added
+
+### Changed
+
+- fixes #326 pattern validation for propertyNames. @Thanks @LeifRilbeATG
+- fixes #366 Fast fail issue with One Of Validator. Thanks @Krishna-capone
+
+## 1.0.47 - 2021-01-16
+
+### Added
+
+### Changed
+
+- fixes #368 Fixing Walk Listeners Issues. @Thanks prashanthjos
+- fixes #363 Date-time validation fails depending on local time zone. Thanks @ennoruijters
+
+## 1.0.46 - 2020-12-30
+
+### Added
+
+### Changed
+
+- fixes #362 Date-time validation fails depending on local time zone Thanks @ennoruijters
+- fixes #361 Validation of oneOf depends on schema order @Thanks ennoruijters
+- fixes #360 add four project links to the README.md
+- fixes #354 OneOf validator is not throwing valid error if any of the child nodes has invalid schemas Thanks @prubdeploy
+- fixes #351 Add anchor and deprecated as NonValidationKeywords for v2019-09 draft Thanks @anicolasgar
+- fixes #340 YAML source location handling Thanks @ascertrobw
+
+## 1.0.45 - 2020-11-21
+
+### Added
+
+### Changed
+
+- fixes #350 Add builder method that accepts iterable Thanks @wheelerlaw
+- fixes #347 NPE at JsonSchema.combineCurrentUriWithIds(JsonSchema.java:90) Thanks @wheelerlaw
+- fixes #346 Update docs about javaSemantics flag Thanks @oguzhanunlu
+- fixes #345 optimize imports in the src folder
+- fixes #343 Improve type validation of numeric values Thanks @oguzhanunlu
+- fixes #341 Add contentMediaType, contentEncoding and examples as a NonValidationKeyword Thanks @jonnybbb
+- fixes #337 JSON Schema Walk Changes Thanks @prashanthjos
 
 ## 1.0.44 - 2020-10-20
 
