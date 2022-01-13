@@ -27,12 +27,11 @@ import java.util.Set;
 public class NotValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
-    private JsonSchema schema;
+    private final JsonSchema schema;
 
     public NotValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
-        schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema)
-            .initialize();
+        schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
@@ -49,12 +48,13 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
     
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-    	Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>(); 
-    	if (shouldValidateSchema) {
-    		validationMessages.addAll(validate(node, rootNode, at));
-    	}
-    	validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
-    	return validationMessages;
+    	return schema.walk(node, rootNode, at, shouldValidateSchema);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        if (null != schema) {
+            schema.initializeValidators();
+        }
+    }
 }

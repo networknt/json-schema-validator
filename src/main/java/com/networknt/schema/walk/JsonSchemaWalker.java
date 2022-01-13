@@ -15,9 +15,9 @@ public interface JsonSchemaWalker {
 	 * the validation if {@code shouldValidateSchema} is set to true. <br>
 	 * <br>
 	 * {@link BaseJsonValidator#walk(JsonNode, JsonNode, String, boolean)} provides
-	 * a default implementation of this method. However keywords that parse
+	 * a default implementation of this method. However validators that parse
 	 * sub-schemas should override this method to call walk method on those
-	 * subschemas.
+	 * sub-schemas.
 	 * 
 	 * @param node                 JsonNode
 	 * @param rootNode             JsonNode

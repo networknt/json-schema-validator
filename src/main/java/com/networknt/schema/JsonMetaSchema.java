@@ -40,14 +40,49 @@ public class JsonMetaSchema {
 
     // this section contains formats that is common for all specification versions.
     static {
-        COMMON_BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("time", "^\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?$"));
         COMMON_BUILTIN_FORMATS.add(pattern("ip-address",
                 "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
         COMMON_BUILTIN_FORMATS.add(pattern("ipv4",
                 "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
         COMMON_BUILTIN_FORMATS.add(pattern("ipv6",
                 "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("uri", "(^[a-zA-Z][a-zA-Z0-9+-.]*:[^\\s]*$)|(^//[^\\s]*$)"));
+
+        // From RFC 3986
+        // ALPHA [A-Za-z]
+        // DIGIT [0-9]
+        // scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+        //   => [A-Za-z][A-Za-z0-9+.-]*
+        // unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        //   => [A-Za-z0-9._~\-]
+        // gen-delims [:/?#\[\]@]
+        // sub-delims [!$&'()*+,;=]
+        // reserved = = gen-delims / sub-delims
+        //   => [:/?#\[\]@!$&'()*+,;=]
+        // pct-encoded   = "%" HEXDIG HEXDIG
+        //   => [A-Za-z0-9%] (approximation)
+        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+        //   => [A-Za-z0-9._~\-%!$&'()*+,;=:@]
+        // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+        //   => [A-Za-z0-9._~\-%!$&'()*+,;=:]*
+        // host = IP-literal / IPv4address / reg-name
+        //   => [A-Za-z0-9._~\-!$&'()*+,;=%:\[\]]* (approximation)
+        // port = *DIGiT
+        //   => [0-9]*
+        // authority = [ userinfo "@" ] host [ ":" port ]
+        //   => ([A-Za-z0-9._~\-%!$&'()*+,;=:]*@)?[A-Za-z0-9._~\-!$&'()*+,;=%:\[\]]*(:[0-9]*)?
+        // hier-part  = "//" authority path-abempty
+        //                 / path-absolute
+        //                 / path-rootless
+        //                 / path-empty
+        //  => (\/\/([A-Za-z0-9._~\-%!$&'()*+,;=:]*@)?[A-Za-z0-9._~\-!$&'()*+,;=%:\[\]]*(:[0-9]*)?)?[A-Za-z0-9._~\-%!$&'()*+,;=:@\/]* (approximation)
+        // query = *( pchar / "/" / "?" )
+        //  => [A-Za-z0-9._~\-%!$&'()*+,;=:@\/?]*
+        // fragment = *( pchar / "/" / "?" )
+        // => [A-Za-z0-9._~\-%!$&'()*+,;=:@\/?]*
+        // uri = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+        COMMON_BUILTIN_FORMATS.add(pattern("uri",
+            "^[A-Za-z][A-Za-z0-9+.-]*:(\\/\\/([A-Za-z0-9._~\\-%!$&'()*+,;=:]*@)?[A-Za-z0-9._~\\-!$&'()*+,;=%:\\[\\]]*(:[0-9]*)?)?[A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/]*([?][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?([#][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?"));
         COMMON_BUILTIN_FORMATS.add(pattern("color",
                 "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
         COMMON_BUILTIN_FORMATS.add(pattern("hostname",
@@ -82,7 +117,8 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("title"),
                             new NonValidationKeyword("description"),
                             new NonValidationKeyword("default"),
-                            new NonValidationKeyword("definitions")
+                            new NonValidationKeyword("definitions"),
+                            new NonValidationKeyword("exampleSetFlag")
                     ))
                     .build();
         }
@@ -145,7 +181,8 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("$comment"),
                             new NonValidationKeyword("contentMediaType"),
                             new NonValidationKeyword("contentEncoding"),
-                            new NonValidationKeyword("examples")
+                            new NonValidationKeyword("examples"),
+                            new NonValidationKeyword("message")
                     ))
                     .build();
         }
@@ -176,10 +213,14 @@ public class JsonMetaSchema {
                             new NonValidationKeyword("default"),
                             new NonValidationKeyword("definitions"),
                             new NonValidationKeyword("$comment"),
-                            new NonValidationKeyword("$defs"),  // newly added in 2018-09 release.
+                            new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
+                            new NonValidationKeyword("$anchor"),
+                            new NonValidationKeyword("additionalItems"),
+                            new NonValidationKeyword("deprecated"),
                             new NonValidationKeyword("contentMediaType"),
                             new NonValidationKeyword("contentEncoding"),
-                            new NonValidationKeyword("examples")
+                            new NonValidationKeyword("examples"),
+                            new NonValidationKeyword("then")
                     ))
                     .build();
         }
@@ -335,8 +376,9 @@ public class JsonMetaSchema {
         return idKeyword;
     }
 
+
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema) {
+                                      JsonSchema parentSchema, String customMessage) {
 
         try {
             Keyword kw = keywords.get(keyword);
@@ -346,6 +388,7 @@ public class JsonMetaSchema {
                 }
                 return null;
             }
+            kw.setCustomMessage(customMessage);
             return kw.newValidator(schemaPath, schemaNode, parentSchema, validationContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof JsonSchemaException) {

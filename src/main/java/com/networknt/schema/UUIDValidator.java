@@ -31,11 +31,13 @@ public class UUIDValidator extends BaseJsonValidator implements JsonValidator {
 
 
     private static final String regex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    private final ValidationContext validationContext;
 
     public UUIDValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UUID, validationContext);
         this.formatName = formatName;
         parseErrorCode(getValidatorType().getErrorCodeKey());
+        this.validationContext = validationContext;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -43,7 +45,7 @@ public class UUIDValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return errors;
         }

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class JsonSchemaFactory {
         private URNFactory urnFactory;
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
+        private boolean forceHttps = true;
 		
 
         public Builder() {
@@ -88,6 +90,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFactory(final URIFactory uriFactory, final String... schemes) {
+            return uriFactory(uriFactory, Arrays.asList(schemes));
+        }
+
+        public Builder uriFactory(final URIFactory uriFactory, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFactoryMap.put(scheme, uriFactory);
             }
@@ -102,6 +108,10 @@ public class JsonSchemaFactory {
          * @return this builder.
          */
         public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {
+            return uriFetcher(uriFetcher, Arrays.asList(schemes));
+        }
+
+        public Builder uriFetcher(final URIFetcher uriFetcher, final Iterable<String> schemes) {
             for (final String scheme : schemes) {
                 this.uriFetcherMap.put(scheme, uriFetcher);
             }
@@ -130,7 +140,10 @@ public class JsonSchemaFactory {
             return this;
         }
         
-		
+        public Builder forceHttps(boolean forceHttps) {
+            this.forceHttps = forceHttps;
+            return this;
+        }
 
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
@@ -141,7 +154,8 @@ public class JsonSchemaFactory {
                     new URISchemeFetcher(uriFetcherMap),
                     urnFactory,
                     jsonMetaSchemas,
-                    uriMap
+                    uriMap,
+                    forceHttps
             );
         }
     }
@@ -154,6 +168,7 @@ public class JsonSchemaFactory {
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
+    private final boolean forceHttps;
 
 
     private JsonSchemaFactory(
@@ -163,7 +178,8 @@ public class JsonSchemaFactory {
             final URISchemeFetcher uriFetcher,
             final URNFactory urnFactory,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
-            final Map<String, String> uriMap) {
+            final Map<String, String> uriMap,
+            final boolean forceHttps) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
@@ -186,6 +202,7 @@ public class JsonSchemaFactory {
         this.urnFactory = urnFactory;
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.uriMap = uriMap;
+        this.forceHttps = forceHttps;
     }
 
     /**
@@ -254,7 +271,7 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        return new JsonSchema(validationContext, schemaUri, schemaNode).initialize();
+        return new JsonSchema(validationContext, schemaUri, schemaNode);
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -264,7 +281,7 @@ public class JsonSchemaFactory {
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
-        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
+        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps);
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
         if (jsonMetaSchema == null) {
             throw new JsonSchemaException("Unknown MetaSchema: " + uri);
@@ -321,8 +338,14 @@ public class JsonSchemaFactory {
                 throw new JsonSchemaException(e);
             }
 
-            if (uriSchemaCache.containsKey(mappedUri))
-                return uriSchemaCache.get(mappedUri);
+            if (uriSchemaCache.containsKey(mappedUri)) {
+                JsonSchema cachedUriSchema =  uriSchemaCache.get(mappedUri);
+                // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+                // these schemas will be cached along with config. We have to replace the config for cached $ref references
+                // with the latest config.
+                cachedUriSchema.getValidationContext().setConfig(config);
+                return cachedUriSchema;
+            }
 
             try {
                 inputStream = this.uriFetcher.fetch(mappedUri);
@@ -340,7 +363,6 @@ public class JsonSchemaFactory {
                     jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
                 }
                 uriSchemaCache.put(mappedUri, jsonSchema);
-                jsonSchema.initialize();
 
                 return jsonSchema;
             } finally {
@@ -387,10 +409,11 @@ public class JsonSchemaFactory {
         return result;
     }
 
-    static protected String normalizeMetaSchemaUri(String u) {
+    static protected String normalizeMetaSchemaUri(String u, boolean forceHttps) {
         try {
             URI uri = new URI(u);
-            URI newUri = new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
+            String scheme = forceHttps ? "https" : uri.getScheme();
+            URI newUri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
             return newUri.toString();
         } catch (URISyntaxException e) {
             throw new JsonSchemaException("Wrong MetaSchema URI: " + u);

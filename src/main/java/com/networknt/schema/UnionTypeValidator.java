@@ -28,13 +28,14 @@ import java.util.Set;
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
-    private List<JsonValidator> schemas;
-    private String error;
+    private final List<JsonValidator> schemas = new ArrayList<JsonValidator>();
+    private final String error;
+
+    private final ValidationContext validationContext;
 
     public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);
-        schemas = new ArrayList<JsonValidator>();
-
+        this.validationContext = validationContext;
         StringBuilder errorBuilder = new StringBuilder();
 
         String sep = "";
@@ -50,8 +51,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             sep = ", ";
 
             if (n.isObject())
-                schemas.add(new JsonSchema(validationContext, ValidatorTypeCode.TYPE.getValue(), parentSchema.getCurrentUri(), n, parentSchema)
-                    .initialize());
+                schemas.add(new JsonSchema(validationContext, ValidatorTypeCode.TYPE.getValue(), parentSchema.getCurrentUri(), n, parentSchema));
             else
                 schemas.add(new TypeValidator(schemaPath + "/" + i, n, parentSchema, validationContext));
 
@@ -66,7 +66,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
 
         boolean valid = false;
 
@@ -85,4 +85,10 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         return Collections.emptySet();
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        for (final JsonValidator validator : schemas) {
+            validator.preloadJsonSchema();
+        }
+    }
 }

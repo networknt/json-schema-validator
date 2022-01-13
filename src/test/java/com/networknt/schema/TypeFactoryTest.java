@@ -17,12 +17,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.node.DecimalNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static com.networknt.schema.TypeFactory.getValueNodeType;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TypeFactoryTest {
 
@@ -37,8 +37,9 @@ public class TypeFactoryTest {
     public void testValidIntegralValuesWithJavaSemantics() {
         schemaValidatorsConfig.setJavaSemantics(true);
         for (String validValue : validIntegralValues) {
-            assertSame(validValue, JsonType.INTEGER,
-                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig));
+            assertSame(JsonType.INTEGER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
+                    validValue);
         }
     }
 
@@ -46,8 +47,39 @@ public class TypeFactoryTest {
     public void testValidIntegralValuesWithoutJavaSemantics() {
         schemaValidatorsConfig.setJavaSemantics(false);
         for (String validValue : validIntegralValues) {
-            assertSame(validValue, JsonType.NUMBER,
-                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig));
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
+                    validValue);
         }
+    }
+
+
+    @Test
+    public void testWithLosslessNarrowing() {
+        schemaValidatorsConfig.setLosslessNarrowing(true);
+        for (String validValue : validIntegralValues) {
+            assertSame(JsonType.INTEGER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig),
+                    validValue);
+
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig),
+                    validValue);
+        }
+    }
+
+    @Test
+    public void testWithoutLosslessNarrowing() {
+        schemaValidatorsConfig.setLosslessNarrowing(false);
+        for (String validValue : validIntegralValues) {
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig),
+                    validValue);
+
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.5")), schemaValidatorsConfig),
+                    validValue);
+        }
+
     }
 }

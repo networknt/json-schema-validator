@@ -19,15 +19,15 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s }";
@@ -191,16 +191,16 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value), messages.isEmpty());
+            assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
 
             // document parsed with BigDecimal
 
             doc = bigDecimalMapper.readTree(value);
             Set<ValidationMessage> messages2 = v.validate(doc);
             if (Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
-                assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages2.isEmpty());
+                assertTrue(messages2.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
-                assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages2.isEmpty());
+                assertFalse(messages2.isEmpty(), format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value));
             }
 
 
@@ -209,9 +209,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if (maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
-                assertTrue(format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value), messages3.isEmpty());
+                assertTrue(messages3.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
-                assertFalse(format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value), messages3.isEmpty());
+                assertFalse(messages3.isEmpty(), format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value));
             }
         }
     }
@@ -229,13 +229,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
         Set<ValidationMessage> messages = v.validate(doc);
-        assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
         messages = v.validate(doc);
         // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
         // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
-        assertFalse("Validation should not succeed because content is using bigDecimalMapper, and bigger than the maximum", messages.isEmpty());
+        assertFalse(messages.isEmpty(), "Validation should not succeed because content is using bigDecimalMapper, and bigger than the maximum");
 
         /*
          * Note: technically this is where 1.7976931348623158e+308 rounding to 1.7976931348623157e+308 could be spotted,
@@ -246,7 +246,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
-        assertFalse("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        assertFalse(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
     }
 
     /**
@@ -261,13 +261,13 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
         Set<ValidationMessage> messages = v.validate(doc);
-        assertTrue("Validation should succeed as by default double values are used by mapper", messages.isEmpty());
+        assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
         messages = v.validate(doc);
         // "1.7976931348623158e+308" == "1.7976931348623157e+308" == Double.MAX_VALUE
         // new BigDecimal("1.7976931348623158e+308").compareTo(new BigDecimal("1.7976931348623157e+308")) > 0
-        assertTrue("Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY", messages.isEmpty());
+        assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
 
         /*
          * Note: technically this is where 1.7976931348623158e+308 rounding to 1.7976931348623157e+308 could be spotted,
@@ -278,7 +278,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
-        assertTrue("Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY", messages.isEmpty());
+        assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
     }
 
     private static final String POSITIVE_TEST_CASE_TEMPLATE = "Expecting no validation errors, maximum %s is greater than value %s";
@@ -299,7 +299,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonNode doc = mapper.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertTrue(format(MaximumValidatorTest.POSITIVE_TEST_CASE_TEMPLATE, maximum, value), messages.isEmpty());
+            assertTrue(messages.isEmpty(), format(MaximumValidatorTest.POSITIVE_TEST_CASE_TEMPLATE, maximum, value));
         }
     }
 
@@ -319,7 +319,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonNode doc = mapper2.readTree(value);
 
             Set<ValidationMessage> messages = v.validate(doc);
-            assertFalse(format(MaximumValidatorTest.NEGATIVE_TEST_CASE_TEMPLATE, value, maximum), messages.isEmpty());
+            assertFalse(messages.isEmpty(), format(MaximumValidatorTest.NEGATIVE_TEST_CASE_TEMPLATE, value, maximum));
         }
     }
 }

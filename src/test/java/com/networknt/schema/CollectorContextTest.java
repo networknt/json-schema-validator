@@ -19,45 +19,53 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.*;
 
 public class CollectorContextTest {
 
-    private static final String SAMPLE_COLLECTOR = "sampleCollectorType";
+    private static final String SAMPLE_COLLECTOR = "sampleCollector";
 
-    private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOtherType";
+    private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOther";
 
     private JsonSchema jsonSchema;
 
     private JsonSchema jsonSchemaForCombine;
 
-
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         setupSchema();
     }
 
+    @AfterEach
+    public void cleanup() {
+        if (CollectorContext.getInstance() != null) {
+            CollectorContext.getInstance().reset();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testCollectorContextWithKeyword() throws Exception {
         ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
-        Assert.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
         List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-        Assert.assertEquals(0, validationResult.getValidationMessages().size());
-        Assert.assertEquals(2, contextValues.size());
-        Assert.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
-        Assert.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
+        contextValues.sort(null);
+        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(2, contextValues.size());
+        Assertions.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorContextWithMultiplThreads() throws Exception {
+    public void testCollectorContextWithMultipleThreads() throws Exception {
 
         ValidationThread validationRunnable1 = new ValidationThread("{\"test-property1\":\"sample1\" }", "thread1");
         ValidationThread validationRunnable2 = new ValidationThread("{\"test-property1\":\"sample2\" }", "thread2");
@@ -82,29 +90,17 @@ public class CollectorContextTest {
         ValidationResult validationResult2 = validationRunnable2.getValidationResult();
         ValidationResult validationResult3 = validationRunnable3.getValidationResult();
 
-        Assert.assertEquals(0, validationResult1.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult2.getValidationMessages().size());
-        Assert.assertEquals(0, validationResult3.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult1.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult2.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult3.getValidationMessages().size());
 
         List<String> contextValue1 = (List<String>) validationResult1.getCollectorContext().get(SAMPLE_COLLECTOR);
         List<String> contextValue2 = (List<String>) validationResult2.getCollectorContext().get(SAMPLE_COLLECTOR);
         List<String> contextValue3 = (List<String>) validationResult3.getCollectorContext().get(SAMPLE_COLLECTOR);
 
-        Assert.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
-        Assert.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
-        Assert.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testCollectorWithFormat() throws JsonMappingException, JsonProcessingException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
-                .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        List<String> values = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
-        List<String> values1 = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR_OTHER);
-        Assert.assertEquals(values.size(), 1);
-        Assert.assertEquals(values1.size(), 3);
+        Assertions.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
+        Assertions.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
     }
 
     @SuppressWarnings("unchecked")
@@ -113,10 +109,9 @@ public class CollectorContextTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        Map<String, Object> map = validationResult.getCollectorContext().getAll();
-        Iterator<Object> collectionIterator = map.values().iterator();
-        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 1);
-        Assert.assertEquals(((List<String>) collectionIterator.next()).size(), 3);
+        CollectorContext collectorContext = validationResult.getCollectorContext();
+        Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
+        Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
 
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
@@ -216,7 +211,6 @@ public class CollectorContextTest {
                 + "}";
     }
 
-
     private class ValidationThread implements Runnable {
 
         private String data;
@@ -266,14 +260,13 @@ public class CollectorContextTest {
 
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
+                ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator();
             }
             return null;
         }
     }
-
 
     /**
      * We will be collecting information/data by adding the data in the form of
@@ -299,12 +292,11 @@ public class CollectorContextTest {
             return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
         }
 
-		@Override
-		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-			// Ignore this method for testing.
-			return null;
-		}
-
+        @Override
+        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+            // Ignore this method for testing.
+            return null;
+        }
     }
 
     private class CustomCollector extends AbstractCollector<List<String>> {
@@ -341,7 +333,7 @@ public class CollectorContextTest {
 
         @Override
         public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException, Exception {
+                ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1();
             }
@@ -378,10 +370,10 @@ public class CollectorContextTest {
         }
 
         @Override
-		public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-			// Ignore this method for testing.
-			return null;
-		}
+        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+            // Ignore this method for testing.
+            return null;
+        }
     }
 
     private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {

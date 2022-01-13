@@ -32,10 +32,11 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
     private final Set<JsonNode> nodes;
     private final String error;
+    private final ValidationContext validationContext;
 
     public EnumValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
-
+        this.validationContext = validationContext;
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<JsonNode>();
             StringBuilder sb = new StringBuilder();
@@ -57,7 +58,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             }
 
             // check if the parent schema declares the fields as nullable
-            if (config.isHandleNullableField()) {
+            if (validationContext.getConfig().isHandleNullableField()) {
                 JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
                 if (nullable != null && nullable.asBoolean()) {
                     nodes.add(NullNode.getInstance());
@@ -83,7 +84,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
-        if (!nodes.contains(node) && !(config.isTypeLoose() && isTypeLooseContainsInEnum(node))) {
+        if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             errors.add(buildValidationMessage(at, error));
         }
 
@@ -96,7 +97,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
      * @param node JsonNode to check
      */
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
-        if (TypeFactory.getValueNodeType(node, super.config) == JsonType.STRING) {
+        if (TypeFactory.getValueNodeType(node, this.validationContext.getConfig()) == JsonType.STRING) {
             String nodeText = node.textValue();
             for (JsonNode n : nodes) {
                 String value = n.asText();

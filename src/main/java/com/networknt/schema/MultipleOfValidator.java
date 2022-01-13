@@ -46,7 +46,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
             double nodeValue = node.doubleValue();
             if (divisor != 0) {
                 // convert to BigDecimal since double type is not accurate enough to do the division and multiple
-                BigDecimal accurateDividend = new BigDecimal(String.valueOf(nodeValue));
+                BigDecimal accurateDividend = node.isBigDecimal() ? node.decimalValue() : new BigDecimal(String.valueOf(nodeValue));
                 BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
                 if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     return Collections.singleton(buildValidationMessage(at, "" + divisor));

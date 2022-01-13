@@ -1,0 +1,10 @@
+{
+  "veryveryverylongallowedname": true,
+  "a": true,
+  "x": true,
+  "z": false,
+  "abc": false,
+  "w": false,
+  "ww": false,
+  "WW": true
+}

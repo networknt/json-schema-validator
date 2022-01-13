@@ -2,9 +2,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class Issue313Test {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void shouldFailV201909() throws Exception {
         String schemaPath = "/schema/issue313-2019-09.json";
         String dataPath = "/data/issue313.json";
@@ -36,7 +36,7 @@ public class Issue313Test {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(2, errors.size());
+        Assertions.assertEquals(2, errors.size());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class Issue313Test {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         Set<ValidationMessage> errors = schema.validate(node);
-        Assert.assertEquals(2, errors.size());
+        Assertions.assertEquals(2, errors.size());
     }
 
 }

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class PatternPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
-    private Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
+    private final Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
 
     public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
@@ -38,8 +38,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
-            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema)
-                .initialize());
+            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema));
         }
     }
 
@@ -66,4 +65,8 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
         return Collections.unmodifiableSet(errors);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        preloadJsonSchemas(schemas.values());
+    }
 }

@@ -16,13 +16,18 @@
 
 package com.networknt.schema;
 
+import java.net.URI;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-
-import java.net.URI;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public abstract class BaseJsonValidator implements JsonValidator {
     protected String schemaPath;
@@ -31,27 +36,31 @@ public abstract class BaseJsonValidator implements JsonValidator {
     private boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
-    /**
-     * SchemaValidatorsConfig can only get and set in validationContext
-     */
-    protected SchemaValidatorsConfig config;
-    protected final boolean failFast;
 
-    /**
-     * ThreadLocal to allow to pass state in recursive validator calls
-     */
-    protected final static ThreadLocal<ValidatorState> validatorState = new ThreadLocal<ValidatorState>();
+    protected final boolean failFast;
+    protected final ApplyDefaultsStrategy applyDefaultsStrategy;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaPath, schemaNode, parentSchema, validatorType, false,
-                validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
-        this.config = validationContext.getConfig() == null ? new SchemaValidatorsConfig() : validationContext.getConfig();
+             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
     }
 
+    // TODO: can this be made package private?
+    @Deprecated // use the BaseJsonValidator below
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
+        this(schemaPath, schemaNode, parentSchema, validatorType, false, failFast, null);
+    }
 
+    public BaseJsonValidator(String schemaPath,
+                             JsonNode schemaNode,
+                             JsonSchema parentSchema,
+                             ValidatorTypeCode validatorType,
+                             boolean suppressSubSchemaRetrieval,
+                             boolean failFast,
+                             ApplyDefaultsStrategy applyDefaultsStrategy) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
@@ -59,6 +68,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
+        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
     }
 
     public String getSchemaPath() {
@@ -77,11 +87,14 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(schemaNode, validationContext);
     }
 
-
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
-        if (node == null) return null;
-        if (node.equals(schemaNode.get("$schema"))) return null;
+        if (node == null) {
+            return null;
+        }
+        if (node.equals(schemaNode.get("$schema"))) {
+            return null;
+        }
 
         final String text = node.textValue();
         if (text == null) {
@@ -123,10 +136,9 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
     }
 
-
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
         final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
-        if (failFast) {
+        if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
         return message;
@@ -149,18 +161,150 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
         return null;
     }
-    
-	/**
-	 * This is default implementation of walk method. Its job is to call the
-	 * validate method if shouldValidateSchema is enabled.
-	 */
-	@Override
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-		if (shouldValidateSchema) {
-			validationMessages = validate(node, rootNode, at);
-		}
-		return validationMessages;
-	}
 
+    /**
+     * This is default implementation of walk method. Its job is to call the
+     * validate method if shouldValidateSchema is enabled.
+     */
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        if (shouldValidateSchema) {
+            validationMessages = validate(node, rootNode, at);
+        }
+        return validationMessages;
+    }
+
+    protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
+        for (final JsonSchema schema: schemas) {
+            schema.initializeValidators();
+        }
+    }
+
+    protected boolean isPartOfOneOfMultipleType() {
+        return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
+    }
+
+    /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
+
+    /**
+     * Checks based on the current {@link DiscriminatorContext} whether the provided {@link JsonSchema} a match against
+     * against the current discriminator.
+     *
+     * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
+     * @param discriminator the discriminator to use for the check
+     * @param discriminatorPropertyValue the value of the <code>discriminator/propertyName</code> field
+     * @param jsonSchema the {@link JsonSchema} to check
+     */
+    protected static void checkDiscriminatorMatch(final ValidationContext.DiscriminatorContext currentDiscriminatorContext,
+                                                  final ObjectNode discriminator,
+                                                  final String discriminatorPropertyValue,
+                                                  final JsonSchema jsonSchema) {
+        if (discriminatorPropertyValue == null) {
+            currentDiscriminatorContext.markMatch();
+            return;
+        }
+
+        final JsonNode discriminatorMapping = discriminator.get("mapping");
+        if (null == discriminatorMapping) {
+            checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
+                                                      discriminatorPropertyValue,
+                                                      jsonSchema);
+        } else {
+            checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
+                                                      discriminatorPropertyValue,
+                                                      discriminatorMapping,
+                                                      jsonSchema);
+            if (!currentDiscriminatorContext.isDiscriminatorMatchFound()
+                    && noExplicitDiscriminatorKeyOverride(discriminatorMapping, jsonSchema)) {
+                checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
+                                                          discriminatorPropertyValue,
+                                                          jsonSchema);
+            }
+        }
+    }
+
+    /**
+     * Rolls up all nested and compatible discriminators to the root discriminator of the type. Detects attempts to redefine
+     * the <code>propertyName</code> or mappings.
+     *
+     * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
+     * @param discriminator the discriminator to use for the check
+     * @param schema the value of the <code>discriminator/propertyName</code> field
+     * @param at the logging prefix
+     */
+    protected static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
+                                                        final ObjectNode discriminator,
+                                                        final JsonSchema schema,
+                                                        final String at) {
+        final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
+        if (null != discriminatorOnSchema && null != currentDiscriminatorContext
+                .getDiscriminatorForPath(schema.schemaPath)) {
+            // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
+            final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
+            if (null != propertyName) {
+                throw new JsonSchemaException(at + " schema " + schema + " attempts redefining the discriminator property");
+            }
+            final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
+            final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
+            if (null == mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
+                // here we have a mapping on a nested discriminator and none on the root discriminator, so we can simply
+                // make it the root's
+                discriminator.set("mapping", discriminatorOnSchema);
+            } else if (null != mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
+                // here we have to merge. The spec doesn't specify anything on this, but here we don't accept redefinition of
+                // mappings that already exist
+                final Iterator<Map.Entry<String, JsonNode>> fieldsToAdd = mappingOnCurrentSchemaDiscriminator.fields();
+                while (fieldsToAdd.hasNext()) {
+                    final Map.Entry<String, JsonNode> fieldToAdd = fieldsToAdd.next();
+                    final String mappingKeyToAdd = fieldToAdd.getKey();
+                    final JsonNode mappingValueToAdd = fieldToAdd.getValue();
+
+                    final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
+                    if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
+                        throw new JsonSchemaException(at + "discriminator mapping redefinition from " + mappingKeyToAdd
+                                                              + "/" + currentMappingValue + " to " + mappingValueToAdd);
+                    } else if (null == currentMappingValue) {
+                        mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
+                    }
+                }
+            }
+        }
+        currentDiscriminatorContext.registerDiscriminator(schema.schemaPath, discriminator);
+    }
+
+    private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
+                                                                  final String discriminatorPropertyValue,
+                                                                  final JsonSchema schema) {
+        if (schema.schemaPath.endsWith("/" + discriminatorPropertyValue)) {
+            currentDiscriminatorContext.markMatch();
+        }
+    }
+
+    private static void checkForExplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
+                                                                  final String discriminatorPropertyValue,
+                                                                  final JsonNode discriminatorMapping,
+                                                                  final JsonSchema schema) {
+        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
+        while (explicitMappings.hasNext()) {
+            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
+            if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
+                    && schema.schemaPath.equals(candidateExplicitMapping.getValue().asText())) {
+                currentDiscriminatorContext.markMatch();
+                break;
+            }
+        }
+    }
+
+    private static boolean noExplicitDiscriminatorKeyOverride(final JsonNode discriminatorMapping,
+                                                              final JsonSchema parentSchema) {
+        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
+        while (explicitMappings.hasNext()) {
+            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
+            if (candidateExplicitMapping.getValue().asText().equals(parentSchema.schemaPath)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

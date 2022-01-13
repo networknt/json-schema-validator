@@ -2,9 +2,11 @@ package com.networknt.schema.walk;
 
 public enum WalkFlow {
 
-    SKIP("SkipWalk", "Skip the walk methods"),
+    SKIP("SkipWalk", "Skip only the walk method, but continue invoking the other listeners"),
 
-    CONTINUE("ContinueToWalk", "continue to invoke the walk method");
+    ABORT("Abort", "Aborts all the walk listeners and walk method itself"),
+
+    CONTINUE("ContinueToWalk", "continue to invoke the walk method and other listeners");
 
     private String name;
 

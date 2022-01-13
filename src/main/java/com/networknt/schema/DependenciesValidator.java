@@ -25,7 +25,7 @@ import java.util.*;
 public class DependenciesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
     private final Map<String, List<String>> propertyDeps = new HashMap<String, List<String>>();
-    private Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
+    private final Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
 
     public DependenciesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
@@ -44,8 +44,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                     depsProps.add(pvalue.get(i).asText());
                 }
             } else if (pvalue.isObject() || pvalue.isBoolean()) {
-                schemaDeps.put(pname, new JsonSchema(validationContext, pname, parentSchema.getCurrentUri(), pvalue, parentSchema)
-                    .initialize());
+                schemaDeps.put(pname, new JsonSchema(validationContext, pname, parentSchema.getCurrentUri(), pvalue, parentSchema));
             }
         }
 
@@ -76,4 +75,8 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
         return Collections.unmodifiableSet(errors);
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        preloadJsonSchemas(schemaDeps.values());
+    }
 }

@@ -1,0 +1,248 @@
+[
+  {
+    "description": "Nuallable oneOf validation",
+    "schema": {
+      "properties": {
+        "values": {
+          "description": "desc",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "oneOf with valid array",
+        "data": {
+          "values": ["test1","test2"]
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type of array",
+        "data": {
+          "values": [1,2]
+        },
+        "valid": true
+      },
+      {
+        "description": "nullable oneOf with null",
+        "data": {
+          "values": null
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string",
+        "data": {
+          "values": "test"
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type",
+        "data": {
+          "values": 3
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string array",
+        "data": {
+          "values": [ "test1"]
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "oneOf with child node nullable validation",
+    "schema": {
+      "properties": {
+        "values": {
+          "description": "desc",
+          "oneOf": [
+            {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string",
+              "nullable": true
+            }
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "nullable oneOf with null value",
+        "data": {
+          "values": null
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string",
+        "data": {
+          "values": "test"
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type",
+        "data": {
+          "values": 3
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string array",
+        "data": {
+          "values": [ "test1"]
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type of array",
+        "data": {
+          "values": [1,2]
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "oneOf with single child node nullable validation",
+    "schema": {
+      "properties": {
+        "values": {
+          "description": "desc",
+          "oneOf": [
+            {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "nullable oneOf with null value",
+        "data": {
+          "values": null
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string",
+        "data": {
+          "values": "test"
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type",
+        "data": {
+          "values": 3
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string array",
+        "data": {
+          "values": [ "test1"]
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type of array",
+        "data": {
+          "values": [1,2]
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "Nuallable oneOf with child node nullable validation",
+    "schema": {
+      "properties": {
+        "values": {
+          "description": "desc",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string",
+              "nullable": true
+            }
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "nullable oneOf",
+        "data": {
+          "values": null
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string",
+        "data": {
+          "values": "test"
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type",
+        "data": {
+          "values": 3
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with single string array",
+        "data": {
+          "values": [ "test1"]
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type of array",
+        "data": {
+          "values": [1,2]
+        },
+        "valid": true
+      }
+    ]
+  }
+]

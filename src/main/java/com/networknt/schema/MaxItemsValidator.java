@@ -24,16 +24,19 @@ import java.util.Collections;
 import java.util.Set;
 
 public class MaxItemsValidator extends BaseJsonValidator implements JsonValidator {
+
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
+
+    private final ValidationContext validationContext;
 
     private int max = 0;
 
     public MaxItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_ITEMS, validationContext);
-        if (schemaNode.isIntegralNumber()) {
+        if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         }
-
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -44,7 +47,7 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
             if (node.size() > max) {
                 return Collections.singleton(buildValidationMessage(at, "" + max));
             }
-        } else if (config.isTypeLoose()) {
+        } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 > max) {
                 return Collections.singleton(buildValidationMessage(at, "" + max));
             }

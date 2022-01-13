@@ -197,9 +197,49 @@
         "valid": true
       },
       {
-        "description": "a valid protocol-relative URI",
-        "data": "//foo.bar/?baz=qux#quux",
+        "description": "empty fragment",
+        "data": "http://json-schema.org/draft-07/schema#",
         "valid": true
+      },
+      {
+        "description": "empty query string",
+        "data": "http://json-schema.org/?",
+        "valid": true
+      },
+      {
+        "description": "empty query string and fragment",
+        "data": "http://json-schema.org/?#",
+        "valid": true
+      },
+      {
+        "description": "One letter scheme",
+        "data": "a://foo",
+        "valid": true
+      },
+      {
+        "description": "very long valid URI",
+        "data": "http://foo.bar/?baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a#&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a&baz=a%20a",
+        "valid": true
+      },
+      {
+        "description": "authority with user",
+        "data": "https://foo@bar.org",
+        "valid": true
+      },
+      {
+        "description": "authority with port",
+        "data": "https://foo.org:12345",
+        "valid": true
+      },
+      {
+        "description": "authority with user and port",
+        "data": "https://foo@bar.org:12345",
+        "valid": true
+      },
+      {
+        "description": "a scheme is mandatory in URI",
+        "data": "//foo.bar/?baz=qux#quux",
+        "valid": false
       },
       {
         "description": "an invalid URI",
@@ -209,6 +249,11 @@
       {
         "description": "an invalid URI though valid URI reference",
         "data": "abc",
+        "valid": false
+      },
+      {
+        "description": "an invalid query string",
+        "data": "http://foo.bar/?baz=q|ux#quux",
         "valid": false
       }
     ]

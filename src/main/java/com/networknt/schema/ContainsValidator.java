@@ -26,13 +26,14 @@ import java.util.Set;
 public class ContainsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContainsValidator.class);
 
-    private JsonSchema schema;
+    private final JsonSchema schema;
 
     public ContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema)
-                .initialize();
+            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        } else {
+            schema = null;
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
@@ -71,4 +72,10 @@ public class ContainsValidator extends BaseJsonValidator implements JsonValidato
         return Collections.singleton(buildValidationMessage(at, schema.getSchemaNode().toString()));
     }
 
+    @Override
+    public void preloadJsonSchema() {
+        if (null != schema) {
+            schema.initializeValidators();
+        }
+    }
 }

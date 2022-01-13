@@ -30,9 +30,11 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
 
     private final ThresholdMixin typedMaximum;
 
+    private final ValidationContext validationContext;
+
     public ExclusiveMaximumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MAXIMUM, validationContext);
-
+        this.validationContext = validationContext;
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMaximum value is not a number");
         }
@@ -99,7 +101,7 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, super.config)) {
+        if (!TypeValidator.isNumber(node, validationContext.getConfig())) {
             // maximum only applies to numbers
             return Collections.emptySet();
         }

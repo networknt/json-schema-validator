@@ -25,11 +25,14 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
+
+    private final ValidationContext validationContext;
 
     private final String formatName;
     private final String DATE = "date";
@@ -43,6 +46,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
         this.formatName = formatName;
+        this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -51,7 +55,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, super.config);
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return errors;
         }
@@ -136,6 +140,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private boolean validateDateTime(String dateTime, String pattern) {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         sdf.setLenient(false);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.parse(dateTime, new ParsePosition(0)) != null;
     }
 }

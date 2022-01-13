@@ -33,21 +33,20 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchemaRef schema;
-    
+
     private JsonSchema parentSchema;
-    
-    private ValidationContext validationContext;
 
     private static final String REF_CURRENT = "#";
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
-        schema = getRefSchema(parentSchema, validationContext, refValue);
         this.parentSchema = parentSchema;
-        this.validationContext = validationContext;
+        schema = getRefSchema(parentSchema, validationContext, refValue);
         if (schema == null) {
-            throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.REF.getValue(), CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
+            throw new JsonSchemaException(
+                    ValidationMessage.of(ValidatorTypeCode.REF.getValue(),
+                                                               CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, refValue));
         }
     }
 
@@ -95,11 +94,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             if (node != null) {
                 JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
                 if (ref == null) {
-                    ref = new JsonSchemaRef(validationContext, refValue);
+                    final JsonSchema schema = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
+                    ref = new JsonSchemaRef(schema);
                     validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
-                    JsonSchema ret = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema)
-                        .initialize();
-                    ref.set(ret);
                 }
                 return ref;
             }
@@ -134,29 +131,36 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
         if (schema != null) {
             return schema.validate(node, rootNode, at);
         } else {
             return Collections.emptySet();
         }
     }
-    
+
 	@Override
 	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-
-		if (shouldValidateSchema) {
-			validationMessages.addAll(validate(node, rootNode, at));
-		}
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
 		if (schema != null) {
-			validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+			return schema.walk(node, rootNode, at, shouldValidateSchema);
 		}
-		return validationMessages;
+		return Collections.emptySet();
 	}
 
 	public JsonSchemaRef getSchemaRef() {
 		return schema;
 	}
 
+
+    @Override
+    public void preloadJsonSchema() {
+        schema.getSchema().initializeValidators();
+    }
 }

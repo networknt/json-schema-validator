@@ -16,17 +16,16 @@
 
 package com.networknt.schema;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.JsonSchemaWalker;
-
-import java.util.Set;
 
 /**
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
 public interface JsonValidator extends JsonSchemaWalker {
-    public static final String AT_ROOT = "$";
-
+    String AT_ROOT = "$";
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.
@@ -48,6 +47,16 @@ public interface JsonValidator extends JsonSchemaWalker {
      * list if there is no error.
      */
     Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at);
-    
 
+    /**
+     * In case the {@link com.networknt.schema.JsonValidator} has a related {@link com.networknt.schema.JsonSchema} or several
+     * ones, calling preloadJsonSchema will actually load the schema document(s) eagerly.
+     *
+     * @throws JsonSchemaException (a {@link java.lang.RuntimeException}) in case the {@link com.networknt.schema.JsonSchema} or nested schemas
+     * are invalid (like <code>$ref</code> not resolving)
+     * @since 1.0.54
+     */
+    default void preloadJsonSchema() throws JsonSchemaException {
+        // do nothing by default - to be overridden in subclasses
+    }
 }

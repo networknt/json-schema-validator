@@ -35,4 +35,8 @@ public interface ErrorMessageType {
      */
     MessageFormat getMessageFormat();
 
+    default String getCustomMessage() {
+        return null;
+    }
+
 }
