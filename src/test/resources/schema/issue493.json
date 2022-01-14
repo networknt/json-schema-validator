@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "parameters": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": [
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "value"
+          ],
+          "properties": {
+            "name": {
+              "const": "param-required"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/test-ref1"
+                },
+                {
+                  "$ref": "#/$defs/test-ref2"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "const": "param-optional"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/test-ref1"
+                  },
+                  {
+                    "$ref": "#/$defs/test-ref2"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 2
+    }
+  },
+  "$defs": {
+    "test-ref1": {
+      "type": "string",
+      "pattern": "^\\{\\{.+\\}\\}$"
+    },
+    "test-ref2": {
+      "type": "integer"
+    }
+  }
+}

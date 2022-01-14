@@ -1,0 +1,8 @@
+{
+  "parameters": [
+    {
+      "name": "param-required",
+      "value": "wrongtype"
+    }
+  ]
+}
