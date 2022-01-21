@@ -178,6 +178,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
             childErrors.addAll(schemaErrors);
         }
+/*
 
         // BEGIN GEODAN numberOfValidSchema == 0 check: (see also boolean allConstantsMatch above)
         // no valid schema has been found after validating all schema validators
@@ -198,6 +199,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         }
         // END GEODAN: numberOfValidSchema == 0 check:
 
+*/
 
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
         if(numberOfValidSchema > 1){
