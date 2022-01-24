@@ -368,12 +368,24 @@ public class JsonMetaSchema {
         return idNode.textValue();
     }
 
-    public String getUri() {
-        return uri;
+    public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
+        boolean nodeContainsRef = ref.equals(readId(node));
+        if (nodeContainsRef) {
+            return node;
+        } else {
+            Iterator<JsonNode> children = node.elements();
+            while (children.hasNext()) {
+                JsonNode refNode = getNodeByFragmentRef(ref, children.next());
+                if (refNode != null) {
+                    return refNode;
+                }
+            }
+        }
+        return null;
     }
 
-    public String getIdKeyword() {
-        return idKeyword;
+    public String getUri() {
+        return uri;
     }
 
 

@@ -21,7 +21,6 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -46,8 +45,8 @@ import com.networknt.schema.walk.WalkListenerRunner;
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     private Map<String, JsonValidator> validators;
-    private final String idKeyword;
     private final ValidationContext validationContext;
+    private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
 
     /**
@@ -82,7 +81,7 @@ public class JsonSchema extends BaseJsonValidator {
               validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
               validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
         this.validationContext = validationContext;
-        this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
+        this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         if (validationContext.getConfig() != null) {
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -156,7 +155,7 @@ public class JsonSchema extends BaseJsonValidator {
                 }
             }
         } else if (ref.startsWith("#") && ref.length() > 1) {
-            node = getNodeById(ref, node);
+            node = metaSchema.getNodeByFragmentRef(ref, node);
             if (node == null) {
                 node = handleNullNode(ref, schema);
             }
@@ -178,29 +177,6 @@ public class JsonSchema extends BaseJsonValidator {
             return subSchema.getRefSchemaNode(ref);
         }
         return null;
-    }
-
-    private JsonNode getNodeById(String ref, JsonNode node) {
-        if (nodeContainsRef(ref, node)) {
-            return node;
-        } else {
-            Iterator<JsonNode> children = node.elements();
-            while (children.hasNext()) {
-                JsonNode refNode = getNodeById(ref, children.next());
-                if (refNode != null) {
-                    return refNode;
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean nodeContainsRef(String ref, JsonNode node) {
-        JsonNode id = node.get(idKeyword);
-        if (id != null) {
-            return ref.equals(id.asText());
-        }
-        return false;
     }
 
     /**
