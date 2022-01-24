@@ -52,15 +52,18 @@ public class AdditionalPropertiesOneOfFailsTest {
 
         Set<ValidationMessage> errors = schema.validate(node);
 
-        System.out.println("nr. of errors: " + errors.size());
+        // System.out.println("nr. of errors: " + errors.size());
         errors.stream().forEach(er -> System.out.println(er.toString()));
 
-        // correct assertions would include:
-        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("toxic: is not defined in the schema")).count()==1);
+        // correct assertions would include the following 6:
+        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("toxic: is not defined in the schema")).count()==2);
+        Assertions.assertTrue(errors.stream().filter(er-> er.toString().contains("$.activities[2].chemicalCharacteristic.name: is not defined in the schema")).count()==1);
+        Assertions.assertTrue(errors.stream().filter(er-> er.toString().contains("$.activities[0].weight: is missing")).count()==1);
+
+        // .. but these are unexpected fails
         Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("depth: is not defined in the schema")).count()==1);
-        Assertions.assertFalse(errors.stream().filter(er-> er.toString().contains("$.activities[0].chemical.categoryName: is not defined in the schema")).count()==1);
-        Assertions.assertTrue(errors.stream().filter(er-> er.toString().contains("$.activities[1].weight: is missing")).count()==1);
-        Assertions.assertTrue(errors.stream().filter(er-> er.toString().contains("$.activities[1].heigth: number found, integer expected")).count()==1);
+        Assertions.assertFalse(errors.stream().filter(er-> er.toString().contains("$.activities[0].chemicalCharacteristic.categoryName: is not defined in the schema")).count()==1);
+        Assertions.assertTrue(errors.stream().filter(er-> er.toString().contains("$.activities[0].heigth: number found, integer expected")).count()==1);
 
 
     }
