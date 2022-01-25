@@ -32,7 +32,7 @@
         {
           "type": "object",
           "properties": {
-            "name": {
+            "commonName": {
               "type": "string",
               "maxLength": 20,
               "minLength": 1

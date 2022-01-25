@@ -8,7 +8,7 @@
       "type": "integer",
       "description": "The unique identifier for a product"
     },
-    "name": {
+    "commonName": {
       "type": "string",
       "maxLength": 200,
       "minLength": 10,

@@ -1,5 +1,5 @@
 {
   "id": 1,
-  "name": "A valid product name",
+  "commonName": "A valid product name",
   "price": 99.99
 }

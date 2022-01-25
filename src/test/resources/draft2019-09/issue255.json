@@ -30,7 +30,7 @@
       "$id": "#manufacturer",
       "type": "object",
       "properties": {
-        "name": {
+        "commonName": {
           "type": "string"
         },
         "factories": {
@@ -73,7 +73,7 @@
       "$id": "#employee",
       "type": "object",
       "properties": {
-        "name": {
+        "commonName": {
           "type": "string"
         },
         "surname": {

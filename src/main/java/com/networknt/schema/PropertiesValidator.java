@@ -36,12 +36,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            // BEGIN GEODAN: do not look into GeoJSON geometry coordinates
-            if ("coordinates".equals(pname)) {
-                // Quick fix to skip coordinates arrays
-                continue;
-            }
-            // END GEODAN: do not look into GeoJSON geometry coordinates
             schemas.put(pname, new JsonSchema(validationContext, schemaPath + "/" + pname, parentSchema.getCurrentUri(), schemaNode.get(pname), parentSchema));
         }
     }

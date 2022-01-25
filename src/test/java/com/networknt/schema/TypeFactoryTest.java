@@ -28,25 +28,39 @@ public class TypeFactoryTest {
 
     private static final String[] validIntegralValues = {
             "1", "-1", "0E+1", "0E1", "-0E+1", "-0E1", "10.1E+1", "10.1E1", "-10.1E+1", "-10.1E1", "1E+0", "1E-0",
-            "1E0", "1E18", "9223372036854775807", "-9223372036854775808"
+            "1E0", "1E18", "9223372036854775807", "-9223372036854775808", "1.0", "1.00", "-1.0", "-1.00"
+    };
+
+    private static final String[] validNonIntegralNumberValues = {
+        "1.1", "-1.1", "1.10"
     };
 
     private final SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
 
     @Test
-    public void testValidIntegralValuesWithJavaSemantics() {
+    public void testIntegralValuesWithJavaSemantics() {
         schemaValidatorsConfig.setJavaSemantics(true);
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.INTEGER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
                     validValue);
         }
+        for (String validValue : validNonIntegralNumberValues) {
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
+                    validValue);
+        }
     }
 
     @Test
-    public void testValidIntegralValuesWithoutJavaSemantics() {
+    public void testIntegralValuesWithoutJavaSemantics() {
         schemaValidatorsConfig.setJavaSemantics(false);
         for (String validValue : validIntegralValues) {
+            assertSame(JsonType.NUMBER,
+                    getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
+                    validValue);
+        }
+        for (String validValue : validNonIntegralNumberValues) {
             assertSame(JsonType.NUMBER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
                     validValue);
