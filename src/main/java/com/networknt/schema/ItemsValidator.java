@@ -58,7 +58,7 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
                 if (addItemNode.isBoolean()) {
                     additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    foundAdditionalSchema = new JsonSchema(validationContext, parentSchema.getCurrentUri(), addItemNode);
+                    foundAdditionalSchema = new JsonSchema(validationContext, "#", parentSchema.getCurrentUri(), addItemNode, parentSchema);
                 }
             }
         }

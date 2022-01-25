@@ -11,7 +11,7 @@
         {
           "type": "object",
           "properties": {
-            "name": {
+            "commonName": {
               "type": "string"
             },
             "__typename": {

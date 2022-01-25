@@ -132,7 +132,7 @@
       "$id": "http://localhost:1234/object",
       "type": "object",
       "properties": {
-        "name": {
+        "commonName": {
           "$ref": "name.json#/definitions/orNull"
         }
       }
@@ -141,22 +141,22 @@
       {
         "description": "string is valid",
         "data": {
-          "name": "foo"
+          "commonName": "foo"
         },
         "valid": true
       },
       {
         "description": "null is valid",
         "data": {
-          "name": null
+          "commonName": null
         },
         "valid": true
       },
       {
         "description": "object is invalid",
         "data": {
-          "name": {
-            "name": null
+          "commonName": {
+            "commonName": null
           }
         },
         "valid": false

@@ -142,6 +142,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 //        	return Collections.unmodifiableSet(errors);
 //        }
 
+
         boolean allConstantsMatch = false;
         for (ShortcutValidator validator : schemas) {
             Set<ValidationMessage> schemaErrors = null;
@@ -178,6 +179,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
             childErrors.addAll(schemaErrors);
         }
+/*
 
         // BEGIN GEODAN numberOfValidSchema == 0 check: (see also boolean allConstantsMatch above)
         // no valid schema has been found after validating all schema validators
@@ -197,6 +199,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             errors.clear();
         }
         // END GEODAN: numberOfValidSchema == 0 check:
+*/
 
 
         // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
@@ -225,6 +228,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
                 throw new JsonSchemaException(errors.toString());
             }
         }
+
 
         // Make sure to signal parent handlers we matched
         if (errors.isEmpty())
