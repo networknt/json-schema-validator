@@ -10,7 +10,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- fixes #446 maxLength and minLength do not work when a number with a zero decimal is used
+## 1.0.66 - 2022-01-24
+
+### Changed
+
+- fixes #496 Improve type validation of integrals. Thanks @christi-square
+- fixes #497 parent schema of additionItems can be correctly referenced @carolkao
 
 ## 1.0.65 - 2022-01-07
 
