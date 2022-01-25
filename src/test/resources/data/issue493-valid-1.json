@@ -1,0 +1,12 @@
+{
+  "parameters": [
+    {
+      "name": "param-required",
+      "value": 123
+    },
+    {
+      "name": "param-optional",
+      "value": "{{test}}"
+    }
+  ]
+}
