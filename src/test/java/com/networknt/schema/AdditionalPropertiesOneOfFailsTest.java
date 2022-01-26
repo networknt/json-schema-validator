@@ -41,31 +41,29 @@ public class AdditionalPropertiesOneOfFailsTest {
 
     @BeforeEach
     public void withJsonSchema() {
-        // correct processing would include the  6 assertions in the test:
-        String schemaPathJson = "/openapi3/AdditionalPropertiesOneOfFailsTest.json";
-        String dataPath = "/data/AdditionalPropertiesOneOfFailsTest.json";
-        InputStream schemaInputStream = getClass().getResourceAsStream(schemaPathJson);
+        // correct processing would include the  assertions in the tests
+        if (errors == null) {
+            String schemaPathJson = "/openapi3/AdditionalPropertiesOneOfFailsTest.json";
+            String dataPath = "/data/AdditionalPropertiesOneOfFailsTest.json";
+            InputStream schemaInputStream = getClass().getResourceAsStream(schemaPathJson);
 
-        JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
-        schema.getValidationContext().getConfig().setFailFast(false);
+            JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
+            schema.getValidationContext().getConfig().setFailFast(false);
 
 
-        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-        try {
-            JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+            InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+            try {
+                JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
-            boolean printErrorsOnce = errors==null;
-            errors = schema.validate(node);
+                errors = schema.validate(node);
 
-            if (printErrorsOnce) {
                 System.out.println("nr. of reported errors: " + errors.size());
                 errors.stream().forEach(er -> System.out.println(er.toString()));
+            } catch (Exception e) {
+                System.out.println("Fail!");
             }
-        } catch (Exception e) {
-            System.out.println("Fail!");
+
         }
-
-
     }
 
     @Test
@@ -98,15 +96,24 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
-    public void weightIsMissing() {
+    public void weightIsMissingOnlyOnce() {
 
-        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("$.activities[0].weight: is missing")).count() == 1,
+        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("weight: is missing")).count() == 1,
                 "property weight is required on activity machine ");
     }
+
+    @Test
+    public void heightIsNotMissingNotOnceAndNotTwice() {
+
+        Assertions.assertFalse(errors.stream().filter(er -> er.toString().contains("heigth: is missing")).count() == 1,
+                "property height is defined ");
+
+    }
+
     @Test
     public void heightWrongType() {
 
-        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("$.activities[0].heigth: number found, integer expected")).count() == 1,
+        Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("heigth: number found, integer expected")).count() == 1,
                 "property height has the wrong type");
 
     }
