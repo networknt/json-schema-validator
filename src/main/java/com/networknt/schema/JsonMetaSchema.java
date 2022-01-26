@@ -361,7 +361,31 @@ public class JsonMetaSchema {
     }
 
     public String readId(JsonNode schemaNode) {
-        JsonNode idNode = schemaNode.get(idKeyword);
+        return readText(schemaNode, idKeyword);
+    }
+
+    public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
+        boolean supportsAnchor = keywords.containsKey("$anchor");
+        String refName = supportsAnchor ? ref.substring(1) : ref;
+        String fieldToRead = supportsAnchor ? "$anchor" : idKeyword;
+
+        boolean nodeContainsRef = refName.equals(readText(node, fieldToRead));
+        if (nodeContainsRef) {
+            return node;
+        } else {
+            Iterator<JsonNode> children = node.elements();
+            while (children.hasNext()) {
+                JsonNode refNode = getNodeByFragmentRef(ref, children.next());
+                if (refNode != null) {
+                    return refNode;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String readText(JsonNode node, String field) {
+        JsonNode idNode = node.get(field);
         if (idNode == null || !idNode.isTextual()) {
             return null;
         }
@@ -370,10 +394,6 @@ public class JsonMetaSchema {
 
     public String getUri() {
         return uri;
-    }
-
-    public String getIdKeyword() {
-        return idKeyword;
     }
 
 
