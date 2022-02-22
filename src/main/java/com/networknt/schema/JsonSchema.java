@@ -19,14 +19,14 @@ package com.networknt.schema;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.sql.Ref;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,8 +37,6 @@ import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
 
-import javax.xml.validation.Schema;
-
 /**
  * This is the core of json constraint implementation. It parses json constraint
  * file and generates JsonValidators. The class is thread safe, once it is
@@ -47,8 +45,8 @@ import javax.xml.validation.Schema;
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     private Map<String, JsonValidator> validators;
-    private final String idKeyword;
     private final ValidationContext validationContext;
+    private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
 
     /**
@@ -80,9 +78,10 @@ public class JsonSchema extends BaseJsonValidator {
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-                validationContext.getConfig() != null && validationContext.getConfig().isFailFast());
+              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+              validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
         this.validationContext = validationContext;
-        this.idKeyword = validationContext.getMetaSchema().getIdKeyword();
+        this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         if (validationContext.getConfig() != null) {
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -156,7 +155,7 @@ public class JsonSchema extends BaseJsonValidator {
                 }
             }
         } else if (ref.startsWith("#") && ref.length() > 1) {
-            node = getNodeById(ref, node);
+            node = metaSchema.getNodeByFragmentRef(ref, node);
             if (node == null) {
                 node = handleNullNode(ref, schema);
             }
@@ -180,35 +179,12 @@ public class JsonSchema extends BaseJsonValidator {
         return null;
     }
 
-    private JsonNode getNodeById(String ref, JsonNode node) {
-        if (nodeContainsRef(ref, node)) {
-            return node;
-        } else {
-            Iterator<JsonNode> children = node.elements();
-            while (children.hasNext()) {
-                JsonNode refNode = getNodeById(ref, children.next());
-                if (refNode != null) {
-                    return refNode;
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean nodeContainsRef(String ref, JsonNode node) {
-        JsonNode id = node.get(idKeyword);
-        if (id != null) {
-            return ref.equals(id.asText());
-        }
-        return false;
-    }
-
     /**
      * Please note that the key in {@link #validators} map is a schema path. It is
      * used in {@link com.networknt.schema.walk.DefaultKeywordWalkListenerRunner} to derive the keyword.
      */
     private Map<String, JsonValidator> read(JsonNode schemaNode) {
-        Map<String, JsonValidator> validators = new HashMap<String, JsonValidator>();
+        Map<String, JsonValidator> validators = new TreeMap<>(VALIDATOR_SORT);
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
                 final String customMessage = getCustomMessage(schemaNode, "true");
@@ -238,6 +214,20 @@ public class JsonSchema extends BaseJsonValidator {
         }
         return validators;
     }
+
+    /**
+     * A comparator that sorts validators, such such that 'properties' comes before 'required',
+     * so that we can apply default values before validating required.
+     */
+    private static Comparator<String> VALIDATOR_SORT = (lhs, rhs) -> {
+        if (lhs.endsWith("/properties")) {
+            return -1;
+        }
+        if (rhs.endsWith("/properties")) {
+            return 1;
+        }
+        return lhs.compareTo(rhs);
+    };
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
         final JsonSchema parentSchema = getParentSchema();
@@ -320,7 +310,7 @@ public class JsonSchema extends BaseJsonValidator {
             SchemaValidatorsConfig config = validationContext.getConfig();
             // Get the collector context from the thread local.
             CollectorContext collectorContext = getCollectorContext();
-            // Valdiate.
+            // Validate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
@@ -374,7 +364,7 @@ public class JsonSchema extends BaseJsonValidator {
             JsonSchemaWalker jsonWalker = entry.getValue();
             String schemaPathWithKeyword = entry.getKey();
             try {
-                // Call all the pre-walk listeners. If atleast one of the pre walk listeners
+                // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
                 if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword,
                         node,

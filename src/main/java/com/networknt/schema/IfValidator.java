@@ -59,10 +59,18 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        Set<ValidationMessage> ifErrors = ifSchema.validate(node, rootNode, at);
-        if (ifErrors.isEmpty() && thenSchema != null) {
+        boolean ifConditionPassed;
+        try {
+            ifConditionPassed = ifSchema.validate(node, rootNode, at).isEmpty();
+        } catch (JsonSchemaException ex) {
+            // When failFast is enabled, validations are thrown as exceptions.
+            // An exception means the condition failed
+            ifConditionPassed = false;
+        }
+
+        if (ifConditionPassed && thenSchema != null) {
             errors.addAll(thenSchema.validate(node, rootNode, at));
-        } else if (!ifErrors.isEmpty() && elseSchema != null) {
+        } else if (!ifConditionPassed && elseSchema != null) {
             errors.addAll(elseSchema.validate(node, rootNode, at));
         }
 

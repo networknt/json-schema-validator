@@ -10,6 +10,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.66 - 2022-01-24
+
+### Changed
+
+- fixes #496 Improve type validation of integrals. Thanks @christi-square
+- fixes #497 parent schema of additionItems can be correctly referenced @carolkao
+
+## 1.0.65 - 2022-01-07
+
+### Changed
+
+- fixes #492 Sort ValidationMessage by its type. Thanks @jsu216
+- fixes #490 Handle the situation when context class loader is null. Thanks @vti and @Viacheslav Tykhanovskyi
+- fixes #489 Fix flakiness in CollectorContextTest. Thanks @pthariensflame
+- upgrade to logback 1.2.7 to resolve some x-ray warnnings
+- upgrade to undertow 2.2.14 to resolve some x-ray warnnings.
+- fixes #488 Fix violations of Sonar rule 2142. Thanks @khaes-kth
+- fixes #477 apply default in objects and arrays. Thanks @SiemelNaran
+- fixes #485 FailFast should not cause exception on if. Thanks @gareth-robinson
+- fixes #483 Add Java Syntax Highlighting to specversion.md. Thanks @JLLeitschuh
+- fixes #482 upgrade to joni 2.1.41 to resolve a security concern
+
+## 1.0.64 - 2021-11-10
+
+### Changed
+
+- fixes #480 Time format validation supports milliseconds. Thanks @@MatusSivak
+- fixes #479 Add dependentRequired and dependentSchemas validators. Thanks @@kmalski
+
 ## 1.0.63 - 2021-10-21
 
 ### Changed

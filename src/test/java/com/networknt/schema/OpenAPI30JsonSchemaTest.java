@@ -46,6 +46,7 @@ public class OpenAPI30JsonSchemaTest {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
 
             }
             server.stop();

@@ -55,3 +55,11 @@ When set to true, use Java-specific semantics rather than native JavaScript sema
 For example, if the node type is `number` per JS semantics where the value can be losslesly interpreted as `java.lang.Long`, the validator would use `integer` as the node type instead of `number`. This is useful when schema type is `integer`, since validation would fail otherwise.
 
 For more details, please refer to this [issue](https://github.com/networknt/json-schema-validator/issues/334).
+
+* losslessNarrowing
+
+When set to true, can interpret round doubles as integers.
+
+Note that setting `javaSemantics = true` will achieve the same functionality at this time.
+
+For more details, please refer to this [issue](https://github.com/networknt/json-schema-validator/issues/344).

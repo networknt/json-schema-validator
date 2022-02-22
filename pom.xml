@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.63</version>
+    <version>1.0.66</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4, v6, v7 and v2019-09</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -65,12 +65,12 @@
         <version.jackson>2.12.1</version.jackson>
         <version.slf4j>1.7.30</version.slf4j>
         <version.common-lang3>3.7</version.common-lang3>
-        <version.joni>2.1.31</version.joni>
-        <version.logback>1.2.3</version.logback>
+        <version.joni>2.1.41</version.joni>
+        <version.logback>1.2.7</version.logback>
         <version.junit>5.7.2</version.junit>
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.undertow>2.2.4.Final</version.undertow>
+        <version.undertow>2.2.14.Final</version.undertow>
     </properties>
     <dependencies>
         <dependency>
@@ -103,6 +103,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>

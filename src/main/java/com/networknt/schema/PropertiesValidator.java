@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -52,7 +53,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
-
             if (propertyNode != null) {
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
@@ -102,6 +102,9 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        if (applyDefaultsStrategy.shouldApplyPropertyDefaults()) {
+            applyPropertyDefaults((ObjectNode) node);
+        }
         if (shouldValidateSchema) {
             validationMessages.addAll(validate(node, rootNode, at));
         } else {
@@ -111,6 +114,21 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             }
         }
         return validationMessages;
+    }
+
+    private void applyPropertyDefaults(ObjectNode node) {
+        for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
+            JsonNode propertyNode = node.get(entry.getKey());
+
+            if (propertyNode == null || (applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull() && propertyNode.isNull())) {
+                JsonSchema propertySchema = entry.getValue();
+                JsonNode defaultNode = propertySchema.getSchemaNode().get("default");
+                if (defaultNode != null && !defaultNode.isNull()) {
+                    // mutate the input json
+                    node.set(entry.getKey(), defaultNode);
+                }
+            }
+        }
     }
 
     private void walkSchema(Map.Entry<String, JsonSchema> entry, JsonNode node, JsonNode rootNode, String at,

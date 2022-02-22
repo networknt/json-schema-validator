@@ -4,12 +4,12 @@ The library supports V4, V6, V7, and V2019-09 JSON schema specifications. By def
 
 #### To create a draft V4 JsonSchemaFactory
 
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
 ```
 or with default configuration
-```
+```java
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4));
 ```
  
@@ -17,46 +17,46 @@ Please avoid using default getInstance(), which, internally, defaults to the Spe
 
 #### To create a draft V6 JsonSchemaFactory
 
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V6)).objectMapper(mapper).build();
 ```
 or with default configuration
-```
+```java
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V6));
 ```
 
 #### To create a draft V7 JsonSchemaFactory
 
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).objectMapper(mapper).build();
 ```
 or with default configuration
-```
+```java
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7));
 ```
 
 #### To create a draft 2019-09 JsonSchemaFactory
 
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).objectMapper(mapper).build();
 ```
 or with default configuration
-```
+```java
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909));
 ```
 
 #### To create a JsonSchemaFactory, automatically detecting schema version
 
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonNode jsonNode = mapper.readTree(/* schema / schema input steam etc. */);
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode))).objectMapper(mapper).build();
 ```
 or with default configuration
-```
+```java
 ObjectMapper mapper = new ObjectMapper();
 JsonNode jsonNode = mapper.readTree(/* schema / schema input steam etc. */);
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
@@ -68,7 +68,7 @@ JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersionDe
 
 A new class SpecVersion has been introduced to indicate which version of the specification is used when creating the JsonSchemaFactory. The SpecVersion has an enum and two methods to convert a long to an EnumSet or a set of VersionFlags to a long value. 
 
-```
+```java
 public enum VersionFlag {
 
     V4(1<<0),
@@ -115,7 +115,7 @@ EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", new MessageFormat("{0}: must have 
 
 The getNonFormatKeywords method is updated to accept a SpecVersion.VersionFlag so that only the keywords supported by the specification will be loaded. 
 
-```
+```java
 public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFlag versionFlag) {
     final List<ValidatorTypeCode> result = new ArrayList<ValidatorTypeCode>();
     for (ValidatorTypeCode keyword: values()) {
@@ -137,7 +137,7 @@ For the BUILDIN_FORMATS, there is a common section, and each static class has it
 
 The getInstance supports a parameter SpecVersion.VersionFlag to get the right instance of the JsonMetaShema to create the factory. If there is no parameter, then V4 is used by default. 
 
-```
+```java
 @Deprecated
 public static JsonSchemaFactory getInstance() {
     return getInstance(SpecVersion.VersionFlag.V4);
@@ -170,7 +170,7 @@ public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag)
 
 This class detects schema version based on the schema tag.
 
-```
+```java
 private static final String SCHEMA_TAG = "$schema";
 
 public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
