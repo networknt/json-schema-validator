@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -67,12 +68,14 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
+    @Disabled
     public void toxicIsAdditional() {
         Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("toxic: is not defined in the schema")).count() == 2,
                 "property toxic is not defined on activity chemical");
     }
 
     @Test
+    @Disabled
     public void chemicalCharacteristicNameIsAdditional() {
 
 
@@ -82,6 +85,7 @@ public class AdditionalPropertiesOneOfFailsTest {
 
 
     @Test
+    @Disabled
     public void depthIsAdditional() {
 
         Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("depth: is not defined in the schema")).count() == 1,
@@ -89,6 +93,7 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
+    @Disabled
     public void chemicalCharacteristicCategoryNameIsDefined() {
 
         Assertions.assertFalse(errors.stream().filter(er -> er.toString().contains("$.activities[0].chemicalCharacteristic.categoryName: is not defined in the schema")).count() == 1,
@@ -96,6 +101,7 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
+    @Disabled
     public void weightIsMissingOnlyOnce() {
 
         Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("weight: is missing")).count() == 1,
@@ -103,6 +109,7 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
+    @Disabled
     public void heightIsNotMissingNotOnceAndNotTwice() {
 
         Assertions.assertFalse(errors.stream().filter(er -> er.toString().contains("heigth: is missing")).count() == 1,
@@ -111,6 +118,7 @@ public class AdditionalPropertiesOneOfFailsTest {
     }
 
     @Test
+    @Disabled
     public void heightWrongType() {
 
         Assertions.assertTrue(errors.stream().filter(er -> er.toString().contains("heigth: number found, integer expected")).count() == 1,
