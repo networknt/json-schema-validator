@@ -16,6 +16,7 @@ public class Issue518Test {
                     .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
                     .addMetaSchema(igluMetaSchema)
                     .forceHttps(false)
+                    .removeEmptyFragmentSuffix(false)
                     .build();
 
     @Test

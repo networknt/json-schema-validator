@@ -48,7 +48,7 @@ public class JsonSchemaFactory {
         private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
         private boolean forceHttps = true;
-		
+        private boolean removeEmptyFragmentSuffix = true;
 
         public Builder() {
             // Adds support for creating {@link URL}s.
@@ -145,6 +145,11 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        public Builder removeEmptyFragmentSuffix(boolean removeEmptyFragmentSuffix) {
+            this.removeEmptyFragmentSuffix = removeEmptyFragmentSuffix;
+            return this;
+        }
+
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
@@ -155,7 +160,8 @@ public class JsonSchemaFactory {
                     urnFactory,
                     jsonMetaSchemas,
                     uriMap,
-                    forceHttps
+                    forceHttps,
+                    removeEmptyFragmentSuffix
             );
         }
     }
@@ -169,6 +175,7 @@ public class JsonSchemaFactory {
     private final Map<String, String> uriMap;
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
     private final boolean forceHttps;
+    private final boolean removeEmptyFragmentSuffix;
 
 
     private JsonSchemaFactory(
@@ -179,7 +186,8 @@ public class JsonSchemaFactory {
             final URNFactory urnFactory,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final Map<String, String> uriMap,
-            final boolean forceHttps) {
+            final boolean forceHttps,
+            final boolean removeEmptyFragmentSuffix) {
         if (mapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
@@ -203,6 +211,7 @@ public class JsonSchemaFactory {
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.uriMap = uriMap;
         this.forceHttps = forceHttps;
+        this.removeEmptyFragmentSuffix = removeEmptyFragmentSuffix;
     }
 
     /**
@@ -281,7 +290,7 @@ public class JsonSchemaFactory {
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
-        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps);
+        final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps, removeEmptyFragmentSuffix);
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
         if (jsonMetaSchema == null) {
             throw new JsonSchemaException("Unknown MetaSchema: " + uri);
@@ -409,12 +418,17 @@ public class JsonSchemaFactory {
         return result;
     }
 
-    static protected String normalizeMetaSchemaUri(String u, boolean forceHttps) {
+    static protected String normalizeMetaSchemaUri(String u, boolean forceHttps, boolean removeEmptyFragmentSuffix) {
         try {
             URI uri = new URI(u);
             String scheme = forceHttps ? "https" : uri.getScheme();
             URI newUri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
-            return newUri.toString();
+
+            if (!removeEmptyFragmentSuffix && u.endsWith("#")) {
+                return newUri + "#";
+            } else {
+                return newUri.toString();
+            }
         } catch (URISyntaxException e) {
             throw new JsonSchemaException("Wrong MetaSchema URI: " + u);
         }
