@@ -40,8 +40,8 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
 
     private static final Pattern RFC3339_PATTERN = Pattern.compile(
             "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
-                    + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
-                    + "([Zz]|([+-])(\\d{2}):?(\\d{2}))?");
+                    + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?" // 'T'HH:mm:ss.milliseconds
+                    + "(([Zz])|([+-])(\\d{2}):(\\d{2})))?");
 
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
@@ -82,23 +82,17 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
         pattern.append("yyyy-MM-dd");
 
         boolean isTimeGiven = matcher.group(4) != null;
-        String timeZoneShiftRegexGroup = matcher.group(9);
-        boolean isTimeZoneShiftGiven = timeZoneShiftRegexGroup != null;
+        boolean isOffsetZuluTime = matcher.group(10) != null;
         String hour = null;
         String minute = null;
         String second = null;
         String milliseconds = null;
+        String timeShiftSign = null;
         String timeShiftHour = null;
         String timeShiftMinute = null;
 
         if (!isTimeGiven && DATETIME.equals(formatName) || (isTimeGiven && DATE.equals(formatName))) {
             logger.error("The supplied date/time format type does not match the specification, expected: " + formatName);
-            return false;
-        }
-
-        if (!isTimeGiven && isTimeZoneShiftGiven) {
-            logger.error("Invalid date/time format, cannot specify time zone shift" +
-                    " without specifying time: " + string);
             return false;
         }
 
@@ -121,16 +115,15 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
                 dateTime.append(milliseconds);
                 pattern.append(".SSS");
             }
-        }
 
-        if (isTimeGiven && isTimeZoneShiftGiven) {
-            if (Character.toUpperCase(timeZoneShiftRegexGroup.charAt(0)) == 'Z') {
+            if (isOffsetZuluTime) {
                 dateTime.append('Z');
                 pattern.append("'Z'");
             } else {
-                timeShiftHour = matcher.group(11);
-                timeShiftMinute = matcher.group(12);
-                dateTime.append(matcher.group(10).charAt(0)).append(timeShiftHour).append(':').append(timeShiftMinute);
+                timeShiftSign = matcher.group(11);
+                timeShiftHour = matcher.group(12);
+                timeShiftMinute = matcher.group(13);
+                dateTime.append(timeShiftSign).append(timeShiftHour).append(':').append(timeShiftMinute);
                 pattern.append("XXX");
             }
         }
