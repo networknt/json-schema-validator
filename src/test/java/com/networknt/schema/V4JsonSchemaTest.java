@@ -58,13 +58,11 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     }
 
     @Test
-    @Disabled
     public void testFormatIpv4Validator() throws Exception {
         runTestFile("draft4/optional/format/ipv4.json");
     }
 
     @Test
-    @Disabled
     public void testFormatIpv6Validator() throws Exception {
         runTestFile("draft4/optional/format/ipv6.json");
     }
