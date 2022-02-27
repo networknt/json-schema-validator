@@ -64,6 +64,16 @@
         "description": "an invalid date-time string without colon in offset",
         "data": "1963-06-19T08:30:06+0200",
         "valid": false
+      },
+      {
+        "description": "a valid date-time string with leap second",
+        "data": "1998-12-31T23:59:60Z",
+        "valid": true
+      },
+      {
+        "description": "an invalid date-time string with leap second",
+        "data": "1998-10-31T23:59:60Z",
+        "valid": false
       }
     ]
   }
