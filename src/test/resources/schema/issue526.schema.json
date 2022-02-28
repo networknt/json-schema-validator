@@ -8,7 +8,7 @@
       "description": "The example phone numbers",
       "type": "array",
       "items": {
-        "$id": "https://schemas.example.com/example-service/objects/1.0.0/phone.schema.json",
+        "$ref": "https://schemas.example.com/example-service/objects/1.0.0/phone.schema.json",
         "description": "try an absolute $ref path"
       }
     },
