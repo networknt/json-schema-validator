@@ -65,7 +65,11 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
             return tryParse(() -> {
                 try {
                     ITU.parseDateTime(string);
-                } catch (LeapSecondException ignored) {}
+                } catch (LeapSecondException ex) {
+                    if(!ex.isVerifiedValidLeapYearMonth()) {
+                        throw ex;
+                    }
+                }
             });
         } else {
             throw new IllegalStateException("Unknown format: " + formatName);
