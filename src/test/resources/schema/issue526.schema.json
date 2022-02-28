@@ -1,0 +1,64 @@
+{
+  "$id": "https://schemas.example.com/example-service/commands/1.0.0/example.schema.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "example",
+  "type": "object",
+  "properties": {
+    "phones": {
+      "description": "The example phone numbers",
+      "type": "array",
+      "items": {
+        "$id": "https://schemas.example.com/example-service/objects/1.0.0/phone.schema.json",
+        "description": "try an absolute $ref path"
+      }
+    },
+    "email_addresses": {
+      "description": "The example email address",
+      "type": "array",
+      "items": {
+        "$ref": "../../objects/1.0.0/email-address.schema.json",
+        "description": "try a relative $ref path"
+      }
+    }
+  },
+  "required": [
+    "email_addresses",
+    "phones"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "https://schemas.example.com/example-service/objects/1.0.0/phone.schema.json": {
+      "$id": "https://schemas.example.com/example-service/objects/1.0.0/phone.schema.json",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "title": "Phone Object",
+      "type": "object",
+      "properties": {
+        "number": {
+          "description": "10 digit phone number",
+          "type": "string",
+          "pattern": "^[1-9]\\d{9}"
+        }
+      },
+      "required": [
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "https://schemas.example.com/example-service/objects/1.0.0/email-address.schema.json": {
+      "$id": "https://schemas.example.com/example-service/objects/1.0.0/email-address.schema.json",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "title": "Email Address Object",
+      "type": "object",
+      "properties": {
+        "email_address": {
+          "description": "email address string",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email_address"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
