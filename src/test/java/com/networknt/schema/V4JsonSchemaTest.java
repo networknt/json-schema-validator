@@ -42,7 +42,6 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     }
 
     @Test
-    @Disabled
     public void testFormatDateTimeValidator() throws Exception {
         runTestFile("draft4/optional/format/date-time.json");
     }
