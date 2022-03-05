@@ -10,12 +10,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.67 - 2022-03-05
+
+### Changed
+
+- fixes #525 Leap seconds are handled even better Thanks @aznan2 and @Matti Hansson
+- fixes #524 Fix handling of leap seconds in date-time validation
+- fixes #523 synched ipv4 and ipv6 and fix some gaps for the IP format
+- fixes #522 synch the official test suite for draft v4 from schema.org
+- fixes #509 NPE with oneOf and custom URI Fetcher or Factory
+- fixes #508 Make date-time validation align with RFC3339 Thanks @aznan2 and @Matti Hansson
+- fixes #519 Preserve # suffix during metaschema URI normalization Thanks @pondzix
+- fixes #516 fix the additionalProperties in oneOf failed test cases
+- fixes #505 AdditionalPropertiesOneOfFails test Thanks @huubfleuren
+- fixes #510 try to reproduce the issue but failed
+- fixes #511 Add German validation messages. Thanks @rustermi
+- fixes #500 Support fragment references using $anchor @Whathecode
+
 ## 1.0.66 - 2022-01-24
 
 ### Changed
 
 - fixes #496 Improve type validation of integrals. Thanks @christi-square
-- fixes #497 parent schema of additionItems can be correctly referenced @carolkao
+- fixes #497 Support fragment references using $anchor  @carolkao
 
 ## 1.0.65 - 2022-01-07
 
