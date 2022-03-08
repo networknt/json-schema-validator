@@ -57,7 +57,7 @@
     "description": "change resolution scope",
     "schema": {
       "items": {
-        "id": "folder/",
+        "id": "extra/folder/",
         "items": {
           "$ref": "folderInteger.json"
         }

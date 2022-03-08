@@ -11,9 +11,9 @@
         "valid": true
       },
       {
-        "description": "a valid date-time string without colon",
+        "description": "an invalid date-time string without colon",
         "data": "2018-07-27T00:00:01.000-0300",
-        "valid": true
+        "valid": false
       },
       {
         "description": "a valid date-time string",
@@ -56,14 +56,14 @@
         "valid": true
       },
       {
-        "description": "an valid date-time string",
+        "description": "an invalid date-time string",
         "data": "1963-12-30T08:30:06.283",
-        "valid": true
+        "valid": false
       },
       {
-        "description": "an valid date-time string",
+        "description": "an invalid date-time string",
         "data": "1963-12-30T08:30:06",
-        "valid": true
+        "valid": false
       },
       {
         "description": "an valid date-time string",

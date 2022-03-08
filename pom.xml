@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.66</version>
+    <version>1.0.67</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4, v6, v7 and v2019-09</description>
     <url>https://github.com/networknt/json-schema-validator</url>
@@ -71,6 +71,7 @@
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.14.Final</version.undertow>
+        <version.itu>1.5.1</version.itu>
     </properties>
     <dependencies>
         <dependency>
@@ -93,6 +94,11 @@
             <artifactId>joni</artifactId>
             <optional>true</optional>
             <version>${version.joni}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ethlo.time</groupId>
+            <artifactId>itu</artifactId>
+            <version>${version.itu}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

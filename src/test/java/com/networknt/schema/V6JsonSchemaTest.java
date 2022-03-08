@@ -24,6 +24,11 @@ public class V6JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     }
 
     @Test
+    public void testFormatIpv4Validator() throws Exception {
+        runTestFile("draft4/optional/format/ipv4.json");
+    }
+
+    @Test
     public void testOptionalBignumValidator() throws Exception {
         runTestFile("draft6/optional/bignum.json");
     }

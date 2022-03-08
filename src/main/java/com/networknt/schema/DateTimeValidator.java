@@ -16,18 +16,16 @@
 
 package com.networknt.schema;
 
+import com.ethlo.time.ITU;
+import com.ethlo.time.LeapSecondException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
@@ -37,11 +35,6 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private final String formatName;
     private final String DATE = "date";
     private final String DATETIME = "date-time";
-
-    private static final Pattern RFC3339_PATTERN = Pattern.compile(
-            "^(\\d{4})-(\\d{2})-(\\d{2})" // yyyy-MM-dd
-                    + "([Tt](\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?)?" // 'T'HH:mm:ss.milliseconds
-                    + "([Zz]|([+-])(\\d{2}):?(\\d{2}))?");
 
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
@@ -66,81 +59,30 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     }
 
     private boolean isLegalDateTime(String string) {
-        Matcher matcher = RFC3339_PATTERN.matcher(string);
-        StringBuilder pattern = new StringBuilder();
-        StringBuilder dateTime = new StringBuilder();
-        // Validate the format
-        if (!matcher.matches()) {
-            logger.error("Failed to apply RFC3339 pattern on " + string);
-            return false;
-        }
-        // Validate the date/time content
-        String year = matcher.group(1);
-        String month = matcher.group(2);
-        String day = matcher.group(3);
-        dateTime.append(year).append('-').append(month).append('-').append(day);
-        pattern.append("yyyy-MM-dd");
-
-        boolean isTimeGiven = matcher.group(4) != null;
-        String timeZoneShiftRegexGroup = matcher.group(9);
-        boolean isTimeZoneShiftGiven = timeZoneShiftRegexGroup != null;
-        String hour = null;
-        String minute = null;
-        String second = null;
-        String milliseconds = null;
-        String timeShiftHour = null;
-        String timeShiftMinute = null;
-
-        if (!isTimeGiven && DATETIME.equals(formatName) || (isTimeGiven && DATE.equals(formatName))) {
-            logger.error("The supplied date/time format type does not match the specification, expected: " + formatName);
-            return false;
-        }
-
-        if (!isTimeGiven && isTimeZoneShiftGiven) {
-            logger.error("Invalid date/time format, cannot specify time zone shift" +
-                    " without specifying time: " + string);
-            return false;
-        }
-
-        if (isTimeGiven) {
-            hour = matcher.group(5);
-            minute = matcher.group(6);
-            second = matcher.group(7);
-            dateTime.append('T').append(hour).append(':').append(minute).append(':').append(second);
-            pattern.append("'T'HH:mm:ss");
-            if (matcher.group(8) != null) {
-                // Normalize milliseconds to 3-length digit
-                milliseconds = matcher.group(8);
-                if (milliseconds.length() > 4) {
-                    milliseconds = milliseconds.substring(0, 4);
-                } else {
-                    while (milliseconds.length() < 4) {
-                        milliseconds += "0";
+        if(formatName.equals(DATE)) {
+            return tryParse(() -> LocalDate.parse(string));
+        } else if(formatName.equals(DATETIME)) {
+            return tryParse(() -> {
+                try {
+                    ITU.parseDateTime(string);
+                } catch (LeapSecondException ex) {
+                    if(!ex.isVerifiedValidLeapYearMonth()) {
+                        throw ex;
                     }
                 }
-                dateTime.append(milliseconds);
-                pattern.append(".SSS");
-            }
+            });
+        } else {
+            throw new IllegalStateException("Unknown format: " + formatName);
         }
-
-        if (isTimeGiven && isTimeZoneShiftGiven) {
-            if (Character.toUpperCase(timeZoneShiftRegexGroup.charAt(0)) == 'Z') {
-                dateTime.append('Z');
-                pattern.append("'Z'");
-            } else {
-                timeShiftHour = matcher.group(11);
-                timeShiftMinute = matcher.group(12);
-                dateTime.append(matcher.group(10).charAt(0)).append(timeShiftHour).append(':').append(timeShiftMinute);
-                pattern.append("XXX");
-            }
-        }
-        return validateDateTime(dateTime.toString(), pattern.toString());
     }
 
-    private boolean validateDateTime(String dateTime, String pattern) {
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        sdf.setLenient(false);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.parse(dateTime, new ParsePosition(0)) != null;
+    private boolean tryParse(Runnable parser) {
+        try {
+            parser.run();
+            return true;
+        } catch (Exception ex) {
+            logger.error("Invalid " + formatName + ": " + ex.getMessage());
+            return false;
+        }
     }
 }

@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,18 +42,63 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     }
 
     @Test
+    public void testFormatDateTimeValidator() throws Exception {
+        runTestFile("draft4/optional/format/date-time.json");
+    }
+
+    @Test
+    public void testFormatEmailValidator() throws Exception {
+        runTestFile("draft4/optional/format/email.json");
+    }
+
+    @Test
+    public void testFormatHostnameValidator() throws Exception {
+        runTestFile("draft4/optional/format/hostname.json");
+    }
+
+    @Test
+    public void testFormatIpv4Validator() throws Exception {
+        runTestFile("draft4/optional/format/ipv4.json");
+    }
+
+    @Test
+    public void testFormatIpv6Validator() throws Exception {
+        runTestFile("draft4/optional/format/ipv6.json");
+    }
+
+    @Test
+    public void testFormatUnknownValidator() throws Exception {
+        runTestFile("draft4/optional/format/unknown.json");
+    }
+
+    @Test
+    public void testFormatUriValidator() throws Exception {
+        runTestFile("draft4/optional/format/uri.json");
+    }
+
+    @Test
     public void testBignumValidator() throws Exception {
         runTestFile("draft4/optional/bignum.json");
     }
 
     @Test
-    public void testFormatValidator() throws Exception {
+    public void testOptionalFormatValidator() throws Exception {
         runTestFile("draft4/optional/format.json");
     }
 
     @Test
     public void testComplexSchema() throws Exception {
         runTestFile("draft4/optional/complex.json");
+    }
+
+    @Test
+    public void testFloatOverflowValidator() throws Exception {
+        runTestFile("draft4/optional/float-overflow.json");
+    }
+
+    @Test
+    public void testNonBmpRegexValidator() throws Exception {
+        runTestFile("draft4/optional/non-bmp-regex.json");
     }
 
     @Test
@@ -98,6 +144,22 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     @Test
     public void testEnumValidator() throws Exception {
         runTestFile("draft4/enum.json");
+    }
+
+    @Test
+    public void testFormatValidator() throws Exception {
+        runTestFile("draft4/format.json");
+    }
+
+    @Test
+    @Disabled
+    public void testIdValidator() throws Exception {
+        runTestFile("draft4/id.json");
+    }
+
+    @Test
+    public void testInfiniteLoopDetectionValidator() throws Exception {
+        runTestFile("draft4/infinite-loop-detection.json");
     }
 
     @Test
@@ -207,7 +269,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
 
     @Test
     public void testUnionTypeValidator() throws Exception {
-        runTestFile("draft4/union_type.json");
+        runTestFile("draft4/extra/union_type.json");
     }
 
     @Test
@@ -222,17 +284,17 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
 
     @Test
     public void testIdSchemaWithUrl() throws Exception {
-        runTestFile("draft4/property.json");
+        runTestFile("draft4/extra/property.json");
     }
 
     @Test
     public void testSchemaFromClasspath() throws Exception {
-        runTestFile("draft4/classpath/schema.json");
+        runTestFile("draft4/extra/classpath/schema.json");
     }
 
     @Test
     public void testUUIDValidator() throws Exception {
-        runTestFile("draft4/uuid.json");
+        runTestFile("draft4/extra/uuid.json");
     }
 
     /**
@@ -241,7 +303,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     @Test
     public void testFailFast_AllErrors() throws IOException {
         try {
-            validateFailingFastSchemaFor("product.schema.json", "product-all-errors-data.json");
+            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-all-errors-data.json");
             fail("Exception must be thrown");
         } catch (JsonSchemaException e) {
             final Set<ValidationMessage> messages = e.getValidationMessages();
@@ -255,7 +317,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     @Test
     public void testFailFast_OneErrors() throws IOException {
         try {
-            validateFailingFastSchemaFor("product.schema.json", "product-one-error-data.json");
+            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-one-error-data.json");
             fail("Exception must be thrown");
         } catch (JsonSchemaException e) {
             final Set<ValidationMessage> messages = e.getValidationMessages();
@@ -269,7 +331,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     @Test
     public void testFailFast_TwoErrors() throws IOException {
         try {
-            validateFailingFastSchemaFor("product.schema.json", "product-two-errors-data.json");
+            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-two-errors-data.json");
             fail("Exception must be thrown");
         } catch (JsonSchemaException e) {
             final Set<ValidationMessage> messages = e.getValidationMessages();
@@ -283,7 +345,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
     @Test
     public void testFailFast_NoErrors() throws IOException {
         try {
-            final Set<ValidationMessage> messages = validateFailingFastSchemaFor("product.schema.json", "product-no-errors-data.json");
+            final Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-no-errors-data.json");
             assertTrue(messages.isEmpty());
         } catch (JsonSchemaException e) {
             fail("Must not get an errors");
