@@ -126,89 +126,116 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
-        // this is a complex validator, we set the flag to true
-        state.setComplexValidator(true);
-
-        int numberOfValidSchema = 0;
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        Set<ValidationMessage> childErrors = new LinkedHashSet<ValidationMessage>();
-        // validate that only a single element has been received in the oneOf node
-        // validation should not continue, as it contradicts the oneOf requirement of only one
+
+        // As oneOf might contain multiple schemas take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+        try {
+            debug(logger, node, rootNode, at);
+
+            ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+
+            // this is a complex validator, we set the flag to true
+            state.setComplexValidator(true);
+
+            int numberOfValidSchema = 0;
+            Set<ValidationMessage> childErrors = new LinkedHashSet<ValidationMessage>();
+            // validate that only a single element has been received in the oneOf node
+            // validation should not continue, as it contradicts the oneOf requirement of only one
 //        if(node.isObject() && node.size()>1) {
 //        	errors = Collections.singleton(buildValidationMessage(at, ""));
 //        	return Collections.unmodifiableSet(errors);
 //        }
 
-        for (ShortcutValidator validator : schemas) {
-            Set<ValidationMessage> schemaErrors = null;
-            // Reset state in case the previous validator did not match
-            state.setMatchedNode(true);
+            for (ShortcutValidator validator : schemas) {
+                Set<ValidationMessage> schemaErrors = null;
+                // Reset state in case the previous validator did not match
+                state.setMatchedNode(true);
 
-            //This prevents from collecting all the  error messages in proper format.
+                //This prevents from collecting all the  error messages in proper format.
            /* if (!validator.allConstantsMatch(node)) {
                 // take a shortcut: if there is any constant that does not match,
                 // we can bail out of the validation
                 continue;
             }*/
 
-            // get the current validator
-            JsonSchema schema = validator.schema;
-            if (!state.isWalkEnabled()) {
-                schemaErrors = schema.validate(node, rootNode, at);
-            } else {
-                schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
-            }
-
-            // check if any validation errors have occurred
-            if (schemaErrors.isEmpty()) {
-                // check whether there are no errors HOWEVER we have validated the exact validator
-                if (!state.hasMatchedNode())
-                    continue;
-
-                numberOfValidSchema++;
-            }
-            childErrors.addAll(schemaErrors);
-        }
-
-
-        // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-        if(numberOfValidSchema > 1){
-            final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
-            if( failFast ) {
-                throw new JsonSchemaException(message);
-            }
-            errors.add(message);
-        }
-        // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-        else if (numberOfValidSchema < 1) {
-            if (!childErrors.isEmpty()) {
-                if (childErrors.size() > 1) {
-                    Set<ValidationMessage> notAdditionalPropertiesOnly = new LinkedHashSet<>(childErrors.stream()
-                            .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
-                            .sorted((vm1, vm2) -> compareValidationMessages(vm1, vm2))
-                            .collect(Collectors.toList()));
-                    if (notAdditionalPropertiesOnly.size() > 0) {
-                        childErrors = notAdditionalPropertiesOnly;
-                    }
+                // get the current validator
+                JsonSchema schema = validator.schema;
+                if (!state.isWalkEnabled()) {
+                    schemaErrors = schema.validate(node, rootNode, at);
+                } else {
+                    schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
                 }
-                errors.addAll(childErrors);
+
+                // check if any validation errors have occurred
+                if (schemaErrors.isEmpty()) {
+                    // check whether there are no errors HOWEVER we have validated the exact validator
+                    if (!state.hasMatchedNode())
+                        continue;
+
+                    numberOfValidSchema++;
+                }
+
+                // If the number of valid schema is greater than one, just reset the evaluated properties and break.
+                if (numberOfValidSchema > 1) {
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                    break;
+                }
+
+                childErrors.addAll(schemaErrors);
             }
-            if( failFast ){
-                throw new JsonSchemaException(errors.toString());
+
+            // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
+            if (numberOfValidSchema > 1) {
+                final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
+                if (failFast) {
+                    throw new JsonSchemaException(message);
+                }
+                errors.add(message);
+            }
+
+            // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
+            else if (numberOfValidSchema < 1) {
+                if (!childErrors.isEmpty()) {
+                    if (childErrors.size() > 1) {
+                        Set<ValidationMessage> notAdditionalPropertiesOnly = new LinkedHashSet<>(childErrors.stream()
+                                .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
+                                .sorted((vm1, vm2) -> compareValidationMessages(vm1, vm2))
+                                .collect(Collectors.toList()));
+                        if (notAdditionalPropertiesOnly.size() > 0) {
+                            childErrors = notAdditionalPropertiesOnly;
+                        }
+                    }
+                    errors.addAll(childErrors);
+                }
+                if (failFast) {
+                    throw new JsonSchemaException(errors.toString());
+                }
+            }
+
+            // Make sure to signal parent handlers we matched
+            if (errors.isEmpty())
+                state.setMatchedNode(true);
+
+            // reset the ValidatorState object in the ThreadLocal
+            resetValidatorState();
+
+            return Collections.unmodifiableSet(errors);
+        } finally {
+            if (backupEvaluatedProperties != null) {
+                if (errors.isEmpty()) {
+                    List<String> backupEvaluatedPropertiesList = (List<String>) backupEvaluatedProperties;
+                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                } else {
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                }
             }
         }
-
-        // Make sure to signal parent handlers we matched
-        if (errors.isEmpty())
-            state.setMatchedNode(true);
-
-        // reset the ValidatorState object in the ThreadLocal
-        resetValidatorState();
-
-        return Collections.unmodifiableSet(errors);
     }
 
     /**

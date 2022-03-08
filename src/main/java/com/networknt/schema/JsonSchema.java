@@ -19,14 +19,8 @@ package com.networknt.schema;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +56,10 @@ public class JsonSchema extends BaseJsonValidator {
 
     private JsonValidator requiredValidator = null;
 
+    private JsonValidator unevaluatedPropertiesValidator = null;
+
+    WalkListenerRunner keywordWalkListenerRunner = null;
+
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
         this(validationContext, "#", baseUri, schemaNode, null);
     }
@@ -84,6 +82,7 @@ public class JsonSchema extends BaseJsonValidator {
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
         if (validationContext.getConfig() != null) {
+            keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
                 if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
@@ -202,7 +201,12 @@ public class JsonSchema extends BaseJsonValidator {
                 JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
                 String customMessage = getCustomMessage(schemaNode, pname);
                 JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
-                if (validator != null) {
+                // Don't add UnevaluatedProperties Validator. This Keyword should exist only at the root level of the schema.
+                // This validator should be called after we evaluate all other validators.
+                if (ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue().equals(pname)) {
+                    unevaluatedPropertiesValidator = validator;
+                }
+                if (validator != null && !ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue().equals(pname)) {
                     validators.put(getSchemaPath() + "/" + pname, validator);
 
                     if (pname.equals("required")) {
@@ -249,6 +253,14 @@ public class JsonSchema extends BaseJsonValidator {
 
     /************************ START OF VALIDATE METHODS **********************************/
 
+    @Override
+    public Set<ValidationMessage> validate(JsonNode node) {
+        Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
+        // Process UnEvaluatedProperties after all the validators are called.
+        errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, true, true));
+        return errors;
+    }
+
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         SchemaValidatorsConfig config = validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -257,7 +269,6 @@ public class JsonSchema extends BaseJsonValidator {
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
-            // Validate.
             errors.addAll(v.validate(jsonNode, rootNode, at));
         }
         if (null != config && config.isOpenAPI3StyleDiscriminators()) {
@@ -304,7 +315,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @param at       String path
      * @return ValidationResult
      */
-    protected ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+    private ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
         try {
             // Get the config.
             SchemaValidatorsConfig config = validationContext.getConfig();
@@ -312,6 +323,8 @@ public class JsonSchema extends BaseJsonValidator {
             CollectorContext collectorContext = getCollectorContext();
             // Validate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+            // Validate UnEvaluatedProperties after all the validators are processed.
+            errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
@@ -327,7 +340,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     /************************ END OF VALIDATE METHODS **********************************/
 
-    /************************ START OF WALK METHODS **********************************/
+    /*********************** START OF WALK METHODS **********************************/
 
     /**
      * Walk the JSON node
@@ -350,6 +363,8 @@ public class JsonSchema extends BaseJsonValidator {
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
+        // Process UnEvaluatedProperties after all the validators are called.
+        errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, shouldValidateSchema, false));
         // Collect errors and collector context into validation result.
         ValidationResult validationResult = new ValidationResult(errors, collectorContext);
         return validationResult;
@@ -358,7 +373,6 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
         // Walk through all the JSONWalker's.
         for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
             JsonSchemaWalker jsonWalker = entry.getValue();
@@ -459,6 +473,45 @@ public class JsonSchema extends BaseJsonValidator {
             for (final JsonValidator validator : getValidators().values()) {
                 validator.preloadJsonSchema();
             }
+        }
+    }
+
+    private Set<ValidationMessage> processUnEvaluatedProperties(JsonNode jsonNode, JsonNode rootNode, String at, boolean shouldValidateSchema,
+                                                                boolean fromValidate) {
+        if (unevaluatedPropertiesValidator == null) {
+            return Collections.emptySet();
+        }
+        if (!fromValidate) {
+            Set<ValidationMessage> validationMessages = new HashSet<>();
+            try {
+                // Call all the pre walk listeners.
+                if (keywordWalkListenerRunner.runPreWalkListeners(getSchemaPath() + "/" + ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue(),
+                        jsonNode,
+                        rootNode,
+                        at,
+                        schemaPath,
+                        schemaNode,
+                        parentSchema,
+                        validationContext,
+                        validationContext.getJsonSchemaFactory())) {
+                    validationMessages = unevaluatedPropertiesValidator.walk(jsonNode, rootNode, at, shouldValidateSchema);
+                }
+            } finally {
+                // Call all the post-walk listeners.
+                keywordWalkListenerRunner.runPostWalkListeners(getSchemaPath() + "/" + ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue(),
+                        jsonNode,
+                        rootNode,
+                        at,
+                        schemaPath,
+                        schemaNode,
+                        parentSchema,
+                        validationContext,
+                        validationContext.getJsonSchemaFactory(),
+                        validationMessages);
+            }
+            return validationMessages;
+        } else {
+            return unevaluatedPropertiesValidator.walk(jsonNode, rootNode, at, shouldValidateSchema);
         }
     }
 }

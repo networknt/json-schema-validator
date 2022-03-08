@@ -91,12 +91,14 @@ public abstract class BaseSuiteJsonSchemaTest {
                     List<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
                     errors.addAll(schema.validate(node));
-
+                    // Clear CollectorContext after every test.
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
+                            System.out.println("Description: " + test.get("description"));
                             System.out.println("schema: " + schema.toString());
                             System.out.println("data: " + test.get("data"));
+                            System.out.println("errors: " + errors);
                         }
                         assertEquals(0, errors.size());
                     } else {
@@ -116,6 +118,7 @@ public abstract class BaseSuiteJsonSchemaTest {
                         }
                         assertEquals(false, errors.isEmpty());
                     }
+                    CollectorContext.getInstance().reset();
                 }
             } catch (JsonSchemaException e) {
                 throw new IllegalStateException(String.format("Current schema should not be invalid: %s", testCaseFile), e);

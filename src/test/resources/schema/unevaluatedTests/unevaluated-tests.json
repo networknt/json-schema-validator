@@ -1,0 +1,312 @@
+[
+  {
+    "description": "schema with a $ref",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "definitions": {
+        "address": {
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "City where the person lives."
+            },
+            "street": {
+              "type": "string",
+              "description": "street where the person lives."
+            },
+            "pinCode": {
+              "type": "number",
+              "description": "pincode of street"
+            }
+          },
+          "unevaluatedProperties": false
+        }
+      },
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "address": {
+          "description": "Address of the person.",
+          "$ref": "#/definitions/address"
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Basic Test",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "address": {
+            "city": "Hyderabad",
+            "pinCode": 500025
+          }
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "schema with a oneOf",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "vehicle": {
+          "oneOf": [
+            {
+              "title": "Car",
+              "required": [
+                "wheels",
+                "headlights"
+              ],
+              "properties": {
+                "wheels": {
+                  "type": "string"
+                },
+                "headlights": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Boat",
+              "required": [
+                "pontoons"
+              ],
+              "properties": {
+                "pontoons": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Plane",
+              "required": [
+                "wings"
+              ],
+              "properties": {
+                "wings": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Data with oneOf and one property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons"
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Data with oneOf and three properties",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "headlights": "headlights",
+            "wheels": "wheels",
+            "pontoons": "pontoons"
+          }
+        },
+        "valid": false
+      }
+    ]
+  },
+  {
+    "description": "schema with a anyOf",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "vehicle": {
+          "anyOf": [
+            {
+              "title": "Car",
+              "required": [
+                "wheels",
+                "headlights"
+              ],
+              "properties": {
+                "wheels": {
+                  "type": "string"
+                },
+                "headlights": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Boat",
+              "required": [
+                "pontoons"
+              ],
+              "properties": {
+                "pontoons": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Plane",
+              "required": [
+                "wings"
+              ],
+              "properties": {
+                "wings": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Data with anyOf and one property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons"
+          }
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "schema with a anyOf",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "vehicle": {
+          "allOf": [
+            {
+              "title": "Car",
+              "required": [
+                "wheels"
+              ],
+              "properties": {
+                "wheels": {
+                  "type": "string"
+                },
+                "headlights": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Boat",
+              "required": [
+                "pontoons"
+              ],
+              "properties": {
+                "pontoons": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "title": "Plane",
+              "required": [
+                "wings"
+              ],
+              "properties": {
+                "wings": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Data with anyOf and one property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "wheels": "wheels",
+            "pontoons": "pontoons",
+            "wings": "wings"
+          }
+        },
+        "valid": true
+      }
+    ]
+  }
+]

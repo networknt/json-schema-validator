@@ -57,21 +57,75 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
+        // As if-then-else might contain multiple schemas take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        Object ifEvaluatedProperties = null;
+
+        Object thenEvaluatedProperties = null;
+
+        Object elseEvaluatedProperties = null;
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         boolean ifConditionPassed;
         try {
-            ifConditionPassed = ifSchema.validate(node, rootNode, at).isEmpty();
-        } catch (JsonSchemaException ex) {
-            // When failFast is enabled, validations are thrown as exceptions.
-            // An exception means the condition failed
-            ifConditionPassed = false;
-        }
+            try {
+                ifConditionPassed = ifSchema.validate(node, rootNode, at).isEmpty();
+            } catch (JsonSchemaException ex) {
+                // When failFast is enabled, validations are thrown as exceptions.
+                // An exception means the condition failed
+                ifConditionPassed = false;
+            }
+            // Evaluated Properties from if.
+            ifEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
 
-        if (ifConditionPassed && thenSchema != null) {
-            errors.addAll(thenSchema.validate(node, rootNode, at));
-        } else if (!ifConditionPassed && elseSchema != null) {
-            errors.addAll(elseSchema.validate(node, rootNode, at));
+            if (ifConditionPassed && thenSchema != null) {
+
+                // Make the evaluatedProperties list empty.
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+                errors.addAll(thenSchema.validate(node, rootNode, at));
+
+                // Collect the then evaluated properties.
+                thenEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+            } else if (!ifConditionPassed && elseSchema != null) {
+
+                // Make the evaluatedProperties list empty.
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+                errors.addAll(elseSchema.validate(node, rootNode, at));
+
+                // Collect the else evaluated properties.
+                elseEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+            }
+
+        } finally {
+            if (backupEvaluatedProperties != null) {
+                if (errors.isEmpty()) {
+                    List<String> backupEvaluatedPropertiesList = (List<String>) backupEvaluatedProperties;
+
+                    if (ifEvaluatedProperties != null) {
+                        backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
+                    }
+
+                    if (thenEvaluatedProperties != null) {
+                        backupEvaluatedPropertiesList.addAll((List<String>) thenEvaluatedProperties);
+                    }
+
+                    if (elseEvaluatedProperties != null) {
+                        backupEvaluatedPropertiesList.addAll((List<String>) elseEvaluatedProperties);
+                    }
+
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                } else {
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                }
+            }
         }
 
         return Collections.unmodifiableSet(errors);

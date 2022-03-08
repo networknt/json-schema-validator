@@ -54,6 +54,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
+                addToEvaluatedProperties(at + "." + entry.getKey());
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
@@ -97,6 +98,18 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         }
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    private void addToEvaluatedProperties(String propertyPath) {
+        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        List<String> evaluatedPropertiesList = null;
+        if (evaluatedProperties == null) {
+            evaluatedPropertiesList = new ArrayList<>();
+            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
+        } else {
+            evaluatedPropertiesList = (List<String>) evaluatedProperties;
+        }
+        evaluatedPropertiesList.add(propertyPath);
     }
 
     @Override
