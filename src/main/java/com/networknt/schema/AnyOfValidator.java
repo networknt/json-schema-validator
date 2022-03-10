@@ -119,11 +119,9 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
     private void addEvaluatedProperties(Object backupEvaluatedProperties) {
         // Add all the evaluated properties.
-        if (backupEvaluatedProperties != null) {
-            List<String> backupEvaluatedPropertiesList = (List<String>) backupEvaluatedProperties;
-            backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
-        }
+        List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
+        backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
     }
 
     @Override

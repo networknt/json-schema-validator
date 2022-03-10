@@ -105,26 +105,24 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
             }
 
         } finally {
-            if (backupEvaluatedProperties != null) {
-                if (errors.isEmpty()) {
-                    List<String> backupEvaluatedPropertiesList = (List<String>) backupEvaluatedProperties;
+            if (errors.isEmpty()) {
+                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
 
-                    if (ifEvaluatedProperties != null) {
-                        backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
-                    }
-
-                    if (thenEvaluatedProperties != null) {
-                        backupEvaluatedPropertiesList.addAll((List<String>) thenEvaluatedProperties);
-                    }
-
-                    if (elseEvaluatedProperties != null) {
-                        backupEvaluatedPropertiesList.addAll((List<String>) elseEvaluatedProperties);
-                    }
-
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
-                } else {
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                if (ifEvaluatedProperties != null) {
+                    backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
                 }
+
+                if (thenEvaluatedProperties != null) {
+                    backupEvaluatedPropertiesList.addAll((List<String>) thenEvaluatedProperties);
+                }
+
+                if (elseEvaluatedProperties != null) {
+                    backupEvaluatedPropertiesList.addAll((List<String>) elseEvaluatedProperties);
+                }
+
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+            } else {
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
             }
         }
 
