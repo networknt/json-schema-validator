@@ -85,7 +85,7 @@ You can use GroovyKeyword like below:
 
 In this library, if the format keyword is "email", "uuid", "date", "date-time", default validator provided by the library will be used.
 
-If you want to override this behaivor, do as belows.
+If you want to override this behavior, do as below.
 
 ```
 public JsonSchemaFactory mySchemaFactory() {
