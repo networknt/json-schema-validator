@@ -231,7 +231,7 @@
     ]
   },
   {
-    "description": "schema with a anyOf",
+    "description": "schema with a allOf",
     "schema": {
       "title": "Person",
       "type": "object",
@@ -294,7 +294,7 @@
     },
     "tests": [
       {
-        "description": "Data with anyOf and one property",
+        "description": "Data with allOf and one property",
         "data": {
           "firstName": "First Name",
           "age": 18,
