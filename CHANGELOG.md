@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- fixes #532 Invalid (non-string) $schema produces NullPointerException
+
 ## 1.0.67 - 2022-03-05
 
 ### Changed
