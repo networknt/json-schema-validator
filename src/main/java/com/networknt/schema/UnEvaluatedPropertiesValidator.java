@@ -37,13 +37,17 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
         if (!schemaNode.isBoolean()) {
             return Collections.emptySet();
         }
+        // Check if unevaluatedProperties is false or true.
         boolean unevaluatedProperties = schemaNode.booleanValue();
+        // Process all paths in the data node.
+        List<String> allPaths = new ArrayList<>();
+        processAllPaths(node, at, allPaths);
+        // Process UnEvaluated Properties.
+        List<String> unEvaluatedProperties = getUnEvaluatedProperties(allPaths);
+        CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unEvaluatedProperties);
+        // Check for errors.
         if (!unevaluatedProperties) {
-            List<String> allPaths = new ArrayList<>();
-            processAllPaths(node, at, allPaths);
-            List<String> unEvaluatedProperties = getUnEvaluatedProperties(allPaths);
             if (!unEvaluatedProperties.isEmpty()) {
-                CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unEvaluatedProperties);
                 return Collections.singleton(buildValidationMessage(String.join(", ", unEvaluatedProperties)));
             }
         }
@@ -69,9 +73,10 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
         while (nodesIterator.hasNext()) {
             String fieldName = nodesIterator.next();
             JsonNode jsonNode = node.get(fieldName);
-            paths.add(at + "." + fieldName);
             if (jsonNode.isObject()) {
                 processAllPaths(jsonNode, at + "." + fieldName, paths);
+            } else {
+                paths.add(at + "." + fieldName);
             }
         }
     }

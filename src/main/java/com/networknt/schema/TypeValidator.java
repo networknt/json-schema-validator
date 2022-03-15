@@ -23,9 +23,7 @@ import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final String TYPE = "type";
@@ -121,7 +119,23 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
+        // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
+        if (schemaPath.endsWith("additionalProperties/type")) {
+            addToEvaluatedProperties(at);
+        }
         return Collections.emptySet();
+    }
+
+    private void addToEvaluatedProperties(String propertyPath) {
+        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        List<String> evaluatedPropertiesList = null;
+        if (evaluatedProperties == null) {
+            evaluatedPropertiesList = new ArrayList<>();
+            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
+        } else {
+            evaluatedPropertiesList = (List<String>) evaluatedProperties;
+        }
+        evaluatedPropertiesList.add(propertyPath);
     }
 
     public static boolean isInteger(String str) {

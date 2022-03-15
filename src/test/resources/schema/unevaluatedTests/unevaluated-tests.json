@@ -7,6 +7,10 @@
       "definitions": {
         "address": {
           "properties": {
+            "residence": {
+              "$ref": "#/definitions/residence",
+              "description": "Residence details where the person lives"
+            },
             "city": {
               "type": "string",
               "description": "City where the person lives."
@@ -21,6 +25,17 @@
             }
           },
           "unevaluatedProperties": false
+        },
+        "residence": {
+          "flatNumber": {
+            "type": "string"
+          },
+          "flatName": {
+            "type": "string"
+          },
+          "landmark": {
+            "type": "string"
+          }
         }
       },
       "properties": {
@@ -46,7 +61,7 @@
     },
     "tests": [
       {
-        "description": "Basic Test",
+        "description": "Basic Success Test",
         "data": {
           "firstName": "First Name",
           "age": 18,
@@ -57,6 +72,75 @@
           }
         },
         "valid": true
+      },
+      {
+        "description": "Unevaluated Property - Outside $ref",
+        "data": {
+          "firstName": "First Name",
+          "invalid": 18,
+          "lastName": "Last Name",
+          "address": {
+            "city": "Hyderabad",
+            "pinCode": 500025
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.invalid"
+        ]
+      },
+      {
+        "description": "Unevaluated Property - inside $ref",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "address": {
+            "city": "Hyderabad",
+            "pinCode": 500025,
+            "invalid": "invalid"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.address.invalid"
+        ]
+      },
+      {
+        "description": "Unevaluated - multiple properties",
+        "data": {
+          "invalid1": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "address": {
+            "city": "Hyderabad",
+            "pinCode": 500025,
+            "invalid2": "invalid"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.invalid1, $.address.invalid2"
+        ]
+      },
+      {
+        "description": "Inside nested $ref",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "address": {
+            "city": "Hyderabad",
+            "pinCode": 500025,
+            "residence": {
+              "invalid": ""
+            }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.address.residence.invalid"
+        ]
       }
     ]
   },
@@ -137,18 +221,52 @@
         "valid": true
       },
       {
-        "description": "Data with oneOf and three properties",
+        "description": "Data which satisfies 2 oneOf schemas",
         "data": {
           "firstName": "First Name",
           "age": 18,
           "lastName": "Last Name",
           "vehicle": {
-            "headlights": "headlights",
-            "wheels": "wheels",
-            "pontoons": "pontoons"
+            "pontoons": "pontoons",
+            "wings": "wings"
           }
         },
-        "valid": false
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.pontoons, $.vehicle.wings"
+        ]
+      },
+      {
+        "description": "Data which satisfies 2 oneOf schemas and an invalid prop",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons",
+            "wings": "wings",
+            "invalid": "invalid"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.pontoons, $.vehicle.wings, $.vehicle.invalid"
+        ]
+      },
+      {
+        "description": "Data which doesn't satisfy any of oneOf schemas but having an invalid prop",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "invalid": "invalid"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.invalid"
+        ]
       }
     ]
   },
@@ -217,7 +335,7 @@
     },
     "tests": [
       {
-        "description": "Data with anyOf and one property",
+        "description": "Data with 1 valid AnyOf",
         "data": {
           "firstName": "First Name",
           "age": 18,
@@ -227,6 +345,54 @@
           }
         },
         "valid": true
+      },
+      {
+        "description": "Data with 1 AnyOf and 1 unevaluated property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons",
+            "unevaluated": true
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+        ]
+      },
+      {
+        "description": "Data with just unevaluated property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "unevaluated": true
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+        ]
+      },
+      {
+        "description": "Data with 2 valid AnyOf and 1 unevaluated property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons",
+            "wings": "wings",
+            "unevaluated": true
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.wings, $.vehicle.unevaluated"
+        ]
       }
     ]
   },
@@ -294,7 +460,7 @@
     },
     "tests": [
       {
-        "description": "Data with allOf and one property",
+        "description": "Data with allOf",
         "data": {
           "firstName": "First Name",
           "age": 18,
@@ -306,6 +472,23 @@
           }
         },
         "valid": true
+      },
+      {
+        "description": "Data with invalid allOf and one unevaluated property",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "wheels": "wheels",
+            "pontoons": "pontoons",
+            "unevaluated": true
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+        ]
       }
     ]
   },
@@ -326,7 +509,9 @@
             "minimum": 0
           }
         },
-        "required": ["firstName"]
+        "required": [
+          "firstName"
+        ]
       },
       "then": {
         "properties": {
@@ -352,6 +537,97 @@
         "data": {
           "age": 18,
           "surName": "Sur Name"
+        },
+        "valid": true
+      },
+      {
+        "description": "Data - else schema with one unevaluated property",
+        "data": {
+          "age": 18,
+          "surName": "Sur Name",
+          "unevaluated": true
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at following paths $.unevaluated"
+        ]
+      }
+    ]
+  },
+  {
+    "description": "schema with additional properties as object",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": {
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The person's location."
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Data with additional properties as object",
+        "data": {
+          "age": 18,
+          "otherProperty": {
+            "location": "hello"
+          }
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "schema with additional properties as type",
+    "schema": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "The person's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The person's last name."
+        },
+        "age": {
+          "description": "Age in years which must be equal to or greater than zero.",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Data with additional properties as type",
+        "data": {
+          "age": 18,
+          "otherProperty": "test"
         },
         "valid": true
       }
