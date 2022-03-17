@@ -139,7 +139,7 @@ public class JsonSchemaFactory {
             this.urnFactory = urnFactory;
             return this;
         }
-        
+
         public Builder forceHttps(boolean forceHttps) {
             this.forceHttps = forceHttps;
             return this;
@@ -290,6 +290,9 @@ public class JsonSchemaFactory {
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
         final JsonNode uriNode = schemaNode.get("$schema");
+        if (uriNode != null && !uriNode.isNull() && !uriNode.isTextual()) {
+            throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
+        }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps, removeEmptyFragmentSuffix);
         final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
         if (jsonMetaSchema == null) {
