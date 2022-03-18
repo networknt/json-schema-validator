@@ -61,6 +61,12 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
         String typeValidatorName = "anyOf/type";
 
+        // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
         try {
             for (JsonSchema schema : schemas) {
                 if (schema.getValidators().containsKey(typeValidatorName)) {
@@ -74,11 +80,18 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 }
                 Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
                 if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
+                    // Clear all errors.
+                    allErrors.clear();
+                    // return empty errors.
                     return errors;
                 } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     if (discriminatorContext.isDiscriminatorMatchFound()) {
                         if (!errors.isEmpty()) {
                             errors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
+                            allErrors.addAll(errors);
+                        } else {
+                            // Clear all errors.
+                            allErrors.clear();
                         }
                         return errors;
                     }
@@ -95,8 +108,20 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 validationContext.leaveDiscriminatorContextImmediately(at);
             }
+            if (allErrors.isEmpty()) {
+                addEvaluatedProperties(backupEvaluatedProperties);
+            } else {
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+            }
         }
         return Collections.unmodifiableSet(allErrors);
+    }
+
+    private void addEvaluatedProperties(Object backupEvaluatedProperties) {
+        // Add all the evaluated properties.
+        List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
+        backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
     }
 
     @Override

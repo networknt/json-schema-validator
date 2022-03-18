@@ -74,7 +74,8 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     CONTAINS("contains", "1043", new MessageFormat(I18nSupport.getString("contains")), ContainsValidator.class, 14),
     PROPERTYNAMES("propertyNames", "1044", new MessageFormat(I18nSupport.getString("propertyNames")), PropertyNamesValidator.class, 14),
     DEPENDENT_REQUIRED("dependentRequired", "1045", new MessageFormat(I18nSupport.getString("dependentRequired")), DependentRequired.class, 8), // V201909
-    DEPENDENT_SCHEMAS("dependentSchemas", "1046", new MessageFormat(I18nSupport.getString("dependentSchemas")), DependentSchemas.class, 8); // V201909
+    DEPENDENT_SCHEMAS("dependentSchemas", "1046", new MessageFormat(I18nSupport.getString("dependentSchemas")), DependentSchemas.class, 8), // V201909
+    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",new MessageFormat(I18nSupport.getString("unevaluatedProperties")),UnEvaluatedPropertiesValidator.class,14);
 
     private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
     private static SpecVersion specVersion = new SpecVersion();
