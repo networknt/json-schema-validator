@@ -62,7 +62,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     TYPE("type", "1029", new MessageFormat(I18nSupport.getString("type")), TypeValidator.class, 15),
     UNION_TYPE("unionType", "1030", new MessageFormat(I18nSupport.getString("unionType")), UnionTypeValidator.class, 15),
     UNIQUE_ITEMS("uniqueItems", "1031", new MessageFormat(I18nSupport.getString("uniqueItems")), UniqueItemsValidator.class, 15),
-    DATETIME("date-time", "1034", new MessageFormat(I18nSupport.getString("date-time")), null, 15),
+    DATETIME("dateTime", "1034", new MessageFormat(I18nSupport.getString("dateTime")), null, 15),
     UUID("uuid", "1035", new MessageFormat(I18nSupport.getString("uuid")), null, 15),
     ID("id", "1036", new MessageFormat(I18nSupport.getString("id")), null, 15),
     IF_THEN_ELSE("if", "1037", null, IfValidator.class, 12),  // V7|V201909
