@@ -93,7 +93,7 @@ class Issue491Test {
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue491-invalid-1.json");
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(1, errors.size());
         Assertions.assertEquals("$.search.searchAge.age: string found, integer expected", errors.iterator().next().getMessage());
     }
 
@@ -104,7 +104,7 @@ class Issue491Test {
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue491-invalid-2.json");
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(1, errors.size());
         Assertions.assertEquals("$.search.name: integer found, string expected", errors.iterator().next().getMessage());
     }
 
@@ -115,7 +115,7 @@ class Issue491Test {
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue491-invalid-3.json");
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(1, errors.size());
         Assertions.assertEquals("$.search.byAge.age: string found, integer expected", errors.iterator().next().getMessage());
     }
 
@@ -126,7 +126,7 @@ class Issue491Test {
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue491-invalid-2.json");
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(1, errors.size());
         Assertions.assertEquals("$.search.name: integer found, string expected", errors.iterator().next().getMessage());
     }
 
@@ -138,7 +138,7 @@ class Issue491Test {
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData(jsonPath);
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(1, errors.size());
         Assertions.assertEquals(expectedError, errors.iterator().next().getMessage());
     }
 
