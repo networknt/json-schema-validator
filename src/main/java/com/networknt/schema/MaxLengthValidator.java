@@ -26,8 +26,6 @@ import java.util.Set;
 public class MaxLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxLengthValidator.class);
 
-    private final ValidationContext validationContext;
-
     private int maxLength;
 
     public MaxLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

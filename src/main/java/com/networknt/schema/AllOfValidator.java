@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
-    private final ValidationContext validationContext;
     private final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
 
     public AllOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

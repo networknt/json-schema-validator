@@ -1,0 +1,39 @@
+package com.networknt.schema;
+
+import java.util.Arrays;
+
+public class Version201909 extends JsonSchemaVersion{
+    private static String URI = "https://json-schema.org/draft/2019-09/schema";
+    private static final String ID = "$id";
+
+    static {
+        // add version specific formats here.
+        //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+    }
+    @Override
+    JsonMetaSchema getInstance() {
+        return new JsonMetaSchema.Builder(URI)
+                .idKeyword(ID)
+                .addFormats(BUILTIN_FORMATS)
+                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
+                // keywords that may validly exist, but have no validation aspect to them
+                .addKeywords(Arrays.asList(
+                        new NonValidationKeyword("$schema"),
+                        new NonValidationKeyword("$id"),
+                        new NonValidationKeyword("title"),
+                        new NonValidationKeyword("description"),
+                        new NonValidationKeyword("default"),
+                        new NonValidationKeyword("definitions"),
+                        new NonValidationKeyword("$comment"),
+                        new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
+                        new NonValidationKeyword("$anchor"),
+                        new NonValidationKeyword("additionalItems"),
+                        new NonValidationKeyword("deprecated"),
+                        new NonValidationKeyword("contentMediaType"),
+                        new NonValidationKeyword("contentEncoding"),
+                        new NonValidationKeyword("examples"),
+                        new NonValidationKeyword("then")
+                ))
+                .build();
+    }
+}

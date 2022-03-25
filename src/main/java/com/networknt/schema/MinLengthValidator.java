@@ -26,8 +26,6 @@ import java.util.Set;
 public class MinLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinLengthValidator.class);
 
-    private final ValidationContext validationContext;
-
     private int minLength;
 
     public MinLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

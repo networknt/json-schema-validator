@@ -31,7 +31,6 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     private final List<JsonValidator> schemas = new ArrayList<JsonValidator>();
     private final String error;
 
-    private final ValidationContext validationContext;
 
     public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);

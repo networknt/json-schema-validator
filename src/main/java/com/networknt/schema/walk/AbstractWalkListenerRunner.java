@@ -11,10 +11,6 @@ import java.util.Set;
 
 public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 
-    protected String getKeywordName(String keyWordPath) {
-        return keyWordPath.substring(keyWordPath.lastIndexOf('/') + 1);
-    }
-
     protected WalkEvent constructWalkEvent(String keyWordName, JsonNode node, JsonNode rootNode, String at,
                                            String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
                                            JsonSchemaFactory currentJsonSchemaFactory) {

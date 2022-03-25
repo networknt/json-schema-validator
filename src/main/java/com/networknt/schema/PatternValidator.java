@@ -63,7 +63,6 @@ public class PatternValidator implements JsonValidator {
 
     private static class PatternValidatorJava extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
-        private final ValidationContext validationContext;
         private String pattern;
         private Pattern compiledPattern;
 
@@ -110,7 +109,6 @@ public class PatternValidator implements JsonValidator {
 
     private static class PatternValidatorEcma262 extends BaseJsonValidator implements JsonValidator {
         private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
-        private final ValidationContext validationContext;
         private String pattern;
         private Regex compiledRegex;
 

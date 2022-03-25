@@ -35,7 +35,6 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
     private boolean additionalItems = true;
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
-    private final ValidationContext validationContext;
 
     public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {

@@ -29,7 +29,6 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
-    private final ValidationContext validationContext;
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
     public AnyOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

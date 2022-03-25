@@ -30,8 +30,6 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
 
     private final ThresholdMixin typedMaximum;
 
-    private final ValidationContext validationContext;
-
     public ExclusiveMaximumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MAXIMUM, validationContext);
         this.validationContext = validationContext;

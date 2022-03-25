@@ -32,7 +32,6 @@ public class MaximumValidator extends BaseJsonValidator implements JsonValidator
     private boolean excludeEqual = false;
 
     private final ThresholdMixin typedMaximum;
-    private final ValidationContext validationContext;
 
 
     public MaximumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
