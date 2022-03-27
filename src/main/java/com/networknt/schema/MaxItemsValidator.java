@@ -27,7 +27,6 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
 
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
 
-    private final ValidationContext validationContext;
 
     private int max = 0;
 

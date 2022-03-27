@@ -62,7 +62,7 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
     private final boolean allowTld = false;
     private final String formatName;
 
-    private final ValidationContext validationContext;
+
 
     /**
      * <p>Checks if a field has a valid e-mail address.</p>

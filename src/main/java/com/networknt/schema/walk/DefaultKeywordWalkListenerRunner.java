@@ -15,6 +15,10 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
         this.keywordWalkListenersMap = keywordWalkListenersMap;
     }
 
+    protected String getKeywordName(String keyWordPath) {
+        return keyWordPath.substring(keyWordPath.lastIndexOf('/') + 1);
+    }
+
     @Override
     public boolean runPreWalkListeners(String keyWordPath, JsonNode node, JsonNode rootNode, String at,
                                        String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,

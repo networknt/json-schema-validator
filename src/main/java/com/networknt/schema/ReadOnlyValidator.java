@@ -64,10 +64,7 @@ public class ReadOnlyValidator extends BaseJsonValidator implements JsonValidato
     }
 
     private JsonNode getNode(String datapath, JsonNode data) {
-        String path = datapath;
-        if (path.startsWith("$.")) {
-            path = path.substring(2);
-        }
+        String path = getSubString(datapath,"$.");
 
         String[] parts = path.split("\\.");
         JsonNode result = null;
@@ -87,6 +84,14 @@ public class ReadOnlyValidator extends BaseJsonValidator implements JsonValidato
             data = result;
         }
         return result;
+    }
+
+    private String getSubString(String datapath, String keyword){
+        String path = datapath;
+        if (path.startsWith(keyword)) {
+            path = path.substring(2);
+        }
+        return path;
     }
 
 }

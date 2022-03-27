@@ -240,25 +240,31 @@ public class JsonSchemaFactory {
     }
 
     public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
-        JsonMetaSchema metaSchema = null;
-        switch (versionFlag) {
-            case V201909:
-                metaSchema = JsonMetaSchema.getV201909();
-                break;
-            case V7:
-                metaSchema = JsonMetaSchema.getV7();
-                break;
-            case V6:
-                metaSchema = JsonMetaSchema.getV6();
-                break;
-            case V4:
-                metaSchema = JsonMetaSchema.getV4();
-                break;
-        }
+        JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
+        JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
         return builder()
                 .defaultMetaSchemaURI(metaSchema.getUri())
                 .addMetaSchema(metaSchema)
                 .build();
+    }
+
+    public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
+        JsonSchemaVersion jsonSchemaVersion = null;
+        switch (versionFlag) {
+            case V201909:
+                jsonSchemaVersion = new Version201909();
+                break;
+            case V7:
+                jsonSchemaVersion = new Version7();
+                break;
+            case V6:
+                jsonSchemaVersion = new Version6();
+                break;
+            case V4:
+                jsonSchemaVersion = new Version4();
+                break;
+        }
+        return jsonSchemaVersion;
     }
 
     public static Builder builder(final JsonSchemaFactory blueprint) {

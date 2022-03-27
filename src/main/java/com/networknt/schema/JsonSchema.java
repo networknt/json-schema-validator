@@ -39,7 +39,6 @@ import com.networknt.schema.walk.WalkListenerRunner;
 public class JsonSchema extends BaseJsonValidator {
     private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     private Map<String, JsonValidator> validators;
-    private final ValidationContext validationContext;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
 

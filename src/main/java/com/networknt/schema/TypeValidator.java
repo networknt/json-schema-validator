@@ -35,7 +35,6 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
     private JsonType schemaType;
     private JsonSchema parentSchema;
     private UnionTypeValidator unionTypeValidator;
-    private final ValidationContext validationContext;
 
     public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);

@@ -104,15 +104,15 @@ public class JsonNodeUtil {
                 }
                 if (nodeType == JsonType.STRING) {
                     if (schemaType == JsonType.INTEGER) {
-                        if (isInteger(node.textValue())) {
+                        if (StringChecker.isInteger(node.textValue())) {
                             return true;
                         }
                     } else if (schemaType == JsonType.BOOLEAN) {
-                        if (isBoolean(node.textValue())) {
+                        if (StringChecker.isBoolean(node.textValue())) {
                             return true;
                         }
                     } else if (schemaType == JsonType.NUMBER) {
-                        if (isNumeric(node.textValue())) {
+                        if (StringChecker.isNumeric(node.textValue())) {
                             return true;
                         }
                     }
@@ -123,105 +123,6 @@ public class JsonNodeUtil {
         }
         return true;
     }
-    public static boolean isInteger(String str) {
-        if (str == null || str.equals("")) {
-            return false;
-        }
-
-        // all code below could be replaced with
-        //return str.matrch("[-+]?(?:0|[1-9]\\d*)")
-        int i = 0;
-        if (str.charAt(0) == '-' || str.charAt(0) == '+') {
-            if (str.length() == 1) {
-                return false;
-            }
-            i = 1;
-        }
-        for (; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (c < '0' || c > '9') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isBoolean(String s) {
-        return "true".equals(s) || "false".equals(s);
-    }
-
-    public static boolean isNumeric(String str) {
-        if (str == null || str.equals("")) {
-            return false;
-        }
-
-        // all code below could be replaced with
-        //return str.matrch("[-+]?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?")
-        int i = 0;
-        int len = str.length();
-
-        if (str.charAt(i) == MINUS || str.charAt(i) == PLUS) {
-            if (str.length() == 1) {
-                return false;
-            }
-            i = 1;
-        }
-
-        char c = str.charAt(i++);
-
-        if (c == CHAR_0) {
-            // TODO: if leading zeros are supported (counter to JSON spec) handle it here
-            if (i < len) {
-                c = str.charAt(i++);
-                if (c != DOT && c != CHAR_E && c != CHAR_e) {
-                    return false;
-                }
-            }
-        } else if (CHAR_1 <= c && c <= CHAR_9) {
-            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
-                c = str.charAt(i++);
-            }
-        } else {
-            return false;
-        }
-
-        if (c == DOT) {
-            if (i >= len) {
-                return false;
-            }
-            c = str.charAt(i++);
-            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
-                c = str.charAt(i++);
-            }
-        }
-
-        if (c == CHAR_E || c == CHAR_e) {
-            if (i >= len) {
-                return false;
-            }
-            c = str.charAt(i++);
-            if (c == PLUS || c == MINUS) {
-                if (i >= len) {
-                    return false;
-                }
-                c = str.charAt(i++);
-            }
-            while (i < len && CHAR_0 <= c && c <= CHAR_9) {
-                c = str.charAt(i++);
-            }
-        }
-
-        return i >= len && (CHAR_0 <= c && c <= CHAR_9);
-    }
-
-    private static final char CHAR_0 = '0';
-    private static final char CHAR_1 = '1';
-    private static final char CHAR_9 = '9';
-    private static final char MINUS = '-';
-    private static final char PLUS = '+';
-    private static final char DOT = '.';
-    private static final char CHAR_E = 'E';
-    private static final char CHAR_e = 'e';
 
     /**
      * Check if the type of the JsonNode's value is number based on the
@@ -236,7 +137,7 @@ public class JsonNodeUtil {
             return true;
         } else if (config.isTypeLoose()) {
             if (TypeFactory.getValueNodeType(node, config) == JsonType.STRING) {
-                return isNumeric(node.textValue());
+                return StringChecker.isNumeric(node.textValue());
             }
         }
         return false;

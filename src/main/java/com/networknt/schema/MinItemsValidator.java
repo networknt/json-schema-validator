@@ -26,8 +26,6 @@ import java.util.Set;
 public class MinItemsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinItemsValidator.class);
 
-    private final ValidationContext validationContext;
-
     private int min = 0;
 
     public MinItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

@@ -30,8 +30,6 @@ import java.util.Set;
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
 
-    private final ValidationContext validationContext;
-
     private final String formatName;
     private final String DATE = "date";
     private final String DATETIME = "date-time";
