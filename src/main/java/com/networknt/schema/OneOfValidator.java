@@ -308,8 +308,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             msg = msg.concat(schemaValue);
         }
 
-        return ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ONE_OF ,
-                at, String.format("but more than one schemas {%s} are valid ",msg));
+        return ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ONE_OF, at, msg);
     }
 
     @Override
