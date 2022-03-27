@@ -10,7 +10,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- fixes #532 Invalid (non-string) $schema produces NullPointerException
+## 1.0.68 - 2022-03-27
+
+### Added
+
+- fixes #534 Adding Unevaluated properties keyword. Thanks @prashanthjos
+
+### Changed
+
+- fixes #537 Fix oneOf bug. Thanks @RenegadeWizard and @sychlak
+- fixes #511 Improve validation messages (German and default) Thanks @AndreasALoew
+- fixes #539 Refactoring-code. Thanks @Sahil3198
+- fixes #532 Invalid (non-string) $schema produces NullPointerException. Thanks @christi-square
+- fixes #530 Fixed a typo in the validators documentation. Thanks @jontrost
+- fixes #529 Updates to German translation. Thanks @rustermi
 
 ## 1.0.67 - 2022-03-05
 
