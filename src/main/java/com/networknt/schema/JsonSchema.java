@@ -223,6 +223,9 @@ public class JsonSchema extends BaseJsonValidator {
      * so that we can apply default values before validating required.
      */
     private static Comparator<String> VALIDATOR_SORT = (lhs, rhs) -> {
+        if (lhs.equals(rhs)) {
+            return 0;
+        }
         if (lhs.endsWith("/properties")) {
             return -1;
         }
