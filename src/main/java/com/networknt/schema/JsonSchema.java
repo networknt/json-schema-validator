@@ -219,7 +219,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
-     * A comparator that sorts validators, such such that 'properties' comes before 'required',
+     * A comparator that sorts validators, such that 'properties' comes before 'required',
      * so that we can apply default values before validating required.
      */
     private static Comparator<String> VALIDATOR_SORT = (lhs, rhs) -> {
