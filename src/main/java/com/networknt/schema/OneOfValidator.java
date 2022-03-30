@@ -190,7 +190,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             Set<ValidationMessage> childNotRequiredErrors = childErrors.stream().filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType())).collect(Collectors.toSet());
 
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-            // TODO We need to break it into two errors in the future. 
+            // TODO We need to break it into two errors in the future.
             if (numberOfValidSchema != 1) {
                 final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
                 if (failFast) {

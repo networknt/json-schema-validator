@@ -113,6 +113,11 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
             }
         }
+        if (!allErrors.isEmpty()) {
+            List<String> childSchemaErrorMessages = allErrors.stream().map(ValidationMessage::getMessage).collect(Collectors.toList());
+            String childMessages = String.join(", ", childSchemaErrorMessages);
+            return Collections.singleton(ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ANY_OF, at, childMessages));
+        }
         return Collections.unmodifiableSet(allErrors);
     }
 
@@ -129,12 +134,12 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         for (JsonSchema schema : schemas) {
             results.add(schema.walk(node, rootNode, at, shouldValidateSchema));
         }
-        if(! shouldValidateSchema) {
+        if (!shouldValidateSchema) {
             return new LinkedHashSet<>();
         }
         boolean atLeastOneValid = results.stream()
                 .anyMatch(Set::isEmpty);
-        if(atLeastOneValid) {
+        if (atLeastOneValid) {
             return new LinkedHashSet<>();
         }
         return results.stream()

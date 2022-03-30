@@ -105,7 +105,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
         }
 
         if(!childSchemaErrors.isEmpty()){
-            List<String> childSchemaErrorMessages = childSchemaErrors.stream().map(schemas -> schemas.getMessage()).collect(Collectors.toList());
+            List<String> childSchemaErrorMessages = childSchemaErrors.stream().map(ValidationMessage::getMessage).collect(Collectors.toList());
             String childMessages = String.join(", ", childSchemaErrorMessages);
             return Collections.singleton(ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ALL_OF, at, childMessages));
         }
