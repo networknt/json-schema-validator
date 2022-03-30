@@ -13,7 +13,6 @@ public class OneOfValidatorTest {
     private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SCHEMA_VERSION);
     private static final ObjectMapper mapper = new ObjectMapper();
 
-
     public static final String ONE_OF_VALIDATOR = "src/test/resources/data/issue520";
 
     @Test
