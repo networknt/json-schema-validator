@@ -191,7 +191,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             Set<ValidationMessage> childNotRequiredErrors = childErrors.stream().filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType())).collect(Collectors.toSet());
 
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-            if (numberOfValidSchema > 1) {
+            if (numberOfValidSchema > 1||numberOfValidSchema < 1) {
                 final ValidationMessage message = getMultiSchemasValidErrorMsg(at);
                 if (failFast) {
                     throw new JsonSchemaException(message);
@@ -200,26 +200,26 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             }
 
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-            else if (numberOfValidSchema < 1) {
-                if (!childNotRequiredErrors.isEmpty()) {
-                    childErrors = childNotRequiredErrors;
-                }
-                if (!childErrors.isEmpty()) {
-                    if (childErrors.size() > 1) {
-                        Set<ValidationMessage> notAdditionalPropertiesOnly = new LinkedHashSet<>(childErrors.stream()
-                                .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
-                                .sorted((vm1, vm2) -> compareValidationMessages(vm1, vm2))
-                                .collect(Collectors.toList()));
-                        if (notAdditionalPropertiesOnly.size() > 0) {
-                            childErrors = notAdditionalPropertiesOnly;
-                        }
-                    }
-                    errors.addAll(childErrors);
-                }
-                if (failFast) {
-                    throw new JsonSchemaException(errors.toString());
-                }
-            }
+//            else if (numberOfValidSchema < 1) {
+//                if (!childNotRequiredErrors.isEmpty()) {
+//                    childErrors = childNotRequiredErrors;
+//                }
+//                if (!childErrors.isEmpty()) {
+//                    if (childErrors.size() > 1) {
+//                        Set<ValidationMessage> notAdditionalPropertiesOnly = new LinkedHashSet<>(childErrors.stream()
+//                                .filter((ValidationMessage validationMessage) -> !ValidatorTypeCode.ADDITIONAL_PROPERTIES.getValue().equals(validationMessage.getType()))
+//                                .sorted((vm1, vm2) -> compareValidationMessages(vm1, vm2))
+//                                .collect(Collectors.toList()));
+//                        if (notAdditionalPropertiesOnly.size() > 0) {
+//                            childErrors = notAdditionalPropertiesOnly;
+//                        }
+//                    }
+//                    errors.addAll(childErrors);
+//                }
+//                if (failFast) {
+//                    throw new JsonSchemaException(errors.toString());
+//                }
+//            }
 
             // Make sure to signal parent handlers we matched
             if (errors.isEmpty())
