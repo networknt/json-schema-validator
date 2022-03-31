@@ -119,7 +119,8 @@ public class TypeValidator extends BaseJsonValidator implements JsonValidator {
             return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
         }
         // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
-        if (schemaPath.endsWith("additionalProperties/type")) {
+        // Hack to catch patternProperties like "^foo":"value"
+        if (schemaPath.endsWith("/type")) {
             addToEvaluatedProperties(at);
         }
         return Collections.emptySet();

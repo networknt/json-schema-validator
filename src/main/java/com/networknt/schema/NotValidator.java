@@ -20,9 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class NotValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
@@ -37,17 +35,37 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+        Set<ValidationMessage> errors = new HashSet<>();
 
-        Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
-        if (errors.isEmpty()) {
-            return Collections.singleton(buildValidationMessage(at, schema.toString()));
+        //As not will contain a schema take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+        try {
+            debug(logger, node, rootNode, at);
+            errors = schema.validate(node, rootNode, at);
+            if (errors.isEmpty()) {
+                return Collections.singleton(buildValidationMessage(at, schema.toString()));
+            }
+            return Collections.emptySet();
+        } finally {
+            if (errors.isEmpty()) {
+                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
+                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+            } else {
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+            }
         }
-        return Collections.emptySet();
     }
     
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        if (shouldValidateSchema) {
+            return validate(node, rootNode, at);
+        }
     	return schema.walk(node, rootNode, at, shouldValidateSchema);
     }
 

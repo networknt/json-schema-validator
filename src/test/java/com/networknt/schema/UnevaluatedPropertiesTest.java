@@ -12,7 +12,7 @@ public class UnevaluatedPropertiesTest extends BaseSuiteJsonSchemaTest {
 
 
     @Test
-    public void testWalk() throws Exception {
+    public void testUnevaluatedProperties() throws Exception {
         runTestFile("schema/unevaluatedTests/unevaluated-tests.json");
     }
 }

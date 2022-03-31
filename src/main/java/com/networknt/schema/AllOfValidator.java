@@ -54,12 +54,21 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
         // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
         Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
 
-        // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        List<String> totalEvaluatedProperties = new ArrayList<>();
 
         for (JsonSchema schema : schemas) {
             try {
-                errors.addAll(schema.validate(node, rootNode, at));
+                // Make the evaluatedProperties list empty.
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+                Set<ValidationMessage> localErrors = schema.validate(node, rootNode, at);
+
+                errors.addAll(localErrors);
+
+                // Keep Collecting total evaluated properties.
+                if (localErrors.isEmpty()) {
+                    totalEvaluatedProperties.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                }
 
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     final Iterator<JsonNode> arrayElements = schemaNode.elements();
@@ -95,7 +104,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
             } finally {
                 if (errors.isEmpty()) {
                     List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                    backupEvaluatedPropertiesList.addAll(totalEvaluatedProperties);
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
                 } else {
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);

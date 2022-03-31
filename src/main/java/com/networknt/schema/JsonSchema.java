@@ -258,8 +258,6 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(JsonNode node) {
         Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
-        // Process UnEvaluatedProperties after all the validators are called.
-        errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, true, true));
         return errors;
     }
 
@@ -273,6 +271,10 @@ public class JsonSchema extends BaseJsonValidator {
         for (JsonValidator v : getValidators().values()) {
             errors.addAll(v.validate(jsonNode, rootNode, at));
         }
+
+        // Process UnEvaluatedProperties after all the validators are called if there are no errors.
+        errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
+
         if (null != config && config.isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator) {
@@ -325,8 +327,6 @@ public class JsonSchema extends BaseJsonValidator {
             CollectorContext collectorContext = getCollectorContext();
             // Validate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-            // Validate UnEvaluatedProperties after all the validators are processed.
-            errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
