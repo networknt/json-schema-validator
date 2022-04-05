@@ -72,7 +72,6 @@
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.14.Final</version.undertow>
         <version.itu>1.5.1</version.itu>
-        <version.commons.io>2.11.0</version.commons.io>
     </properties>
     <dependencies>
         <dependency>
@@ -120,12 +119,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${version.mockito}</version>
@@ -141,12 +134,6 @@
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
             <version>${version.undertow}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${version.commons.io}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
