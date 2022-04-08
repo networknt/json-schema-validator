@@ -26,6 +26,7 @@ public class ValidationMessage {
     private String type;
     private String code;
     private String path;
+    private String schemaPath;
     private String[] arguments;
     private Map<String, Object> details;
     private String message;
@@ -41,12 +42,26 @@ public class ValidationMessage {
         this.code = code;
     }
 
+    /**
+     * @return The path to the input json
+     */
     public String getPath() {
         return path;
     }
 
     void setPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * @return The path to the schema
+     */
+    public String getSchemaPath() {
+        return schemaPath;
+    }
+
+    public void setSchemaPath(String schemaPath) {
+        this.schemaPath = schemaPath;
     }
 
     public String[] getArguments() {
@@ -88,6 +103,7 @@ public class ValidationMessage {
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
+        if (schemaPath != null ? !schemaPath.equals(that.schemaPath) : that.schemaPath != null) return false;
         if (details != null ? !details.equals(that.details) : that.details != null) return false;
         if (!Arrays.equals(arguments, that.arguments)) return false;
         return !(message != null ? !message.equals(that.message) : that.message != null);
@@ -99,6 +115,7 @@ public class ValidationMessage {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (path != null ? path.hashCode() : 0);
+        result = 31 * result + (schemaPath != null ? schemaPath.hashCode() : 0);
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (arguments != null ? Arrays.hashCode(arguments) : 0);
         result = 31 * result + (message != null ? message.hashCode() : 0);
@@ -113,17 +130,17 @@ public class ValidationMessage {
         this.type = type;
     }
 
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String... arguments) {
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String schemaPath, String... arguments) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
-        builder.code(errorMessageType.getErrorCode()).path(at).arguments(arguments)
+        builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).arguments(arguments)
                 .format(errorMessageType.getMessageFormat()).type(type)
                 .customMessage(errorMessageType.getCustomMessage());
         return builder.build();
     }
 
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, Map<String, Object> details) {
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String schemaPath, Map<String, Object> details) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
-        builder.code(errorMessageType.getErrorCode()).path(at).details(details)
+        builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).details(details)
                 .format(errorMessageType.getMessageFormat()).type(type);
         return builder.build();
     }
@@ -132,6 +149,7 @@ public class ValidationMessage {
         private String type;
         private String code;
         private String path;
+        private String schemaPath;
         private String[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
@@ -149,6 +167,11 @@ public class ValidationMessage {
 
         public Builder path(String path) {
             this.path = path;
+            return this;
+        }
+
+        public Builder schemaPath(String schemaPath) {
+            this.schemaPath = schemaPath;
             return this;
         }
 
@@ -177,6 +200,7 @@ public class ValidationMessage {
             msg.setType(type);
             msg.setCode(code);
             msg.setPath(path);
+            msg.setSchemaPath(schemaPath);
             msg.setArguments(arguments);
             msg.setDetails(details);
 
