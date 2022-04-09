@@ -34,11 +34,11 @@ public abstract class AbstractJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage buildValidationMessage(ErrorMessageType errorMessageType, String at, String... arguments) {
-        return ValidationMessage.of(keyword, errorMessageType, at, arguments);
+        return ValidationMessage.of(keyword, errorMessageType, at, null, arguments);
     }
 
     protected ValidationMessage buildValidationMessage(ErrorMessageType errorMessageType, String at, Map<String, Object> details) {
-        return ValidationMessage.of(keyword, errorMessageType, at, details);
+        return ValidationMessage.of(keyword, errorMessageType, at, null, details);
     }
 
     protected Set<ValidationMessage> pass() {

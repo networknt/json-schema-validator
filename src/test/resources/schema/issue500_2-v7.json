@@ -1,0 +1,35 @@
+{
+  "$id": "https://example.com/person.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "firstName": {
+          "const": "John"
+        }
+      }
+    },
+    {
+      "properties": {
+        "lastName": {
+          "const": "Doe"
+        }
+      }
+    }
+  ]
+}
+

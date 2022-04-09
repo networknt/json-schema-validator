@@ -108,6 +108,7 @@ public class JsonSchema extends BaseJsonValidator {
                 throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(),
                         ValidatorTypeCode.ID,
                         id,
+                        schemaPath,
                         currentUri == null ? "null" : currentUri.toString()));
             }
         }
