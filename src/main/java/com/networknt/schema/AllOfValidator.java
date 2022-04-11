@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -50,7 +49,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<>();
+        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
         Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
@@ -103,7 +102,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             } finally {
-                if (childSchemaErrors.isEmpty()) {
+                if (errors.isEmpty()) {
                     List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
                     backupEvaluatedPropertiesList.addAll(totalEvaluatedProperties);
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
@@ -113,13 +112,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
 
-        if(!childSchemaErrors.isEmpty()){
-            List<String> childSchemaErrorMessages = childSchemaErrors.stream().map(ValidationMessage::getMessage).collect(Collectors.toList());
-            String childMessages = String.join(", ", childSchemaErrorMessages);
-            return Collections.singleton(ValidationMessage.of(getValidatorType().getValue(), ValidatorTypeCode.ALL_OF, at, childMessages));
-        }
-
-        return Collections.unmodifiableSet(childSchemaErrors);
+        return Collections.unmodifiableSet(errors);
     }
 
     @Override

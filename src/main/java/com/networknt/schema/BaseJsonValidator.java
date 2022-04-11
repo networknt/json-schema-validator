@@ -137,7 +137,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, arguments);
+        final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, schemaPath, arguments);
         if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
