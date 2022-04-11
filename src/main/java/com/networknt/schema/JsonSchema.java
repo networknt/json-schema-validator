@@ -424,6 +424,10 @@ public class JsonSchema extends BaseJsonValidator {
                         validationMessages);
             }
         }
+        if (shouldValidateSchema) {
+            // Process UnEvaluatedProperties after all the validators are called if there are no errors.
+            validationMessages.addAll(processUnEvaluatedProperties(node, rootNode, at, true, true));
+        }
         return validationMessages;
     }
 
