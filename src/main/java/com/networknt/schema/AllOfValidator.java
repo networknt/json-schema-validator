@@ -49,7 +49,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<ValidationMessage>();
 
         // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
         Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
@@ -63,13 +63,13 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
 
                 Set<ValidationMessage> localErrors = schema.validate(node, rootNode, at);
 
-                errors.addAll(localErrors);
+                childSchemaErrors.addAll(localErrors);
 
                 // Keep Collecting total evaluated properties.
                 if (localErrors.isEmpty()) {
                     totalEvaluatedProperties.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
                 }
-                childSchemaErrors.addAll(schema.validate(node, rootNode, at));
+                
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     final Iterator<JsonNode> arrayElements = schemaNode.elements();
                     while (arrayElements.hasNext()) {
@@ -102,7 +102,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             } finally {
-                if (errors.isEmpty()) {
+                if (childSchemaErrors.isEmpty()) {
                     List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
                     backupEvaluatedPropertiesList.addAll(totalEvaluatedProperties);
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
@@ -112,7 +112,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
 
-        return Collections.unmodifiableSet(errors);
+        return Collections.unmodifiableSet(childSchemaErrors);
     }
 
     @Override
