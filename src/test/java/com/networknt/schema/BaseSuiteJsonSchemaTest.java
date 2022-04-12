@@ -106,12 +106,14 @@ public abstract class BaseSuiteJsonSchemaTest {
                     } else {
                         if (errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
+                            System.out.println("Description: " + test.get("description"));
                             System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
                         } else {
                             JsonNode errorCount = test.get("errorCount");
                             if (errorCount != null && errorCount.isInt() && errors.size() != errorCount.asInt()) {
                                 System.out.println("---- test case failed ----");
+                                System.out.println("Description: " + test.get("description"));
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
@@ -125,6 +127,7 @@ public abstract class BaseSuiteJsonSchemaTest {
                     ArrayNode expectedValidationMesgs = (ArrayNode) test.get(VALIDATION_MESSAGES);
                     if (errors.isEmpty() && expectedValidationMesgs != null && expectedValidationMesgs.size() > 0) {
                         System.out.println("---- test case failed ----");
+                        System.out.println("Description: " + test.get("description"));
                         System.out.println("schema: " + schema);
                         System.out.println("data: " + test.get("data"));
                         System.out.println("Expected Validation Messages: " + expectedValidationMesgs);
@@ -143,6 +146,7 @@ public abstract class BaseSuiteJsonSchemaTest {
                             }
                             if (!found) {
                                 System.out.println("---- test case failed ----");
+                                System.out.println("Description: " + test.get("description"));
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);

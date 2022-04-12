@@ -258,10 +258,14 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(JsonNode node) {
-        Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
-        // Process UnEvaluatedProperties after all the validators are called.
-        errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, true, true));
-        return errors;
+        try {
+            Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
+            return errors;
+        } finally {
+            if (validationContext.getConfig().isResetCollectorContext()) {
+                CollectorContext.getInstance().reset();
+            }
+        }
     }
 
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
@@ -274,6 +278,10 @@ public class JsonSchema extends BaseJsonValidator {
         for (JsonValidator v : getValidators().values()) {
             errors.addAll(v.validate(jsonNode, rootNode, at));
         }
+
+        // Process UnEvaluatedProperties after all the validators are called if there are no errors.
+        errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
+
         if (null != config && config.isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator) {
@@ -324,10 +332,10 @@ public class JsonSchema extends BaseJsonValidator {
             SchemaValidatorsConfig config = validationContext.getConfig();
             // Get the collector context from the thread local.
             CollectorContext collectorContext = getCollectorContext();
+            // Set the walkEnabled and isValidationEnabled flag in internal validator state.
+            setValidatorState(false, true);
             // Validate.
             Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-            // Validate UnEvaluatedProperties after all the validators are processed.
-            errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
@@ -337,7 +345,9 @@ public class JsonSchema extends BaseJsonValidator {
             ValidationResult validationResult = new ValidationResult(errors, collectorContext);
             return validationResult;
         } finally {
-            ThreadInfo.remove(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
+            if (validationContext.getConfig().isResetCollectorContext()) {
+                CollectorContext.getInstance().reset();
+            }
         }
     }
 
@@ -353,24 +363,30 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        // Get the config.
-        SchemaValidatorsConfig config = validationContext.getConfig();
-        // Get the collector context from the thread local.
-        CollectorContext collectorContext = getCollectorContext();
-        // Set the walkEnabled flag in internal validator state.
-        setValidatorState(true, shouldValidateSchema);
-        // Walk through the schema.
-        Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
-        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-        if (config.doLoadCollectors()) {
-            // Load all the data from collectors into the context.
-            collectorContext.loadCollectors();
+        try {
+            // Get the config.
+            SchemaValidatorsConfig config = validationContext.getConfig();
+            // Get the collector context from the thread local.
+            CollectorContext collectorContext = getCollectorContext();
+            // Set the walkEnabled flag in internal validator state.
+            setValidatorState(true, shouldValidateSchema);
+            // Walk through the schema.
+            Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
+            // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
+            if (config.doLoadCollectors()) {
+                // Load all the data from collectors into the context.
+                collectorContext.loadCollectors();
+            }
+            // Process UnEvaluatedProperties after all the validators are called.
+            errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, shouldValidateSchema, false));
+            // Collect errors and collector context into validation result.
+            ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+            return validationResult;
+        } finally {
+            if (validationContext.getConfig().isResetCollectorContext()) {
+                CollectorContext.getInstance().reset();
+            }
         }
-        // Process UnEvaluatedProperties after all the validators are called.
-        errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, shouldValidateSchema, false));
-        // Collect errors and collector context into validation result.
-        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-        return validationResult;
     }
 
     @Override
@@ -407,6 +423,10 @@ public class JsonSchema extends BaseJsonValidator {
                         validationContext.getJsonSchemaFactory(),
                         validationMessages);
             }
+        }
+        if (shouldValidateSchema) {
+            // Process UnEvaluatedProperties after all the validators are called if there are no errors.
+            validationMessages.addAll(processUnEvaluatedProperties(node, rootNode, at, true, true));
         }
         return validationMessages;
     }

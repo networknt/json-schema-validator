@@ -80,6 +80,11 @@ public class SchemaValidatorsConfig {
      */
     private boolean handleNullableField = true;
 
+    /**
+     * When set to true resets the {@link CollectorContext} by calling {@link CollectorContext#reset()}.
+     */
+    private boolean resetCollectorContext = true;
+
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
 
@@ -279,5 +284,13 @@ public class SchemaValidatorsConfig {
 
     public boolean doLoadCollectors() {
         return loadCollectors;
+    }
+
+    public boolean isResetCollectorContext() {
+        return resetCollectorContext;
+    }
+
+    public void setResetCollectorContext(boolean resetCollectorContext) {
+        this.resetCollectorContext = resetCollectorContext;
     }
 }

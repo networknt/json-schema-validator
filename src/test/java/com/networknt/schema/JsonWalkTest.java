@@ -47,6 +47,7 @@ public class JsonWalkTest {
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
+        schemaValidatorsConfig.setResetCollectorContext(false);
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
                 .build();
@@ -56,6 +57,7 @@ public class JsonWalkTest {
         schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
         schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
+        schemaValidatorsConfig1.setResetCollectorContext(false);
         this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1);
     }
 

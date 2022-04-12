@@ -53,6 +53,9 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
+        // get the Validator state object storing validation data
+        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
         }
@@ -68,6 +71,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
         try {
             for (JsonSchema schema : schemas) {
+                Set<ValidationMessage> errors = new HashSet<>();
                 if (schema.getValidators().containsKey(typeValidatorName)) {
                     TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
                     //If schema has type validator and node type doesn't match with schemaType then ignore it
@@ -77,7 +81,11 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                         continue;
                     }
                 }
-                Set<ValidationMessage> errors = schema.validate(node, rootNode, at);
+                if (!state.isWalkEnabled()) {
+                    errors = schema.validate(node, rootNode, at);
+                } else {
+                    errors = schema.walk(node, rootNode, at, true);
+                }
                 if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
                     // Clear all errors.
                     allErrors.clear();
@@ -125,21 +133,13 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        ArrayList<Set<ValidationMessage>> results = new ArrayList<>(schemas.size());
+        if (shouldValidateSchema) {
+            return validate(node, rootNode, at);
+        }
         for (JsonSchema schema : schemas) {
-            results.add(schema.walk(node, rootNode, at, shouldValidateSchema));
+            schema.walk(node, rootNode, at, false);
         }
-        if(! shouldValidateSchema) {
-            return new LinkedHashSet<>();
-        }
-        boolean atLeastOneValid = results.stream()
-                .anyMatch(Set::isEmpty);
-        if(atLeastOneValid) {
-            return new LinkedHashSet<>();
-        }
-        return results.stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return new LinkedHashSet<>();
     }
 
     @Override

@@ -71,7 +71,7 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
-        boolean ifConditionPassed;
+        boolean ifConditionPassed = false;
         try {
             try {
                 ifConditionPassed = ifSchema.validate(node, rootNode, at).isEmpty();
@@ -108,7 +108,8 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
             if (errors.isEmpty()) {
                 List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
 
-                if (ifEvaluatedProperties != null) {
+                // If the "if" keyword condition is passed then only add if properties as evaluated.
+                if (ifEvaluatedProperties != null && ifConditionPassed) {
                     backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
                 }
 

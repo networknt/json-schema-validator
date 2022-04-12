@@ -24,10 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class RefValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -130,29 +127,70 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-        // these schemas will be cached along with config. We have to replace the config for cached $ref references
-        // with the latest config. Reset the config.
-        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
-        if (schema != null) {
-            return schema.validate(node, rootNode, at);
-        } else {
-            return Collections.emptySet();
+
+        Set<ValidationMessage> errors = new HashSet<>();
+
+        // As ref will contain a schema take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+        try {
+            debug(logger, node, rootNode, at);
+            // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+            // these schemas will be cached along with config. We have to replace the config for cached $ref references
+            // with the latest config. Reset the config.
+            schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
+            if (schema != null) {
+                errors =  schema.validate(node, rootNode, at);
+            } else {
+                errors = Collections.emptySet();
+            }
+        } finally {
+            if (errors.isEmpty()) {
+                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
+                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+            } else {
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+            }
         }
+        return errors;
     }
 
-	@Override
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-        // these schemas will be cached along with config. We have to replace the config for cached $ref references
-        // with the latest config. Reset the config.
-        schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
-		if (schema != null) {
-			return schema.walk(node, rootNode, at, shouldValidateSchema);
-		}
-		return Collections.emptySet();
-	}
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+
+        Set<ValidationMessage> errors = new HashSet<>();
+
+        // As ref will contain a schema take a backup of evaluatedProperties.
+        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+
+        // Make the evaluatedProperties list empty.
+        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        try {
+            debug(logger, node, rootNode, at);
+            // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+            // these schemas will be cached along with config. We have to replace the config for cached $ref references
+            // with the latest config. Reset the config.
+            schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
+            if (schema != null) {
+                errors = schema.walk(node, rootNode, at, shouldValidateSchema);
+            }
+            return errors;
+        } finally {
+            if (shouldValidateSchema) {
+                if (errors.isEmpty()) {
+                    List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
+                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                } else {
+                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                }
+            }
+        }
+    }
 
 	public JsonSchemaRef getSchemaRef() {
 		return schema;

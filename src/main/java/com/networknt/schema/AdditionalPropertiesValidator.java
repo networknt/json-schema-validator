@@ -64,6 +64,18 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    private void addToEvaluatedProperties(String propertyPath) {
+        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        List<String> evaluatedPropertiesList = null;
+        if (evaluatedProperties == null) {
+            evaluatedPropertiesList = new ArrayList<>();
+            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
+        } else {
+            evaluatedPropertiesList = (List<String>) evaluatedProperties;
+        }
+        evaluatedPropertiesList.add(propertyPath);
+    }
+
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         if (logger.isDebugEnabled()) debug(logger, node, rootNode, at);
 
@@ -71,6 +83,13 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         if (!node.isObject()) {
             // ignore no object
             return errors;
+        }
+
+        // if allowAdditionalProperties is true, add all the properties as evaluated.
+        if (allowAdditionalProperties) {
+            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+                addToEvaluatedProperties(at + "." + it.next());
+            }
         }
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
@@ -104,6 +123,47 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
             }
         }
         return Collections.unmodifiableSet(errors);
+    }
+
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        if (shouldValidateSchema) {
+            return validate(node, rootNode, at);
+        }
+
+        if (node == null || !node.isObject()) {
+            // ignore no object
+            return Collections.emptySet();
+        }
+
+        // Else continue walking.
+        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+            String pname = it.next();
+            // skip the context items
+            if (pname.startsWith("#")) {
+                continue;
+            }
+            boolean handledByPatternProperties = false;
+            for (Pattern pattern : patternProperties) {
+                Matcher m = pattern.matcher(pname);
+                if (m.find()) {
+                    handledByPatternProperties = true;
+                    break;
+                }
+            }
+
+            if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
+                if (allowAdditionalProperties) {
+                    if (additionalPropertiesSchema != null) {
+                        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        if (state != null && state.isWalkEnabled()) {
+                           additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled());
+                        }
+                    }
+                }
+            }
+        }
+        return Collections.emptySet();
     }
 
     @Override

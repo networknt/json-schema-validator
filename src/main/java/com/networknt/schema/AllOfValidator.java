@@ -16,12 +16,7 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,17 +44,35 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        // get the Validator state object storing validation data
+        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+
+        Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<ValidationMessage>();
 
         // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
         Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
 
-        // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        List<String> totalEvaluatedProperties = new ArrayList<>();
 
         for (JsonSchema schema : schemas) {
             try {
-                errors.addAll(schema.validate(node, rootNode, at));
+                // Make the evaluatedProperties list empty.
+                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+
+                Set<ValidationMessage> localErrors = new HashSet<>();
+
+                if (!state.isWalkEnabled()) {
+                    localErrors = schema.validate(node, rootNode, at);
+                } else {
+                    localErrors = schema.walk(node, rootNode, at, true);
+                }
+
+                childSchemaErrors.addAll(localErrors);
+
+                // Keep Collecting total evaluated properties.
+                if (localErrors.isEmpty()) {
+                    totalEvaluatedProperties.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                }
 
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     final Iterator<JsonNode> arrayElements = schemaNode.elements();
@@ -93,9 +106,9 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             } finally {
-                if (errors.isEmpty()) {
+                if (childSchemaErrors.isEmpty()) {
                     List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                    backupEvaluatedPropertiesList.addAll(totalEvaluatedProperties);
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
                 } else {
                     CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
@@ -103,18 +116,19 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
             }
         }
 
-        return Collections.unmodifiableSet(errors);
+        return Collections.unmodifiableSet(childSchemaErrors);
     }
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-
+        if (shouldValidateSchema) {
+            return validate(node, rootNode, at);
+        }
         for (JsonSchema schema : schemas) {
             // Walk through the schema
-            validationMessages.addAll(schema.walk(node, rootNode, at, shouldValidateSchema));
+            schema.walk(node, rootNode, at, false);
         }
-        return Collections.unmodifiableSet(validationMessages);
+        return Collections.emptySet();
     }
 
     @Override
