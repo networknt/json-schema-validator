@@ -135,7 +135,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             if (propertyNode == null || (applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull() && propertyNode.isNull())) {
                 JsonSchema propertySchema = entry.getValue();
                 JsonNode defaultNode = propertySchema.getSchemaNode().get("default");
-                if (defaultNode != null && !defaultNode.isNull()) {
+                if (defaultNode != null) {
                     // mutate the input json
                     node.set(entry.getKey(), defaultNode);
                 }
