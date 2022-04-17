@@ -16,11 +16,6 @@
           "type": "string",
           "default": null
         },
-        "stringValue_provided_as_null_with_default_null": {
-          "description": "the test data has this attribute as null, so default as null should be applied if the ApplyDefaultsStrategy requires it",
-          "type": "string",
-          "default": null
-        },
         "stringValue_missing_with_no_default": {
           "description": "the test data does not have this attribute, no default value should be applied",
           "type": "string"

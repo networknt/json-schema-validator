@@ -34,15 +34,14 @@ class JsonWalkApplyDefaultsTest {
             assertThat(result.getValidationMessages().stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
                        Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missingButError: string found, integer expected",
                                                    "$.outer.badArray[1]: integer found, string expected",
-                               "$.outer.reference.stringValue_missing_with_default_null: null found, string expected",
-                               "$.outer.reference.stringValue_provided_as_null_with_default_null: null found, string expected"));
+                               "$.outer.reference.stringValue_missing_with_default_null: null found, string expected"));
         } else {
             assertThat(result.getValidationMessages(), Matchers.empty());
         }
         // TODO: In Java 14 use text blocks
         assertEquals(
                 objectMapper.readTree(
-                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",\"five\"],\"badArray\":[\"hello\",5],\"reference\":{\"stringValue_provided_as_null_with_default_null\":null,\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",\"five\"],\"badArray\":[\"hello\",5],\"reference\":{\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
                 inputNode);
     }
 
@@ -56,11 +55,10 @@ class JsonWalkApplyDefaultsTest {
                    Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missingButError: string found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected",
-                           "$.outer.reference.stringValue_missing_with_default_null: null found, string expected",
-                           "$.outer.reference.stringValue_provided_as_null_with_default_null: null found, string expected"));
+                           "$.outer.reference.stringValue_missing_with_default_null: null found, string expected"));
         assertEquals(
                 objectMapper.readTree(
-                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_provided_as_null_with_default_null\":null,\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":35,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
                 inputNode);
     }
 
@@ -75,11 +73,10 @@ class JsonWalkApplyDefaultsTest {
                                                "$.outer.mixedObject.intValue_missingButError: string found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected",
-                           "$.outer.reference.stringValue_missing_with_default_null: null found, string expected",
-                           "$.outer.reference.stringValue_provided_as_null_with_default_null: null found, string expected"));
+                           "$.outer.reference.stringValue_missing_with_default_null: null found, string expected"));
         assertEquals(
                 objectMapper.readTree(
-                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":null,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_provided_as_null_with_default_null\":null,\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
+                        "{\"outer\":{\"mixedObject\":{\"intValue_present\":8,\"intValue_null\":null,\"intValue_missingButError\":\"forty-five\",\"intValue_missing\":15,\"intValue_missing_notRequired\":25},\"goodArray\":[\"hello\",null],\"badArray\":[\"hello\",null],\"reference\":{\"stringValue_missing_with_default_null\":null,\"stringValue_missing\":\"hello\"}}}"),
                 inputNode);
     }
 
