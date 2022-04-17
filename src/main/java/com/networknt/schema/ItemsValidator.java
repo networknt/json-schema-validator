@@ -123,9 +123,6 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
             JsonNode defaultNode = null;
             if (applyDefaultsStrategy.shouldApplyArrayDefaults() && schema != null) {
                 defaultNode = schema.getSchemaNode().get("default");
-                if (defaultNode != null && defaultNode.isNull()) {
-                    defaultNode = null;
-                }
             }
             int i = 0;
             for (JsonNode n : arrayNode) {
