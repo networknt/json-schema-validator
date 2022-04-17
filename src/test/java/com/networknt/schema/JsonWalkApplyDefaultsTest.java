@@ -18,10 +18,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class JsonWalkApplyDefaultsTest {
 
-    @AfterEach
+   /* @AfterEach
     void cleanup() {
         CollectorContext.getInstance().reset();
-    }
+    }*/
 
     @ParameterizedTest
     @ValueSource(booleans = { true, false})
@@ -116,8 +116,7 @@ class JsonWalkApplyDefaultsTest {
                                                "$.outer.mixedObject.intValue_null: null found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected",
-                                               "$.outer.reference.stringValue_missing: is missing but it is required",
-                           "$.outer.reference.stringValue_provided_as_null_with_default_null: null found, string expected"));
+                                               "$.outer.reference.stringValue_missing: is missing but it is required"));
         assertEquals(inputNodeOriginal, inputNode);
     }
 

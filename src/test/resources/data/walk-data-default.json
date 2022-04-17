@@ -7,7 +7,6 @@
     "goodArray": ["hello", null],
     "badArray": ["hello", null],
     "reference": {
-      "stringValue_provided_as_null_with_default_null": null
     }
   }
 }
