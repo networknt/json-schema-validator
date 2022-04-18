@@ -10,6 +10,15 @@
           "description": "the test data does not have this attribute, so default should be applied if the ApplyDefaultsStrategy requires it",
           "type": "string",
           "default": "hello"
+        },
+        "stringValue_missing_with_default_null": {
+          "description": "the test data does not have this attribute, so default as null should be applied if the ApplyDefaultsStrategy requires it",
+          "type": "string",
+          "default": null
+        },
+        "stringValue_missing_with_no_default": {
+          "description": "the test data does not have this attribute, no default value should be applied",
+          "type": "string"
         }
       },
       "required": [

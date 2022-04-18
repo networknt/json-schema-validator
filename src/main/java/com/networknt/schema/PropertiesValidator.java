@@ -132,15 +132,21 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
 
-            if (propertyNode == null || (applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull() && propertyNode.isNull())) {
-                JsonSchema propertySchema = entry.getValue();
-                JsonNode defaultNode = propertySchema.getSchemaNode().get("default");
-                if (defaultNode != null && !defaultNode.isNull()) {
-                    // mutate the input json
-                    node.set(entry.getKey(), defaultNode);
-                }
+            JsonNode defaultNode = getDefaultNode(entry);
+            if (defaultNode == null) {
+                continue;
+            }
+            boolean applyDefault = propertyNode == null
+                    || (propertyNode.isNull() && applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull());
+            if (applyDefault) {
+                node.set(entry.getKey(), defaultNode);
             }
         }
+    }
+
+    private JsonNode getDefaultNode(final Map.Entry<String, JsonSchema> entry) {
+        JsonSchema propertySchema = entry.getValue();
+        return propertySchema.getSchemaNode().get("default");
     }
 
     private void walkSchema(Map.Entry<String, JsonSchema> entry, JsonNode node, JsonNode rootNode, String at,
