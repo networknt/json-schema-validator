@@ -137,7 +137,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                 continue;
             }
             boolean applyDefault = propertyNode == null
-                    || (applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull() && propertyNode.isNull() && !defaultNode.isNull());
+                    || (propertyNode.isNull() && applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull());
             if (applyDefault) {
                 node.set(entry.getKey(), defaultNode);
             }
