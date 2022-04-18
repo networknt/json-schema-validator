@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.69 - 2022-04-18
+
+### Added
+
+- fixes #534 Adding Unevaluated properties keyword. Thanks @prashanthjos
+
+### Changed
+
+- fixes #554 removed unnecessary check. Thanks @harishvashistha
+- fixes #555 Setting default value even if that value is null. Thanks @harishvashistha
+- fixes #544 Fixing unevaluated properties with larger test base. Thanks @prashanthjos
+- fixes #552 Add schemaPath to ValidationMessage. Thanks @ymszzq
+- fixes #541 Allow fetching properties from map with comparator. Thanks @0x4a616e
+
+
 ## 1.0.68 - 2022-03-27
 
 ### Added
