@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Issue471Test {
+class Issue471Test {
     private final String DATA_PATH = "/data/issue471.json";
     private final String SCHEMA_PATH = "/schema/issue471-2019-09.json";
 
@@ -21,7 +21,7 @@ public class Issue471Test {
 
     @Test
     @Disabled
-    public void shouldFailV201909_with_enUS() throws Exception {
+    void shouldFailV201909_with_enUS() throws Exception {
         Locale.setDefault(Locale.US);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title: may only be 10 characters long", errorsMap.get("$.title"));
@@ -30,7 +30,7 @@ public class Issue471Test {
 
     @Test
     @Disabled
-    public void shouldFailV201909_with_zhCN() throws Exception {
+    void shouldFailV201909_with_zhCN() throws Exception {
         Locale.setDefault(Locale.CHINA);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title：可能只有 10 个字符长", errorsMap.get("$.title"));
@@ -39,11 +39,20 @@ public class Issue471Test {
 
     @Test
     @Disabled
-    public void shouldFailV201909_with_deDE() throws Exception {
+    void shouldFailV201909_with_deDE() throws Exception {
         Locale.setDefault(Locale.GERMANY);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title darf höchstens 10 Zeichen lang sein", errorsMap.get("$.title"));
         Assertions.assertEquals("$.pictures: Es dürfen höchstens 2 Elemente in diesem Array sein", errorsMap.get("$.pictures"));
+    }
+
+    @Test
+    @Disabled
+    void shouldFailV201909_with_frFR() throws Exception {
+        Locale.setDefault(Locale.FRANCE);
+        Map<String, String> errorsMap = validate();
+        Assertions.assertEquals("$.title: ne doit pas dépasser 10 caractères", errorsMap.get("$.title"));
+        Assertions.assertEquals("$.pictures: doit avoir un maximum de 2 éléments dans le tableau", errorsMap.get("$.pictures"));
     }
 
     private Map<String, String> validate() throws Exception {
