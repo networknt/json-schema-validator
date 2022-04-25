@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
@@ -114,7 +115,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        if (applyDefaultsStrategy.shouldApplyPropertyDefaults()) {
+        if (applyDefaultsStrategy.shouldApplyPropertyDefaults() && node.getNodeType() == JsonNodeType.OBJECT) {
             applyPropertyDefaults((ObjectNode) node);
         }
         if (shouldValidateSchema) {
