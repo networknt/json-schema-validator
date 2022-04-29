@@ -40,10 +40,8 @@ public final class URLFactory implements URIFactory {
     @Override
     public URI create(final String uri) {
         try {
-            return new URL(uri).toURI();
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Unable to create URI.", e);
-        } catch (URISyntaxException e) {
+            return URI.create(uri);
+        } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unable to create URI.", e);
         }
     }
