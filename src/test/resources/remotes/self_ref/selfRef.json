@@ -1,4 +1,4 @@
 {
-  "id": "http://localhost:1234/self_ref/selfRef.json",
+  "id": "https://localhost:1234/self_ref/selfRef.json",
   "description": "Schema with ID set to its own URL"
 }

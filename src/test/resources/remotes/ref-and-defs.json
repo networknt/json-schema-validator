@@ -1,0 +1,11 @@
+{
+    "$id": "https://localhost:1234/ref-and-defs.json",
+    "$defs": {
+        "inner": {
+            "properties": {
+                "bar": { "type": "string" }
+            }
+        }
+    },
+    "$ref": "#/$defs/inner"
+}

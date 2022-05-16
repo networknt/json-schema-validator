@@ -2,7 +2,7 @@
   {
     "description": "id as schema",
     "schema": {
-      "id": "http://localhost:1234/id_schema/schema/features.json",
+      "id": "https://localhost:1234/id_schema/schema/features.json",
       "title": "property object",
       "type": "object",
       "properties": {

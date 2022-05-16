@@ -25,12 +25,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
+import javax.net.ssl.*;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static io.undertow.Handlers.resource;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +54,7 @@ public abstract class BaseSuiteJsonSchemaTest {
     public static void setUp() {
         if (server == null) {
             server = Undertow.builder()
-                    .addHttpListener(1234, "localhost")
+                    .addHttpsListener(1234, "localhost", createSSLContext())
                     .setHandler(resource(new FileResourceManager(
                             new File("./src/test/resources/remotes"), 100)))
                     .build();
@@ -162,6 +168,73 @@ public abstract class BaseSuiteJsonSchemaTest {
             } catch (JsonSchemaException e) {
                 throw new IllegalStateException(String.format("Current schema should not be invalid: %s", testCaseFile), e);
             }
+        }
+    }
+
+    public static KeyStore loadKeyStore(final String name, final char[] password) {
+        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(name)) {
+            if (stream == null) {
+                String message = "Unable to load keystore '" + name + "', please provide the keystore matching the configuration in client.yml/server.yml to enable TLS connection.";
+                System.out.println(message);
+                throw new RuntimeException(message);
+            }
+            KeyStore loadedKeystore = KeyStore.getInstance("JKS");
+            loadedKeystore.load(stream, password);
+            return loadedKeystore;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to load keystore " + name, e);
+        }
+    }
+
+    private static KeyManager[] buildKeyManagers(final KeyStore keyStore, char[] keyPass) {
+        KeyManager[] keyManagers;
+        try {
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory
+                    .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, keyPass);
+            keyManagers = keyManagerFactory.getKeyManagers();
+        } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to initialise KeyManager[]", e);
+        }
+        return keyManagers;
+    }
+
+    public final static TrustManager[] TRUST_ALL_CERTS = new X509TrustManager[]{new DummyTrustManager()};
+
+    private static TrustManager[] buildTrustManagers(final KeyStore trustStore) {
+        TrustManager[] trustManagers = null;
+        if (trustStore != null) {
+            try {
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory
+                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(trustStore);
+                trustManagers = trustManagerFactory.getTrustManagers();
+            } catch (NoSuchAlgorithmException | KeyStoreException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Unable to initialise TrustManager[]", e);
+            }
+        } else {
+            // Mutual Tls is disabled, trust all the certs
+            trustManagers = TRUST_ALL_CERTS;
+        }
+        return trustManagers;
+    }
+
+    private static SSLContext createSSLContext() throws RuntimeException {
+
+        try {
+            String keyPass = "password";
+            KeyManager[] keyManagers = buildKeyManagers(loadKeyStore("server.keystore", keyPass.toCharArray()), keyPass.toCharArray());
+            TrustManager[] trustManagers = buildTrustManagers(null);
+            SSLContext sslContext;
+            sslContext = SSLContext.getInstance("TLSv1");
+            sslContext.init(keyManagers, trustManagers, null);
+            return sslContext;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to create SSLContext", e);
         }
     }
 }

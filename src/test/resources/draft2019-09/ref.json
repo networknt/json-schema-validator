@@ -328,7 +328,7 @@
   {
     "description": "Recursive references between schemas",
     "schema": {
-      "$id": "http://localhost:1234/tree",
+      "$id": "https://localhost:1234/tree",
       "description": "tree of nodes",
       "type": "object",
       "properties": {
@@ -348,7 +348,7 @@
       ],
       "$defs": {
         "node": {
-          "$id": "http://localhost:1234/node",
+          "$id": "https://localhost:1234/node",
           "description": "node",
           "type": "object",
           "properties": {

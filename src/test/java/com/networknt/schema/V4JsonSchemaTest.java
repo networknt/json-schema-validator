@@ -34,7 +34,7 @@ public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
 
     @Test(/*expected = java.lang.StackOverflowError.class*/)
     public void testLoadingWithId() throws Exception {
-        URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
+        URL url = new URL("https://localhost:1234/self_ref/selfRef.json");
         JsonNode schemaJson = mapper.readTree(url);
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         @SuppressWarnings("unused")

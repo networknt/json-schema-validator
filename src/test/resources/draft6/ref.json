@@ -328,7 +328,7 @@
   {
     "description": "Recursive references between schemas",
     "schema": {
-      "$id": "http://localhost:1234/tree",
+      "$id": "https://localhost:1234/tree",
       "description": "tree of nodes",
       "type": "object",
       "properties": {
@@ -348,7 +348,7 @@
       ],
       "definitions": {
         "node": {
-          "$id": "http://localhost:1234/node",
+          "$id": "https://localhost:1234/node",
           "description": "node",
           "type": "object",
           "properties": {
@@ -506,12 +506,12 @@
     "schema": {
       "allOf": [
         {
-          "$ref": "http://localhost:1234/bar#foo"
+          "$ref": "https://localhost:1234/bar#foo"
         }
       ],
       "definitions": {
         "A": {
-          "$id": "http://localhost:1234/bar#foo",
+          "$id": "https://localhost:1234/bar#foo",
           "type": "integer"
         }
       }
@@ -532,10 +532,10 @@
   {
     "description": "Location-independent identifier with base URI change in subschema",
     "schema": {
-      "$id": "http://localhost:1234/root",
+      "$id": "https://localhost:1234/root",
       "allOf": [
         {
-          "$ref": "http://localhost:1234/nested.json#foo"
+          "$ref": "https://localhost:1234/nested.json#foo"
         }
       ],
       "definitions": {

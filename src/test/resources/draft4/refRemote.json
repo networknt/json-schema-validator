@@ -2,7 +2,7 @@
   {
     "description": "remote ref",
     "schema": {
-      "$ref": "http://localhost:1234/integer.json"
+      "$ref": "https://localhost:1234/integer.json"
     },
     "tests": [
       {
@@ -20,7 +20,7 @@
   {
     "description": "fragment within remote ref",
     "schema": {
-      "$ref": "http://localhost:1234/subSchemas.json#/integer"
+      "$ref": "https://localhost:1234/subSchemas.json#/integer"
     },
     "tests": [
       {
@@ -38,7 +38,7 @@
   {
     "description": "ref within remote ref",
     "schema": {
-      "$ref": "http://localhost:1234/subSchemas.json#/refToInteger"
+      "$ref": "https://localhost:1234/subSchemas.json#/refToInteger"
     },
     "tests": [
       {
@@ -56,7 +56,7 @@
   {
     "description": "change resolution scope",
     "schema": {
-      "id": "http://localhost:1234/",
+      "id": "https://localhost:1234/",
       "items": {
         "id": "folder/",
         "items": {

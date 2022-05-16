@@ -2,7 +2,7 @@
   {
     "description": "base URI change - change folder in subschema",
     "schema": {
-      "$id": "http://localhost:1234/scope_change_defs2.json",
+      "$id": "https://localhost:1234/scope_change_defs2.json",
       "type": "object",
       "properties": {
         "list": {
