@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.70 - 2022-05-23
+
+### Added
+
+- fixes #558 Add French translation for validation messages. Thanks @sebastienrospars
+
+### Changed
+
+- fixes #535 part 2 fix the same issue in AnyOfValidator. Thanks @AndreasALoew
+- fixes #570 Upgrade javadoc plugin. Thanks @poorguy-tech
+- fixes #569 Fix broken tests on non-english setup. Thanks @dreis2211
+- fixes #566 Remove unused variable in JsonNodeUtil. Thanks @dreis2211
+- fixes #565 Improve performance of URLFactory.create. Thanks @dreis2211
+- fixes #561 Prevent from throwing an exception when setting default values. Thanks @josejulio
+
 ## 1.0.69 - 2022-04-18
 
 ### Added
