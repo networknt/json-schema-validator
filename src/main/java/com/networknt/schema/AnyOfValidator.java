@@ -70,6 +70,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
 
         try {
+            int numberOfValidSubSchemas = 0;
             for (JsonSchema schema : schemas) {
                 Set<ValidationMessage> errors = new HashSet<>();
                 if (schema.getValidators().containsKey(typeValidatorName)) {
@@ -86,6 +87,17 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 } else {
                     errors = schema.walk(node, rootNode, at, true);
                 }
+                
+                // check if any validation errors have occurred
+                if (errors.isEmpty()) {
+                    // check whether there are no errors HOWEVER we have validated the exact validator
+                    if (!state.hasMatchedNode()) {
+                        continue;
+                    }
+                    // we found a valid subschema, so increase counter
+                    numberOfValidSubSchemas++;
+                }                
+                
                 if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
                     // Clear all errors.
                     allErrors.clear();
@@ -104,6 +116,14 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
                 allErrors.addAll(errors);
+            }
+
+            // determine only those errors which are NOT of type "required" property missing
+            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream().filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType())).collect(Collectors.toSet());
+
+            // in case we had at least one (anyOf, i.e. any number >= 1 of) valid subschemas, we can remove all other errors about "required" properties
+            if (numberOfValidSubSchemas >= 1 && childNotRequiredErrors.isEmpty()) {
+                allErrors = childNotRequiredErrors;
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && discriminatorContext.isActive()) {
