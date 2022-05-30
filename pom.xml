@@ -66,7 +66,7 @@
         <version.slf4j>1.7.30</version.slf4j>
         <version.common-lang3>3.7</version.common-lang3>
         <version.joni>2.1.41</version.joni>
-        <version.logback>1.2.7</version.logback>
+        <version.logback>1.2.11</version.logback>
         <version.junit>5.7.2</version.junit>
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
