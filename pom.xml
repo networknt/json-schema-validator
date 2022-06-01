@@ -63,15 +63,15 @@
         <java.testversion>1.8</java.testversion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jackson>2.13.3</version.jackson>
-        <version.slf4j>1.7.30</version.slf4j>
+        <version.slf4j>1.7.36</version.slf4j>
         <version.common-lang3>3.7</version.common-lang3>
         <version.joni>2.1.41</version.joni>
-        <version.logback>1.2.7</version.logback>
+        <version.logback>1.2.11</version.logback>
         <version.junit>5.7.2</version.junit>
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.14.Final</version.undertow>
-        <version.itu>1.5.1</version.itu>
+        <version.itu>1.7.0</version.itu>
     </properties>
     <dependencies>
         <dependency>
