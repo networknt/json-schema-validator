@@ -71,7 +71,7 @@
         <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.14.Final</version.undertow>
-        <version.itu>1.5.1</version.itu>
+        <version.itu>1.7.0</version.itu>
     </properties>
     <dependencies>
         <dependency>

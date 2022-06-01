@@ -1,0 +1,14 @@
+{
+  "$schema" : "https://json-schema.org/draft/2019-09/schema#",
+  "title": "Test Time Zone Schema (for testing time zones with negative offsets)",
+  "type": "object",
+  "properties": {
+    "testDateTime": {
+      "description": "A date-time value.",
+      "type" : "string",
+      "minLength" : 1,
+      "maxLength" : 32,
+      "format" : "date-time"
+    }
+  }
+}
