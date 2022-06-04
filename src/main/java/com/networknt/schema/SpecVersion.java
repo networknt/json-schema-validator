@@ -25,7 +25,8 @@ public class SpecVersion {
         V4(1 << 0),
         V6(1 << 1),
         V7(1 << 2),
-        V201909(1 << 3);
+        V201909(1 << 3),
+        V202012(1 << 4);
 
 
         private final long versionFlagValue;

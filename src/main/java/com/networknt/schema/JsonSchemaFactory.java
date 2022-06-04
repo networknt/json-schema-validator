@@ -251,6 +251,9 @@ public class JsonSchemaFactory {
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
         JsonSchemaVersion jsonSchemaVersion = null;
         switch (versionFlag) {
+            case V202012:
+                jsonSchemaVersion = new Version202012();
+                break;
             case V201909:
                 jsonSchemaVersion = new Version201909();
                 break;
