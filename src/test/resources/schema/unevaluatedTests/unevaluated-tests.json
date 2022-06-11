@@ -2150,5 +2150,48 @@
         "valid": false
       }
     ]
+  },
+  {
+    "description": "unevaluatedProperties with patternProperties and type union",
+    "schema": {
+      "type": "object",
+      "patternProperties": {
+        "^valid_": {
+          "type": ["array", "string"],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "Not valid key against pattern",
+        "data": {
+          "valid_array": ["array1_value", "array2_value"],
+          "valid_string": "string_value",
+          "invalid_key": "this is an unevaluated properties due to key not matching the pattern"
+        },
+        "valid": false
+      },
+      {
+        "description": "Not valid type",
+        "data": {
+          "valid_array": ["array1_value", "array2_value"],
+          "valid_string": "string_value",
+          "valid_key": 5
+        },
+        "valid": false
+      },
+      {
+        "description": "Valid",
+        "data": {
+          "valid_array": ["array1_value", "array2_value"],
+          "valid_string": "string_value"
+        },
+        "valid": true
+      }
+    ]
   }
 ]

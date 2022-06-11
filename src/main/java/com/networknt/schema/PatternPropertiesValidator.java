@@ -58,6 +58,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
             for (Map.Entry<Pattern, JsonSchema> entry : schemas.entrySet()) {
                 Matcher m = entry.getKey().matcher(name);
                 if (m.find()) {
+                    addToEvaluatedProperties(at + "." + name);
                     errors.addAll(entry.getValue().validate(n, rootNode, at + "." + name));
                 }
             }
@@ -68,5 +69,17 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(schemas.values());
+    }
+
+    private void addToEvaluatedProperties(String propertyPath) {
+        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        List<String> evaluatedPropertiesList = null;
+        if (evaluatedProperties == null) {
+            evaluatedPropertiesList = new ArrayList<>();
+            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
+        } else {
+            evaluatedPropertiesList = (List<String>) evaluatedProperties;
+        }
+        evaluatedPropertiesList.add(propertyPath);
     }
 }
