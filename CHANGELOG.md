@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.71 - 2022-06-15
+
+### Added
+
+### Changed
+
+- upgrade jackson to 2.13.3
+- upgrade logback to 1.2.11
+- upgrade slf4j to 1.7.36
+- fixes #575 upgrade com.ethlo.time:itu to version 1.7.0 Thanks @jody-mcdonnell
+- fixes #380 Add support for draft 2020-12 Thanks @open-abbott
+- fixes #582 Fix unevaluatedPropeties with patternProperties and type union. Thanks @jkevan
+
 ## 1.0.70 - 2022-05-23
 
 ### Added
