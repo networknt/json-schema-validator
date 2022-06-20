@@ -51,6 +51,8 @@ public class SpecVersionDetector {
             return SpecVersion.VersionFlag.V7;
         else if (schemaUri.equals(JsonMetaSchema.getV201909().getUri()))
             return SpecVersion.VersionFlag.V201909;
+        else if (schemaUri.equals(JsonMetaSchema.getV202012().getUri()))
+            return SpecVersion.VersionFlag.V202012;
         else
             throw new JsonSchemaException("Unrecognizable schema");
     }
