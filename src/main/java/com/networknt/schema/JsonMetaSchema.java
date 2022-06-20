@@ -195,6 +195,10 @@ public class JsonMetaSchema {
         return new Version201909().getInstance();
     }
 
+    public static JsonMetaSchema getV202012() {
+        return new Version202012().getInstance();
+    }
+
     /**
      * Builder without keywords or formats.
      * <p>
