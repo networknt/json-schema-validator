@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.72 - 2022-07-17
+
+### Added
+
+### Changed
+
+- upgrade undertow to 2.2.14.Final to 2.2.18.Final
+- fixes #586 Add V202012 to SpecVersionDetector And JsonMetaSchema Thanks @Tuxzx
+- fixes #585 Changed data type to preserve order of schema attributes. Thanks @sabarinathan590
+
 ## 1.0.71 - 2022-06-15
 
 ### Added
