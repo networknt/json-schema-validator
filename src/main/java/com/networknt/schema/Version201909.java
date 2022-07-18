@@ -32,7 +32,8 @@ public class Version201909 extends JsonSchemaVersion{
                         new NonValidationKeyword("contentMediaType"),
                         new NonValidationKeyword("contentEncoding"),
                         new NonValidationKeyword("examples"),
-                        new NonValidationKeyword("then")
+                        new NonValidationKeyword("then"),
+                        new NonValidationKeyword("else")
                 ))
                 .build();
     }
