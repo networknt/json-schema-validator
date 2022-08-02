@@ -84,10 +84,18 @@
             <artifactId>slf4j-api</artifactId>
             <version>${version.slf4j}</version>
         </dependency>
+        <!-- 
+        Commons lang slated for removal but kept for projects that accidentally depend on it
+        through accidental transitive runtime dependencies.
+        
+        For projects that depend on it for compile they will get an immediate failure as the
+        scope is now runtime instead of compile.
+        -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${version.common-lang3}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.jruby.joni</groupId>

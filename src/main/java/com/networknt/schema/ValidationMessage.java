@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import org.apache.commons.lang3.StringUtils;
+import com.networknt.schema.utils.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Arrays;

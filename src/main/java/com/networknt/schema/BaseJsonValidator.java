@@ -26,7 +26,7 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
-import org.apache.commons.lang3.StringUtils;
+import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 
 public abstract class BaseJsonValidator implements JsonValidator {
