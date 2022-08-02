@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.format.DurationValidator;
 import com.networknt.schema.format.EmailValidator;
 
 import java.util.Collection;
@@ -31,6 +32,7 @@ public class FormatKeyword implements Keyword {
     private final String DATE_TIME = "date-time";
     private final String UUID = "uuid";
     private final String EMAIL = "email";
+    private final String DURATION = "duration";
 
     public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
         this.type = type;
@@ -59,6 +61,9 @@ public class FormatKeyword implements Keyword {
                 return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             } else if (formatName.equals(EMAIL)) {
                 return new EmailValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+            }
+            else if (formatName.equals(DURATION)) {
+                return new DurationValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
             }
         }
         return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
