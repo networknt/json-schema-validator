@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +52,15 @@ class Issue471Test {
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title: ne doit pas dépasser 10 caractères", errorsMap.get("$.title"));
         Assertions.assertEquals("$.pictures: doit avoir un maximum de 2 éléments dans le tableau", errorsMap.get("$.pictures"));
+    }
+
+    @Test
+    @Disabled
+    void shouldFailV201909_with_frIT() throws Exception {
+        Locale.setDefault(Locale.ITALIAN);
+        Map<String, String> errorsMap = validate();
+        Assertions.assertEquals("$.title: può avere lunghezza massima di 10", errorsMap.get("$.title"));
+        Assertions.assertEquals("$.pictures: deve esserci un numero massimo di 2 elementi nell'array", errorsMap.get("$.pictures"));
     }
 
     private Map<String, String> validate() throws Exception {
