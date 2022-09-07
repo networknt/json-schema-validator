@@ -60,6 +60,8 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
         }
 
+        boolean initialHasMatchedNode = state.hasMatchedNode();
+
         Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
         String typeValidatorName = "anyOf/type";
 
@@ -72,6 +74,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         try {
             int numberOfValidSubSchemas = 0;
             for (JsonSchema schema : schemas) {
+                state.setMatchedNode(initialHasMatchedNode);
                 Set<ValidationMessage> errors = new HashSet<>();
                 if (schema.getValidators().containsKey(typeValidatorName)) {
                     TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
@@ -87,7 +90,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 } else {
                     errors = schema.walk(node, rootNode, at, true);
                 }
-                
+
                 // check if any validation errors have occurred
                 if (errors.isEmpty()) {
                     // check whether there are no errors HOWEVER we have validated the exact validator
@@ -96,8 +99,8 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                     // we found a valid subschema, so increase counter
                     numberOfValidSubSchemas++;
-                }                
-                
+                }
+
                 if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
                     // Clear all errors.
                     allErrors.clear();
@@ -137,6 +140,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
             }
             if (allErrors.isEmpty()) {
                 addEvaluatedProperties(backupEvaluatedProperties);
+                state.setMatchedNode(true);
             } else {
                 CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
             }
