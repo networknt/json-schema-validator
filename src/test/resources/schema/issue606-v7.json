@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "V": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "X": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "X"
+                        ],
+                        "additionalProperties": false
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "A": {
+                                "type": "string"
+                            },
+                            "B": {
+                                "type": "string"
+                            },
+                            "C": {
+                                "type": "string"
+                            }
+                        },
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "origin": {
+                                        "const": "not-present"
+                                    }
+                                },
+                                "required": [
+                                    "A",
+                                    "C"
+                                ]
+                            },
+                            {
+                                "properties": {
+                                    "origin": {
+                                        "const": "not-present-either"
+                                    }
+                                },
+                                "required": [
+                                    "A",
+                                    "B"
+                                ]
+                            }
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                            "A"
+                        ],
+                        "not": {
+                            "type": "object",
+                            "required": [
+                                "X"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
