@@ -238,19 +238,23 @@ public class JsonSchema extends BaseJsonValidator {
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
         final JsonSchema parentSchema = getParentSchema();
-        final JsonNode message = getMessageNode(schemaNode, parentSchema);
+        final JsonNode message = getMessageNode(schemaNode, parentSchema, pname);
         if (message != null && message.get(pname) != null) {
             return message.get(pname).asText();
         }
         return null;
     }
 
-    private JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema) {
+    private JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
+        if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
+            return schemaNode.get("message");
+        }
         JsonNode nodeContainingMessage;
-        if (parentSchema == null)
+        if (parentSchema == null) {
             nodeContainingMessage = schemaNode;
-        else
+        } else {
             nodeContainingMessage = parentSchema.schemaNode;
+        }
         return nodeContainingMessage.get("message");
     }
 

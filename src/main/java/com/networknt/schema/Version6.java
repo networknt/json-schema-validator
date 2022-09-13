@@ -12,7 +12,7 @@ public class Version6 extends JsonSchemaVersion{
         //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
     }
 
-    JsonMetaSchema getInstance() {
+    public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
