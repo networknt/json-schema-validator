@@ -104,7 +104,7 @@ public class JsonMetaSchema {
         }
 
         private static Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
-            final Map<String, Keyword> map = new HashMap<String, Keyword>();
+            Map<String, Keyword> map = new HashMap<String, Keyword>();
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
                 Keyword keyword = type.getValue();
@@ -119,7 +119,7 @@ public class JsonMetaSchema {
             }
             final FormatKeyword formatKeyword = new FormatKeyword(ValidatorTypeCode.FORMAT, formats);
             map.put(formatKeyword.getValue(), formatKeyword);
-            return Collections.unmodifiableMap(map);
+            return map;
         }
 
         public Builder addKeyword(Keyword keyword) {
@@ -154,14 +154,14 @@ public class JsonMetaSchema {
 
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
-            final Map<String, Keyword> kwords = createKeywordsMap(keywords, formats);
+            Map<String, Keyword> kwords = createKeywordsMap(keywords, formats);
             return new JsonMetaSchema(uri, idKeyword, kwords);
         }
     }
 
     private final String uri;
     private final String idKeyword;
-    private final Map<String, Keyword> keywords;
+    private Map<String, Keyword> keywords;
 
     private JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords) {
         if (StringUtils.isBlank(uri)) {
@@ -267,6 +267,9 @@ public class JsonMetaSchema {
         return uri;
     }
 
+    public Map<String, Keyword> getKeywords() {
+        return keywords;
+    }
 
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema, String customMessage) {

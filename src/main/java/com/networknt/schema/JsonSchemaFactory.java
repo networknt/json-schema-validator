@@ -223,7 +223,7 @@ public class JsonSchemaFactory {
      *
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 

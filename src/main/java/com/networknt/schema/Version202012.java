@@ -12,7 +12,7 @@ public class Version202012 extends JsonSchemaVersion {
     }
 
     @Override
-    JsonMetaSchema getInstance() {
+    public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
