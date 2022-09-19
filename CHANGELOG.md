@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.73 - 2022-09-19
+
+### Added
+- fixes #593 Add validator for duration format. Thanks @iouakrim
+
+### Changed
+
+- upgrade undertow to 2.2.18.Final to 2.2.19.Final
+- fixes #563 Support adding custom message at attribute level. Thanks @makeItEasyQ
+- fixes #606 Handle matched state in AnyOfValidator. Thanks @sgerke-1L
+- fixes #598 Add italian translation. Thanks @sbernardo
+- fixes #594 Remove commons lang as a compile time dependency. Thanks @agentgt
+- fixes #592 Add NonValidationKeyword "else" on 201909 and 202012. Thanks @ionutalex88
+
+
 ## 1.0.72 - 2022-07-17
 
 ### Added
