@@ -18,6 +18,7 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class SpecVersionTest {
     @Test
     public void testGetVersionValue() {
         SpecVersion ds = new SpecVersion();
-        Set versionFlags = EnumSet.of(
+        Set<SpecVersion.VersionFlag> versionFlags = EnumSet.of(
                 SpecVersion.VersionFlag.V4,
                 SpecVersion.VersionFlag.V201909);
         Assertions.assertEquals(ds.getVersionValue(versionFlags), 9); // 0001|1000
@@ -35,27 +36,26 @@ public class SpecVersionTest {
     public void testGetVersionFlags() {
         SpecVersion ds = new SpecVersion();
 
-        long numericVersionCode = SpecVersion.VersionFlag.V201909.getVersionFlagValue()
+        long numericVersionCode = SpecVersion.VersionFlag.V202012.getVersionFlagValue()
+                | SpecVersion.VersionFlag.V201909.getVersionFlagValue()
                 | SpecVersion.VersionFlag.V6.getVersionFlagValue()
-                | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 14
+                | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 30
 
-        Set versionFlags = ds.getVersionFlags(numericVersionCode);
+        Set<SpecVersion.VersionFlag> versionFlags = ds.getVersionFlags(numericVersionCode);
 
         assert !versionFlags.contains(SpecVersion.VersionFlag.V4);
         assert versionFlags.contains(SpecVersion.VersionFlag.V6);
         assert versionFlags.contains(SpecVersion.VersionFlag.V7);
         assert versionFlags.contains(SpecVersion.VersionFlag.V201909);
-
+        assert versionFlags.contains(SpecVersion.VersionFlag.V202012);
     }
 
     @Test
     public void testAllVersionValue() {
-        long numericVersionCode =
-                SpecVersion.VersionFlag.V201909.getVersionFlagValue()
-                        | SpecVersion.VersionFlag.V4.getVersionFlagValue()
-                        | SpecVersion.VersionFlag.V6.getVersionFlagValue()
-                        | SpecVersion.VersionFlag.V7.getVersionFlagValue();  // 15
-        Assertions.assertEquals(numericVersionCode, 15);
-
+        long numericVersionCode = Arrays.stream(SpecVersion.VersionFlag.values())
+                .map(SpecVersion.VersionFlag::getVersionFlagValue)
+                .reduce((a, b) -> a | b)
+                .orElse(0L);
+        Assertions.assertEquals(numericVersionCode, 31);
     }
 }
