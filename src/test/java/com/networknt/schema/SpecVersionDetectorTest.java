@@ -53,7 +53,16 @@ public class SpecVersionDetectorTest {
     }
 
     @Test
-    public void detectUnsupportedSchemaVersion() throws IOException {
+    public void detectV202012() throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("draft2020-12/" + SCHEMA_TAG_JSON);
+        JsonNode node = mapper.readTree(in);
+        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        assertEquals(SpecVersion.VersionFlag.V202012, flag);
+    }
+
+    @Test
+    public void detectUnsupportedSchemaVersion() {
         assertThrows(JsonSchemaException.class, () -> {
             InputStream in = Thread.currentThread().getContextClassLoader()
                     .getResourceAsStream("data/" + SCHEMA_TAG_JSON);
@@ -63,7 +72,7 @@ public class SpecVersionDetectorTest {
     }
 
     @Test
-    public void detectMissingSchemaVersion() throws IOException {
+    public void detectMissingSchemaVersion() {
         assertThrows(JsonSchemaException.class, () -> {
             InputStream in = Thread.currentThread().getContextClassLoader()
                     .getResourceAsStream("data/" + "schemaTagMissing.json");
