@@ -22,7 +22,7 @@
     <artifactId>json-schema-validator</artifactId>
     <version>1.0.73</version>
     <packaging>bundle</packaging>
-    <description>A json schema validator that supports draft v4, v6, v7 and v2019-09</description>
+    <description>A json schema validator that supports draft v4, v6, v7, v2019-09 and v2020-12</description>
     <url>https://github.com/networknt/json-schema-validator</url>
     <name>JsonSchemaValidator</name>
     <developers>
