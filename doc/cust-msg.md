@@ -5,7 +5,7 @@ We can provide the custom message in the json schema itself.
 
 <b> Example of schema with default message: </b>
 
-````
+````json
 {
   "type": "object",
   "properties": {
@@ -24,7 +24,7 @@ We can provide the custom message in the json schema itself.
 
 <b> Example of schema with a custom message: </b>
 
-````
+````json
 {
   "type": "object",
   "properties": {
@@ -46,7 +46,7 @@ We can provide the custom message in the json schema itself.
 
 
 
-````
+````json
 "message": {
     [validationType] : [customMessage]
   }

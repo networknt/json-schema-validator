@@ -13,7 +13,7 @@ or with default configuration
 JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4));
 ```
  
-Please avoid using default getInstance(), which, internally, defaults to the SpecVersion.VersionFlag.V4 as the parameter. This is deprecated.
+Please avoid using default `getInstance()`, which, internally, defaults to the `SpecVersion.VersionFlag.V4` as the parameter. This is deprecated.
 
 #### To create a draft V6 JsonSchemaFactory
 
@@ -77,7 +77,7 @@ JsonSchemaFactory validatorFactory = JsonSchemaFactory.getInstance(SpecVersionDe
 
 #### SpecVersion
 
-A new class SpecVersion has been introduced to indicate which version of the specification is used when creating the JsonSchemaFactory. The SpecVersion has an enum and two methods to convert a long to an EnumSet or a set of VersionFlags to a long value. 
+A new class `SpecVersion` has been introduced to indicate which version of the specification is used when creating the `JsonSchemaFactory`. The `SpecVersion` has an enum and two methods to convert a long to an `EnumSet` or a set of `VersionFlags` to a long value. 
 
 ```java
 public enum VersionFlag {
@@ -110,19 +110,19 @@ For most of the validators, the version code should be 31, which is 11111. This 
 
 For example.
 
-```
+```java
 MAXIMUM("maximum", "1011", new MessageFormat("{0}: must have a maximum value of {1}"), MaximumValidator.class, 31),
 ```
 
 Since if-then-else was introduced in the V7, it only works for V7, V2019-09 and V2020-12
 
-```
+```java
 IF_THEN_ELSE("if", "1037", null, IfValidator.class, 28),  // V7|V201909|V202012 11100
 ```
 
 For exclusiveMaximum, it was introduced from V6
 
-```
+```java
 EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", new MessageFormat("{0}: must have a exclusive maximum value of {1}"), ExclusiveMaximumValidator.class, 30),  // V6|V7|V201909|V202012
 ```
 
@@ -142,13 +142,13 @@ public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFl
 
 #### JsonMetaSchema
 
-We have created four different static classes V4, V6, V7, V201909 and V202012 to build different JsonMetaSchema instances. 
+We have created four different static classes V4, V6, V7, V201909 and V202012 to build different `JsonMetaSchema` instances. 
 
 For the BUILDIN_FORMATS, there is a common section, and each static class has its version-specific BUILDIN_FORMATS section. 
 
 #### JsonSchemaFactory
 
-The getInstance supports a parameter SpecVersion.VersionFlag to get the right instance of the JsonMetaShema to create the factory. If there is no parameter, then V4 is used by default. 
+The getInstance supports a parameter `SpecVersion.VersionFlag` to get the right instance of the `JsonMetaShema` to create the factory. If there is no parameter, then V4 is used by default. 
 
 ```java
 @Deprecated

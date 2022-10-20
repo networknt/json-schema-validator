@@ -187,5 +187,3 @@ more examples in https://github.com/networknt/json-schema-validator/blob/master/
     }
 }
 ```
-
-###

@@ -18,7 +18,7 @@ Basically, you can specify a mapping in the builder. For more details, please ta
 
 https://github.com/JMRI/JMRI/blob/master/java/src/jmri/server/json/schema-map.json
 
-In case you provide the schema through an InputStream or a String to resolve $ref with URN (relative path), you need to provide the URNFactory to the JsonSchemaFactory.Builder.
-URNFactory interface will allow you to resolve URN to URI.
+In case you provide the schema through an `InputStream` or a `String` to resolve `$ref` with URN (relative path), you need to provide the `URNFactory` to the `JsonSchemaFactory.Builder.
+URNFactory` interface will allow you to resolve URN to URI.
 
 please take a look at the test cases and the [PR](https://github.com/networknt/json-schema-validator/pull/274).
