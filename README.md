@@ -18,11 +18,9 @@ This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-0
 
 It is the fastest Java JSON Schema Validator as far as I know. Here is the testing result compare with the other two open-source implementations. It is about 32 times faster than the Fge and five times faster than the Everit.
 
-fge: 7130ms
-
-everit-org: 1168ms
-
-networknt: 223ms
+- fge: 7130ms
+- everit-org: 1168ms
+- networknt: 223ms
 
 You can run the performance tests for three libraries from [https://github.com/networknt/json-schema-validator-perftest](https://github.com/networknt/json-schema-validator-perftest)
 
@@ -44,7 +42,7 @@ Following the design principle of the Light Platform, this library has minimum d
 
 Here are the dependencies. 
 
-```
+```xml
 <dependency>
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
@@ -88,7 +86,7 @@ Maven:
 
 Gradle:
 
-```
+```java
 dependencies {
     compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.73");
 }
