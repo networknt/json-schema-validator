@@ -8,7 +8,7 @@ A great feature of json-schema-validator is it's ability to validate YAML docume
 
 One solution is to use a custom [JsonNodeFactory](https://fasterxml.github.io/jackson-databind/javadoc/2.10/com/fasterxml/jackson/databind/node/JsonNodeFactory.html) that returns custom JsonNode objects which are created during initial parsing, and which record the original YAML locations that were being parsed at the time they were created. The example below shows this
 
-```
+```java
     public static class MyNodeFactory extends JsonNodeFactory
     {
         YAMLParser yp;
@@ -69,7 +69,7 @@ We can be as simple or fancy as we like in the `JsonNode` subclassses, but basic
 
 Those could be the same thing of course, but in our case we separated them as shown in the following example
 
-```
+```java
     public interface LocationProvider
     {
         LocationDetails getLocationDetails();
@@ -193,7 +193,7 @@ Those could be the same thing of course, but in our case we separated them as sh
 
 With the pieces we now have, we just need to tell the YAML library to make of use them, which involves a minor and simple modification to the normal sequence of processing.
 
-```
+```java
     this.yamlFactory = new YAMLFactory();
 
     try (YAMLParser yp = yamlFactory.createParser(f);)
@@ -235,7 +235,7 @@ Some notes on what is happening here:
 Having got everything prepared, actually getting the line locations is rather easy
 
 
-```
+```java
     void processJsonItems(JsonNode item) 
     {        
         Iterator<Map.Entry<String, JsonNode>> iter = item.fields();
@@ -268,7 +268,7 @@ Any failures validation against the schema come back in the form of a set of `Va
 
 Within the `ValidationMessage` object is something called the 'path' of the error, which we can access with the `getPath()` method. The syntax of this path is not exactly the same as a regular [JsonPointer](https://fasterxml.github.io/jackson-core/javadoc/2.10/com/fasterxml/jackson/core/JsonPointer.html) object, but it is sufficiently close as to be convertible. And, once converted, we can use that pointer for locating the appropriate `JsonNode`. The following couple of methods can be used to automate this process
 
-```
+```java
     JsonNode findJsonNode(ValidationMessage msg, JsonNode rootNode)
     {
         // munge the ValidationMessage path

@@ -1,9 +1,9 @@
 ## Quick Start
 
-To use the validator, we need to have both the JsonSchema object and JsonNode object constructed. 
+To use the validator, we need to have both the `JsonSchema` object and `JsonNode` object constructed. 
 There are many ways to do that. 
-Here is base test class, that shows several ways to construct these from String, Stream, Url, and JsonNode. 
-Please pay attention to the JsonSchemaFactory class as it is the way to construct the JsonSchema object.
+Here is base test class, that shows several ways to construct these from `String`, `Stream`, `Url`, and `JsonNode`. 
+Please pay attention to the `JsonSchemaFactory` class as it is the way to construct the `JsonSchema` object.
 
 ```java
 public class BaseJsonSchemaValidatorTest {
@@ -54,7 +54,7 @@ public class BaseJsonSchemaValidatorTest {
 
 }
 ```
-And the following is one of the test cases in one of the test classes that extend from the above base class. As you can see, it constructs JsonSchema and JsonNode from String.
+And the following is one of the test cases in one of the test classes that extend from the above base class. As you can see, it constructs `JsonSchema` and `JsonNode` from `String`.
 
 ```java
 class Sample extends BaseJsonSchemaValidatorTest {

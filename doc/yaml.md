@@ -4,7 +4,7 @@ One of the features of this library is to validate the YAML file in addition to 
 
 Add the dependency
 
-```
+```xml
 <dependency>
     <groupId>com.fasterxml.jackson.dataformat</groupId>
     <artifactId>jackson-dataformat-yaml</artifactId>
@@ -15,7 +15,7 @@ Add the dependency
 and create object mapper using yaml factory i.e `ObjectMapper objMapper =new ObjectMapper(new YAMLFactory());`
 
 #### Example
-```
+```java
 JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).objectMapper(mapper).build(); /* Using draft-07. You can choose anyother draft.*/
 JsonSchema schema = factory.getSchema(YamlOperations.class.getClassLoader().getResourceAsStream("your-schema.json"));
 

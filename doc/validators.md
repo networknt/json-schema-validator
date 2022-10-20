@@ -14,7 +14,7 @@ If `if` is valid, `then` must also be valid (and `else` is ignored.) If `if` is 
 For usage, please refer to the test cases at https://github.com/networknt/json-schema-validator/blob/master/src/test/resources/draft7/if-then-else.json
 
 ### Custom Validators
-````
+````java
 @Bean
 public JsonSchemaFactory mySchemaFactory() {
     // base on JsonMetaSchema.V201909 copy code below
@@ -69,7 +69,7 @@ public class GroovyKeyword extends AbstractKeyword {
 }
 ````
 You can use GroovyKeyword like below:
-````
+````json
 {
   "type": "object",
   "properties": {
@@ -87,7 +87,7 @@ In this library, if the format keyword is "email", "uuid", "date", "date-time", 
 
 If you want to override this behavior, do as below.
 
-```
+```java
 public JsonSchemaFactory mySchemaFactory() {
     // base on JsonMetaSchema.V201909 copy code below
     String URI = "https://json-schema.org/draft/2019-09/schema";

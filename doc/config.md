@@ -10,9 +10,9 @@ Most of the configuration flags are used to control the difference between Swagg
 
 #### How to use config
 
-When you create a JsonSchema instance from the JsonSchemaFactory, you can pass an object of SchemaValidatorsConfig as the second parameter. 
+When you create a `JsonSchema` instance from the `JsonSchemaFactory`, you can pass an object of SchemaValidatorsConfig as the second parameter. 
 
-```
+```java
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 config.setTypeLoose(false);
 JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config);
@@ -46,7 +46,7 @@ For more details, please refer to this [issue](https://github.com/networknt/json
 Map of public, typically internet-accessible schema URLs to alternate locations; this allows for offline validation of schemas that refer to public URLs. This is merged with any mappings the sonSchemaFactory 
 may have been built.
 
-The type for this variable is Map<String, String>. 
+The type for this variable is `Map<String, String>`. 
 
 * javaSemantics
 
