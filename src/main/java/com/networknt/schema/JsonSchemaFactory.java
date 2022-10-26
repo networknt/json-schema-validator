@@ -375,9 +375,9 @@ public class JsonSchemaFactory {
 
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-					jsonSchema = new JsonSchema(
-							new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config),
-							mappedUri, schemaNode, true /* retrieved via id, resolving will not change anything */);
+                    jsonSchema = new JsonSchema(
+                        new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config),
+                        mappedUri, schemaNode, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
