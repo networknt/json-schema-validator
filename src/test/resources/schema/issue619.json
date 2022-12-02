@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "resource:schema/issue619.json",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/one"
+    },
+    {
+      "$ref": "#/definitions/two"
+    }
+  ],
+  "definitions": {
+    "one": {
+      "type": "integer",
+      "enum": [1]
+    },
+    "two": {
+      "type": "integer",
+      "enum": [2]
+    },
+    "refToOne": {
+      "$ref": "#/definitions/one"
+    }
+  }
+}

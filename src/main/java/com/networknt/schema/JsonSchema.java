@@ -16,20 +16,22 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.ValidationContext.DiscriminatorContext;
+import com.networknt.schema.utils.StringUtils;
+import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
+import com.networknt.schema.walk.JsonSchemaWalker;
+import com.networknt.schema.walk.WalkListenerRunner;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ValidationContext.DiscriminatorContext;
-import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
-import com.networknt.schema.walk.JsonSchemaWalker;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -51,8 +53,7 @@ public class JsonSchema extends BaseJsonValidator {
      * This can be null. If it is null, then the creation of relative uris will fail. However, an absolute
      * 'id' would still be able to specify an absolute uri.
      */
-    private final URI currentUri;
-
+    private URI currentUri;
     private JsonValidator requiredValidator = null;
 
     private JsonValidator unevaluatedPropertiesValidator = null;
@@ -79,7 +80,10 @@ public class JsonSchema extends BaseJsonValidator {
               validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
-        this.currentUri = this.combineCurrentUriWithIds(currentUri, schemaNode);
+        this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
+        if (uriRefersToSubschema(currentUri, schemaPath)) {
+            updateThisAsSubschema(currentUri);
+        }
         if (validationContext.getConfig() != null) {
             keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -116,6 +120,35 @@ public class JsonSchema extends BaseJsonValidator {
 
     private boolean isUriFragmentWithNoContext(URI currentUri, String id) {
         return id.startsWith("#") && currentUri == null;
+    }
+
+    private boolean uriRefersToSubschema(URI originalUri, String schemaPath) {
+        return originalUri != null
+            && StringUtils.isNotBlank(originalUri.getRawFragment())  // Original currentUri parameter has a fragment, so it refers to a subschema
+            && (StringUtils.isBlank(schemaPath) || "#".equals(schemaPath)); // We aren't already in a subschema
+    }
+
+    /**
+     * Creates a new parent schema from the current state and updates this object to refer to the subschema instead.
+     */
+    private void updateThisAsSubschema(URI originalUri) {
+        String fragment = "#" + originalUri.getFragment();
+        JsonNode fragmentSchemaNode = getRefSchemaNode(fragment);
+        if (fragmentSchemaNode == null) {
+            throw new JsonSchemaException("Fragment " + fragment + " cannot be resolved");
+        }
+        // We need to strip the fragment off of the new parent schema's currentUri, so that its constructor
+        // won't also end up in this method and get stuck in an infinite recursive loop.
+        URI currentUriWithoutFragment;
+        try {
+            currentUriWithoutFragment = new URI(currentUri.getScheme(), currentUri.getSchemeSpecificPart(), null);
+        } catch (URISyntaxException ex) {
+            throw new JsonSchemaException("Unable to create URI without fragment from " + currentUri + ": " + ex.getMessage());
+        }
+        this.parentSchema = new JsonSchema(validationContext, schemaPath, currentUriWithoutFragment, schemaNode, parentSchema);
+        this.schemaPath = fragment;
+        this.schemaNode = fragmentSchemaNode;
+        this.currentUri = combineCurrentUriWithIds(currentUri, fragmentSchemaNode);
     }
 
     public URI getCurrentUri() {
