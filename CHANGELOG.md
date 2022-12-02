@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.74 - 2022-12-02
+
+### Added
+
+### Changed
+
+- upgrade undertow to 2.3.0.Final
+- upgrade jackson to 2.14.0
+- fixes #620 upgrade commons-lang3 to 3.12.0
+- fixes #619 Add support for subschema references in getSchema. Thanks @aznan2
+- fixes #626 Correcting the oneOf,anyOf and allOf child schema validators. Thanks @prashanthjos
+- fixes #617 Beautify code blocks. Thanks @limboinf
+- fixes #614 Update spec version tests. Thanks @tuncererdogan
+- fixes #613 Update the specversion.md and pom.xml. Thanks @tuncererdogan
+
 ## 1.0.73 - 2022-09-19
 
 ### Added
