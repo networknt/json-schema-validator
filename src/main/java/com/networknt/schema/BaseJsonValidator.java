@@ -182,7 +182,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected boolean isPartOfOneOfMultipleType() {
-        return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
+        return parentSchema.schemaPath.endsWith(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
