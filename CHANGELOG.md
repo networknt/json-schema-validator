@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.75 - 2022-12-10
+
+### Added
+
+### Changed
+
+- fixes #628 schema path fixes in oneOf,allOf and anyOf validators. Thanks @prashanthjos
+
 ## 1.0.74 - 2022-12-02
 
 ### Added
