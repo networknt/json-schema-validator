@@ -400,6 +400,14 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(node, node, AT_ROOT, shouldValidateSchema);
+    }
+
+    public ValidationResult walkAtNode(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(node, rootNode, at, shouldValidateSchema);
+    }
+
+    private ValidationResult walkAtNodeInternal(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         try {
             // Get the config.
             SchemaValidatorsConfig config = validationContext.getConfig();
@@ -408,7 +416,7 @@ public class JsonSchema extends BaseJsonValidator {
             // Set the walkEnabled flag in internal validator state.
             setValidatorState(true, shouldValidateSchema);
             // Walk through the schema.
-            Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
+            Set<ValidationMessage> errors = walk(node, rootNode, at, shouldValidateSchema);
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
