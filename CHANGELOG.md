@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.76 - 2022-12-19
+
+### Added
+
+### Changed
+
+- fixes #629 adding new walk method to start walking from a specific part of a given schema node. Thanks @prashanthjos
+
 ## 1.0.75 - 2022-12-10
 
 ### Added
