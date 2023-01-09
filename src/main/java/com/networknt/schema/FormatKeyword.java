@@ -52,21 +52,27 @@ public class FormatKeyword implements Keyword {
             format = formats.get(formatName);
             // if you set custom format, override default Email/DateTime/UUID Validator
             if (format != null) {
-                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
+                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format, type);
             }
             // Validate date and time separately
             if (formatName.equals(DATE) || formatName.equals(DATE_TIME)) {
-                return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+                ValidatorTypeCode typeCode = ValidatorTypeCode.DATETIME;
+                // Set custom error message
+                typeCode.setCustomMessage(type.getCustomMessage());
+                return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName, typeCode);
             } else if (formatName.equals(UUID)) {
-                return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+                ValidatorTypeCode typeCode = ValidatorTypeCode.UUID;
+                // Set custom error message
+                typeCode.setCustomMessage(type.getCustomMessage());
+                return new UUIDValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName, typeCode);
             } else if (formatName.equals(EMAIL)) {
-                return new EmailValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+                return new EmailValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName, type);
             }
             else if (formatName.equals(DURATION)) {
-                return new DurationValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName);
+                return new DurationValidator(schemaPath, schemaNode, parentSchema, validationContext, formatName, type);
             }
         }
-        return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format);
+        return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format, type);
     }
 
     @Override
@@ -78,6 +84,4 @@ public class FormatKeyword implements Keyword {
     public void setCustomMessage(String message) {
         type.setCustomMessage(message);
     }
-
-
 }

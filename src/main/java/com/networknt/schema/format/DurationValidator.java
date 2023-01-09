@@ -63,8 +63,8 @@ public class DurationValidator extends BaseJsonValidator implements JsonValidato
         return true;
     }
 
-    public DurationValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
+    public DurationValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName, ValidatorTypeCode type) {
+        super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.formatName = formatName;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());

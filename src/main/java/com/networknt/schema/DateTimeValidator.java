@@ -34,8 +34,8 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     private final String DATE = "date";
     private final String DATETIME = "date-time";
 
-    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DATETIME, validationContext);
+    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName, ValidatorTypeCode type) {
+        super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.formatName = formatName;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());

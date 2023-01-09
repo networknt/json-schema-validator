@@ -137,8 +137,8 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
         return USER_PATTERN.matcher(user).matches();
     }
 
-    public EmailValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
+    public EmailValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName,  ValidatorTypeCode type) {
+        super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.formatName = formatName;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
