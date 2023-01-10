@@ -30,8 +30,8 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
 
     private final Format format;
 
-    public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
+    public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
+        super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.format = format;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
