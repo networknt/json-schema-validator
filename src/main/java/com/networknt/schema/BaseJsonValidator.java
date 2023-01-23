@@ -39,6 +39,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected ValidationContext validationContext;
     protected final boolean failFast;
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
+    private final String customMessage;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
@@ -69,6 +70,11 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.failFast = failFast;
         this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        if (validatorType != null) {
+            this.customMessage = validatorType.getCustomMessage();
+        } else {
+            this.customMessage = null;
+        }
     }
 
     public String getSchemaPath() {
@@ -137,7 +143,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, schemaPath, arguments);
+        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), errorMessageType, customMessage, at, schemaPath, arguments);
         if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
