@@ -130,12 +130,16 @@ public class ValidationMessage {
         this.type = type;
     }
 
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String schemaPath, String... arguments) {
+    public static ValidationMessage ofWithCustom(String type, ErrorMessageType errorMessageType, String customMessage, String at, String schemaPath, String... arguments) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).arguments(arguments)
                 .format(errorMessageType.getMessageFormat()).type(type)
-                .customMessage(errorMessageType.getCustomMessage());
+                .customMessage(customMessage);
         return builder.build();
+    }
+
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String schemaPath, String... arguments) {
+        return ofWithCustom(type, errorMessageType, errorMessageType.getCustomMessage(), at, schemaPath, arguments);
     }
 
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, String at, String schemaPath, Map<String, Object> details) {

@@ -1,0 +1,19 @@
+{
+  "toplevel": [
+    {
+      "foos": "foo",
+      "Nope": "a",
+      "bars": "bar"
+    },
+    {
+      "foos": "fee",
+      "Nope": "b",
+      "bars": "baz"
+    },
+    {
+      "foos": "foo",
+      "Nope": "c",
+      "bars": "bar"
+    }
+  ]
+}

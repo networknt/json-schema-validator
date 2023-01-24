@@ -282,13 +282,15 @@ public class JsonSchema extends BaseJsonValidator {
         if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
             return schemaNode.get("message");
         }
-        JsonNode nodeContainingMessage;
-        if (parentSchema == null) {
-            nodeContainingMessage = schemaNode;
-        } else {
-            nodeContainingMessage = parentSchema.schemaNode;
+        JsonNode messageNode;
+        messageNode = schemaNode.get("message");
+        if (messageNode == null && parentSchema != null) {
+            messageNode = parentSchema.schemaNode.get("message");
+            if (messageNode == null) {
+                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
+            }
         }
-        return nodeContainingMessage.get("message");
+        return messageNode;
     }
 
     /************************ START OF VALIDATE METHODS **********************************/
