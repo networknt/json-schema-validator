@@ -2,7 +2,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,75 +11,35 @@ import java.io.InputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SpecVersionDetectorTest {
-
-    private static final String SCHEMA_TAG_JSON = "schemaTag.json";
+class SpecVersionDetectorTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    @Test
-    public void detectV4() throws IOException {
+    @ParameterizedTest
+    @CsvSource({
+            "draft4,       V4",
+            "draft6,       V6",
+            "draft7,       V7",
+            "draft2019-09, V201909",
+            "draft2020-12, V202012"
+    })
+    void detectVersion(String resourceDirectory, SpecVersion.VersionFlag expectedFlag) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft4/" + SCHEMA_TAG_JSON);
+                .getResourceAsStream(resourceDirectory + "/schemaTag.json");
         JsonNode node = mapper.readTree(in);
         SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        assertEquals(SpecVersion.VersionFlag.V4, flag);
+        assertEquals(expectedFlag, flag);
     }
 
-    @Test
-    public void detectV6() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft6/" + SCHEMA_TAG_JSON);
+    @ParameterizedTest
+    @CsvSource({
+            "data/schemaTag.json,        'http://json-schema.org/draft-03/schema#' is unrecognizable schema",
+            "data/schemaTagMissing.json, '$schema' tag is not present"
+    })
+    void detectInvalidSchemaVersion(String schemaPath, String expectedError) throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaPath);
         JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        assertEquals(SpecVersion.VersionFlag.V6, flag);
+        JsonSchemaException exception = assertThrows(JsonSchemaException.class, () -> SpecVersionDetector.detect(node));
+        assertEquals(expectedError, exception.getMessage());
     }
-
-    @Test
-    public void detectV7() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft7/" + SCHEMA_TAG_JSON);
-        JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        assertEquals(SpecVersion.VersionFlag.V7, flag);
-    }
-
-    @Test
-    public void detectV201909() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft2019-09/" + SCHEMA_TAG_JSON);
-        JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        assertEquals(SpecVersion.VersionFlag.V201909, flag);
-    }
-
-    @Test
-    public void detectV202012() throws IOException {
-        InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("draft2020-12/" + SCHEMA_TAG_JSON);
-        JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        assertEquals(SpecVersion.VersionFlag.V202012, flag);
-    }
-
-    @Test
-    public void detectUnsupportedSchemaVersion() {
-        assertThrows(JsonSchemaException.class, () -> {
-            InputStream in = Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream("data/" + SCHEMA_TAG_JSON);
-            JsonNode node = mapper.readTree(in);
-            SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        });
-    }
-
-    @Test
-    public void detectMissingSchemaVersion() {
-        assertThrows(JsonSchemaException.class, () -> {
-            InputStream in = Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream("data/" + "schemaTagMissing.json");
-            JsonNode node = mapper.readTree(in);
-            SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
-        });
-    }
-
 }

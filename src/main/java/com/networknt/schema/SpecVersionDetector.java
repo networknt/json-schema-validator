@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class SpecVersionDetector {
 
-    // Schema tag
     private static final String SCHEMA_TAG = "$schema";
 
     /**
@@ -36,25 +35,32 @@ public class SpecVersionDetector {
      * @return Spec version
      */
     public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
-        if (!jsonNode.has(SCHEMA_TAG))
-            throw new JsonSchemaException("Schema tag not present");
+        JsonNode schemaTag = jsonNode.get(SCHEMA_TAG);
+        if (schemaTag == null) {
+            throw new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present");
+        }
 
         final boolean forceHttps = true;
         final boolean removeEmptyFragmentSuffix = true;
 
-        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(jsonNode.get(SCHEMA_TAG).asText(), forceHttps, removeEmptyFragmentSuffix);
-        if (schemaUri.equals(JsonMetaSchema.getV4().getUri()))
+        String schemaTagValue = schemaTag.asText();
+        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps, removeEmptyFragmentSuffix);
+        if (schemaUri.equals(JsonMetaSchema.getV4().getUri())) {
             return SpecVersion.VersionFlag.V4;
-        else if (schemaUri.equals(JsonMetaSchema.getV6().getUri()))
+        }
+        if (schemaUri.equals(JsonMetaSchema.getV6().getUri())) {
             return SpecVersion.VersionFlag.V6;
-        else if (schemaUri.equals(JsonMetaSchema.getV7().getUri()))
+        }
+        if (schemaUri.equals(JsonMetaSchema.getV7().getUri())) {
             return SpecVersion.VersionFlag.V7;
-        else if (schemaUri.equals(JsonMetaSchema.getV201909().getUri()))
+        }
+        if (schemaUri.equals(JsonMetaSchema.getV201909().getUri())) {
             return SpecVersion.VersionFlag.V201909;
-        else if (schemaUri.equals(JsonMetaSchema.getV202012().getUri()))
+        }
+        if (schemaUri.equals(JsonMetaSchema.getV202012().getUri())) {
             return SpecVersion.VersionFlag.V202012;
-        else
-            throw new JsonSchemaException("Unrecognizable schema");
+        }
+        throw new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema");
     }
 
 }
