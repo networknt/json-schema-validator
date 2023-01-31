@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class JsonSchemaVersion {
-    protected static String URI;
-    protected static String ID;
     public static final List<Format> BUILTIN_FORMATS = new ArrayList<Format>(JsonMetaSchema.COMMON_BUILTIN_FORMATS);
     static {
         // add version specific formats here.
