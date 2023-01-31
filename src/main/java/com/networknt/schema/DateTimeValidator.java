@@ -29,10 +29,10 @@ import java.util.Set;
 
 public class DateTimeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
+    private static final String DATE = "date";
+    private static final String DATETIME = "date-time";
 
     private final String formatName;
-    private final String DATE = "date";
-    private final String DATETIME = "date-time";
 
     public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName, ValidatorTypeCode type) {
         super(schemaPath, schemaNode, parentSchema, type, validationContext);

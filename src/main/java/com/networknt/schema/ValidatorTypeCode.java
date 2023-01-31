@@ -100,12 +100,12 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", new MessageFormat(I18nSupport.getString("dependentSchemas")), DependentSchemas.class, VersionCode.MinV201909),
     UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",new MessageFormat(I18nSupport.getString("unevaluatedProperties")),UnEvaluatedPropertiesValidator.class, VersionCode.MinV6);
 
-    private static Map<String, ValidatorTypeCode> constants = new HashMap<String, ValidatorTypeCode>();
-    private static SpecVersion specVersion = new SpecVersion();
+    private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<String, ValidatorTypeCode>();
+    private static final SpecVersion SPEC_VERSION = new SpecVersion();
 
     static {
         for (ValidatorTypeCode c : values()) {
-            constants.put(c.value, c);
+            CONSTANTS.put(c.value, c);
         }
     }
 
@@ -131,7 +131,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFlag versionFlag) {
         final List<ValidatorTypeCode> result = new ArrayList<ValidatorTypeCode>();
         for (ValidatorTypeCode keyword : values()) {
-            if (!FORMAT.equals(keyword) && specVersion.getVersionFlags(keyword.versionCode).contains(versionFlag)) {
+            if (!FORMAT.equals(keyword) && SPEC_VERSION.getVersionFlags(keyword.versionCode).contains(versionFlag)) {
                 result.add(keyword);
             }
         }
@@ -139,7 +139,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     }
 
     public static ValidatorTypeCode fromValue(String value) {
-        ValidatorTypeCode constant = constants.get(value);
+        ValidatorTypeCode constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         } else {

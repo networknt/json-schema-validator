@@ -25,14 +25,14 @@ import java.util.Collections;
 import java.util.Map;
 
 public class FormatKeyword implements Keyword {
+    private static final String DATE = "date";
+    private static final String DATE_TIME = "date-time";
+    private static final String UUID = "uuid";
+    private static final String EMAIL = "email";
+    private static final String DURATION = "duration";
+
     private final ValidatorTypeCode type;
     private final Map<String, Format> formats;
-
-    private final String DATE = "date";
-    private final String DATE_TIME = "date-time";
-    private final String UUID = "uuid";
-    private final String EMAIL = "email";
-    private final String DURATION = "duration";
 
     public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
         this.type = type;
