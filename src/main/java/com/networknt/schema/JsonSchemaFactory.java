@@ -424,9 +424,7 @@ public class JsonSchemaFactory {
             return false;
         }
         boolean result = id.equals(schemaUri.toString());
-        if (logger.isDebugEnabled()) {
-            logger.debug("Matching " + id + " to " + schemaUri.toString() + ": " + result);
-        }
+        logger.debug("Matching {} to {}: {}", id, schemaUri, result);
         return result;
     }
 

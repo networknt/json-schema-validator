@@ -278,7 +278,7 @@ public class JsonMetaSchema {
             Keyword kw = keywords.get(keyword);
             if (kw == null) {
                 if (UNKNOWN_KEYWORDS.put(keyword, keyword) == null) {
-                    logger.warn("Unknown keyword " + keyword + " - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword");
+                    logger.warn("Unknown keyword {} - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword", keyword);
                 }
                 return null;
             }
@@ -289,13 +289,13 @@ public class JsonMetaSchema {
                 logger.error("Error:", e);
                 throw (JsonSchemaException) e.getTargetException();
             } else {
-                logger.warn("Could not load validator " + keyword);
+                logger.warn("Could not load validator {}", keyword);
                 throw new JsonSchemaException(e.getTargetException());
             }
         } catch (JsonSchemaException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("Could not load validator " + keyword);
+            logger.warn("Could not load validator {}", keyword);
             throw new JsonSchemaException(e);
         }
     }

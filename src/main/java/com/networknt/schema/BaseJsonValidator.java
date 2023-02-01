@@ -151,9 +151,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("validate( " + node + ", " + rootNode + ", " + at + ")");
-        }
+        logger.debug("validate( {}, {}, {})", node, rootNode, at);
     }
 
     protected ValidatorTypeCode getValidatorType() {

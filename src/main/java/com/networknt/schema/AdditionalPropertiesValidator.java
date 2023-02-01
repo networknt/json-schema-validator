@@ -77,7 +77,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        if (logger.isDebugEnabled()) debug(logger, node, rootNode, at);
+        debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (!node.isObject()) {

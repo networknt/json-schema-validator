@@ -63,7 +63,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on " + at + ": Invalid RE syntax [" + format.getName() + "]", pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", at, format.getName(), pse);
             }
         }
 
