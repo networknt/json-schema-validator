@@ -18,49 +18,69 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Optional;
+
 /**
  * This class is used to detect schema version
  *
  * @author Subhajitdas298
  * @since 25/06/20
  */
-public class SpecVersionDetector {
+public final class SpecVersionDetector {
 
     private static final String SCHEMA_TAG = "$schema";
 
+    private SpecVersionDetector() {
+        // Prevent instantiation of this utility class
+    }
+
     /**
-     * Detects schema version based on the schema tag
+     * Detects schema version based on the schema tag: if the schema tag is not present, throws
+     * {@link JsonSchemaException} with the corresponding message, otherwise - returns the detected spec version.
      *
-     * @param jsonNode Json Node to read from
-     * @return Spec version
+     * @param jsonNode JSON Node to read from
+     * @return Spec version if present, otherwise throws an exception
      */
     public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
-        JsonNode schemaTag = jsonNode.get(SCHEMA_TAG);
-        if (schemaTag == null) {
-            throw new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present");
-        }
+        return detectOptionalVersion(jsonNode).orElseThrow(
+                () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
+        );
+    }
 
-        final boolean forceHttps = true;
-        final boolean removeEmptyFragmentSuffix = true;
+    /**
+     * Detects schema version based on the schema tag: if the schema tag is not present, returns an empty {@link
+     * Optional} value, otherwise - returns the detected spec version wrapped into {@link Optional}.
+     *
+     * @param jsonNode JSON Node to read from
+     * @return Spec version if present, otherwise empty
+     */
+    public static Optional<SpecVersion.VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
+        return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
-        String schemaTagValue = schemaTag.asText();
-        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps, removeEmptyFragmentSuffix);
-        if (schemaUri.equals(JsonMetaSchema.getV4().getUri())) {
-            return SpecVersion.VersionFlag.V4;
-        }
-        if (schemaUri.equals(JsonMetaSchema.getV6().getUri())) {
-            return SpecVersion.VersionFlag.V6;
-        }
-        if (schemaUri.equals(JsonMetaSchema.getV7().getUri())) {
-            return SpecVersion.VersionFlag.V7;
-        }
-        if (schemaUri.equals(JsonMetaSchema.getV201909().getUri())) {
-            return SpecVersion.VersionFlag.V201909;
-        }
-        if (schemaUri.equals(JsonMetaSchema.getV202012().getUri())) {
-            return SpecVersion.VersionFlag.V202012;
-        }
-        throw new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema");
+            final boolean forceHttps = true;
+            final boolean removeEmptyFragmentSuffix = true;
+
+            String schemaTagValue = schemaTag.asText();
+            String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps,
+                    removeEmptyFragmentSuffix);
+
+            if (schemaUri.equals(JsonMetaSchema.getV4().getUri())) {
+                return SpecVersion.VersionFlag.V4;
+            }
+            if (schemaUri.equals(JsonMetaSchema.getV6().getUri())) {
+                return SpecVersion.VersionFlag.V6;
+            }
+            if (schemaUri.equals(JsonMetaSchema.getV7().getUri())) {
+                return SpecVersion.VersionFlag.V7;
+            }
+            if (schemaUri.equals(JsonMetaSchema.getV201909().getUri())) {
+                return SpecVersion.VersionFlag.V201909;
+            }
+            if (schemaUri.equals(JsonMetaSchema.getV202012().getUri())) {
+                return SpecVersion.VersionFlag.V202012;
+            }
+            throw new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema");
+        });
     }
 
 }
