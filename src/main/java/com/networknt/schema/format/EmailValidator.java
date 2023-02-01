@@ -58,8 +58,9 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
 
     private static final int MAX_USERNAME_LEN = 64;
 
-    private final boolean allowLocal = false;
-    private final boolean allowTld = false;
+    private static final boolean ALLOW_LOCAL = false;
+    private static final boolean ALLOW_TLD = false;
+
     private final String formatName;
 
 
@@ -114,8 +115,8 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
         }
         // Domain is symbolic name
         DomainValidator domainValidator =
-                DomainValidator.getInstance(allowLocal);
-        if (allowTld) {
+                DomainValidator.getInstance(ALLOW_LOCAL);
+        if (ALLOW_TLD) {
             return domainValidator.isValid(domain) || (!domain.startsWith(".") && domainValidator.isValidTld(domain));
         } else {
             return domainValidator.isValid(domain);
