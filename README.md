@@ -7,7 +7,9 @@
 [Javadocs](https://www.javadoc.io/doc/com.networknt/json-schema-validator) |
 [Contribution Guide](https://doc.networknt.com/contribute/) |
 
-[![CI](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml) [![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
+[![CI](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.networknt/json-schema-validator.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.networknt%20a%3Ajson-schema-validator)
+[![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
 
 
 This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
