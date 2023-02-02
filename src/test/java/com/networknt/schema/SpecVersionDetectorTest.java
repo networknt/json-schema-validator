@@ -2,11 +2,13 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,5 +43,14 @@ class SpecVersionDetectorTest {
         JsonNode node = mapper.readTree(in);
         JsonSchemaException exception = assertThrows(JsonSchemaException.class, () -> SpecVersionDetector.detect(node));
         assertEquals(expectedError, exception.getMessage());
+    }
+
+    @Test
+    void detectOptionalSpecVersion() throws IOException {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                "data/schemaTagMissing.json");
+        JsonNode node = mapper.readTree(in);
+        Optional<SpecVersion.VersionFlag> flag = SpecVersionDetector.detectOptionalVersion(node);
+        assertEquals(Optional.empty(), flag);
     }
 }
