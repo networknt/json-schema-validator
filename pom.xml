@@ -68,7 +68,6 @@
         <version.joni>2.1.41</version.joni>
         <version.logback>1.2.11</version.logback>
         <version.junit>5.7.2</version.junit>
-        <version.mockito>2.7.21</version.mockito>
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.21.Final</version.undertow>
         <version.itu>1.7.0</version.itu>
@@ -124,12 +123,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${version.junit}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${version.mockito}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
