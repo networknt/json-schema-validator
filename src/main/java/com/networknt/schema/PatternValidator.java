@@ -75,7 +75,7 @@ public class PatternValidator implements JsonValidator {
                 try {
                     compiledPattern = Pattern.compile(pattern);
                 } catch (PatternSyntaxException pse) {
-                    logger.error("Failed to compile pattern : Invalid syntax [" + pattern + "]", pse);
+                    logger.error("Failed to compile pattern : Invalid syntax [{}]", pattern, pse);
                     throw pse;
                 }
             }
@@ -100,7 +100,7 @@ public class PatternValidator implements JsonValidator {
                     return Collections.singleton(buildValidationMessage(at, pattern));
                 }
             } catch (PatternSyntaxException pse) {
-                logger.error("Failed to apply pattern on " + at + ": Invalid syntax [" + pattern + "]", pse);
+                logger.error("Failed to apply pattern on {}: Invalid syntax [{}]", at, pattern, pse);
             }
 
             return Collections.emptySet();
@@ -121,7 +121,7 @@ public class PatternValidator implements JsonValidator {
                 try {
                     compileRegexPattern(pattern, validationContext.getConfig() != null && validationContext.getConfig().isEcma262Validator());
                 } catch (SyntaxException se) {
-                    logger.error("Failed to compile pattern : Invalid syntax [" + pattern + "]", se);
+                    logger.error("Failed to compile pattern : Invalid syntax [{}]", pattern, se);
                     throw se;
                 }
             }
@@ -156,7 +156,7 @@ public class PatternValidator implements JsonValidator {
                     return Collections.singleton(buildValidationMessage(at, pattern));
                 }
             } catch (PatternSyntaxException pse) {
-                logger.error("Failed to apply pattern on " + at + ": Invalid syntax [" + pattern + "]", pse);
+                logger.error("Failed to apply pattern on {}: Invalid syntax [{}]", at, pattern, pse);
             }
 
             return Collections.emptySet();

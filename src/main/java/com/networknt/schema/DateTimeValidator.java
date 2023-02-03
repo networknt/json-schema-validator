@@ -79,7 +79,7 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
             parser.run();
             return true;
         } catch (Exception ex) {
-            logger.error("Invalid " + formatName + ": " + ex.getMessage());
+            logger.error("Invalid {}: {}", formatName, ex.getMessage());
             return false;
         }
     }
