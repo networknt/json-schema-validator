@@ -69,6 +69,8 @@ public class TypeFactory {
         if (node.isValueNode()) {
             if (node.isTextual())
                 return JsonType.STRING;
+            if (node.isBinary())
+                return JsonType.STRING;
             if (node.isIntegralNumber())
                 return JsonType.INTEGER;
             if (node.isNumber())
