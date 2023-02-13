@@ -10,6 +10,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.77 - 2023-02-13
+
+### Added
+
+- fixes #637 Setup CI based on GH Actions. Thanks @valfirst
+- fixes #635 add persian language to json validator. Thanks @mahdimalverdi
+### Changed
+
+- upgrade jackson to 2.14.2
+- fixes #651 Map BinaryNodes to type string. Thanks @k-oliver
+- fixes #649 Improve logging performance. Thanks @valfirst
+- fixes #648 Drop unused test dependency: Mockito. Thanks @valfirst
+- fixes #647 Use Javadoc badge with dynamic version instead of plain link in README. Thanks @valfirst
+- fixes #646 Add ability to detect spec version optionally. Thanks @valfirst
+- fixes #645 Add MavenCentral badge to README. Thanks @valfirst
+- fixes #644 Improve example of Gradle dependency in README. Thanks @valfirst
+- fixes #643 Make sure all constants are static final. Thanks @valfirst
+- fixes #642 Remove unused fields from JsonSchemaVersion. Thanks @valfirst
+- fixes #641 Improve error messages on spec version detection. Thanks @valfirst
+- fixes #640 Update build badge from README to point GH Actions CI. Thanks @valfirst
+- fixes #639 Drop Travis CI config. Thanks @valfirst
+- fixes #638 Restore code coverage calculation. Thanks @valfirst
+- fixes #636 Adding tests for overriding error messages at schema level for individual keywords. Thanks @anjnerajat
+- fixes #634 Quick fix for issue causing the wrong custom message to be used. Thanks @chaosape
+- fixes #627 custom message for format. Thanks @vickyrathod
+
 ## 1.0.76 - 2022-12-19
 
 ### Added
