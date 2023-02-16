@@ -30,11 +30,11 @@ import java.net.URL;
  */
 public class BaseJsonSchemaValidatorTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     protected JsonNode getJsonNodeFromClasspath(String name) throws IOException {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream(name);
+            .getResourceAsStream(name);
         return mapper.readTree(is1);
     }
 
@@ -46,10 +46,14 @@ public class BaseJsonSchemaValidatorTest {
         return mapper.readTree(new URL(url));
     }
 
-    protected JsonSchema getJsonSchemaFromClasspath(String name) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    protected static JsonSchema getJsonSchemaFromClasspath(String name) {
+        return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4);
+    }
+
+    protected static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream(name);
+            .getResourceAsStream(name);
         return factory.getSchema(is);
     }
 
