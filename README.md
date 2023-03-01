@@ -56,13 +56,12 @@ Here are the dependencies.
     <artifactId>slf4j-api</artifactId>
     <version>${version.slf4j}</version>
 </dependency>
-
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-lang3</artifactId>
-    <version>${version.common-lang3}</version>
-</dependency>
 ```
+
+Note: Apache commons lang is included as a compile time dependency but is not
+required anymore. It is still included for the sake of older projects that
+depend on it as an accidental transitive runtime dependency. It is encouraged to
+exclude it as shown below and will be removed in a future release.
 
 #### Community
 
@@ -83,6 +82,12 @@ Maven:
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
     <version>1.0.77</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
 ```
 
