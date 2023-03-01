@@ -25,10 +25,9 @@ import java.util.stream.Collectors;
 
 public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
-    private static final String REMARK = "Remaining validation messages report why candidate schemas didn't match";
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
-    private final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
+    private final List<JsonSchema> schemas = new ArrayList<>();
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
     public AnyOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -37,10 +36,10 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             schemas.add(new JsonSchema(validationContext,
-                    parentSchema.getSchemaPath() + "/" + getValidatorType().getValue() + "/" + i,
-                    parentSchema.getCurrentUri(),
-                    schemaNode.get(i),
-                    parentSchema));
+                getChildSchemaPath(i),
+                parentSchema.getCurrentUri(),
+                schemaNode.get(i),
+                parentSchema));
         }
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -48,6 +47,10 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             this.discriminatorContext = null;
         }
+    }
+
+    private String getChildSchemaPath(int childIdx) {
+        return parentSchema.getSchemaPath() + "/" + getValidatorType().getValue() + "/" + childIdx;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -62,8 +65,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
 
-        Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
-        String typeValidatorName = "anyOf/type";
+        Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
         // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
         Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
@@ -73,9 +75,11 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
         try {
             int numberOfValidSubSchemas = 0;
-            for (JsonSchema schema : schemas) {
+            for (int i = 0; i < schemas.size(); ++i) {
+                JsonSchema schema = schemas.get(i);
                 state.setMatchedNode(initialHasMatchedNode);
-                Set<ValidationMessage> errors = new HashSet<>();
+                Set<ValidationMessage> errors;
+                String typeValidatorName = getChildSchemaPath(i) + "/type";
                 if (schema.getValidators().containsKey(typeValidatorName)) {
                     TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
                     //If schema has type validator and node type doesn't match with schemaType then ignore it
