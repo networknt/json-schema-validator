@@ -40,12 +40,13 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
 
         for (final String keyword : KEYWORDS) {
             final JsonNode node = schemaNode.get(keyword);
+            final String schemaPathOfSchema = parentSchema.schemaPath + "/" + keyword;
             if (keyword.equals("if")) {
-                foundIfSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundIfSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundThenSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), node, parentSchema);
+                foundElseSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
             }
         }
 

@@ -36,7 +36,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             schemas.add(new JsonSchema(validationContext,
-                getChildSchemaPath(i),
+                schemaPath + "/" + i,
                 parentSchema.getCurrentUri(),
                 schemaNode.get(i),
                 parentSchema));
@@ -47,10 +47,6 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         } else {
             this.discriminatorContext = null;
         }
-    }
-
-    private String getChildSchemaPath(int childIdx) {
-        return parentSchema.getSchemaPath() + "/" + getValidatorType().getValue() + "/" + childIdx;
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -79,7 +75,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 JsonSchema schema = schemas.get(i);
                 state.setMatchedNode(initialHasMatchedNode);
                 Set<ValidationMessage> errors;
-                String typeValidatorName = getChildSchemaPath(i) + "/type";
+                String typeValidatorName = schemas.get(i).getSchemaPath() + "/type";
                 if (schema.getValidators().containsKey(typeValidatorName)) {
                     TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
                     //If schema has type validator and node type doesn't match with schemaType then ignore it

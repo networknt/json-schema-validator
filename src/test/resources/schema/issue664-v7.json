@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "country",
+      "postal_code"
+    ],
+    "properties": {
+      "country": {
+        "type": "string"
+      },
+      "postal_code": {
+        "type": "string"
+      }
+    },
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "oneOf": [
+              {
+                "not": {
+                  "properties": {
+                    "country": {
+                      "const": "United Kingdom"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "if": {
+          "properties": {
+            "country": {
+              "const": "United States of America"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "postal_code": {
+              "pattern": "[0-9]{5}(-[0-9]{4})?"
+            }
+          }
+        },
+        "else": {
+          "properties": {
+            "postal_code": {
+              "pattern": "[A-Z][0-9][A-Z] [0-9][A-Z][0-9]"
+            }
+          }
+        }
+      }
+    ]
+  }
+}
