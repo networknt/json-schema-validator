@@ -1,0 +1,9 @@
+$id: resource:/schema/issue668
+type: object
+properties:
+  sub1:
+    $ref: issue668-sub1.yml
+  sub2:
+    $ref: issue668-sub2.yaml
+  sub3:
+    $ref: issue668-sub3
