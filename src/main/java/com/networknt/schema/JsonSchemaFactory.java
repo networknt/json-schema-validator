@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.networknt.schema.uri.*;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class JsonSchemaFactory {
 
     public static class Builder {
         private ObjectMapper objectMapper = new ObjectMapper();
+        private YAMLMapper yamlMapper = new YAMLMapper();
         private String defaultMetaSchemaURI;
         private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
@@ -74,6 +76,11 @@ public class JsonSchemaFactory {
 
         public Builder objectMapper(final ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
+            return this;
+        }
+
+        public Builder yamlMapper(final YAMLMapper yamlMapper) {
+            this.yamlMapper = yamlMapper;
             return this;
         }
 
@@ -154,6 +161,7 @@ public class JsonSchemaFactory {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
                     objectMapper == null ? new ObjectMapper() : objectMapper,
+                    yamlMapper == null ? new YAMLMapper(): yamlMapper,
                     defaultMetaSchemaURI,
                     new URISchemeFactory(uriFactoryMap),
                     new URISchemeFetcher(uriFetcherMap),
@@ -166,7 +174,8 @@ public class JsonSchemaFactory {
         }
     }
 
-    private final ObjectMapper mapper;
+    private final ObjectMapper jsonMapper;
+    private final YAMLMapper yamlMapper;
     private final String defaultMetaSchemaURI;
     private final URISchemeFactory uriFactory;
     private final URISchemeFetcher uriFetcher;
@@ -179,7 +188,8 @@ public class JsonSchemaFactory {
 
 
     private JsonSchemaFactory(
-            final ObjectMapper mapper,
+            final ObjectMapper jsonMapper,
+            final YAMLMapper yamlMapper,
             final String defaultMetaSchemaURI,
             final URISchemeFactory uriFactory,
             final URISchemeFetcher uriFetcher,
@@ -188,8 +198,10 @@ public class JsonSchemaFactory {
             final Map<String, String> uriMap,
             final boolean forceHttps,
             final boolean removeEmptyFragmentSuffix) {
-        if (mapper == null) {
+        if (jsonMapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
+        } else if (yamlMapper == null) {
+            throw new IllegalArgumentException("YAMLMapper must not be null");
         } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
         } else if (uriFactory == null) {
@@ -203,7 +215,8 @@ public class JsonSchemaFactory {
         } else if (uriMap == null) {
             throw new IllegalArgumentException("URL Mappings must not be null");
         }
-        this.mapper = mapper;
+        this.jsonMapper = jsonMapper;
+        this.yamlMapper = yamlMapper;
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
         this.uriFactory = uriFactory;
         this.uriFetcher = uriFetcher;
@@ -274,7 +287,8 @@ public class JsonSchemaFactory {
         Builder builder = builder()
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
-                .objectMapper(blueprint.mapper)
+                .objectMapper(blueprint.jsonMapper)
+                .yamlMapper(blueprint.yamlMapper)
                 .addUriMappings(blueprint.uriMap);
 
         for (Map.Entry<String, URIFactory> entry : blueprint.uriFactory.getURIFactories().entrySet()) {
@@ -319,7 +333,7 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = mapper.readTree(schema);
+            final JsonNode schemaNode = jsonMapper.readTree(schema);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -333,7 +347,7 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = mapper.readTree(schemaStream);
+            final JsonNode schemaNode = jsonMapper.readTree(schemaStream);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -370,7 +384,14 @@ public class JsonSchemaFactory {
 
             try {
                 inputStream = this.uriFetcher.fetch(mappedUri);
-                final JsonNode schemaNode = mapper.readTree(inputStream);
+
+                final JsonNode schemaNode;
+                if (isYaml(mappedUri)) {
+                    schemaNode = yamlMapper.readTree(inputStream);
+                } else {
+                    schemaNode = jsonMapper.readTree(inputStream);
+                }
+
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
 
                 JsonSchema jsonSchema;
@@ -426,6 +447,19 @@ public class JsonSchemaFactory {
         boolean result = id.equals(schemaUri.toString());
         logger.debug("Matching {} to {}: {}", id, schemaUri, result);
         return result;
+    }
+
+    private boolean isYaml(final URI schemaUri) {
+        final String schemeSpecificPart = schemaUri.getSchemeSpecificPart();
+        final int idx = schemeSpecificPart.lastIndexOf('.');
+
+        if (idx == -1) {
+            // no extension; assume json
+            return false;
+        }
+
+        final String extension = schemeSpecificPart.substring(idx);
+        return (".yml".equals(extension) || ".yaml".equals(extension));
     }
 
     static protected String normalizeMetaSchemaUri(String u, boolean forceHttps, boolean removeEmptyFragmentSuffix) {
