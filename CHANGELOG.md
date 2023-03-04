@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.78 - 2023-03-04
+
+### Added
+
+### Changed
+
+- update the README.md to indicate that 202012 version is only partially supported.
+- fixes #668 handle references to yaml sub-schemas. Thanks @danfelicetta-RL 
+- fixes #664 Provide/unify schema path for applicator schemas. Thanks @htdan
+- fixes #666 Clarify usage of Apache commons lang in README.md. Thanks @loadedice
+- fixes #663 Use full schema path to look up type validators for anyOf operator. Thanks @pshevche
+- fixes #661 Make DependentRequired error message more helpful. Thanks @bernie-schelberg-mywave
+
+
 ## 1.0.77 - 2023-02-13
 
 ### Added
