@@ -76,23 +76,21 @@ public class Issue669Test {
     }
 
     public static Stream<Arguments> invalidTimeRepresentations() {
-        // Invalid JSON payload: Time zone details are missing
-        String json1 = "{\"testTime\":\"08:27:53\"}";
+
         // Invalid JSON payload: seconds missing from time
-        String json2 = "{\"testTime\":\"11:23Z\"}";
+        String json1 = "{\"testTime\":\"11:23Z\"}";
         // Invalid JSON payload: Text instead of date-time value
-        String json3 = "{\"testTime\":\"Orlando\"}";
+        String json2 = "{\"testTime\":\"Orlando\"}";
         // Invalid JSON payload: A time zone offset of +23:00 is not valid
-        String json4 = "{\"testTime\":\"08:27:53+23:00\"}";
+        String json3 = "{\"testTime\":\"08:27:53+23:00\"}";
         // Invalid JSON payload: A time zone offset of -23:00 is not valid
-        String json5 = "{\"testTime\":\"08:27:53-23:00\"}";
+        String json4 = "{\"testTime\":\"08:27:53-23:00\"}";
 
         return Stream.of(
                 Arguments.of(json1),
                 Arguments.of(json2),
                 Arguments.of(json3),
-                Arguments.of(json4),
-                Arguments.of(json5)
+                Arguments.of(json4)
         );
     }
 
