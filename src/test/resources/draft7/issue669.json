@@ -1,0 +1,12 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Test Time Zone Schema (for testing time zones with offsets)",
+	"type": "object",
+	"properties": {
+		"testTime": {
+			"description": "A time value with offsets.",
+			"type": "string",
+			"format": "time"
+		}
+	}
+}
