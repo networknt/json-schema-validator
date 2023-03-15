@@ -81,7 +81,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.78/version>
+    <version>1.0.78</version>
     <exclusions>
         <exclusion>
             <groupId>org.apache.commons</groupId>
