@@ -39,6 +39,10 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
         this.formatName = formatName;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
+
+        if (!formatName.equals(DATE) && !formatName.equals(DATETIME)) {
+            throw new IllegalArgumentException(String.format("formatName must be one of the following: [%s, %s]", DATE, DATETIME));
+        }
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
@@ -57,29 +61,22 @@ public class DateTimeValidator extends BaseJsonValidator implements JsonValidato
     }
 
     private boolean isLegalDateTime(String string) {
-        if(formatName.equals(DATE)) {
-            return tryParse(() -> LocalDate.parse(string));
-        } else if(formatName.equals(DATETIME)) {
-            return tryParse(() -> {
+        try {
+            if (formatName.equals(DATE)) {
+                LocalDate.parse(string);
+            } else if (formatName.equals(DATETIME)) {
                 try {
                     ITU.parseDateTime(string);
                 } catch (LeapSecondException ex) {
-                    if(!ex.isVerifiedValidLeapYearMonth()) {
-                        throw ex;
+                    if (!ex.isVerifiedValidLeapYearMonth()) {
+                        return false;
                     }
                 }
-            });
-        } else {
-            throw new IllegalStateException("Unknown format: " + formatName);
-        }
-    }
+            }
 
-    private boolean tryParse(Runnable parser) {
-        try {
-            parser.run();
             return true;
         } catch (Exception ex) {
-            logger.error("Invalid {}: {}", formatName, ex.getMessage());
+            logger.debug("Invalid {}: {}", formatName, ex.getMessage());
             return false;
         }
     }
