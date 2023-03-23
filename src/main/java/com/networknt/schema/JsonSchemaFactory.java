@@ -51,7 +51,7 @@ public class JsonSchemaFactory {
         private final Map<String, String> uriMap = new HashMap<String, String>();
         private boolean forceHttps = true;
         private boolean removeEmptyFragmentSuffix = true;
-        private boolean cacheSchema = true;
+        private boolean enableUriSchemaCache = true;
 
         public Builder() {
             // Adds support for creating {@link URL}s.
@@ -158,8 +158,8 @@ public class JsonSchemaFactory {
             return this;
         }
 
-        public Builder cacheSchema(boolean cacheSchema) {
-            this.cacheSchema = cacheSchema;
+        public Builder enableUriSchemaCache(boolean enableUriSchemaCache) {
+            this.enableUriSchemaCache = enableUriSchemaCache;
             return this;
         }
 
@@ -176,7 +176,7 @@ public class JsonSchemaFactory {
                     uriMap,
                     forceHttps,
                     removeEmptyFragmentSuffix,
-                    cacheSchema
+                    enableUriSchemaCache
             );
         }
     }
@@ -192,7 +192,7 @@ public class JsonSchemaFactory {
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
     private final boolean forceHttps;
     private final boolean removeEmptyFragmentSuffix;
-    private final boolean cacheSchema;
+    private final boolean enableUriSchemaCache;
 
 
     private JsonSchemaFactory(
@@ -206,7 +206,7 @@ public class JsonSchemaFactory {
             final Map<String, String> uriMap,
             final boolean forceHttps,
             final boolean removeEmptyFragmentSuffix,
-            final boolean cacheSchema) {
+            final boolean enableUriSchemaCache) {
         if (jsonMapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         } else if (yamlMapper == null) {
@@ -234,7 +234,7 @@ public class JsonSchemaFactory {
         this.uriMap = uriMap;
         this.forceHttps = forceHttps;
         this.removeEmptyFragmentSuffix = removeEmptyFragmentSuffix;
-        this.cacheSchema = cacheSchema;
+        this.enableUriSchemaCache = enableUriSchemaCache;
     }
 
     /**
@@ -383,7 +383,7 @@ public class JsonSchemaFactory {
                 throw new JsonSchemaException(e);
             }
 
-            if (cacheSchema && uriSchemaCache.containsKey(mappedUri)) {
+            if (enableUriSchemaCache && uriSchemaCache.containsKey(mappedUri)) {
                 JsonSchema cachedUriSchema =  uriSchemaCache.get(mappedUri);
                 // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
@@ -415,7 +415,7 @@ public class JsonSchemaFactory {
                     jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
                 }
 
-                if (cacheSchema) {
+                if (enableUriSchemaCache) {
                     uriSchemaCache.put(mappedUri, jsonSchema);
                 }
 

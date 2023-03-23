@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonSchemaCacheTest {
+public class JsonSchemaFactoryUriCacheTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ClasspathURLFactory classpathURLFactory = new ClasspathURLFactory();
@@ -46,9 +46,9 @@ public class JsonSchemaCacheTest {
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
     }
 
-    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableCache) {
+    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableUriSchemaCache) {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
-                .cacheSchema(enableCache)
+                .enableUriSchemaCache(enableUriSchemaCache)
                 .uriFetcher(uriFetcher, "cache")
                 .uriFactory(new URLFactory(), "cache")
                 .addMetaSchema(JsonMetaSchema.getV202012())
