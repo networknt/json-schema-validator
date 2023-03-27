@@ -93,7 +93,7 @@ public interface URITranslator {
 
         public CompositeURITranslator with(URITranslator translator) {
             if (null != translator) {
-                return new CompositeURITranslator(translator, this);
+                return new CompositeURITranslator(this, translator);
             }
             return this;
         }
