@@ -161,6 +161,7 @@ public class SchemaValidatorsConfig {
 
     /**
      * @deprecated Use {@code getUriTranslator()} instead
+     * @return Map of public, normally internet accessible schema URLs
      */
     @Deprecated
     public Map<String, String> getUriMappings() {
@@ -170,6 +171,7 @@ public class SchemaValidatorsConfig {
 
     /**
      * @deprecated Use {@code addUriTranslator()} instead
+     * @param uriMappings Map of public, normally internet accessible schema URLs
      */
     @Deprecated
     public void setUriMappings(Map<String, String> uriMappings) {
@@ -350,7 +352,7 @@ public class SchemaValidatorsConfig {
      * 
      * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
      * 
-     * @param writeMode
+     * @param writeMode true if schema is used to write data
      */
     public void setWriteMode(boolean writeMode) {
         this.writeMode = writeMode;
