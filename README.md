@@ -127,6 +127,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Multiple Language](doc/multiple-language.md)
 
+## [MetaSchema Validation](doc/metaschema-validation.md)
+
 
 ## Known issues
 
