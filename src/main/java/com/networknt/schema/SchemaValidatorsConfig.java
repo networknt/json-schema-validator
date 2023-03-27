@@ -29,18 +29,20 @@ import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 public class SchemaValidatorsConfig {
     /**
-     * when validate type, if TYPE_LOOSE = true, will try to convert string to different types to match the type defined in
-     * schema.
+     * when validate type, if TYPE_LOOSE = true, will try to convert string to
+     * different types to match the type defined in schema.
      */
     private boolean typeLoose;
 
     /**
-     * When set to true, validator process is stop immediately when a very first validation error is discovered.
+     * When set to true, validator process is stop immediately when a very first
+     * validation error is discovered.
      */
     private boolean failFast;
 
     /**
-     * When set to true, walker sets nodes that are missing or NullNode to the default value, if any, and mutate the input json.
+     * When set to true, walker sets nodes that are missing or NullNode to the
+     * default value, if any, and mutate the input json.
      */
     private ApplyDefaultsStrategy applyDefaultsStrategy;
 
@@ -50,7 +52,8 @@ public class SchemaValidatorsConfig {
     private boolean ecma262Validator;
 
     /**
-     * When set to true, use Java-specific semantics rather than native JavaScript semantics
+     * When set to true, use Java-specific semantics rather than native JavaScript
+     * semantics
      */
     private boolean javaSemantics;
 
@@ -60,40 +63,49 @@ public class SchemaValidatorsConfig {
     private boolean losslessNarrowing;
 
     /**
-     * When set to true, support for discriminators is enabled for validations of oneOf, anyOf and allOf as described
-     * on <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">GitHub</a>.
+     * When set to true, support for discriminators is enabled for validations of
+     * oneOf, anyOf and allOf as described on <a href=
+     * "https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">GitHub</a>.
      */
     private boolean openAPI3StyleDiscriminators = false;
 
     /**
-     * Map of public, normally internet accessible schema URLs to alternate locations; this allows for offline
-     * validation of schemas that refer to public URLs. This is merged with any mappings the {@link JsonSchemaFactory}
-     * may have been built with.
+     * Map of public, normally internet accessible schema URLs to alternate
+     * locations; this allows for offline validation of schemas that refer to public
+     * URLs. This is merged with any mappings the {@link JsonSchemaFactory} may have
+     * been built with.
      */
     private Map<String, String> uriMappings = new HashMap<String, String>();
 
     private CompositeURITranslator uriTranslators = new CompositeURITranslator();
 
     /**
-     * When a field is set as nullable in the OpenAPI specification, the schema validator validates that it is nullable
-     * however continues with validation against the nullable field
+     * When a field is set as nullable in the OpenAPI specification, the schema
+     * validator validates that it is nullable however continues with validation
+     * against the nullable field
      * <p>
-     * If handleNullableField is set to true && incoming field is nullable && value is field: null --> succeed
-     * If handleNullableField is set to false && incoming field is nullable && value is field: null --> it is up to the type
-     * validator using the SchemaValidator to handle it.
+     * If handleNullableField is set to true && incoming field is nullable && value
+     * is field: null --> succeed If handleNullableField is set to false && incoming
+     * field is nullable && value is field: null --> it is up to the type validator
+     * using the SchemaValidator to handle it.
      */
     private boolean handleNullableField = true;
 
     /**
-     * When set to true resets the {@link CollectorContext} by calling {@link CollectorContext#reset()}.
+     * When set to true resets the {@link CollectorContext} by calling
+     * {@link CollectorContext#reset()}.
      */
     private boolean resetCollectorContext = true;
+
+    /**
+     * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
+     */
+    private boolean writeMode = true;
 
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
 
-    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String,
-            List<JsonSchemaWalkListener>>();
+    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
 
     private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
 
@@ -112,9 +124,11 @@ public class SchemaValidatorsConfig {
     }
 
     /**
-     * When enabled, {@link JsonValidator#validate(JsonNode, JsonNode, String)}
-     * or {@link JsonValidator#validate(JsonNode)} doesn't return any {@link Set}&lt;{@link ValidationMessage}&gt;,
-     * instead a {@link JsonSchemaException} is thrown as soon as a validation errors is discovered.
+     * When enabled, {@link JsonValidator#validate(JsonNode, JsonNode, String)} or
+     * {@link JsonValidator#validate(JsonNode)} doesn't return any
+     * {@link Set}&lt;{@link ValidationMessage}&gt;, instead a
+     * {@link JsonSchemaException} is thrown as soon as a validation errors is
+     * discovered.
      *
      * @param failFast boolean
      */
@@ -267,6 +281,7 @@ public class SchemaValidatorsConfig {
 
     /**
      * Indicates whether OpenAPI 3 style discriminators should be supported
+     * 
      * @return true in case discriminators are enabled
      * @since 1.0.51
      */
@@ -275,26 +290,36 @@ public class SchemaValidatorsConfig {
     }
 
     /**
-     * When enabled, the validation of <code>anyOf</code> and <code>allOf</code> in polymorphism will respect
-     * OpenAPI 3 style discriminators as described in the
-     * <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">OpenAPI 3.0.3 spec</a>.
-     * The presence of a discriminator configuration on the schema will lead to the following changes in the behavior:
+     * When enabled, the validation of <code>anyOf</code> and <code>allOf</code> in
+     * polymorphism will respect OpenAPI 3 style discriminators as described in the
+     * <a href=
+     * "https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">OpenAPI
+     * 3.0.3 spec</a>. The presence of a discriminator configuration on the schema
+     * will lead to the following changes in the behavior:
      * <ul>
-     *     <li>for <code>oneOf</code> the spec is unfortunately very vague. Whether <code>oneOf</code> semantics should be
-     *     affected by discriminators or not is not even 100% clear within the members of the OAS steering committee. Therefore
-     *     <code>oneOf</code> at the moment ignores discriminators</li>
-     *     <li>for <code>anyOf</code> the validation will choose one of the candidate schemas for validation based on the
-     *     discriminator property value and will pass validation when this specific schema passes. This is in particular useful
-     *     when the payload could match multiple candidates in the <code>anyOf</code> list and could lead to ambiguity. Example:
-     *     type B has all mandatory properties of A and adds more mandatory ones. Whether the payload is an A or B is determined
-     *     via the discriminator property name. A payload indicating it is an instance of B then requires passing the validation
-     *     of B and passing the validation of A would not be sufficient anymore.</li>
-     *     <li>for <code>allOf</code> use cases with discriminators defined on the copied-in parent type, it is possible to
-     *     automatically validate against a subtype. Example: some schema specifies that there is a field of type A. A carries
-     *     a discriminator field and B inherits from A. Then B is automatically a candidate for validation as well and will be
-     *     chosen in case the discriminator property matches</li>
+     * <li>for <code>oneOf</code> the spec is unfortunately very vague. Whether
+     * <code>oneOf</code> semantics should be affected by discriminators or not is
+     * not even 100% clear within the members of the OAS steering committee.
+     * Therefore <code>oneOf</code> at the moment ignores discriminators</li>
+     * <li>for <code>anyOf</code> the validation will choose one of the candidate
+     * schemas for validation based on the discriminator property value and will
+     * pass validation when this specific schema passes. This is in particular
+     * useful when the payload could match multiple candidates in the
+     * <code>anyOf</code> list and could lead to ambiguity. Example: type B has all
+     * mandatory properties of A and adds more mandatory ones. Whether the payload
+     * is an A or B is determined via the discriminator property name. A payload
+     * indicating it is an instance of B then requires passing the validation of B
+     * and passing the validation of A would not be sufficient anymore.</li>
+     * <li>for <code>allOf</code> use cases with discriminators defined on the
+     * copied-in parent type, it is possible to automatically validate against a
+     * subtype. Example: some schema specifies that there is a field of type A. A
+     * carries a discriminator field and B inherits from A. Then B is automatically
+     * a candidate for validation as well and will be chosen in case the
+     * discriminator property matches</li>
      * </ul>
-     * @param openAPI3StyleDiscriminators whether or not discriminators should be used. Defaults to <code>false</code>
+     * 
+     * @param openAPI3StyleDiscriminators whether or not discriminators should be
+     *                                    used. Defaults to <code>false</code>
      * @since 1.0.51
      */
     public void setOpenAPI3StyleDiscriminators(boolean openAPI3StyleDiscriminators) {
@@ -315,5 +340,19 @@ public class SchemaValidatorsConfig {
 
     public void setResetCollectorContext(boolean resetCollectorContext) {
         this.resetCollectorContext = resetCollectorContext;
+    }
+
+    public boolean isWriteMode() {
+        return writeMode;
+    }
+
+    /**
+     * 
+     * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
+     * 
+     * @param writeMode
+     */
+    public void setWriteMode(boolean writeMode) {
+        this.writeMode = writeMode;
     }
 }
