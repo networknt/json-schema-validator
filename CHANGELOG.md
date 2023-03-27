@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.79 - 2023-03-27
+
+### Added
+
+### Changed
+
+- add a doc for metaschema validation
+- fixes #682 Adds support for translating one URI into another. Thanks @fdutton
+- fixes #604 add disabled test case to reproduce the NPE.
+- fixes changing ReadOnlyValidator to use boolean property instead of array. Thanks @jorgesartori
+- fixes #679 Add option to disable uri schema cache in JsonSchemaFactory. Thanks @Kaaviyan
+- fixes #664 Avoid throwing exceptions and error-level logging. Thanks @CremboC
+- fixes #675 Update README.md file. Thanks @hcnicepink
+- fixes #672 add multiple language doc.
+- fixes #671 Support time offsets in the time format. Thanks @JDziurlaj
+
+
 ## 1.0.78 - 2023-03-04
 
 ### Added
