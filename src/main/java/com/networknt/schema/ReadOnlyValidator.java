@@ -16,6 +16,7 @@
 
 package com.networknt.schema;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -39,11 +40,11 @@ public class ReadOnlyValidator extends BaseJsonValidator implements JsonValidato
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        Set<ValidationMessage> errors= new HashSet<ValidationMessage>();
         if (writeMode) {
-            return Set.of(buildValidationMessage(at));
-        } else {
-            return Set.of();
-        }
+        	errors.add(buildValidationMessage(at));
+        } 
+        return errors;
     }
 
 }

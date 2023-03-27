@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ class ReadOnlyValidatorTest {
 		Set<ValidationMessage> errors = loadJsonSchema(true).validate(node);
 		assertFalse(errors.isEmpty());
 		assertEquals("$.firstName: is a readonly field, it cannot be changed",
-				errors.stream().map(e -> e.getMessage()).toList().get(0));
+				errors.stream().map(e -> e.getMessage()).collect(Collectors.toList()).get(0));
 	}
 
 	private JsonSchema loadJsonSchema(Boolean write) {
