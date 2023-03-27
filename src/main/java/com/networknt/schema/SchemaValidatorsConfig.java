@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.uri.URITranslator;
+import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 public class SchemaValidatorsConfig {
@@ -74,6 +76,8 @@ public class SchemaValidatorsConfig {
      * been built with.
      */
     private Map<String, String> uriMappings = new HashMap<String, String>();
+
+    private CompositeURITranslator uriTranslators = new CompositeURITranslator();
 
     /**
      * When a field is set as nullable in the OpenAPI specification, the schema
@@ -144,11 +148,30 @@ public class SchemaValidatorsConfig {
         return applyDefaultsStrategy;
     }
 
+    public CompositeURITranslator getUriTranslator() {
+        return this.uriTranslators
+            .with(URITranslator.map(this.uriMappings));
+    }
+
+    public void addUriTranslator(URITranslator uriTranslator) {
+        if (null != uriTranslator) {
+            this.uriTranslators.add(uriTranslator);
+        }
+    }
+
+    /**
+     * @deprecated Use {@code getUriTranslator()} instead
+     */
+    @Deprecated
     public Map<String, String> getUriMappings() {
         // return a copy of the mappings
         return new HashMap<String, String>(uriMappings);
     }
 
+    /**
+     * @deprecated Use {@code addUriTranslator()} instead
+     */
+    @Deprecated
     public void setUriMappings(Map<String, String> uriMappings) {
         this.uriMappings = uriMappings;
     }
