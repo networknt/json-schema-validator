@@ -142,6 +142,8 @@ public class JsonSchemaFactory {
 
         /**
          * @deprecated Use {@code addUriTranslator} instead.
+         * @param map the map of uri mappings.
+         * @return this builder.
          */
         @Deprecated
         public Builder addUriMappings(final Map<String, String> map) {
