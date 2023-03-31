@@ -76,8 +76,9 @@ public class JsonSchema extends BaseJsonValidator {
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-              validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
+            validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+            validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null,
+            validationContext.getConfig() != null ? validationContext.getConfig().getPathType() : null);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
@@ -298,7 +299,7 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(JsonNode node) {
         try {
-            Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
+            Set<ValidationMessage> errors = validate(node, node, atRoot());
             return errors;
         } finally {
             if (validationContext.getConfig().isResetCollectorContext()) {
@@ -352,7 +353,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public ValidationResult validateAndCollect(JsonNode node) {
-        return validateAndCollect(node, node, AT_ROOT);
+        return validateAndCollect(node, node, atRoot());
     }
 
     /**
@@ -402,7 +403,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(node, node, AT_ROOT, shouldValidateSchema);
+        return walkAtNodeInternal(node, node, atRoot(), shouldValidateSchema);
     }
 
     public ValidationResult walkAtNode(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
@@ -425,7 +426,7 @@ public class JsonSchema extends BaseJsonValidator {
                 collectorContext.loadCollectors();
             }
             // Process UnEvaluatedProperties after all the validators are called.
-            errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, shouldValidateSchema, false));
+            errors.addAll(processUnEvaluatedProperties(node, node, atRoot(), shouldValidateSchema, false));
             // Collect errors and collector context into validation result.
             ValidationResult validationResult = new ValidationResult(errors, collectorContext);
             return validationResult;

@@ -25,7 +25,6 @@ import com.networknt.schema.walk.JsonSchemaWalker;
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
 public interface JsonValidator extends JsonSchemaWalker {
-    String AT_ROOT = "$";
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,14 +47,16 @@ public class CustomMetaSchemaTest {
         private static final class Validator extends AbstractJsonValidator {
             private final List<String> enumValues;
             private final List<String> enumNames;
+            private final String keyword;
 
             private Validator(String keyword, List<String> enumValues, List<String> enumNames) {
-                super(keyword);
+                super();
                 if (enumNames.size() != enumValues.size()) {
                     throw new IllegalArgumentException("enum and enumNames need to be of same length");
                 }
                 this.enumNames = enumNames;
                 this.enumValues = enumValues;
+                this.keyword = keyword;
             }
 
             @Override
@@ -64,7 +67,9 @@ public class CustomMetaSchemaTest {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
                 }
                 String valueName = enumNames.get(idx);
-                return fail(CustomErrorMessageType.of("tests.example.enumNames", new MessageFormat("{0}: enumName is {1}")), at, valueName);
+                Set<ValidationMessage> messages = new HashSet<>();
+                messages.add(ValidationMessage.of(keyword, CustomErrorMessageType.of("tests.example.enumNames", new MessageFormat("{0}: enumName is {1}")), at, null, valueName));
+                return messages;
             }
         }
 

@@ -58,8 +58,8 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
             for (Map.Entry<Pattern, JsonSchema> entry : schemas.entrySet()) {
                 Matcher m = entry.getKey().matcher(name);
                 if (m.find()) {
-                    addToEvaluatedProperties(at + "." + name);
-                    errors.addAll(entry.getValue().validate(n, rootNode, at + "." + name));
+                    addToEvaluatedProperties(atPath(at, name));
+                    errors.addAll(entry.getValue().validate(n, rootNode, atPath(at, name)));
                 }
             }
         }

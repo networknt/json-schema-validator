@@ -96,17 +96,17 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
         if (schema != null) {
             // validate with item schema (the whole array has the same item
             // schema)
-            errors.addAll(schema.validate(node, rootNode, at + "[" + i + "]"));
+            errors.addAll(schema.validate(node, rootNode, atPath(at, i)));
         }
 
         if (tupleSchema != null) {
             if (i < tupleSchema.size()) {
                 // validate against tuple schema
-                errors.addAll(tupleSchema.get(i).validate(node, rootNode, at + "[" + i + "]"));
+                errors.addAll(tupleSchema.get(i).validate(node, rootNode, atPath(at, i)));
             } else {
                 if (additionalSchema != null) {
                     // validate against additional item schema
-                    errors.addAll(additionalSchema.validate(node, rootNode, at + "[" + i + "]"));
+                    errors.addAll(additionalSchema.validate(node, rootNode, atPath(at, i)));
                 } else if (!additionalItems) {
                     // no additional item allowed, return error
                     errors.add(buildValidationMessage(at, "" + i));
@@ -143,18 +143,18 @@ public class ItemsValidator extends BaseJsonValidator implements JsonValidator {
             String at, boolean shouldValidateSchema) {
         if (schema != null) {
             // Walk the schema.
-            walkSchema(schema, node, rootNode, at + "[" + i + "]", shouldValidateSchema, validationMessages);
+            walkSchema(schema, node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
         }
 
         if (tupleSchema != null) {
             if (i < tupleSchema.size()) {
                 // walk tuple schema
-                walkSchema(tupleSchema.get(i), node, rootNode, at + "[" + i + "]", shouldValidateSchema,
+                walkSchema(tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema,
                         validationMessages);
             } else {
                 if (additionalSchema != null) {
                     // walk additional item schema
-                    walkSchema(additionalSchema, node, rootNode, at + "[" + i + "]", shouldValidateSchema,
+                    walkSchema(additionalSchema, node, rootNode, atPath(at, i), shouldValidateSchema,
                             validationMessages);
                 }
             }

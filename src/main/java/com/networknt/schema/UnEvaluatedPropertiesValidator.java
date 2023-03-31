@@ -89,9 +89,9 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
             String fieldName = nodesIterator.next();
             JsonNode jsonNode = node.get(fieldName);
             if (jsonNode.isObject()) {
-                processAllPaths(jsonNode, at + "." + fieldName, paths);
+                processAllPaths(jsonNode, atPath(at, fieldName), paths);
             }
-            paths.add(at + "." + fieldName);
+            paths.add(atPath(at, fieldName));
         }
     }
 

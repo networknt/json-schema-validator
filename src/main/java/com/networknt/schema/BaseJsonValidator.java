@@ -40,19 +40,14 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected final boolean failFast;
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
     private final String customMessage;
+    private final PathType pathType;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaPath, schemaNode, parentSchema, validatorType, false,
              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
-    }
-
-    // TODO: can this be made package private?
-    @Deprecated // use the BaseJsonValidator below
-    public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, false, failFast, null);
+             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null,
+            validationContext.getConfig() != null ? validationContext.getConfig().getPathType() : null);
     }
 
     public BaseJsonValidator(String schemaPath,
@@ -61,7 +56,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
                              ValidatorTypeCode validatorType,
                              boolean suppressSubSchemaRetrieval,
                              boolean failFast,
-                             ApplyDefaultsStrategy applyDefaultsStrategy) {
+                             ApplyDefaultsStrategy applyDefaultsStrategy,
+                             PathType pathType) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
@@ -74,6 +70,11 @@ public abstract class BaseJsonValidator implements JsonValidator {
             this.customMessage = validatorType.getCustomMessage();
         } else {
             this.customMessage = null;
+        }
+        if (pathType != null) {
+            this.pathType = pathType;
+        } else {
+            this.pathType = PathType.DEFAULT;
         }
     }
 
@@ -117,7 +118,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node) {
-        return validate(node, node, AT_ROOT);
+        return validate(node, node, atRoot());
     }
 
     protected boolean equals(double n1, double n2) {
@@ -187,6 +188,37 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected boolean isPartOfOneOfMultipleType() {
         return parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
+    }
+
+    /**
+     * Get the root path.
+     *
+     * @return The path.
+     */
+    protected String atRoot() {
+        return pathType.getRoot();
+    }
+
+    /**
+     * Create the path for a given child token.
+     *
+     * @param currentPath The current path.
+     * @param token The child token.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, String token) {
+        return pathType.append(currentPath, token);
+    }
+
+    /**
+     * Create the path for a given child indexed item.
+     *
+     * @param currentPath The current path.
+     * @param index The child index.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, int index) {
+        return pathType.append(currentPath, index);
     }
 
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */

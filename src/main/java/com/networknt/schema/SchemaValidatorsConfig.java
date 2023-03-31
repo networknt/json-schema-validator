@@ -16,16 +16,12 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.uri.URITranslator;
 import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
+
+import java.util.*;
 
 public class SchemaValidatorsConfig {
     /**
@@ -101,6 +97,11 @@ public class SchemaValidatorsConfig {
      * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
      */
     private boolean writeMode = true;
+
+    /**
+     * The approach used to generate paths in reported messages, logs and errors. Default is the legacy "JSONPath-like" approach.
+     */
+    private PathType pathType = PathType.DEFAULT;
 
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
@@ -356,5 +357,23 @@ public class SchemaValidatorsConfig {
      */
     public void setWriteMode(boolean writeMode) {
         this.writeMode = writeMode;
+    }
+
+    /**
+     * Set the approach used to generate paths in messages, logs and errors (default is PathType.LEGACY).
+     *
+     * @param pathType The path generation approach.
+     */
+    public void setPathType(PathType pathType) {
+        this.pathType = pathType;
+    }
+
+    /**
+     * Get the approach used to generate paths in messages, logs and errors.
+     *
+     * @return The path generation approach.
+     */
+    public PathType getPathType() {
+        return pathType;
     }
 }
