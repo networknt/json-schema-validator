@@ -266,18 +266,24 @@ There is still a problem though, what if the validation against the schema fails
 
 Any failures validation against the schema come back in the form of a set of `ValidationMessage` objects. But these also do not contain original YAML source line information, and there's no easy way to inject it as we did for Scenario 1. Luckily though, there is a trick we can use here!
 
-Within the `ValidationMessage` object is something called the 'path' of the error, which we can access with the `getPath()` method. The syntax of this path is not exactly the same as a regular [JsonPointer](https://fasterxml.github.io/jackson-core/javadoc/2.10/com/fasterxml/jackson/core/JsonPointer.html) object, but it is sufficiently close as to be convertible. And, once converted, we can use that pointer for locating the appropriate `JsonNode`. The following couple of methods can be used to automate this process
+Within the `ValidationMessage` object is something called the 'path' of the error, which we can access with the `getPath()` method. The syntax of this path by default is close to being [JSONPath](https://datatracker.ietf.org/doc/draft-ietf-jsonpath-base/), but can be set explicitly to be
+either [JSONPath](https://datatracker.ietf.org/doc/draft-ietf-jsonpath-base/) or [JSONPointer](https://www.rfc-editor.org/rfc/rfc6901.html) expressions. In our case as we already use [Jackson](https://github.com/FasterXML/jackson) which supports node lookups based on JSONPointer expressions,
+we will set the path expressions to be JSONPointers. This is achieved by configuring the reported path type through the `SchemaValidatorsConfig` before we read our schema:
+
+```java
+    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+    config.setPathType(PathType.JSON_POINTER);
+    JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config);
+```
+
+Having set paths to be JSONPointer expressions we can use those pointers for locating the appropriate `JsonNode` instances. The following couple of methods illustrate this process:
 
 ```java
     JsonNode findJsonNode(ValidationMessage msg, JsonNode rootNode)
     {
-        // munge the ValidationMessage path
-        String pathStr = StringUtils.replace(msg.getPath(), "$.", "/", 1);
-        pathStr = StringUtils.replace(pathStr, ".", "/");
-        pathStr = StringUtils.replace(pathStr, "[", "/");
-        pathStr = StringUtils.replace(pathStr, "]", "");  // array closure superfluous
-        JsonPointer pathPtr = JsonPointer.valueOf(pathStr);
-        // Now see if we can find the node
+        // Construct the JSONPointer.
+        JsonPointer pathPtr = JsonPointer.valueOf(msg.getPath());
+        // Now see if we can find the node.
         JsonNode node = rootNode.at(pathPtr);
         return node;
     }
