@@ -63,3 +63,10 @@ When set to true, can interpret round doubles as integers.
 Note that setting `javaSemantics = true` will achieve the same functionality at this time.
 
 For more details, please refer to this [issue](https://github.com/networknt/json-schema-validator/issues/344).
+
+* pathType
+
+This defines how path expressions are defined and returned once validation is performed through `ValidationMessage` instances. This can either be set to `PathType.JSON_POINTER` for [JSONPointer](https://www.rfc-editor.org/rfc/rfc6901.html) expressions,
+or to `PathType.JSON_PATH` for [JSONPath](https://datatracker.ietf.org/doc/draft-ietf-jsonpath-base/) expressions. Doing so allows you to report the path for each finding and to potentially lookup nodes
+(see [here](https://github.com/networknt/json-schema-validator/blob/c41df270a71f8423c63cfaa379d2e9b3f570b73e/doc/yaml-line-numbers.md#scenario-2---validationmessage-line-locations) for an example). By default, path expressions use a
+`PathType.LEGACY` format which is close to JSONPath but does not escape reserved characters.

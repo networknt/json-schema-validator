@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "properties": {
+    "foo": { "type": "string" },
+    "b.ar": { "type": "string" },
+    "children" : {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "childFoo": { "type": "string" },
+          "c/hildBar": { "type": "string" }
+        }
+      }
+    }
+  }
+}

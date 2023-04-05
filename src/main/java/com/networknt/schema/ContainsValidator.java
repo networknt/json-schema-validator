@@ -55,7 +55,7 @@ public class ContainsValidator extends BaseJsonValidator implements JsonValidato
         } else if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {
-                if (schema.validate(n, rootNode, at + "[" + i + "]").isEmpty()) {
+                if (schema.validate(n, rootNode, atPath(at, i)).isEmpty()) {
                     //Short circuit on first success
                     return Collections.emptySet();
                 }

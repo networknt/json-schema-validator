@@ -88,7 +88,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                addToEvaluatedProperties(at + "." + it.next());
+                addToEvaluatedProperties(atPath(at, it.next()));
             }
         }
 
@@ -114,9 +114,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled()));
+                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
                         } else {
-                            errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, at + "." + pname));
+                            errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, atPath(at, pname)));
                         }
                     }
                 }
@@ -157,7 +157,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled());
+                           additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
                         }
                     }
                 }
