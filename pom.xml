@@ -66,7 +66,7 @@
         <version.slf4j>1.7.36</version.slf4j>
         <version.common-lang3>3.12.0</version.common-lang3>
         <version.joni>2.1.41</version.joni>
-        <version.logback>1.2.11</version.logback>
+        <version.logback>1.4.6</version.logback>
         <version.junit>5.7.2</version.junit>
         <version.hamcrest>2.2</version.hamcrest>
         <version.undertow>2.2.21.Final</version.undertow>
