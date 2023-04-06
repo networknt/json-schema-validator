@@ -1,18 +1,20 @@
 package com.networknt.schema;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class UnevaluatedPropertiesTest extends BaseSuiteJsonSchemaTest {
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.TestFactory;
 
-    protected UnevaluatedPropertiesTest() {
-        super(SpecVersion.VersionFlag.V201909);
+import java.util.stream.Stream;
+
+@DisplayName("Unevaluated Properties")
+public class UnevaluatedPropertiesTest extends AbstractJsonSchemaTestSuite {
+
+    @TestFactory
+    @DisplayName("Draft 2019-09")
+    Stream<DynamicNode> draft201909() {
+        return createTests(VersionFlag.V201909, "src/test/resources/schema/unevaluatedTests/unevaluated-tests.json");
     }
 
-
-    @Test
-    public void testUnevaluatedProperties() throws Exception {
-        runTestFile("schema/unevaluatedTests/unevaluated-tests.json");
-    }
 }
