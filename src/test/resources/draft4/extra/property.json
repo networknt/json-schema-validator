@@ -17,6 +17,7 @@
     },
     "tests": [
       {
+        "description": "an integer is an integer",
         "data": {
           "featuresInteger": 4,
           "featuresBoolean": true
@@ -24,6 +25,7 @@
         "valid": true
       },
       {
+        "description": "a number is not an integer",
         "data": {
           "featuresInteger": 4.0,
           "featuresBoolean": true

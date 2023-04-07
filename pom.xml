@@ -66,11 +66,12 @@
         <version.slf4j>2.0.7</version.slf4j>
         <version.common-lang3>3.12.0</version.common-lang3>
         <version.joni>2.1.41</version.joni>
-        <version.logback>1.4.6</version.logback>
-        <version.junit>5.7.2</version.junit>
+        <version.logback>1.2.11</version.logback>
+        <version.junit>5.9.2</version.junit>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.undertow>2.2.21.Final</version.undertow>
+        <version.undertow>2.2.24.Final</version.undertow>
         <version.itu>1.7.0</version.itu>
+        <version.surefire>3.0.0</version.surefire>
     </properties>
     <dependencies>
         <dependency>
@@ -287,10 +288,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${version.surefire}</version>
                 <configuration>
                     <argLine>@{argLine} -Duser.language=en -Duser.region=GB</argLine>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                        <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
+                        <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
+                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                    </statelessTestsetReporter>
+                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                        <usePhrasedClassNameInRunning>true</usePhrasedClassNameInRunning>
+                        <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
+                    </statelessTestsetInfoReporter>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>me.fabriciorby</groupId>
+                        <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                        <version>1.1.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -325,7 +346,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>${version.surefire}</version>
             </plugin>
         </plugins>
     </reporting>
