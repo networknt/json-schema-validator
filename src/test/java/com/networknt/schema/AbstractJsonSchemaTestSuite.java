@@ -17,21 +17,16 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-
-import io.undertow.Undertow;
-import io.undertow.server.handlers.resource.FileResourceManager;
 
 import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AssertionFailureBuilder;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,11 +46,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static io.undertow.Handlers.resource;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-public abstract class AbstractJsonSchemaTestSuite extends BaseSuiteJsonSchemaTest {
+public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() {};
     protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
     static {
@@ -66,33 +60,7 @@ public abstract class AbstractJsonSchemaTestSuite extends BaseSuiteJsonSchemaTes
         supportedVersions.put("draft7", VersionFlag.V7);
     }
 
-    protected static Undertow server = null;
-
-    @BeforeAll
-    public static void setUp() {
-        if (server == null) {
-            server = Undertow.builder()
-                    .addHttpListener(1234, "localhost")
-                    .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/remotes"), 100)))
-                    .build();
-            server.start();
-        }
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        if (server != null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-
-            }
-            server.stop();
-            server = null;
-        }
-    }
+    protected ObjectMapper mapper = new ObjectMapper();
 
     protected Stream<DynamicNode> createTests(VersionFlag defaultVersion, String basePath) {
         return findTestCases(basePath)

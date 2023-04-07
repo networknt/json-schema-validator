@@ -27,7 +27,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class V4JsonSchemaTest extends BaseSuiteJsonSchemaTest {
+public class V4JsonSchemaTest extends HTTPServiceSupport {
+
+    protected ObjectMapper mapper = new ObjectMapper();
 
     @Test(/* expected = java.lang.StackOverflowError.class */)
     public void testLoadingWithId() throws Exception {

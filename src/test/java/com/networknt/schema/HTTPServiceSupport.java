@@ -17,30 +17,54 @@
 package com.networknt.schema;
 
 import io.undertow.Undertow;
+import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.resource.FileResourceManager;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import java.io.File;
-import static io.undertow.Handlers.resource;
+import static io.undertow.Handlers.*;
 
-public abstract class BaseSuiteJsonSchemaTest {
+public abstract class HTTPServiceSupport {
 
     protected static Undertow server = null;
-
-    protected ObjectMapper mapper = new ObjectMapper();
 
     @BeforeAll
     public static void setUp() {
         if (server == null) {
+            PathHandler pathHandler = path(resource(
+                new FileResourceManager(
+                    new File("./src/test/suite/remotes"),
+                    100
+                ))
+            );
+
+            pathHandler.addPrefixPath("folder", resource(
+                new FileResourceManager(
+                    new File("./src/test/resources/remotes/folder"),
+                    100
+                ))
+            );
+
+            pathHandler.addPrefixPath("id_schema", resource(
+                new FileResourceManager(
+                    new File("./src/test/resources/remotes/id_schema"),
+                    100
+                ))
+            );
+
+            pathHandler.addPrefixPath("self_ref", resource(
+                new FileResourceManager(
+                    new File("./src/test/resources/remotes/self_ref"),
+                    100
+                ))
+            );
+
             server = Undertow.builder()
-                    .addHttpListener(1234, "localhost")
-                    .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/remotes"), 100)))
-                    .build();
+                .addHttpListener(1234, "localhost")
+                .setHandler(pathHandler)
+                .build();
             server.start();
         }
     }
@@ -52,7 +76,6 @@ public abstract class BaseSuiteJsonSchemaTest {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
                 Thread.currentThread().interrupt();
-
             }
             server.stop();
             server = null;

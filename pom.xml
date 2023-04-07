@@ -164,6 +164,9 @@
                     <include>**/*</include>
                 </includes>
             </testResource>
+            <testResource>
+                <directory>${project.basedir}/src/test/suite</directory>
+            </testResource>
         </testResources>
         <plugins>
             <plugin>
