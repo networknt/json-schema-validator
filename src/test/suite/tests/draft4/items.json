@@ -191,5 +191,37 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "items with null instance elements",
+        "schema": {
+            "items": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "allows null elements",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "array-form items with null instance elements",
+        "schema": {
+            "items": [
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "allows null elements",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
     }
 ]

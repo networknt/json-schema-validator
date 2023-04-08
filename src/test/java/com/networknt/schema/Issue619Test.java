@@ -16,18 +16,19 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.undertow.Undertow;
-import io.undertow.server.handlers.resource.FileResourceManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.net.URI;
 
-import static io.undertow.Handlers.resource;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.networknt.schema.BaseJsonSchemaValidatorTest.getJsonNodeFromStringContent;
 
-public class Issue619Test extends BaseJsonSchemaValidatorTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class Issue619Test extends HTTPServiceSupport {
 
     private JsonSchemaFactory factory;
     private JsonNode one;
@@ -116,51 +117,22 @@ public class Issue619Test extends BaseJsonSchemaValidatorTest {
     
     @Test
     public void uriThatPointsToSchemaWithIdThatHasDifferentUri_Ref() throws Exception {
-        runLocalServer(() -> {
-            JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
-            JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
+        JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
+        JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-            JsonSchema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:tests/draft4/refRemote.json#/3/schema\" }");
-            assertTrue(schemaWithIdFromRef.validate(oneArray).isEmpty());
-            assertFalse(schemaWithIdFromRef.validate(textArray).isEmpty());
-        });
+        JsonSchema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:tests/draft4/refRemote.json#/3/schema\" }");
+        assertTrue(schemaWithIdFromRef.validate(oneArray).isEmpty());
+        assertFalse(schemaWithIdFromRef.validate(textArray).isEmpty());
     }
 
     @Test
     public void uriThatPointsToSchemaWithIdThatHasDifferentUri_Uri() throws Exception {
-        runLocalServer(() -> {
-            JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
-            JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
+        JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
+        JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-            JsonSchema schemaWithIdFromUri = factory.getSchema(new URI("resource:tests/draft4/refRemote.json#/3/schema"));
-            assertTrue(schemaWithIdFromUri.validate(oneArray).isEmpty());
-            assertFalse(schemaWithIdFromUri.validate(textArray).isEmpty());
-        });
-    }
-
-    private interface ThrowingRunnable {
-        void run() throws Exception;
-    }
-    
-    private void runLocalServer(ThrowingRunnable actualTest) throws Exception {
-        Undertow server = Undertow.builder()
-            .addHttpListener(1234, "localhost")
-            .setHandler(resource(new FileResourceManager(
-                new File("./src/test/resources/remotes"), 100)))
-            .build();
-        try {
-            server.start();
-            
-            actualTest.run();
-            
-        } finally {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
-            server.stop();
-        }
+        JsonSchema schemaWithIdFromUri = factory.getSchema(new URI("resource:tests/draft4/refRemote.json#/3/schema"));
+        assertTrue(schemaWithIdFromUri.validate(oneArray).isEmpty());
+        assertFalse(schemaWithIdFromUri.validate(textArray).isEmpty());
     }
 
     @Test
