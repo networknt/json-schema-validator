@@ -24,6 +24,7 @@ public class Version4 extends JsonSchemaVersion{
                         new NonValidationKeyword("description"),
                         new NonValidationKeyword("default"),
                         new NonValidationKeyword("definitions"),
+                        new NonValidationKeyword("additionalItems"),
                         new NonValidationKeyword("exampleSetFlag")
                 ))
                 .build();
