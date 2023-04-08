@@ -1,648 +1,743 @@
 [
-  {
-    "description": "validation of e-mail addresses",
-    "schema": {
-      "format": "email"
+    {
+        "description": "email format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "email"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IDN e-mail addresses",
-    "schema": {
-      "format": "idn-email"
+    {
+        "description": "idn-email format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-email"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of regexes",
-    "schema": {
-      "format": "regex"
+    {
+        "description": "regex format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "regex"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IP addresses",
-    "schema": {
-      "format": "ipv4"
+    {
+        "description": "ipv4 format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "ipv4"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IPv6 addresses",
-    "schema": {
-      "format": "ipv6"
+    {
+        "description": "ipv6 format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "ipv6"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IDN hostnames",
-    "schema": {
-      "format": "idn-hostname"
+    {
+        "description": "idn-hostname format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-hostname"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of hostnames",
-    "schema": {
-      "format": "hostname"
+    {
+        "description": "hostname format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "hostname"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of date strings",
-    "schema": {
-      "format": "date"
+    {
+        "description": "date format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "date"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of date-time strings",
-    "schema": {
-      "format": "date-time"
+    {
+        "description": "date-time format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "date-time"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of time strings",
-    "schema": {
-      "format": "time"
+    {
+        "description": "time format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "time"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of JSON pointers",
-    "schema": {
-      "format": "json-pointer"
+    {
+        "description": "json-pointer format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "json-pointer"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of relative JSON pointers",
-    "schema": {
-      "format": "relative-json-pointer"
+    {
+        "description": "relative-json-pointer format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "relative-json-pointer"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IRIs",
-    "schema": {
-      "format": "iri"
+    {
+        "description": "iri format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "iri"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of IRI references",
-    "schema": {
-      "format": "iri-reference"
+    {
+        "description": "iri-reference format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "iri-reference"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of URIs",
-    "schema": {
-      "format": "uri"
+    {
+        "description": "uri format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of URI references",
-    "schema": {
-      "format": "uri-reference"
+    {
+        "description": "uri-reference format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri-reference"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  },
-  {
-    "description": "validation of URI templates",
-    "schema": {
-      "format": "uri-template"
+    {
+        "description": "uri-template format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri-template"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
     },
-    "tests": [
-      {
-        "description": "ignores integers",
-        "data": 12,
-        "valid": true
-      },
-      {
-        "description": "ignores floats",
-        "data": 13.7,
-        "valid": true
-      },
-      {
-        "description": "ignores objects",
-        "data": {},
-        "valid": true
-      },
-      {
-        "description": "ignores arrays",
-        "data": [],
-        "valid": true
-      },
-      {
-        "description": "ignores booleans",
-        "data": false,
-        "valid": true
-      },
-      {
-        "description": "ignores null",
-        "data": null,
-        "valid": true
-      }
-    ]
-  }
+    {
+        "description": "uuid format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uuid"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "duration format",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "duration"
+        },
+        "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            }
+        ]
+    }
 ]

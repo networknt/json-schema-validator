@@ -1,8 +1,8 @@
 {
-  "integer": {
-    "type": "integer"
-  },
-  "refToInteger": {
-    "$ref": "#/integer"
-  }
+    "integer": {
+        "type": "integer"
+    },
+    "refToInteger": {
+        "$ref": "#/integer"
+    }
 }

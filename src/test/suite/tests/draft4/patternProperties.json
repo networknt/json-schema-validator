@@ -116,5 +116,20 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "patternProperties with null valued instance properties",
+        "schema": {
+            "patternProperties": {
+                "^.*bar$": {"type": "null"}
+            }
+        },
+        "tests": [
+            {
+                "description": "allows null values",
+                "data": {"foobar": null},
+                "valid": true
+            }
+        ]
     }
 ]
