@@ -1,6 +1,5 @@
 package com.networknt.schema;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -9,48 +8,17 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.undertow.Undertow;
-import io.undertow.server.handlers.resource.FileResourceManager;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static io.undertow.Handlers.resource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class OpenAPI30JsonSchemaTest {
+public class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
     protected ObjectMapper mapper = new ObjectMapper();
     protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
-    protected static Undertow server = null;
 
     public OpenAPI30JsonSchemaTest() {
-    }
-
-    @BeforeAll
-    public static void setUp() {
-        if (server == null) {
-            server = Undertow.builder()
-                    .addHttpListener(1234, "localhost")
-                    .setHandler(resource(new FileResourceManager(
-                            new File("./src/test/resources/remotes"), 100)))
-                    .build();
-            server.start();
-        }
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        if (server != null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-
-            }
-            server.stop();
-        }
     }
 
     private void runTestFile(String testCaseFile) throws Exception {

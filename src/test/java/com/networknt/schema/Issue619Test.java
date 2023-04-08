@@ -120,7 +120,7 @@ public class Issue619Test extends BaseJsonSchemaValidatorTest {
             JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
             JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-            JsonSchema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:draft4/refRemote.json#/3/schema\" }");
+            JsonSchema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:tests/draft4/refRemote.json#/3/schema\" }");
             assertTrue(schemaWithIdFromRef.validate(oneArray).isEmpty());
             assertFalse(schemaWithIdFromRef.validate(textArray).isEmpty());
         });
@@ -132,7 +132,7 @@ public class Issue619Test extends BaseJsonSchemaValidatorTest {
             JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
             JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-            JsonSchema schemaWithIdFromUri = factory.getSchema(new URI("resource:draft4/refRemote.json#/3/schema"));
+            JsonSchema schemaWithIdFromUri = factory.getSchema(new URI("resource:tests/draft4/refRemote.json#/3/schema"));
             assertTrue(schemaWithIdFromUri.validate(oneArray).isEmpty());
             assertFalse(schemaWithIdFromUri.validate(textArray).isEmpty());
         });
