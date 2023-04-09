@@ -98,7 +98,9 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     PROPERTYNAMES("propertyNames", "1044", new MessageFormat(I18nSupport.getString("propertyNames")), PropertyNamesValidator.class, VersionCode.MinV6),
     DEPENDENT_REQUIRED("dependentRequired", "1045", new MessageFormat(I18nSupport.getString("dependentRequired")), DependentRequired.class, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", new MessageFormat(I18nSupport.getString("dependentSchemas")), DependentSchemas.class, VersionCode.MinV201909),
-    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",new MessageFormat(I18nSupport.getString("unevaluatedProperties")),UnEvaluatedPropertiesValidator.class, VersionCode.MinV6);
+    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",new MessageFormat(I18nSupport.getString("unevaluatedProperties")),UnEvaluatedPropertiesValidator.class, VersionCode.MinV6),
+    MAX_CONTAINS("maxContains", "1048", new MessageFormat(I18nSupport.getString("maxContains")), MinMaxContainsValidator.class, VersionCode.MinV201909),
+    MIN_CONTAINS("minContains", "1049", new MessageFormat(I18nSupport.getString("minContains")), MinMaxContainsValidator.class, VersionCode.MinV201909);
 
     private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<String, ValidatorTypeCode>();
     private static final SpecVersion SPEC_VERSION = new SpecVersion();

@@ -1,0 +1,123 @@
+[
+    {
+        "description": "minContains is not a number",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minContains": "1"
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/minContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"minContains\":\"1\"}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "minContains is not an integer",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minContains": 0.5
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/minContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"minContains\":0.5}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "minContains is a negative number",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minContains": -1
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/minContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"minContains\":-1}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "maxContains is not a number",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxContains": "1"
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/maxContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"maxContains\":\"1\"}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "maxContains is not an integer",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxContains": 0.5
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/maxContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"maxContains\":0.5}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "maxContains is a negative number",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxContains": -1
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/maxContains: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"maxContains\":-1}"
+                ]
+            }
+        ]
+    },
+    {
+        "description": "maxContains is less than minContains",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxContains": 0,
+            "minContains": 1
+        },
+        "tests": [
+             {
+                "description": "should fail",
+                "data": [],
+                "valid": false,
+                "validationMessages": [
+                    "#/maxContains: minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"maxContains\":0,\"minContains\":1}",
+                    "#/minContains: minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"maxContains\":0,\"minContains\":1}"
+                ]
+            }
+        ]
+    }
+]
