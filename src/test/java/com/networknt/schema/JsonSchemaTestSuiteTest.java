@@ -77,8 +77,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/items.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/maxContains.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/minContains.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/not.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/content.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
@@ -111,8 +109,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/anchor.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/defs.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/id.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/maxContains.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/minContains.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/not.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/ecmascript-regex.json"));

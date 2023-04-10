@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -145,6 +146,24 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
         final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), errorMessageType, customMessage, at, schemaPath, arguments);
+        if (failFast && !isPartOfOneOfMultipleType()) {
+            throw new JsonSchemaException(message);
+        }
+        return message;
+    }
+
+    protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
+        String template = I18nSupport.getString(messageKey);
+        MessageFormat messageFormat = new MessageFormat(template);
+        final ValidationMessage message = new ValidationMessage.Builder()
+            .code(errorMessageType.getErrorCode())
+            .path(at)
+            .schemaPath(schemaPath)
+            .arguments(arguments)
+            .format(messageFormat)
+            .type(getValidatorType().getValue())
+            .customMessage(customMessage)
+            .build();
         if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }

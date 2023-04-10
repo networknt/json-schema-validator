@@ -24,6 +24,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import java.io.File;
+import java.util.Optional;
+
 import static io.undertow.Handlers.*;
 
 public abstract class HTTPServiceSupport {
@@ -85,7 +87,7 @@ public abstract class HTTPServiceSupport {
     @AfterEach
     protected void cleanup() {
         // Clear CollectorContext after every test.
-        CollectorContext.getInstance().reset();
+        Optional.ofNullable(CollectorContext.getInstance()).ifPresent(CollectorContext::reset);
     }
 
 }
