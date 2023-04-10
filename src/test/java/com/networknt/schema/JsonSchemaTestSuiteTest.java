@@ -78,12 +78,10 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/items.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/not.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/content.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/duration.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
@@ -113,7 +111,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/float-overflow.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/duration.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));

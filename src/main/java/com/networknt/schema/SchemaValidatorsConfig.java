@@ -66,6 +66,15 @@ public class SchemaValidatorsConfig {
     private boolean openAPI3StyleDiscriminators = false;
 
     /**
+     * Contains a mapping of how strict a keyword's validators should be.
+     * Defaults to {@literal true}.
+     * <p>
+     * Each validator has its own understanding of what constitutes strict
+     * and permissive.
+     */
+    private final Map<String, Boolean> strictness = new HashMap<>(0);
+
+    /**
      * Map of public, normally internet accessible schema URLs to alternate
      * locations; this allows for offline validation of schemas that refer to public
      * URLs. This is merged with any mappings the {@link JsonSchemaFactory} may have
@@ -376,4 +385,32 @@ public class SchemaValidatorsConfig {
     public PathType getPathType() {
         return pathType;
     }
+
+    /**
+     * Answers whether a keyword's validators may relax their analysis. The
+     * default is to perform strict checking. One must explicitly allow a
+     * validator to be more permissive.
+     * <p>
+     * Each validator has its own understanding of what is permissive and
+     * strict. Consult the keyword's documentation for details. 
+     * 
+     * @param keyword the keyword to adjust (not null)
+     * @return Whether to perform a strict validation.
+     */
+    public boolean isStrict(String keyword) {
+        return this.strictness.getOrDefault(Objects.requireNonNull(keyword, "keyword cannot be null"), Boolean.TRUE);
+    }
+
+    /**
+     * Alters the strictness of validations for a specific keyword. When set to
+     * {@literal true}, instructs the keyword's validators to perform strict
+     * validation. Otherwise, a validator may perform a more permissive check.
+     * 
+     * @param keyword The keyword to adjust (not null)
+     * @param strict Whether to perform strict validations
+     */
+    public void setStrict(String keyword, boolean strict) {
+        this.strictness.put(Objects.requireNonNull(keyword, "keyword cannot be null"), strict);
+    }
+
 }

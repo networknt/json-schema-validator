@@ -1,12 +1,9 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,45 +25,58 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
- * <p>This class provides methods to validate a duration format .
- *
- * @version $Revision$
- * @since Validator 1.4
+ * Validates that a string property conforms to RFC 3339's understanding of
+ * duration as defined in ISO 8601:1988. This understanding is captured in
+ * <a href="https://www.rfc-editor.org/rfc/rfc3339.html#appendix-A">appendix
+ * A of RFC 3339</a>.
+ * <p>
+ * This validator will enforce the strict definition of RFC 3339 unless
+ * {@code SchemaValidatorsConfig.isStrict()} return {@literal false}.
+ * <p>
+ * JSON Schema Draft 2019-09 and later uses RFC 3339 to define dates and times.
+ * RFC 3339 bases its definition of duration of what is in the 1988 version of
+ * ISO 1801, which is over 35 years old and has undergone many changes with
+ * updates in 1991, 2000, 2004, 2019 and an amendment in 2022.
+ * <p>
+ * There are notable differences between the current version of ISO 8601 and
+ * RFC 3339:
+ * <ul>
+ *   <li>ISO 8601-2:2019 permits negative durations</li>
+ *   <li>
+ *   ISO 8601-2:2019 permits combining weeks with other terms (e.g. {@literal
+ *   P1Y13W})
+ *   </li>
+ * </ul>
+ * <p>
+ * There are notable differences in how RFC 3339 defines a duration compared
+ * with how the Java Date/Time API defines it:
+ * <ul>
+ *   <li>
+ *   {@link java.time.Duration} accepts fractional seconds; RFC 3339 does not
+ *   </li>
+ *   <li>
+ *   {@link java.time.Period} does not accept a time component while RFC 3339
+ *   accepts both a date and time component
+ *   </li>
+ *   <li>
+ *   {@link java.time.Duration} accepts days but not years, months or weeks
+ *   </li>
+ * </ul>
  */
-public class DurationValidator extends BaseJsonValidator implements JsonValidator {
+public class DurationValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DurationValidator.class);
 
-    private static final String DURATION_REGEX = "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$";
-    private static final Pattern DURATION_PATTERN = Pattern.compile(DURATION_REGEX);
+    private static final Pattern STRICT = Pattern.compile("^(?:P\\d+W)|(?:P(?:\\d+Y)?(?:\\d+M)?(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?)$");
+    private static final Pattern LAX = Pattern.compile("^(?:[-+]?)P(?:[-+]?[0-9]+Y)?(?:[-+]?[0-9]+M)?(?:[-+]?[0-9]+W)?(?:[-+]?[0-9]+D)?(?:T(?:[-+]?[0-9]+H)?(?:[-+]?[0-9]+M)?(?:[-+]?[0-9]+(?:[.,][0-9]{0,9})?S)?)?$");
+
     private final String formatName;
-
-
-
-    /**
-     * <p>Checks if a field has a valid duration.</p>
-     *
-     * @param duration The value validation is being performed on.  A <code>null</code>
-     *              value is considered invalid.
-     * @return true if the duration valid.
-     */
-    public boolean isValid(String duration) {
-        if (duration == null) {
-            return false;
-        }
-
-        Matcher durationMatcher = DURATION_PATTERN.matcher(duration);
-        if (!durationMatcher.matches()) {
-            return false;
-        }
-
-        return true;
-    }
+    private final boolean strict;
 
     public DurationValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, String formatName, ValidatorTypeCode type) {
         super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.formatName = formatName;
         this.validationContext = validationContext;
+        this.strict = validationContext.getConfig().isStrict("duration");
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
@@ -86,4 +96,26 @@ public class DurationValidator extends BaseJsonValidator implements JsonValidato
         return Collections.unmodifiableSet(errors);
 
     }
+
+    /**
+     * Checks if a field has a valid duration.
+     * A {@literal null} value is considered valid.
+     *
+     * @param duration The value to test.
+     * @return true if the duration valid.
+     */
+    private boolean isValid(String duration) {
+        if (null == duration) {
+            return true;
+        }
+
+        if (duration.endsWith("P") || duration.endsWith("T")) {
+            return false;
+        }
+
+        Pattern pattern = strict ? STRICT : LAX;
+        Matcher matcher = pattern.matcher(duration);
+        return matcher.matches();
+    }
+
 }

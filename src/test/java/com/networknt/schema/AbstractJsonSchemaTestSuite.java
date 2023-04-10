@@ -116,6 +116,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setTypeLoose(typeLoose);
+        testSpec.getStrictness().forEach(config::setStrict);
         URI testCaseFileUri = URI.create("classpath:" + testSpec.getTestCase().getSpecification());
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 
