@@ -87,11 +87,9 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/type.json"));
@@ -114,7 +112,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-template.json"));
@@ -141,11 +138,9 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/type.json"));
