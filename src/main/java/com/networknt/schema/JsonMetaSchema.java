@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.format.RegexFormat;
 import com.networknt.schema.format.TimeFormat;
 import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
         COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
         COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
+        COMMON_BUILTIN_FORMATS.add(new RegexFormat());
     }
 
     public static class Builder {
