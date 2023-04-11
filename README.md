@@ -129,6 +129,8 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [MetaSchema Validation](doc/metaschema-validation.md)
 
+## [Validating RFC 3339 durations](doc/duration.md)
+
 
 ## Known issues
 
