@@ -90,7 +90,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/time.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri.json"));
@@ -118,7 +117,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/time.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
@@ -146,7 +144,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/json-pointer.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/time.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri.json"));
