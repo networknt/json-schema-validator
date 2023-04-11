@@ -82,7 +82,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));

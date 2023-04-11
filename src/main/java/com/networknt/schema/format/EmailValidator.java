@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * @version $Revision$
  * @since Validator 1.4
  */
-public class EmailValidator extends BaseJsonValidator implements JsonValidator {
+public class EmailValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(EmailValidator.class);
 
     private static final String SPECIAL_CHARS = "\\p{Cntrl}\\(\\)<>@,;:'\\\\\\\"\\.\\[\\]";
@@ -107,15 +107,18 @@ public class EmailValidator extends BaseJsonValidator implements JsonValidator {
     protected boolean isValidDomain(String domain) {
         // see if domain is an IP address in brackets
         Matcher ipDomainMatcher = IP_DOMAIN_PATTERN.matcher(domain);
-
         if (ipDomainMatcher.matches()) {
-            InetAddressValidator inetAddressValidator =
-                    InetAddressValidator.getInstance();
-            return inetAddressValidator.isValid(ipDomainMatcher.group(1));
+            String ipAddress = ipDomainMatcher.group(1);
+            if (ipAddress.startsWith("IPv6:")) {
+                ipAddress = ipAddress.substring("IPv6:".length());
+                return InetAddressValidator.getInstance().isValidInet6Address(ipAddress);
+            }
+
+            return InetAddressValidator.getInstance().isValidInet4Address(ipAddress);
         }
+
         // Domain is symbolic name
-        DomainValidator domainValidator =
-                DomainValidator.getInstance(ALLOW_LOCAL);
+        DomainValidator domainValidator = DomainValidator.getInstance(ALLOW_LOCAL);
         if (ALLOW_TLD) {
             return domainValidator.isValid(domain) || (!domain.startsWith(".") && domainValidator.isValidTld(domain));
         } else {
