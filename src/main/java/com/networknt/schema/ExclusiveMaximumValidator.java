@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.JsonNodeUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
 
-public class ExclusiveMaximumValidator extends BaseJsonValidator implements JsonValidator {
+public class ExclusiveMaximumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ExclusiveMaximumValidator.class);
 
     private final ThresholdMixin typedMaximum;
@@ -99,7 +101,7 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator implements Json
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, validationContext.getConfig())) {
+        if (!JsonNodeUtil.isNumber(node, validationContext.getConfig())) {
             // maximum only applies to numbers
             return Collections.emptySet();
         }

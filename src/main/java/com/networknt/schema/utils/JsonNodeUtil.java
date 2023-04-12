@@ -1,12 +1,17 @@
 package com.networknt.schema.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.networknt.schema.*;
-
-import java.util.Iterator;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonType;
+import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.SpecVersionDetector;
+import com.networknt.schema.TypeFactory;
+import com.networknt.schema.ValidationContext;
 
 public class JsonNodeUtil {
+    private static final long V6_VALUE = VersionFlag.V6.getVersionFlagValue();
+
     private static final String TYPE = "type";
     private static final String ENUM = "enum";
     private static final String REF = "$ref";
@@ -29,57 +34,26 @@ public class JsonNodeUtil {
         return false;
     }
 
-    //Check to see if any child node for the OneOf SchemaNode is nullable
-    public static boolean isChildNodeNullable(ArrayNode oneOfSchemaNode,SchemaValidatorsConfig config){
-        Iterator iterator = oneOfSchemaNode.elements();
-        while(iterator.hasNext()){
-            //If one of the child Node for oneOf is nullable, it means the whole oneOf is nullable
-            if (isNodeNullable((JsonNode)iterator.next(),config)) return true;
-        }
-        return false;
-    }
-
-    public static boolean matchOneOfTypeNode(JsonNode oneOfSchemaNode, JsonType nodeType  ){
-        Iterator iterator = oneOfSchemaNode.elements();
-        while (iterator.hasNext()){
-            JsonNode oneOfTypeNode = (JsonNode) iterator.next();
-            JsonNode typeTextNode = oneOfTypeNode.get(TYPE);
-            if(typeTextNode != null && typeTextNode.asText().equals(nodeType.toString())) //If the nodeType is oneOf the type defined in the oneOf , return true
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean equalsToSchemaType(JsonNode node, JsonSchema schema, SchemaValidatorsConfig config) {
-        // in the case that node type is not the same as schema type, try to convert node to the
-        // same type of schema. In REST API, query parameters, path parameters and headers are all
-        // string type and we must convert, otherwise, all schema validations will fail.
-        JsonType schemaType = getSchemaJsonType(schema);
-        return equalsToSchemaType(node,schemaType,schema.getParentSchema(),config);
-
-    }
-
-    public static JsonType getSchemaJsonType(JsonSchema schema){
-        JsonNode typeNode = schema.getSchemaNode().get(TYPE);
-        if(typeNode!= null) return JsonType.valueOf(typeNode.asText().toUpperCase());
-        return JsonType.UNKNOWN;
-    }
-
-
-
-    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, JsonSchema parentSchema, SchemaValidatorsConfig config) {
-        // in the case that node type is not the same as schema type, try to convert node to the
-        // same type of schema. In REST API, query parameters, path parameters and headers are all
-        // string type and we must convert, otherwise, all schema validations will fail.
-
+    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, JsonSchema parentSchema, ValidationContext validationContext) {
+        SchemaValidatorsConfig config = validationContext.getConfig();
         JsonType nodeType = TypeFactory.getValueNodeType(node, config);
+        String metaSchema = validationContext.getMetaSchema().getUri();
+        long version = SpecVersionDetector.detectOptionalVersion(metaSchema)
+            .orElse(VersionFlag.V4)
+            .getVersionFlagValue();
 
+        // in the case that node type is not the same as schema type, try to convert node to the
+        // same type of schema. In REST API, query parameters, path parameters and headers are all
+        // string type and we must convert, otherwise, all schema validations will fail.
         if (nodeType != schemaType) {
             if (schemaType == JsonType.ANY) {
                 return true;
             }
 
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
+                return true;
+            }
+            if (V6_VALUE <= version && schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && 1.0 == node.asDouble()) {
                 return true;
             }
 
