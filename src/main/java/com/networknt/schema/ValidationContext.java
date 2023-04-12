@@ -107,7 +107,7 @@ public class ValidationContext {
         discriminatorContexts.pop();
     }
 
-    protected JsonMetaSchema getMetaSchema() {
+    public JsonMetaSchema getMetaSchema() {
         return metaSchema;
     }
 

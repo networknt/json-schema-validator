@@ -92,7 +92,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/type.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedProperties.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unknownKeyword.json"));
@@ -118,7 +117,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/type.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedProperties.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unknownKeyword.json"));
@@ -143,7 +141,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/type.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/unknownKeyword.json"));
     }
 
@@ -157,14 +154,13 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/type.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/unknownKeyword.json"));
    }
 
     private void disableV4Tests() {
         disabled.add(Paths.get("src/test/suite/tests/draft4/id.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft4/optional/ecmascript-regex.json")); // TODO: Not included in the original test.
-        disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json")); // TODO: Not excluded in the original test.
+        disabled.add(Paths.get("src/test/suite/tests/draft4/optional/ecmascript-regex.json"));
+        disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/refRemote.json"));
     }
 
