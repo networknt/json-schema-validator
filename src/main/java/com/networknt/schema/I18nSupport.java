@@ -22,7 +22,6 @@ public class I18nSupport {
             // "java.lang.NoClassDefFoundError: Could not initialize class com.networknt.schema.ValidatorTypeCode"
             // due to the fact that a ResourceBundle is incomplete
             mre.printStackTrace();
-            System.exit(1);
         }
         bundle = tmpBundle;
     }
@@ -36,7 +35,6 @@ public class I18nSupport {
             // "java.lang.NoClassDefFoundError: Could not initialize class com.networknt.schema.ValidatorTypeCode"
             // due to the fact that a ResourceBundle is incomplete
             mre.printStackTrace();
-            System.exit(2);
         }
         return retval;
     }
