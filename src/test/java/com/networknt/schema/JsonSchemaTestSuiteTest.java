@@ -93,7 +93,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedProperties.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/uniqueItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unknownKeyword.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"));
     }
