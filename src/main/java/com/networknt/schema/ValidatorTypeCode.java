@@ -63,6 +63,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         }
     },
     ITEMS("items", "1010", new MessageFormat(I18nSupport.getString("items")), ItemsValidator.class, VersionCode.MaxV201909),
+    ITEMS_202012("items", "1010", new MessageFormat(I18nSupport.getString("items")), ItemsValidator202012.class, VersionCode.MinV202012),
     MAXIMUM("maximum", "1011", new MessageFormat(I18nSupport.getString("maximum")), MaximumValidator.class, VersionCode.AllVersions),
     MAX_ITEMS("maxItems", "1012", new MessageFormat(I18nSupport.getString("maxItems")), MaxItemsValidator.class, VersionCode.AllVersions),
     MAX_LENGTH("maxLength", "1013", new MessageFormat(I18nSupport.getString("maxLength")), MaxLengthValidator.class, VersionCode.AllVersions),
