@@ -73,7 +73,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     private void disableV202012Tests() {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/anchor.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/defs.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/contains.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/not.json"));
