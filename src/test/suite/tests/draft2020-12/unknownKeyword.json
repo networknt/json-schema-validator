@@ -9,21 +9,21 @@
                     "not": {
                         "array_of_schemas": [
                             {
-                              "$id": "https://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
+                              "$id": "http://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
                               "type": "null"
                             }
                         ]
                     }
                 },
                 "real_id_in_schema": {
-                    "$id": "https://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
+                    "$id": "http://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
                     "type": "string"
                 },
                 "id_in_unknown1": {
                     "not": {
                         "object_of_schemas": {
                             "foo": {
-                              "$id": "https://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
+                              "$id": "http://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json",
                               "type": "integer"
                             }
                         }
@@ -33,7 +33,7 @@
             "anyOf": [
                 { "$ref": "#/$defs/id_in_unknown0" },
                 { "$ref": "#/$defs/id_in_unknown1" },
-                { "$ref": "https://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json" }
+                { "$ref": "http://localhost:1234/draft2020-12/unknownKeyword/my_identifier.json" }
             ]
         },
         "tests": [

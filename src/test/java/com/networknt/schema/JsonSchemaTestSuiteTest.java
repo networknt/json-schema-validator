@@ -92,7 +92,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedProperties.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unknownKeyword.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"));
     }
 
@@ -117,14 +116,12 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedItems.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedProperties.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unknownKeyword.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"));
     }
 
     private void disableV7Tests() {
         disabled.add(Paths.get("src/test/suite/tests/draft7/anchor.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/defs.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/content.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/cross-draft.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/ecmascript-regex.json"));
@@ -139,11 +136,9 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/unknownKeyword.json"));
     }
 
     private void disableV6Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft6/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
@@ -152,11 +147,9 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-template.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/unknownKeyword.json"));
    }
 
     private void disableV4Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft4/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/refRemote.json"));
