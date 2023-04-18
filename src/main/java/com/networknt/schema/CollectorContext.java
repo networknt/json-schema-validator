@@ -72,6 +72,7 @@ public class CollectorContext {
 
     /**
      * Replaces the properties that have been evaluated.
+     * @param paths the set of evaluated properties (may be null)
      */
     public void replaceEvaluatedProperties(Collection<String> paths) {
         this.evaluatedProperties.clear();
