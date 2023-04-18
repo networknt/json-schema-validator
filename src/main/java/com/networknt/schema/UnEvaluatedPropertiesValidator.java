@@ -17,17 +17,14 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements JsonValidator {
+public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnEvaluatedPropertiesValidator.class);
-    public static final String EVALUATED_PROPERTIES = "com.networknt.schema.UnEvaluatedPropertiesValidator.EvaluatedProperties";
-    public static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnEvaluatedPropertiesValidator.UnevaluatedProperties";
+    private static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnEvaluatedPropertiesValidator.UnevaluatedProperties";
     private JsonNode schemaNode = null;
 
     public UnEvaluatedPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -36,6 +33,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        debug(logger, node, rootNode, at);
 
         // Check if unevaluatedProperties is a boolean value.
         if (!schemaNode.isBoolean()) {
@@ -53,7 +51,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
         if (!unevaluatedProperties) {
 
             // Process UnEvaluated Properties.
-            List<String> unEvaluatedProperties = getUnEvaluatedProperties(allPaths);
+            Set<String> unEvaluatedProperties = getUnEvaluatedProperties(allPaths);
 
             // If unevaluatedProperties is not empty add error.
             if (!unEvaluatedProperties.isEmpty()) {
@@ -62,25 +60,15 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator implements
             }
         } else {
             // Add all properties as evaluated.
-            CollectorContext.getInstance().add(EVALUATED_PROPERTIES, allPaths);
+            CollectorContext.getInstance().getEvaluatedProperties().addAll(allPaths);
         }
         return Collections.emptySet();
     }
 
-    private List<String> getUnEvaluatedProperties(List<String> allPaths) {
-        List<String> unevaluatedPropertiesList = new ArrayList<>();
-        Object evaluatedPropertiesObj = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-        if (evaluatedPropertiesObj != null) {
-            List<String> evaluatedPropertiesList = (List<String>) evaluatedPropertiesObj;
-            allPaths.forEach(path -> {
-                if (!evaluatedPropertiesList.contains(path)) {
-                    unevaluatedPropertiesList.add(path);
-                }
-            });
-        } else {
-            unevaluatedPropertiesList.addAll(allPaths);
-        }
-        return unevaluatedPropertiesList;
+    private Set<String> getUnEvaluatedProperties(Collection<String> allPaths) {
+        Set<String> unevaluatedProperties = new LinkedHashSet<>(allPaths);
+        unevaluatedProperties.removeAll(CollectorContext.getInstance().getEvaluatedProperties());
+        return unevaluatedProperties;
     }
 
     public void processAllPaths(JsonNode node, String at, List<String> paths) {

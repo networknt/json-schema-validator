@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PatternPropertiesValidator extends BaseJsonValidator implements JsonValidator {
+public class PatternPropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
@@ -72,14 +72,6 @@ public class PatternPropertiesValidator extends BaseJsonValidator implements Jso
     }
 
     private void addToEvaluatedProperties(String propertyPath) {
-        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-        List<String> evaluatedPropertiesList = null;
-        if (evaluatedProperties == null) {
-            evaluatedPropertiesList = new ArrayList<>();
-            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
-        } else {
-            evaluatedPropertiesList = (List<String>) evaluatedProperties;
-        }
-        evaluatedPropertiesList.add(propertyPath);
+        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
     }
 }
