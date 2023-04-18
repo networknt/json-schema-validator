@@ -11,32 +11,9 @@ import java.util.ResourceBundle;
 public class I18nSupport {
 
     private static final String BASE_NAME = "jsv-messages";
-    private static final ResourceBundle bundle;
-
-    static {
-        ResourceBundle tmpBundle = null;
-        try {
-            tmpBundle = ResourceBundle.getBundle(BASE_NAME);
-        } catch (MissingResourceException mre) {
-            // Need to avoid by all means that we fail loading ValidatorTypeCode with a
-            // "java.lang.NoClassDefFoundError: Could not initialize class com.networknt.schema.ValidatorTypeCode"
-            // due to the fact that a ResourceBundle is incomplete
-            mre.printStackTrace();
-        }
-        bundle = tmpBundle;
-    }
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME);
 
     public static String getString(String key) {
-        String retval = null;
-        try {
-            retval = bundle.getString(key);
-        } catch (MissingResourceException mre) {
-            // Need to avoid by all means that we fail loading ValidatorTypeCode with a
-            // "java.lang.NoClassDefFoundError: Could not initialize class com.networknt.schema.ValidatorTypeCode"
-            // due to the fact that a ResourceBundle is incomplete
-            mre.printStackTrace();
-        }
-        return retval;
+        return bundle.getString(key);
     }
-    
 }
