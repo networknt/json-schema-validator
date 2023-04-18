@@ -24,70 +24,71 @@ import java.util.*;
 
 public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnEvaluatedPropertiesValidator.class);
+
     private static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnEvaluatedPropertiesValidator.UnevaluatedProperties";
-    private JsonNode schemaNode = null;
+
+    private final JsonSchema schema;
 
     public UnEvaluatedPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
-        this.schemaNode = schemaNode;
+
+        if (schemaNode.isObject() || schemaNode.isBoolean()) {
+            this.schema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        } else {
+            throw new IllegalArgumentException("The value of 'unevaluatedProperties' MUST be a valid JSON Schema.");
+        }
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        // Check if unevaluatedProperties is a boolean value.
-        if (!schemaNode.isBoolean()) {
-            return Collections.emptySet();
-        }
+        Set<String> allPaths = allPaths(node, at);
+        Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
 
-        // Continue checking unevaluatedProperties.
-        boolean unevaluatedProperties = schemaNode.booleanValue();
-
-        // Process all paths in node.
-        List<String> allPaths = new ArrayList<>();
-        processAllPaths(node, at, allPaths);
-
-        // Check for errors only if unevaluatedProperties is false.
-        if (!unevaluatedProperties) {
-
-            // Process UnEvaluated Properties.
-            Set<String> unEvaluatedProperties = getUnEvaluatedProperties(allPaths);
-
-            // If unevaluatedProperties is not empty add error.
-            if (!unEvaluatedProperties.isEmpty()) {
-                CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unEvaluatedProperties);
-                return Collections.singleton(buildValidationMessage(String.join(", ", unEvaluatedProperties)));
+        Set<String> failingPaths = new LinkedHashSet<>();
+        unevaluatedPaths.forEach(path -> {
+            String pointer = getPathType().convertToJsonPointer(path);
+            JsonNode property = rootNode.at(pointer);
+            if (!schema.validate(property, rootNode, path).isEmpty()) {
+                failingPaths.add(path);
             }
-        } else {
-            // Add all properties as evaluated.
+        });
+
+        if (failingPaths.isEmpty()) {
             CollectorContext.getInstance().getEvaluatedProperties().addAll(allPaths);
+        } else {
+            // TODO: Why add this to the context if it is never referenced?
+            CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
+            return Collections.singleton(buildValidationMessage(String.join(", ", failingPaths)));
         }
+
         return Collections.emptySet();
     }
 
-    private Set<String> getUnEvaluatedProperties(Collection<String> allPaths) {
+    private Set<String> unevaluatedPaths(Set<String> allPaths) {
         Set<String> unevaluatedProperties = new LinkedHashSet<>(allPaths);
         unevaluatedProperties.removeAll(CollectorContext.getInstance().getEvaluatedProperties());
         return unevaluatedProperties;
     }
 
-    public void processAllPaths(JsonNode node, String at, List<String> paths) {
+    private Set<String> allPaths(JsonNode node, String at) {
+        Set<String> results = new LinkedHashSet<>();
+        processAllPaths(node, at, results);
+        return results;
+    }
+
+    private void processAllPaths(JsonNode node, String at, Set<String> paths) {
         Iterator<String> nodesIterator = node.fieldNames();
         while (nodesIterator.hasNext()) {
             String fieldName = nodesIterator.next();
+            String path = atPath(at, fieldName);
+            paths.add(path);
+
             JsonNode jsonNode = node.get(fieldName);
             if (jsonNode.isObject()) {
-                processAllPaths(jsonNode, atPath(at, fieldName), paths);
+                processAllPaths(jsonNode, path, paths);
             }
-            paths.add(atPath(at, fieldName));
         }
     }
 
-    @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
-        }
-        return Collections.emptySet();
-    }
 }

@@ -96,4 +96,19 @@ public enum PathType {
         return rootToken;
     }
 
+    public String convertToJsonPointer(String path) {
+        switch (this) {
+            case JSON_POINTER: return path;
+            default: return fromLegacyOrJsonPath(path);
+        }
+    }
+
+    static String fromLegacyOrJsonPath(String path) {
+        return path
+            .replace("\"", "")
+            .replace("]", "")
+            .replace('[', '/')
+            .replace('.', '/')
+            .replace("$", "");
+    }
 }
