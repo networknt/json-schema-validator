@@ -91,7 +91,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedItems.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedProperties.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"));
     }
 
@@ -115,7 +114,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedItems.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedProperties.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"));
     }
 

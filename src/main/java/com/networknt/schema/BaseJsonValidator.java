@@ -209,6 +209,10 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
     }
 
+    protected PathType getPathType() {
+        return pathType;
+    }
+
     /**
      * Get the root path.
      *
