@@ -10,6 +10,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.80 - 2023-04-18
+
+### Added
+
+### Changed
+
+- fixes #709 Throw the exception as it is in I18nSupport. Thanks @rishabh413
+- update javadoc comments
+- fixe #716 Adds support for unevaluatedProperties that uses a non-boolean schema. Thanks @fdutton
+- fixes #714 Adds explicit support for tracking evaluated properties. Thanks @fdutton
+- fixes #712 Corrects malformed tests. Thanks @fdutton
+- fixes #710 Add support for the Draft 2020-12 interpretation of prefixItems. Thanks @fdutton
+- fixes #708 remove System.exit from I18nSupport.
+- fixes #707 Corrects treating 1.0 as an integer. Thanks @fdutton
+- fixes #706 Adds support for validating regular expressions. Thanks @fdutton
+- fixes #705 Adds support for email addresses containing an IPv6 literal value. Thanks @fdutton
+- fixes #704 Adds support for validating leap seconds. Thanks @fdutton
+- fixes #703 Corrects validation of duration and provides the option to validate against the ISO 8601 duration format. Thanks @fdutton
+- fixes #720 Adds support for minContains and maxContains. Thanks @fdutton
+- Updates tests from JSON Schema Test Suite. Thanks @fdutton
+- fixes #698 avoid warning for additionalItems keyword
+- fixes #697 Moves JSON Schema Test Suite to a separate test-resources folder. Thanks @fdutton
+- fixes #696 add then and else to as NonValidationKeyword for v7
+- fixes #690 Uses JUnit dynamic tests to generate tests from specification files. Thanks @fdutton
+- upgrade slf4j to 2.0.7
+- upgrade logback to 1.4.6.
+- fixes #687 Return valid JSONPath (or JSONPointer) expressions for each ValidationMessage. Thanks @costas80
+- fixes #688 CI Bump used latest non-LTS Java: 19 -> 20. Thanks @valfirst
+
 ## 1.0.79 - 2023-03-27
 
 ### Added

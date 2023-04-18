@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.79</version>
+    <version>1.0.80</version>
     <packaging>bundle</packaging>
     <description>A json schema validator that supports draft v4, v6, v7, v2019-09 and v2020-12</description>
     <url>https://github.com/networknt/json-schema-validator</url>
