@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
+public class AnyOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
@@ -64,10 +64,10 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
         // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        CollectorContext.getInstance().getEvaluatedProperties().clear();
 
         try {
             int numberOfValidSubSchemas = 0;
@@ -139,20 +139,13 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 validationContext.leaveDiscriminatorContextImmediately(at);
             }
             if (allErrors.isEmpty()) {
-                addEvaluatedProperties(backupEvaluatedProperties);
                 state.setMatchedNode(true);
             } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                CollectorContext.getInstance().getEvaluatedProperties().clear();
             }
+            CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
         }
         return Collections.unmodifiableSet(allErrors);
-    }
-
-    private void addEvaluatedProperties(Object backupEvaluatedProperties) {
-        // Add all the evaluated properties.
-        List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-        backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
     }
 
     @Override

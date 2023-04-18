@@ -15,7 +15,9 @@
  */
 package com.networknt.schema;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -44,6 +46,39 @@ public class CollectorContext {
      * Map for holding the name and {@link Collector} class collect method output.
      */
     private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
+
+    /**
+     * Used to track which properties have been evaluated.
+     */
+    private final Set<String> evaluatedProperties = new LinkedHashSet<>();
+
+    /**
+     * Identifies which properties have been evaluated.
+     * 
+     * @return the set of evaluated properties (never null)
+     */
+    public Set<String> getEvaluatedProperties() {
+        return evaluatedProperties;
+    }
+
+    /**
+     * Clones the properties that have been evaluated.
+     * 
+     * @return the set of evaluated properties (never null)
+     */
+    public Set<String> copyEvaluatedProperties() {
+        return new LinkedHashSet<>(evaluatedProperties);
+    }
+
+    /**
+     * Replaces the properties that have been evaluated.
+     */
+    public void replaceEvaluatedProperties(Collection<String> paths) {
+        this.evaluatedProperties.clear();
+        if (null != paths) {
+            this.evaluatedProperties.addAll(paths);
+        }
+    }
 
     /**
      * Adds a collector with give name. Preserving this method for backward
@@ -121,6 +156,7 @@ public class CollectorContext {
     public void reset() {
         this.collectorMap = new HashMap<String, Object>();
         this.collectorLoadMap = new HashMap<String, Object>();
+        this.evaluatedProperties.clear();
     }
 
     /**

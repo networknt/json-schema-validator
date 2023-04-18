@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AdditionalPropertiesValidator extends BaseJsonValidator implements JsonValidator {
+public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
 
     private final boolean allowAdditionalProperties;
@@ -65,15 +65,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
     }
 
     private void addToEvaluatedProperties(String propertyPath) {
-        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-        List<String> evaluatedPropertiesList = null;
-        if (evaluatedProperties == null) {
-            evaluatedPropertiesList = new ArrayList<>();
-            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
-        } else {
-            evaluatedPropertiesList = (List<String>) evaluatedProperties;
-        }
-        evaluatedPropertiesList.add(propertyPath);
+        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {

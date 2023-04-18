@@ -70,12 +70,6 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     private void addToEvaluatedProperties(String propertyPath) {
-        @SuppressWarnings("unchecked")
-        List<String> evaluatedProperties = (List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-        if (evaluatedProperties == null) {
-            evaluatedProperties = new ArrayList<>();
-            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedProperties);
-        }
-        evaluatedProperties.add(propertyPath);
+        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
     }
 }

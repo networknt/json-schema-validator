@@ -487,6 +487,7 @@
         },
         "valid": false,
         "validationMessages": [
+          "$.vehicle.wings: is missing but it is required",
           "There are unevaluated properties at following paths $.vehicle.unevaluated"
         ]
       }

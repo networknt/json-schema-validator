@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
+public class AllOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
     private final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
@@ -49,17 +49,17 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
 
         Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<ValidationMessage>();
 
-        // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-
-        List<String> totalEvaluatedProperties = new ArrayList<>();
+        Set<String> newEvaluatedProperties = Collections.emptySet();
 
         for (JsonSchema schema : schemas) {
+            // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
+            Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+
+            Set<ValidationMessage> localErrors = new HashSet<>();
+
             try {
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
-
-                Set<ValidationMessage> localErrors = new HashSet<>();
+                CollectorContext.getInstance().getEvaluatedProperties().clear();
 
                 if (!state.isWalkEnabled()) {
                     localErrors = schema.validate(node, rootNode, at);
@@ -71,7 +71,7 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
 
                 // Keep Collecting total evaluated properties.
                 if (localErrors.isEmpty()) {
-                    totalEvaluatedProperties.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
+                    newEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
                 }
 
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -106,13 +106,11 @@ public class AllOfValidator extends BaseJsonValidator implements JsonValidator {
                     }
                 }
             } finally {
-                if (childSchemaErrors.isEmpty()) {
-                    List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                    backupEvaluatedPropertiesList.addAll(totalEvaluatedProperties);
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
-                } else {
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
+                if (localErrors.isEmpty()) {
+                    CollectorContext.getInstance().getEvaluatedProperties().addAll(newEvaluatedProperties);
                 }
+                newEvaluatedProperties = Collections.emptySet();
             }
         }
 

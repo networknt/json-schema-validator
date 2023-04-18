@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class IfValidator extends BaseJsonValidator implements JsonValidator {
+public class IfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 
     private static final ArrayList<String> KEYWORDS = new ArrayList<String>(Arrays.asList("if", "then", "else"));
@@ -59,16 +59,16 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
         debug(logger, node, rootNode, at);
 
         // As if-then-else might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
-        Object ifEvaluatedProperties = null;
+        Set<String> ifEvaluatedProperties = Collections.emptySet();
 
-        Object thenEvaluatedProperties = null;
+        Set<String> thenEvaluatedProperties = Collections.emptySet();
 
-        Object elseEvaluatedProperties = null;
+        Set<String> elseEvaluatedProperties = Collections.emptySet();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        CollectorContext.getInstance().getEvaluatedProperties().clear();
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -82,49 +82,38 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
                 ifConditionPassed = false;
             }
             // Evaluated Properties from if.
-            ifEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+            ifEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
             if (ifConditionPassed && thenSchema != null) {
 
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                CollectorContext.getInstance().getEvaluatedProperties().clear();
 
                 errors.addAll(thenSchema.validate(node, rootNode, at));
 
                 // Collect the then evaluated properties.
-                thenEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+                thenEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
             } else if (!ifConditionPassed && elseSchema != null) {
 
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                CollectorContext.getInstance().getEvaluatedProperties().clear();
 
                 errors.addAll(elseSchema.validate(node, rootNode, at));
 
                 // Collect the else evaluated properties.
-                elseEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+                elseEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
             }
 
         } finally {
+            CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-
                 // If the "if" keyword condition is passed then only add if properties as evaluated.
-                if (ifEvaluatedProperties != null && ifConditionPassed) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
+                if (ifConditionPassed) {
+                    CollectorContext.getInstance().getEvaluatedProperties().addAll(ifEvaluatedProperties);
                 }
-
-                if (thenEvaluatedProperties != null) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) thenEvaluatedProperties);
-                }
-
-                if (elseEvaluatedProperties != null) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) elseEvaluatedProperties);
-                }
-
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
-            } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                CollectorContext.getInstance().getEvaluatedProperties().addAll(thenEvaluatedProperties);
+                CollectorContext.getInstance().getEvaluatedProperties().addAll(elseEvaluatedProperties);
             }
         }
 

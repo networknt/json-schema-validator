@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
+public class OneOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
     private final List<ShortcutValidator> schemas = new ArrayList<ShortcutValidator>();
@@ -129,10 +129,10 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         // As oneOf might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        CollectorContext.getInstance().getEvaluatedProperties().clear();
 
         try {
             debug(logger, node, rootNode, at);
@@ -182,7 +182,7 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
 
                 // If the number of valid schema is greater than one, just reset the evaluated properties and break.
                 if (numberOfValidSchema > 1) {
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                    CollectorContext.getInstance().getEvaluatedProperties().clear();
                     break;
                 }
 
@@ -231,11 +231,9 @@ public class OneOfValidator extends BaseJsonValidator implements JsonValidator {
             return Collections.unmodifiableSet(errors);
         } finally {
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }

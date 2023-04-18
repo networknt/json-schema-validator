@@ -26,7 +26,7 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
 
-public class RefValidator extends BaseJsonValidator implements JsonValidator {
+public class RefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchemaRef schema;
@@ -131,10 +131,10 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        CollectorContext.getInstance().getEvaluatedProperties().clear();
 
         try {
             debug(logger, node, rootNode, at);
@@ -149,11 +149,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             }
         } finally {
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
             }
         }
         return errors;
@@ -165,10 +163,11 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        CollectorContext.getInstance().getEvaluatedProperties().clear();
+
         try {
             debug(logger, node, rootNode, at);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
@@ -182,11 +181,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } finally {
             if (shouldValidateSchema) {
                 if (errors.isEmpty()) {
-                    List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                    CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
                 } else {
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                    CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
                 }
             }
         }
