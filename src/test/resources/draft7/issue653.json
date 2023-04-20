@@ -1,0 +1,90 @@
+[
+  {
+    "description": "issue653",
+    "schema": {
+      "title": "PetArray",
+      "type": "object",
+      "properties": {
+        "pets": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "if": {
+                  "properties": {
+                    "pet_type": {
+                      "const": "Cat"
+                    }
+                  }
+                },
+                "then": {
+                  "type": "object",
+                  "properties": {
+                    "hunts": {
+                      "type": "boolean"
+                    },
+                    "age": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "age"
+                  ]
+                },
+                "else": false
+              },
+              {
+                "if": {
+                  "properties": {
+                    "pet_type": {
+                      "const": "Dog"
+                    }
+                  }
+                },
+                "then": {
+                  "type": "object",
+                  "properties": {
+                    "bark": {
+                      "type": "boolean"
+                    },
+                    "breed": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "bark"
+                  ]
+                },
+                "else": false
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "pets"
+      ]
+    },
+    "tests": [
+      {
+        "description": "OneOf Validation removes validations, making invalid data appear valid",
+        "data": {
+          "pets": [
+            {
+              "pet_type": "Cat",
+              "hunts": "asdf",
+              "additionaValue": "asdf"
+            }
+          ]
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.pets[0]: should be valid to one and only one schema, but 0 are valid",
+          "$.pets[0].age: is missing but it is required",
+          "Boolean schema false is not valid"
+        ]
+      }
+    ]
+  }
+]

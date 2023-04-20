@@ -96,7 +96,7 @@ public class Issue366FailSlowTest {
     JsonNode dataNode = testNode.get("data");
     Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
     assertTrue(!errors.isEmpty());
-    assertEquals(errors.size(),2);
+    assertEquals(errors.size(),3);
   }
 
   private URI getSchema() {
