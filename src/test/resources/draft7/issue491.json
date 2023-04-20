@@ -1,0 +1,328 @@
+[
+  {
+    "description": "issue491 Schema 1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/issue-470.json",
+      "title": "OneOf validation message",
+      "description": "Test description",
+      "type": "object",
+      "properties": {
+        "search": {
+          "type": "object",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "searchAge": {
+                  "type": "object",
+                  "properties": {
+                    "age": {
+                      "type": "integer",
+                      "maximum": 150,
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "age"
+                  ]
+                }
+              },
+              "required": [
+                "searchAge"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "Test valid oneOf option 1",
+        "data": {
+          "search": {
+            "searchAge": {
+              "age": 50
+            }
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test valid oneOf option 2",
+        "data": {
+          "search": {
+            "name": "Steve"
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test invalid oneOf option 1 - wrong type",
+        "data": {
+          "search": {
+            "searchAge": {
+              "age": "Steve"
+            }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: is missing but it is required",
+          "$.search.searchAge.age: string found, integer expected",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option 2 - wrong type",
+        "data": {
+          "search": {
+            "name": 123
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: integer found, string expected",
+          "$.search.searchAge: is missing but it is required",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      }
+    ]
+  },
+  {
+    "description": "issue491 Schema 2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/issue-470.json",
+      "title": "OneOf validation message",
+      "description": "Test description",
+      "type": "object",
+      "properties": {
+        "search": {
+          "type": "object",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "byAge": {
+                  "type": "object",
+                  "properties": {
+                    "age": {
+                      "type": "integer",
+                      "maximum": 150,
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "age"
+                  ]
+                }
+              },
+              "required": [
+                "byAge"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "Test valid oneOf option 1",
+        "data": {
+          "search": {
+            "name": "Steve"
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test valid oneOf option 2",
+        "data": {
+          "search": {
+            "name": "Steve"
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test invalid oneOf option 1 - wrong type",
+        "data": {
+          "search": {
+            "byAge": {
+              "age": "Steve"
+            }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: is missing but it is required",
+          "$.search.byAge.age: string found, integer expected",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option 2 - wrong type",
+        "data": {
+          "search": {
+            "name": 123
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: integer found, string expected",
+          "$.search.byAge: is missing but it is required",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      }
+    ]
+  },
+  {
+    "description": "issue491 Schema 3",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/issue-470.json",
+      "title": "OneOf validation message",
+      "description": "Test description",
+      "type": "object",
+      "properties": {
+        "search": {
+          "type": "object",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "age": {
+                  "type": "integer",
+                  "maximum": 150,
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "age"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "Test valid oneOf option 1",
+        "data": {
+          "search": {
+            "age": 50
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test valid oneOf option 2",
+        "data": {
+          "search": {
+            "name": "Steve"
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test invalid oneOf option - wrong types or values 1",
+        "data": {
+          "search": {
+            "age": "Steve"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: is missing but it is required",
+          "$.search.age: string found, integer expected",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option - wrong types or values 2",
+        "data": {
+          "search": {
+            "name": 123
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: integer found, string expected",
+          "$.search.age: is missing but it is required",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option - wrong types or values 3",
+        "data": {
+          "search": {
+            "age": 200
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: is missing but it is required",
+          "$.search.age: must have a maximum value of 150",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option - wrong types or values 4",
+        "data": {
+          "search": {
+            "name": "TooLoooooooooooooooooooooooooooooooooongName"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search.name: may only be 20 characters long",
+          "$.search.age: is missing but it is required",
+          "$.search: should be valid to one and only one schema, but 0 are valid"
+        ]
+      }
+    ]
+  }
+]

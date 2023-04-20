@@ -1,0 +1,142 @@
+[
+  {
+    "description": "Issue470Test",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/issue-470.json",
+      "title": "OneOf validation message",
+      "description": "Test description",
+      "type": "object",
+      "properties": {
+        "search": {
+          "type": "object",
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "byName": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "byAge": {
+                  "type": "object",
+                  "properties": {
+                    "age": {
+                      "type": "integer",
+                      "maximum": 150,
+                      "minimum": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "Test valid oneOf option 1",
+        "data": {
+          "search": {
+            "byName": {
+              "name": "John"
+            }
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test valid oneOf option 2",
+        "data": {
+          "search": {
+            "byAge": {
+              "age": 35
+            }
+          }
+        },
+        "valid": true
+      },
+      {
+        "description": "Test invalid oneOf option 1 - wrong type",
+        "data": {
+          "search": {
+              "byName": {
+                  "name": 123
+              }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search: should be valid to one and only one schema, but 0 are valid",
+          "$.search.byName: is not defined in the schema and the schema does not allow additional properties",
+          "$.search.byName.name: integer found, string expected"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option 1 - invalid value",
+        "data": {
+          "search": {
+              "byName": {
+                  "name": "Too loooooooooong name"
+              }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search: should be valid to one and only one schema, but 0 are valid",
+          "$.search.byName: is not defined in the schema and the schema does not allow additional properties",
+          "$.search.byName.name: may only be 20 characters long"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option 2 - wrong type",
+        "data": {
+          "search": {
+              "byAge": {
+                  "age": "20"
+              }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search: should be valid to one and only one schema, but 0 are valid",
+          "$.search.byAge.age: string found, integer expected",
+          "$.search.byAge: is not defined in the schema and the schema does not allow additional properties"
+        ]
+      },
+      {
+        "description": "Test invalid oneOf option 2 - invalid value",
+        "data": {
+          "search": {
+              "byAge": {
+                  "age": 200
+              }
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.search: should be valid to one and only one schema, but 0 are valid",
+          "$.search.byAge.age: must have a maximum value of 150",
+          "$.search.byAge: is not defined in the schema and the schema does not allow additional properties"
+        ]
+      }
+    ]
+  }
+]

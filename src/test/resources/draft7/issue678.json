@@ -1,0 +1,60 @@
+[
+  {
+    "description": "issue678",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/issue-470.json",
+      "title": "OneOf validation message",
+      "description": "Test description",
+      "type": "object",
+      "properties": {
+        "outerObject": {
+          "type": "object",
+          "properties": {
+            "innerObject": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "unit": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "value",
+                    "unit"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": [
+      {
+        "description": "OneOfValidator is filtering out the required errors if all the oneOf schemas are having the issues",
+        "data": {
+          "outerObject": {
+            "innerObject": {}
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.outerObject.innerObject: object found, string expected",
+          "$.outerObject.innerObject.value: is missing but it is required",
+          "$.outerObject.innerObject.unit: is missing but it is required", 
+          "$.outerObject.innerObject: should be valid to one and only one schema, but 0 are valid"
+        ]
+      }
+    ]
+  }
+]

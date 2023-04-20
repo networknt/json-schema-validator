@@ -33,7 +33,12 @@
         "data": {
           "values": 3
         },
-        "valid": true
+        "valid": false,
+        "validationMessages": [
+          "$.values: should be valid to one and only one schema, but 0 are valid",
+          "$.values: integer found, array expected",
+          "$.values: integer found, string expected"
+        ]
       },
       {
         "description": "oneOf with single string array",

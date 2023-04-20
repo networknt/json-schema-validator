@@ -34,9 +34,11 @@ class Issue664Test {
         List<String> errorSchemaPaths = schema.validate(node).stream().map(ValidationMessage::getSchemaPath).collect(Collectors.toList());
 
         List<String> expectedSchemaPaths = Arrays.asList(
-                "#/items/allOf/0/anyOf/0/oneOf/0/not",
-                "#/items/allOf/1/else/properties/postal_code/pattern",
-                "#/items/allOf/1/then/properties/postal_code/pattern");
+            "#/items/allOf/0/anyOf/0/oneOf",
+            "#/items/allOf/0/anyOf/0/oneOf/0/not",
+            "#/items/allOf/1/else/properties/postal_code/pattern",
+            "#/items/allOf/1/then/properties/postal_code/pattern"
+        );
         MatcherAssert.assertThat(errorSchemaPaths, Matchers.containsInAnyOrder(expectedSchemaPaths.toArray()));
     }
 }
