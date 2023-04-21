@@ -152,31 +152,34 @@ Thanks to the following people who have contributed to this project. If you are 
 
 [@stevehu](https://github.com/sponsors/stevehu)
 
-[@jiachen1120](https://github.com/jiachen1120)
+[@prashanth-chaitanya](https://github.com/prashanth-chaitanya)
+
+[@fdutton](https://github.com/fdutton)
+
+[@valfirst](https://github.com/valfirst)
 
 [@BalloonWen](https://github.com/BalloonWen)
 
-[@eskabetxe](https://github.com/eskabetxe)
+[@jiachen1120](https://github.com/jiachen1120)
 
 [@ddobrin](https://github.com/ddobrin)
 
+[@eskabetxe](https://github.com/eskabetxe)
+
 [@ehrmann](https://github.com/ehrmann)
+
+[@prashanthjos](https://github.com/prashanthjos)
+
+[@Subhajitdas298](https://github.com/Subhajitdas298)
+
+[@FWiesner](https://github.com/FWiesner)
 
 [@rhwood](https://github.com/rhwood)
 
-[@nitin1891](https://github.com/nitin1891)
-
 [@jawaff](https://github.com/jawaff)
 
-[@kosty](https://github.com/kosty)
+[@nitin1891](https://github.com/nitin1891)
 
-[@chenyan71](https://github.com/chenyan71)
-
-[@chrisken](https://github.com/chrisken)
-
-[@NicholasAzar](https://github.com/NicholasAzar)
-
-[@basinilya](https://github.com/basinilya)
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 
@@ -187,6 +190,7 @@ If you are a contributor, please join the [GitHub Sponsors](https://github.com/s
 
 ### Individual Sponsors
 
+[@plowsai](https://github.com/plowsai)
 
 ### Corporation Sponsors
 
