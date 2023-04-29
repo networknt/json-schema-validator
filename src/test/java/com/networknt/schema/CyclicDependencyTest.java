@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -35,8 +34,7 @@ public class CyclicDependencyTest {
                 "  ]\n" +
                 "}";
 
-        URI jsonSchemaLocation = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/bug/cyclic-dep/src/test/resources/draft4/cyclic/Master.json").toURI();
-
+        URI jsonSchemaLocation = URI.create("resource:/draft4/issue258/Master.json");
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         JsonSchema schema = schemaFactory.getSchema(jsonSchemaLocation, config);
         assertEquals(0, schema.validate(new ObjectMapper().readTree(jsonObject)).size());

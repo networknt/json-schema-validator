@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -56,6 +57,19 @@ public interface URITranslator {
      */
     static CompositeURITranslator combine(URITranslator... uriTranslators) {
         return new CompositeURITranslator(uriTranslators);
+    }
+
+    /**
+     * Creates a mapping from one URI to another by replacing the beginning of the URI.
+     * <p>
+     * For example, replace http with https.
+     * 
+     * @param source the search string
+     * @param target the replacement string
+     * @return a new URITranslator
+     */
+    static URITranslator prefix(String source, String target) {
+        return new PrefixReplacer(source, target);
     }
 
     /**
@@ -119,4 +133,30 @@ public interface URITranslator {
 
     }
 
+    /**
+     * Replaces the beginning of a URI
+     */
+    class PrefixReplacer implements URITranslator {
+        private final String src;
+        private final String tgt;
+
+        public PrefixReplacer(String src, String tgt) {
+            this.src = src.toLowerCase(Locale.US);
+            this.tgt = tgt;
+        }
+
+        @Override
+        public URI translate(URI original) {
+            if (null != original) {
+                String o = original.toASCIIString().toLowerCase(Locale.US);
+                if (o.startsWith(src)) {
+                    o = tgt + o.substring(src.length());
+                    return URI.create(o);
+                }
+            }
+
+            return original;
+        }
+
+    }
 }
