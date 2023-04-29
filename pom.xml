@@ -186,41 +186,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.moditect</groupId>
-                <artifactId>moditect-maven-plugin</artifactId>
-                <version>1.0.0.RC1</version>
-                <executions>
-                    <execution>
-                        <id>add-module-info</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>add-module-info</goal>
-                        </goals>
-                        <configuration>
-                            <jvmVersion>9</jvmVersion>
-                            <module>
-                                <moduleInfoSource>
-                                    module com.networknt.schema {
-                                        requires transitive com.fasterxml.jackson.databind;
-                                        requires org.apache.commons.lang3;
-                                        requires org.jruby.jcodings;
-                                        requires org.jruby.joni;
-                                        requires org.slf4j;
-
-                                        exports com.networknt.schema;
-                                        exports com.networknt.schema.format;
-                                        exports com.networknt.schema.uri;
-                                        exports com.networknt.schema.urn;
-                                    }
-                                </moduleInfoSource>
-                            </module>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -378,6 +343,65 @@
                             </execution>
                         </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>java-module</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+        			<plugin>
+        				<groupId>org.moditect</groupId>
+        				<artifactId>moditect-maven-plugin</artifactId>
+        				<version>1.0.0.RC3</version>
+        				<executions>
+        					<execution>
+        						<id>add-module-infos</id>
+        						<phase>package</phase>
+        						<goals>
+        							<goal>add-module-info</goal>
+        						</goals>
+        						<configuration>
+        							<jvmVersion>9</jvmVersion>
+        							<overwriteExistingFiles>true</overwriteExistingFiles>
+        							<module>
+        								<moduleInfo>
+        									<name>com.networknt.schema</name>
+        									<!-- export everything -->
+        									<exports>*;</exports>
+        									<!-- declare services consumed by the artifact -->
+        									<addServiceUses>true</addServiceUses>
+        								</moduleInfo>
+        							</module>
+                                    <!--
+                                       previously configured but commented out
+                                    <module>
+                                        <moduleInfoSource>
+                                            module com.networknt.schema {
+                                                requires transitive com.fasterxml.jackson.databind;
+                                                requires org.apache.commons.lang3;
+                                                requires org.jruby.jcodings;
+                                                requires org.jruby.joni;
+                                                requires org.slf4j;
+                    
+                                                exports com.networknt.schema;
+                                                exports com.networknt.schema.format;
+                                                exports com.networknt.schema.uri;
+                                                exports com.networknt.schema.urn;
+                                            }
+                                        </moduleInfoSource>
+                                    </module>
+                                    -->
+        							<jdepsExtraArgs>
+        								<arg>--multi-release=9</arg>
+        							</jdepsExtraArgs>
+        						</configuration>
+        					</execution>
+        				</executions>
+        			</plugin>
                 </plugins>
             </build>
         </profile>
