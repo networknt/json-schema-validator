@@ -37,11 +37,6 @@ public class JsonNodeUtil {
     public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, JsonSchema parentSchema, ValidationContext validationContext) {
         SchemaValidatorsConfig config = validationContext.getConfig();
         JsonType nodeType = TypeFactory.getValueNodeType(node, config);
-        String metaSchema = validationContext.getMetaSchema().getUri();
-        long version = SpecVersionDetector.detectOptionalVersion(metaSchema)
-            .orElse(VersionFlag.V4)
-            .getVersionFlagValue();
-
         // in the case that node type is not the same as schema type, try to convert node to the
         // same type of schema. In REST API, query parameters, path parameters and headers are all
         // string type and we must convert, otherwise, all schema validations will fail.
@@ -53,13 +48,16 @@ public class JsonNodeUtil {
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
-            if (V6_VALUE <= version && schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && 1.0 == node.asDouble()) {
+            if (schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && 1.0 == node.asDouble() && V6_VALUE <= detectVersion(validationContext)) {
                 return true;
             }
 
-            if(JsonType.NULL.equals(nodeType)) {
-                if(parentSchema != null) {
-                    if( parentSchema.getParentSchema() != null && JsonNodeUtil.isNodeNullable(parentSchema.getParentSchema().getSchemaNode(), config) || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode()) ) {
+            if (nodeType == JsonType.NULL) {
+                if (parentSchema != null) {
+                    JsonSchema grandParentSchema = parentSchema.getParentSchema();
+                    if (grandParentSchema != null
+                            && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode(), config)
+                            || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode())) {
                         return true;
                     }
                 }
@@ -95,6 +93,13 @@ public class JsonNodeUtil {
             return false;
         }
         return true;
+    }
+
+    private static long detectVersion(ValidationContext validationContext) {
+        String metaSchema = validationContext.getMetaSchema().getUri();
+        return SpecVersionDetector.detectOptionalVersion(metaSchema)
+            .orElse(VersionFlag.V4)
+            .getVersionFlagValue();
     }
 
     /**
