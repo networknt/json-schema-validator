@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.81 - 2023-04-30
+
+### Added
+
+### Changed
+
+- fixes #731 Improves performance. Thanks @fdutton
+- fixes #730 Removes need for network access when executing unit-tests. Thanks @fdutton
+- fixes #728 Adds explicit Java module descriptor for JDK9+. Thanks @aalmiray 
+- fixes #725 custom uri fetcher doc. Thanks @michapojo
+- update the contributors and sponsors
+- fixes #720 Produces validation messages when oneOf has no valid schemas. Thanks @fdutton
+
 ## 1.0.80 - 2023-04-18
 
 ### Added
