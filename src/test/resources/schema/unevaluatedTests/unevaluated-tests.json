@@ -250,7 +250,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.pontoons, $.vehicle.wings, $.vehicle.invalid"
+          "There are unevaluated properties at following paths $.vehicle.invalid, $.vehicle.pontoons, $.vehicle.wings"
         ]
       },
       {
@@ -391,7 +391,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.wings, $.vehicle.unevaluated"
+          "There are unevaluated properties at following paths $.vehicle.unevaluated, $.vehicle.wings"
         ]
       }
     ]

@@ -41,10 +41,10 @@ public class OneOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         // As oneOf might contain multiple schemas take a backup of evaluatedProperties.
-        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().getEvaluatedProperties().clear();
+        CollectorContext.getInstance().resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
@@ -79,7 +79,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
                 // If the number of valid schema is greater than one, just reset the evaluated properties and break.
                 if (numberOfValidSchema > 1) {
-                    CollectorContext.getInstance().getEvaluatedProperties().clear();
+                    CollectorContext.getInstance().resetEvaluatedProperties();
                     break;
                 }
 
@@ -108,7 +108,7 @@ public class OneOfValidator extends BaseJsonValidator {
             if (errors.isEmpty()) {
                 CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
+                CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }

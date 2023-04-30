@@ -64,10 +64,10 @@ public class AnyOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
         // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
-        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().getEvaluatedProperties().clear();
+        CollectorContext.getInstance().resetEvaluatedProperties();
 
         try {
             int numberOfValidSubSchemas = 0;

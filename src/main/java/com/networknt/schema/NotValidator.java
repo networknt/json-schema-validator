@@ -38,10 +38,10 @@ public class NotValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = new HashSet<>();
 
         //As not will contain a schema take a backup of evaluatedProperties.
-        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().getEvaluatedProperties().clear();
+        CollectorContext.getInstance().resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
@@ -54,7 +54,7 @@ public class NotValidator extends BaseJsonValidator {
             if (errors.isEmpty()) {
                 CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
+                CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }

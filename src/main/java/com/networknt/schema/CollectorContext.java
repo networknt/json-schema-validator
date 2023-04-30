@@ -15,9 +15,9 @@
  */
 package com.networknt.schema;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -50,35 +50,30 @@ public class CollectorContext {
     /**
      * Used to track which properties have been evaluated.
      */
-    private final Set<String> evaluatedProperties = new LinkedHashSet<>();
+    private Collection<String> evaluatedProperties = new ArrayList<>();
 
     /**
      * Identifies which properties have been evaluated.
      * 
      * @return the set of evaluated properties (never null)
      */
-    public Set<String> getEvaluatedProperties() {
+    public Collection<String> getEvaluatedProperties() {
         return evaluatedProperties;
     }
 
     /**
-     * Clones the properties that have been evaluated.
-     * 
-     * @return the set of evaluated properties (never null)
+     * Set the properties that have been evaluated.
+     * @param paths the set of evaluated properties (may be null)
      */
-    public Set<String> copyEvaluatedProperties() {
-        return new LinkedHashSet<>(evaluatedProperties);
+    public void setEvaluatedProperties(Collection<String> paths) {
+        this.evaluatedProperties = null != paths ? paths : new ArrayList<>();
     }
 
     /**
-     * Replaces the properties that have been evaluated.
-     * @param paths the set of evaluated properties (may be null)
+     * Replaces the properties that have been evaluated with an empty collection.
      */
-    public void replaceEvaluatedProperties(Collection<String> paths) {
-        this.evaluatedProperties.clear();
-        if (null != paths) {
-            this.evaluatedProperties.addAll(paths);
-        }
+    public void resetEvaluatedProperties() {
+        this.evaluatedProperties = new ArrayList<>();
     }
 
     /**

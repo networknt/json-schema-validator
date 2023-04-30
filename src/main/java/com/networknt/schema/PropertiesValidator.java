@@ -48,7 +48,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+		ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
 
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
@@ -88,7 +88,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                         if (state.isComplexValidator()) {
                             // this was a complex validator (ex oneOf) and the node has not been matched
                             state.setMatchedNode(false);
-                            return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
+                            return Collections.emptySet();
                         } else {
                             errors.addAll(requiredErrors);
                         }

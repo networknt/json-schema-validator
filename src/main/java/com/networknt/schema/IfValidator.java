@@ -59,16 +59,16 @@ public class IfValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, at);
 
         // As if-then-else might contain multiple schemas take a backup of evaluatedProperties.
-        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
-        Set<String> ifEvaluatedProperties = Collections.emptySet();
+        Collection<String> ifEvaluatedProperties = Collections.emptyList();
 
-        Set<String> thenEvaluatedProperties = Collections.emptySet();
+        Collection<String> thenEvaluatedProperties = Collections.emptyList();
 
-        Set<String> elseEvaluatedProperties = Collections.emptySet();
+        Collection<String> elseEvaluatedProperties = Collections.emptyList();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().getEvaluatedProperties().clear();
+        CollectorContext.getInstance().resetEvaluatedProperties();
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -82,31 +82,31 @@ public class IfValidator extends BaseJsonValidator {
                 ifConditionPassed = false;
             }
             // Evaluated Properties from if.
-            ifEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+            ifEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
             if (ifConditionPassed && thenSchema != null) {
 
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().getEvaluatedProperties().clear();
+                CollectorContext.getInstance().resetEvaluatedProperties();
 
                 errors.addAll(thenSchema.validate(node, rootNode, at));
 
                 // Collect the then evaluated properties.
-                thenEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+                thenEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
 
             } else if (!ifConditionPassed && elseSchema != null) {
 
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().getEvaluatedProperties().clear();
+                CollectorContext.getInstance().resetEvaluatedProperties();
 
                 errors.addAll(elseSchema.validate(node, rootNode, at));
 
                 // Collect the else evaluated properties.
-                elseEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+                elseEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
             }
 
         } finally {
-            CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
+            CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
             if (errors.isEmpty()) {
                 // If the "if" keyword condition is passed then only add if properties as evaluated.
                 if (ifConditionPassed) {
