@@ -111,8 +111,8 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     		.builder(base)
     		.objectMapper(mapper)
     		.addUriTranslator(URITranslator.combine(
-				URITranslator.prefix("http://json-schema.org", "resource:"),
-				URITranslator.prefix("https://json-schema.org", "resource:")
+		        URITranslator.prefix("https://", "http://"),
+				URITranslator.prefix("http://json-schema.org", "resource:")
 			))
     		.build();
     }
