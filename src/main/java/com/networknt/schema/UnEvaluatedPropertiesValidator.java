@@ -41,11 +41,12 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<String> allPaths = allPaths(node, at);
         Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
 
-        Set<String> failingPaths = new LinkedHashSet<>();
+        Set<String> failingPaths = new HashSet<>();
         unevaluatedPaths.forEach(path -> {
             String pointer = getPathType().convertToJsonPointer(path);
             JsonNode property = rootNode.at(pointer);
@@ -55,24 +56,26 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
         });
 
         if (failingPaths.isEmpty()) {
-            CollectorContext.getInstance().getEvaluatedProperties().addAll(allPaths);
+            collectorContext.getEvaluatedProperties().addAll(allPaths);
         } else {
             // TODO: Why add this to the context if it is never referenced?
-            CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
-            return Collections.singleton(buildValidationMessage(String.join(", ", failingPaths)));
+            collectorContext.add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
+            List<String> paths = new ArrayList<>(failingPaths);
+            paths.sort(String.CASE_INSENSITIVE_ORDER);
+            return Collections.singleton(buildValidationMessage(String.join(", ", paths)));
         }
 
         return Collections.emptySet();
     }
 
     private Set<String> unevaluatedPaths(Set<String> allPaths) {
-        Set<String> unevaluatedProperties = new LinkedHashSet<>(allPaths);
+        Set<String> unevaluatedProperties = new HashSet<>(allPaths);
         unevaluatedProperties.removeAll(CollectorContext.getInstance().getEvaluatedProperties());
         return unevaluatedProperties;
     }
 
     private Set<String> allPaths(JsonNode node, String at) {
-        Set<String> results = new LinkedHashSet<>();
+        Set<String> results = new HashSet<>();
         processAllPaths(node, at, results);
         return results;
     }

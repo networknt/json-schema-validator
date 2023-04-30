@@ -51,9 +51,10 @@ public class AnyOfValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
@@ -64,10 +65,10 @@ public class AnyOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
         // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
-        Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().getEvaluatedProperties().clear();
+        collectorContext.resetEvaluatedProperties();
 
         try {
             int numberOfValidSubSchemas = 0;
@@ -141,9 +142,9 @@ public class AnyOfValidator extends BaseJsonValidator {
             if (allErrors.isEmpty()) {
                 state.setMatchedNode(true);
             } else {
-                CollectorContext.getInstance().getEvaluatedProperties().clear();
+                collectorContext.getEvaluatedProperties().clear();
             }
-            CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
+            collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
         }
         return Collections.unmodifiableSet(allErrors);
     }

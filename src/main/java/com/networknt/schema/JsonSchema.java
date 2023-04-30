@@ -467,14 +467,16 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ END OF WALK METHODS **********************************/
 
     private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
+
         // Get the Validator state object storing validation data
-        Object stateObj = CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        Object stateObj = collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
         // if one has not been created, instantiate one
         if (stateObj == null) {
             ValidatorState state = new ValidatorState();
             state.setWalkEnabled(isWalkEnabled);
             state.setValidationEnabled(shouldValidateSchema);
-            CollectorContext.getInstance().add(ValidatorState.VALIDATOR_STATE_KEY, state);
+            collectorContext.add(ValidatorState.VALIDATOR_STATE_KEY, state);
         }
     }
 

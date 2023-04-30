@@ -42,19 +42,20 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+		ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
         for (Map.Entry<String, JsonSchema> entry : schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
-                addToEvaluatedProperties(atPath(at, entry.getKey()));
+                collectorContext.getEvaluatedProperties().add(atPath(at, entry.getKey()));
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
@@ -88,7 +89,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
                         if (state.isComplexValidator()) {
                             // this was a complex validator (ex oneOf) and the node has not been matched
                             state.setMatchedNode(false);
-                            return Collections.unmodifiableSet(new LinkedHashSet<ValidationMessage>());
+                            return Collections.emptySet();
                         } else {
                             errors.addAll(requiredErrors);
                         }
@@ -98,10 +99,6 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
         }
 
         return Collections.unmodifiableSet(errors);
-    }
-
-    private void addToEvaluatedProperties(String propertyPath) {
-        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
     }
 
     @Override

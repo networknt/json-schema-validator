@@ -43,23 +43,24 @@ public class AllOfValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
         Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<ValidationMessage>();
 
-        Set<String> newEvaluatedProperties = Collections.emptySet();
+        Collection<String> newEvaluatedProperties = Collections.emptyList();
 
         for (JsonSchema schema : schemas) {
             // As AllOf might contain multiple schemas take a backup of evaluatedProperties.
-            Set<String> backupEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+            Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
             Set<ValidationMessage> localErrors = new HashSet<>();
 
             try {
                 // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().getEvaluatedProperties().clear();
+                collectorContext.resetEvaluatedProperties();
 
                 if (!state.isWalkEnabled()) {
                     localErrors = schema.validate(node, rootNode, at);
@@ -71,7 +72,7 @@ public class AllOfValidator extends BaseJsonValidator {
 
                 // Keep Collecting total evaluated properties.
                 if (localErrors.isEmpty()) {
-                    newEvaluatedProperties = CollectorContext.getInstance().copyEvaluatedProperties();
+                    newEvaluatedProperties = collectorContext.getEvaluatedProperties();
                 }
 
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -106,11 +107,11 @@ public class AllOfValidator extends BaseJsonValidator {
                     }
                 }
             } finally {
-                CollectorContext.getInstance().replaceEvaluatedProperties(backupEvaluatedProperties);
+                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
                 if (localErrors.isEmpty()) {
-                    CollectorContext.getInstance().getEvaluatedProperties().addAll(newEvaluatedProperties);
+                    collectorContext.getEvaluatedProperties().addAll(newEvaluatedProperties);
                 }
-                newEvaluatedProperties = Collections.emptySet();
+                newEvaluatedProperties = Collections.emptyList();
             }
         }
 
