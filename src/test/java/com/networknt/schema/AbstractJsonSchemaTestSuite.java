@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.uri.URITranslator;
+
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
@@ -105,8 +107,14 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
         VersionFlag specVersion = detectVersion(testCase, defaultVersion);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
-        JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(base).objectMapper(mapper).build();
-        return validatorFactory;
+        return JsonSchemaFactory
+    		.builder(base)
+    		.objectMapper(mapper)
+    		.addUriTranslator(URITranslator.combine(
+				URITranslator.prefix("http://json-schema.org", "resource:"),
+				URITranslator.prefix("https://json-schema.org", "resource:")
+			))
+    		.build();
     }
 
     private DynamicNode buildTest(JsonSchemaFactory validatorFactory, TestSpec testSpec) {

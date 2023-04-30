@@ -1,0 +1,18 @@
+{
+  "id": "Master.json",
+  "type": "object",
+  "datatype": true,
+  "category": "fhir",
+  "properties": {
+    "element": {
+      "$ref": "Element.json"
+    },
+    "extension": {
+      "type": "array",
+      "items": {
+        "$ref": "Extension.json"
+      }
+    }
+  },
+  "additionalProperties": false
+}
