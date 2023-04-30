@@ -127,14 +127,15 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().resetEvaluatedProperties();
+        collectorContext.resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
@@ -149,9 +150,9 @@ public class RefValidator extends BaseJsonValidator {
             }
         } finally {
             if (errors.isEmpty()) {
-                CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
+                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
+                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
         return errors;
@@ -159,14 +160,15 @@ public class RefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().resetEvaluatedProperties();
+        collectorContext.resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
@@ -181,9 +183,9 @@ public class RefValidator extends BaseJsonValidator {
         } finally {
             if (shouldValidateSchema) {
                 if (errors.isEmpty()) {
-                    CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
+                    collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
                 } else {
-                    CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
+                    collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
                 }
             }
         }

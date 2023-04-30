@@ -39,17 +39,18 @@ public class OneOfValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         // As oneOf might contain multiple schemas take a backup of evaluatedProperties.
-        Collection<String> backupEvaluatedProperties = CollectorContext.getInstance().getEvaluatedProperties();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().resetEvaluatedProperties();
+        collectorContext.resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
 
-            ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+            ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
             // this is a complex validator, we set the flag to true
             state.setComplexValidator(true);
@@ -79,7 +80,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
                 // If the number of valid schema is greater than one, just reset the evaluated properties and break.
                 if (numberOfValidSchema > 1) {
-                    CollectorContext.getInstance().resetEvaluatedProperties();
+                    collectorContext.resetEvaluatedProperties();
                     break;
                 }
 
@@ -106,9 +107,9 @@ public class OneOfValidator extends BaseJsonValidator {
             return Collections.unmodifiableSet(errors);
         } finally {
             if (errors.isEmpty()) {
-                CollectorContext.getInstance().getEvaluatedProperties().addAll(backupEvaluatedProperties);
+                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().setEvaluatedProperties(backupEvaluatedProperties);
+                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }

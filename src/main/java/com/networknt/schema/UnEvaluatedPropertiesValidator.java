@@ -41,6 +41,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<String> allPaths = allPaths(node, at);
         Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
@@ -55,10 +56,10 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
         });
 
         if (failingPaths.isEmpty()) {
-            CollectorContext.getInstance().getEvaluatedProperties().addAll(allPaths);
+            collectorContext.getEvaluatedProperties().addAll(allPaths);
         } else {
             // TODO: Why add this to the context if it is never referenced?
-            CollectorContext.getInstance().add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
+            collectorContext.add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
             List<String> paths = new ArrayList<>(failingPaths);
             paths.sort(String.CASE_INSENSITIVE_ORDER);
             return Collections.singleton(buildValidationMessage(String.join(", ", paths)));

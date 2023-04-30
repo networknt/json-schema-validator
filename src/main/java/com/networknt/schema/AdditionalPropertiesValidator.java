@@ -64,12 +64,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    private void addToEvaluatedProperties(String propertyPath) {
-        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
-    }
-
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (!node.isObject()) {
@@ -80,7 +77,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                addToEvaluatedProperties(atPath(at, it.next()));
+                collectorContext.getEvaluatedProperties().add(atPath(at, it.next()));
             }
         }
 
@@ -104,7 +101,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     errors.add(buildValidationMessage(at, pname));
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
                             errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
                         } else {

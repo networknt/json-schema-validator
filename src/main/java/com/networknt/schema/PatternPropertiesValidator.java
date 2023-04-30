@@ -58,7 +58,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             for (Map.Entry<Pattern, JsonSchema> entry : schemas.entrySet()) {
                 Matcher m = entry.getKey().matcher(name);
                 if (m.find()) {
-                    addToEvaluatedProperties(atPath(at, name));
+                    CollectorContext.getInstance().getEvaluatedProperties().add(atPath(at, name));
                     errors.addAll(entry.getValue().validate(n, rootNode, atPath(at, name)));
                 }
             }
@@ -69,9 +69,5 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(schemas.values());
-    }
-
-    private void addToEvaluatedProperties(String propertyPath) {
-        CollectorContext.getInstance().getEvaluatedProperties().add(propertyPath);
     }
 }
