@@ -17,13 +17,13 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
 
 import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,16 +35,18 @@ enum VersionCode {
     MinV201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
     MinV202012(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V202012 });
 
-    private static final SpecVersion specVersion = new SpecVersion();
-
-    private final SpecVersion.VersionFlag[] versionFlags;
+    private final EnumSet<VersionFlag> versions;
 
     VersionCode(SpecVersion.VersionFlag[] versionFlags) {
-        this.versionFlags = versionFlags;
+    	this.versions = EnumSet.noneOf(VersionFlag.class);
+        for (VersionFlag flag: versionFlags) {
+        	this.versions.add(flag);
+        }
     }
-    long getValue() {
-        return specVersion.getVersionValue(new HashSet<>(Arrays.asList(this.versionFlags)));
-    }
+
+    EnumSet<VersionFlag> getVersions() {
+		return versions;
+	}
 }
 
 public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
@@ -104,7 +106,6 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     MIN_CONTAINS("minContains", "1049", new MessageFormat(I18nSupport.getString("minContains")), MinMaxContainsValidator.class, VersionCode.MinV201909);
 
     private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<String, ValidatorTypeCode>();
-    private static final SpecVersion SPEC_VERSION = new SpecVersion();
 
     static {
         for (ValidatorTypeCode c : values()) {
@@ -118,7 +119,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     private String customMessage;
     private final String errorCodeKey;
     private final Class<?> validator;
-    private final long versionCode;
+    private final VersionCode versionCode;
 
 
     private ValidatorTypeCode(String value, String errorCode, MessageFormat messageFormat, Class<?> validator, VersionCode versionCode) {
@@ -127,14 +128,14 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         this.messageFormat = messageFormat;
         this.errorCodeKey = value + "ErrorCode";
         this.validator = validator;
-        this.versionCode = versionCode.getValue();
+        this.versionCode = versionCode;
         this.customMessage = null;
     }
 
     public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFlag versionFlag) {
         final List<ValidatorTypeCode> result = new ArrayList<ValidatorTypeCode>();
         for (ValidatorTypeCode keyword : values()) {
-            if (!FORMAT.equals(keyword) && SPEC_VERSION.getVersionFlags(keyword.versionCode).contains(versionFlag)) {
+            if (!FORMAT.equals(keyword) && keyword.getVersionCode().getVersions().contains(versionFlag)) {
                 result.add(keyword);
             }
         }
@@ -190,7 +191,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         return errorCodeKey;
     }
 
-    public long getVersionCode() {
+    public VersionCode getVersionCode() {
         return versionCode;
     }
 }
