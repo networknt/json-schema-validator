@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -141,14 +140,14 @@ public interface URITranslator {
         private final String tgt;
 
         public PrefixReplacer(String src, String tgt) {
-            this.src = src.toLowerCase(Locale.US);
+            this.src = src;
             this.tgt = tgt;
         }
 
         @Override
         public URI translate(URI original) {
             if (null != original) {
-                String o = original.toASCIIString().toLowerCase(Locale.US);
+                String o = original.toString();
                 if (o.startsWith(src)) {
                     o = tgt + o.substring(src.length());
                     return URI.create(o);

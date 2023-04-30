@@ -38,32 +38,28 @@ public abstract class HTTPServiceSupport {
             PathHandler pathHandler = path(resource(
                 new FileResourceManager(
                     new File("./src/test/suite/remotes"),
-                    100,
-                    false
+                    100
                 ))
             );
 
             pathHandler.addPrefixPath("folder", resource(
                 new FileResourceManager(
                     new File("./src/test/resources/remotes/folder"),
-                    100,
-                    false
+                    100
                 ))
             );
 
             pathHandler.addPrefixPath("id_schema", resource(
                 new FileResourceManager(
                     new File("./src/test/resources/remotes/id_schema"),
-                    100,
-                    false
+                    100
                 ))
             );
 
             pathHandler.addPrefixPath("self_ref", resource(
                 new FileResourceManager(
                     new File("./src/test/resources/remotes/self_ref"),
-                    100,
-                    false
+                    100
                 ))
             );
 
