@@ -17,17 +17,16 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.regex.RegularExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PatternPropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
-    private final Map<Pattern, JsonSchema> schemas = new IdentityHashMap<Pattern, JsonSchema>();
+    private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
 
     public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
@@ -38,7 +37,8 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
-            schemas.put(Pattern.compile(name), new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema));
+            RegularExpression pattern = RegularExpression.compile(name, validationContext);
+            schemas.put(pattern, new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema));
         }
     }
 
@@ -55,9 +55,8 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
-            for (Map.Entry<Pattern, JsonSchema> entry : schemas.entrySet()) {
-                Matcher m = entry.getKey().matcher(name);
-                if (m.find()) {
+            for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
+                if (entry.getKey().matches(name)) {
                     CollectorContext.getInstance().getEvaluatedProperties().add(atPath(at, name));
                     errors.addAll(entry.getValue().validate(n, rootNode, atPath(at, name)));
                 }

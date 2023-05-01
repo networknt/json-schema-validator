@@ -17,12 +17,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.regex.RegularExpression;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
@@ -30,7 +30,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private final boolean allowAdditionalProperties;
     private final JsonSchema additionalPropertiesSchema;
     private final Set<String> allowedProperties;
-    private final List<Pattern> patternProperties = new ArrayList<Pattern>();
+    private final List<RegularExpression> patternProperties = new ArrayList<>();
 
     public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
@@ -57,7 +57,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
         if (patternPropertiesNode != null) {
             for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
-                patternProperties.add(Pattern.compile(it.next()));
+                patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }
         }
 
@@ -88,9 +88,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 continue;
             }
             boolean handledByPatternProperties = false;
-            for (Pattern pattern : patternProperties) {
-                Matcher m = pattern.matcher(pname);
-                if (m.find()) {
+            for (RegularExpression pattern : patternProperties) {
+                if (pattern.matches(pname)) {
                     handledByPatternProperties = true;
                     break;
                 }
@@ -133,9 +132,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 continue;
             }
             boolean handledByPatternProperties = false;
-            for (Pattern pattern : patternProperties) {
-                Matcher m = pattern.matcher(pname);
-                if (m.find()) {
+            for (RegularExpression pattern : patternProperties) {
+                if (pattern.matches(pname)) {
                     handledByPatternProperties = true;
                     break;
                 }

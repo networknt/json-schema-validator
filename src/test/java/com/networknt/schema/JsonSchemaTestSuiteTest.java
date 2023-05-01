@@ -76,7 +76,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-email.json"));
@@ -98,7 +97,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/defs.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/id.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
@@ -120,7 +118,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         disabled.add(Paths.get("src/test/suite/tests/draft7/defs.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/content.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-email.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-hostname.json"));
@@ -135,7 +132,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     }
 
     private void disableV6Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/float-overflow.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/json-pointer.json"));
@@ -146,7 +142,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
    }
 
     private void disableV4Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft4/optional/ecmascript-regex.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json"));
         disabled.add(Paths.get("src/test/suite/tests/draft4/refRemote.json"));
     }
