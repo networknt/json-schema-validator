@@ -17,6 +17,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.format.DateFormat;
+import com.networknt.schema.format.EmailFormat;
+import com.networknt.schema.format.PatternFormat;
 import com.networknt.schema.format.RegexFormat;
 import com.networknt.schema.format.TimeFormat;
 import com.networknt.schema.utils.StringUtils;
@@ -28,26 +31,17 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonMetaSchema {
-
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(JsonMetaSchema.class);
-    private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<String, String>();
+    private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
+    private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<>();
 
     static PatternFormat pattern(String name, String regex) {
         return new PatternFormat(name, regex);
     }
 
-    public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<Format>();
+    public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<>();
 
     // this section contains formats that is common for all specification versions.
     static {
-        COMMON_BUILTIN_FORMATS.add(new TimeFormat());
-        COMMON_BUILTIN_FORMATS.add(pattern("ip-address", "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ipv6",
-                "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$"));
-
         // From RFC 3986
         // ALPHA [A-Za-z]
         // DIGIT [0-9]
@@ -81,23 +75,27 @@ public class JsonMetaSchema {
         // fragment = *( pchar / "/" / "?" )
         // => [A-Za-z0-9._~\-%!$&'()*+,;=:@\/?]*
         // uri = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
-        COMMON_BUILTIN_FORMATS.add(pattern("uri",
-            "^[A-Za-z][A-Za-z0-9+.-]*:(\\/\\/([A-Za-z0-9._~\\-%!$&'()*+,;=:]*@)?[A-Za-z0-9._~\\-!$&'()*+,;=%:\\[\\]]*(:[0-9]*)?)?[A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/]*([?][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?([#][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?"));
-        COMMON_BUILTIN_FORMATS.add(pattern("color",
-                "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
-        COMMON_BUILTIN_FORMATS.add(pattern("hostname",
-                "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uri", "^[A-Za-z][A-Za-z0-9+.-]*:(\\/\\/([A-Za-z0-9._~\\-%!$&'()*+,;=:]*@)?[A-Za-z0-9._~\\-!$&'()*+,;=%:\\[\\]]*(:[0-9]*)?)?[A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/]*([?][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?([#][A-Za-z0-9._~\\-%!$&'()*+,;=:@\\/?]*)?"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ip-address", "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv6", "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("color", "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
+        COMMON_BUILTIN_FORMATS.add(pattern("hostname", "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$"));
         COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
         COMMON_BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));
         COMMON_BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
         COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
         COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$"));
+        COMMON_BUILTIN_FORMATS.add(new DateFormat());
+        COMMON_BUILTIN_FORMATS.add(new EmailFormat());
         COMMON_BUILTIN_FORMATS.add(new RegexFormat());
+        COMMON_BUILTIN_FORMATS.add(new TimeFormat());
     }
 
     public static class Builder {
-        private Map<String, Keyword> keywords = new HashMap<String, Keyword>();
-        private Map<String, Format> formats = new HashMap<String, Format>();
+        private Map<String, Keyword> keywords = new HashMap<>();
+        private Map<String, Format> formats = new HashMap<>();
         private String uri;
         private String idKeyword = "id";
 
@@ -106,7 +104,7 @@ public class JsonMetaSchema {
         }
 
         private static Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
-            Map<String, Keyword> map = new HashMap<String, Keyword>();
+            Map<String, Keyword> map = new HashMap<>();
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
                 Keyword keyword = type.getValue();
@@ -156,8 +154,8 @@ public class JsonMetaSchema {
 
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
-            Map<String, Keyword> kwords = createKeywordsMap(keywords, formats);
-            return new JsonMetaSchema(uri, idKeyword, kwords);
+            Map<String, Keyword> kwords = createKeywordsMap(this.keywords, this.formats);
+            return new JsonMetaSchema(this.uri, this.idKeyword, kwords);
         }
     }
 
@@ -165,7 +163,7 @@ public class JsonMetaSchema {
     private final String idKeyword;
     private Map<String, Keyword> keywords;
 
-    private JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords) {
+    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords) {
         if (StringUtils.isBlank(uri)) {
             throw new IllegalArgumentException("uri must not be null or blank");
         }
@@ -234,30 +232,31 @@ public class JsonMetaSchema {
     }
 
     public String readId(JsonNode schemaNode) {
-        return readText(schemaNode, idKeyword);
+        return readText(schemaNode, this.idKeyword);
     }
 
     public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
-        boolean supportsAnchor = keywords.containsKey("$anchor");
+        boolean supportsAnchor = this.keywords.containsKey("$anchor");
         String refName = supportsAnchor ? ref.substring(1) : ref;
-        String fieldToRead = supportsAnchor ? "$anchor" : idKeyword;
+        String fieldToRead = supportsAnchor ? "$anchor" : this.idKeyword;
 
         boolean nodeContainsRef = refName.equals(readText(node, fieldToRead));
         if (nodeContainsRef) {
             return node;
-        } else {
-            Iterator<JsonNode> children = node.elements();
-            while (children.hasNext()) {
-                JsonNode refNode = getNodeByFragmentRef(ref, children.next());
-                if (refNode != null) {
-                    return refNode;
-                }
+        }
+
+        Iterator<JsonNode> children = node.elements();
+        while (children.hasNext()) {
+            JsonNode refNode = getNodeByFragmentRef(ref, children.next());
+            if (refNode != null) {
+                return refNode;
             }
         }
+
         return null;
     }
 
-    private String readText(JsonNode node, String field) {
+    private static String readText(JsonNode node, String field) {
         JsonNode idNode = node.get(field);
         if (idNode == null || !idNode.isTextual()) {
             return null;
@@ -266,18 +265,18 @@ public class JsonMetaSchema {
     }
 
     public String getUri() {
-        return uri;
+        return this.uri;
     }
 
     public Map<String, Keyword> getKeywords() {
-        return keywords;
+        return this.keywords;
     }
 
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema, String customMessage) {
 
         try {
-            Keyword kw = keywords.get(keyword);
+            Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
                 if (UNKNOWN_KEYWORDS.put(keyword, keyword) == null) {
                     logger.warn("Unknown keyword {} - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword", keyword);
@@ -290,10 +289,9 @@ public class JsonMetaSchema {
             if (e.getTargetException() instanceof JsonSchemaException) {
                 logger.error("Error:", e);
                 throw (JsonSchemaException) e.getTargetException();
-            } else {
-                logger.warn("Could not load validator {}", keyword);
-                throw new JsonSchemaException(e.getTargetException());
             }
+            logger.warn("Could not load validator {}", keyword);
+            throw new JsonSchemaException(e.getTargetException());
         } catch (JsonSchemaException e) {
             throw e;
         } catch (Exception e) {

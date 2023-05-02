@@ -32,14 +32,14 @@ public class Issue396Test {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
-        final Set<String> invalidPaths = new HashSet<>();
+        final Set<String> expected = new HashSet<>();
         node.fields().forEachRemaining(entry -> {
             if (!entry.getValue().asBoolean())
-                invalidPaths.add("$." + entry.getKey());
+                expected.add("$." + entry.getKey());
         });
 
         Set<ValidationMessage> errors = schema.validate(node);
-        final Set<String> failedPaths = errors.stream().map(ValidationMessage::getPath).collect(Collectors.toSet());
-        Assertions.assertEquals(failedPaths, invalidPaths);
+        final Set<String> actual = errors.stream().map(ValidationMessage::getPath).collect(Collectors.toSet());
+        Assertions.assertEquals(expected, actual);
     }
 }

@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.format;
 
-public abstract class AbstractFormat implements Format {
+import java.util.regex.Pattern;
+
+import com.networknt.schema.Format;
+
+public class PatternFormat implements Format {
     private final String name;
-    private final String errorMessageDescription;
+    private final Pattern pattern;
 
-    public AbstractFormat(String name) {
-        this(name, "");
+    public PatternFormat(String name, String regex) {
+        this.name = name;
+        this.pattern = Pattern.compile(regex);
     }
 
-    public AbstractFormat(String name, String errorMessageDescription) {
-        this.name = name;
-        this.errorMessageDescription = errorMessageDescription;
+    @Override
+    public boolean matches(String value) {
+        return pattern.matcher(value).matches();
     }
 
     @Override
@@ -36,6 +41,6 @@ public abstract class AbstractFormat implements Format {
 
     @Override
     public String getErrorMessageDescription() {
-        return errorMessageDescription;
+        return pattern.pattern();
     }
 }

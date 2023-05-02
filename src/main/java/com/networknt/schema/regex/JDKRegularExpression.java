@@ -11,7 +11,7 @@ class JDKRegularExpression implements RegularExpression {
 
     @Override
     public boolean matches(String value) {
-        return this.pattern.matcher(value).find();
+        return this.pattern.matcher(value).matches();
     }
 
 }

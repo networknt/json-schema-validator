@@ -13,8 +13,6 @@
  */
 package com.networknt.schema.format;
 
-import com.networknt.schema.AbstractFormat;
-
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 

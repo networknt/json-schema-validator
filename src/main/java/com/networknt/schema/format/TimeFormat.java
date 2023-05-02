@@ -13,8 +13,6 @@
  */
 package com.networknt.schema.format;
 
-import com.networknt.schema.AbstractFormat;
-
 import java.text.ParsePosition;
 import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
