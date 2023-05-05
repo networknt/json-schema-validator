@@ -42,8 +42,11 @@ public class RefValidator extends BaseJsonValidator {
         schema = getRefSchema(parentSchema, validationContext, refValue);
         if (schema == null) {
             throw new JsonSchemaException(
-                    ValidationMessage.of(ValidatorTypeCode.REF.getValue(),
-                                                               CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, schemaPath, refValue));
+                    ValidationMessage.of(
+                            ValidatorTypeCode.REF.getValue(),
+                            CustomErrorMessageType.of("internal.unresolvedRef"),
+                            new MessageFormat("{0}: Reference {1} cannot be resolved"),
+                            schemaPath, schemaPath, refValue));
         }
     }
 

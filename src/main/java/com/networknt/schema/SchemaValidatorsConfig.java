@@ -24,6 +24,7 @@ import com.networknt.schema.walk.JsonSchemaWalkListener;
 import java.util.*;
 
 public class SchemaValidatorsConfig {
+
     /**
      * when validate type, if TYPE_LOOSE = true, will try to convert string to
      * different types to match the type defined in schema.
@@ -124,6 +125,18 @@ public class SchemaValidatorsConfig {
     private CollectorContext collectorContext;
 
     private boolean loadCollectors = true;
+
+    /**
+     * The Locale to consider when loading validation messages from the default resource bundle.
+     */
+    private Locale locale;
+
+    /**
+     * An alternative resource bundle to consider instead of the default one when producing validation messages. If this
+     * is provided the 'locale' is ignored given that the resource bundle is already loaded for a specific locale.
+     */
+    private ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundleToUse;
 
     public boolean isTypeLoose() {
         return typeLoose;
@@ -411,6 +424,61 @@ public class SchemaValidatorsConfig {
      */
     public void setStrict(String keyword, boolean strict) {
         this.strictness.put(Objects.requireNonNull(keyword, "keyword cannot be null"), strict);
+    }
+
+    /**
+     * Get the locale to consider when generating localised messages (default is the JVM default).
+     *
+     * @return The locale.
+     */
+    public Locale getLocale() {
+        return locale;
+    }
+
+    /**
+     * Get the locale to consider when generating localised messages.
+     *
+     * @param locale The locale.
+     */
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+        if (this.locale == null || (this.resourceBundleToUse != null && !this.locale.equals(this.resourceBundleToUse.getLocale()))) {
+            // If we have already loaded a resource bundle for a different locale set it to null so that it is reinitialised.
+            this.resourceBundleToUse = null;
+        }
+    }
+
+    /**
+     * Get the resource bundle to use when generating localised messages.
+     *
+     * @return The resource bundle.
+     */
+    public ResourceBundle getResourceBundle() {
+        if (resourceBundleToUse == null) {
+            // Load and cache the resource bundle to use.
+            resourceBundleToUse = resourceBundle;
+            if (resourceBundleToUse == null) {
+                if (locale == null) {
+                    resourceBundleToUse = I18nSupport.DEFAULT_RESOURCE_BUNDLE;
+                } else {
+                    resourceBundleToUse = ResourceBundle.getBundle(I18nSupport.DEFAULT_BUNDLE_BASE_NAME, locale);
+                }
+            }
+        }
+        return resourceBundleToUse;
+    }
+
+    /**
+     * Set the resource bundle to use when generating localised messages.
+     *
+     * @param resourceBundle The resource bundle.
+     */
+    public void setResourceBundle(ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
+        if (this.resourceBundle == null || !(this.resourceBundle.equals(this.resourceBundleToUse))) {
+            // If we have already loaded a different resource bundle set it to null so that it is reinitialised.
+            this.resourceBundleToUse = null;
+        }
     }
 
 }

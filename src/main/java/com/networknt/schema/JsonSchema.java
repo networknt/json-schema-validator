@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -73,10 +74,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-            validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-            validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null,
-            validationContext.getConfig() != null ? validationContext.getConfig().getPathType() : null);
+        super(schemaPath, schemaNode, parent, null, validationContext, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
@@ -110,6 +108,7 @@ public class JsonSchema extends BaseJsonValidator {
             } catch (IllegalArgumentException e) {
                 throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(),
                         ValidatorTypeCode.ID,
+                        new MessageFormat(validationContext.getConfig().getResourceBundle().getString(ValidatorTypeCode.ID.getErrorCodeValue())),
                         id,
                         schemaPath,
                         currentUri == null ? "null" : currentUri.toString()));

@@ -126,10 +126,14 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         config.setTypeLoose(typeLoose);
         config.setEcma262Validator(true);
         testSpec.getStrictness().forEach(config::setStrict);
-        URI testCaseFileUri = URI.create("classpath:" + testSpec.getTestCase().getSpecification());
+        URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
+    }
+
+    private String toForwardSlashPath(Path file) {
+        return file.toString().replace('\\', '/');
     }
 
     // For 2019-09 and later published drafts, implementations that are able to

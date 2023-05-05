@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import java.util.MissingResourceException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -10,10 +10,8 @@ import java.util.ResourceBundle;
  */
 public class I18nSupport {
 
-    private static final String BASE_NAME = "jsv-messages";
-    private static final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME);
+    public static final String DEFAULT_BUNDLE_BASE_NAME = "jsv-messages";
+    public static final Locale DEFAULT_LOCALE = Locale.getDefault();
+    public static final ResourceBundle DEFAULT_RESOURCE_BUNDLE = ResourceBundle.getBundle(DEFAULT_BUNDLE_BASE_NAME, DEFAULT_LOCALE);
 
-    public static String getString(String key) {
-        return bundle.getString(key);
-    }
 }

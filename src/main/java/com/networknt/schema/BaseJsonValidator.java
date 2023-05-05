@@ -16,67 +16,56 @@
 
 package com.networknt.schema;
 
-import java.net.URI;
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.*;
+
 public abstract class BaseJsonValidator implements JsonValidator {
     protected String schemaPath;
     protected JsonNode schemaNode;
     protected JsonSchema parentSchema;
-    private boolean suppressSubSchemaRetrieval;
-    private ValidatorTypeCode validatorType;
+    private final boolean suppressSubSchemaRetrieval;
+    private final ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
     protected ValidationContext validationContext;
     protected final boolean failFast;
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
     private final String customMessage;
     private final PathType pathType;
+    private final ResourceBundle resourceBundle;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, false,
-             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null,
-            validationContext.getConfig() != null ? validationContext.getConfig().getPathType() : null);
+        this(schemaPath, schemaNode, parentSchema, validatorType, validationContext, false);
     }
 
     public BaseJsonValidator(String schemaPath,
                              JsonNode schemaNode,
                              JsonSchema parentSchema,
                              ValidatorTypeCode validatorType,
-                             boolean suppressSubSchemaRetrieval,
-                             boolean failFast,
-                             ApplyDefaultsStrategy applyDefaultsStrategy,
-                             PathType pathType) {
+                             ValidationContext validationContext,
+                             boolean suppressSubSchemaRetrieval) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.failFast = failFast;
-        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        this.failFast = validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast();
+        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
         if (validatorType != null) {
             this.customMessage = validatorType.getCustomMessage();
         } else {
             this.customMessage = null;
         }
-        if (pathType != null) {
-            this.pathType = pathType;
-        } else {
-            this.pathType = PathType.DEFAULT;
-        }
+        this.pathType = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType() : PathType.DEFAULT;
+        this.resourceBundle = (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getResourceBundle() : I18nSupport.DEFAULT_RESOURCE_BUNDLE;
     }
 
     public String getSchemaPath() {
@@ -145,7 +134,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), errorMessageType, customMessage, at, schemaPath, arguments);
+        MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(errorMessageType.getErrorCodeValue()));
+        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), errorMessageType, messageFormat, customMessage, at, schemaPath, arguments);
         if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
@@ -153,8 +143,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
-        String template = I18nSupport.getString(messageKey);
-        MessageFormat messageFormat = new MessageFormat(template);
+        MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(messageKey));
         final ValidationMessage message = new ValidationMessage.Builder()
             .code(errorMessageType.getErrorCode())
             .path(at)
