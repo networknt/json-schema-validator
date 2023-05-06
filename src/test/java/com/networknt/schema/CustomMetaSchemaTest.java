@@ -68,7 +68,7 @@ public class CustomMetaSchemaTest {
                 }
                 String valueName = enumNames.get(idx);
                 Set<ValidationMessage> messages = new HashSet<>();
-                messages.add(ValidationMessage.of(keyword, CustomErrorMessageType.of("tests.example.enumNames", new MessageFormat("{0}: enumName is {1}")), at, null, valueName));
+                messages.add(ValidationMessage.of(keyword, CustomErrorMessageType.of("tests.example.enumNames"), new MessageFormat("{0}: enumName is {1}"), at, null, valueName));
                 return messages;
             }
         }
