@@ -86,7 +86,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.invalid"
+          "There are unevaluated properties at the following paths $.invalid"
         ]
       },
       {
@@ -103,7 +103,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.address.invalid"
+          "There are unevaluated properties at the following paths $.address.invalid"
         ]
       },
       {
@@ -120,7 +120,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.address.invalid2"
+          "There are unevaluated properties at the following paths $.address.invalid2"
         ]
       },
       {
@@ -139,7 +139,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.address.residence.invalid"
+          "There are unevaluated properties at the following paths $.address.residence.invalid"
         ]
       }
     ]
@@ -233,7 +233,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.pontoons, $.vehicle.wings"
+          "There are unevaluated properties at the following paths $.vehicle.pontoons, $.vehicle.wings"
         ]
       },
       {
@@ -250,7 +250,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.invalid, $.vehicle.pontoons, $.vehicle.wings"
+          "There are unevaluated properties at the following paths $.vehicle.invalid, $.vehicle.pontoons, $.vehicle.wings"
         ]
       },
       {
@@ -265,7 +265,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.invalid"
+          "There are unevaluated properties at the following paths $.vehicle.invalid"
         ]
       }
     ]
@@ -359,7 +359,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+          "There are unevaluated properties at the following paths $.vehicle.unevaluated"
         ]
       },
       {
@@ -374,7 +374,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+          "There are unevaluated properties at the following paths $.vehicle.unevaluated"
         ]
       },
       {
@@ -391,7 +391,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.vehicle.unevaluated, $.vehicle.wings"
+          "There are unevaluated properties at the following paths $.vehicle.unevaluated, $.vehicle.wings"
         ]
       }
     ]
@@ -488,7 +488,7 @@
         "valid": false,
         "validationMessages": [
           "$.vehicle.wings: is missing but it is required",
-          "There are unevaluated properties at following paths $.vehicle.unevaluated"
+          "There are unevaluated properties at the following paths $.vehicle.unevaluated"
         ]
       }
     ]
@@ -550,7 +550,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at following paths $.age, $.unevaluated"
+          "There are unevaluated properties at the following paths $.age, $.unevaluated"
         ]
       }
     ]

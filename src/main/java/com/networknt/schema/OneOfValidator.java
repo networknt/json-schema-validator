@@ -32,19 +32,22 @@ public class OneOfValidator extends BaseJsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
-            schemas.add(new JsonSchema(validationContext,  schemaPath + "/" + i, parentSchema.getCurrentUri(), childNode, parentSchema));
+            this.schemas.add(new JsonSchema(validationContext,  schemaPath + "/" + i, parentSchema.getCurrentUri(), childNode, parentSchema));
         }
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         CollectorContext collectorContext = CollectorContext.getInstance();
 
-        // As oneOf might contain multiple schemas take a backup of evaluatedProperties.
+        // As oneOf might contain multiple schemas take a backup of evaluated stuff.
+        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
         Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
-        // Make the evaluatedProperties list empty.
+        // Make the evaluated lists empty.
+        collectorContext.resetEvaluatedItems();
         collectorContext.resetEvaluatedProperties();
 
         try {
@@ -58,7 +61,7 @@ public class OneOfValidator extends BaseJsonValidator {
             int numberOfValidSchema = 0;
             Set<ValidationMessage> childErrors = new LinkedHashSet<>();
 
-            for (JsonSchema schema : schemas) {
+            for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = null;
                 // Reset state in case the previous validator did not match
                 state.setMatchedNode(true);
@@ -80,6 +83,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
                 // If the number of valid schema is greater than one, just reset the evaluated properties and break.
                 if (numberOfValidSchema > 1) {
+                    collectorContext.resetEvaluatedItems();
                     collectorContext.resetEvaluatedProperties();
                     break;
                 }
@@ -90,7 +94,7 @@ public class OneOfValidator extends BaseJsonValidator {
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
             if (numberOfValidSchema != 1) {
                 ValidationMessage message = buildValidationMessage(at, Integer.toString(numberOfValidSchema));
-                if (failFast) {
+                if (this.failFast) {
                     throw new JsonSchemaException(message);
                 }
                 errors.add(message);
@@ -107,14 +111,16 @@ public class OneOfValidator extends BaseJsonValidator {
             return Collections.unmodifiableSet(errors);
         } finally {
             if (errors.isEmpty()) {
+                collectorContext.getEvaluatedItems().addAll(backupEvaluatedItems);
                 collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
+                collectorContext.setEvaluatedItems(backupEvaluatedItems);
                 collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }
 
-    private void resetValidatorState() {
+    private static void resetValidatorState() {
         ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
         state.setComplexValidator(false);
         state.setMatchedNode(true);
@@ -122,11 +128,11 @@ public class OneOfValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (shouldValidateSchema) {
             validationMessages.addAll(validate(node, rootNode, at));
         } else {
-            for (JsonSchema schema : schemas) {
+            for (JsonSchema schema : this.schemas) {
                 schema.walk(node, rootNode, at, shouldValidateSchema);
             }
         }
@@ -135,7 +141,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
     @Override
     public void preloadJsonSchema() {
-        for (JsonSchema schema: schemas) {
+        for (JsonSchema schema: this.schemas) {
             schema.initializeValidators();
         }
     }

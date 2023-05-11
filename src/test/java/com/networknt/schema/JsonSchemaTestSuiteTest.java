@@ -17,16 +17,16 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     private final Set<Path> disabled;
 
     public JsonSchemaTestSuiteTest() {
-        mapper = new ObjectMapper();
-        disabled = new HashSet<>();
+        this.mapper = new ObjectMapper();
+        this.disabled = new HashSet<>();
 
-        disabled.add(Paths.get("src/test/resources/data"));
-        disabled.add(Paths.get("src/test/resources/issues"));
-        disabled.add(Paths.get("src/test/resources/openapi3"));
-        disabled.add(Paths.get("src/test/resources/remotes"));
-        disabled.add(Paths.get("src/test/resources/schema"));
-        disabled.add(Paths.get("src/test/resources/multipleOfScale.json")); // TODO: Used in draft7 tests
-        disabled.add(Paths.get("src/test/resources/selfRef.json"));
+        this.disabled.add(Paths.get("src/test/resources/data"));
+        this.disabled.add(Paths.get("src/test/resources/issues"));
+        this.disabled.add(Paths.get("src/test/resources/openapi3"));
+        this.disabled.add(Paths.get("src/test/resources/remotes"));
+        this.disabled.add(Paths.get("src/test/resources/schema"));
+        this.disabled.add(Paths.get("src/test/resources/multipleOfScale.json")); // TODO: Used in draft7 tests
+        this.disabled.add(Paths.get("src/test/resources/selfRef.json"));
 
         disableV202012Tests();
         disableV201909Tests();
@@ -67,83 +67,81 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
 
     @Override
     protected boolean enabled(Path path) {
-        return !disabled.contains(path);
+        return !this.disabled.contains(path);
     }
 
     private void disableV202012Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/anchor.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/defs.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/float-overflow.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-email.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/unevaluatedItems.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/anchor.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/defs.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/float-overflow.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-email.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-template.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"));
     }
 
     private void disableV201909Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/anchor.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/defs.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/id.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/float-overflow.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-email.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/unevaluatedItems.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/anchor.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/defs.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/id.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/float-overflow.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-email.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-template.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"));
     }
 
     private void disableV7Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft7/anchor.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/defs.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/content.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/cross-draft.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/float-overflow.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-email.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-hostname.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/anchor.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/defs.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/content.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/cross-draft.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/float-overflow.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-email.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-hostname.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-template.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
     }
 
     private void disableV6Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/float-overflow.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/json-pointer.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-reference.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-template.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/float-overflow.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/json-pointer.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-reference.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-template.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
    }
 
     private void disableV4Tests() {
-        disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json"));
-        disabled.add(Paths.get("src/test/suite/tests/draft4/refRemote.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft4/ref.json"));
+        this.disabled.add(Paths.get("src/test/suite/tests/draft4/refRemote.json"));
     }
 
 }

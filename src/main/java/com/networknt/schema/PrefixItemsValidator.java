@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,47 +39,54 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     public PrefixItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
 
-        tupleSchema = new ArrayList<JsonSchema>();
+        this.tupleSchema = new ArrayList<>();
 
         if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
             for (JsonNode s : schemaNode) {
-                tupleSchema.add(new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
+                this.tupleSchema.add(new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
             }
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
         }
 
-        arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
+        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
 
         this.validationContext = validationContext;
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         // ignores non-arrays
         if (node.isArray()) {
-           for (int i = 0; i < Math.min(node.size(), tupleSchema.size()); ++i) {
-               errors.addAll(tupleSchema.get(i).validate(node.get(i), rootNode, atPath(at, i)));
-           }
+            Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
+                String path = atPath(at, i);
+                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(node.get(i), rootNode, path);
+                if (results.isEmpty()) {
+                    evaluatedItems.add(path);
+                } else {
+                    errors.addAll(results);
+                }
+            }
         }
 
-       return Collections.unmodifiableSet(errors);
+        return Collections.unmodifiableSet(errors);
     }
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
-        if (applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
+        if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
             ArrayNode array = (ArrayNode) node;
-            for (int i = 0; i < Math.min(node.size(), tupleSchema.size()); ++i) {
+            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
                 JsonNode n = node.get(i);
-                JsonNode defaultNode = tupleSchema.get(i).getSchemaNode().get("default");
+                JsonNode defaultNode = this.tupleSchema.get(i).getSchemaNode().get("default");
                 if (n.isNull() && defaultNode != null) {
                     array.set(i, defaultNode);
                     n = defaultNode;
@@ -91,12 +99,12 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     private void doWalk(Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        walkSchema(tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
+        walkSchema(this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
     }
 
     private void walkSchema(JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
-        boolean executeWalk = arrayItemWalkListenerRunner.runPreWalkListeners(
+        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
@@ -104,13 +112,13 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
-            validationContext,
-            validationContext.getJsonSchemaFactory()
+            this.validationContext,
+            this.validationContext.getJsonSchemaFactory()
         );
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(node, rootNode, at, shouldValidateSchema));
         }
-        arrayItemWalkListenerRunner.runPostWalkListeners(
+        this.arrayItemWalkListenerRunner.runPostWalkListeners(
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
@@ -118,8 +126,8 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
-            validationContext,
-            validationContext.getJsonSchemaFactory(),
+            this.validationContext,
+            this.validationContext.getJsonSchemaFactory(),
             validationMessages
         );
         //@formatter:on
@@ -131,7 +139,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
     @Override
     public void preloadJsonSchema() {
-        preloadJsonSchemas(tupleSchema);
+        preloadJsonSchemas(this.tupleSchema);
     }
 
 }
