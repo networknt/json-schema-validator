@@ -22,14 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
-    private static final Logger logger = LoggerFactory.getLogger(UnEvaluatedPropertiesValidator.class);
+public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
+    private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
 
-    private static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnEvaluatedPropertiesValidator.UnevaluatedProperties";
+    private static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnevaluatedPropertiesValidator.UnevaluatedProperties";
 
     private final JsonSchema schema;
 
-    public UnEvaluatedPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public UnevaluatedPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
@@ -39,6 +39,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
         }
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
@@ -50,7 +51,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
         unevaluatedPaths.forEach(path -> {
             String pointer = getPathType().convertToJsonPointer(path);
             JsonNode property = rootNode.at(pointer);
-            if (!schema.validate(property, rootNode, path).isEmpty()) {
+            if (!this.schema.validate(property, rootNode, path).isEmpty()) {
                 failingPaths.add(path);
             }
         });
@@ -68,7 +69,7 @@ public class UnEvaluatedPropertiesValidator extends BaseJsonValidator {
         return Collections.emptySet();
     }
 
-    private Set<String> unevaluatedPaths(Set<String> allPaths) {
+    private static Set<String> unevaluatedPaths(Set<String> allPaths) {
         Set<String> unevaluatedProperties = new HashSet<>(allPaths);
         unevaluatedProperties.removeAll(CollectorContext.getInstance().getEvaluatedProperties());
         return unevaluatedProperties;

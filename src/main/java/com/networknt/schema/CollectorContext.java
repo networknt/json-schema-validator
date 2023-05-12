@@ -40,12 +40,17 @@ public class CollectorContext {
     /**
      * Map for holding the name and {@link Collector} or a simple Object.
      */
-    private Map<String, Object> collectorMap = new HashMap<String, Object>();
+    private Map<String, Object> collectorMap = new HashMap<>();
 
     /**
      * Map for holding the name and {@link Collector} class collect method output.
      */
-    private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
+    private Map<String, Object> collectorLoadMap = new HashMap<>();
+
+    /**
+     * Used to track which array items have been evaluated.
+     */
+    private Collection<String> evaluatedItems = new ArrayList<>();
 
     /**
      * Used to track which properties have been evaluated.
@@ -53,12 +58,36 @@ public class CollectorContext {
     private Collection<String> evaluatedProperties = new ArrayList<>();
 
     /**
+     * Identifies which array items have been evaluated.
+     * 
+     * @return the set of evaluated items (never null)
+     */
+    public Collection<String> getEvaluatedItems() {
+        return this.evaluatedItems;
+    }
+
+    /**
+     * Set the array items that have been evaluated.
+     * @param paths the set of evaluated array items (may be null)
+     */
+    public void setEvaluatedItems(Collection<String> paths) {
+        this.evaluatedItems = null != paths ? paths : new ArrayList<>();
+    }
+
+    /**
+     * Replaces the array items that have been evaluated with an empty collection.
+     */
+    public void resetEvaluatedItems() {
+        this.evaluatedItems = new ArrayList<>();
+    }
+
+    /**
      * Identifies which properties have been evaluated.
      * 
      * @return the set of evaluated properties (never null)
      */
     public Collection<String> getEvaluatedProperties() {
-        return evaluatedProperties;
+        return this.evaluatedProperties;
     }
 
     /**
@@ -85,7 +114,7 @@ public class CollectorContext {
      * @param collector Collector
      */
     public <E> void add(String name, Collector<E> collector) {
-        collectorMap.put(name, collector);
+        this.collectorMap.put(name, collector);
     }
 
     /**
@@ -96,7 +125,7 @@ public class CollectorContext {
      * @param name   String
      */
     public <E> void add(String name, Object object) {
-        collectorMap.put(name, object);
+        this.collectorMap.put(name, object);
     }
 
     /**
@@ -114,11 +143,11 @@ public class CollectorContext {
      * @return Object
      */
     public Object get(String name) {
-        Object object = collectorMap.get(name);
-        if (object instanceof Collector<?> && (collectorLoadMap.get(name) != null)) {
-            return collectorLoadMap.get(name);
+        Object object = this.collectorMap.get(name);
+        if (object instanceof Collector<?> && (this.collectorLoadMap.get(name) != null)) {
+            return this.collectorLoadMap.get(name);
         }
-        return collectorMap.get(name);
+        return this.collectorMap.get(name);
     }
 
     /**
@@ -126,9 +155,9 @@ public class CollectorContext {
      * @return Map
      */
     public Map<String, Object> getAll() {
-        Map<String, Object> mergedMap = new HashMap<String, Object>();
-        mergedMap.putAll(collectorMap);
-        mergedMap.putAll(collectorLoadMap);
+        Map<String, Object> mergedMap = new HashMap<>();
+        mergedMap.putAll(this.collectorMap);
+        mergedMap.putAll(this.collectorLoadMap);
         return mergedMap;
     }
 
@@ -139,7 +168,7 @@ public class CollectorContext {
      * @param data Object
      */
     public void combineWithCollector(String name, Object data) {
-        Object object = collectorMap.get(name);
+        Object object = this.collectorMap.get(name);
         if (object instanceof Collector<?>) {
             Collector<?> collector = (Collector<?>) object;
             collector.combine(data);
@@ -150,8 +179,9 @@ public class CollectorContext {
      * Reset the context
      */
     public void reset() {
-        this.collectorMap = new HashMap<String, Object>();
-        this.collectorLoadMap = new HashMap<String, Object>();
+        this.collectorMap = new HashMap<>();
+        this.collectorLoadMap = new HashMap<>();
+        this.evaluatedItems.clear();
         this.evaluatedProperties.clear();
     }
 
@@ -159,11 +189,11 @@ public class CollectorContext {
      * Loads data from all collectors.
      */
     void loadCollectors() {
-        Set<Entry<String, Object>> entrySet = collectorMap.entrySet();
+        Set<Entry<String, Object>> entrySet = this.collectorMap.entrySet();
         for (Entry<String, Object> entry : entrySet) {
             if (entry.getValue() instanceof Collector<?>) {
                 Collector<?> collector = (Collector<?>) entry.getValue();
-                collectorLoadMap.put(entry.getKey(), collector.collect());
+                this.collectorLoadMap.put(entry.getKey(), collector.collect());
             }
         }
 

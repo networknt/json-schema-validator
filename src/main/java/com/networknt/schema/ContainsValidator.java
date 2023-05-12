@@ -22,6 +22,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -41,46 +42,52 @@ public class ContainsValidator extends BaseJsonValidator {
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
         VersionFlag version = SpecVersionDetector.detectOptionalVersion(parentSchema.getSchemaNode()).orElse(VersionFlag.V6);
-        this.messageKeyMin = VersionFlag.V6 == version ? "contains" : "contains.min";
+        this.messageKeyMin = VersionFlag.V6 == version || VersionFlag.V7 == version ? "contains" : "contains.min";
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
+            this.schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
 
             JsonNode maxNode = parentSchema.getSchemaNode().get("maxContains");
             if (null != maxNode && maxNode.canConvertToExactIntegral()) {
-                max = maxNode.intValue();
+                this.max = maxNode.intValue();
             }
 
             JsonNode minNode = parentSchema.getSchemaNode().get("minContains");
             if (null != minNode && minNode.canConvertToExactIntegral()) {
-                min = minNode.intValue();
+                this.min = minNode.intValue();
             }
         } else {
-            schema = null;
+            this.schema = null;
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         // ignores non-arrays
-        if (null != schema && node.isArray()) {
+        if (null != this.schema && node.isArray()) {
+            Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+
             int actual = 0, i = 0;
             for (JsonNode n : node) {
-                if (schema.validate(n, rootNode, atPath(at, i)).isEmpty()) {
+                String path = atPath(at, i);
+
+                if (this.schema.validate(n, rootNode, path).isEmpty()) {
                     ++actual;
+                    evaluatedItems.add(path);
                 }
                 ++i;
             }
 
-            if (actual < min) {
-                return boundsViolated(messageKeyMin, at, min);
+            if (actual < this.min) {
+                return boundsViolated(this.messageKeyMin, at, this.min);
             }
 
-            if (actual > max) {
-                return boundsViolated(messageKeyMax, at, max);
+            if (actual > this.max) {
+                return boundsViolated(this.messageKeyMax, at, this.max);
             }
         }
 
@@ -88,13 +95,13 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     private Set<ValidationMessage> boundsViolated(String messageKey, String at, int bounds) {
-        return Collections.singleton(constructValidationMessage(messageKey, at, "" + bounds, schema.getSchemaNode().toString()));
+        return Collections.singleton(constructValidationMessage(messageKey, at, "" + bounds, this.schema.getSchemaNode().toString()));
     }
 
     @Override
     public void preloadJsonSchema() {
-        if (null != schema) {
-            schema.initializeValidators();
+        if (null != this.schema) {
+            this.schema.initializeValidators();
         }
     }
 }
