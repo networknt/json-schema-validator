@@ -25,6 +25,10 @@ public enum PathType {
         if (token.codePoints().allMatch(c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')) {
             return "." + token;
         } else {
+            if (token.indexOf('\"') != -1) {
+                // Make sure also any double quotes are escaped.
+                token = token.replace("\"", "\\\"");
+            }
             return "[\"" + token + "\"]";
         }
     }, (index) -> "[" + index + "]"),
@@ -105,10 +109,10 @@ public enum PathType {
 
     static String fromLegacyOrJsonPath(String path) {
         return path
-            .replace("\"", "")
-            .replace("]", "")
-            .replace('[', '/')
-            .replace('.', '/')
-            .replace("$", "");
+                .replace("\"", "")
+                .replace("]", "")
+                .replace('[', '/')
+                .replace('.', '/')
+                .replace("$", "");
     }
 }
