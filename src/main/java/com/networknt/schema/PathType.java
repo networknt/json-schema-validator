@@ -41,7 +41,7 @@ public enum PathType {
             t = t.replace("'", "\\'");
         }
 
-        return "['" + token + "']";
+        return "['" + t + "']";
     }, (index) -> "[" + index + "]"),
 
     /**
