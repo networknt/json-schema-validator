@@ -87,6 +87,7 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
         COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
         COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$"));
         COMMON_BUILTIN_FORMATS.add(new DateFormat());
         COMMON_BUILTIN_FORMATS.add(new EmailFormat());
         COMMON_BUILTIN_FORMATS.add(new RegexFormat());
