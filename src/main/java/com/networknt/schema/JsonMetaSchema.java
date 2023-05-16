@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.format.DateFormat;
 import com.networknt.schema.format.EmailFormat;
+import com.networknt.schema.format.IriReferenceFormat;
 import com.networknt.schema.format.PatternFormat;
 import com.networknt.schema.format.RegexFormat;
 import com.networknt.schema.format.TimeFormat;
@@ -46,7 +47,7 @@ public class JsonMetaSchema {
 
     public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<>();
 
-    // this section contains formats that is common for all specification versions.
+    // this section contains formats common to all dialects.
     static {
         COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
         COMMON_BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));
@@ -64,6 +65,7 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$"));
         COMMON_BUILTIN_FORMATS.add(new DateFormat());
         COMMON_BUILTIN_FORMATS.add(new EmailFormat());
+        COMMON_BUILTIN_FORMATS.add(new IriReferenceFormat());
         COMMON_BUILTIN_FORMATS.add(new RegexFormat());
         COMMON_BUILTIN_FORMATS.add(new TimeFormat());
         COMMON_BUILTIN_FORMATS.add(new UriFormat());
