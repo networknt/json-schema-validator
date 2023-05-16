@@ -91,68 +91,44 @@ public class Issue687Test {
         }
     }
 
-    @Test
-    void testDoubleQuotes() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.setPathType(PathType.JSON_PATH);
-        /*
-            {
-                "$schema": "https://json-schema.org/draft/2019-09/schema",
-                "type": "object",
-                "properties": {
-                    "\"": {
-                        "type": "boolean"
-                    }
-                }
-            }
-         */
-        JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
-                .getSchema(mapper.readTree("{\n" +
-                        "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
-                        "    \"type\": \"object\",\n" +
-                        "    \"properties\": {\n" +
-                        "        \"\\\"\": {\n" +
-                        "            \"type\": \"boolean\"\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}"), schemaValidatorsConfig);
-        // {"\"": 1}
-        Set<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\"\\\"\": 1}"));
-        assertEquals(1, validationMessages.size());
-        assertEquals("$['\"']", validationMessages.iterator().next().getPath());
+    public static Stream<Arguments> specialCharacterTests() {
+        return Stream.of(
+                Arguments.of(PathType.JSON_PATH, "'", "$['\\'']"),
+                Arguments.of(PathType.JSON_PATH, "\\\"", "$['\"']"),
+                Arguments.of(PathType.JSON_PATH, "\\n", "$['\\n']"),
+                Arguments.of(PathType.JSON_PATH, "\\r", "$['\\r']"),
+                Arguments.of(PathType.JSON_PATH, "\\t", "$['\\t']"),
+                Arguments.of(PathType.JSON_PATH, "\\f", "$['\\f']"),
+                Arguments.of(PathType.JSON_PATH, "\\b", "$['\\b']"),
+                Arguments.of(PathType.JSON_POINTER, "~", "/~0"),
+                Arguments.of(PathType.JSON_POINTER, "/", "/~1"),
+                Arguments.of(PathType.JSON_POINTER, "\\n", "/\\n"),
+                Arguments.of(PathType.JSON_POINTER, "\\r", "/\\r"),
+                Arguments.of(PathType.JSON_POINTER, "\\t", "/\\t"),
+                Arguments.of(PathType.JSON_POINTER, "\\f", "/\\f"),
+                Arguments.of(PathType.JSON_POINTER, "\\b", "/\\b")
+        );
     }
 
-    @Test
-    void testSingleQuotes() throws JsonProcessingException {
+    @ParameterizedTest
+    @MethodSource("specialCharacterTests")
+    void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.setPathType(PathType.JSON_PATH);
-        /*
-            {
-                "$schema": "https://json-schema.org/draft/2019-09/schema",
-                "type": "object",
-                "properties": {
-                    "'": {
-                        "type": "boolean"
-                    }
-                }
-            }
-         */
+        schemaValidatorsConfig.setPathType(pathType);
         JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
                 .getSchema(mapper.readTree("{\n" +
                         "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
                         "    \"type\": \"object\",\n" +
                         "    \"properties\": {\n" +
-                        "        \"'\": {\n" +
+                        "        \""+propertyName+"\": {\n" +
                         "            \"type\": \"boolean\"\n" +
                         "        }\n" +
                         "    }\n" +
                         "}"), schemaValidatorsConfig);
-        // {"\"": 1}
-        Set<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\"'\": 1}"));
+        Set<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
         assertEquals(1, validationMessages.size());
-        assertEquals("$['\\'']", validationMessages.iterator().next().getPath());
+        assertEquals(expectedPath, validationMessages.iterator().next().getPath());
     }
 
 }
