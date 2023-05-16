@@ -11,7 +11,7 @@ public enum PathType {
     /**
      * The legacy approach, loosely based on JSONPath (but not guaranteed to give valid JSONPath expressions).
      */
-    LEGACY("$", (token) -> "." + token, (index) -> "[" + index + "]"),
+    LEGACY("$", (token) -> "." + replaceCommonSpecialCharactersIfPresent(token), (index) -> "[" + index + "]"),
 
     /**
      * Paths as JSONPath expressions.
@@ -22,7 +22,6 @@ public enum PathType {
             throw new IllegalArgumentException("A JSONPath selector cannot be empty");
         }
 
-        String t = token;
         /*
          * Accepted characters for shorthand paths:
          * - 'a' through 'z'
@@ -31,17 +30,16 @@ public enum PathType {
          * - Underscore ('_')
          * - any non-ASCII Unicode character
          */
-        if (JSONPath.isShorthand(t)) {
-            return "." + t;
+        if (JSONPath.isShorthand(token)) {
+            return "." + token;
         }
 
-        boolean containsApostrophe = 0 <= t.indexOf('\'');
-        if (containsApostrophe) {
-            // Make sure also any apostrophes are escaped.
-            t = t.replace("'", "\\'");
-        }
+        // Replace single quote (used to wrap property names when not shorthand form.
+        if (token.indexOf('\'') != -1) token = token.replace("'", "\\'");
+        // Replace other special characters.
+        token = replaceCommonSpecialCharactersIfPresent(token);
 
-        return "['" + t + "']";
+        return "['" + token + "']";
     }, (index) -> "[" + index + "]"),
 
     /**
@@ -51,12 +49,10 @@ public enum PathType {
         /*
          * Escape '~' with '~0' and '/' with '~1'.
          */
-        if (token.indexOf('~') != -1) {
-            token = token.replace("~", "~0");
-        }
-        if (token.indexOf('/') != -1) {
-            token = token.replace("/", "~1");
-        }
+        if (token.indexOf('~') != -1) token = token.replace("~", "~0");
+        if (token.indexOf('/') != -1) token = token.replace("/", "~1");
+        // Replace other special characters.
+        token = replaceCommonSpecialCharactersIfPresent(token);
         return "/" + token;
     }, (index) -> "/" + index);
 
@@ -79,6 +75,21 @@ public enum PathType {
         this.rootToken = rootToken;
         this.appendTokenFn = appendTokenFn;
         this.appendIndexFn = appendIndexFn;
+    }
+
+    /**
+     * Replace common special characters that are to be considered for all types of paths.
+     *
+     * @param token The path token (property name or selector).
+     * @return The token to use in the path.
+     */
+    private static String replaceCommonSpecialCharactersIfPresent(String token) {
+        if (token.indexOf('\n') != -1) token = token.replace("\n", "\\n");
+        if (token.indexOf('\t') != -1) token = token.replace("\t", "\\t");
+        if (token.indexOf('\r') != -1) token = token.replace("\r", "\\r");
+        if (token.indexOf('\b') != -1) token = token.replace("\b", "\\b");
+        if (token.indexOf('\f') != -1) token = token.replace("\f", "\\f");
+        return token;
     }
 
     /**
