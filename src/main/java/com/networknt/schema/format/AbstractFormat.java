@@ -22,10 +22,6 @@ public abstract class AbstractFormat implements Format {
     private final String name;
     private final String errorMessageDescription;
 
-    public AbstractFormat(String name) {
-        this(name, "");
-    }
-
     public AbstractFormat(String name, String errorMessageDescription) {
         this.name = name;
         this.errorMessageDescription = errorMessageDescription;
