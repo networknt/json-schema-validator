@@ -82,7 +82,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
@@ -100,7 +99,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
@@ -119,7 +117,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
@@ -129,7 +126,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     private void disableV6Tests() {
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/float-overflow.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
