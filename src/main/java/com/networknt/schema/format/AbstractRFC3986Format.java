@@ -3,9 +3,9 @@ package com.networknt.schema.format;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public abstract class AbstractRFC3339Format extends AbstractFormat {
+public abstract class AbstractRFC3986Format extends AbstractFormat {
 
-    public AbstractRFC3339Format(String name, String errorMessageDescription) {
+    public AbstractRFC3986Format(String name, String errorMessageDescription) {
         super(name, errorMessageDescription);
     }
 

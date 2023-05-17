@@ -39,7 +39,7 @@ public class TimeFormat extends AbstractFormat {
         .toFormatter();
 
     public TimeFormat() {
-        super("time", "^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])(?:\\.\\d+)?(?:Z|[+-](?:(?:0[0-9]|2[0-3]):[0-5][0-9]))$");
+        super("time", "must be a valid RFC 3339 time");
     }
 
     @Override
