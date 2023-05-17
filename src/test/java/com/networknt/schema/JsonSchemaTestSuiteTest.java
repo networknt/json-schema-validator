@@ -82,7 +82,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
@@ -99,7 +98,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
@@ -117,7 +115,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/idn-hostname.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/iri.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/relative-json-pointer.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/format/uri-reference.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
