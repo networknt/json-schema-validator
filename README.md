@@ -190,7 +190,6 @@ If you are a contributor, please join the [GitHub Sponsors](https://github.com/s
 
 ### Individual Sponsors
 
-[@plowsai](https://github.com/plowsai)
 
 ### Corporation Sponsors
 
