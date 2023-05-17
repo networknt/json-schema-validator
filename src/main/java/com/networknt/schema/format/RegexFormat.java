@@ -22,7 +22,7 @@ import java.util.regex.PatternSyntaxException;
 public class RegexFormat extends AbstractFormat {
 
     public RegexFormat() {
-        super("regex", "must be a valid regex");
+        super("regex", "must be a valid ECMA-262 regular expression");
     }
 
     @Override

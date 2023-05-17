@@ -2,10 +2,10 @@ package com.networknt.schema.format;
 
 import java.net.URI;
 
-public class IriReferenceFormat extends AbstractRFC3339Format {
+public class IriReferenceFormat extends AbstractRFC3986Format {
 
     public IriReferenceFormat() {
-        super("iri-reference", "must be a valid RFC 3986 IRI-reference");
+        super("iri-reference", "must be a valid RFC 3987 IRI-reference");
     }
 
     @Override
