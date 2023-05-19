@@ -19,21 +19,28 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
+import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
+
+import static com.networknt.schema.VersionCode.MinV201909;
 
 public class ContainsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContainsValidator.class);
+    private static final String CONTAINS_MAX = "contains.max";
+    private static final String CONTAINS_MIN = "contains.min";
+    private static final VersionFlag DEFAULT_VERSION = VersionFlag.V6;
+
+    private final JsonSchema schema;
+    private final boolean isMinV201909;
 
     private int min = 1;
     private int max = Integer.MAX_VALUE;
-    private final JsonSchema schema;
-    private final String messageKeyMax = "contains.max";
-    private final String messageKeyMin;
 
     public ContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
@@ -41,21 +48,19 @@ public class ContainsValidator extends BaseJsonValidator {
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
-        VersionFlag version = SpecVersionDetector.detectOptionalVersion(parentSchema.getSchemaNode()).orElse(VersionFlag.V6);
-        this.messageKeyMin = VersionFlag.V6 == version || VersionFlag.V7 == version ? "contains" : "contains.min";
+        isMinV201909 = MinV201909.getVersions().contains(SpecVersionDetector.detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
 
-            JsonNode maxNode = parentSchema.getSchemaNode().get("maxContains");
-            if (null != maxNode && maxNode.canConvertToExactIntegral()) {
-                this.max = maxNode.intValue();
-            }
+            JsonNode parentSchemaNode = parentSchema.getSchemaNode();
+            Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral)
+                    .ifPresent(node -> this.max = node.intValue());
 
-            JsonNode minNode = parentSchema.getSchemaNode().get("minContains");
-            if (null != minNode && minNode.canConvertToExactIntegral()) {
-                this.min = minNode.intValue();
-            }
+            Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MIN_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral)
+                    .ifPresent(node -> this.min = node.intValue());
         } else {
             this.schema = null;
         }
@@ -83,25 +88,29 @@ public class ContainsValidator extends BaseJsonValidator {
             }
 
             if (actual < this.min) {
-                return boundsViolated(this.messageKeyMin, at, this.min);
+                if(isMinV201909) {
+                    updateValidatorType(ValidatorTypeCode.MIN_CONTAINS);
+                }
+                return boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(), at, this.min);
             }
 
             if (actual > this.max) {
-                return boundsViolated(this.messageKeyMax, at, this.max);
+                if(isMinV201909) {
+                    updateValidatorType(ValidatorTypeCode.MAX_CONTAINS);
+                }
+                return boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(), at, this.max);
             }
         }
 
         return Collections.emptySet();
     }
 
-    private Set<ValidationMessage> boundsViolated(String messageKey, String at, int bounds) {
-        return Collections.singleton(constructValidationMessage(messageKey, at, "" + bounds, this.schema.getSchemaNode().toString()));
-    }
-
     @Override
     public void preloadJsonSchema() {
-        if (null != this.schema) {
-            this.schema.initializeValidators();
-        }
+        Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
+    }
+
+    private Set<ValidationMessage> boundsViolated(String messageKey, String at, int bounds) {
+        return Collections.singleton(constructValidationMessage(messageKey, at, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
     }
 }

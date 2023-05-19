@@ -31,7 +31,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected JsonNode schemaNode;
     protected JsonSchema parentSchema;
     private final boolean suppressSubSchemaRetrieval;
-    private final ValidatorTypeCode validatorType;
+    private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
     protected ValidationContext validationContext;
     protected final boolean failFast;
@@ -134,8 +134,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(errorMessageType.getErrorCodeValue()));
-        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), errorMessageType, messageFormat, customMessage, at, schemaPath, arguments);
+        MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(getErrorMessageType().getErrorCodeValue()));
+        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), getErrorMessageType(), messageFormat, customMessage, at, schemaPath, arguments);
         if (failFast && !isPartOfOneOfMultipleType()) {
             throw new JsonSchemaException(message);
         }
@@ -145,7 +145,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
         MessageFormat messageFormat = new MessageFormat(resourceBundle.getString(messageKey));
         final ValidationMessage message = new ValidationMessage.Builder()
-            .code(errorMessageType.getErrorCode())
+            .code(getErrorMessageType().getErrorCode())
             .path(at)
             .schemaPath(schemaPath)
             .arguments(arguments)
@@ -165,6 +165,16 @@ public abstract class BaseJsonValidator implements JsonValidator {
 
     protected ValidatorTypeCode getValidatorType() {
         return validatorType;
+    }
+
+    protected ErrorMessageType getErrorMessageType() {
+        return errorMessageType;
+    }
+
+    protected void updateValidatorType(ValidatorTypeCode validatorTypeCode) {
+        validatorType = validatorTypeCode;
+        errorMessageType = validatorTypeCode;
+        parseErrorCode(validatorTypeCode.getErrorCodeKey());
     }
 
     protected String getNodeFieldType() {

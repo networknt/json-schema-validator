@@ -1,0 +1,7 @@
+{
+  "$schema": "/schema/contains/issue769/max-contains.json",
+  "myArray": [
+    {"itemType": "type A"},
+    {"itemType": "type A"}
+  ]
+}
