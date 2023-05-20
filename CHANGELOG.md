@@ -10,6 +10,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.82 - 2023-05-20
+
+### Added
+
+### Changed
+
+- fixes #775 Adds support for validating idn-hostname and idn-email. Thanks @fdutton
+- fixes #769 Add minContains / maxContains correct keywords. Thanks @vwuilbea-in
+- fixes #768 Adds support for validating an IRI. Thanks @fdutton
+- fixes #766 Supports iri-reference format validation. Thanks @fdutton
+- fixes #764 Supports uri-reference format. Thanks @fdutton
+- fixes #762 Supports relative-json-pointer validation. Thanks @fdutton
+- fixes #760 Enables validation of json-pointer formats. Thanks @fdutton
+- fixes #758 Adds support for validating uri-template formats. Thanks @fdutton
+- fixes #752 Bug fix for JSON Pointer parsing. Thanks @costas80
+- fixes #754 Resolves incomplete validation of unevaluatedProperties. Thanks @fdutton
+- fixes #750 Escape double-quote in produced JSON Path expressions. Thanks @costas80
+- fixes #749 Enables unit-tests for the unevaluatedItems keyword. Thanks @fdutton
+- fixes #686 Better localisation support. Thanks @costas80
+- fixes #741 Updates LICENSE and NOTICE to comply with section 4d of the Apache License. Thanks @fdutton
+- fixes #738 Enables unit-tests for ECMA 262 regular expressions. Thanks @fdutton
+- fixes #735 Enables unit-tests for 'not' keyword. Thanks @fdutton
+- fixes #733 Updates tests from JSON Schema Test Suite. Thanks @fdutton
+
+
 ## 1.0.81 - 2023-04-30
 
 ### Added
