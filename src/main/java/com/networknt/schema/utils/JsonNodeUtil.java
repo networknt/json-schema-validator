@@ -48,7 +48,7 @@ public class JsonNodeUtil {
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
-            if (schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && 1.0 == node.asDouble() && V6_VALUE <= detectVersion(validationContext)) {
+            if (schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && node.canConvertToExactIntegral() && V6_VALUE <= detectVersion(validationContext)) {
                 return true;
             }
 
