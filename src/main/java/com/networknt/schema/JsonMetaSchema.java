@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.format.DateFormat;
 import com.networknt.schema.format.EmailFormat;
+import com.networknt.schema.format.IdnEmailFormat;
+import com.networknt.schema.format.IdnHostnameFormat;
 import com.networknt.schema.format.IriFormat;
 import com.networknt.schema.format.IriReferenceFormat;
 import com.networknt.schema.format.PatternFormat;
@@ -59,6 +61,8 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "must be a valid RFC 4122 UUID"));
         COMMON_BUILTIN_FORMATS.add(new DateFormat());
         COMMON_BUILTIN_FORMATS.add(new EmailFormat());
+        COMMON_BUILTIN_FORMATS.add(new IdnEmailFormat());
+        COMMON_BUILTIN_FORMATS.add(new IdnHostnameFormat());
         COMMON_BUILTIN_FORMATS.add(new IriFormat());
         COMMON_BUILTIN_FORMATS.add(new IriReferenceFormat());
         COMMON_BUILTIN_FORMATS.add(new RegexFormat());

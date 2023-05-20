@@ -24,25 +24,11 @@ public class EmailFormat extends AbstractFormat {
 
     public EmailFormat() {
         super("email", "must be a valid RFC 5321 Mailbox");
-        this.emailValidator = new SpecialEmailValidator(true, true);
+        this.emailValidator = new IPv6AwareEmailValidator(true, true);
     }
 
     @Override
     public boolean matches(String value) {
         return this.emailValidator.isValid(value);
-    }
-
-    static class SpecialEmailValidator extends EmailValidator {
-        private static final long serialVersionUID = 1L;
-
-        public SpecialEmailValidator(boolean b, boolean c) {
-            super(b, c);
-        }
-
-        @Override
-        protected boolean isValidDomain(String domain) {
-            return super.isValidDomain(domain.startsWith("[IPv6:") ? domain.replace("IPv6:", "") : domain);
-        }
-
     }
 }
