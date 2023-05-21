@@ -38,7 +38,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         while (names.hasNext()) {
             String name = names.next();
             RegularExpression pattern = RegularExpression.compile(name, validationContext);
-            schemas.put(pattern, new JsonSchema(validationContext, name, parentSchema.getCurrentUri(), schemaNode.get(name), parentSchema));
+            schemas.put(pattern, validationContext.newSchema(name, schemaNode.get(name), parentSchema));
         }
     }
 

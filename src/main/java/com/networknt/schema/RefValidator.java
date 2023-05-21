@@ -83,23 +83,21 @@ public class RefValidator extends BaseJsonValidator {
 
             if (index < 0) {
                 return new JsonSchemaRef(parentSchema.findAncestor());
-            } else {
-                refValue = refValue.substring(index);
             }
+            refValue = refValue.substring(index);
         }
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(parentSchema.findAncestor());
-        } else {
-            JsonNode node = parentSchema.getRefSchemaNode(refValue);
-            if (node != null) {
-                JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
-                if (ref == null) {
-                    final JsonSchema schema = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
-                    ref = new JsonSchemaRef(schema);
-                    validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
-                }
-                return ref;
+        }
+        JsonNode node = parentSchema.getRefSchemaNode(refValue);
+        if (node != null) {
+            JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
+            if (ref == null) {
+                final JsonSchema schema = validationContext.newSchema(refValue, node, parentSchema);
+                ref = new JsonSchemaRef(schema);
+                validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }
+            return ref;
         }
         return null;
     }

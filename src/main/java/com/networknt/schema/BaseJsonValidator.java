@@ -30,7 +30,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected String schemaPath;
     protected JsonNode schemaNode;
     protected JsonSchema parentSchema;
-    private final boolean suppressSubSchemaRetrieval;
+    protected final boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
     protected ValidationContext validationContext;

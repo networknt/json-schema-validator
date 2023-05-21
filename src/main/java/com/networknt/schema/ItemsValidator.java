@@ -44,10 +44,10 @@ public class ItemsValidator extends BaseJsonValidator {
         JsonSchema foundAdditionalSchema = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            foundSchema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+            foundSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
         } else {
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaPath, s, parentSchema));
             }
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
@@ -55,7 +55,7 @@ public class ItemsValidator extends BaseJsonValidator {
                 if (addItemNode.isBoolean()) {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    foundAdditionalSchema = new JsonSchema(validationContext, "#", parentSchema.getCurrentUri(), addItemNode, parentSchema);
+                    foundAdditionalSchema = validationContext.newSchema("#", addItemNode, parentSchema);
                 }
             }
         }

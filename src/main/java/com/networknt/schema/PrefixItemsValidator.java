@@ -43,7 +43,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
         if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaPath, s, parentSchema));
             }
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
