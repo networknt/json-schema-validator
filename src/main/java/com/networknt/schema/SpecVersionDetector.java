@@ -65,37 +65,13 @@ public final class SpecVersionDetector {
             String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps,
                     removeEmptyFragmentSuffix);
 
-            VersionFlag version = detect(schemaUri);
-            if (null == version) {
-                throw new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema");
-            }
-            return version;
+            return VersionFlag.fromId(schemaUri)
+                .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
         });
     }
 
     public static Optional<VersionFlag> detectOptionalVersion(String schemaUri) {
-        return Optional.ofNullable(detect(schemaUri));
-    }
-
-    private static VersionFlag detect(String schemaUri) {
-        if (null != schemaUri) {
-            if (schemaUri.equals(JsonMetaSchema.getV4().getUri())) {
-                return VersionFlag.V4;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV6().getUri())) {
-                return VersionFlag.V6;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV7().getUri())) {
-                return VersionFlag.V7;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV201909().getUri())) {
-                return VersionFlag.V201909;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV202012().getUri())) {
-                return VersionFlag.V202012;
-            }
-        }
-        return null;
+        return VersionFlag.fromId(schemaUri);
     }
 
 }

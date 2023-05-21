@@ -75,7 +75,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/defs.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/id.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/cross-draft.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"));
@@ -86,7 +85,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/anchor.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/defs.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/id.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/optional/cross-draft.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"));
@@ -97,13 +95,11 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/anchor.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/defs.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/content.json"));
-        this.disabled.add(Paths.get("src/test/suite/tests/draft7/optional/cross-draft.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft7/refRemote.json"));
     }
 
     private void disableV6Tests() {
-        this.disabled.add(Paths.get("src/test/suite/tests/draft6/optional/format.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/ref.json"));
         this.disabled.add(Paths.get("src/test/suite/tests/draft6/refRemote.json"));
    }
