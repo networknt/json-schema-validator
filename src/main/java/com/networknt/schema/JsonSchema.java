@@ -59,15 +59,31 @@ public class JsonSchema extends BaseJsonValidator {
 
     WalkListenerRunner keywordWalkListenerRunner = null;
 
+    static JsonSchema from(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        return new JsonSchema(validationContext, schemaPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
+    }
+
+    /**
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
         this(validationContext, "#", baseUri, schemaNode, null);
     }
 
+    /**
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                       JsonSchema parent) {
         this(validationContext, schemaPath, currentUri, schemaNode, parent, false);
     }
 
+    /**
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
         this(validationContext, "#", baseUri, schemaNode, null, suppressSubSchemaRetrieval);
     }
@@ -90,6 +106,10 @@ public class JsonSchema extends BaseJsonValidator {
                 }
             }
         }
+    }
+
+    public JsonSchema createChildSchema(String schemaPath, JsonNode schemaNode) {
+        return getValidationContext().newSchema(schemaPath, schemaNode, this);
     }
 
     ValidationContext getValidationContext() {
@@ -143,7 +163,7 @@ public class JsonSchema extends BaseJsonValidator {
         } catch (URISyntaxException ex) {
             throw new JsonSchemaException("Unable to create URI without fragment from " + this.currentUri + ": " + ex.getMessage());
         }
-        this.parentSchema = new JsonSchema(this.validationContext, this.schemaPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema);
+        this.parentSchema = new JsonSchema(this.validationContext, this.schemaPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
         this.schemaPath = fragment;
         this.schemaNode = fragmentSchemaNode;
         this.currentUri = combineCurrentUriWithIds(this.currentUri, fragmentSchemaNode);

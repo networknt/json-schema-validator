@@ -31,7 +31,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
     private final JsonSchema innerSchema;
     public PropertyNamesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
-        innerSchema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        innerSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {

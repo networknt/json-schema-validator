@@ -29,7 +29,7 @@ public class NotValidator extends BaseJsonValidator {
 
     public NotValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
-        this.schema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
