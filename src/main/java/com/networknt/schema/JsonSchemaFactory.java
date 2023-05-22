@@ -293,25 +293,15 @@ public class JsonSchemaFactory {
     }
 
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
-        JsonSchemaVersion jsonSchemaVersion = null;
+        if (null == versionFlag) return null;
         switch (versionFlag) {
-            case V202012:
-                jsonSchemaVersion = new Version202012();
-                break;
-            case V201909:
-                jsonSchemaVersion = new Version201909();
-                break;
-            case V7:
-                jsonSchemaVersion = new Version7();
-                break;
-            case V6:
-                jsonSchemaVersion = new Version6();
-                break;
-            case V4:
-                jsonSchemaVersion = new Version4();
-                break;
+            case V202012: return new Version202012();
+            case V201909: return new Version201909();
+            case V7: return new Version7();
+            case V6: return new Version6();
+            case V4: return new Version4();
+            default: throw new IllegalArgumentException("Unsupported value" + versionFlag);
         }
-        return jsonSchemaVersion;
     }
 
     public static Builder builder(final JsonSchemaFactory blueprint) {
@@ -351,11 +341,16 @@ public class JsonSchemaFactory {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps, removeEmptyFragmentSuffix);
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
-        if (jsonMetaSchema == null) {
-            throw new JsonSchemaException("Unknown MetaSchema: " + uri);
-        }
+        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, this::fromId);
         return jsonMetaSchema;
+    }
+
+    private JsonMetaSchema fromId(String id) {
+        // Is it a well-known dialect?
+        return SpecVersionDetector.detectOptionalVersion(id)
+            .map(JsonSchemaFactory::checkVersion)
+            .map(JsonSchemaVersion::getInstance)
+            .orElseThrow(() -> new JsonSchemaException("Unknown MetaSchema: " + id));
     }
 
     /**
