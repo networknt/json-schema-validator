@@ -82,6 +82,11 @@ public class TestSpec {
     private final boolean typeLoose;
 
     /**
+     * Identifies the regular expression engine to use for this test-case.
+     */
+    private final RegexKind regex;
+
+    /**
      * The TestCase that contains this TestSpec.
      */
     private TestCase testCase;
@@ -107,7 +112,8 @@ public class TestSpec {
         @JsonProperty("strictness") Map<String, Boolean> strictness,
         @JsonProperty("validationMessages") Set<String> validationMessages,
         @JsonProperty("isTypeLoose") Boolean isTypeLoose,
-        @JsonProperty("disabled") Boolean disabled
+        @JsonProperty("disabled") Boolean disabled,
+        @JsonProperty(value = "regex", defaultValue = "unspecified") RegexKind regex
     ) {
         this.description = description;
         this.comment = comment;
@@ -116,6 +122,7 @@ public class TestSpec {
         this.validationMessages = validationMessages;
         this.disabled = Boolean.TRUE.equals(disabled);
         this.typeLoose = Boolean.TRUE.equals(isTypeLoose);
+        this.regex = regex;
         if (null != strictness) {
             this.strictness.putAll(strictness);
         }
@@ -211,4 +218,13 @@ public class TestSpec {
         return typeLoose;
     }
 
+    public RegexKind getRegex() {
+        return this.regex;
+    }
+
+    public static enum RegexKind {
+        @JsonProperty("unspecified") UNSPECIFIED,
+        @JsonProperty("ecma-262") JONI,
+        @JsonProperty("jdk") JDK
+    }
 }
