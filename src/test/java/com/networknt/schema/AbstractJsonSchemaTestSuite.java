@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
-    protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() {};
+    protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() { /* intentionally empty */};
     protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
     static {
         supportedVersions.put("draft2019-09", VersionFlag.V201909);
@@ -99,7 +99,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
             String msg = e.getMessage();
             if (msg.endsWith("' is unrecognizable schema")) {
                 return dynamicContainer(testCase.getDisplayName(), unsupportedMetaSchema(testCase));
-            };
+            }
             throw e;
         }
     }
@@ -109,7 +109,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
     		.builder(base)
-    		.objectMapper(mapper)
+    		.objectMapper(this.mapper)
     		.addUriTranslator(URITranslator.combine(
 		        URITranslator.prefix("https://", "http://"),
 				URITranslator.prefix("http://json-schema.org", "resource:")
@@ -124,7 +124,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setTypeLoose(typeLoose);
-        config.setEcma262Validator(true);
+        config.setEcma262Validator(TestSpec.RegexKind.JDK != testSpec.getRegex());
         testSpec.getStrictness().forEach(config::setStrict);
         URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
@@ -132,13 +132,13 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }
 
-    private String toForwardSlashPath(Path file) {
+    private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');
     }
 
     // For 2019-09 and later published drafts, implementations that are able to
     // detect the draft of each schema via $schema SHOULD be configured to do so
-    private VersionFlag detectVersion(TestCase testCase, VersionFlag defaultVersion) {
+    private static VersionFlag detectVersion(TestCase testCase, VersionFlag defaultVersion) {
         return Stream.of(
             detectOptionalVersion(testCase.getSchema()),
             detectVersionFromPath(testCase.getSpecification())
@@ -152,7 +152,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     // For draft-07 and earlier, draft-next, and implementations unable to
     // detect via $schema, implementations MUST be configured to expect the
     // draft matching the test directory name
-    private Optional<VersionFlag> detectVersionFromPath(Path path) {
+    private static Optional<VersionFlag> detectVersionFromPath(Path path) {
         return StreamSupport.stream(path.spliterator(), false)
             .map(Path::toString)
             .map(supportedVersions::get)
@@ -168,7 +168,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         }
     }
 
-    private void executeTest(JsonSchema schema, TestSpec testSpec) {
+    private static void executeTest(JsonSchema schema, TestSpec testSpec) {
         Set<ValidationMessage> errors = schema.validate(testSpec.getData());
 
         if (testSpec.isValid()) {
@@ -246,7 +246,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
     private Stream<TestCase> loadTestCases(Path testCaseFile) {
         try (InputStream in = new FileInputStream(testCaseFile.toFile())) {
-            return mapper.readValue(in, testCaseType)
+            return this.mapper.readValue(in, testCaseType)
                 .stream()
                 .peek(testCase -> testCase.setSpecification(testCaseFile))
                 .filter(this::enabled);
@@ -258,7 +258,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         }
     }
 
-    private Iterable<? extends DynamicNode> unsupportedMetaSchema(TestCase testCase) {
+    private static Iterable<? extends DynamicNode> unsupportedMetaSchema(TestCase testCase) {
         return Collections.singleton(
             dynamicTest("Detected an unsupported schema", () -> {
                 String schema = testCase.getSchema().asText();
