@@ -25,7 +25,7 @@ import java.util.*;
 public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
 
-    private static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnevaluatedPropertiesValidator.UnevaluatedProperties";
+    public static final String UNEVALUATED_PROPERTIES = "com.networknt.schema.UnevaluatedPropertiesValidator.UnevaluatedProperties";
 
     private final JsonSchema schema;
 
