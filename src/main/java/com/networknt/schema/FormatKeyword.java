@@ -45,6 +45,11 @@ public class FormatKeyword implements Keyword {
         Format format = null;
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
+            format = this.formats.get(formatName);
+            if (format != null) {
+                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format, type);
+            }
+
             switch (formatName) {
                 case DURATION:
                     format = new DurationFormat(validationContext.getConfig().isStrict(DURATION));
@@ -56,10 +61,6 @@ public class FormatKeyword implements Keyword {
                     typeCode.setCustomMessage(this.type.getCustomMessage());
                     return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, typeCode);
                 }
-
-                default:
-                    format = this.formats.get(formatName);
-                    break;
             }
         }
 
