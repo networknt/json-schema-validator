@@ -101,6 +101,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                 // Walk the schema.
                 walkSchema(this.schema, n, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
             }
+        } else {
+            walkSchema(this.schema, node, rootNode, at, shouldValidateSchema, validationMessages);
         }
 
         return validationMessages;
