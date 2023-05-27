@@ -64,6 +64,9 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * @param validationContext validation context
+     * @param baseUri           base URL
+     * @param schemaNode        schema node
      * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
      */
     @Deprecated
@@ -72,6 +75,11 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * @param validationContext validation context
+     * @param schemaPath        schema path
+     * @param currentUri        current URI
+     * @param schemaNode        schema node
+     * @param parent            parent schema
      * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
      */
     @Deprecated
@@ -81,6 +89,10 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * @param validationContext validation context
+     * @param baseUri           base URI
+     * @param schemaNode        schema node
+     * @param suppressSubSchemaRetrieval suppress sub schema retrieval
      * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
      */
     @Deprecated
