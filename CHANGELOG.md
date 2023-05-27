@@ -10,20 +10,34 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-## 1.0.82 - 2023-05-20
+## 1.0.83 - 2023-05-26
 
 ### Added
+- fixes #779 Adds support for cross-draft validation. Thanks @fdutton
+- fixes #777 Adds support for handling integer overflow. Thanks @fdutton
 
 ### Changed
 
+- fixes #788 update JsonSchema to fix the javadoc issues
+- fixes #787 Allows to override date-time and duration validators. Thanks @josejulio
+- fixes #786 Allow walking of schema for items keyword when non-array node is provided. Thanks @anjnerajat
+- fixes #783 Resolves improper anchoring of patternProperties. Thanks @fdutton
+
+
+## 1.0.82 - 2023-05-20
+
+### Added
 - fixes #775 Adds support for validating idn-hostname and idn-email. Thanks @fdutton
 - fixes #769 Add minContains / maxContains correct keywords. Thanks @vwuilbea-in
 - fixes #768 Adds support for validating an IRI. Thanks @fdutton
 - fixes #766 Supports iri-reference format validation. Thanks @fdutton
 - fixes #764 Supports uri-reference format. Thanks @fdutton
 - fixes #762 Supports relative-json-pointer validation. Thanks @fdutton
-- fixes #760 Enables validation of json-pointer formats. Thanks @fdutton
 - fixes #758 Adds support for validating uri-template formats. Thanks @fdutton
+
+### Changed
+
+- fixes #760 Enables validation of json-pointer formats. Thanks @fdutton
 - fixes #752 Bug fix for JSON Pointer parsing. Thanks @costas80
 - fixes #754 Resolves incomplete validation of unevaluatedProperties. Thanks @fdutton
 - fixes #750 Escape double-quote in produced JSON Path expressions. Thanks @costas80
