@@ -44,29 +44,31 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
 
-        Set<String> allPaths = allPaths(node, at);
-        Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
-
-        Set<String> failingPaths = new HashSet<>();
-        unevaluatedPaths.forEach(path -> {
-            String pointer = getPathType().convertToJsonPointer(path);
-            JsonNode property = rootNode.at(pointer);
-            if (!this.schema.validate(property, rootNode, path).isEmpty()) {
-                failingPaths.add(path);
+        collectorContext.exitDynamicScope();
+        try {
+            Set<String> allPaths = allPaths(node, at);
+            Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
+            Set<String> failingPaths = new HashSet<>();
+            unevaluatedPaths.forEach(path -> {
+                String pointer = getPathType().convertToJsonPointer(path);
+                JsonNode property = rootNode.at(pointer);
+                if (!this.schema.validate(property, rootNode, path).isEmpty()) {
+                    failingPaths.add(path);
+                }
+            });
+            if (failingPaths.isEmpty()) {
+                collectorContext.getEvaluatedProperties().addAll(allPaths);
+            } else {
+                // TODO: Why add this to the context if it is never referenced?
+                collectorContext.add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
+                List<String> paths = new ArrayList<>(failingPaths);
+                paths.sort(String.CASE_INSENSITIVE_ORDER);
+                return Collections.singleton(buildValidationMessage(String.join(", ", paths)));
             }
-        });
-
-        if (failingPaths.isEmpty()) {
-            collectorContext.getEvaluatedProperties().addAll(allPaths);
-        } else {
-            // TODO: Why add this to the context if it is never referenced?
-            collectorContext.add(UNEVALUATED_PROPERTIES, unevaluatedPaths);
-            List<String> paths = new ArrayList<>(failingPaths);
-            paths.sort(String.CASE_INSENSITIVE_ORDER);
-            return Collections.singleton(buildValidationMessage(String.join(", ", paths)));
+            return Collections.emptySet();
+        } finally {
+            collectorContext.enterDynamicScope();
         }
-
-        return Collections.emptySet();
     }
 
     private static Set<String> unevaluatedPaths(Set<String> allPaths) {

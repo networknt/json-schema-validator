@@ -20,6 +20,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +49,11 @@ public class AllOfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<>();
 
-        Collection<String> newEvaluatedItems = Collections.emptyList();
-        Collection<String> newEvaluatedProperties = Collections.emptyList();
-
         for (JsonSchema schema : this.schemas) {
-            // As AllOf might contain multiple schemas take a backup of evaluated stuff.
-            Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
-            Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
             Set<ValidationMessage> localErrors = new HashSet<>();
 
+            Scope parentScope = collectorContext.enterDynamicScope();
             try {
-                // Make the evaluated lists empty.
-                collectorContext.resetEvaluatedItems();
-                collectorContext.resetEvaluatedProperties();
-
                 if (!state.isWalkEnabled()) {
                     localErrors = schema.validate(node, rootNode, at);
                 } else {
@@ -69,12 +61,6 @@ public class AllOfValidator extends BaseJsonValidator {
                 }
 
                 childSchemaErrors.addAll(localErrors);
-
-                // Keep Collecting total evaluated properties.
-                if (localErrors.isEmpty()) {
-                    newEvaluatedItems = collectorContext.getEvaluatedItems();
-                    newEvaluatedProperties = collectorContext.getEvaluatedProperties();
-                }
 
                 if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                     final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
@@ -108,14 +94,10 @@ public class AllOfValidator extends BaseJsonValidator {
                     }
                 }
             } finally {
-                collectorContext.setEvaluatedItems(backupEvaluatedItems);
-                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+                Scope scope = collectorContext.exitDynamicScope();
                 if (localErrors.isEmpty()) {
-                    collectorContext.getEvaluatedItems().addAll(newEvaluatedItems);
-                    collectorContext.getEvaluatedProperties().addAll(newEvaluatedProperties);
+                    parentScope.mergeWith(scope);
                 }
-                newEvaluatedItems = Collections.emptyList();
-                newEvaluatedProperties = Collections.emptyList();
             }
         }
 

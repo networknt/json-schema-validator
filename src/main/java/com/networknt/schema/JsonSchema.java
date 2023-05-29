@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
@@ -344,11 +345,29 @@ public class JsonSchema extends BaseJsonValidator {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
-        getCollectorContext();
+        CollectorContext collectorContext = getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
-            errors.addAll(v.validate(jsonNode, rootNode, at));
+            Set<ValidationMessage> results = Collections.emptySet();
+
+            Scope parentScope = collectorContext.enterDynamicScope();
+            try {
+                results = v.validate(jsonNode, rootNode, at);
+            } finally {
+                Scope scope = collectorContext.exitDynamicScope();
+                if (results.isEmpty()) {
+                    parentScope.mergeWith(scope);
+                } else {
+                    errors.addAll(results);
+                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                    }
+                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator || v instanceof PatternPropertiesValidator) {
+                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                    }
+                }
+            }
         }
 
         if (null != config && config.isOpenAPI3StyleDiscriminators()) {

@@ -17,7 +17,9 @@ package com.networknt.schema;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -47,15 +49,37 @@ public class CollectorContext {
      */
     private Map<String, Object> collectorLoadMap = new HashMap<>();
 
-    /**
-     * Used to track which array items have been evaluated.
-     */
-    private Collection<String> evaluatedItems = new ArrayList<>();
+    private final Deque<Scope> dynamicScopes = new LinkedList<>();
+
+    CollectorContext() {
+        this.dynamicScopes.push(new Scope());
+    }
 
     /**
-     * Used to track which properties have been evaluated.
+     * Creates a new scope
+     * @return the previous, parent scope
      */
-    private Collection<String> evaluatedProperties = new ArrayList<>();
+    public Scope enterDynamicScope() {
+        Scope parent = this.dynamicScopes.peek();
+        this.dynamicScopes.push(new Scope());
+        return parent;
+    }
+
+    /**
+     * Restores the previous, parent scope
+     * @return the exited scope
+     */
+    public Scope exitDynamicScope() {
+        return this.dynamicScopes.pop();
+    }
+
+    /**
+     * Provides the currently active scope
+     * @return the active scope
+     */
+    public Scope getDynamicScope() {
+        return this.dynamicScopes.peek();
+    }
 
     /**
      * Identifies which array items have been evaluated.
@@ -63,22 +87,7 @@ public class CollectorContext {
      * @return the set of evaluated items (never null)
      */
     public Collection<String> getEvaluatedItems() {
-        return this.evaluatedItems;
-    }
-
-    /**
-     * Set the array items that have been evaluated.
-     * @param paths the set of evaluated array items (may be null)
-     */
-    public void setEvaluatedItems(Collection<String> paths) {
-        this.evaluatedItems = null != paths ? paths : new ArrayList<>();
-    }
-
-    /**
-     * Replaces the array items that have been evaluated with an empty collection.
-     */
-    public void resetEvaluatedItems() {
-        this.evaluatedItems = new ArrayList<>();
+        return getDynamicScope().getEvaluatedItems();
     }
 
     /**
@@ -87,22 +96,7 @@ public class CollectorContext {
      * @return the set of evaluated properties (never null)
      */
     public Collection<String> getEvaluatedProperties() {
-        return this.evaluatedProperties;
-    }
-
-    /**
-     * Set the properties that have been evaluated.
-     * @param paths the set of evaluated properties (may be null)
-     */
-    public void setEvaluatedProperties(Collection<String> paths) {
-        this.evaluatedProperties = null != paths ? paths : new ArrayList<>();
-    }
-
-    /**
-     * Replaces the properties that have been evaluated with an empty collection.
-     */
-    public void resetEvaluatedProperties() {
-        this.evaluatedProperties = new ArrayList<>();
+        return getDynamicScope().getEvaluatedProperties();
     }
 
     /**
@@ -181,8 +175,8 @@ public class CollectorContext {
     public void reset() {
         this.collectorMap = new HashMap<>();
         this.collectorLoadMap = new HashMap<>();
-        this.evaluatedItems.clear();
-        this.evaluatedProperties.clear();
+        this.dynamicScopes.clear();
+        this.dynamicScopes.push(new Scope());
     }
 
     /**
@@ -199,4 +193,55 @@ public class CollectorContext {
 
     }
 
+    public static class Scope {
+
+        /**
+         * Used to track which array items have been evaluated.
+         */
+        private final Collection<String> evaluatedItems = new ArrayList<>();
+
+        /**
+         * Used to track which properties have been evaluated.
+         */
+        private final Collection<String> evaluatedProperties = new ArrayList<>();
+
+        /**
+         * Identifies which array items have been evaluated.
+         * 
+         * @return the set of evaluated items (never null)
+         */
+        public Collection<String> getEvaluatedItems() {
+            return this.evaluatedItems;
+        }
+
+        /**
+         * Identifies which properties have been evaluated.
+         * 
+         * @return the set of evaluated properties (never null)
+         */
+        public Collection<String> getEvaluatedProperties() {
+            return this.evaluatedProperties;
+        }
+
+        /**
+         * Merges the provided scope into this scope.
+         * @param scope the scope to merge
+         * @return this scope
+         */
+        public Scope mergeWith(Scope scope) {
+            getEvaluatedItems().addAll(scope.getEvaluatedItems());
+            getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder("{ ")
+                .append("\"evaluatedItems\": ").append(this.evaluatedItems)
+                .append(", ")
+                .append("\"evaluatedProperties\": ").append(this.evaluatedProperties)
+                .append(" }").toString();
+        }
+
+    }
 }

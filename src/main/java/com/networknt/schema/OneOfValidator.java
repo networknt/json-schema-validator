@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +44,7 @@ public class OneOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         CollectorContext collectorContext = CollectorContext.getInstance();
 
-        // As oneOf might contain multiple schemas take a backup of evaluated stuff.
-        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        // Make the evaluated lists empty.
-        collectorContext.resetEvaluatedItems();
-        collectorContext.resetEvaluatedProperties();
-
+        Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, at);
 
@@ -62,33 +57,40 @@ public class OneOfValidator extends BaseJsonValidator {
             Set<ValidationMessage> childErrors = new LinkedHashSet<>();
 
             for (JsonSchema schema : this.schemas) {
-                Set<ValidationMessage> schemaErrors = null;
-                // Reset state in case the previous validator did not match
-                state.setMatchedNode(true);
+                Set<ValidationMessage> schemaErrors = Collections.emptySet();
 
-                if (!state.isWalkEnabled()) {
-                    schemaErrors = schema.validate(node, rootNode, at);
-                } else {
-                    schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
+                Scope parentScope = collectorContext.enterDynamicScope();
+                try {
+                    // Reset state in case the previous validator did not match
+                    state.setMatchedNode(true);
+
+                    if (!state.isWalkEnabled()) {
+                        schemaErrors = schema.validate(node, rootNode, at);
+                    } else {
+                        schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
+                    }
+
+                    // check if any validation errors have occurred
+                    if (schemaErrors.isEmpty()) {
+                        // check whether there are no errors HOWEVER we have validated the exact validator
+                        if (!state.hasMatchedNode())
+                            continue;
+
+                        numberOfValidSchema++;
+                    }
+
+                    if (numberOfValidSchema > 1) {
+                        // short-circuit
+                        break;
+                    }
+
+                    childErrors.addAll(schemaErrors);
+                } finally {
+                    Scope scope = collectorContext.exitDynamicScope();
+                    if (schemaErrors.isEmpty()) {
+                        parentScope.mergeWith(scope);
+                    }
                 }
-
-                // check if any validation errors have occurred
-                if (schemaErrors.isEmpty()) {
-                    // check whether there are no errors HOWEVER we have validated the exact validator
-                    if (!state.hasMatchedNode())
-                        continue;
-
-                    numberOfValidSchema++;
-                }
-
-                // If the number of valid schema is greater than one, just reset the evaluated properties and break.
-                if (numberOfValidSchema > 1) {
-                    collectorContext.resetEvaluatedItems();
-                    collectorContext.resetEvaluatedProperties();
-                    break;
-                }
-
-                childErrors.addAll(schemaErrors);
             }
 
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
@@ -99,6 +101,8 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
                 errors.add(message);
                 errors.addAll(childErrors);
+                collectorContext.getEvaluatedItems().clear();
+                collectorContext.getEvaluatedProperties().clear();
             }
 
             // Make sure to signal parent handlers we matched
@@ -110,12 +114,9 @@ public class OneOfValidator extends BaseJsonValidator {
 
             return Collections.unmodifiableSet(errors);
         } finally {
+            Scope scope = collectorContext.exitDynamicScope();
             if (errors.isEmpty()) {
-                collectorContext.getEvaluatedItems().addAll(backupEvaluatedItems);
-                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
-            } else {
-                collectorContext.setEvaluatedItems(backupEvaluatedItems);
-                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+                grandParentScope.mergeWith(scope);
             }
         }
     }

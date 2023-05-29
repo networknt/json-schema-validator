@@ -57,8 +57,11 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    CollectorContext.getInstance().getEvaluatedProperties().add(atPath(at, name));
-                    errors.addAll(entry.getValue().validate(n, rootNode, atPath(at, name)));
+                    Set<ValidationMessage> results = entry.getValue().validate(n, rootNode, atPath(at, name));
+                    if (results.isEmpty()) {
+                        CollectorContext.getInstance().getEvaluatedProperties().add(atPath(at, name));
+                    }
+                    errors.addAll(results);
                 }
             }
         }

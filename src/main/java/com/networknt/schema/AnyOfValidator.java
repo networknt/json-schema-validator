@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,64 +63,64 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
-        // As anyOf might contain multiple schemas take a backup of evaluated stuff.
-        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        // Make the evaluated lists empty.
-        collectorContext.resetEvaluatedItems();
-        collectorContext.resetEvaluatedProperties();
-
+        Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
             int numberOfValidSubSchemas = 0;
-            for (int i = 0; i < this.schemas.size(); ++i) {
-                JsonSchema schema = this.schemas.get(i);
-                state.setMatchedNode(initialHasMatchedNode);
-                Set<ValidationMessage> errors;
+            for (JsonSchema schema: this.schemas) {
+                Set<ValidationMessage> errors = Collections.emptySet();
+                Scope parentScope = collectorContext.enterDynamicScope();
+                try {
+                    state.setMatchedNode(initialHasMatchedNode);
 
-                if (schema.hasTypeValidator()) {
-                    TypeValidator typeValidator = schema.getTypeValidator();
-                    //If schema has type validator and node type doesn't match with schemaType then ignore it
-                    //For union type, it is a must to call TypeValidator
-                    if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                        allErrors.add(buildValidationMessage(at, typeValidator.getSchemaType().toString()));
-                        continue;
-                    }
-                }
-                if (!state.isWalkEnabled()) {
-                    errors = schema.validate(node, rootNode, at);
-                } else {
-                    errors = schema.walk(node, rootNode, at, true);
-                }
-
-                // check if any validation errors have occurred
-                if (errors.isEmpty()) {
-                    // check whether there are no errors HOWEVER we have validated the exact validator
-                    if (!state.hasMatchedNode()) {
-                        continue;
-                    }
-                    // we found a valid subschema, so increase counter
-                    numberOfValidSubSchemas++;
-                }
-
-                if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
-                    // Clear all errors.
-                    allErrors.clear();
-                    // return empty errors.
-                    return errors;
-                } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                    if (this.discriminatorContext.isDiscriminatorMatchFound()) {
-                        if (!errors.isEmpty()) {
-                            errors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
-                            allErrors.addAll(errors);
-                        } else {
-                            // Clear all errors.
-                            allErrors.clear();
+                    if (schema.hasTypeValidator()) {
+                        TypeValidator typeValidator = schema.getTypeValidator();
+                        //If schema has type validator and node type doesn't match with schemaType then ignore it
+                        //For union type, it is a must to call TypeValidator
+                        if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
+                            allErrors.add(buildValidationMessage(at, typeValidator.getSchemaType().toString()));
+                            continue;
                         }
+                    }
+                    if (!state.isWalkEnabled()) {
+                        errors = schema.validate(node, rootNode, at);
+                    } else {
+                        errors = schema.walk(node, rootNode, at, true);
+                    }
+
+                    // check if any validation errors have occurred
+                    if (errors.isEmpty()) {
+                        // check whether there are no errors HOWEVER we have validated the exact validator
+                        if (!state.hasMatchedNode()) {
+                            continue;
+                        }
+                        // we found a valid subschema, so increase counter
+                        numberOfValidSubSchemas++;
+                    }
+
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
+                        // Clear all errors.
+                        allErrors.clear();
+                        // return empty errors.
                         return errors;
+                    } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                        if (this.discriminatorContext.isDiscriminatorMatchFound()) {
+                            if (!errors.isEmpty()) {
+                                allErrors.addAll(errors);
+                                allErrors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
+                            } else {
+                                // Clear all errors.
+                                allErrors.clear();
+                            }
+                            return errors;
+                        }
+                    }
+                    allErrors.addAll(errors);
+                } finally {
+                    Scope scope = collectorContext.exitDynamicScope();
+                    if (errors.isEmpty()) {
+                        parentScope.mergeWith(scope);
                     }
                 }
-                allErrors.addAll(errors);
             }
 
             // determine only those errors which are NOT of type "required" property missing
@@ -138,14 +140,12 @@ public class AnyOfValidator extends BaseJsonValidator {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 this.validationContext.leaveDiscriminatorContextImmediately(at);
             }
+
+            Scope parentScope = collectorContext.exitDynamicScope();
             if (allErrors.isEmpty()) {
                 state.setMatchedNode(true);
-            } else {
-                collectorContext.getEvaluatedItems().clear();
-                collectorContext.getEvaluatedProperties().clear();
+                grandParentScope.mergeWith(parentScope);
             }
-            collectorContext.getEvaluatedItems().addAll(backupEvaluatedItems);
-            collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
         }
         return Collections.unmodifiableSet(allErrors);
     }

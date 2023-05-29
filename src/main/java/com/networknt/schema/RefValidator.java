@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
@@ -39,8 +40,8 @@ public class RefValidator extends BaseJsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         this.parentSchema = parentSchema;
-        schema = getRefSchema(parentSchema, validationContext, refValue);
-        if (schema == null) {
+        this.schema = getRefSchema(parentSchema, validationContext, refValue);
+        if (this.schema == null) {
             throw new JsonSchemaException(
                     ValidationMessage.of(
                             ValidatorTypeCode.REF.getValue(),
@@ -53,6 +54,7 @@ public class RefValidator extends BaseJsonValidator {
     static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
         final String refValueOriginal = refValue;
 
+        JsonSchema parent = parentSchema;
         if (!refValue.startsWith(REF_CURRENT)) {
             // This will be the uri extracted from the refValue (this may be a relative or absolute uri).
             final String refUri;
@@ -65,7 +67,7 @@ public class RefValidator extends BaseJsonValidator {
 
             // This will determine the correct absolute uri for the refUri. This decision will take into
             // account the current uri of the parent schema.
-            URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parentSchema, refUri);
+            URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parent, refUri);
             if (schemaUri == null) {
                 // the URNFactory is optional
                 if (validationContext.getURNFactory() == null) {
@@ -79,21 +81,21 @@ public class RefValidator extends BaseJsonValidator {
             }
 
             // This should retrieve schemas regardless of the protocol that is in the uri.
-            parentSchema = validationContext.getJsonSchemaFactory().getSchema(schemaUri, validationContext.getConfig());
+            parent = validationContext.getJsonSchemaFactory().getSchema(schemaUri, validationContext.getConfig());
 
             if (index < 0) {
-                return new JsonSchemaRef(parentSchema.findAncestor());
+                return new JsonSchemaRef(parent.findAncestor());
             }
             refValue = refValue.substring(index);
         }
         if (refValue.equals(REF_CURRENT)) {
-            return new JsonSchemaRef(parentSchema.findAncestor());
+            return new JsonSchemaRef(parent.findAncestor());
         }
-        JsonNode node = parentSchema.getRefSchemaNode(refValue);
+        JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
-                final JsonSchema schema = validationContext.newSchema(refValue, node, parentSchema);
+                final JsonSchema schema = validationContext.newSchema(refValue, node, parent);
                 ref = new JsonSchemaRef(schema);
                 validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }
@@ -127,33 +129,28 @@ public class RefValidator extends BaseJsonValidator {
         return schemaUrn;
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
-        // As ref will contain a schema take a backup of evaluatedProperties.
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        // Make the evaluatedProperties list empty.
-        collectorContext.resetEvaluatedProperties();
-
+        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, at);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
             // these schemas will be cached along with config. We have to replace the config for cached $ref references
             // with the latest config. Reset the config.
-            schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
-            if (schema != null) {
-                errors =  schema.validate(node, rootNode, at);
+            this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
+            if (this.schema != null) {
+                errors =  this.schema.validate(node, rootNode, at);
             } else {
                 errors = Collections.emptySet();
             }
         } finally {
+            Scope scope = collectorContext.exitDynamicScope();
             if (errors.isEmpty()) {
-                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
-            } else {
-                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+                parentScope.mergeWith(scope);
             }
         }
         return errors;
@@ -165,40 +162,34 @@ public class RefValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = new HashSet<>();
 
-        // As ref will contain a schema take a backup of evaluatedProperties.
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        // Make the evaluatedProperties list empty.
-        collectorContext.resetEvaluatedProperties();
-
+        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, at);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
             // these schemas will be cached along with config. We have to replace the config for cached $ref references
             // with the latest config. Reset the config.
-            schema.getSchema().getValidationContext().setConfig(parentSchema.getValidationContext().getConfig());
-            if (schema != null) {
-                errors = schema.walk(node, rootNode, at, shouldValidateSchema);
+            this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
+            if (this.schema != null) {
+                errors = this.schema.walk(node, rootNode, at, shouldValidateSchema);
             }
             return errors;
         } finally {
+            Scope scope = collectorContext.exitDynamicScope();
             if (shouldValidateSchema) {
                 if (errors.isEmpty()) {
-                    collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
-                } else {
-                    collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+                    parentScope.mergeWith(scope);
                 }
             }
         }
     }
 
 	public JsonSchemaRef getSchemaRef() {
-		return schema;
+		return this.schema;
 	}
 
 
     @Override
     public void preloadJsonSchema() {
-        schema.getSchema().initializeValidators();
+        this.schema.getSchema().initializeValidators();
     }
 }
