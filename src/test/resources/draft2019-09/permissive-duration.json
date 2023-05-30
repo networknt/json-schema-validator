@@ -1,0 +1,19 @@
+[
+    {
+        "description": "validation of duration strings",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "duration"
+        },
+        "tests": [
+            {
+                "description": "weeks can be combined with other units",
+                "data": "P1Y2W",
+                "valid": true,
+                "strictness": {
+                    "duration": false
+                }
+            }
+        ]
+    }
+]

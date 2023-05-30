@@ -57,7 +57,7 @@ class Issue493Test
     void testInvalidJson1 ()
             throws Exception
     {
-        InputStream schemaInputStream = Issue491Test.class.getResourceAsStream(schemaPath1);
+        InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-1.json");
         Set<ValidationMessage> errors = schema.validate(node);
@@ -77,18 +77,20 @@ class Issue493Test
     void testInvalidJson2 ()
             throws Exception
     {
-        InputStream schemaInputStream = Issue491Test.class.getResourceAsStream(schemaPath1);
+        InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-2.json");
         Set<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(2, errors.size());
+        Assertions.assertEquals(3, errors.size());
 
         Set<String> allErrorMessages = new HashSet<>();
         errors.forEach(vm -> {
             allErrorMessages.add(vm.getMessage());
         });
-        assertThat(allErrorMessages,
-                   Matchers.containsInAnyOrder("$.parameters[1].value: string found, integer expected",
-                                               "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$"));
+        assertThat(allErrorMessages, Matchers.containsInAnyOrder(
+            "$.parameters[1].value: string found, integer expected",
+            "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
+            "$.parameters[1]: should be valid to one and only one schema, but 0 are valid"
+        ));
     }
 }

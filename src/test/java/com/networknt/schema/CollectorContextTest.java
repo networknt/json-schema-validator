@@ -291,7 +291,7 @@ public class CollectorContextTest {
 
         @Override
         public Set<ValidationMessage> validate(JsonNode rootNode) {
-            return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
+            return validate(rootNode, rootNode, PathType.DEFAULT.getRoot());
         }
 
         @Override
@@ -368,7 +368,7 @@ public class CollectorContextTest {
 
         @Override
         public Set<ValidationMessage> validate(JsonNode rootNode) {
-            return validate(rootNode, rootNode, BaseJsonValidator.AT_ROOT);
+            return validate(rootNode, rootNode, PathType.DEFAULT.getRoot());
         }
 
         @Override

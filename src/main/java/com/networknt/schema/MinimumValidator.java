@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.JsonNodeUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
 
-public class MinimumValidator extends BaseJsonValidator implements JsonValidator {
+public class MinimumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinimumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MINIMUM = "exclusiveMinimum";
 
@@ -115,7 +117,7 @@ public class MinimumValidator extends BaseJsonValidator implements JsonValidator
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (!TypeValidator.isNumber(node, this.validationContext.getConfig())) {
+        if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
             // minimum only applies to numbers
             return Collections.emptySet();
         }

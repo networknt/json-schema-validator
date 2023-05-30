@@ -31,13 +31,6 @@ public class ValidatorTypeCodeTest {
     }
 
     @Test
-    public void testFromValueAll() {
-        for (ValidatorTypeCode code : ValidatorTypeCode.values()) {
-            assertEquals(code, ValidatorTypeCode.fromValue(code.getValue()));
-        }
-    }
-
-    @Test
     public void testFromValueMissing() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing")));
     }
@@ -53,6 +46,5 @@ public class ValidatorTypeCodeTest {
         List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
     }
-
 
 }

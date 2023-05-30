@@ -1,0 +1,4 @@
+{
+  "$schema": "/schema/contains/issue769/min-contains.json",
+  "myArray": [{"itemType": "type A"}]
+}

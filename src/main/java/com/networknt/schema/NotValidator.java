@@ -22,41 +22,45 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NotValidator extends BaseJsonValidator implements JsonValidator {
+public class NotValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
     private final JsonSchema schema;
 
     public NotValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
-        schema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
         Set<ValidationMessage> errors = new HashSet<>();
 
-        //As not will contain a schema take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        // As not will contain a schema take a backup of evaluated stuff.
+        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
-        // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        // Make the evaluated lists empty.
+        collectorContext.resetEvaluatedItems();
+        collectorContext.resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
-            errors = schema.validate(node, rootNode, at);
+            errors = this.schema.validate(node, rootNode, at);
             if (errors.isEmpty()) {
-                return Collections.singleton(buildValidationMessage(at, schema.toString()));
+                return Collections.singleton(buildValidationMessage(at, this.schema.toString()));
             }
             return Collections.emptySet();
         } finally {
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                collectorContext.getEvaluatedItems().addAll(backupEvaluatedItems);
+                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                collectorContext.setEvaluatedItems(backupEvaluatedItems);
+                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
     }
@@ -66,13 +70,13 @@ public class NotValidator extends BaseJsonValidator implements JsonValidator {
         if (shouldValidateSchema) {
             return validate(node, rootNode, at);
         }
-    	return schema.walk(node, rootNode, at, shouldValidateSchema);
+    	return this.schema.walk(node, rootNode, at, shouldValidateSchema);
     }
 
     @Override
     public void preloadJsonSchema() {
-        if (null != schema) {
-            schema.initializeValidators();
+        if (null != this.schema) {
+            this.schema.initializeValidators();
         }
     }
 }

@@ -13,12 +13,14 @@
     },
     "tests": [
       {
+        "description": "an integer is an integer",
         "data": {
           "features": 4
         },
         "valid": true
       },
       {
+        "description": "a number is not an integer",
         "data": {
           "features": 4.0
         },

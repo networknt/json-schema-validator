@@ -81,7 +81,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.78/version>
+    <version>1.0.83</version>
     <exclusions>
         <exclusion>
             <groupId>org.apache.commons</groupId>
@@ -95,7 +95,7 @@ Gradle:
 
 ```java
 dependencies {
-    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.78');
+    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.83');
 }
 ```
 
@@ -125,6 +125,13 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Custom Message](doc/cust-msg.md)
 
+## [Multiple Language](doc/multiple-language.md)
+
+## [MetaSchema Validation](doc/metaschema-validation.md)
+
+## [Validating RFC 3339 durations](doc/duration.md)
+
+
 ## Known issues
 
 I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases, in my opinion, but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java language itself.
@@ -145,31 +152,34 @@ Thanks to the following people who have contributed to this project. If you are 
 
 [@stevehu](https://github.com/sponsors/stevehu)
 
-[@jiachen1120](https://github.com/jiachen1120)
+[@prashanth-chaitanya](https://github.com/prashanth-chaitanya)
+
+[@fdutton](https://github.com/fdutton)
+
+[@valfirst](https://github.com/valfirst)
 
 [@BalloonWen](https://github.com/BalloonWen)
 
-[@eskabetxe](https://github.com/eskabetxe)
+[@jiachen1120](https://github.com/jiachen1120)
 
 [@ddobrin](https://github.com/ddobrin)
 
+[@eskabetxe](https://github.com/eskabetxe)
+
 [@ehrmann](https://github.com/ehrmann)
+
+[@prashanthjos](https://github.com/prashanthjos)
+
+[@Subhajitdas298](https://github.com/Subhajitdas298)
+
+[@FWiesner](https://github.com/FWiesner)
 
 [@rhwood](https://github.com/rhwood)
 
-[@nitin1891](https://github.com/nitin1891)
-
 [@jawaff](https://github.com/jawaff)
 
-[@kosty](https://github.com/kosty)
+[@nitin1891](https://github.com/nitin1891)
 
-[@chenyan71](https://github.com/chenyan71)
-
-[@chrisken](https://github.com/chrisken)
-
-[@NicholasAzar](https://github.com/NicholasAzar)
-
-[@basinilya](https://github.com/basinilya)
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 

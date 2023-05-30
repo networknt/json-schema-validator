@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.networknt.schema.uri.*;
+import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,8 @@ public class JsonSchemaFactory {
         private final Map<String, String> uriMap = new HashMap<String, String>();
         private boolean forceHttps = true;
         private boolean removeEmptyFragmentSuffix = true;
+        private boolean enableUriSchemaCache = true;
+        private final CompositeURITranslator uriTranslators = new CompositeURITranslator();
 
         public Builder() {
             // Adds support for creating {@link URL}s.
@@ -137,8 +140,21 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        /**
+         * @deprecated Use {@code addUriTranslator} instead.
+         * @param map the map of uri mappings.
+         * @return this builder.
+         */
+        @Deprecated
         public Builder addUriMappings(final Map<String, String> map) {
             this.uriMap.putAll(map);
+            return this;
+        }
+
+        public Builder addUriTranslator(URITranslator translator) {
+            if (null != translator) {
+                this.uriTranslators.add(translator);
+            }
             return this;
         }
 
@@ -157,6 +173,11 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        public Builder enableUriSchemaCache(boolean enableUriSchemaCache) {
+            this.enableUriSchemaCache = enableUriSchemaCache;
+            return this;
+        }
+
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
@@ -169,7 +190,9 @@ public class JsonSchemaFactory {
                     jsonMetaSchemas,
                     uriMap,
                     forceHttps,
-                    removeEmptyFragmentSuffix
+                    removeEmptyFragmentSuffix,
+                    enableUriSchemaCache,
+                    uriTranslators
             );
         }
     }
@@ -179,12 +202,14 @@ public class JsonSchemaFactory {
     private final String defaultMetaSchemaURI;
     private final URISchemeFactory uriFactory;
     private final URISchemeFetcher uriFetcher;
+    private final CompositeURITranslator uriTranslators;
     private final URNFactory urnFactory;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
     private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
     private final boolean forceHttps;
     private final boolean removeEmptyFragmentSuffix;
+    private final boolean enableUriSchemaCache;
 
 
     private JsonSchemaFactory(
@@ -197,7 +222,9 @@ public class JsonSchemaFactory {
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final Map<String, String> uriMap,
             final boolean forceHttps,
-            final boolean removeEmptyFragmentSuffix) {
+            final boolean removeEmptyFragmentSuffix,
+            final boolean enableUriSchemaCache,
+            final CompositeURITranslator uriTranslators) {
         if (jsonMapper == null) {
             throw new IllegalArgumentException("ObjectMapper must not be null");
         } else if (yamlMapper == null) {
@@ -214,6 +241,8 @@ public class JsonSchemaFactory {
             throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
         } else if (uriMap == null) {
             throw new IllegalArgumentException("URL Mappings must not be null");
+        } else if (uriTranslators == null) {
+            throw new IllegalArgumentException("URI Translators must not be null");
         }
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
@@ -225,6 +254,8 @@ public class JsonSchemaFactory {
         this.uriMap = uriMap;
         this.forceHttps = forceHttps;
         this.removeEmptyFragmentSuffix = removeEmptyFragmentSuffix;
+        this.enableUriSchemaCache = enableUriSchemaCache;
+        this.uriTranslators = uriTranslators;
     }
 
     /**
@@ -262,25 +293,15 @@ public class JsonSchemaFactory {
     }
 
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
-        JsonSchemaVersion jsonSchemaVersion = null;
+        if (null == versionFlag) return null;
         switch (versionFlag) {
-            case V202012:
-                jsonSchemaVersion = new Version202012();
-                break;
-            case V201909:
-                jsonSchemaVersion = new Version201909();
-                break;
-            case V7:
-                jsonSchemaVersion = new Version7();
-                break;
-            case V6:
-                jsonSchemaVersion = new Version6();
-                break;
-            case V4:
-                jsonSchemaVersion = new Version4();
-                break;
+            case V202012: return new Version202012();
+            case V201909: return new Version201909();
+            case V7: return new Version7();
+            case V6: return new Version6();
+            case V4: return new Version4();
+            default: throw new IllegalArgumentException("Unsupported value" + versionFlag);
         }
-        return jsonSchemaVersion;
     }
 
     public static Builder builder(final JsonSchemaFactory blueprint) {
@@ -291,6 +312,9 @@ public class JsonSchemaFactory {
                 .yamlMapper(blueprint.yamlMapper)
                 .addUriMappings(blueprint.uriMap);
 
+        for (URITranslator translator: blueprint.uriTranslators) {
+            builder = builder.addUriTranslator(translator);
+        }
         for (Map.Entry<String, URIFactory> entry : blueprint.uriFactory.getURIFactories().entrySet()) {
             builder = builder.uriFactory(entry.getValue(), entry.getKey());
         }
@@ -303,7 +327,15 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        return new JsonSchema(validationContext, schemaUri, schemaNode);
+        return doCreate(validationContext, "#", schemaUri, schemaNode, null, false);
+    }
+
+    public JsonSchema create(ValidationContext validationContext, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
+        return doCreate(validationContext, null == schemaPath ? "#" : schemaPath, parentSchema.getCurrentUri(), schemaNode, parentSchema, false);
+    }
+
+    private JsonSchema doCreate(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return JsonSchema.from(validationContext, schemaPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -317,11 +349,16 @@ public class JsonSchemaFactory {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue(), forceHttps, removeEmptyFragmentSuffix);
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.get(uri);
-        if (jsonMetaSchema == null) {
-            throw new JsonSchemaException("Unknown MetaSchema: " + uri);
-        }
+        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, this::fromId);
         return jsonMetaSchema;
+    }
+
+    private JsonMetaSchema fromId(String id) {
+        // Is it a well-known dialect?
+        return SpecVersionDetector.detectOptionalVersion(id)
+            .map(JsonSchemaFactory::checkVersion)
+            .map(JsonSchemaVersion::getInstance)
+            .orElseThrow(() -> new JsonSchemaException("Unknown MetaSchema: " + id));
     }
 
     /**
@@ -329,6 +366,10 @@ public class JsonSchemaFactory {
      */
     public URIFactory getUriFactory() {
         return this.uriFactory;
+    }
+
+    public URITranslator getUriTranslator() {
+        return this.uriTranslators.with(URITranslator.map(uriMap));
     }
 
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
@@ -362,18 +403,17 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(final URI schemaUri, final SchemaValidatorsConfig config) {
         try {
             InputStream inputStream = null;
-            final Map<String, String> map = (config != null) ? config.getUriMappings() : new HashMap<String, String>();
-            map.putAll(uriMap);
+            final URITranslator uriTranslator = null == config ? getUriTranslator() : config.getUriTranslator().with(getUriTranslator());
 
             final URI mappedUri;
             try {
-                mappedUri = this.uriFactory.create(map.get(schemaUri.toString()) != null ? map.get(schemaUri.toString()) : schemaUri.toString());
+                mappedUri = this.uriFactory.create(uriTranslator.translate(schemaUri).toString());
             } catch (IllegalArgumentException e) {
                 logger.error("Failed to create URI.", e);
                 throw new JsonSchemaException(e);
             }
 
-            if (uriSchemaCache.containsKey(mappedUri)) {
+            if (enableUriSchemaCache && uriSchemaCache.containsKey(mappedUri)) {
                 JsonSchema cachedUriSchema =  uriSchemaCache.get(mappedUri);
                 // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
@@ -396,15 +436,17 @@ public class JsonSchemaFactory {
 
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    jsonSchema = new JsonSchema(
-                        new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config),
-                        mappedUri, schemaNode, true /* retrieved via id, resolving will not change anything */);
+                    ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
+                    jsonSchema = doCreate(validationContext, "#", mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
-                    jsonSchema = new JsonSchema(validationContext, mappedUri, schemaNode);
+                    jsonSchema = doCreate(validationContext, "#", mappedUri, schemaNode, null, false);
                 }
-                uriSchemaCache.put(mappedUri, jsonSchema);
+
+                if (enableUriSchemaCache) {
+                    uriSchemaCache.put(mappedUri, jsonSchema);
+                }
 
                 return jsonSchema;
             } finally {

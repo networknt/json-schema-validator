@@ -18,7 +18,7 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
-import static com.networknt.schema.TypeValidator.isNumeric;
+import static com.networknt.schema.utils.StringChecker.isNumeric;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

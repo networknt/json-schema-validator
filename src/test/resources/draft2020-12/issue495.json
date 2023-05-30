@@ -1,0 +1,64 @@
+[
+    {
+        "description": "issue495 using ECMA-262",
+        "regex": "ecma-262",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "pattern": "^[a-z]{1,10}$",
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "an expected property name",
+                "data": { "aaa": 3 },
+                "valid": true
+            },
+            {
+                "description": "trailing newline",
+                "data": { "aaa\n": 3 },
+                "valid": false
+            },
+            {
+                "description": "embedded newline",
+                "data": { "aaa\nbbb": 3 },
+                "valid": false
+            },
+            {
+                "description": "leading newline",
+                "data": { "\nbbb": 3 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "issue495 using Java Pattern",
+        "regex": "jdk",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "pattern": "^[a-z]{1,10}$",
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "an expected property name",
+                "data": { "aaa": 3 },
+                "valid": true
+            },
+            {
+                "description": "trailing newline",
+                "data": { "aaa\n": 3 },
+                "valid": false
+            },
+            {
+                "description": "embedded newline",
+                "data": { "aaa\nbbb": 3 },
+                "valid": false
+            },
+            {
+                "description": "leading newline",
+                "data": { "\nbbb": 3 },
+                "valid": false
+            }
+        ]
+    }
+]

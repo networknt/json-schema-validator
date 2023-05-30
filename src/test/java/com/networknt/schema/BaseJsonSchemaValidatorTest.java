@@ -32,48 +32,48 @@ public class BaseJsonSchemaValidatorTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    protected JsonNode getJsonNodeFromClasspath(String name) throws IOException {
+    public static JsonNode getJsonNodeFromClasspath(String name) throws IOException {
         InputStream is1 = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
         return mapper.readTree(is1);
     }
 
-    protected JsonNode getJsonNodeFromStringContent(String content) throws IOException {
+    public static JsonNode getJsonNodeFromStringContent(String content) throws IOException {
         return mapper.readTree(content);
     }
 
-    protected JsonNode getJsonNodeFromUrl(String url) throws IOException {
+    public static JsonNode getJsonNodeFromUrl(String url) throws IOException {
         return mapper.readTree(new URL(url));
     }
 
-    protected static JsonSchema getJsonSchemaFromClasspath(String name) {
+    public static JsonSchema getJsonSchemaFromClasspath(String name) {
         return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4);
     }
 
-    protected static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
+    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
         return factory.getSchema(is);
     }
 
-    protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
+    public static JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         return factory.getSchema(schemaContent);
     }
 
-    protected JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
+    public static JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         return factory.getSchema(new URI(uri));
     }
 
-    protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
+    public static JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         return factory.getSchema(jsonNode);
     }
 
     // Automatically detect version for given JsonNode
-    protected JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
+    public static JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
         return factory.getSchema(jsonNode);
     }

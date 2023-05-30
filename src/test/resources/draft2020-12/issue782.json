@@ -1,0 +1,92 @@
+[
+    {
+        "description": "issue782 using ECMA-262",
+        "regex": "ecma-262",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "patternProperties": {
+                "^x-": true,
+                "y-$": true,
+                "^z-$": true
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "regexes may be anchored to the start of the property name, 1",
+                "data": { "x-api-id": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to the start of the property name, 2",
+                "data": { "ax-api-id": 3 },
+                "valid": false
+            },
+            {
+                "description": "regexes may be anchored to the end of the property name, 1",
+                "data": { "api-id-y-": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to the end of the property name, 2",
+                "data": { "y-api-id": 3 },
+                "valid": false
+            },
+            {
+                "description": "regexes may be anchored to both ends of the property name, 1",
+                "data": { "z-": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to both ends of the property name, 2",
+                "data": { "az-api-id": 3 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "issue782 using Java Pattern",
+        "regex": "jdk",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "patternProperties": {
+                "^x-": true,
+                "y-$": true,
+                "^z-$": true
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "regexes may be anchored to the start of the property name, 1",
+                "data": { "x-api-id": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to the start of the property name, 2",
+                "data": { "ax-api-id": 3 },
+                "valid": false
+            },
+            {
+                "description": "regexes may be anchored to the end of the property name, 1",
+                "data": { "api-id-y-": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to the end of the property name, 2",
+                "data": { "y-api-id": 3 },
+                "valid": false
+            },
+            {
+                "description": "regexes may be anchored to both ends of the property name, 1",
+                "data": { "z-": 3 },
+                "valid": true
+            },
+            {
+                "description": "regexes may be anchored to both ends of the property name, 2",
+                "data": { "az-api-id": 3 },
+                "valid": false
+            }
+        ]
+    }
+]

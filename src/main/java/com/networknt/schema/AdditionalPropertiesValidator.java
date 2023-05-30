@@ -17,20 +17,20 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.regex.RegularExpression;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class AdditionalPropertiesValidator extends BaseJsonValidator implements JsonValidator {
+public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
 
     private final boolean allowAdditionalProperties;
     private final JsonSchema additionalPropertiesSchema;
     private final Set<String> allowedProperties;
-    private final List<Pattern> patternProperties = new ArrayList<Pattern>();
+    private final List<RegularExpression> patternProperties = new ArrayList<>();
 
     public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
@@ -40,7 +40,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
             additionalPropertiesSchema = null;
         } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = new JsonSchema(validationContext, getValidatorType().getValue(), parentSchema.getCurrentUri(), schemaNode, parentSchema);
+            additionalPropertiesSchema = validationContext.newSchema(getValidatorType().getValue(), schemaNode, parentSchema);
         } else {
             allowAdditionalProperties = false;
             additionalPropertiesSchema = null;
@@ -57,27 +57,16 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
         if (patternPropertiesNode != null) {
             for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
-                patternProperties.add(Pattern.compile(it.next()));
+                patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    private void addToEvaluatedProperties(String propertyPath) {
-        Object evaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-        List<String> evaluatedPropertiesList = null;
-        if (evaluatedProperties == null) {
-            evaluatedPropertiesList = new ArrayList<>();
-            CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, evaluatedPropertiesList);
-        } else {
-            evaluatedPropertiesList = (List<String>) evaluatedProperties;
-        }
-        evaluatedPropertiesList.add(propertyPath);
-    }
-
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (!node.isObject()) {
@@ -88,7 +77,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                addToEvaluatedProperties(at + "." + it.next());
+                collectorContext.getEvaluatedProperties().add(atPath(at, it.next()));
             }
         }
 
@@ -99,9 +88,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                 continue;
             }
             boolean handledByPatternProperties = false;
-            for (Pattern pattern : patternProperties) {
-                Matcher m = pattern.matcher(pname);
-                if (m.find()) {
+            for (RegularExpression pattern : patternProperties) {
+                if (pattern.matches(pname)) {
                     handledByPatternProperties = true;
                     break;
                 }
@@ -112,11 +100,11 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                     errors.add(buildValidationMessage(at, pname));
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled()));
+                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
                         } else {
-                            errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, at + "." + pname));
+                            errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, atPath(at, pname)));
                         }
                     }
                 }
@@ -144,9 +132,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                 continue;
             }
             boolean handledByPatternProperties = false;
-            for (Pattern pattern : patternProperties) {
-                Matcher m = pattern.matcher(pname);
-                if (m.find()) {
+            for (RegularExpression pattern : patternProperties) {
+                if (pattern.matches(pname)) {
                     handledByPatternProperties = true;
                     break;
                 }
@@ -157,7 +144,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator implements 
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(node.get(pname), rootNode, at + "." + pname, state.isValidationEnabled());
+                           additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
                         }
                     }
                 }

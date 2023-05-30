@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "myArray": {
+      "type": "array",
+      "maxContains": 1,
+      "contains": {"properties": {"itemType": {"const": "type A"}}
+      },
+      "items": {"properties": {"itemType": {"type": "string"}}}
+    }
+  }
+}

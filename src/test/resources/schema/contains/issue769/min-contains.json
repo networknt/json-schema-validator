@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "myArray": {
+      "type": "array",
+      "minContains": 2,
+      "contains": {"properties": {"itemType": {"const": "type A"}}
+      },
+      "items": {"properties": {"itemType": {"type": "string"}}}
+    }
+  }
+}

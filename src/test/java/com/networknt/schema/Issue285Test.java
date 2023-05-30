@@ -1,6 +1,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.uri.URITranslator;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Issue285Test {
     private ObjectMapper mapper = new ObjectMapper();
-    private JsonSchemaFactory schemaFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).objectMapper(mapper).build();
+    private JsonSchemaFactory schemaFactory = JsonSchemaFactory
+		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
+		.objectMapper(mapper)
+		.addUriTranslator(URITranslator.combine(
+			URITranslator.prefix("http://json-schema.org", "resource:"),
+			URITranslator.prefix("https://json-schema.org", "resource:")
+		))
+		.build();
 
 
     String schemaStr = "{\n" +

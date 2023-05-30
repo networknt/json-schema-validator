@@ -26,7 +26,7 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
 
-public class RefValidator extends BaseJsonValidator implements JsonValidator {
+public class RefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected JsonSchemaRef schema;
@@ -42,8 +42,11 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         schema = getRefSchema(parentSchema, validationContext, refValue);
         if (schema == null) {
             throw new JsonSchemaException(
-                    ValidationMessage.of(ValidatorTypeCode.REF.getValue(),
-                                                               CustomErrorMessageType.of("internal.unresolvedRef", new MessageFormat("{0}: Reference {1} cannot be resolved")), schemaPath, schemaPath, refValue));
+                    ValidationMessage.of(
+                            ValidatorTypeCode.REF.getValue(),
+                            CustomErrorMessageType.of("internal.unresolvedRef"),
+                            new MessageFormat("{0}: Reference {1} cannot be resolved"),
+                            schemaPath, schemaPath, refValue));
         }
     }
 
@@ -80,23 +83,21 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
             if (index < 0) {
                 return new JsonSchemaRef(parentSchema.findAncestor());
-            } else {
-                refValue = refValue.substring(index);
             }
+            refValue = refValue.substring(index);
         }
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(parentSchema.findAncestor());
-        } else {
-            JsonNode node = parentSchema.getRefSchemaNode(refValue);
-            if (node != null) {
-                JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
-                if (ref == null) {
-                    final JsonSchema schema = new JsonSchema(validationContext, refValue, parentSchema.getCurrentUri(), node, parentSchema);
-                    ref = new JsonSchemaRef(schema);
-                    validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
-                }
-                return ref;
+        }
+        JsonNode node = parentSchema.getRefSchemaNode(refValue);
+        if (node != null) {
+            JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
+            if (ref == null) {
+                final JsonSchema schema = validationContext.newSchema(refValue, node, parentSchema);
+                ref = new JsonSchemaRef(schema);
+                validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }
+            return ref;
         }
         return null;
     }
@@ -127,14 +128,15 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        collectorContext.resetEvaluatedProperties();
 
         try {
             debug(logger, node, rootNode, at);
@@ -149,11 +151,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
             }
         } finally {
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
             } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             }
         }
         return errors;
@@ -161,14 +161,16 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         // As ref will contain a schema take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
         // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        collectorContext.resetEvaluatedProperties();
+
         try {
             debug(logger, node, rootNode, at);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
@@ -182,11 +184,9 @@ public class RefValidator extends BaseJsonValidator implements JsonValidator {
         } finally {
             if (shouldValidateSchema) {
                 if (errors.isEmpty()) {
-                    List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-                    backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
+                    collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
                 } else {
-                    CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                    collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
                 }
             }
         }

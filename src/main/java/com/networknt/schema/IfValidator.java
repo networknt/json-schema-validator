@@ -22,10 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class IfValidator extends BaseJsonValidator implements JsonValidator {
+public class IfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 
-    private static final ArrayList<String> KEYWORDS = new ArrayList<String>(Arrays.asList("if", "then", "else"));
+    private static final ArrayList<String> KEYWORDS = new ArrayList<>(Arrays.asList("if", "then", "else"));
 
     private final JsonSchema ifSchema;
     private final JsonSchema thenSchema;
@@ -42,89 +42,94 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
             final JsonNode node = schemaNode.get(keyword);
             final String schemaPathOfSchema = parentSchema.schemaPath + "/" + keyword;
             if (keyword.equals("if")) {
-                foundIfSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
+                foundIfSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
+                foundThenSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = new JsonSchema(validationContext, schemaPathOfSchema, parentSchema.getCurrentUri(), node, parentSchema);
+                foundElseSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
             }
         }
 
-        ifSchema = foundIfSchema;
-        thenSchema = foundThenSchema;
-        elseSchema = foundElseSchema;
+        this.ifSchema = foundIfSchema;
+        this.thenSchema = foundThenSchema;
+        this.elseSchema = foundElseSchema;
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
-        // As if-then-else might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+        // As if-then-else might contain multiple schemas take a backup of evaluated stuff.
+        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
+        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
-        Object ifEvaluatedProperties = null;
+        Collection<String> ifEvaluatedItems = Collections.emptyList();
+        Collection<String> ifEvaluatedProperties = Collections.emptyList();
 
-        Object thenEvaluatedProperties = null;
+        Collection<String> thenEvaluatedItems = Collections.emptyList();
+        Collection<String> thenEvaluatedProperties = Collections.emptyList();
 
-        Object elseEvaluatedProperties = null;
+        Collection<String> elseEvaluatedItems = Collections.emptyList();
+        Collection<String> elseEvaluatedProperties = Collections.emptyList();
 
-        // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+        // Make the evaluated lists empty.
+        collectorContext.resetEvaluatedItems();
+        collectorContext.resetEvaluatedProperties();
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         boolean ifConditionPassed = false;
         try {
             try {
-                ifConditionPassed = ifSchema.validate(node, rootNode, at).isEmpty();
+                ifConditionPassed = this.ifSchema.validate(node, rootNode, at).isEmpty();
             } catch (JsonSchemaException ex) {
                 // When failFast is enabled, validations are thrown as exceptions.
                 // An exception means the condition failed
                 ifConditionPassed = false;
             }
-            // Evaluated Properties from if.
-            ifEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+            // Evaluated stuff from if.
+            ifEvaluatedItems = collectorContext.getEvaluatedItems();
+            ifEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
-            if (ifConditionPassed && thenSchema != null) {
+            if (ifConditionPassed && this.thenSchema != null) {
 
-                // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                // Make the evaluated lists empty.
+                collectorContext.resetEvaluatedItems();
+                collectorContext.resetEvaluatedProperties();
 
-                errors.addAll(thenSchema.validate(node, rootNode, at));
+                errors.addAll(this.thenSchema.validate(node, rootNode, at));
 
-                // Collect the then evaluated properties.
-                thenEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+                // Collect the then evaluated stuff.
+                thenEvaluatedItems = collectorContext.getEvaluatedItems();
+                thenEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
-            } else if (!ifConditionPassed && elseSchema != null) {
+            } else if (!ifConditionPassed && this.elseSchema != null) {
 
-                // Make the evaluatedProperties list empty.
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
+                // Make the evaluated lists empty.
+                collectorContext.resetEvaluatedItems();
+                collectorContext.resetEvaluatedProperties();
 
-                errors.addAll(elseSchema.validate(node, rootNode, at));
+                errors.addAll(this.elseSchema.validate(node, rootNode, at));
 
-                // Collect the else evaluated properties.
-                elseEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
+                // Collect the else evaluated stuff.
+                elseEvaluatedItems = collectorContext.getEvaluatedItems();
+                elseEvaluatedProperties = collectorContext.getEvaluatedProperties();
             }
 
         } finally {
+            collectorContext.setEvaluatedItems(backupEvaluatedItems);
+            collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
             if (errors.isEmpty()) {
-                List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-
-                // If the "if" keyword condition is passed then only add if properties as evaluated.
-                if (ifEvaluatedProperties != null && ifConditionPassed) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) ifEvaluatedProperties);
+                // If the "if" keyword condition is passed then only add if stuff as evaluated.
+                if (ifConditionPassed) {
+                    collectorContext.getEvaluatedItems().addAll(ifEvaluatedItems);
+                    collectorContext.getEvaluatedProperties().addAll(ifEvaluatedProperties);
                 }
-
-                if (thenEvaluatedProperties != null) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) thenEvaluatedProperties);
-                }
-
-                if (elseEvaluatedProperties != null) {
-                    backupEvaluatedPropertiesList.addAll((List<String>) elseEvaluatedProperties);
-                }
-
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
-            } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                collectorContext.getEvaluatedItems().addAll(thenEvaluatedItems);
+                collectorContext.getEvaluatedItems().addAll(elseEvaluatedItems);
+                collectorContext.getEvaluatedProperties().addAll(thenEvaluatedProperties);
+                collectorContext.getEvaluatedProperties().addAll(elseEvaluatedProperties);
             }
         }
 
@@ -133,14 +138,14 @@ public class IfValidator extends BaseJsonValidator implements JsonValidator {
 
     @Override
     public void preloadJsonSchema() {
-        if(null != ifSchema) {
-            ifSchema.initializeValidators();
+        if(null != this.ifSchema) {
+            this.ifSchema.initializeValidators();
         }
-        if(null != thenSchema) {
-            thenSchema.initializeValidators();
+        if(null != this.thenSchema) {
+            this.thenSchema.initializeValidators();
         }
-        if(null != elseSchema) {
-            elseSchema.initializeValidators();
+        if(null != this.elseSchema) {
+            this.elseSchema.initializeValidators();
         }
     }
 }

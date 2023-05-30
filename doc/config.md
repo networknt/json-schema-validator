@@ -24,6 +24,11 @@ JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config
 
 When typeLoose is true, the validator will convert strings to different types to match the type defined in the schema. This is mostly used to validate the JSON request or response for headers, query parameters, path parameters, and cookies. For the HTTP protocol, these are all strings and might be defined as other types in the schema. For example, the page number might be an integer in the schema but passed as a query parameter in string. 
 
+* strictness
+This is a map of keywords to whether the keyword's validators should perform a strict or permissive analysis. When strict is true, validators will perform strict checking against the schema.
+This is the default behavior. When set to false, validators are free to relax some constraints but not required. Each validator has its own understanding of what constitutes strict and
+permissive.
+
 * failFast
 
 When set to true, the validation process stops immediately when the first error occurs. This mostly used on microservices that is designed to [fail-fast](https://www.networknt.com/architecture/fail-fast/), or users don't want to see hundreds of errors for a big payload. Please be aware that the validator throws an exception in the case the first error occurs. To learn how to use it, please follow the [test case](https://github.com/networknt/json-schema-validator/blob/master/src/test/java/com/networknt/schema/V4JsonSchemaTest.java#L352). 
@@ -63,3 +68,10 @@ When set to true, can interpret round doubles as integers.
 Note that setting `javaSemantics = true` will achieve the same functionality at this time.
 
 For more details, please refer to this [issue](https://github.com/networknt/json-schema-validator/issues/344).
+
+* pathType
+
+This defines how path expressions are defined and returned once validation is performed through `ValidationMessage` instances. This can either be set to `PathType.JSON_POINTER` for [JSONPointer](https://www.rfc-editor.org/rfc/rfc6901.html) expressions,
+or to `PathType.JSON_PATH` for [JSONPath](https://datatracker.ietf.org/doc/draft-ietf-jsonpath-base/) expressions. Doing so allows you to report the path for each finding and to potentially lookup nodes
+(see [here](https://github.com/networknt/json-schema-validator/blob/c41df270a71f8423c63cfaa379d2e9b3f570b73e/doc/yaml-line-numbers.md#scenario-2---validationmessage-line-locations) for an example). By default, path expressions use a
+`PathType.LEGACY` format which is close to JSONPath but does not escape reserved characters.

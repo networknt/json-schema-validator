@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
 
 import java.util.Optional;
 
@@ -41,7 +42,7 @@ public final class SpecVersionDetector {
      * @param jsonNode JSON Node to read from
      * @return Spec version if present, otherwise throws an exception
      */
-    public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
+    public static VersionFlag detect(JsonNode jsonNode) {
         return detectOptionalVersion(jsonNode).orElseThrow(
                 () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
         );
@@ -54,7 +55,7 @@ public final class SpecVersionDetector {
      * @param jsonNode JSON Node to read from
      * @return Spec version if present, otherwise empty
      */
-    public static Optional<SpecVersion.VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
+    public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
             final boolean forceHttps = true;
@@ -64,23 +65,13 @@ public final class SpecVersionDetector {
             String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps,
                     removeEmptyFragmentSuffix);
 
-            if (schemaUri.equals(JsonMetaSchema.getV4().getUri())) {
-                return SpecVersion.VersionFlag.V4;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV6().getUri())) {
-                return SpecVersion.VersionFlag.V6;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV7().getUri())) {
-                return SpecVersion.VersionFlag.V7;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV201909().getUri())) {
-                return SpecVersion.VersionFlag.V201909;
-            }
-            if (schemaUri.equals(JsonMetaSchema.getV202012().getUri())) {
-                return SpecVersion.VersionFlag.V202012;
-            }
-            throw new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema");
+            return VersionFlag.fromId(schemaUri)
+                .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
         });
+    }
+
+    public static Optional<VersionFlag> detectOptionalVersion(String schemaUri) {
+        return VersionFlag.fromId(schemaUri);
     }
 
 }

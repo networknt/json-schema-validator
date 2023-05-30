@@ -34,7 +34,7 @@ public class Version202012 extends JsonSchemaVersion {
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else"),
-                        new NonValidationKeyword("unevaluatedItems")
+                        new NonValidationKeyword("additionalItems")
                 ))
                 .build();
     }

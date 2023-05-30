@@ -10,6 +10,104 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.83 - 2023-05-26
+
+### Added
+- fixes #779 Adds support for cross-draft validation. Thanks @fdutton
+- fixes #777 Adds support for handling integer overflow. Thanks @fdutton
+
+### Changed
+
+- fixes #788 update JsonSchema to fix the javadoc issues
+- fixes #787 Allows to override date-time and duration validators. Thanks @josejulio
+- fixes #786 Allow walking of schema for items keyword when non-array node is provided. Thanks @anjnerajat
+- fixes #783 Resolves improper anchoring of patternProperties. Thanks @fdutton
+
+
+## 1.0.82 - 2023-05-20
+
+### Added
+- fixes #775 Adds support for validating idn-hostname and idn-email. Thanks @fdutton
+- fixes #769 Add minContains / maxContains correct keywords. Thanks @vwuilbea-in
+- fixes #768 Adds support for validating an IRI. Thanks @fdutton
+- fixes #766 Supports iri-reference format validation. Thanks @fdutton
+- fixes #764 Supports uri-reference format. Thanks @fdutton
+- fixes #762 Supports relative-json-pointer validation. Thanks @fdutton
+- fixes #758 Adds support for validating uri-template formats. Thanks @fdutton
+
+### Changed
+
+- fixes #760 Enables validation of json-pointer formats. Thanks @fdutton
+- fixes #752 Bug fix for JSON Pointer parsing. Thanks @costas80
+- fixes #754 Resolves incomplete validation of unevaluatedProperties. Thanks @fdutton
+- fixes #750 Escape double-quote in produced JSON Path expressions. Thanks @costas80
+- fixes #749 Enables unit-tests for the unevaluatedItems keyword. Thanks @fdutton
+- fixes #686 Better localisation support. Thanks @costas80
+- fixes #741 Updates LICENSE and NOTICE to comply with section 4d of the Apache License. Thanks @fdutton
+- fixes #738 Enables unit-tests for ECMA 262 regular expressions. Thanks @fdutton
+- fixes #735 Enables unit-tests for 'not' keyword. Thanks @fdutton
+- fixes #733 Updates tests from JSON Schema Test Suite. Thanks @fdutton
+
+
+## 1.0.81 - 2023-04-30
+
+### Added
+
+### Changed
+
+- fixes #731 Improves performance. Thanks @fdutton
+- fixes #730 Removes need for network access when executing unit-tests. Thanks @fdutton
+- fixes #728 Adds explicit Java module descriptor for JDK9+. Thanks @aalmiray 
+- fixes #725 custom uri fetcher doc. Thanks @michapojo
+- update the contributors and sponsors
+- fixes #720 Produces validation messages when oneOf has no valid schemas. Thanks @fdutton
+
+## 1.0.80 - 2023-04-18
+
+### Added
+
+### Changed
+
+- fixes #709 Throw the exception as it is in I18nSupport. Thanks @rishabh413
+- update javadoc comments
+- fixe #716 Adds support for unevaluatedProperties that uses a non-boolean schema. Thanks @fdutton
+- fixes #714 Adds explicit support for tracking evaluated properties. Thanks @fdutton
+- fixes #712 Corrects malformed tests. Thanks @fdutton
+- fixes #710 Add support for the Draft 2020-12 interpretation of prefixItems. Thanks @fdutton
+- fixes #708 remove System.exit from I18nSupport.
+- fixes #707 Corrects treating 1.0 as an integer. Thanks @fdutton
+- fixes #706 Adds support for validating regular expressions. Thanks @fdutton
+- fixes #705 Adds support for email addresses containing an IPv6 literal value. Thanks @fdutton
+- fixes #704 Adds support for validating leap seconds. Thanks @fdutton
+- fixes #703 Corrects validation of duration and provides the option to validate against the ISO 8601 duration format. Thanks @fdutton
+- fixes #720 Adds support for minContains and maxContains. Thanks @fdutton
+- Updates tests from JSON Schema Test Suite. Thanks @fdutton
+- fixes #698 avoid warning for additionalItems keyword
+- fixes #697 Moves JSON Schema Test Suite to a separate test-resources folder. Thanks @fdutton
+- fixes #696 add then and else to as NonValidationKeyword for v7
+- fixes #690 Uses JUnit dynamic tests to generate tests from specification files. Thanks @fdutton
+- upgrade slf4j to 2.0.7
+- upgrade logback to 1.4.6.
+- fixes #687 Return valid JSONPath (or JSONPointer) expressions for each ValidationMessage. Thanks @costas80
+- fixes #688 CI Bump used latest non-LTS Java: 19 -> 20. Thanks @valfirst
+
+## 1.0.79 - 2023-03-27
+
+### Added
+
+### Changed
+
+- add a doc for metaschema validation
+- fixes #682 Adds support for translating one URI into another. Thanks @fdutton
+- fixes #604 add disabled test case to reproduce the NPE.
+- fixes changing ReadOnlyValidator to use boolean property instead of array. Thanks @jorgesartori
+- fixes #679 Add option to disable uri schema cache in JsonSchemaFactory. Thanks @Kaaviyan
+- fixes #664 Avoid throwing exceptions and error-level logging. Thanks @CremboC
+- fixes #675 Update README.md file. Thanks @hcnicepink
+- fixes #672 add multiple language doc.
+- fixes #671 Support time offsets in the time format. Thanks @JDziurlaj
+
+
 ## 1.0.78 - 2023-03-04
 
 ### Added
