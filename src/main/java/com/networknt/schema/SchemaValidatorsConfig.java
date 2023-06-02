@@ -60,6 +60,12 @@ public class SchemaValidatorsConfig {
     private boolean losslessNarrowing;
 
     /**
+     * When set to true, "messages" provided in schema are used for forming validation errors
+     * else default messages are used
+     */
+    private boolean isCustomMessageSupported = true;
+
+    /**
      * When set to true, support for discriminators is enabled for validations of
      * oneOf, anyOf and allOf as described on <a href=
      * "https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">GitHub</a>.
@@ -223,6 +229,14 @@ public class SchemaValidatorsConfig {
 
     public void setJavaSemantics(boolean javaSemantics) {
         this.javaSemantics = javaSemantics;
+    }
+
+    public boolean isCustomMessageSupported() {
+        return isCustomMessageSupported;
+    }
+
+    public void setCustomMessageSupported(boolean customMessageSupported) {
+        this.isCustomMessageSupported = customMessageSupported;
     }
 
     public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {

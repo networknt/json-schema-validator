@@ -27,6 +27,11 @@ public class TestSpec {
     private final String comment;
 
     /**
+     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     */
+    private final Map<String, Object> config;
+
+    /**
      * The instance which should be validated against the schema in "schema".
      * (Required)
      */
@@ -107,6 +112,7 @@ public class TestSpec {
     public TestSpec(
         @JsonProperty("description") String description,
         @JsonProperty("comment") String comment,
+        @JsonProperty("config") Map<String, Object> config,
         @JsonProperty("data") JsonNode data,
         @JsonProperty("valid") boolean valid,
         @JsonProperty("strictness") Map<String, Boolean> strictness,
@@ -117,6 +123,7 @@ public class TestSpec {
     ) {
         this.description = description;
         this.comment = comment;
+        this.config = config;
         this.data = data;
         this.valid = valid;
         this.validationMessages = validationMessages;
@@ -157,6 +164,14 @@ public class TestSpec {
      */
     public String getComment() {
         return comment;
+    }
+
+
+    /**
+     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     */
+    public Map<String, Object> getConfig() {
+        return config;
     }
 
     /**

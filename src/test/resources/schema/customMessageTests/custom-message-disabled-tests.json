@@ -1,0 +1,124 @@
+[
+  {
+    "description": "Tests that validate custom message functionality doesn't work for keywords at any level, if validator config has isCustomMessageSupported set as false",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "array",
+          "maxItems": 3,
+          "items" : {
+            "type" : "number"
+          },
+          "message" : {
+            "maxItems" : "Custom Message: Maximum 3 numbers can be given in 'foo'",
+            "type" : "Custom Message: Only numbers are supported in 'foo'"
+          }
+        },
+        "bar": {
+          "type": "string"
+        }
+      },
+      "message": {
+        "type" : "Custom Message: Invalid type provided"
+      }
+    },
+    "tests": [
+      {
+        "description": "Basic Success Test 1",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [],
+          "bar": "Bar 1"
+        },
+        "valid": true
+      },
+      {
+        "description": "Basic Success Test 2",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2],
+          "bar": "Bar 1"
+        },
+        "valid": true
+      },
+      {
+        "description": "Custom error message for keyword failing at top level - type keyword",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2, 3],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.bar: integer found, string expected"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2, "text"],
+          "bar": "Bar 1"
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.foo[2]: string found, number expected"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at nested property level - maxItems keyword",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2, 3, 4],
+          "bar": "Bar 1"
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.foo: there must be a maximum of 3 items in the array"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2, "text"],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.foo[2]: string found, number expected",
+          "$.bar: integer found, string expected"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": false
+        },
+        "data": {
+          "foo": [1, 2, "text", 3],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.foo: there must be a maximum of 3 items in the array",
+          "$.foo[2]: string found, number expected",
+          "$.bar: integer found, string expected"
+        ]
+      }
+    ]
+  }
+]
