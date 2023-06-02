@@ -302,7 +302,7 @@ public class JsonSchema extends BaseJsonValidator {
     };
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
-        if (!this.validationContext.getConfig().isCustomMessageSupported()) {
+        if (this.validationContext.getConfig() != null && !this.validationContext.getConfig().isCustomMessageSupported()) {
             return null;
         }
         final JsonSchema parentSchema = getParentSchema();
