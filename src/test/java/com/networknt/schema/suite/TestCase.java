@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -53,10 +53,7 @@ public class TestCase {
      */
     private final String reason;
 
-    /**
-     * The location of the specification file containing this test-case.
-     */
-    private Path specification;
+    private TestSource source;
 
     /**
      * Constructs a new TestCase
@@ -92,15 +89,7 @@ public class TestCase {
      * @return the path to the specification
      */
     public Path getSpecification() {
-        return this.specification;
-    }
-
-    /**
-     * Sets the location of the specification file containing this test-case.
-     * @param specification the path to the specification
-     */
-    public void setSpecification(Path specification) {
-        this.specification = specification;
+        return this.source.getPath();
     }
 
     /**
@@ -133,14 +122,14 @@ public class TestCase {
      * Indicates whether this test-case should be executed
      */
     public boolean isDisabled() {
-        return this.disabled;
+        return this.disabled || this.source.isDisabled();
     }
 
     /**
      * Describes why this test is disabled.
      */
     public String getReason() {
-        return this.reason;
+        return this.disabled ? this.reason : this.source.getReason();
     }
 
     /**
@@ -148,6 +137,14 @@ public class TestCase {
      */
     public List<TestSpec> getTests() {
         return null != this.tests ? this.tests : Collections.emptyList();
+    }
+
+    public TestSource getSource() {
+        return this.source;
+    }
+
+    void setSource(TestSource source) {
+        this.source = source;
     }
 
 }

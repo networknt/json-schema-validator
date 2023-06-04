@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -151,7 +151,7 @@ public class TestSpec {
      * Changes the TestCase that contains this TestSpec.
      * @param testCase the owning TestCase
      */
-    public void setTestCase(TestCase testCase) {
+    void setTestCase(TestCase testCase) {
         this.testCase = testCase;
     }
 
@@ -182,14 +182,14 @@ public class TestSpec {
      * Indicates whether this test should be executed
      */
     public boolean isDisabled() {
-        return this.disabled;
+        return this.disabled || this.testCase.isDisabled();
     }
 
     /**
      * Describes why this test is disabled.
      */
     public String getReason() {
-        return this.reason;
+        return this.disabled ? this.reason : this.testCase.getReason();
     }
 
     /**

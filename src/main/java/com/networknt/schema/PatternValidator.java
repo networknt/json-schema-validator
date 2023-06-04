@@ -35,10 +35,10 @@ public class PatternValidator extends BaseJsonValidator {
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
         try {
-            this.compiledPattern = RegularExpression.compile(pattern, validationContext);
+            this.compiledPattern = RegularExpression.compile(this.pattern, validationContext);
         } catch (RuntimeException e) {
             e.setStackTrace(new StackTraceElement[0]);
-            logger.error("Failed to compile pattern '{}': {}", pattern, e.getMessage());
+            logger.error("Failed to compile pattern '{}': {}", this.pattern, e.getMessage());
             throw e;
         }
         this.validationContext = validationContext;
@@ -46,9 +46,10 @@ public class PatternValidator extends BaseJsonValidator {
     }
 
     private boolean matches(String value) {
-        return compiledPattern.matches(value);
+        return this.compiledPattern.matches(value);
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
@@ -59,10 +60,13 @@ public class PatternValidator extends BaseJsonValidator {
 
         try {
             if (!matches(node.asText())) {
-                return Collections.singleton(buildValidationMessage(at, pattern));
+                return Collections.singleton(buildValidationMessage(at, this.pattern));
             }
+        } catch (JsonSchemaException e) {
+            throw e;
         } catch (RuntimeException e) {
-            logger.error("Failed to apply pattern '{}' at {}: {}", pattern, at, e.getMessage());
+            logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, at, e.getMessage());
+            throw e;
         }
 
         return Collections.emptySet();
