@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,9 +45,15 @@ public class TestCase {
     private final boolean disabled;
 
     /**
-     * The location of the specification file containing this test-case.
+     * Describes why this test-case is disabled.
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
+     * </p>
      */
-    private Path specification;
+    private final String reason;
+
+    private TestSource source;
 
     /**
      * Constructs a new TestCase
@@ -63,12 +69,14 @@ public class TestCase {
         @JsonProperty("comment") String comment,
         @JsonProperty("schema") JsonNode schema,
         @JsonProperty("disabled") Boolean disabled,
+        @JsonProperty("reason") String reason,
         @JsonProperty("tests") List<TestSpec> tests
     ) {
         this.description = description;
         this.comment = comment;
         this.schema = schema;
         this.disabled = Boolean.TRUE.equals(disabled);
+        this.reason = reason;
 
         this.tests = tests;
         if (null != tests) {
@@ -81,22 +89,14 @@ public class TestCase {
      * @return the path to the specification
      */
     public Path getSpecification() {
-        return specification;
-    }
-
-    /**
-     * Sets the location of the specification file containing this test-case.
-     * @param specification the path to the specification
-     */
-    public void setSpecification(Path specification) {
-        this.specification = specification;
+        return this.source.getPath();
     }
 
     /**
      * The test case description (Required)
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public String getDisplayName() {
@@ -107,7 +107,7 @@ public class TestCase {
      * Any additional comments about the test case
      */
     public String getComment() {
-        return comment;
+        return this.comment;
     }
 
     /**
@@ -115,21 +115,36 @@ public class TestCase {
      * the file sits within). (Required)
      */
     public JsonNode getSchema() {
-        return schema;
+        return this.schema;
     }
 
     /**
      * Indicates whether this test-case should be executed
      */
     public boolean isDisabled() {
-        return disabled;
+        return this.disabled || this.source.isDisabled();
+    }
+
+    /**
+     * Describes why this test is disabled.
+     */
+    public String getReason() {
+        return this.disabled ? this.reason : this.source.getReason();
     }
 
     /**
      * A set of related tests all using the same schema (Required)
      */
     public List<TestSpec> getTests() {
-        return null != tests ? tests : Collections.emptyList();
+        return null != this.tests ? this.tests : Collections.emptyList();
+    }
+
+    public TestSource getSource() {
+        return this.source;
+    }
+
+    void setSource(TestSource source) {
+        this.source = source;
     }
 
 }

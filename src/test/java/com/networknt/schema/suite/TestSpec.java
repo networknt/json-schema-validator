@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,11 +25,6 @@ public class TestSpec {
      * Any additional comments about the test
      */
     private final String comment;
-
-    /**
-     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
-     */
-    private final Map<String, Object> config;
 
     /**
      * The instance which should be validated against the schema in "schema".
@@ -72,6 +67,15 @@ public class TestSpec {
     private final boolean disabled;
 
     /**
+     * Describes why this test is disabled.
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
+     * </p>
+     */
+    private final String reason;
+
+    /**
      * Indicates whether the test should consider a strict definition of an
      * enum. This is related to earlier versions of the OpenAPI specification
      * that did not faithfully follow the JSON Schema specification.
@@ -88,8 +92,19 @@ public class TestSpec {
 
     /**
      * Identifies the regular expression engine to use for this test-case.
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
      */
     private final RegexKind regex;
+
+    /**
+     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
+     */
+    private final Map<String, Object> config;
 
     /**
      * The TestCase that contains this TestSpec.
@@ -119,6 +134,7 @@ public class TestSpec {
         @JsonProperty("validationMessages") Set<String> validationMessages,
         @JsonProperty("isTypeLoose") Boolean isTypeLoose,
         @JsonProperty("disabled") Boolean disabled,
+        @JsonProperty("reason") String reason,
         @JsonProperty(value = "regex", defaultValue = "unspecified") RegexKind regex
     ) {
         this.description = description;
@@ -128,6 +144,7 @@ public class TestSpec {
         this.valid = valid;
         this.validationMessages = validationMessages;
         this.disabled = Boolean.TRUE.equals(disabled);
+        this.reason = reason;
         this.typeLoose = Boolean.TRUE.equals(isTypeLoose);
         this.regex = regex;
         if (null != strictness) {
@@ -140,14 +157,14 @@ public class TestSpec {
      * @return the owning TestCase
      */
     public TestCase getTestCase() {
-        return testCase;
+        return this.testCase;
     }
 
     /**
      * Changes the TestCase that contains this TestSpec.
      * @param testCase the owning TestCase
      */
-    public void setTestCase(TestCase testCase) {
+    void setTestCase(TestCase testCase) {
         this.testCase = testCase;
     }
 
@@ -156,14 +173,14 @@ public class TestSpec {
      * (Required)
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
      * Any additional comments about the test
      */
     public String getComment() {
-        return comment;
+        return this.comment;
     }
 
 
@@ -179,14 +196,21 @@ public class TestSpec {
      * (Required)
      */
     public JsonNode getData() {
-        return data;
+        return this.data;
     }
 
     /**
      * Indicates whether this test should be executed
      */
     public boolean isDisabled() {
-        return disabled;
+        return this.disabled || this.testCase.isDisabled();
+    }
+
+    /**
+     * Describes why this test is disabled.
+     */
+    public String getReason() {
+        return this.disabled ? this.reason : this.testCase.getReason();
     }
 
     /**
@@ -194,14 +218,14 @@ public class TestSpec {
      * valid or not (Required)
      */
     public boolean isValid() {
-        return valid;
+        return this.valid;
     }
 
     /**
      * @return A mapping of how strict a keyword's validators should be (never null).
      */
     public Map<String, Boolean> getStrictness() {
-        return strictness;
+        return this.strictness;
     }
 
     /**
@@ -213,7 +237,7 @@ public class TestSpec {
      * @return a non-null list of expected validation messages
      */
     public Set<String> getValidationMessages() {
-        return new HashSet<>(null != validationMessages ? validationMessages : Collections.emptySet());
+        return new HashSet<>(null != this.validationMessages ? this.validationMessages : Collections.emptySet());
     }
 
     /**
@@ -230,7 +254,7 @@ public class TestSpec {
      */
     @Deprecated
     public boolean isTypeLoose() {
-        return typeLoose;
+        return this.typeLoose;
     }
 
     public RegexKind getRegex() {

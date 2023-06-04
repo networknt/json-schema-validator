@@ -16,18 +16,18 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.suite.TestCase;
+import com.networknt.schema.suite.TestSource;
+import com.networknt.schema.suite.TestSpec;
 import com.networknt.schema.uri.URITranslator;
+
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -45,11 +45,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
+import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
-    protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() { /* intentionally empty */};
     protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
     static {
         supportedVersions.put("draft2019-09", VersionFlag.V201909);
@@ -72,24 +72,27 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return true;
     }
 
-    protected boolean enabled(TestCase testCase) {
-        return !testCase.isDisabled();
-    }
-
-    protected boolean enabled(TestSpec testSpec) {
-        return !testSpec.isDisabled();
+    protected Optional<String> reason(@SuppressWarnings("unused") Path path) {
+        return Optional.empty();
     }
 
     private Stream<DynamicNode> buildContainers(VersionFlag defaultVersion, Path path) {
-        return loadTestCases(path)
-            .map(testCase -> buildContainer(defaultVersion, testCase));
+        boolean disabled = !enabled(path);
+        String reason = reason(path).orElse("Unknown");
+        return TestSource.loadFrom(path, disabled, reason)
+            .map(testSource -> buildContainer(defaultVersion, testSource))
+            .orElse(Stream.empty());
+    }
+
+    private Stream<DynamicNode> buildContainer(VersionFlag defaultVersion, TestSource testSource) {
+        return testSource.getTestCases().stream().map(testCase -> buildContainer(defaultVersion, testCase));
     }
 
     private DynamicNode buildContainer(VersionFlag defaultVersion, TestCase testCase) {
         try {
             JsonSchemaFactory validatorFactory = buildValidatorFactory(defaultVersion, testCase);
 
-            return dynamicContainer(testCase.getDisplayName(), testCase.getTests().stream().filter(this::enabled).map(testSpec -> {
+            return dynamicContainer(testCase.getDisplayName(), testCase.getTests().stream().map(testSpec -> {
                 return buildTest(validatorFactory, testSpec);
             }));
         } catch (JsonSchemaException e) {
@@ -102,6 +105,8 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     }
 
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
+        if (testCase.isDisabled()) return null;
+
         VersionFlag specVersion = detectVersion(testCase, defaultVersion);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
@@ -115,6 +120,10 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     }
 
     private DynamicNode buildTest(JsonSchemaFactory validatorFactory, TestSpec testSpec) {
+        if (testSpec.isDisabled()) {
+            return dynamicTest(testSpec.getDescription(), () -> abortAndReset(testSpec.getReason()));
+        }
+
         // Configure the schemaValidator to set typeLoose's value based on the test file,
         // if test file do not contains typeLoose flag, use default value: false.
         @SuppressWarnings("deprecation") boolean typeLoose = testSpec.isTypeLoose();
@@ -161,6 +170,14 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
             .findAny();
     }
 
+    private void abortAndReset(String reason) {
+        try {
+            abort(reason);
+        } finally {
+            cleanup();
+        }
+    }
+
     private void executeAndReset(JsonSchema schema, TestSpec testSpec) {
         try {
             executeTest(schema, testSpec);
@@ -170,6 +187,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     }
 
     private static void executeTest(JsonSchema schema, TestSpec testSpec) {
+
         Set<ValidationMessage> errors = schema.validate(testSpec.getData());
 
         if (testSpec.isValid()) {
@@ -237,23 +255,8 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     private List<Path> findTestCases(String basePath) {
         try (Stream<Path> paths = Files.walk(Paths.get(basePath))) {
             return paths
-                .filter(this::enabled)
                 .filter(path -> path.toString().endsWith(".json"))
                 .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private Stream<TestCase> loadTestCases(Path testCaseFile) {
-        try (InputStream in = new FileInputStream(testCaseFile.toFile())) {
-            return this.mapper.readValue(in, testCaseType)
-                .stream()
-                .peek(testCase -> testCase.setSpecification(testCaseFile))
-                .filter(this::enabled);
-        } catch (MismatchedInputException e) {
-            System.err.append("Not a valid test case: ").println(testCaseFile);
-            return Stream.empty();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
