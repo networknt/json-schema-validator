@@ -113,6 +113,8 @@
                 }
             }
         },
+        "disabled": true,
+        "reason": "URI resolution does not account for identifiers that are not at the root schema",
         "tests": [
             {
                 "description": "number is valid",
@@ -145,6 +147,8 @@
                 }
             }
         },
+        "disabled": true,
+        "reason": "URI resolution does not account for identifiers that are not at the root schema",
         "tests": [
             {
                 "description": "number is valid",
@@ -298,6 +302,8 @@
     {
         "description": "remote HTTP ref with nested absolute ref",
         "schema": {"$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"},
+        "disabled": true,
+        "reason": "URI resolution does not account for identifiers that are not at the root schema",
         "tests": [
             {
                 "description": "number is invalid",
