@@ -17,8 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
-
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
@@ -46,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
 import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
@@ -133,6 +132,10 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         config.setTypeLoose(typeLoose);
         config.setEcma262Validator(TestSpec.RegexKind.JDK != testSpec.getRegex());
         testSpec.getStrictness().forEach(config::setStrict);
+        if (testSpec.getConfig() != null && testSpec.getConfig().containsKey("isCustomMessageSupported")) {
+            config.setCustomMessageSupported((Boolean) testSpec.getConfig().get("isCustomMessageSupported"));
+        }
+
         URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 

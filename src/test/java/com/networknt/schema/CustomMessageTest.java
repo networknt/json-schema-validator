@@ -12,9 +12,15 @@ import java.util.stream.Stream;
 public class CustomMessageTest extends AbstractJsonSchemaTestSuite {
 
     @TestFactory
-    @DisplayName("Draft 2019-09")
-    Stream<DynamicNode> draft201909() {
+    @DisplayName("Draft 2019-09 - Custom Messages Enabled")
+    Stream<DynamicNode> draft201909__customMessagesEnabled() {
         return createTests(VersionFlag.V201909, "src/test/resources/schema/customMessageTests/custom-message-tests.json");
+    }
+
+    @TestFactory
+    @DisplayName("Draft 2019-09 - Custom Messages Disabled")
+    Stream<DynamicNode> draft201909__customMessagesDisabled() {
+        return createTests(VersionFlag.V201909, "src/test/resources/schema/customMessageTests/custom-message-disabled-tests.json");
     }
 
 }
