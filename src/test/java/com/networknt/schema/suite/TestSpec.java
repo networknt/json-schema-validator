@@ -92,8 +92,19 @@ public class TestSpec {
 
     /**
      * Identifies the regular expression engine to use for this test-case.
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
      */
     private final RegexKind regex;
+
+    /**
+     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     * <p>
+     * This is an extension of the schema used to describe tests in the
+     * compliance suite
+     */
+    private final Map<String, Object> config;
 
     /**
      * The TestCase that contains this TestSpec.
@@ -116,6 +127,7 @@ public class TestSpec {
     public TestSpec(
         @JsonProperty("description") String description,
         @JsonProperty("comment") String comment,
+        @JsonProperty("config") Map<String, Object> config,
         @JsonProperty("data") JsonNode data,
         @JsonProperty("valid") boolean valid,
         @JsonProperty("strictness") Map<String, Boolean> strictness,
@@ -127,6 +139,7 @@ public class TestSpec {
     ) {
         this.description = description;
         this.comment = comment;
+        this.config = config;
         this.data = data;
         this.valid = valid;
         this.validationMessages = validationMessages;
@@ -168,6 +181,14 @@ public class TestSpec {
      */
     public String getComment() {
         return this.comment;
+    }
+
+
+    /**
+     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     */
+    public Map<String, Object> getConfig() {
+        return config;
     }
 
     /**
