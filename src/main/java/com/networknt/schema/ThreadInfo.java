@@ -17,19 +17,23 @@ package com.networknt.schema;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class ThreadInfo {
 
     private static ThreadLocal<Map<String, Object>> threadLocal = new ThreadLocal<Map<String, Object>>() {
+        @Override
         protected java.util.Map<String, Object> initialValue() {
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
-
-        ;
     };
 
     public static Object get(String key) {
         return threadLocal.get().get(key);
+    }
+
+    public static Object computeIfAbsent(String key, Function<String, ?> mappingFunction) {
+        return threadLocal.get().computeIfAbsent(key, mappingFunction);
     }
 
     public static void set(String key, Object value) {

@@ -15,10 +15,13 @@
  */
 package com.networknt.schema;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,9 +53,17 @@ public class CollectorContext {
     private Map<String, Object> collectorLoadMap = new HashMap<>();
 
     private final Deque<Scope> dynamicScopes = new LinkedList<>();
+    private final boolean disableUnevaluatedItems;
+    private final boolean disableUnevaluatedProperties;
 
-    CollectorContext() {
-        this.dynamicScopes.push(new Scope());
+    public CollectorContext() {
+        this(false, false);
+    }
+
+    public CollectorContext(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+        this.disableUnevaluatedItems = disableUnevaluatedItems;
+        this.disableUnevaluatedProperties = disableUnevaluatedProperties;
+        this.dynamicScopes.push(newScope());
     }
 
     /**
@@ -61,7 +72,7 @@ public class CollectorContext {
      */
     public Scope enterDynamicScope() {
         Scope parent = this.dynamicScopes.peek();
-        this.dynamicScopes.push(new Scope());
+        this.dynamicScopes.push(newScope());
         return parent;
     }
 
@@ -176,7 +187,7 @@ public class CollectorContext {
         this.collectorMap = new HashMap<>();
         this.collectorLoadMap = new HashMap<>();
         this.dynamicScopes.clear();
-        this.dynamicScopes.push(new Scope());
+        this.dynamicScopes.push(newScope());
     }
 
     /**
@@ -193,17 +204,52 @@ public class CollectorContext {
 
     }
 
+    private Scope newScope() {
+        return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+    }
+
     public static class Scope {
 
         /**
          * Used to track which array items have been evaluated.
          */
-        private final Collection<String> evaluatedItems = new ArrayList<>();
+        private final Collection<String> evaluatedItems;
 
         /**
          * Used to track which properties have been evaluated.
          */
-        private final Collection<String> evaluatedProperties = new ArrayList<>();
+        private final Collection<String> evaluatedProperties;
+
+        Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+            this.evaluatedItems = newCollection(disableUnevaluatedItems);
+            this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
+        }
+
+        private static Collection<String> newCollection(boolean disabled) {
+            return !disabled ? new ArrayList<>() : new AbstractCollection<String>() {
+
+                @Override
+                public boolean add(String e) {
+                    return false;
+                }
+
+                @Override
+                public Iterator<String> iterator() {
+                    return Collections.emptyIterator();
+                }
+
+                @Override
+                public boolean remove(Object o) {
+                    return false;
+                }
+
+                @Override
+                public int size() {
+                    return 0;
+                }
+
+            };
+        }
 
         /**
          * Identifies which array items have been evaluated.

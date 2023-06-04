@@ -32,39 +32,46 @@ public class TypeValidator extends BaseJsonValidator {
 
     public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
-        schemaType = TypeFactory.getSchemaNodeType(schemaNode);
+        this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         this.parentSchema = parentSchema;
         this.validationContext = validationContext;
-        if (schemaType == JsonType.UNION) {
-            unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
+        if (this.schemaType == JsonType.UNION) {
+            this.unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public JsonType getSchemaType() {
-        return schemaType;
+        return this.schemaType;
     }
 
     public boolean equalsToSchemaType(JsonNode node) {
-        return JsonNodeUtil.equalsToSchemaType(node,schemaType, parentSchema, validationContext);
+        return JsonNodeUtil.equalsToSchemaType(node,this.schemaType, this.parentSchema, this.validationContext);
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        if (schemaType == JsonType.UNION) {
-            return unionTypeValidator.validate(node, rootNode, at);
+        if (this.schemaType == JsonType.UNION) {
+            return this.unionTypeValidator.validate(node, rootNode, at);
         }
 
         if (!equalsToSchemaType(node)) {
-            JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
-            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), schemaType.toString()));
+            JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
+            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), this.schemaType.toString()));
         }
+
+        // TODO: Is this really necessary?
         // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
         // Hack to catch patternProperties like "^foo":"value"
-        if (schemaPath.endsWith("/type")) {
-            CollectorContext.getInstance().getEvaluatedProperties().add(at);
+        if (this.schemaPath.endsWith("/type")) {
+            if (rootNode.isArray()) {
+                CollectorContext.getInstance().getEvaluatedItems().add(at);
+            } else if (rootNode.isObject()) {
+                CollectorContext.getInstance().getEvaluatedProperties().add(at);
+            }
         }
         return Collections.emptySet();
     }

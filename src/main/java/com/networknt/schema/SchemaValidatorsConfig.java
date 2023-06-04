@@ -81,7 +81,7 @@ public class SchemaValidatorsConfig {
      * URLs. This is merged with any mappings the {@link JsonSchemaFactory} may have
      * been built with.
      */
-    private Map<String, String> uriMappings = new HashMap<String, String>();
+    private Map<String, String> uriMappings = new HashMap<>();
 
     private CompositeURITranslator uriTranslators = new CompositeURITranslator();
 
@@ -116,11 +116,11 @@ public class SchemaValidatorsConfig {
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
 
-    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<String, List<JsonSchemaWalkListener>>();
+    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap = new HashMap<>();
 
-    private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    private final List<JsonSchemaWalkListener> propertyWalkListeners = new ArrayList<>();
 
-    private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<JsonSchemaWalkListener>();
+    private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
 
     private CollectorContext collectorContext;
 
@@ -138,8 +138,64 @@ public class SchemaValidatorsConfig {
     private ResourceBundle resourceBundle;
     private ResourceBundle resourceBundleToUse;
 
+    /************************ START OF UNEVALUATED CHECKS **********************************/
+
+    // These are costly in terms of performance so we provide a way to disable them.
+    private boolean disableUnevaluatedItems = false;
+    private boolean disableUnevaluatedProperties = false;
+
+    public SchemaValidatorsConfig disableUnevaluatedAnalysis() {
+        disableUnevaluatedItems();
+        disableUnevaluatedProperties();
+        return this;
+    }
+
+    public SchemaValidatorsConfig disableUnevaluatedItems() {
+        this.disableUnevaluatedItems = true;
+        return this;
+    }
+
+    public SchemaValidatorsConfig disableUnevaluatedProperties() {
+        this.disableUnevaluatedProperties = true;
+        return this;
+    }
+
+    public SchemaValidatorsConfig enableUnevaluatedAnalysis() {
+        enableUnevaluatedItems();
+        enableUnevaluatedProperties();
+        return this;
+    }
+
+    public SchemaValidatorsConfig enableUnevaluatedItems() {
+        this.disableUnevaluatedItems = false;
+        return this;
+    }
+
+    public SchemaValidatorsConfig enableUnevaluatedProperties() {
+        this.disableUnevaluatedProperties = false;
+        return this;
+    }
+
+    public boolean isUnevaluatedItemsAnalysisDisabled() {
+        return this.disableUnevaluatedItems;
+    }
+
+    public boolean isUnevaluatedItemsAnalysisEnabled() {
+        return !isUnevaluatedItemsAnalysisDisabled();
+    }
+
+    public boolean isUnevaluatedPropertiesAnalysisDisabled() {
+        return this.disableUnevaluatedProperties;
+    }
+
+    public boolean isUnevaluatedPropertiesAnalysisEnabled() {
+        return !isUnevaluatedPropertiesAnalysisDisabled();
+    }
+
+    /************************ END OF UNEVALUATED CHECKS **********************************/
+
     public boolean isTypeLoose() {
-        return typeLoose;
+        return this.typeLoose;
     }
 
     public void setTypeLoose(boolean typeLoose) {
@@ -168,7 +224,7 @@ public class SchemaValidatorsConfig {
     }
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
-        return applyDefaultsStrategy;
+        return this.applyDefaultsStrategy;
     }
 
     public CompositeURITranslator getUriTranslator() {
@@ -189,7 +245,7 @@ public class SchemaValidatorsConfig {
     @Deprecated
     public Map<String, String> getUriMappings() {
         // return a copy of the mappings
-        return new HashMap<String, String>(uriMappings);
+        return new HashMap<>(this.uriMappings);
     }
 
     /**
@@ -202,7 +258,7 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isHandleNullableField() {
-        return handleNullableField;
+        return this.handleNullableField;
     }
 
     public void setHandleNullableField(boolean handleNullableField) {
@@ -210,7 +266,7 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isEcma262Validator() {
-        return ecma262Validator;
+        return this.ecma262Validator;
     }
 
     public void setEcma262Validator(boolean ecma262Validator) {
@@ -218,7 +274,7 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isJavaSemantics() {
-        return javaSemantics;
+        return this.javaSemantics;
     }
 
     public void setJavaSemantics(boolean javaSemantics) {
@@ -226,35 +282,35 @@ public class SchemaValidatorsConfig {
     }
 
     public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
-        if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-            List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
-            keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListeners);
+        if (this.keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
+            List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<>();
+            this.keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListeners);
         }
-        keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).add(keywordWalkListener);
+        this.keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).add(keywordWalkListener);
     }
 
     public void addKeywordWalkListener(String keyword, JsonSchemaWalkListener keywordWalkListener) {
-        if (keywordWalkListenersMap.get(keyword) == null) {
-            List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
-            keywordWalkListenersMap.put(keyword, keywordWalkListeners);
+        if (this.keywordWalkListenersMap.get(keyword) == null) {
+            List<JsonSchemaWalkListener> keywordWalkListeners = new ArrayList<>();
+            this.keywordWalkListenersMap.put(keyword, keywordWalkListeners);
         }
-        keywordWalkListenersMap.get(keyword).add(keywordWalkListener);
+        this.keywordWalkListenersMap.get(keyword).add(keywordWalkListener);
     }
 
     public void addKeywordWalkListeners(List<JsonSchemaWalkListener> keywordWalkListeners) {
-        if (keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
-            List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
-            keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, ikeywordWalkListeners);
+        if (this.keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY) == null) {
+            List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<>();
+            this.keywordWalkListenersMap.put(ALL_KEYWORD_WALK_LISTENER_KEY, ikeywordWalkListeners);
         }
-        keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).addAll(keywordWalkListeners);
+        this.keywordWalkListenersMap.get(ALL_KEYWORD_WALK_LISTENER_KEY).addAll(keywordWalkListeners);
     }
 
     public void addKeywordWalkListeners(String keyword, List<JsonSchemaWalkListener> keywordWalkListeners) {
-        if (keywordWalkListenersMap.get(keyword) == null) {
-            List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<JsonSchemaWalkListener>();
-            keywordWalkListenersMap.put(keyword, ikeywordWalkListeners);
+        if (this.keywordWalkListenersMap.get(keyword) == null) {
+            List<JsonSchemaWalkListener> ikeywordWalkListeners = new ArrayList<>();
+            this.keywordWalkListenersMap.put(keyword, ikeywordWalkListeners);
         }
-        keywordWalkListenersMap.get(keyword).addAll(keywordWalkListeners);
+        this.keywordWalkListenersMap.get(keyword).addAll(keywordWalkListeners);
     }
 
     public void addPropertyWalkListeners(List<JsonSchemaWalkListener> propertyWalkListeners) {
@@ -289,7 +345,7 @@ public class SchemaValidatorsConfig {
     }
 
     public CollectorContext getCollectorContext() {
-        return collectorContext;
+        return this.collectorContext;
     }
 
     public void setCollectorContext(CollectorContext collectorContext) {
@@ -297,7 +353,7 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isLosslessNarrowing() {
-        return losslessNarrowing;
+        return this.losslessNarrowing;
     }
 
     public void setLosslessNarrowing(boolean losslessNarrowing) {
@@ -311,7 +367,7 @@ public class SchemaValidatorsConfig {
      * @since 1.0.51
      */
     public boolean isOpenAPI3StyleDiscriminators() {
-        return openAPI3StyleDiscriminators;
+        return this.openAPI3StyleDiscriminators;
     }
 
     /**
@@ -356,11 +412,11 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean doLoadCollectors() {
-        return loadCollectors;
+        return this.loadCollectors;
     }
 
     public boolean isResetCollectorContext() {
-        return resetCollectorContext;
+        return this.resetCollectorContext;
     }
 
     public void setResetCollectorContext(boolean resetCollectorContext) {
@@ -368,7 +424,7 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isWriteMode() {
-        return writeMode;
+        return this.writeMode;
     }
 
     /**
@@ -396,7 +452,7 @@ public class SchemaValidatorsConfig {
      * @return The path generation approach.
      */
     public PathType getPathType() {
-        return pathType;
+        return this.pathType;
     }
 
     /**
@@ -432,7 +488,7 @@ public class SchemaValidatorsConfig {
      * @return The locale.
      */
     public Locale getLocale() {
-        return locale;
+        return this.locale;
     }
 
     /**
@@ -454,18 +510,18 @@ public class SchemaValidatorsConfig {
      * @return The resource bundle.
      */
     public ResourceBundle getResourceBundle() {
-        if (resourceBundleToUse == null) {
+        if (this.resourceBundleToUse == null) {
             // Load and cache the resource bundle to use.
-            resourceBundleToUse = resourceBundle;
-            if (resourceBundleToUse == null) {
-                if (locale == null) {
-                    resourceBundleToUse = I18nSupport.DEFAULT_RESOURCE_BUNDLE;
+            this.resourceBundleToUse = this.resourceBundle;
+            if (this.resourceBundleToUse == null) {
+                if (this.locale == null) {
+                    this.resourceBundleToUse = I18nSupport.DEFAULT_RESOURCE_BUNDLE;
                 } else {
-                    resourceBundleToUse = ResourceBundle.getBundle(I18nSupport.DEFAULT_BUNDLE_BASE_NAME, locale);
+                    this.resourceBundleToUse = ResourceBundle.getBundle(I18nSupport.DEFAULT_BUNDLE_BASE_NAME, this.locale);
                 }
             }
         }
-        return resourceBundleToUse;
+        return this.resourceBundleToUse;
     }
 
     /**
