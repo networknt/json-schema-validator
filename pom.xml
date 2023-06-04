@@ -299,7 +299,14 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.8</version>
+        <version>0.8.10</version>
+
+        <configuration>
+          <excludes>
+            <exclude>com/networknt/org/apache/commons/validator/**</exclude>
+          </excludes>
+        </configuration>
+
         <executions>
           <!--
            | Prepares the property pointing to the JaCoCo runtime agent
@@ -398,8 +405,11 @@
                   <module>
                     <moduleInfo>
                       <name>com.networknt.schema</name>
-                      <!-- export everything -->
-                      <exports>*;</exports>
+                      <!-- export everything except embedded Apache code -->
+                      <exports>
+                        !com.networknt.org*;
+                        *;
+                      </exports>
                       <!-- declare services consumed by the artifact -->
                       <addServiceUses>true</addServiceUses>
                     </moduleInfo>
