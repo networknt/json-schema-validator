@@ -75,7 +75,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/id.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/ref.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/refRemote.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"), "Unsupported behavior");
     }
 
@@ -85,7 +84,6 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/id.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/recursiveRef.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/ref.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/refRemote.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"), "Unsupported behavior");
     }
 
@@ -94,17 +92,14 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
         this.disabled.put(Paths.get("src/test/suite/tests/draft7/defs.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft7/optional/content.json"), "Unsupported behavior");
         this.disabled.put(Paths.get("src/test/suite/tests/draft7/ref.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft7/refRemote.json"), "Unsupported behavior");
     }
 
     private void disableV6Tests() {
         this.disabled.put(Paths.get("src/test/suite/tests/draft6/ref.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft6/refRemote.json"), "Unsupported behavior");
    }
 
     private void disableV4Tests() {
         this.disabled.put(Paths.get("src/test/suite/tests/draft4/ref.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft4/refRemote.json"), "Unsupported behavior");
     }
 
 }
