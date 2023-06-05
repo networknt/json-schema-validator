@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,25 +62,9 @@ public class IfValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
 
-        // As if-then-else might contain multiple schemas take a backup of evaluated stuff.
-        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        Collection<String> ifEvaluatedItems = Collections.emptyList();
-        Collection<String> ifEvaluatedProperties = Collections.emptyList();
-
-        Collection<String> thenEvaluatedItems = Collections.emptyList();
-        Collection<String> thenEvaluatedProperties = Collections.emptyList();
-
-        Collection<String> elseEvaluatedItems = Collections.emptyList();
-        Collection<String> elseEvaluatedProperties = Collections.emptyList();
-
-        // Make the evaluated lists empty.
-        collectorContext.resetEvaluatedItems();
-        collectorContext.resetEvaluatedProperties();
-
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
+        Scope parentScope = collectorContext.enterDynamicScope();
         boolean ifConditionPassed = false;
         try {
             try {
@@ -88,48 +74,21 @@ public class IfValidator extends BaseJsonValidator {
                 // An exception means the condition failed
                 ifConditionPassed = false;
             }
-            // Evaluated stuff from if.
-            ifEvaluatedItems = collectorContext.getEvaluatedItems();
-            ifEvaluatedProperties = collectorContext.getEvaluatedProperties();
 
             if (ifConditionPassed && this.thenSchema != null) {
-
-                // Make the evaluated lists empty.
-                collectorContext.resetEvaluatedItems();
-                collectorContext.resetEvaluatedProperties();
-
                 errors.addAll(this.thenSchema.validate(node, rootNode, at));
-
-                // Collect the then evaluated stuff.
-                thenEvaluatedItems = collectorContext.getEvaluatedItems();
-                thenEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
             } else if (!ifConditionPassed && this.elseSchema != null) {
-
-                // Make the evaluated lists empty.
-                collectorContext.resetEvaluatedItems();
-                collectorContext.resetEvaluatedProperties();
+                // discard ifCondition results
+                collectorContext.exitDynamicScope();
+                collectorContext.enterDynamicScope();
 
                 errors.addAll(this.elseSchema.validate(node, rootNode, at));
-
-                // Collect the else evaluated stuff.
-                elseEvaluatedItems = collectorContext.getEvaluatedItems();
-                elseEvaluatedProperties = collectorContext.getEvaluatedProperties();
             }
 
         } finally {
-            collectorContext.setEvaluatedItems(backupEvaluatedItems);
-            collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+            Scope scope = collectorContext.exitDynamicScope();
             if (errors.isEmpty()) {
-                // If the "if" keyword condition is passed then only add if stuff as evaluated.
-                if (ifConditionPassed) {
-                    collectorContext.getEvaluatedItems().addAll(ifEvaluatedItems);
-                    collectorContext.getEvaluatedProperties().addAll(ifEvaluatedProperties);
-                }
-                collectorContext.getEvaluatedItems().addAll(thenEvaluatedItems);
-                collectorContext.getEvaluatedItems().addAll(elseEvaluatedItems);
-                collectorContext.getEvaluatedProperties().addAll(thenEvaluatedProperties);
-                collectorContext.getEvaluatedProperties().addAll(elseEvaluatedProperties);
+                parentScope.mergeWith(scope);
             }
         }
 

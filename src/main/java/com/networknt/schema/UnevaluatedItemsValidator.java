@@ -21,20 +21,25 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.JsonNodeUtil;
 
 public class UnevaluatedItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedItemsValidator.class);
 
     private final JsonSchema schema;
+    private final boolean disabled;
 
     public UnevaluatedItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS, validationContext);
 
+        this.disabled = validationContext.getConfig().isUnevaluatedItemsAnalysisDisabled();
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
         } else {
@@ -44,38 +49,70 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        if (this.disabled) return Collections.emptySet();
+
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
 
-        Set<String> allPaths = allPaths(node, at);
-        Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
+        collectorContext.exitDynamicScope();
+        try {
+            Set<String> allPaths = allPaths(node, at);
 
-        Set<String> failingPaths = new HashSet<>();
-        unevaluatedPaths.forEach(path -> {
-            String pointer = getPathType().convertToJsonPointer(path);
-            JsonNode property = rootNode.at(pointer);
-            if (!this.schema.validate(property, rootNode, path).isEmpty()) {
-                failingPaths.add(path);
+            // Short-circuit since schema is 'true'
+            if (super.schemaNode.isBoolean() && super.schemaNode.asBoolean()) {
+                collectorContext.getEvaluatedItems().addAll(allPaths);
+                return Collections.emptySet();
             }
-        });
 
-        if (failingPaths.isEmpty()) {
-            collectorContext.getEvaluatedItems().addAll(allPaths);
-        } else {
-            List<String> paths = new ArrayList<>(failingPaths);
-            paths.sort(String.CASE_INSENSITIVE_ORDER);
-            return Collections.singleton(buildValidationMessage(String.join(", ", paths)));
+            Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
+
+            // Short-circuit since schema is 'false'
+            if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
+                return reportUnevaluatedPaths(unevaluatedPaths);
+            }
+
+            Set<String> failingPaths = new HashSet<>();
+            unevaluatedPaths.forEach(path -> {
+                String pointer = getPathType().convertToJsonPointer(path);
+                JsonNode property = rootNode.at(pointer);
+                if (!this.schema.validate(property, rootNode, path).isEmpty()) {
+                    failingPaths.add(path);
+                }
+            });
+
+            if (failingPaths.isEmpty()) {
+                collectorContext.getEvaluatedItems().addAll(allPaths);
+            } else {
+                return reportUnevaluatedPaths(failingPaths);
+            }
+
+            return Collections.emptySet();
+        } finally {
+            collectorContext.enterDynamicScope();
         }
-
-        return Collections.emptySet();
     }
 
+    private static final Pattern NUMERIC = Pattern.compile("^\\d+$");
+
     private Set<String> allPaths(JsonNode node, String at) {
-        Set<String> results = new HashSet<>();
-        for (int i = 0; i < node.size(); ++i) {
-            results.add(atPath(at, i));
-        }
-        return results;
+        return JsonNodeUtil.allPaths(getPathType(), at, node)
+            .stream()
+            .filter(this::isArray)
+            .collect(Collectors.toSet());
+    }
+
+    private boolean isArray(String path) {
+        String jsonPointer = getPathType().convertToJsonPointer(path);
+        String[] segment = jsonPointer.split("/");
+        if (0 == segment.length) return false;
+        String lastSegment = segment[segment.length - 1];
+        return NUMERIC.matcher(lastSegment).matches();
+    }
+
+    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths) {
+        List<String> paths = new ArrayList<>(unevaluatedPaths);
+        paths.sort(String.CASE_INSENSITIVE_ORDER);
+        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths)));
     }
 
     private static Set<String> unevaluatedPaths(Set<String> allPaths) {

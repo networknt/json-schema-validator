@@ -81,11 +81,11 @@ public class UriMappingTest {
         } catch (JsonSchemaException ex) {
             Throwable cause = ex.getCause();
             if (!(cause instanceof FileNotFoundException || cause instanceof UnknownHostException)) {
-                fail("Unexpected cause for JsonSchemaException");
+                fail("Unexpected cause for JsonSchemaException", ex);
             }
             // passing, so do nothing
         } catch (Exception ex) {
-            fail("Unexpected exception thrown");
+            fail("Unexpected exception thrown", ex);
         }
         URL mappings = ClasspathURLFactory.convert(
                 this.classpathURLFactory.create("resource:draft4/extra/uri_mapping/invalid-schema-uri.json"));

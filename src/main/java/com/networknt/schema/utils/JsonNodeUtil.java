@@ -1,8 +1,12 @@
 package com.networknt.schema.utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonType;
+import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.SpecVersionDetector;
@@ -16,6 +20,37 @@ public class JsonNodeUtil {
     private static final String ENUM = "enum";
     private static final String REF = "$ref";
     private static final String NULLABLE = "nullable";
+
+    public static Collection<String> allPaths(PathType pathType, String root, JsonNode node) {
+        Collection<String> collector = new ArrayList<>();
+        visitNode(pathType, root, node, collector);
+        return collector;
+    }
+
+    private static void visitNode(PathType pathType, String root, JsonNode node, Collection<String> collector) {
+        if (node.isObject()) {
+            visitObject(pathType, root, node, collector);
+        } else if (node.isArray()) {
+            visitArray(pathType, root, node, collector);
+        }
+    }
+
+    private static void visitArray(PathType pathType, String root, JsonNode node, Collection<String> collector) {
+        int size = node.size();
+        for (int i = 0; i < size; ++i) {
+            String path = pathType.append(root, i);
+            collector.add(path);
+            visitNode(pathType, path, node.get(i), collector);
+        }
+    }
+
+    private static void visitObject(PathType pathType, String root, JsonNode node, Collection<String> collector) {
+        node.fields().forEachRemaining(entry -> {
+            String path = pathType.append(root, entry.getKey());
+            collector.add(path);
+            visitNode(pathType, path, entry.getValue(), collector);
+        });
+    }
 
     public static boolean isNodeNullable(JsonNode schema){
         JsonNode nullable = schema.get(NULLABLE);

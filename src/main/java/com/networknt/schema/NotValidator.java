@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +41,7 @@ public class NotValidator extends BaseJsonValidator {
         CollectorContext collectorContext = CollectorContext.getInstance();
         Set<ValidationMessage> errors = new HashSet<>();
 
-        // As not will contain a schema take a backup of evaluated stuff.
-        Collection<String> backupEvaluatedItems = collectorContext.getEvaluatedItems();
-        Collection<String> backupEvaluatedProperties = collectorContext.getEvaluatedProperties();
-
-        // Make the evaluated lists empty.
-        collectorContext.resetEvaluatedItems();
-        collectorContext.resetEvaluatedProperties();
-
+        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, at);
             errors = this.schema.validate(node, rootNode, at);
@@ -55,12 +50,9 @@ public class NotValidator extends BaseJsonValidator {
             }
             return Collections.emptySet();
         } finally {
+            Scope scope = collectorContext.exitDynamicScope();
             if (errors.isEmpty()) {
-                collectorContext.getEvaluatedItems().addAll(backupEvaluatedItems);
-                collectorContext.getEvaluatedProperties().addAll(backupEvaluatedProperties);
-            } else {
-                collectorContext.setEvaluatedItems(backupEvaluatedItems);
-                collectorContext.setEvaluatedProperties(backupEvaluatedProperties);
+                parentScope.mergeWith(scope);
             }
         }
     }

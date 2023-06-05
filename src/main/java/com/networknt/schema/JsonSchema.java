@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
@@ -30,8 +31,6 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -39,7 +38,6 @@ import java.util.regex.Pattern;
  * constructed, it can be used to validate multiple json data concurrently.
  */
 public class JsonSchema extends BaseJsonValidator {
-    private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
     private Map<String, JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
@@ -195,27 +193,21 @@ public class JsonSchema extends BaseJsonValidator {
         JsonSchema schema = findAncestor();
         JsonNode node = schema.getSchemaNode();
 
-        if (ref.startsWith("#/")) {
-            // handle local ref
-            String[] keys = ref.substring(2).split("/");
-            for (String key : keys) {
-                try {
-                    key = URLDecoder.decode(key, "utf-8");
-                } catch (UnsupportedEncodingException e) {
-                    // ignored
-                }
-                Matcher matcher = intPattern.matcher(key);
-                if (matcher.matches()) {
-                    node = node.get(Integer.parseInt(key));
-                } else {
-                    node = node.get(key);
-                }
-                if (node == null) {
-                    node = handleNullNode(ref, schema);
-                }
-                if (node == null) {
-                    break;
-                }
+        String jsonPointer = ref;
+        if (jsonPointer.startsWith("#/")) {
+            jsonPointer = ref.substring(1);
+        }
+
+        if (jsonPointer.startsWith("/")) {
+            try {
+                jsonPointer = URLDecoder.decode(jsonPointer, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                // ignored
+            }
+
+            node = node.at(jsonPointer);
+            if (node.isMissingNode()) {
+                node = handleNullNode(ref, schema);
             }
         } else if (ref.startsWith("#") && ref.length() > 1) {
             node = this.metaSchema.getNodeByFragmentRef(ref, node);
@@ -223,6 +215,7 @@ public class JsonSchema extends BaseJsonValidator {
                 node = handleNullNode(ref, schema);
             }
         }
+
         return node;
     }
 
@@ -347,11 +340,29 @@ public class JsonSchema extends BaseJsonValidator {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
-        getCollectorContext();
+        CollectorContext collectorContext = getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
         for (JsonValidator v : getValidators().values()) {
-            errors.addAll(v.validate(jsonNode, rootNode, at));
+            Set<ValidationMessage> results = Collections.emptySet();
+
+            Scope parentScope = collectorContext.enterDynamicScope();
+            try {
+                results = v.validate(jsonNode, rootNode, at);
+            } finally {
+                Scope scope = collectorContext.exitDynamicScope();
+                if (results.isEmpty()) {
+                    parentScope.mergeWith(scope);
+                } else {
+                    errors.addAll(results);
+                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                    }
+                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator || v instanceof PatternPropertiesValidator) {
+                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                    }
+                }
+            }
         }
 
         if (null != config && config.isOpenAPI3StyleDiscriminators()) {
@@ -521,19 +532,15 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public CollectorContext getCollectorContext() {
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
-        CollectorContext collectorContext = (CollectorContext) ThreadInfo
-                .get(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
-        if (collectorContext == null) {
-            if (config != null && config.getCollectorContext() != null) {
-                collectorContext = config.getCollectorContext();
-            } else {
-                collectorContext = new CollectorContext();
-            }
-            // Set the collector context in thread info, this is unique for every thread.
-            ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
-        }
-        return collectorContext;
+        return (CollectorContext) ThreadInfo.computeIfAbsent(
+            CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY,
+            k -> Optional.ofNullable(this.validationContext.getConfig())
+                .map(SchemaValidatorsConfig::getCollectorContext)
+                .orElseGet(() -> Optional.ofNullable(this.validationContext.getConfig())
+                    .map(config -> new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(), config.isUnevaluatedPropertiesAnalysisDisabled()))
+                    .orElseGet(() -> new CollectorContext(false, false))
+                )
+        );
     }
 
     @Override

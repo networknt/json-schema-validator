@@ -55,7 +55,7 @@ public class PropertiesValidator extends BaseJsonValidator implements JsonValida
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
-                collectorContext.getEvaluatedProperties().add(atPath(at, entry.getKey()));
+                collectorContext.getEvaluatedProperties().add(atPath(at, entry.getKey())); // TODO: This should happen after validation
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
