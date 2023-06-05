@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
@@ -38,6 +39,8 @@ import java.util.*;
  * constructed, it can be used to validate multiple json data concurrently.
  */
 public class JsonSchema extends BaseJsonValidator {
+    private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
+
     private Map<String, JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
@@ -252,6 +255,8 @@ public class JsonSchema extends BaseJsonValidator {
                 validators.put(getSchemaPath() + "/false", validator);
             }
         } else {
+            JsonValidator refValidator = null;
+
             Iterator<String> pnames = schemaNode.fieldNames();
             while (pnames.hasNext()) {
                 String pname = pnames.next();
@@ -261,6 +266,10 @@ public class JsonSchema extends BaseJsonValidator {
                 JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
                 if (validator != null) {
                     validators.put(getSchemaPath() + "/" + pname, validator);
+
+                    if ("$ref".equals(pname)) {
+                        refValidator = validator;
+                    }
 
                     if ("required".equals(pname)) {
                         this.requiredValidator = validator;
@@ -272,8 +281,22 @@ public class JsonSchema extends BaseJsonValidator {
                 }
 
             }
+
+            // Ignore siblings for older drafts
+            if (null != refValidator && activeDialect() < V201909_VALUE) {
+                validators.clear();
+                validators.put(getSchemaPath() + "/$ref", refValidator);
+            }
         }
+
         return validators;
+    }
+
+    private long activeDialect() {
+        return this.validationContext
+            .activeDialect()
+            .map(VersionFlag::getVersionFlagValue)
+            .orElse(Long.MAX_VALUE);
     }
 
     /**
