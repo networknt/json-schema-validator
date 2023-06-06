@@ -63,7 +63,7 @@ public class CollectorContext {
     public CollectorContext(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
         this.disableUnevaluatedItems = disableUnevaluatedItems;
         this.disableUnevaluatedProperties = disableUnevaluatedProperties;
-        this.dynamicScopes.push(newScope());
+        this.dynamicScopes.push(newTopScope());
     }
 
     /**
@@ -187,7 +187,7 @@ public class CollectorContext {
         this.collectorMap = new HashMap<>();
         this.collectorLoadMap = new HashMap<>();
         this.dynamicScopes.clear();
-        this.dynamicScopes.push(newScope());
+        this.dynamicScopes.push(newTopScope());
     }
 
     /**
@@ -208,6 +208,10 @@ public class CollectorContext {
         return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
     }
 
+    private Scope newTopScope() {
+        return new Scope(true, this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+    }
+
     public static class Scope {
 
         /**
@@ -220,7 +224,14 @@ public class CollectorContext {
          */
         private final Collection<String> evaluatedProperties;
 
+        private final boolean top;
+
         Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+            this(false, disableUnevaluatedItems, disableUnevaluatedProperties);
+        }
+
+        Scope(boolean top, boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+            this.top = top;
             this.evaluatedItems = newCollection(disableUnevaluatedItems);
             this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
         }
@@ -249,6 +260,10 @@ public class CollectorContext {
                 }
 
             };
+        }
+
+        public boolean isTop() {
+            return this.top;
         }
 
         /**
