@@ -318,7 +318,7 @@ public class JsonSchema extends BaseJsonValidator {
     };
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
-        if (this.validationContext.getConfig() != null && !this.validationContext.getConfig().isCustomMessageSupported()) {
+        if (!this.validationContext.getConfig().isCustomMessageSupported()) {
             return null;
         }
         final JsonSchema parentSchema = getParentSchema();
@@ -347,18 +347,6 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node) {
-        try {
-            Set<ValidationMessage> errors = validate(node, node, atRoot());
-            return errors;
-        } finally {
-            if (this.validationContext.getConfig().isResetCollectorContext()) {
-                CollectorContext.getInstance().reset();
-            }
-        }
-    }
-
-    @Override
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
@@ -366,56 +354,68 @@ public class JsonSchema extends BaseJsonValidator {
         CollectorContext collectorContext = getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
-        for (JsonValidator v : getValidators().values()) {
-            Set<ValidationMessage> results = Collections.emptySet();
 
-            Scope parentScope = collectorContext.enterDynamicScope();
-            try {
-                results = v.validate(jsonNode, rootNode, at);
-            } finally {
-                Scope scope = collectorContext.exitDynamicScope();
-                if (results.isEmpty()) {
-                    parentScope.mergeWith(scope);
-                } else {
-                    errors.addAll(results);
-                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-                    }
-                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator || v instanceof PatternPropertiesValidator) {
-                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-                    }
-                }
-            }
-        }
+        try {
+            for (JsonValidator v : getValidators().values()) {
+                Set<ValidationMessage> results = Collections.emptySet();
 
-        if (null != config && config.isOpenAPI3StyleDiscriminators()) {
-            ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
-            if (null != discriminator) {
-                final DiscriminatorContext discriminatorContext = this.validationContext.getCurrentDiscriminatorContext();
-                if (null != discriminatorContext) {
-                    final ObjectNode discriminatorToUse;
-                    final ObjectNode discriminatorFromContext = discriminatorContext.getDiscriminatorForPath(this.schemaPath);
-                    if (null == discriminatorFromContext) {
-                        // register the current discriminator. This can only happen when the current context discriminator
-                        // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
-                        // used for validation before allOf validation has kicked in
-                        discriminatorContext.registerDiscriminator(this.schemaPath, discriminator);
-                        discriminatorToUse = discriminator;
+                Scope parentScope = collectorContext.enterDynamicScope();
+                try {
+                    results = v.validate(jsonNode, rootNode, at);
+                } finally {
+                    Scope scope = collectorContext.exitDynamicScope();
+                    if (results.isEmpty()) {
+                        parentScope.mergeWith(scope);
                     } else {
-                        discriminatorToUse = discriminatorFromContext;
+                        errors.addAll(results);
+                        if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
+                                || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                            collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                        }
+                        if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
+                                || v instanceof PatternPropertiesValidator) {
+                            collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                        }
                     }
 
-                    final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
-                    final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
-                    final String discriminatorPropertyValue = discriminatorNode == null ? null : discriminatorNode.asText();
-                    checkDiscriminatorMatch(discriminatorContext,
-                            discriminatorToUse,
-                            discriminatorPropertyValue,
-                            this);
                 }
             }
+
+            if (config.isOpenAPI3StyleDiscriminators()) {
+                ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
+                if (null != discriminator) {
+                    final DiscriminatorContext discriminatorContext = this.validationContext
+                            .getCurrentDiscriminatorContext();
+                    if (null != discriminatorContext) {
+                        final ObjectNode discriminatorToUse;
+                        final ObjectNode discriminatorFromContext = discriminatorContext
+                                .getDiscriminatorForPath(this.schemaPath);
+                        if (null == discriminatorFromContext) {
+                            // register the current discriminator. This can only happen when the current context discriminator
+                            // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
+                            // used for validation before allOf validation has kicked in
+                            discriminatorContext.registerDiscriminator(this.schemaPath, discriminator);
+                            discriminatorToUse = discriminator;
+                        } else {
+                            discriminatorToUse = discriminatorFromContext;
+                        }
+
+                        final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
+                        final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
+                        final String discriminatorPropertyValue = discriminatorNode == null ? null
+                                : discriminatorNode.asText();
+                        checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
+                                this);
+                    }
+                }
+            }
+
+            return errors;
+        } finally {
+            if (collectorContext.getDynamicScope().isTop() && config.isResetCollectorContext()) {
+                collectorContext.reset();
+            }
         }
-        return errors;
     }
 
     public ValidationResult validateAndCollect(JsonNode node) {
@@ -433,28 +433,22 @@ public class JsonSchema extends BaseJsonValidator {
      * @return ValidationResult
      */
     private ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
-        try {
-            // Get the config.
-            SchemaValidatorsConfig config = this.validationContext.getConfig();
-            // Get the collector context from the thread local.
-            CollectorContext collectorContext = getCollectorContext();
-            // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-            setValidatorState(false, true);
-            // Validate.
-            Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-            // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-            if (config.doLoadCollectors()) {
-                // Load all the data from collectors into the context.
-                collectorContext.loadCollectors();
-            }
-            // Collect errors and collector context into validation result.
-            ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-            return validationResult;
-        } finally {
-            if (this.validationContext.getConfig().isResetCollectorContext()) {
-                CollectorContext.getInstance().reset();
-            }
+        // Get the config.
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
+        // Get the collector context from the thread local.
+        CollectorContext collectorContext = getCollectorContext();
+        // Set the walkEnabled and isValidationEnabled flag in internal validator state.
+        setValidatorState(false, true);
+        // Validate.
+        Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
+        if (config.doLoadCollectors()) {
+            // Load all the data from collectors into the context.
+            collectorContext.loadCollectors();
         }
+        // Collect errors and collector context into validation result.
+        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+        return validationResult;
     }
 
     /************************ END OF VALIDATE METHODS **********************************/
