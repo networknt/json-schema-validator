@@ -10,6 +10,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.84 - 2023-06-09
+
+### Added
+
+- fixes #813 Adds support for walking if-then-else. Thanks @fdutton
+- fixes #811 Adds support for walking dependentSchemas. Thanks @fdutton
+
+### Changed
+
+- fixes #816 Ignores fail-fast when evaluating a member of an applicator. Thanks @fdutton
+- fixes #815 Corrects Java's failure to match an end anchor when immediately preceded by a quantifier. Thanks @fdutton
+- fixes #812 Ensures context is reset after validating regardless of which method is used by the client. Thanks @fdutton
+- fixes #809 Ignores siblings of $ref when dialect is Draft 4, 6 or 7. Thanks @fdutton
+- fixes #807 Updates Jacoco configuration to ignore the embedded Apache code. Thanks @fdutton
+- fixes #790 Simplifies how evaluated properties and array items are tracked. Thanks @fdutton
+- fixes #806 Enables unit-tests for refRemote validation. Thanks @fdutton
+- fixes #805 Corrects issue with deserializing JSON Schema Test Suite tests. Thanks @fdutton
+- fixes #801 Support config param to disable custom messages from schema. Thanks @anjnerajat
+- fixes #795 Supports fail-fast when a pattern does not match. Thanks @fdutton
+- fixes #793 Updating jackson version to 2.15.2
+
 ## 1.0.83 - 2023-05-26
 
 ### Added

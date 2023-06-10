@@ -23,7 +23,7 @@
 
   <groupId>com.networknt</groupId>
   <artifactId>json-schema-validator</artifactId>
-  <version>1.0.83</version>
+  <version>1.0.84</version>
   <packaging>bundle</packaging>
   <name>JsonSchemaValidator</name>
   <description>A json schema validator that supports draft v4, v6, v7, v2019-09 and v2020-12</description>
@@ -79,7 +79,7 @@
     <version.logback>1.2.11</version.logback>
     <version.slf4j>2.0.7</version.slf4j>
     <version.surefire>3.0.0</version.surefire>
-    <version.undertow>2.2.24.Final</version.undertow>
+    <version.undertow>2.3.6.Final</version.undertow>
   </properties>
 
   <dependencies>
