@@ -62,7 +62,12 @@ public class NotValidator extends BaseJsonValidator {
         if (shouldValidateSchema) {
             return validate(node, rootNode, at);
         }
-    	return this.schema.walk(node, rootNode, at, shouldValidateSchema);
+
+        Set<ValidationMessage> errors = this.schema.walk(node, rootNode, at, shouldValidateSchema);
+        if (errors.isEmpty()) {
+            return Collections.singleton(buildValidationMessage(at, this.schema.toString()));
+        }
+        return Collections.emptySet();
     }
 
     @Override

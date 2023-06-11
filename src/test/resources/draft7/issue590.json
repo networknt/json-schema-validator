@@ -1,0 +1,88 @@
+[
+  {
+    "description": "issue590",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "email": {
+              "type": "string"
+            },
+            "handle": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "modifiedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": {
+              "type": "string"
+            },
+            "serviceAccount": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "verified": {
+              "type": "boolean"
+            }
+          }
+        },
+        "relationships": {
+          "type": "object",
+          "properties": {
+            "org": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "required": [
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "should parse",
+        "data": { "id": "an id" },
+        "valid": true
+      }
+    ]
+  }
+]
