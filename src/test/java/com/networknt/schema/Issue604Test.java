@@ -1,14 +1,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class Issue604Test {
     @Test
-    @Disabled("This test is disabled until the issue is fixed")
     public void failure() {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false));
