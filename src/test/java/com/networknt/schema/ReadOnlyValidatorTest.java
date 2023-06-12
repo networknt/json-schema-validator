@@ -48,7 +48,7 @@ class ReadOnlyValidatorTest {
 
 	private SchemaValidatorsConfig createSchemaConfig(Boolean write) {
 		SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-		config.setWriteMode(write);
+		config.setReadOnly(write);
 		return config;
 	}
 
