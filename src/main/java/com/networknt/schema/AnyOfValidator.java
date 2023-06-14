@@ -17,18 +17,19 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.CollectorContext.Scope;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
+public class AnyOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
-    private static final String REMARK = "Remaining validation messages report why candidate schemas didn't match";
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
-    private final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
+    private final List<JsonSchema> schemas = new ArrayList<>();
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
     public AnyOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -36,11 +37,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         this.validationContext = validationContext;
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            schemas.add(new JsonSchema(validationContext,
-                    getValidatorType().getValue(),
-                    parentSchema.getCurrentUri(),
-                    schemaNode.get(i),
-                    parentSchema));
+            this.schemas.add(validationContext.newSchema(schemaPath + "/" + i, schemaNode.get(i), parentSchema));
         }
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -50,75 +47,80 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         }
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        CollectorContext collectorContext = CollectorContext.getInstance();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
+            this.validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
         }
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
 
-        Set<ValidationMessage> allErrors = new LinkedHashSet<ValidationMessage>();
-        String typeValidatorName = "anyOf/type";
+        Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
-        // As anyOf might contain multiple schemas take a backup of evaluatedProperties.
-        Object backupEvaluatedProperties = CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES);
-
-        // Make the evaluatedProperties list empty.
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, new ArrayList<>());
-
+        Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
             int numberOfValidSubSchemas = 0;
-            for (JsonSchema schema : schemas) {
-                state.setMatchedNode(initialHasMatchedNode);
-                Set<ValidationMessage> errors = new HashSet<>();
-                if (schema.getValidators().containsKey(typeValidatorName)) {
-                    TypeValidator typeValidator = ((TypeValidator) schema.getValidators().get(typeValidatorName));
-                    //If schema has type validator and node type doesn't match with schemaType then ignore it
-                    //For union type, it is a must to call TypeValidator
-                    if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                        allErrors.add(buildValidationMessage(at, typeValidator.getSchemaType().toString()));
-                        continue;
-                    }
-                }
-                if (!state.isWalkEnabled()) {
-                    errors = schema.validate(node, rootNode, at);
-                } else {
-                    errors = schema.walk(node, rootNode, at, true);
-                }
+            for (JsonSchema schema: this.schemas) {
+                Set<ValidationMessage> errors = Collections.emptySet();
+                Scope parentScope = collectorContext.enterDynamicScope();
+                try {
+                    state.setMatchedNode(initialHasMatchedNode);
 
-                // check if any validation errors have occurred
-                if (errors.isEmpty()) {
-                    // check whether there are no errors HOWEVER we have validated the exact validator
-                    if (!state.hasMatchedNode()) {
-                        continue;
-                    }
-                    // we found a valid subschema, so increase counter
-                    numberOfValidSubSchemas++;
-                }
-
-                if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
-                    // Clear all errors.
-                    allErrors.clear();
-                    // return empty errors.
-                    return errors;
-                } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                    if (discriminatorContext.isDiscriminatorMatchFound()) {
-                        if (!errors.isEmpty()) {
-                            errors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
-                            allErrors.addAll(errors);
-                        } else {
-                            // Clear all errors.
-                            allErrors.clear();
+                    if (schema.hasTypeValidator()) {
+                        TypeValidator typeValidator = schema.getTypeValidator();
+                        //If schema has type validator and node type doesn't match with schemaType then ignore it
+                        //For union type, it is a must to call TypeValidator
+                        if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
+                            allErrors.add(buildValidationMessage(at, typeValidator.getSchemaType().toString()));
+                            continue;
                         }
+                    }
+                    if (!state.isWalkEnabled()) {
+                        errors = schema.validate(node, rootNode, at);
+                    } else {
+                        errors = schema.walk(node, rootNode, at, true);
+                    }
+
+                    // check if any validation errors have occurred
+                    if (errors.isEmpty()) {
+                        // check whether there are no errors HOWEVER we have validated the exact validator
+                        if (!state.hasMatchedNode()) {
+                            continue;
+                        }
+                        // we found a valid subschema, so increase counter
+                        numberOfValidSubSchemas++;
+                    }
+
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
+                        // Clear all errors.
+                        allErrors.clear();
+                        // return empty errors.
                         return errors;
+                    } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                        if (this.discriminatorContext.isDiscriminatorMatchFound()) {
+                            if (!errors.isEmpty()) {
+                                allErrors.addAll(errors);
+                                allErrors.add(buildValidationMessage(at, DISCRIMINATOR_REMARK));
+                            } else {
+                                // Clear all errors.
+                                allErrors.clear();
+                            }
+                            return errors;
+                        }
+                    }
+                    allErrors.addAll(errors);
+                } finally {
+                    Scope scope = collectorContext.exitDynamicScope();
+                    if (errors.isEmpty()) {
+                        parentScope.mergeWith(scope);
                     }
                 }
-                allErrors.addAll(errors);
             }
 
             // determine only those errors which are NOT of type "required" property missing
@@ -129,30 +131,23 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
                 allErrors = childNotRequiredErrors;
             }
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && discriminatorContext.isActive()) {
-                final Set<ValidationMessage> errors = new HashSet<ValidationMessage>();
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
+                final Set<ValidationMessage> errors = new HashSet<>();
                 errors.add(buildValidationMessage(at, "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
                 return Collections.unmodifiableSet(errors);
             }
         } finally {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                validationContext.leaveDiscriminatorContextImmediately(at);
+                this.validationContext.leaveDiscriminatorContextImmediately(at);
             }
+
+            Scope parentScope = collectorContext.exitDynamicScope();
             if (allErrors.isEmpty()) {
-                addEvaluatedProperties(backupEvaluatedProperties);
                 state.setMatchedNode(true);
-            } else {
-                CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedProperties);
+                grandParentScope.mergeWith(parentScope);
             }
         }
         return Collections.unmodifiableSet(allErrors);
-    }
-
-    private void addEvaluatedProperties(Object backupEvaluatedProperties) {
-        // Add all the evaluated properties.
-        List<String> backupEvaluatedPropertiesList = (backupEvaluatedProperties == null ? new ArrayList<>() : (List<String>) backupEvaluatedProperties);
-        backupEvaluatedPropertiesList.addAll((List<String>) CollectorContext.getInstance().get(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES));
-        CollectorContext.getInstance().add(UnEvaluatedPropertiesValidator.EVALUATED_PROPERTIES, backupEvaluatedPropertiesList);
     }
 
     @Override
@@ -160,7 +155,7 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
         if (shouldValidateSchema) {
             return validate(node, rootNode, at);
         }
-        for (JsonSchema schema : schemas) {
+        for (JsonSchema schema : this.schemas) {
             schema.walk(node, rootNode, at, false);
         }
         return new LinkedHashSet<>();
@@ -168,6 +163,6 @@ public class AnyOfValidator extends BaseJsonValidator implements JsonValidator {
 
     @Override
     public void preloadJsonSchema() {
-        preloadJsonSchemas(schemas);
+        preloadJsonSchemas(this.schemas);
     }
 }

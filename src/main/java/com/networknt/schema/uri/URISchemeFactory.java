@@ -40,13 +40,12 @@ public class URISchemeFactory implements URIFactory {
         return this.uriFactories;
     }
 
-    private String getScheme(final String uri) {
+    private static String getScheme(final String uri) {
         final Matcher matcher = URI_SCHEME_PATTERN.matcher(uri);
         if (matcher.find()) {
             return matcher.group(1);
-        } else {
-            return null;
         }
+        return null;
     }
 
     private URIFactory getFactory(final String scheme) {
@@ -61,8 +60,9 @@ public class URISchemeFactory implements URIFactory {
      * @param uri String
      * @return URI
      */
+    @Override
     public URI create(final String uri) {
-        final String scheme = this.getScheme(uri);
+        final String scheme = getScheme(uri);
         if (scheme == null) {
             throw new IllegalArgumentException(String.format("Couldn't find URI scheme: %s", uri));
         }
@@ -76,22 +76,27 @@ public class URISchemeFactory implements URIFactory {
      * @param segment URI segment
      * @return URI
      */
+    @Override
     public URI create(final URI baseURI, final String segment) {
         if (baseURI == null) {
             return this.create(segment);
-        } else {
-            // We first attempt to get the scheme in case the segment is an absolute URI path.
-            String scheme = this.getScheme(segment);
-            if (scheme == null) {
-                // In this case, the segment is relative to the baseURI.
-                scheme = baseURI.getScheme();
-                final URIFactory uriFactory = this.getFactory(scheme);
-                return uriFactory.create(baseURI, segment);
-            } else {
-                // In this case, the segment is an absolute URI path.
-                final URIFactory uriFactory = this.getFactory(scheme);
-                return uriFactory.create(segment);
-            }
         }
+
+        // We first attempt to get the scheme in case the segment is an absolute URI path.
+        String scheme = getScheme(segment);
+        if (scheme == null) {
+            // In this case, the segment is relative to the baseURI.
+            scheme = baseURI.getScheme();
+            final URIFactory uriFactory = this.getFactory(scheme);
+            return uriFactory.create(baseURI, segment);
+        }
+
+        if ("urn".equals(scheme)) {
+            return URI.create(segment);
+        }
+
+        // In this case, the segment is an absolute URI path.
+        final URIFactory uriFactory = this.getFactory(scheme);
+        return uriFactory.create(segment);
     }
 }

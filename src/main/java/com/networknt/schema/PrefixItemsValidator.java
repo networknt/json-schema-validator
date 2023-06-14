@@ -24,177 +24,122 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PrefixItemsValidator extends BaseJsonValidator implements JsonValidator {
+public class PrefixItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
-    private static final String PROPERTY_ITEMS = "items";
 
-    private final JsonSchema schema;
     private final List<JsonSchema> tupleSchema;
-    private boolean additionalItems = true;
-    private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public PrefixItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
-        tupleSchema = new ArrayList<JsonSchema>();
-        JsonSchema foundSchema = null;
-        JsonSchema foundAdditionalSchema = null;
+    public PrefixItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
 
-        if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            foundSchema = new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), schemaNode,
-                    parentSchema);
-        } else {
+        this.tupleSchema = new ArrayList<>();
+
+        if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
             for (JsonNode s : schemaNode) {
-                tupleSchema.add(
-                        new JsonSchema(validationContext, schemaPath, parentSchema.getCurrentUri(), s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaPath, s, parentSchema));
             }
-
-            JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ITEMS);
-            if (addItemNode != null) {
-                if (addItemNode.isBoolean()) {
-                    additionalItems = addItemNode.asBoolean();
-                } else if (addItemNode.isObject()) {
-                    foundAdditionalSchema = new JsonSchema(validationContext, "#", parentSchema.getCurrentUri(), addItemNode, parentSchema);
-                }
-            }
+        } else {
+            throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
         }
-        arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
+
+        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
 
         this.validationContext = validationContext;
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
-
-        this.schema = foundSchema;
-        this.additionalSchema = foundAdditionalSchema;
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-
-        if (!node.isArray() && !this.validationContext.getConfig().isTypeLoose()) {
-            // ignores non-arrays
-            return errors;
-        }
+        // ignores non-arrays
         if (node.isArray()) {
-            int i = 0;
-            for (JsonNode n : node) {
-                doValidate(errors, i, n, rootNode, at);
-                i++;
-            }
-        } else {
-            doValidate(errors, 0, node, rootNode, at);
-        }
-        return Collections.unmodifiableSet(errors);
-    }
-
-    private void doValidate(Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, String at) {
-        if (schema != null) {
-            // validate with item schema (the whole array has the same item
-            // schema)
-            errors.addAll(schema.validate(node, rootNode, at + "[" + i + "]"));
-        }
-
-        if (tupleSchema != null) {
-            if (i < tupleSchema.size()) {
-                // validate against tuple schema
-                errors.addAll(tupleSchema.get(i).validate(node, rootNode, at + "[" + i + "]"));
-            } else {
-                if (additionalSchema != null) {
-                    // validate against additional item schema
-                    errors.addAll(additionalSchema.validate(node, rootNode, at + "[" + i + "]"));
-                } else if (!additionalItems) {
-                    // no additional item allowed, return error
-                    errors.add(buildValidationMessage(at, "" + i));
+            Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
+                String path = atPath(at, i);
+                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(node.get(i), rootNode, path);
+                if (results.isEmpty()) {
+                    evaluatedItems.add(path);
+                } else {
+                    errors.addAll(results);
                 }
             }
         }
+
+        return Collections.unmodifiableSet(errors);
     }
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        HashSet<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        if (node instanceof ArrayNode) {
-            ArrayNode arrayNode = (ArrayNode) node;
-            JsonNode defaultNode = null;
-            if (applyDefaultsStrategy.shouldApplyArrayDefaults() && schema != null) {
-                defaultNode = schema.getSchemaNode().get("default");
-            }
-            int i = 0;
-            for (JsonNode n : arrayNode) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
+
+        if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
+            ArrayNode array = (ArrayNode) node;
+            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
+                JsonNode n = node.get(i);
+                JsonNode defaultNode = this.tupleSchema.get(i).getSchemaNode().get("default");
                 if (n.isNull() && defaultNode != null) {
-                    arrayNode.set(i, defaultNode);
+                    array.set(i, defaultNode);
                     n = defaultNode;
                 }
                 doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
-                i++;
             }
-        } else {
-            doWalk(validationMessages, 0, node, rootNode, at, shouldValidateSchema);
         }
+
         return validationMessages;
     }
 
-    private void doWalk(HashSet<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode,
-            String at, boolean shouldValidateSchema) {
-        if (schema != null) {
-            // Walk the schema.
-            walkSchema(schema, node, rootNode, at + "[" + i + "]", shouldValidateSchema, validationMessages);
-        }
-
-        if (tupleSchema != null) {
-            if (i < tupleSchema.size()) {
-                // walk tuple schema
-                walkSchema(tupleSchema.get(i), node, rootNode, at + "[" + i + "]", shouldValidateSchema,
-                        validationMessages);
-            } else {
-                if (additionalSchema != null) {
-                    // walk additional item schema
-                    walkSchema(additionalSchema, node, rootNode, at + "[" + i + "]", shouldValidateSchema,
-                            validationMessages);
-                }
-            }
-        }
+    private void doWalk(Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        walkSchema(this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
     }
 
-    private void walkSchema(JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at,
-                            boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
-        boolean executeWalk = arrayItemWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.ITEMS.getValue(), node,
-                rootNode, at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(), walkSchema.getParentSchema(),
-                validationContext, validationContext.getJsonSchemaFactory());
+    private void walkSchema(JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+        //@formatter:off
+        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
+            ValidatorTypeCode.PREFIX_ITEMS.getValue(),
+            node,
+            rootNode,
+            at,
+            walkSchema.getSchemaPath(),
+            walkSchema.getSchemaNode(),
+            walkSchema.getParentSchema(),
+            this.validationContext,
+            this.validationContext.getJsonSchemaFactory()
+        );
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(node, rootNode, at, shouldValidateSchema));
         }
-        arrayItemWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.ITEMS.getValue(), node, rootNode, at,
-                walkSchema.getSchemaPath(), walkSchema.getSchemaNode(), walkSchema.getParentSchema(),
-                validationContext, validationContext.getJsonSchemaFactory(), validationMessages);
-
+        this.arrayItemWalkListenerRunner.runPostWalkListeners(
+            ValidatorTypeCode.PREFIX_ITEMS.getValue(),
+            node,
+            rootNode,
+            at,
+            walkSchema.getSchemaPath(),
+            walkSchema.getSchemaNode(),
+            walkSchema.getParentSchema(),
+            this.validationContext,
+            this.validationContext.getJsonSchemaFactory(),
+            validationMessages
+        );
+        //@formatter:on
     }
 
     public List<JsonSchema> getTupleSchema() {
         return this.tupleSchema;
     }
 
-    public JsonSchema getSchema() {
-        return schema;
-    }
-
     @Override
     public void preloadJsonSchema() {
-        if (null != schema) {
-            schema.initializeValidators();
-        }
-        preloadJsonSchemas(tupleSchema);
-        if (null != additionalSchema) {
-            additionalSchema.initializeValidators();
-        }
+        preloadJsonSchemas(this.tupleSchema);
     }
+
 }

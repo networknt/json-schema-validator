@@ -27,7 +27,7 @@
   "definitions": {
     "props": {
       "minLength": 2,
-      "pattern": "[A-Z]"
+      "pattern": "[A-Z]{2,}"
     },
     "xyz": {
       "enum": [

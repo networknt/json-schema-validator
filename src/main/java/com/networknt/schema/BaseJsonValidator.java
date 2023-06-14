@@ -16,82 +16,81 @@
 
 package com.networknt.schema;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.*;
+
 public abstract class BaseJsonValidator implements JsonValidator {
     protected String schemaPath;
     protected JsonNode schemaNode;
     protected JsonSchema parentSchema;
-    private boolean suppressSubSchemaRetrieval;
+    protected final boolean suppressSubSchemaRetrieval;
     private ValidatorTypeCode validatorType;
     private ErrorMessageType errorMessageType;
     protected ValidationContext validationContext;
     protected final boolean failFast;
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
+    private final String customMessage;
+    private final PathType pathType;
+    private final ResourceBundle resourceBundle;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, false,
-             validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-             validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
-    }
-
-    // TODO: can this be made package private?
-    @Deprecated // use the BaseJsonValidator below
-    public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, boolean suppressSubSchemaRetrieval, boolean failFast) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, false, failFast, null);
+        this(schemaPath, schemaNode, parentSchema, validatorType, validationContext, false);
     }
 
     public BaseJsonValidator(String schemaPath,
                              JsonNode schemaNode,
                              JsonSchema parentSchema,
                              ValidatorTypeCode validatorType,
-                             boolean suppressSubSchemaRetrieval,
-                             boolean failFast,
-                             ApplyDefaultsStrategy applyDefaultsStrategy) {
+                             ValidationContext validationContext,
+                             boolean suppressSubSchemaRetrieval) {
         this.errorMessageType = validatorType;
         this.schemaPath = schemaPath;
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.failFast = failFast;
-        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        this.failFast = validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast();
+        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        if (validatorType != null) {
+            this.customMessage = validatorType.getCustomMessage();
+        } else {
+            this.customMessage = null;
+        }
+        this.pathType = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType() : PathType.DEFAULT;
+        this.resourceBundle = (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getResourceBundle() : I18nSupport.DEFAULT_RESOURCE_BUNDLE;
     }
 
     public String getSchemaPath() {
-        return schemaPath;
+        return this.schemaPath;
     }
 
     public JsonNode getSchemaNode() {
-        return schemaNode;
+        return this.schemaNode;
     }
 
     public JsonSchema getParentSchema() {
-        return parentSchema;
+        return this.parentSchema;
     }
 
     protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
-        return suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(schemaNode, validationContext);
+        return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
+
         if (node == null) {
             return null;
         }
+
         if (node.equals(schemaNode.get("$schema"))) {
             return null;
         }
@@ -99,30 +98,32 @@ public abstract class BaseJsonValidator implements JsonValidator {
         final String text = node.textValue();
         if (text == null) {
             return null;
-        } else {
-            final URI uri;
-            try {
-                uri = validationContext.getURIFactory().create(node.textValue());
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-            return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
         }
+
+        final URI uri;
+        try {
+            uri = validationContext.getURIFactory().create(node.textValue());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node) {
-        return validate(node, node, AT_ROOT);
+        return validate(node, node, atRoot());
     }
 
-    protected boolean equals(double n1, double n2) {
+    protected static boolean equals(double n1, double n2) {
         return Math.abs(n1 - n2) < 1e-12;
     }
 
-    protected boolean greaterThan(double n1, double n2) {
+    protected static boolean greaterThan(double n1, double n2) {
         return n1 - n2 > 1e-12;
     }
 
-    protected boolean lessThan(double n1, double n2) {
+    protected static boolean lessThan(double n1, double n2) {
         return n1 - n2 < -1e-12;
     }
 
@@ -131,27 +132,53 @@ public abstract class BaseJsonValidator implements JsonValidator {
         if (errorCodeNode != null && errorCodeNode.isTextual()) {
             String errorCodeText = errorCodeNode.asText();
             if (StringUtils.isNotBlank(errorCodeText)) {
-                errorMessageType = CustomErrorMessageType.of(errorCodeText);
+                this.errorMessageType = CustomErrorMessageType.of(errorCodeText);
             }
         }
     }
 
     protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        final ValidationMessage message = ValidationMessage.of(getValidatorType().getValue(), errorMessageType, at, schemaPath, arguments);
-        if (failFast && !isPartOfOneOfMultipleType()) {
+        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(getErrorMessageType().getErrorCodeValue()));
+        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), getErrorMessageType(), messageFormat, this.customMessage, at, this.schemaPath, arguments);
+        if (this.failFast && !isApplicator()) {
             throw new JsonSchemaException(message);
         }
         return message;
     }
 
-    protected void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("validate( " + node + ", " + rootNode + ", " + at + ")");
+    protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
+        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(messageKey));
+        final ValidationMessage message = new ValidationMessage.Builder()
+            .code(getErrorMessageType().getErrorCode())
+            .path(at)
+            .schemaPath(this.schemaPath)
+            .arguments(arguments)
+            .format(messageFormat)
+            .type(getValidatorType().getValue())
+            .customMessage(this.customMessage)
+            .build();
+        if (this.failFast && !isApplicator()) {
+            throw new JsonSchemaException(message);
         }
+        return message;
+    }
+
+    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
+        logger.debug("validate( {}, {}, {})", node, rootNode, at);
     }
 
     protected ValidatorTypeCode getValidatorType() {
-        return validatorType;
+        return this.validatorType;
+    }
+
+    protected ErrorMessageType getErrorMessageType() {
+        return this.errorMessageType;
+    }
+
+    protected void updateValidatorType(ValidatorTypeCode validatorTypeCode) {
+        this.validatorType = validatorTypeCode;
+        this.errorMessageType = validatorTypeCode;
+        parseErrorCode(validatorTypeCode.getErrorCodeKey());
     }
 
     protected String getNodeFieldType() {
@@ -168,7 +195,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
      */
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (shouldValidateSchema) {
             validationMessages = validate(node, rootNode, at);
         }
@@ -181,8 +208,63 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
     }
 
+    private boolean isApplicator() {
+        return false
+            || isPartOfAnyOfMultipleType()
+            || isPartOfIfMultipleType()
+            || isPartOfNotMultipleType()
+            || isPartOfOneOfMultipleType();
+    }
+
+    private boolean isPartOfAnyOfMultipleType() {
+        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ANY_OF.getValue() + "/");
+    }
+
+    private boolean isPartOfIfMultipleType() {
+        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.IF_THEN_ELSE.getValue() + "/");
+    }
+
+    private boolean isPartOfNotMultipleType() {
+        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.NOT.getValue() + "/");
+    }
+
     protected boolean isPartOfOneOfMultipleType() {
-        return parentSchema.schemaPath.equals(ValidatorTypeCode.ONE_OF.getValue());
+        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
+    }
+
+    protected PathType getPathType() {
+        return this.pathType;
+    }
+
+    /**
+     * Get the root path.
+     *
+     * @return The path.
+     */
+    protected String atRoot() {
+        return this.pathType.getRoot();
+    }
+
+    /**
+     * Create the path for a given child token.
+     *
+     * @param currentPath The current path.
+     * @param token The child token.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, String token) {
+        return this.pathType.append(currentPath, token);
+    }
+
+    /**
+     * Create the path for a given child indexed item.
+     *
+     * @param currentPath The current path.
+     * @param index The child index.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, int index) {
+        return this.pathType.append(currentPath, index);
     }
 
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */

@@ -1,0 +1,163 @@
+[
+  {
+    "description": "issue656 - Should be valid to one and only one of schema, but more than one are valid error",
+    "schema": {
+      "$id": "someid",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "JSON Schema for treatments",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/drug-treatment"
+        },
+        {
+          "$ref": "#/$defs/surgery-treatment"
+        }
+      ],
+      "$defs": {
+        "base": {
+          "type": "object",
+          "properties": {
+            "type-tag": {
+              "enum": [
+                "SURGERY",
+                "DRUGTREATMENT",
+                "RADIOLOGY",
+                "PHYSIOTHERAPY"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "patient-id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "patient-name": {
+              "type": "string"
+            },
+            "provider-id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "provider-name": {
+              "type": "string"
+            },
+            "diagnosis": {
+              "type": "string"
+            },
+            "followup-treatments": {
+              "type": "array",
+              "items": {
+                "$ref": "#"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "type-tag",
+            "patient-id",
+            "patient-name",
+            "provider-id",
+            "provider-name",
+            "diagnosis",
+            "followup-treatments"
+          ]
+        },
+        "drug-treatment": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/base"
+            }
+          ],
+          "properties": {
+            "drug": {
+              "type": "string"
+            },
+            "dosage": {
+              "type": "number"
+            },
+            "start-date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end-date": {
+              "type": "string",
+              "format": "date"
+            },
+            "frequency": "integer"
+          },
+          "required": [
+            "drug",
+            "dosage",
+            "start-date",
+            "end-date",
+            "frequency"
+          ],
+          "unevaluatedProperties": false
+        },
+        "surgery-treatment": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/base"
+            }
+          ],
+          "properties": {
+            "surgery-date": {
+              "type": "string",
+              "format": "date"
+            },
+            "discharge-instructions": {
+              "type": "string"
+            },
+            "required": [
+              "surgery-date",
+              "discharge-instructions"
+            ],
+            "unevaluatedProperties": false
+          }
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "Sample 1",
+        "data": {
+            "type-tag": "SURGERY",
+            "surgery-date": "2222-02-12",
+            "discharge-instructions": "dsfdsfdsfds",
+            "id": "12d2e565-8966-4029-840b-1959277b37f6",
+            "patient-id": "ab62420e-0bd8-4e39-8e0b-36e464b7abb2",
+            "patient-name": "Tom",
+            "provider-id": "154523b2-7598-4ed4-aab1-b2ef1692109c",
+            "provider-name": "gdsfdsd",
+            "diagnosis": "fdsfds",
+            "followup-treatments": []
+        },
+        "valid": true
+      },
+      {
+        "description": "Sample 2",
+        "data": {
+            "type-tag": "DRUGTREATMENT",
+            "drug": "fdsds",
+            "dosage": 2.0,
+            "start-date": "2222-02-12",
+            "end-date": "2222-02-12",
+            "frequency": 2,
+            "id": "aa7da984-0252-45b1-b0cd-f1dbe98662e2",
+            "patient-id": "ab62420e-0bd8-4e39-8e0b-36e464b7abb2",
+            "patient-name": "Tom",
+            "provider-id": "154523b2-7598-4ed4-aab1-b2ef1692109c",
+            "provider-name": "gdsfdsd",
+            "diagnosis": "sfdsfds",
+            "followup-treatments": []
+        },
+        "valid": false,
+        "validationMessages": [
+          "$: should be valid to one and only one schema, but 2 are valid"
+        ]
+      }
+    ]
+  }
+]

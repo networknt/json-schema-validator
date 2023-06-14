@@ -18,10 +18,12 @@ package com.networknt.schema;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
 
@@ -31,8 +33,8 @@ public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
-    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<String, JsonSchemaRef>();
-    private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<DiscriminatorContext>();
+    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
+    private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
@@ -52,13 +54,17 @@ public class ValidationContext {
         this.config = config;
     }
 
+    public JsonSchema newSchema(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
+        return getJsonSchemaFactory().create(this, schemaPath, schemaNode, parentSchema);
+    }
+
     public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema, String customMessage) {
-        return metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema, customMessage);
+        return this.metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema, customMessage);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
-        return metaSchema.readId(schemaNode);
+        return this.metaSchema.readId(schemaNode);
     }
 
     public URIFactory getURIFactory() {
@@ -70,14 +76,14 @@ public class ValidationContext {
     }
 
     public JsonSchemaFactory getJsonSchemaFactory() {
-        return jsonSchemaFactory;
+        return this.jsonSchemaFactory;
     }
 
     public SchemaValidatorsConfig getConfig() {
-        if (config == null) {
-            config = new SchemaValidatorsConfig();
+        if (this.config == null) {
+            this.config = new SchemaValidatorsConfig();
         }
-        return config;
+        return this.config;
     }
 
     public void setConfig(SchemaValidatorsConfig config) {
@@ -85,51 +91,56 @@ public class ValidationContext {
     }
 
     public void setReferenceParsingInProgress(String refValue, JsonSchemaRef ref) {
-        refParsingInProgress.put(refValue, ref);
+        this.refParsingInProgress.put(refValue, ref);
     }
 
     public JsonSchemaRef getReferenceParsingInProgress(String refValue) {
-        return refParsingInProgress.get(refValue);
+        return this.refParsingInProgress.get(refValue);
     }
 
     public DiscriminatorContext getCurrentDiscriminatorContext() {
-        if (!discriminatorContexts.empty()) {
-            return discriminatorContexts.peek();
+        if (!this.discriminatorContexts.empty()) {
+            return this.discriminatorContexts.peek();
         }
         return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
     }
 
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, String at) {
-        discriminatorContexts.push(ctx);
+    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") String at) {
+        this.discriminatorContexts.push(ctx);
     }
 
-    public void leaveDiscriminatorContextImmediately(String at) {
-        discriminatorContexts.pop();
+    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") String at) {
+        this.discriminatorContexts.pop();
     }
 
-    protected JsonMetaSchema getMetaSchema() {
-        return metaSchema;
+    public JsonMetaSchema getMetaSchema() {
+        return this.metaSchema;
+    }
+
+    public Optional<VersionFlag> activeDialect() {
+        String metaSchema = getMetaSchema().getUri();
+        return SpecVersionDetector.detectOptionalVersion(metaSchema);
     }
 
     public static class DiscriminatorContext {
-        private final Map<String, ObjectNode> discriminators = new HashMap<String, ObjectNode>();
+        private final Map<String, ObjectNode> discriminators = new HashMap<>();
 
         private boolean discriminatorMatchFound = false;
 
         public void registerDiscriminator(final String schemaPath, final ObjectNode discriminator) {
-            discriminators.put(schemaPath, discriminator);
+            this.discriminators.put(schemaPath, discriminator);
         }
 
         public ObjectNode getDiscriminatorForPath(final String schemaPath) {
-            return discriminators.get(schemaPath);
+            return this.discriminators.get(schemaPath);
         }
 
         public void markMatch() {
-            discriminatorMatchFound = true;
+            this.discriminatorMatchFound = true;
         }
 
         public boolean isDiscriminatorMatchFound() {
-            return discriminatorMatchFound;
+            return this.discriminatorMatchFound;
         }
 
         /**
@@ -138,7 +149,7 @@ public class ValidationContext {
          * @return true in case there are discriminator candidates
          */
         public boolean isActive() {
-            return !discriminators.isEmpty();
+            return !this.discriminators.isEmpty();
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package com.networknt.schema;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,7 +26,6 @@ import com.networknt.schema.walk.JsonSchemaWalker;
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
 public interface JsonValidator extends JsonSchemaWalker {
-    String AT_ROOT = "$";
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.
@@ -34,7 +34,9 @@ public interface JsonValidator extends JsonSchemaWalker {
      * @return A list of ValidationMessage if there is any validation error, or an empty
      * list if there is no error.
      */
-    Set<ValidationMessage> validate(JsonNode rootNode);
+    default Set<ValidationMessage> validate(JsonNode rootNode) {
+        return validate(rootNode, rootNode, PathType.DEFAULT.getRoot()); // TODO: This is not valid when using JSON Pointer.
+    }
 
     /**
      * Validate the given JsonNode, the given node is the child node of the root node at given
@@ -59,4 +61,18 @@ public interface JsonValidator extends JsonSchemaWalker {
     default void preloadJsonSchema() throws JsonSchemaException {
         // do nothing by default - to be overridden in subclasses
     }
+
+    /**
+     * This is default implementation of walk method. Its job is to call the
+     * validate method if shouldValidateSchema is enabled.
+     */
+    @Override
+    default Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        if (shouldValidateSchema) {
+            validationMessages = validate(node, rootNode, at);
+        }
+        return validationMessages;
+    }
+
 }

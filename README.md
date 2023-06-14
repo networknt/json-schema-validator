@@ -4,13 +4,15 @@
 [Subreddit](https://www.reddit.com/r/lightapi/) |
 [Youtube](https://www.youtube.com/channel/UCHCRMWJVXw8iB7zKxF55Byw) |
 [Documentation](https://doc.networknt.com/library/json-schema-validator/) |
-[Javadocs](https://www.javadoc.io/doc/com.networknt/json-schema-validator) |
 [Contribution Guide](https://doc.networknt.com/contribute/) |
 
-[![Build Status](https://travis-ci.org/networknt/json-schema-validator.svg?branch=master)](https://travis-ci.org/networknt/json-schema-validator) [![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
+[![CI](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/networknt/json-schema-validator/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.networknt/json-schema-validator.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.networknt%20a%3Ajson-schema-validator)
+[![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
+[![Javadocs](http://www.javadoc.io/badge/com.networknt/json-schema-validator.svg)](https://www.javadoc.io/doc/com.networknt/json-schema-validator)
 
 
-This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
+This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12(partial)](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
 
 ## Why this library
 
@@ -54,13 +56,12 @@ Here are the dependencies.
     <artifactId>slf4j-api</artifactId>
     <version>${version.slf4j}</version>
 </dependency>
-
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-lang3</artifactId>
-    <version>${version.common-lang3}</version>
-</dependency>
 ```
+
+Note: Apache commons lang is included as a compile time dependency but is not
+required anymore. It is still included for the sake of older projects that
+depend on it as an accidental transitive runtime dependency. It is encouraged to
+exclude it as shown below and will be removed in a future release.
 
 #### Community
 
@@ -80,7 +81,13 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.73</version>
+    <version>1.0.84</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </exclusion>
+    </exclusions>
 </dependency>
 ```
 
@@ -88,7 +95,7 @@ Gradle:
 
 ```java
 dependencies {
-    compile(group: "com.networknt", name: "json-schema-validator", version: "1.0.73");
+    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.84');
 }
 ```
 
@@ -118,6 +125,13 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [Custom Message](doc/cust-msg.md)
 
+## [Multiple Language](doc/multiple-language.md)
+
+## [MetaSchema Validation](doc/metaschema-validation.md)
+
+## [Validating RFC 3339 durations](doc/duration.md)
+
+
 ## Known issues
 
 I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases, in my opinion, but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java language itself.
@@ -138,31 +152,34 @@ Thanks to the following people who have contributed to this project. If you are 
 
 [@stevehu](https://github.com/sponsors/stevehu)
 
-[@jiachen1120](https://github.com/jiachen1120)
+[@prashanth-chaitanya](https://github.com/prashanth-chaitanya)
+
+[@fdutton](https://github.com/fdutton)
+
+[@valfirst](https://github.com/valfirst)
 
 [@BalloonWen](https://github.com/BalloonWen)
 
-[@eskabetxe](https://github.com/eskabetxe)
+[@jiachen1120](https://github.com/jiachen1120)
 
 [@ddobrin](https://github.com/ddobrin)
 
+[@eskabetxe](https://github.com/eskabetxe)
+
 [@ehrmann](https://github.com/ehrmann)
+
+[@prashanthjos](https://github.com/prashanthjos)
+
+[@Subhajitdas298](https://github.com/Subhajitdas298)
+
+[@FWiesner](https://github.com/FWiesner)
 
 [@rhwood](https://github.com/rhwood)
 
-[@nitin1891](https://github.com/nitin1891)
-
 [@jawaff](https://github.com/jawaff)
 
-[@kosty](https://github.com/kosty)
+[@nitin1891](https://github.com/nitin1891)
 
-[@chenyan71](https://github.com/chenyan71)
-
-[@chrisken](https://github.com/chrisken)
-
-[@NicholasAzar](https://github.com/NicholasAzar)
-
-[@basinilya](https://github.com/basinilya)
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 

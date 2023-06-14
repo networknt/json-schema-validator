@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class DependentSchemas extends BaseJsonValidator implements JsonValidator {
+public class DependentSchemas extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependentSchemas.class);
-    private final Map<String, JsonSchema> schemaDependencies = new HashMap<String, JsonSchema>();
+    private final Map<String, JsonSchema> schemaDependencies = new HashMap<>();
 
     public DependentSchemas(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
@@ -34,21 +34,22 @@ public class DependentSchemas extends BaseJsonValidator implements JsonValidator
             String pname = it.next();
             JsonNode pvalue = schemaNode.get(pname);
             if (pvalue.isObject() || pvalue.isBoolean()) {
-                schemaDependencies.put(pname, new JsonSchema(validationContext, pname, parentSchema.getCurrentUri(), pvalue, parentSchema));
+                this.schemaDependencies.put(pname, validationContext.newSchema(pname, pvalue, parentSchema));
             }
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            JsonSchema schema = schemaDependencies.get(pname);
+            JsonSchema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
                 errors.addAll(schema.validate(node, rootNode, at));
             }
@@ -59,6 +60,18 @@ public class DependentSchemas extends BaseJsonValidator implements JsonValidator
 
     @Override
     public void preloadJsonSchema() {
-        preloadJsonSchemas(schemaDependencies.values());
+        preloadJsonSchemas(this.schemaDependencies.values());
     }
+
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        if (shouldValidateSchema) {
+            return validate(node, rootNode, at);
+        }
+        for (JsonSchema schema : this.schemaDependencies.values()) {
+            schema.walk(node, rootNode, at, false);
+        }
+        return Collections.emptySet();
+    }
+
 }

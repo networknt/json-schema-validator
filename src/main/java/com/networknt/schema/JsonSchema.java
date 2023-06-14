@@ -18,6 +18,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.CollectorContext.Scope;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
@@ -28,10 +30,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.text.MessageFormat;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -39,7 +39,8 @@ import java.util.regex.Pattern;
  * constructed, it can be used to validate multiple json data concurrently.
  */
 public class JsonSchema extends BaseJsonValidator {
-    private static final Pattern intPattern = Pattern.compile("^[0-9]+$");
+    private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
+
     private Map<String, JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
@@ -55,29 +56,54 @@ public class JsonSchema extends BaseJsonValidator {
      */
     private URI currentUri;
     private JsonValidator requiredValidator = null;
-
-    private JsonValidator unevaluatedPropertiesValidator = null;
+    private TypeValidator typeValidator;
 
     WalkListenerRunner keywordWalkListenerRunner = null;
 
+    static JsonSchema from(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        return new JsonSchema(validationContext, schemaPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
+    }
+
+    /**
+     * @param validationContext validation context
+     * @param baseUri           base URL
+     * @param schemaNode        schema node
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
         this(validationContext, "#", baseUri, schemaNode, null);
     }
 
+    /**
+     * @param validationContext validation context
+     * @param schemaPath        schema path
+     * @param currentUri        current URI
+     * @param schemaNode        schema node
+     * @param parent            parent schema
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                       JsonSchema parent) {
         this(validationContext, schemaPath, currentUri, schemaNode, parent, false);
     }
 
+    /**
+     * @param validationContext validation context
+     * @param baseUri           base URI
+     * @param schemaNode        schema node
+     * @param suppressSubSchemaRetrieval suppress sub schema retrieval
+     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
+     */
+    @Deprecated
     public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
         this(validationContext, "#", baseUri, schemaNode, null, suppressSubSchemaRetrieval);
     }
 
     private JsonSchema(ValidationContext validationContext, String schemaPath, URI currentUri, JsonNode schemaNode,
                        JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaPath, schemaNode, parent, null, suppressSubSchemaRetrieval,
-              validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-              validationContext.getConfig() != null ? validationContext.getConfig().getApplyDefaultsStrategy() : null);
+        super(schemaPath, schemaNode, parent, null, validationContext, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
@@ -85,7 +111,7 @@ public class JsonSchema extends BaseJsonValidator {
             updateThisAsSubschema(currentUri);
         }
         if (validationContext.getConfig() != null) {
-            keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
+            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
                 if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
@@ -95,12 +121,16 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
+    public JsonSchema createChildSchema(String schemaPath, JsonNode schemaNode) {
+        return getValidationContext().newSchema(schemaPath, schemaNode, this);
+    }
+
     ValidationContext getValidationContext() {
         return this.validationContext;
     }
 
     private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
-        final String id = validationContext.resolveSchemaId(schemaNode);
+        final String id = this.validationContext.resolveSchemaId(schemaNode);
         if (id == null) {
             return currentUri;
         } else if (isUriFragmentWithNoContext(currentUri, id)) {
@@ -111,18 +141,19 @@ public class JsonSchema extends BaseJsonValidator {
             } catch (IllegalArgumentException e) {
                 throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(),
                         ValidatorTypeCode.ID,
+                        new MessageFormat(validationContext.getConfig().getResourceBundle().getString(ValidatorTypeCode.ID.getErrorCodeValue())),
                         id,
-                        schemaPath,
+                        this.schemaPath,
                         currentUri == null ? "null" : currentUri.toString()));
             }
         }
     }
 
-    private boolean isUriFragmentWithNoContext(URI currentUri, String id) {
+    private static boolean isUriFragmentWithNoContext(URI currentUri, String id) {
         return id.startsWith("#") && currentUri == null;
     }
 
-    private boolean uriRefersToSubschema(URI originalUri, String schemaPath) {
+    private static boolean uriRefersToSubschema(URI originalUri, String schemaPath) {
         return originalUri != null
             && StringUtils.isNotBlank(originalUri.getRawFragment())  // Original currentUri parameter has a fragment, so it refers to a subschema
             && (StringUtils.isBlank(schemaPath) || "#".equals(schemaPath)); // We aren't already in a subschema
@@ -141,14 +172,14 @@ public class JsonSchema extends BaseJsonValidator {
         // won't also end up in this method and get stuck in an infinite recursive loop.
         URI currentUriWithoutFragment;
         try {
-            currentUriWithoutFragment = new URI(currentUri.getScheme(), currentUri.getSchemeSpecificPart(), null);
+            currentUriWithoutFragment = new URI(this.currentUri.getScheme(), this.currentUri.getSchemeSpecificPart(), null);
         } catch (URISyntaxException ex) {
-            throw new JsonSchemaException("Unable to create URI without fragment from " + currentUri + ": " + ex.getMessage());
+            throw new JsonSchemaException("Unable to create URI without fragment from " + this.currentUri + ": " + ex.getMessage());
         }
-        this.parentSchema = new JsonSchema(validationContext, schemaPath, currentUriWithoutFragment, schemaNode, parentSchema);
+        this.parentSchema = new JsonSchema(this.validationContext, this.schemaPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
         this.schemaPath = fragment;
         this.schemaNode = fragmentSchemaNode;
-        this.currentUri = combineCurrentUriWithIds(currentUri, fragmentSchemaNode);
+        this.currentUri = combineCurrentUriWithIds(this.currentUri, fragmentSchemaNode);
     }
 
     public URI getCurrentUri() {
@@ -165,33 +196,29 @@ public class JsonSchema extends BaseJsonValidator {
         JsonSchema schema = findAncestor();
         JsonNode node = schema.getSchemaNode();
 
-        if (ref.startsWith("#/")) {
-            // handle local ref
-            String[] keys = ref.substring(2).split("/");
-            for (String key : keys) {
-                try {
-                    key = URLDecoder.decode(key, "utf-8");
-                } catch (UnsupportedEncodingException e) {
-                }
-                Matcher matcher = intPattern.matcher(key);
-                if (matcher.matches()) {
-                    node = node.get(Integer.parseInt(key));
-                } else {
-                    node = node.get(key);
-                }
-                if (node == null) {
-                    node = handleNullNode(ref, schema);
-                }
-                if (node == null) {
-                    break;
-                }
+        String jsonPointer = ref;
+        if (jsonPointer.startsWith("#/")) {
+            jsonPointer = ref.substring(1);
+        }
+
+        if (jsonPointer.startsWith("/")) {
+            try {
+                jsonPointer = URLDecoder.decode(jsonPointer, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                // ignored
+            }
+
+            node = node.at(jsonPointer);
+            if (node.isMissingNode()) {
+                node = handleNullNode(ref, schema);
             }
         } else if (ref.startsWith("#") && ref.length() > 1) {
-            node = metaSchema.getNodeByFragmentRef(ref, node);
+            node = this.metaSchema.getNodeByFragmentRef(ref, node);
             if (node == null) {
                 node = handleNullNode(ref, schema);
             }
         }
+
         return node;
     }
 
@@ -204,7 +231,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     private JsonNode handleNullNode(String ref, JsonSchema schema) {
-        JsonSchema subSchema = schema.fetchSubSchemaNode(validationContext);
+        JsonSchema subSchema = schema.fetchSubSchemaNode(this.validationContext);
         if (subSchema != null) {
             return subSchema.getRefSchemaNode(ref);
         }
@@ -220,36 +247,56 @@ public class JsonSchema extends BaseJsonValidator {
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
                 final String customMessage = getCustomMessage(schemaNode, "true");
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "true", schemaNode, this, customMessage);
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), "true", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/true", validator);
             } else {
                 final String customMessage = getCustomMessage(schemaNode, "false");
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), "false", schemaNode, this, customMessage);
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), "false", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/false", validator);
             }
         } else {
+            JsonValidator refValidator = null;
+
             Iterator<String> pnames = schemaNode.fieldNames();
             while (pnames.hasNext()) {
                 String pname = pnames.next();
                 JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
                 String customMessage = getCustomMessage(schemaNode, pname);
-                JsonValidator validator = validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
-                // Don't add UnevaluatedProperties Validator. This Keyword should exist only at the root level of the schema.
-                // This validator should be called after we evaluate all other validators.
-                if (ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue().equals(pname)) {
-                    unevaluatedPropertiesValidator = validator;
-                }
-                if (validator != null && !ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue().equals(pname)) {
+
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
+                if (validator != null) {
                     validators.put(getSchemaPath() + "/" + pname, validator);
 
-                    if (pname.equals("required")) {
-                        requiredValidator = validator;
+                    if ("$ref".equals(pname)) {
+                        refValidator = validator;
+                    }
+
+                    if ("required".equals(pname)) {
+                        this.requiredValidator = validator;
+                    }
+
+                    if ("type".equals(pname)) {
+                        this.typeValidator = (TypeValidator) validator;
                     }
                 }
 
             }
+
+            // Ignore siblings for older drafts
+            if (null != refValidator && activeDialect() < V201909_VALUE) {
+                validators.clear();
+                validators.put(getSchemaPath() + "/$ref", refValidator);
+            }
         }
+
         return validators;
+    }
+
+    private long activeDialect() {
+        return this.validationContext
+            .activeDialect()
+            .map(VersionFlag::getVersionFlagValue)
+            .orElse(Long.MAX_VALUE);
     }
 
     /**
@@ -257,19 +304,23 @@ public class JsonSchema extends BaseJsonValidator {
      * so that we can apply default values before validating required.
      */
     private static Comparator<String> VALIDATOR_SORT = (lhs, rhs) -> {
-        if (lhs.equals(rhs)) {
-            return 0;
-        }
-        if (lhs.endsWith("/properties")) {
-            return -1;
-        }
-        if (rhs.endsWith("/properties")) {
-            return 1;
-        }
-        return lhs.compareTo(rhs);
+        if (lhs.equals(rhs)) return 0;
+        if (lhs.endsWith("/properties")) return -1;
+        if (rhs.endsWith("/properties")) return 1;
+        if (lhs.endsWith("/patternProperties")) return -1;
+        if (rhs.endsWith("/patternProperties")) return 1;
+        if (lhs.endsWith("/unevaluatedItems")) return 1;
+        if (rhs.endsWith("/unevaluatedItems")) return -1;
+        if (lhs.endsWith("/unevaluatedProperties")) return 1;
+        if (rhs.endsWith("/unevaluatedProperties")) return -1;
+
+        return lhs.compareTo(rhs); // TODO: This smells. We are performing a lexicographical ordering of paths of unknown depth.
     };
 
     private String getCustomMessage(JsonNode schemaNode, String pname) {
+        if (!this.validationContext.getConfig().isCustomMessageSupported()) {
+            return null;
+        }
         final JsonSchema parentSchema = getParentSchema();
         final JsonNode message = getMessageNode(schemaNode, parentSchema, pname);
         if (message != null && message.get(pname) != null) {
@@ -282,75 +333,93 @@ public class JsonSchema extends BaseJsonValidator {
         if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
             return schemaNode.get("message");
         }
-        JsonNode nodeContainingMessage;
-        if (parentSchema == null) {
-            nodeContainingMessage = schemaNode;
-        } else {
-            nodeContainingMessage = parentSchema.schemaNode;
+        JsonNode messageNode;
+        messageNode = schemaNode.get("message");
+        if (messageNode == null && parentSchema != null) {
+            messageNode = parentSchema.schemaNode.get("message");
+            if (messageNode == null) {
+                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
+            }
         }
-        return nodeContainingMessage.get("message");
+        return messageNode;
     }
 
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node) {
-        try {
-            Set<ValidationMessage> errors = validate(node, node, AT_ROOT);
-            return errors;
-        } finally {
-            if (validationContext.getConfig().isResetCollectorContext()) {
-                CollectorContext.getInstance().reset();
-            }
-        }
-    }
-
     public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
-        SchemaValidatorsConfig config = validationContext.getConfig();
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
-        getCollectorContext();
+        CollectorContext collectorContext = getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(false, true);
-        for (JsonValidator v : getValidators().values()) {
-            errors.addAll(v.validate(jsonNode, rootNode, at));
-        }
 
-        // Process UnEvaluatedProperties after all the validators are called if there are no errors.
-        errors.addAll(processUnEvaluatedProperties(jsonNode, rootNode, at, true, true));
+        try {
+            for (JsonValidator v : getValidators().values()) {
+                Set<ValidationMessage> results = Collections.emptySet();
 
-        if (null != config && config.isOpenAPI3StyleDiscriminators()) {
-            ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-            if (null != discriminator) {
-                final DiscriminatorContext discriminatorContext = validationContext.getCurrentDiscriminatorContext();
-                if (null != discriminatorContext) {
-                    final ObjectNode discriminatorToUse;
-                    final ObjectNode discriminatorFromContext = discriminatorContext.getDiscriminatorForPath(schemaPath);
-                    if (null == discriminatorFromContext) {
-                        // register the current discriminator. This can only happen when the current context discriminator
-                        // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
-                        // used for validation before allOf validation has kicked in
-                        discriminatorContext.registerDiscriminator(schemaPath, discriminator);
-                        discriminatorToUse = discriminator;
+                Scope parentScope = collectorContext.enterDynamicScope();
+                try {
+                    results = v.validate(jsonNode, rootNode, at);
+                } finally {
+                    Scope scope = collectorContext.exitDynamicScope();
+                    if (results.isEmpty()) {
+                        parentScope.mergeWith(scope);
                     } else {
-                        discriminatorToUse = discriminatorFromContext;
+                        errors.addAll(results);
+                        if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
+                                || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                            collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                        }
+                        if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
+                                || v instanceof PatternPropertiesValidator) {
+                            collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                        }
                     }
 
-                    final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
-                    final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
-                    final String discriminatorPropertyValue = discriminatorNode == null ? null : discriminatorNode.asText();
-                    checkDiscriminatorMatch(discriminatorContext,
-                            discriminatorToUse,
-                            discriminatorPropertyValue,
-                            this);
                 }
             }
+
+            if (config.isOpenAPI3StyleDiscriminators()) {
+                ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
+                if (null != discriminator) {
+                    final DiscriminatorContext discriminatorContext = this.validationContext
+                            .getCurrentDiscriminatorContext();
+                    if (null != discriminatorContext) {
+                        final ObjectNode discriminatorToUse;
+                        final ObjectNode discriminatorFromContext = discriminatorContext
+                                .getDiscriminatorForPath(this.schemaPath);
+                        if (null == discriminatorFromContext) {
+                            // register the current discriminator. This can only happen when the current context discriminator
+                            // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
+                            // used for validation before allOf validation has kicked in
+                            discriminatorContext.registerDiscriminator(this.schemaPath, discriminator);
+                            discriminatorToUse = discriminator;
+                        } else {
+                            discriminatorToUse = discriminatorFromContext;
+                        }
+
+                        final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
+                        final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
+                        final String discriminatorPropertyValue = discriminatorNode == null ? null
+                                : discriminatorNode.asText();
+                        checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
+                                this);
+                    }
+                }
+            }
+
+            return errors;
+        } finally {
+            if (collectorContext.getDynamicScope().isTop() && config.isResetCollectorContext()) {
+                collectorContext.reset();
+            }
         }
-        return errors;
     }
 
     public ValidationResult validateAndCollect(JsonNode node) {
-        return validateAndCollect(node, node, AT_ROOT);
+        return validateAndCollect(node, node, atRoot());
     }
 
     /**
@@ -364,28 +433,22 @@ public class JsonSchema extends BaseJsonValidator {
      * @return ValidationResult
      */
     private ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
-        try {
-            // Get the config.
-            SchemaValidatorsConfig config = validationContext.getConfig();
-            // Get the collector context from the thread local.
-            CollectorContext collectorContext = getCollectorContext();
-            // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-            setValidatorState(false, true);
-            // Validate.
-            Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
-            // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-            if (config.doLoadCollectors()) {
-                // Load all the data from collectors into the context.
-                collectorContext.loadCollectors();
-            }
-            // Collect errors and collector context into validation result.
-            ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-            return validationResult;
-        } finally {
-            if (validationContext.getConfig().isResetCollectorContext()) {
-                CollectorContext.getInstance().reset();
-            }
+        // Get the config.
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
+        // Get the collector context from the thread local.
+        CollectorContext collectorContext = getCollectorContext();
+        // Set the walkEnabled and isValidationEnabled flag in internal validator state.
+        setValidatorState(false, true);
+        // Validate.
+        Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
+        if (config.doLoadCollectors()) {
+            // Load all the data from collectors into the context.
+            collectorContext.loadCollectors();
         }
+        // Collect errors and collector context into validation result.
+        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+        return validationResult;
     }
 
     /************************ END OF VALIDATE METHODS **********************************/
@@ -400,27 +463,33 @@ public class JsonSchema extends BaseJsonValidator {
      * @return result of ValidationResult
      */
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(node, node, atRoot(), shouldValidateSchema);
+    }
+
+    public ValidationResult walkAtNode(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(node, rootNode, at, shouldValidateSchema);
+    }
+
+    private ValidationResult walkAtNodeInternal(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         try {
             // Get the config.
-            SchemaValidatorsConfig config = validationContext.getConfig();
+            SchemaValidatorsConfig config = this.validationContext.getConfig();
             // Get the collector context from the thread local.
             CollectorContext collectorContext = getCollectorContext();
             // Set the walkEnabled flag in internal validator state.
             setValidatorState(true, shouldValidateSchema);
             // Walk through the schema.
-            Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
+            Set<ValidationMessage> errors = walk(node, rootNode, at, shouldValidateSchema);
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
                 collectorContext.loadCollectors();
             }
-            // Process UnEvaluatedProperties after all the validators are called.
-            errors.addAll(processUnEvaluatedProperties(node, node, AT_ROOT, shouldValidateSchema, false));
-            // Collect errors and collector context into validation result.
+
             ValidationResult validationResult = new ValidationResult(errors, collectorContext);
             return validationResult;
         } finally {
-            if (validationContext.getConfig().isResetCollectorContext()) {
+            if (this.validationContext.getConfig().isResetCollectorContext()) {
                 CollectorContext.getInstance().reset();
             }
         }
@@ -428,74 +497,67 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
-        for (Entry<String, JsonValidator> entry : getValidators().entrySet()) {
-            JsonSchemaWalker jsonWalker = entry.getValue();
-            String schemaPathWithKeyword = entry.getKey();
+        getValidators().forEach((String schemaPathWithKeyword, JsonSchemaWalker jsonWalker) -> {
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
-                if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword,
+                if (this.keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword,
                         node,
                         rootNode,
                         at,
-                        schemaPath,
-                        schemaNode,
-                        parentSchema,
-                        validationContext,
-                        validationContext.getJsonSchemaFactory())) {
+                        this.schemaPath,
+                        this.schemaNode,
+                        this.parentSchema,
+                        this.validationContext,
+                        this.validationContext.getJsonSchemaFactory())) {
                     validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
                 }
             } finally {
                 // Call all the post-walk listeners.
-                keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword,
+                this.keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword,
                         node,
                         rootNode,
                         at,
-                        schemaPath,
-                        schemaNode,
-                        parentSchema,
-                        validationContext,
-                        validationContext.getJsonSchemaFactory(),
+                        this.schemaPath,
+                        this.schemaNode,
+                        this.parentSchema,
+                        this.validationContext,
+                        this.validationContext.getJsonSchemaFactory(),
                         validationMessages);
             }
-        }
-        if (shouldValidateSchema) {
-            // Process UnEvaluatedProperties after all the validators are called if there are no errors.
-            validationMessages.addAll(processUnEvaluatedProperties(node, rootNode, at, true, true));
-        }
+        });
+
         return validationMessages;
     }
 
     /************************ END OF WALK METHODS **********************************/
 
-    private void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
+    private static void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = CollectorContext.getInstance();
+
         // Get the Validator state object storing validation data
-        Object stateObj = CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+        Object stateObj = collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
         // if one has not been created, instantiate one
         if (stateObj == null) {
             ValidatorState state = new ValidatorState();
             state.setWalkEnabled(isWalkEnabled);
             state.setValidationEnabled(shouldValidateSchema);
-            CollectorContext.getInstance().add(ValidatorState.VALIDATOR_STATE_KEY, state);
+            collectorContext.add(ValidatorState.VALIDATOR_STATE_KEY, state);
         }
     }
 
     public CollectorContext getCollectorContext() {
-        SchemaValidatorsConfig config = validationContext.getConfig();
-        CollectorContext collectorContext = (CollectorContext) ThreadInfo
-                .get(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
-        if (collectorContext == null) {
-            if (config != null && config.getCollectorContext() != null) {
-                collectorContext = config.getCollectorContext();
-            } else {
-                collectorContext = new CollectorContext();
-            }
-            // Set the collector context in thread info, this is unique for every thread.
-            ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
-        }
-        return collectorContext;
+        return (CollectorContext) ThreadInfo.computeIfAbsent(
+            CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY,
+            k -> Optional.ofNullable(this.validationContext.getConfig())
+                .map(SchemaValidatorsConfig::getCollectorContext)
+                .orElseGet(() -> Optional.ofNullable(this.validationContext.getConfig())
+                    .map(config -> new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(), config.isUnevaluatedPropertiesAnalysisDisabled()))
+                    .orElseGet(() -> new CollectorContext(false, false))
+                )
+        );
     }
 
     @Override
@@ -504,18 +566,26 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public boolean hasRequiredValidator() {
-        return requiredValidator != null;
+        return this.requiredValidator != null;
     }
 
     public JsonValidator getRequiredValidator() {
-        return requiredValidator;
+        return this.requiredValidator;
     }
 
-    public Map<String, JsonValidator> getValidators() {
-        if (validators == null) {
-            validators = Collections.unmodifiableMap(this.read(getSchemaNode()));
+    public boolean hasTypeValidator() {
+        return this.typeValidator != null;
+    }
+
+    public TypeValidator getTypeValidator() {
+        return this.typeValidator;
+    }
+
+    private Map<String, JsonValidator> getValidators() {
+        if (this.validators == null) {
+            this.validators = Collections.unmodifiableMap(read(getSchemaNode()));
         }
-        return validators;
+        return this.validators;
     }
 
     /**
@@ -528,50 +598,12 @@ public class JsonSchema extends BaseJsonValidator {
      * instances of the validators.</p>
      */
     public void initializeValidators() {
-        if (!validatorsLoaded) {
-            validatorsLoaded = true;
+        if (!this.validatorsLoaded) {
+            this.validatorsLoaded = true;
             for (final JsonValidator validator : getValidators().values()) {
                 validator.preloadJsonSchema();
             }
         }
     }
 
-    private Set<ValidationMessage> processUnEvaluatedProperties(JsonNode jsonNode, JsonNode rootNode, String at, boolean shouldValidateSchema,
-                                                                boolean fromValidate) {
-        if (unevaluatedPropertiesValidator == null) {
-            return Collections.emptySet();
-        }
-        if (!fromValidate) {
-            Set<ValidationMessage> validationMessages = new HashSet<>();
-            try {
-                // Call all the pre walk listeners.
-                if (keywordWalkListenerRunner.runPreWalkListeners(getSchemaPath() + "/" + ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue(),
-                        jsonNode,
-                        rootNode,
-                        at,
-                        schemaPath,
-                        schemaNode,
-                        parentSchema,
-                        validationContext,
-                        validationContext.getJsonSchemaFactory())) {
-                    validationMessages = unevaluatedPropertiesValidator.walk(jsonNode, rootNode, at, shouldValidateSchema);
-                }
-            } finally {
-                // Call all the post-walk listeners.
-                keywordWalkListenerRunner.runPostWalkListeners(getSchemaPath() + "/" + ValidatorTypeCode.UNEVALUATED_PROPERTIES.getValue(),
-                        jsonNode,
-                        rootNode,
-                        at,
-                        schemaPath,
-                        schemaNode,
-                        parentSchema,
-                        validationContext,
-                        validationContext.getJsonSchemaFactory(),
-                        validationMessages);
-            }
-            return validationMessages;
-        } else {
-            return unevaluatedPropertiesValidator.walk(jsonNode, rootNode, at, shouldValidateSchema);
-        }
-    }
 }

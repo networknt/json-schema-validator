@@ -1,0 +1,103 @@
+[
+  {
+    "description": "Tests that validate custom message functionality where overrides can be provided at schema level for individual keywords",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "array",
+          "maxItems": 3,
+          "items" : {
+            "type" : "number"
+          },
+          "message" : {
+            "maxItems" : "Custom Message: Maximum 3 numbers can be given in 'foo'",
+            "type" : "Custom Message: Only numbers are supported in 'foo'"
+          }
+        },
+        "bar": {
+          "type": "string"
+        }
+      },
+      "message": {
+        "type" : "Custom Message: Invalid type provided"
+      }
+    },
+    "tests": [
+      {
+        "description": "Basic Success Test 1",
+        "data": {
+          "foo": [],
+          "bar": "Bar 1"
+        },
+        "valid": true
+      },
+      {
+        "description": "Basic Success Test 2",
+        "data": {
+          "foo": [1, 2],
+          "bar": "Bar 1"
+        },
+        "valid": true
+      },
+      {
+        "description": "Custom error message for keyword failing at top level - type keyword",
+        "data": {
+          "foo": [1, 2, 3],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "Custom Message: Invalid type provided"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at nested property level - type keyword",
+        "data": {
+          "foo": [1, 2, "text"],
+          "bar": "Bar 1"
+        },
+        "valid": false,
+        "validationMessages": [
+          "Custom Message: Only numbers are supported in 'foo'"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at nested property level - maxItems keyword",
+        "data": {
+          "foo": [1, 2, 3, 4],
+          "bar": "Bar 1"
+        },
+        "valid": false,
+        "validationMessages": [
+          "Custom Message: Maximum 3 numbers can be given in 'foo'"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "data": {
+          "foo": [1, 2, "text"],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "Custom Message: Invalid type provided",
+          "Custom Message: Only numbers are supported in 'foo'"
+        ]
+      },
+      {
+        "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "data": {
+          "foo": [1, 2, "text", 3],
+          "bar": 123
+        },
+        "valid": false,
+        "validationMessages": [
+          "Custom Message: Invalid type provided",
+          "Custom Message: Only numbers are supported in 'foo'",
+          "Custom Message: Maximum 3 numbers can be given in 'foo'"
+        ]
+      }
+    ]
+  }
+]

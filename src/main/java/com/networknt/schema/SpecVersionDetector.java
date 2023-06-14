@@ -17,6 +17,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
+
+import java.util.Optional;
 
 /**
  * This class is used to detect schema version
@@ -24,37 +27,51 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author Subhajitdas298
  * @since 25/06/20
  */
-public class SpecVersionDetector {
+public final class SpecVersionDetector {
 
-    // Schema tag
     private static final String SCHEMA_TAG = "$schema";
 
+    private SpecVersionDetector() {
+        // Prevent instantiation of this utility class
+    }
+
     /**
-     * Detects schema version based on the schema tag
+     * Detects schema version based on the schema tag: if the schema tag is not present, throws
+     * {@link JsonSchemaException} with the corresponding message, otherwise - returns the detected spec version.
      *
-     * @param jsonNode Json Node to read from
-     * @return Spec version
+     * @param jsonNode JSON Node to read from
+     * @return Spec version if present, otherwise throws an exception
      */
-    public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
-        if (!jsonNode.has(SCHEMA_TAG))
-            throw new JsonSchemaException("Schema tag not present");
+    public static VersionFlag detect(JsonNode jsonNode) {
+        return detectOptionalVersion(jsonNode).orElseThrow(
+                () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
+        );
+    }
 
-        final boolean forceHttps = true;
-        final boolean removeEmptyFragmentSuffix = true;
+    /**
+     * Detects schema version based on the schema tag: if the schema tag is not present, returns an empty {@link
+     * Optional} value, otherwise - returns the detected spec version wrapped into {@link Optional}.
+     *
+     * @param jsonNode JSON Node to read from
+     * @return Spec version if present, otherwise empty
+     */
+    public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
+        return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
-        String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(jsonNode.get(SCHEMA_TAG).asText(), forceHttps, removeEmptyFragmentSuffix);
-        if (schemaUri.equals(JsonMetaSchema.getV4().getUri()))
-            return SpecVersion.VersionFlag.V4;
-        else if (schemaUri.equals(JsonMetaSchema.getV6().getUri()))
-            return SpecVersion.VersionFlag.V6;
-        else if (schemaUri.equals(JsonMetaSchema.getV7().getUri()))
-            return SpecVersion.VersionFlag.V7;
-        else if (schemaUri.equals(JsonMetaSchema.getV201909().getUri()))
-            return SpecVersion.VersionFlag.V201909;
-        else if (schemaUri.equals(JsonMetaSchema.getV202012().getUri()))
-            return SpecVersion.VersionFlag.V202012;
-        else
-            throw new JsonSchemaException("Unrecognizable schema");
+            final boolean forceHttps = true;
+            final boolean removeEmptyFragmentSuffix = true;
+
+            String schemaTagValue = schemaTag.asText();
+            String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps,
+                    removeEmptyFragmentSuffix);
+
+            return VersionFlag.fromId(schemaUri)
+                .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
+        });
+    }
+
+    public static Optional<VersionFlag> detectOptionalVersion(String schemaUri) {
+        return VersionFlag.fromId(schemaUri);
     }
 
 }

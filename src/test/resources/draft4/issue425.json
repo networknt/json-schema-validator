@@ -1,0 +1,52 @@
+[
+  {
+    "description": "Nuallable oneOf validation",
+    "schema": {
+      "properties": {
+        "values": {
+          "description": "desc",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "oneOf with single string",
+        "data": {
+          "values": "test"
+        },
+        "valid": true
+      },
+      {
+        "description": "oneOf with invalid type",
+        "data": {
+          "values": 3
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.values: should be valid to one and only one schema, but 0 are valid",
+          "$.values: integer found, array expected",
+          "$.values: integer found, string expected"
+        ]
+      },
+      {
+        "description": "oneOf with single string array",
+        "data": {
+          "values": [ "test1"]
+        },
+        "valid": true
+      }
+    ]
+  }
+]

@@ -30,8 +30,8 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
 
     private final Format format;
 
-    public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FORMAT, validationContext);
+    public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
+        super(schemaPath, schemaNode, parentSchema, type, validationContext);
         this.format = format;
         this.validationContext = validationContext;
         parseErrorCode(getValidatorType().getErrorCodeKey());
@@ -63,7 +63,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on " + at + ": Invalid RE syntax [" + format.getName() + "]", pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", at, format.getName(), pse);
             }
         }
 

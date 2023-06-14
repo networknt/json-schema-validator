@@ -15,7 +15,14 @@
  */
 package com.networknt.schema;
 
+import java.util.AbstractCollection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -38,12 +45,70 @@ public class CollectorContext {
     /**
      * Map for holding the name and {@link Collector} or a simple Object.
      */
-    private Map<String, Object> collectorMap = new HashMap<String, Object>();
+    private Map<String, Object> collectorMap = new HashMap<>();
 
     /**
      * Map for holding the name and {@link Collector} class collect method output.
      */
-    private Map<String, Object> collectorLoadMap = new HashMap<String, Object>();
+    private Map<String, Object> collectorLoadMap = new HashMap<>();
+
+    private final Deque<Scope> dynamicScopes = new LinkedList<>();
+    private final boolean disableUnevaluatedItems;
+    private final boolean disableUnevaluatedProperties;
+
+    public CollectorContext() {
+        this(false, false);
+    }
+
+    public CollectorContext(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+        this.disableUnevaluatedItems = disableUnevaluatedItems;
+        this.disableUnevaluatedProperties = disableUnevaluatedProperties;
+        this.dynamicScopes.push(newTopScope());
+    }
+
+    /**
+     * Creates a new scope
+     * @return the previous, parent scope
+     */
+    public Scope enterDynamicScope() {
+        Scope parent = this.dynamicScopes.peek();
+        this.dynamicScopes.push(newScope());
+        return parent;
+    }
+
+    /**
+     * Restores the previous, parent scope
+     * @return the exited scope
+     */
+    public Scope exitDynamicScope() {
+        return this.dynamicScopes.pop();
+    }
+
+    /**
+     * Provides the currently active scope
+     * @return the active scope
+     */
+    public Scope getDynamicScope() {
+        return this.dynamicScopes.peek();
+    }
+
+    /**
+     * Identifies which array items have been evaluated.
+     * 
+     * @return the set of evaluated items (never null)
+     */
+    public Collection<String> getEvaluatedItems() {
+        return getDynamicScope().getEvaluatedItems();
+    }
+
+    /**
+     * Identifies which properties have been evaluated.
+     * 
+     * @return the set of evaluated properties (never null)
+     */
+    public Collection<String> getEvaluatedProperties() {
+        return getDynamicScope().getEvaluatedProperties();
+    }
 
     /**
      * Adds a collector with give name. Preserving this method for backward
@@ -54,7 +119,7 @@ public class CollectorContext {
      * @param collector Collector
      */
     public <E> void add(String name, Collector<E> collector) {
-        collectorMap.put(name, collector);
+        this.collectorMap.put(name, collector);
     }
 
     /**
@@ -65,7 +130,7 @@ public class CollectorContext {
      * @param name   String
      */
     public <E> void add(String name, Object object) {
-        collectorMap.put(name, object);
+        this.collectorMap.put(name, object);
     }
 
     /**
@@ -83,11 +148,11 @@ public class CollectorContext {
      * @return Object
      */
     public Object get(String name) {
-        Object object = collectorMap.get(name);
-        if (object instanceof Collector<?> && (collectorLoadMap.get(name) != null)) {
-            return collectorLoadMap.get(name);
+        Object object = this.collectorMap.get(name);
+        if (object instanceof Collector<?> && (this.collectorLoadMap.get(name) != null)) {
+            return this.collectorLoadMap.get(name);
         }
-        return collectorMap.get(name);
+        return this.collectorMap.get(name);
     }
 
     /**
@@ -95,9 +160,9 @@ public class CollectorContext {
      * @return Map
      */
     public Map<String, Object> getAll() {
-        Map<String, Object> mergedMap = new HashMap<String, Object>();
-        mergedMap.putAll(collectorMap);
-        mergedMap.putAll(collectorLoadMap);
+        Map<String, Object> mergedMap = new HashMap<>();
+        mergedMap.putAll(this.collectorMap);
+        mergedMap.putAll(this.collectorLoadMap);
         return mergedMap;
     }
 
@@ -108,7 +173,7 @@ public class CollectorContext {
      * @param data Object
      */
     public void combineWithCollector(String name, Object data) {
-        Object object = collectorMap.get(name);
+        Object object = this.collectorMap.get(name);
         if (object instanceof Collector<?>) {
             Collector<?> collector = (Collector<?>) object;
             collector.combine(data);
@@ -119,22 +184,125 @@ public class CollectorContext {
      * Reset the context
      */
     public void reset() {
-        this.collectorMap = new HashMap<String, Object>();
-        this.collectorLoadMap = new HashMap<String, Object>();
+        this.collectorMap = new HashMap<>();
+        this.collectorLoadMap = new HashMap<>();
+        this.dynamicScopes.clear();
+        this.dynamicScopes.push(newTopScope());
     }
 
     /**
      * Loads data from all collectors.
      */
     void loadCollectors() {
-        Set<Entry<String, Object>> entrySet = collectorMap.entrySet();
+        Set<Entry<String, Object>> entrySet = this.collectorMap.entrySet();
         for (Entry<String, Object> entry : entrySet) {
             if (entry.getValue() instanceof Collector<?>) {
                 Collector<?> collector = (Collector<?>) entry.getValue();
-                collectorLoadMap.put(entry.getKey(), collector.collect());
+                this.collectorLoadMap.put(entry.getKey(), collector.collect());
             }
         }
 
     }
 
+    private Scope newScope() {
+        return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+    }
+
+    private Scope newTopScope() {
+        return new Scope(true, this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+    }
+
+    public static class Scope {
+
+        /**
+         * Used to track which array items have been evaluated.
+         */
+        private final Collection<String> evaluatedItems;
+
+        /**
+         * Used to track which properties have been evaluated.
+         */
+        private final Collection<String> evaluatedProperties;
+
+        private final boolean top;
+
+        Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+            this(false, disableUnevaluatedItems, disableUnevaluatedProperties);
+        }
+
+        Scope(boolean top, boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+            this.top = top;
+            this.evaluatedItems = newCollection(disableUnevaluatedItems);
+            this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
+        }
+
+        private static Collection<String> newCollection(boolean disabled) {
+            return !disabled ? new ArrayList<>() : new AbstractCollection<String>() {
+
+                @Override
+                public boolean add(String e) {
+                    return false;
+                }
+
+                @Override
+                public Iterator<String> iterator() {
+                    return Collections.emptyIterator();
+                }
+
+                @Override
+                public boolean remove(Object o) {
+                    return false;
+                }
+
+                @Override
+                public int size() {
+                    return 0;
+                }
+
+            };
+        }
+
+        public boolean isTop() {
+            return this.top;
+        }
+
+        /**
+         * Identifies which array items have been evaluated.
+         * 
+         * @return the set of evaluated items (never null)
+         */
+        public Collection<String> getEvaluatedItems() {
+            return this.evaluatedItems;
+        }
+
+        /**
+         * Identifies which properties have been evaluated.
+         * 
+         * @return the set of evaluated properties (never null)
+         */
+        public Collection<String> getEvaluatedProperties() {
+            return this.evaluatedProperties;
+        }
+
+        /**
+         * Merges the provided scope into this scope.
+         * @param scope the scope to merge
+         * @return this scope
+         */
+        public Scope mergeWith(Scope scope) {
+            getEvaluatedItems().addAll(scope.getEvaluatedItems());
+            getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder("{ ")
+                .append("\"evaluatedItems\": ").append(this.evaluatedItems)
+                .append(", ")
+                .append("\"evaluatedProperties\": ").append(this.evaluatedProperties)
+                .append(" }").toString();
+        }
+
+    }
 }
