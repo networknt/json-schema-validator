@@ -24,24 +24,24 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ReadOnlyValidator extends BaseJsonValidator implements JsonValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
+public class ReadOnlyValidator extends BaseJsonValidator {
+    private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
-    private Boolean writeMode;
+    private final boolean readOnly;
 
-    public ReadOnlyValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-            ValidationContext validationContext) {
+    public ReadOnlyValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.READ_ONLY, validationContext);
-        this.writeMode = validationContext.getConfig().isWriteMode();
-        String mode = writeMode ? "write mode" : "read mode";
-        logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, mode);
+
+        this.readOnly = validationContext.getConfig().isReadOnly();
+        logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
+    @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        Set<ValidationMessage> errors= new HashSet<ValidationMessage>();
-        if (writeMode) {
+        Set<ValidationMessage> errors= new HashSet<>();
+        if (this.readOnly) {
         	errors.add(buildValidationMessage(at));
         } 
         return errors;

@@ -93,7 +93,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     PREFIX_ITEMS("prefixItems", "1048", PrefixItemsValidator.class, VersionCode.MinV202012),
     PROPERTIES("properties", "1025", PropertiesValidator.class, VersionCode.AllVersions),
     PROPERTYNAMES("propertyNames", "1044", PropertyNamesValidator.class, VersionCode.MinV6),
-    READ_ONLY("readOnly", "1032", ReadOnlyValidator.class, VersionCode.AllVersions),
+    READ_ONLY("readOnly", "1032", ReadOnlyValidator.class, VersionCode.MinV7),
     REF("$ref", "1026", RefValidator.class, VersionCode.AllVersions),
     REQUIRED("required", "1028", RequiredValidator.class, VersionCode.AllVersions),
     TRUE("true", "1040", TrueValidator.class, VersionCode.MinV6),
@@ -103,6 +103,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     UNION_TYPE("unionType", "1030", UnionTypeValidator.class, VersionCode.AllVersions),
     UNIQUE_ITEMS("uniqueItems", "1031", UniqueItemsValidator.class, VersionCode.AllVersions),
     UUID("uuid", "1035", null, VersionCode.AllVersions),
+    WRITE_ONLY("writeOnly", "1027", WriteOnlyValidator.class, VersionCode.MinV7),
     ;
 
     private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<>();

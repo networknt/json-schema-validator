@@ -110,9 +110,14 @@ public class SchemaValidatorsConfig {
     private boolean resetCollectorContext = true;
 
     /**
-     * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
+     * When set to true assumes that schema is used to validate incoming data from an API.
      */
-    private boolean writeMode = true;
+    private Boolean readOnly = null;
+
+    /**
+     * When set to true assumes that schema is used to to validate outgoing data from an API.
+     */
+    private Boolean writeOnly = null;
 
     /**
      * The approach used to generate paths in reported messages, logs and errors. Default is the legacy "JSONPath-like" approach.
@@ -437,8 +442,28 @@ public class SchemaValidatorsConfig {
         this.resetCollectorContext = resetCollectorContext;
     }
 
+    public boolean isReadOnly() {
+        return null != this.readOnly && this.readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public boolean isWriteOnly() {
+        return null != this.writeOnly && this.writeOnly;
+    }
+
+    public void setWriteOnly(boolean writeOnly) {
+        this.writeOnly = writeOnly;
+    }
+
+    /**
+     * Use {@code isReadOnly} or {@code isWriteOnly}
+     */
+    @Deprecated
     public boolean isWriteMode() {
-        return this.writeMode;
+        return null == this.writeOnly || this.writeOnly;
     }
 
     /**
@@ -446,9 +471,15 @@ public class SchemaValidatorsConfig {
      * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
      * 
      * @param writeMode true if schema is used to write data
+     * @deprecated Use {@code setReadOnly} or {@code setWriteOnly}
      */
+    @Deprecated
     public void setWriteMode(boolean writeMode) {
-        this.writeMode = writeMode;
+        if (writeMode) {
+            setWriteOnly(true);
+        } else {
+            setReadOnly(true);
+        }
     }
 
     /**

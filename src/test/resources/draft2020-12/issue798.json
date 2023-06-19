@@ -1,0 +1,46 @@
+[
+  {
+    "description": "issue798",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "string", "readOnly": true },
+        "c": { "type": "string", "writeOnly": true },
+        "d": { "type": "string", "readOnly": true, "writeOnly": true }
+      }
+    },
+    "tests": [
+      {
+        "description": "default behavior",
+        "data": { "a": "a string" },
+        "valid": true,
+        "config": { "readOnly": true, "writeOnly": true }
+      },
+      {
+        "description": "readonly behavior",
+        "data": { "a": "a string", "b": "a string" },
+        "valid": false,
+        "config": { "readOnly": true, "writeOnly": true },
+        "validationMessages": [ "$.b: is a readonly field, it cannot be changed" ]
+      },
+      {
+        "description": "write-only behavior",
+        "data": { "a": "a string", "c": "a string" },
+        "valid": false,
+        "config": { "readOnly": true, "writeOnly": true },
+        "validationMessages": [ "$.c: is a write-only field, it cannot appear in the data" ]
+      },
+      {
+        "description": "both behavior",
+        "data": { "a": "a string", "d": "a string" },
+        "valid": false,
+        "config": { "readOnly": true, "writeOnly": true },
+        "validationMessages": [
+           "$.d: is a readonly field, it cannot be changed",
+           "$.d: is a write-only field, it cannot appear in the data"
+         ]
+      }
+    ]
+  }
+]

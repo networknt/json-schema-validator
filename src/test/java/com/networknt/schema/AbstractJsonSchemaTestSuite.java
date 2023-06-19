@@ -132,8 +132,17 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         config.setTypeLoose(typeLoose);
         config.setEcma262Validator(TestSpec.RegexKind.JDK != testSpec.getRegex());
         testSpec.getStrictness().forEach(config::setStrict);
-        if (testSpec.getConfig() != null && testSpec.getConfig().containsKey("isCustomMessageSupported")) {
-            config.setCustomMessageSupported((Boolean) testSpec.getConfig().get("isCustomMessageSupported"));
+
+        if (testSpec.getConfig() != null) {
+            if (testSpec.getConfig().containsKey("isCustomMessageSupported")) {
+                config.setCustomMessageSupported((Boolean) testSpec.getConfig().get("isCustomMessageSupported"));
+            }
+            if (testSpec.getConfig().containsKey("readOnly")) {
+                config.setReadOnly((Boolean) testSpec.getConfig().get("readOnly"));
+            }
+            if (testSpec.getConfig().containsKey("writeOnly")) {
+                config.setWriteOnly((Boolean) testSpec.getConfig().get("writeOnly"));
+            }
         }
 
         URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
