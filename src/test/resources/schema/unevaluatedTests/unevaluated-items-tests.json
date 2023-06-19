@@ -1,0 +1,21 @@
+[
+  {
+    "description": "unevaluatedItems should not affect sub-schemas",
+    "schema": {
+      "unevaluatedItems": {
+        "type": "object"
+      }
+    },
+    "tests": [
+      {
+        "description": "unevaluated item bar is in sub-schema",
+        "data": [
+          {
+            "foo": ["bar"]
+          }
+        ],
+        "valid": true
+      }
+    ]
+  }
+]

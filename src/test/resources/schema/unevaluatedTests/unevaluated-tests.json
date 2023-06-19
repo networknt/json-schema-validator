@@ -27,15 +27,18 @@
           "unevaluatedProperties": false
         },
         "residence": {
-          "flatNumber": {
-            "type": "string"
+          "properties": {
+            "flatNumber": {
+              "type": "string"
+            },
+            "flatName": {
+              "type": "string"
+            },
+            "landmark": {
+              "type": "string"
+            }
           },
-          "flatName": {
-            "type": "string"
-          },
-          "landmark": {
-            "type": "string"
-          }
+          "unevaluatedProperties": false
         }
       },
       "properties": {
@@ -202,10 +205,11 @@
                 }
               }
             }
-          ]
-        }
-      },
-      "unevaluatedProperties": false
+          ],
+          "unevaluatedProperties": false
+        },
+        "unevaluatedProperties": false
+      }
     },
     "tests": [
       {
@@ -219,6 +223,22 @@
           }
         },
         "valid": true
+      },
+      {
+        "description": "Data which satisfies 1 oneOf schemas, but fails due to unevaluated prop",
+        "data": {
+          "firstName": "First Name",
+          "age": 18,
+          "lastName": "Last Name",
+          "vehicle": {
+            "pontoons": "pontoons",
+            "wheels": "wheels"
+          }
+        },
+        "valid": false,
+        "validationMessages": [
+          "There are unevaluated properties at the following paths $.vehicle.wheels"
+        ]
       },
       {
         "description": "Data which satisfies 2 oneOf schemas",
@@ -328,10 +348,11 @@
                 }
               }
             }
-          ]
-        }
-      },
-      "unevaluatedProperties": false
+          ],
+          "unevaluatedProperties": false
+        },
+        "unevaluatedProperties": false
+      }
     },
     "tests": [
       {
@@ -453,10 +474,11 @@
                 }
               }
             }
-          ]
-        }
-      },
-      "unevaluatedProperties": false
+          ],
+          "unevaluatedProperties": false
+        },
+        "unevaluatedProperties": false
+      }
     },
     "tests": [
       {
@@ -629,6 +651,26 @@
         "data": {
           "age": 18,
           "otherProperty": "test"
+        },
+        "valid": true
+      }
+    ]
+  },
+  {
+    "description": "unevaluatedProperties should not affect sub-schemas",
+    "schema": {
+      "properties": {
+        "foo": {}
+      },
+      "unevaluatedProperties": false
+    },
+    "tests": [
+      {
+        "description": "unevaluated property bar is in sub-schema",
+        "data": {
+          "foo": {
+            "bar": "baz"
+          }
         },
         "valid": true
       }

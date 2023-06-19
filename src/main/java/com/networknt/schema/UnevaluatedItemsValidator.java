@@ -16,19 +16,11 @@
 
 package com.networknt.schema;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.utils.JsonNodeUtil;
+import java.util.*;
 
 public class UnevaluatedItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedItemsValidator.class);
@@ -49,7 +41,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        if (this.disabled) return Collections.emptySet();
+        if (this.disabled || !node.isArray()) return Collections.emptySet();
 
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
@@ -92,21 +84,15 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         }
     }
 
-    private static final Pattern NUMERIC = Pattern.compile("^\\d+$");
-
     private Set<String> allPaths(JsonNode node, String at) {
-        return JsonNodeUtil.allPaths(getPathType(), at, node)
-            .stream()
-            .filter(this::isArray)
-            .collect(Collectors.toSet());
-    }
-
-    private boolean isArray(String path) {
-        String jsonPointer = getPathType().convertToJsonPointer(path);
-        String[] segment = jsonPointer.split("/");
-        if (0 == segment.length) return false;
-        String lastSegment = segment[segment.length - 1];
-        return NUMERIC.matcher(lastSegment).matches();
+        PathType pathType = getPathType();
+        Set<String> collector = new HashSet<>();
+        int size = node.size();
+        for (int i = 0; i < size; ++i) {
+            String path = pathType.append(at, i);
+            collector.add(path);
+        }
+        return collector;
     }
 
     private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths) {
