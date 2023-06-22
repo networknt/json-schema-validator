@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.84 - 2023-06-22
+
+### Added
+
+- fixes #823 Adds support for writeOnly. Thanks @fdutton
+
+### Changed
+
+- fixes #819 Reverts Undertow version to 2.2.25.Final. Thanks @fdutton
+
+
 ## 1.0.84 - 2023-06-09
 
 ### Added
