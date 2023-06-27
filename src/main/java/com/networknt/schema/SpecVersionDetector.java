@@ -58,12 +58,8 @@ public final class SpecVersionDetector {
     public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
-            final boolean forceHttps = true;
-            final boolean removeEmptyFragmentSuffix = true;
-
             String schemaTagValue = schemaTag.asText();
-            String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue, forceHttps,
-                    removeEmptyFragmentSuffix);
+            String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue);
 
             return VersionFlag.fromId(schemaUri)
                 .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));

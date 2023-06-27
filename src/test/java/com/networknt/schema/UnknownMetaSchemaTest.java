@@ -59,8 +59,6 @@ public class UnknownMetaSchemaTest {
 
     @Test
     public void testNormalize() throws JsonSchemaException {
-        final boolean forceHttps = true;
-        final boolean removeEmptyFragmentSuffix = true;
 
         String uri01 = "http://json-schema.org/draft-07/schema";
         String uri02 = "http://json-schema.org/draft-07/schema#";
@@ -68,44 +66,10 @@ public class UnknownMetaSchemaTest {
         String uri04 = "http://json-schema.org/draft-07/schema?key=value&key2=value2";
         String expected = "https://json-schema.org/draft-07/schema";
 
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04, forceHttps, removeEmptyFragmentSuffix));
-
-    }
-
-    @Test
-    public void testNormalizeForceHttpsDisabled() throws JsonSchemaException {
-        final boolean forceHttps = false;
-        final boolean removeEmptyFragmentSuffix = true;
-
-        String uri01 = "http://json-schema.org/draft-07/schema";
-        String uri02 = "http://json-schema.org/draft-07/schema#";
-        String uri03 = "http://json-schema.org/draft-07/schema?key=value";
-        String uri04 = "http://json-schema.org/draft-07/schema?key=value&key2=value2";
-        String expected = "http://json-schema.org/draft-07/schema";
-
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04, forceHttps, removeEmptyFragmentSuffix));
-
-    }
-
-    @Test
-    public void testNormalizeRemovingEmptyFragmentSuffixDisabled() throws JsonSchemaException {
-        final boolean forceHttps = true;
-        final boolean removeEmptyFragmentSuffix = false;
-
-        String uri01 = "http://json-schema.org/draft-07/schema#";
-        String uri02 = "http://json-schema.org/draft-07/schema?key=value#";
-        String uri03 = "http://json-schema.org/draft-07/schema?key=value&key2=value2#";
-        String expected = "https://json-schema.org/draft-07/schema#";
-
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02, forceHttps, removeEmptyFragmentSuffix));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03, forceHttps, removeEmptyFragmentSuffix));
+        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01));
+        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02));
+        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03));
+        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04));
 
     }
 }
