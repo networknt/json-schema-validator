@@ -17,14 +17,10 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.utils.JsonNodeUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
@@ -45,7 +41,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        if (this.disabled) return Collections.emptySet();
+        if (this.disabled || !node.isObject()) return Collections.emptySet();
 
         debug(logger, node, rootNode, at);
         CollectorContext collectorContext = CollectorContext.getInstance();
@@ -88,21 +84,14 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    private static final Pattern NUMERIC = Pattern.compile("^\\d+$");
-
     private Set<String> allPaths(JsonNode node, String at) {
-        return JsonNodeUtil.allPaths(getPathType(), at, node)
-            .stream()
-            .filter(this::isProperty)
-            .collect(Collectors.toSet());
-    }
-
-    private boolean isProperty(String path) {
-        String jsonPointer = getPathType().convertToJsonPointer(path);
-        String[] segment = jsonPointer.split("/");
-        if (0 == segment.length) return false;
-        String lastSegment = segment[segment.length - 1];
-        return !NUMERIC.matcher(lastSegment).matches();
+        PathType pathType = getPathType();
+        Set<String> collector = new HashSet<>();
+        node.fields().forEachRemaining(entry -> {
+            String path = pathType.append(at, entry.getKey());
+            collector.add(path);
+        });
+        return collector;
     }
 
     private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths) {
