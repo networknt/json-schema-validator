@@ -71,8 +71,18 @@ public class CollectorContext {
      * @return the previous, parent scope
      */
     public Scope enterDynamicScope() {
+        return enterDynamicScope(null);
+    }
+
+    /**
+     * Creates a new scope
+     * 
+     * @param containingSchema the containing schema
+     * @return the previous, parent scope
+     */
+    public Scope enterDynamicScope(JsonSchema containingSchema) {
         Scope parent = this.dynamicScopes.peek();
-        this.dynamicScopes.push(newScope());
+        this.dynamicScopes.push(newScope(null != containingSchema ? containingSchema : parent.getContainingSchema()));
         return parent;
     }
 
@@ -90,6 +100,28 @@ public class CollectorContext {
      */
     public Scope getDynamicScope() {
         return this.dynamicScopes.peek();
+    }
+
+    public JsonSchema getOutermostSchema() {
+
+        JsonSchema context = getDynamicScope().getContainingSchema();
+        if (null == context) {
+            throw new IllegalStateException("Missing a root schema in the dynamic scope.");
+        }
+
+        JsonSchema lexicalRoot = context.findLexicalRoot();
+        if (lexicalRoot.isDynamicAnchor()) {
+            Iterator<Scope> it = this.dynamicScopes.descendingIterator();
+            while (it.hasNext()) {
+                Scope scope = it.next();
+                JsonSchema containingSchema = scope.getContainingSchema();
+                if (null != containingSchema && containingSchema.isDynamicAnchor()) {
+                    return containingSchema;
+                }
+            }
+        }
+
+        return context.findLexicalRoot();
     }
 
     /**
@@ -204,15 +236,17 @@ public class CollectorContext {
 
     }
 
-    private Scope newScope() {
-        return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+    private Scope newScope(JsonSchema containingSchema) {
+        return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties, containingSchema);
     }
 
     private Scope newTopScope() {
-        return new Scope(true, this.disableUnevaluatedItems, this.disableUnevaluatedProperties);
+        return new Scope(true, this.disableUnevaluatedItems, this.disableUnevaluatedProperties, null);
     }
 
     public static class Scope {
+
+        private final JsonSchema containingSchema;
 
         /**
          * Used to track which array items have been evaluated.
@@ -226,12 +260,13 @@ public class CollectorContext {
 
         private final boolean top;
 
-        Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
-            this(false, disableUnevaluatedItems, disableUnevaluatedProperties);
+        Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties, JsonSchema containingSchema) {
+            this(false, disableUnevaluatedItems, disableUnevaluatedProperties, containingSchema);
         }
 
-        Scope(boolean top, boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
+        Scope(boolean top, boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties, JsonSchema containingSchema) {
             this.top = top;
+            this.containingSchema = containingSchema;
             this.evaluatedItems = newCollection(disableUnevaluatedItems);
             this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
         }
@@ -264,6 +299,10 @@ public class CollectorContext {
 
         public boolean isTop() {
             return this.top;
+        }
+
+        public JsonSchema getContainingSchema() {
+            return this.containingSchema;
         }
 
         /**
