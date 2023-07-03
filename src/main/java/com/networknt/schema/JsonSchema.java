@@ -44,6 +44,7 @@ public class JsonSchema extends BaseJsonValidator {
     private Map<String, JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
+    private boolean dynamicAnchor = false;
 
     /**
      * This is the current uri of this schema. This uri could refer to the uri of this schema's file
@@ -55,6 +56,7 @@ public class JsonSchema extends BaseJsonValidator {
      * 'id' would still be able to specify an absolute uri.
      */
     private URI currentUri;
+    private boolean hasId = false;
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
 
@@ -222,6 +224,16 @@ public class JsonSchema extends BaseJsonValidator {
         return node;
     }
 
+    // This represents the lexical scope
+    JsonSchema findLexicalRoot() {
+        JsonSchema ancestor = this;
+        while (!ancestor.hasId) {
+            if (null == ancestor.getParentSchema()) break;
+            ancestor = ancestor.getParentSchema();
+        }
+        return ancestor;
+    }
+
     public JsonSchema findAncestor() {
         JsonSchema ancestor = this;
         if (this.getParentSchema() != null) {
@@ -255,6 +267,9 @@ public class JsonSchema extends BaseJsonValidator {
                 validators.put(getSchemaPath() + "/false", validator);
             }
         } else {
+
+            this.hasId = schemaNode.has(this.validationContext.getMetaSchema().getIdKeyword());
+
             JsonValidator refValidator = null;
 
             Iterator<String> pnames = schemaNode.fieldNames();
@@ -262,6 +277,20 @@ public class JsonSchema extends BaseJsonValidator {
                 String pname = pnames.next();
                 JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
                 String customMessage = getCustomMessage(schemaNode, pname);
+
+                if ("$recursiveAnchor".equals(pname)) {
+                    if (!nodeToUse.isBoolean()) {
+                        throw new JsonSchemaException(
+                            ValidationMessage.of(
+                                "$recursiveAnchor",
+                                CustomErrorMessageType.of("internal.invalidRecursiveAnchor"),
+                                new MessageFormat("{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}"),
+                                schemaPath, schemaPath, nodeToUse.getNodeType().toString()
+                            )
+                        );
+                    }
+                    this.dynamicAnchor = nodeToUse.booleanValue();
+                }
 
                 JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), pname, nodeToUse, this, customMessage);
                 if (validator != null) {
@@ -359,7 +388,7 @@ public class JsonSchema extends BaseJsonValidator {
             for (JsonValidator v : getValidators().values()) {
                 Set<ValidationMessage> results = Collections.emptySet();
 
-                Scope parentScope = collectorContext.enterDynamicScope();
+                Scope parentScope = collectorContext.enterDynamicScope(this);
                 try {
                     results = v.validate(jsonNode, rootNode, at);
                 } finally {
@@ -604,6 +633,10 @@ public class JsonSchema extends BaseJsonValidator {
                 validator.preloadJsonSchema();
             }
         }
+    }
+
+    public boolean isDynamicAnchor() {
+        return this.dynamicAnchor;
     }
 
 }

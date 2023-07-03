@@ -32,7 +32,8 @@ enum VersionCode {
     MinV7(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
     MaxV201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V4, SpecVersion.VersionFlag.V6, SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909 }),
     MinV201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
-    MinV202012(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V202012 });
+    MinV202012(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V202012 }),
+    V201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909 });
 
     private final EnumSet<VersionFlag> versions;
 
@@ -48,7 +49,6 @@ enum VersionCode {
 	}
 }
 
-// NOTE: Missing error codes 1027
 public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ADDITIONAL_PROPERTIES("additionalProperties", "1001", AdditionalPropertiesValidator.class, VersionCode.AllVersions),
     ALL_OF("allOf", "1002", AllOfValidator.class, VersionCode.AllVersions),
@@ -94,6 +94,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     PROPERTIES("properties", "1025", PropertiesValidator.class, VersionCode.AllVersions),
     PROPERTYNAMES("propertyNames", "1044", PropertyNamesValidator.class, VersionCode.MinV6),
     READ_ONLY("readOnly", "1032", ReadOnlyValidator.class, VersionCode.MinV7),
+    RECURSIVE_REF("$recursiveRef", "1050", RecursiveRefValidator.class, VersionCode.V201909),
     REF("$ref", "1026", RefValidator.class, VersionCode.AllVersions),
     REQUIRED("required", "1028", RequiredValidator.class, VersionCode.AllVersions),
     TRUE("true", "1040", TrueValidator.class, VersionCode.MinV6),

@@ -16,8 +16,8 @@
 | $dynamicAnchor             | 🚫 | 🚫 | 🚫 | 🚫 | 🔴 |
 | $dynamicRef                | 🚫 | 🚫 | 🚫 | 🚫 | 🔴 |
 | $id                        | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 |
-| $recursiveAnchor           | 🚫 | 🚫 | 🚫 | 🔴 | 🔴 |
-| $recursiveRef              | 🚫 | 🚫 | 🚫 | 🔴 | 🔴 |
+| $recursiveAnchor           | 🚫 | 🚫 | 🚫 | 🟢 | 🚫 |
+| $recursiveRef              | 🚫 | 🚫 | 🚫 | 🟢 | 🚫 |
 | $ref                       | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 |
 | $vocabulary                | 🚫 | 🚫 | 🚫 | 🔴 | 🔴 |
 | additionalItems            | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
@@ -59,13 +59,13 @@
 | prefixItems                | 🚫 | 🚫 | 🚫 | 🚫 | 🟢 |
 | properties                 | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | propertyNames              | 🚫 | 🟢 | 🟢 | 🟢 | 🟢 |
-| readOnly                   | 🚫 | 🚫 | 🔴 | 🔴 | 🔴 |
+| readOnly                   | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 | required                   | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | type                       | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | unevaluatedItems           | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | unevaluatedProperties      | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | uniqueItems                | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
-| writeOnly                  | 🚫 | 🚫 | 🔴 | 🔴 | 🔴 |
+| writeOnly                  | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 
 ### Semantic Validation (Format)
 

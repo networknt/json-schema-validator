@@ -218,6 +218,10 @@ public class JsonMetaSchema {
                 .addFormats(formatKeyword.getFormats());
     }
 
+    public String getIdKeyword() {
+        return this.idKeyword;
+    }
+
     public String readId(JsonNode schemaNode) {
         return readText(schemaNode, this.idKeyword);
     }

@@ -348,6 +348,8 @@
                 "$ref": "recursiveRef8_inner.json"
             }
         },
+        "disabled": true,
+        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "recurse to anyLeafNode - floats are allowed",
@@ -392,6 +394,8 @@
                 "$ref": "main.json#/$defs/inner"
             }
         },
+        "disabled": true,
+        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "numeric node",
