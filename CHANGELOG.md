@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.86 - 2023-07-05
+
+### Added
+
+- fixes #825 Adds support for $recursiveAnchor and $recursiveRef. Thanks @fdutton
+
+### Changed
+
+- fixes #827 Stops unevaluatedProperties and unevaluatedItems being applied recursively. Thanks @aznan2
+- fixes #834 Always normalize uri keys of JsonSchemaFactory.jsonMetaSchemas on both read and write. Thanks @stacywsmith 
+
+
 ## 1.0.85 - 2023-06-22
 
 ### Added
