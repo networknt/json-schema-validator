@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.87 - 2023-09-08
+
+### Added
+
+- fixes #852 New resource bundle languages added for issue. Thanks @channaveer1
+
+### Changed
+
+- fixes #837 Use correct namespace URI to pass XML validation. Thanks @@jbliznak
+
+
 ## 1.0.86 - 2023-07-05
 
 ### Added

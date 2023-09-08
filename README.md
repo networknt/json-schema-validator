@@ -81,7 +81,7 @@ Maven:
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.86</version>
+    <version>1.0.87</version>
     <exclusions>
         <exclusion>
             <groupId>org.apache.commons</groupId>
@@ -95,7 +95,7 @@ Gradle:
 
 ```java
 dependencies {
-    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.86');
+    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.87');
 }
 ```
 
