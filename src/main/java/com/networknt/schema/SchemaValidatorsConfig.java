@@ -205,6 +205,10 @@ public class SchemaValidatorsConfig {
 
     /************************ END OF UNEVALUATED CHECKS **********************************/
 
+    /**
+     *
+     * @return true if type loose is used.
+     */
     public boolean isTypeLoose() {
         return this.typeLoose;
     }
@@ -460,6 +464,7 @@ public class SchemaValidatorsConfig {
 
     /**
      * Use {@code isReadOnly} or {@code isWriteOnly}
+     * @return true if schema is used to write data
      */
     @Deprecated
     public boolean isWriteMode() {
