@@ -79,7 +79,7 @@
     <version.logback>1.2.11</version.logback>
     <version.slf4j>2.0.7</version.slf4j>
     <version.surefire>3.0.0</version.surefire>
-    <version.undertow>2.3.5.Final</version.undertow>
+    <version.undertow>2.2.25.Final</version.undertow>
   </properties>
 
   <dependencies>
