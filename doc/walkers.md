@@ -192,7 +192,7 @@ Given an example schema as shown, if we write a property listener, the walk flow
 {
  
     "title": "Sample Schema",
-  	"definitions" : {
+    "definitions" : {
       "address" :{
        "street-address": {
             "title": "Street Address",
