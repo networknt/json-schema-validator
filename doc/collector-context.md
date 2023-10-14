@@ -35,17 +35,34 @@ collectorContext.add(SAMPLE_COLLECTOR,"sample-string")
 
 ```
 
-To validate the schema with the ability to use CollectorContext, validateAndCollect method has to be invoked on the JsonSchema class. This class returns a ValidationResult that contains the errors encountered during validation and a CollectorContext instance. Objects constructed by Collectors or directly added to CollectorContext can be retrieved from CollectorContext by using the name they were added with.
+To retrieve the `CollectorContext` after validation or walking, automatic reseting of collector contexts has to be disabled:
+
+```java
+SchemaValidatorsConfig configuration = new SchemaValidatorsConfig();
+configuration.setResetCollectorContext(false);
+JsonSchema jsonSchema = factory.getSchema(uri, configuration);
+
+```
+
+To use the `CollectorContext` while validating, the `validateAndCollect` method has to be invoked on the `JsonSchema` class.
+This method returns a `ValidationResult` that contains the errors encountered during validation and a `CollectorContext` instance.
+Objects constructed by collectors or directly added to `CollectorContext` can be retrieved from `CollectorContext` by using the name they were added with.
 
 
 ```java
- ValidationResult validationResult = jsonSchema.validateAndCollect(jsonNode);
- CollectorContext context = validationResult.getCollectorContext();
- List<String> contextValue = (List<String>)context.get(SAMPLE_COLLECTOR);
- 
+List<String> contextValue;
+try {
+    ValidationResult validationResult = jsonSchema.validateAndCollect(jsonNode);
+    CollectorContext context = validationResult.getCollectorContext();
+    contextValue = (List<String>)context.get(SAMPLE_COLLECTOR);
+} finally {
+   // Remove all data from collector context.
+   // Otherwise, data is kept between validation runs which is usually unintended
+   // and a potential memory leak.
+   if (CollectorContext.getInstance() != null) CollectorContext.getInstance().reset();
+}
+// do something with contextValue
 ```
-
-Note that CollectorContext will be removed from ThreadLocal once validateAndCollect method returns. Also the data collected by Collectors is loaded into CollectorContext only after all the validations are done.
 
 There might be usecases where a collector needs to collect the data at multiple touch points. For example one usecase might be collecting data in a validator and a formatter. If you are using a Collector rather than a Object, the combine method of the Collector allows to define how we want to combine the data into existing Collector. CollectorContext combineWithCollector method calls the combine method on the Collector. User just needs to call the CollectorContext combineWithCollector method every time some data needs to merged into existing Collector. The collect method on the Collector is called by the framework at the end of validation to return the data that was collected.
 
