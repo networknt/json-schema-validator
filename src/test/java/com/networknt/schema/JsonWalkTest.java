@@ -18,12 +18,15 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JsonWalkTest {
 
     private JsonSchema jsonSchema;
 
     private JsonSchema jsonSchema1;
+
+    private JsonSchema jsonSchema2;
 
     private static final String SAMPLE_WALK_COLLECTOR_TYPE = "sampleWalkCollectorType";
 
@@ -59,6 +62,15 @@ public class JsonWalkTest {
                 new PropertiesKeywordListener());
         schemaValidatorsConfig1.setResetCollectorContext(false);
         this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1);
+
+        // Create one more schema
+        SchemaValidatorsConfig schemaValidatorsConfig2 = new SchemaValidatorsConfig();
+        schemaValidatorsConfig2.addKeywordWalkListener(new AllKeywordListener());
+        schemaValidatorsConfig2.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+        schemaValidatorsConfig2.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+                new PropertiesKeywordListener());
+        schemaValidatorsConfig2.setResetCollectorContext(true);
+        this.jsonSchema2 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig2);
     }
 
     private JsonMetaSchema getJsonMetaSchema() {
@@ -105,8 +117,14 @@ public class JsonWalkTest {
                 + "     }"
                 + "}")));
         // This instance of schema contains one listener removed.
-        CollectorContext collectorContext = result.getCollectorContext();
-        collectorContext.reset();
+        jsonSchema1.getCollectorContext().reset();
+
+        // the original (source) collector context object is expected to be empty now
+        assertNull(jsonSchema1.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE));
+
+        // while the one from the result still should hold the values
+        assertEquals(result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE), collectedNode);
+
         result = jsonSchema1.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
         collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
@@ -119,6 +137,28 @@ public class JsonWalkTest {
                 + "          }"
                 + "     }"
                 + "}")));
+    }
+
+    @Test
+    public void testWalkWithDifferentListenersWithResetCollectorContext() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ValidationResult result = jsonSchema2.walk(
+                objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
+        JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
+        assertEquals(collectedNode, (objectMapper.readTree("{" +
+                "    \"PROPERTY1\": \"sample1\","
+                + "    \"PROPERTY2\": \"sample2\","
+                + "    \"property3\": {"
+                + "        \"street_address\":\"test-address\","
+                + "        \"phone_number\": {"
+                + "            \"country-code\": \"091\","
+                + "            \"number\": \"123456789\""
+                + "          }"
+                + "     }"
+                + "}")));
+
+        // the original (source) collector context object is expected to be empty
+        assertNull(jsonSchema2.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE));
     }
 
     private InputStream getSchema() {

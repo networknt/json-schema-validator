@@ -114,6 +114,16 @@ public class CollectorContextTest {
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
 
+    @Test
+    public void testReset() {
+        CollectorContext context = new CollectorContext();
+        String collectedValue = "Some test value";
+        context.add(SAMPLE_COLLECTOR, collectedValue);
+        CollectorContext copy = new CollectorContext(context);
+        context.reset();
+        Assertions.assertEquals(copy.get(SAMPLE_COLLECTOR), collectedValue);
+    }
+
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
                 .addKeyword(new CustomKeyword()).addKeyword(new CustomKeyword1()).addFormat(new Format() {

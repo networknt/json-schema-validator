@@ -26,13 +26,18 @@ public class ValidationResult {
     public ValidationResult(Set<ValidationMessage> validationMessages, CollectorContext collectorContext) {
         super();
         this.validationMessages = validationMessages;
-        this.collectorContext = collectorContext;
+
+        // making a copy of collector context object so the original object can be safely reset
+        this.collectorContext = new CollectorContext(collectorContext);
     }
 
     public Set<ValidationMessage> getValidationMessages() {
         return validationMessages;
     }
 
+    /**
+     * @return Returns a (shallow) copy of the original CollectorContext object accessible via {@link JsonSchema#getCollectorContext}.
+     */
     public CollectorContext getCollectorContext() {
         return collectorContext;
     }

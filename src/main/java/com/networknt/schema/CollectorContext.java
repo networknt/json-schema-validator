@@ -66,6 +66,12 @@ public class CollectorContext {
         this.dynamicScopes.push(newTopScope());
     }
 
+    public CollectorContext(CollectorContext other) {
+        this();
+        this.collectorMap = other.collectorMap;
+        this.collectorLoadMap = other.collectorLoadMap;
+    }
+
     /**
      * Creates a new scope
      * @return the previous, parent scope
