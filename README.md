@@ -42,7 +42,7 @@ The OpenAPI 3.0 specification is using JSON schema to validate the request/respo
 
 Following the design principle of the Light Platform, this library has minimum dependencies to ensure there are no dependency conflicts when using it. 
 
-Here are the dependencies. 
+Here are the dependencies:
 
 ```xml
 <dependency>
@@ -58,10 +58,7 @@ Here are the dependencies.
 </dependency>
 ```
 
-Note: Apache commons lang is included as a compile time dependency but is not
-required anymore. It is still included for the sake of older projects that
-depend on it as an accidental transitive runtime dependency. It is encouraged to
-exclude it as shown below and will be removed in a future release.
+**Note**: Up to version [1.0.81](https://github.com/networknt/json-schema-validator/blob/1.0.81/pom.xml#L99), the dependency `org.apache.commons:commons-lang3` was included as a runtime dependency. Starting with [1.0.82](https://github.com/networknt/json-schema-validator/releases/tag/1.0.82) it is not required anymore.
 
 #### Community
 
@@ -82,6 +79,8 @@ Maven:
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
     <version>1.0.87</version>
+
+    <!-- Only required for versions < 1.0.82. See README.md -->
     <exclusions>
         <exclusion>
             <groupId>org.apache.commons</groupId>
