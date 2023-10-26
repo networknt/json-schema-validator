@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AnyOfValidator extends BaseJsonValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<JsonSchema> schemas = new ArrayList<>();
