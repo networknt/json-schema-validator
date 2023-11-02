@@ -1,7 +1,6 @@
 [
     {
         "description": "issue782 using ECMA-262",
-        "regex": "ecma-262",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
@@ -14,31 +13,37 @@
         "tests": [
             {
                 "description": "regexes may be anchored to the start of the property name, 1",
+                "regex": "ecma-262",
                 "data": { "x-api-id": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to the start of the property name, 2",
+                "regex": "ecma-262",
                 "data": { "ax-api-id": 3 },
                 "valid": false
             },
             {
                 "description": "regexes may be anchored to the end of the property name, 1",
+                "regex": "ecma-262",
                 "data": { "api-id-y-": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to the end of the property name, 2",
+                "regex": "ecma-262",
                 "data": { "y-api-id": 3 },
                 "valid": false
             },
             {
                 "description": "regexes may be anchored to both ends of the property name, 1",
+                "regex": "ecma-262",
                 "data": { "z-": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to both ends of the property name, 2",
+                "regex": "ecma-262",
                 "data": { "az-api-id": 3 },
                 "valid": false
             }
@@ -46,7 +51,6 @@
     },
     {
         "description": "issue782 using Java Pattern",
-        "regex": "jdk",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
@@ -59,31 +63,37 @@
         "tests": [
             {
                 "description": "regexes may be anchored to the start of the property name, 1",
+                "regex": "jdk",
                 "data": { "x-api-id": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to the start of the property name, 2",
+                "regex": "jdk",
                 "data": { "ax-api-id": 3 },
                 "valid": false
             },
             {
                 "description": "regexes may be anchored to the end of the property name, 1",
+                "regex": "jdk",
                 "data": { "api-id-y-": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to the end of the property name, 2",
+                "regex": "jdk",
                 "data": { "y-api-id": 3 },
                 "valid": false
             },
             {
                 "description": "regexes may be anchored to both ends of the property name, 1",
+                "regex": "jdk",
                 "data": { "z-": 3 },
                 "valid": true
             },
             {
                 "description": "regexes may be anchored to both ends of the property name, 2",
+                "regex": "jdk",
                 "data": { "az-api-id": 3 },
                 "valid": false
             }

@@ -21,7 +21,7 @@ class JoniRegularExpression implements RegularExpression {
             .replace("\\S", "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]");
 
         byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-        this.pattern = new Regex(bytes, 0, bytes.length, Option.NONE, UTF8Encoding.INSTANCE, Syntax.ECMAScript);
+        this.pattern = new Regex(bytes, 0, bytes.length, Option.SINGLELINE, UTF8Encoding.INSTANCE, Syntax.ECMAScript);
     }
 
     @Override

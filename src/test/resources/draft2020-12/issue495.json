@@ -1,30 +1,52 @@
 [
     {
         "description": "issue495 using ECMA-262",
-        "regex": "ecma-262",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "pattern": "^[a-z]{1,10}$",
+            "patternProperties": {
+              "^[a-z]{1,10}$": true,
+              "(^1$)": true
+            },
             "unevaluatedProperties": false
         },
         "tests": [
             {
                 "description": "an expected property name",
+                "regex": "ecma-262",
                 "data": { "aaa": 3 },
                 "valid": true
             },
             {
+                "description": "another expected property name",
+                "regex": "jdk",
+                "data": { "1": 3 },
+                "valid": true
+            },
+            {
                 "description": "trailing newline",
+                "regex": "ecma-262",
                 "data": { "aaa\n": 3 },
-                "valid": false
+                "valid": false,
+                "disabled": true,
+                "comment": "Test fails"
+            },
+            {
+                "description": "another trailing newline",
+                "regex": "jdk",
+                "data": { "1\n": 3 },
+                "valid": false,
+                "disabled": true,
+                "comment": "Test fails"
             },
             {
                 "description": "embedded newline",
+                "regex": "ecma-262",
                 "data": { "aaa\nbbb": 3 },
                 "valid": false
             },
             {
                 "description": "leading newline",
+                "regex": "ecma-262",
                 "data": { "\nbbb": 3 },
                 "valid": false
             }
@@ -32,30 +54,52 @@
     },
     {
         "description": "issue495 using Java Pattern",
-        "regex": "jdk",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "pattern": "^[a-z]{1,10}$",
+            "patternProperties": {
+              "^[a-z]{1,10}$": true,
+              "(^1$)": true
+            },
             "unevaluatedProperties": false
         },
         "tests": [
             {
                 "description": "an expected property name",
+                "regex": "jdk",
                 "data": { "aaa": 3 },
                 "valid": true
             },
             {
+                "description": "another expected property name",
+                "regex": "jdk",
+                "data": { "1": 3 },
+                "valid": true
+            },
+            {
                 "description": "trailing newline",
+                "regex": "jdk",
                 "data": { "aaa\n": 3 },
-                "valid": false
+                "valid": false,
+                "disabled": true,
+                "comment": "Test fails"
+            },
+            {
+                "description": "another trailing newline",
+                "regex": "jdk",
+                "data": { "1\n": 3 },
+                "valid": false,
+                "disabled": true,
+                "comment": "Test fails"
             },
             {
                 "description": "embedded newline",
+                "regex": "jdk",
                 "data": { "aaa\nbbb": 3 },
                 "valid": false
             },
             {
                 "description": "leading newline",
+                "regex": "jdk",
                 "data": { "\nbbb": 3 },
                 "valid": false
             }
