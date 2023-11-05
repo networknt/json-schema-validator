@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 
 
 /**
- * This class test {@link NotAllowedValidator}, above mentioned validator check that
+ * This class test {@link NotAllowedValidator},
+ * above-mentioned validator check that schema defined json should not be there in JSON object
  */
 class NotAllowedValidatorTest extends AbstractJsonSchemaTest {
 
