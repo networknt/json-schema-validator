@@ -1,0 +1,50 @@
+[
+  {
+    "description": "invalid recursive reference exception testing",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "subordinates": {
+          "type": "array",
+          "items": {
+            "$recursiveRef": "#%"
+          }
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "no test cases invalid schema exception",
+        "data": {
+          "name": "John Doe",
+          "title": "CEO",
+          "subordinates": [
+            {
+              "name": "Alice Smith",
+              "title": "CTO",
+              "subordinates": [
+                {
+                  "name": "Bob Johnson",
+                  "title": "Lead Engineer",
+                  "subordinates": []
+                }
+              ]
+            },
+            {
+              "name": "Eva Brown",
+              "title": "CFO",
+              "subordinates": []
+            }
+          ]
+        },
+        "valid": true
+      }
+    ]
+  }
+]
