@@ -1,0 +1,16 @@
+[
+  {
+    "description": "no prefix items, exception testing",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": []
+    },
+    "tests": [
+      {
+        "description": "zero elements",
+        "data": [],
+        "valid": true
+      }
+    ]
+  }
+]
