@@ -48,7 +48,7 @@ public class JsonSchemaFactory {
         private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
         private URNFactory urnFactory;
-        private final Map<String, JsonMetaSchema> jsonMetaSchemas = new HashMap<String, JsonMetaSchema>();
+        private final ConcurrentMap<String, JsonMetaSchema> jsonMetaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
         private final Map<String, String> uriMap = new HashMap<String, String>();
         private boolean enableUriSchemaCache = true;
         private final CompositeURITranslator uriTranslators = new CompositeURITranslator();
