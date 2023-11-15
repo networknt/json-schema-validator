@@ -59,11 +59,14 @@ public class InetAddressValidator implements Serializable {
      */
     private static final InetAddressValidator VALIDATOR = new InetAddressValidator();
 
-    /** IPv4 RegexValidator */
+    /**
+     * IPv4 RegexValidator
+     */
     private final RegexValidator ipv4Validator = new RegexValidator(IPV4_REGEX);
 
     /**
      * Returns the singleton instance of this validator.
+     *
      * @return the singleton instance of this validator
      */
     public static InetAddressValidator getInstance() {
@@ -71,7 +74,44 @@ public class InetAddressValidator implements Serializable {
     }
 
     /**
+     * This method parse and validate the given inet6Address and return the valid inet6Address Part
+     *
+     * @param inet6Address inet6Address to be processed
+     * @return valid part of inet6Address after processing
+     */
+    private static String getValidInet6AddressPart(String inet6Address) {
+        String[] parts;
+        // remove prefix size. This will appear after the zone id (if any)
+        parts = inet6Address.split("/", -1);
+        if (parts.length > 2) {
+            return null;
+        }
+        if (parts.length == 2) {
+            if (!parts[1].matches("\\d{1,3}")) {
+                return null;
+            }
+            final int bits = Integer.parseInt(parts[1]); // cannot fail because of RE check
+            if (bits < 0 || bits > MAX_BYTE) {
+                return null;
+            }
+        }
+        // remove zone-id
+        parts = parts[0].split("%", -1);
+        if (parts.length > 2) {
+            return null;
+        }
+        // The id syntax is implementation independent, but it presumably cannot allow:
+        // whitespace, '/' or '%'
+        if ((parts.length == 2) && !parts[1].matches("[^\\s/%]+")) {
+            return null;
+        }
+        inet6Address = parts[0];
+        return inet6Address;
+    }
+
+    /**
      * Checks if the specified string is a valid IPv4 or IPv6 address.
+     *
      * @param inetAddress the string to validate
      * @return true if the string validates as an IP address
      */
@@ -81,6 +121,7 @@ public class InetAddressValidator implements Serializable {
 
     /**
      * Validates an IPv4 address. Returns true if valid.
+     *
      * @param inet4Address the IPv4 address to validate
      * @return true if the argument contains a valid IPv4 address
      */
@@ -121,38 +162,14 @@ public class InetAddressValidator implements Serializable {
 
     /**
      * Validates an IPv6 address. Returns true if valid.
+     *
      * @param inet6Address the IPv6 address to validate
      * @return true if the argument contains a valid IPv6 address
-     *
      * @since 1.4.1
      */
     public boolean isValidInet6Address(String inet6Address) {
-        String[] parts;
-        // remove prefix size. This will appear after the zone id (if any)
-        parts = inet6Address.split("/", -1);
-        if (parts.length > 2) {
-            return false; // can only have one prefix specifier
-        }
-        if (parts.length == 2) {
-            if (!parts[1].matches("\\d{1,3}")) {
-                return false; // not a valid number
-            }
-            final int bits = Integer.parseInt(parts[1]); // cannot fail because of RE check
-            if (bits < 0 || bits > MAX_BYTE) {
-                return false; // out of range
-            }
-        }
-        // remove zone-id
-        parts = parts[0].split("%", -1);
-        if (parts.length > 2) {
-            return false;
-        }
-        // The id syntax is implementation independent, but it presumably cannot allow:
-        // whitespace, '/' or '%'
-        if ((parts.length == 2) && !parts[1].matches("[^\\s/%]+")) {
-            return false; // invalid id
-        }
-        inet6Address = parts[0];
+        inet6Address = getValidInet6AddressPart(inet6Address);
+        if (inet6Address == null) return false; // invalid id
         final boolean containsCompressedZeroes = inet6Address.contains("::");
         if (containsCompressedZeroes && (inet6Address.indexOf("::") != inet6Address.lastIndexOf("::"))) {
             return false;
@@ -209,9 +226,6 @@ public class InetAddressValidator implements Serializable {
             }
             validOctets++;
         }
-        if (validOctets > IPV6_MAX_HEX_GROUPS || (validOctets < IPV6_MAX_HEX_GROUPS && !containsCompressedZeroes)) {
-            return false;
-        }
-        return true;
+        return validOctets <= IPV6_MAX_HEX_GROUPS && (validOctets >= IPV6_MAX_HEX_GROUPS || containsCompressedZeroes);
     }
 }
