@@ -19,26 +19,19 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
-import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.*;
 
-public abstract class BaseJsonValidator implements JsonValidator {
-    protected String schemaPath;
-    protected JsonNode schemaNode;
-    protected JsonSchema parentSchema;
+public abstract class BaseJsonValidator extends ValidationMessageHandler implements JsonValidator {
     protected final boolean suppressSubSchemaRetrieval;
-    private ValidatorTypeCode validatorType;
-    private ErrorMessageType errorMessageType;
-    protected ValidationContext validationContext;
-    protected final boolean failFast;
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
-    private final String customMessage;
     private final PathType pathType;
-    private final ResourceBundle resourceBundle;
+
+    protected JsonNode schemaNode;
+
+    protected ValidationContext validationContext;
 
     public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
@@ -51,37 +44,11 @@ public abstract class BaseJsonValidator implements JsonValidator {
                              ValidatorTypeCode validatorType,
                              ValidationContext validationContext,
                              boolean suppressSubSchemaRetrieval) {
-        this.errorMessageType = validatorType;
-        this.schemaPath = schemaPath;
+        super(validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(), validatorType, validatorType != null ? validatorType.getCustomMessage() : null, (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getResourceBundle() : I18nSupport.DEFAULT_RESOURCE_BUNDLE, validatorType, parentSchema, schemaPath);
         this.schemaNode = schemaNode;
-        this.parentSchema = parentSchema;
-        this.validatorType = validatorType;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.failFast = validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast();
         this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
-        if (validatorType != null) {
-            this.customMessage = validatorType.getCustomMessage();
-        } else {
-            this.customMessage = null;
-        }
         this.pathType = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType() : PathType.DEFAULT;
-        this.resourceBundle = (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getResourceBundle() : I18nSupport.DEFAULT_RESOURCE_BUNDLE;
-    }
-
-    public String getSchemaPath() {
-        return this.schemaPath;
-    }
-
-    public JsonNode getSchemaNode() {
-        return this.schemaNode;
-    }
-
-    public JsonSchema getParentSchema() {
-        return this.parentSchema;
-    }
-
-    protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
-        return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
@@ -110,173 +77,22 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
     }
 
-    @Override
-    public Set<ValidationMessage> validate(JsonNode node) {
-        return validate(node, node, atRoot());
-    }
-
     protected static boolean equals(double n1, double n2) {
         return Math.abs(n1 - n2) < 1e-12;
-    }
-
-    protected static boolean greaterThan(double n1, double n2) {
-        return n1 - n2 > 1e-12;
-    }
-
-    protected static boolean lessThan(double n1, double n2) {
-        return n1 - n2 < -1e-12;
-    }
-
-    protected void parseErrorCode(String errorCodeKey) {
-        JsonNode errorCodeNode = getParentSchema().getSchemaNode().get(errorCodeKey);
-        if (errorCodeNode != null && errorCodeNode.isTextual()) {
-            String errorCodeText = errorCodeNode.asText();
-            if (StringUtils.isNotBlank(errorCodeText)) {
-                this.errorMessageType = CustomErrorMessageType.of(errorCodeText);
-            }
-        }
-    }
-
-    protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(getErrorMessageType().getErrorCodeValue()));
-        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), getErrorMessageType(), messageFormat, this.customMessage, at, this.schemaPath, arguments);
-        if (this.failFast && !isApplicator()) {
-            throw new JsonSchemaException(message);
-        }
-        return message;
-    }
-
-    protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
-        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(messageKey));
-        final ValidationMessage message = new ValidationMessage.Builder()
-            .code(getErrorMessageType().getErrorCode())
-            .path(at)
-            .schemaPath(this.schemaPath)
-            .arguments(arguments)
-            .format(messageFormat)
-            .type(getValidatorType().getValue())
-            .customMessage(this.customMessage)
-            .build();
-        if (this.failFast && !isApplicator()) {
-            throw new JsonSchemaException(message);
-        }
-        return message;
     }
 
     protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
         logger.debug("validate( {}, {}, {})", node, rootNode, at);
     }
 
-    protected ValidatorTypeCode getValidatorType() {
-        return this.validatorType;
-    }
-
-    protected ErrorMessageType getErrorMessageType() {
-        return this.errorMessageType;
-    }
-
-    protected void updateValidatorType(ValidatorTypeCode validatorTypeCode) {
-        this.validatorType = validatorTypeCode;
-        this.errorMessageType = validatorTypeCode;
-        parseErrorCode(validatorTypeCode.getErrorCodeKey());
-    }
-
-    protected String getNodeFieldType() {
-        JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
-        if (typeField != null) {
-            return typeField.asText();
-        }
-        return null;
-    }
-
-    /**
-     * This is default implementation of walk method. Its job is to call the
-     * validate method if shouldValidateSchema is enabled.
-     */
-    @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
-        if (shouldValidateSchema) {
-            validationMessages = validate(node, rootNode, at);
-        }
-        return validationMessages;
-    }
-
-    protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
-        for (final JsonSchema schema: schemas) {
-            schema.initializeValidators();
-        }
-    }
-
-    private boolean isApplicator() {
-        return false
-            || isPartOfAnyOfMultipleType()
-            || isPartOfIfMultipleType()
-            || isPartOfNotMultipleType()
-            || isPartOfOneOfMultipleType();
-    }
-
-    private boolean isPartOfAnyOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ANY_OF.getValue() + "/");
-    }
-
-    private boolean isPartOfIfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.IF_THEN_ELSE.getValue() + "/");
-    }
-
-    private boolean isPartOfNotMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.NOT.getValue() + "/");
-    }
-
-    protected boolean isPartOfOneOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
-    }
-
-    protected PathType getPathType() {
-        return this.pathType;
-    }
-
-    /**
-     * Get the root path.
-     *
-     * @return The path.
-     */
-    protected String atRoot() {
-        return this.pathType.getRoot();
-    }
-
-    /**
-     * Create the path for a given child token.
-     *
-     * @param currentPath The current path.
-     * @param token The child token.
-     * @return The complete path.
-     */
-    protected String atPath(String currentPath, String token) {
-        return this.pathType.append(currentPath, token);
-    }
-
-    /**
-     * Create the path for a given child indexed item.
-     *
-     * @param currentPath The current path.
-     * @param index The child index.
-     * @return The complete path.
-     */
-    protected String atPath(String currentPath, int index) {
-        return this.pathType.append(currentPath, index);
-    }
-
-    /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
-
     /**
      * Checks based on the current {@link DiscriminatorContext} whether the provided {@link JsonSchema} a match against
      * against the current discriminator.
      *
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
-     * @param discriminator the discriminator to use for the check
-     * @param discriminatorPropertyValue the value of the <code>discriminator/propertyName</code> field
-     * @param jsonSchema the {@link JsonSchema} to check
+     * @param discriminator               the discriminator to use for the check
+     * @param discriminatorPropertyValue  the value of the <code>discriminator/propertyName</code> field
+     * @param jsonSchema                  the {@link JsonSchema} to check
      */
     protected static void checkDiscriminatorMatch(final ValidationContext.DiscriminatorContext currentDiscriminatorContext,
                                                   final ObjectNode discriminator,
@@ -290,18 +106,18 @@ public abstract class BaseJsonValidator implements JsonValidator {
         final JsonNode discriminatorMapping = discriminator.get("mapping");
         if (null == discriminatorMapping) {
             checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                                                      discriminatorPropertyValue,
-                                                      jsonSchema);
+                    discriminatorPropertyValue,
+                    jsonSchema);
         } else {
             checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                                                      discriminatorPropertyValue,
-                                                      discriminatorMapping,
-                                                      jsonSchema);
+                    discriminatorPropertyValue,
+                    discriminatorMapping,
+                    jsonSchema);
             if (!currentDiscriminatorContext.isDiscriminatorMatchFound()
                     && noExplicitDiscriminatorKeyOverride(discriminatorMapping, jsonSchema)) {
                 checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                                                          discriminatorPropertyValue,
-                                                          jsonSchema);
+                        discriminatorPropertyValue,
+                        jsonSchema);
             }
         }
     }
@@ -311,9 +127,9 @@ public abstract class BaseJsonValidator implements JsonValidator {
      * the <code>propertyName</code> or mappings.
      *
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
-     * @param discriminator the discriminator to use for the check
-     * @param schema the value of the <code>discriminator/propertyName</code> field
-     * @param at the logging prefix
+     * @param discriminator               the discriminator to use for the check
+     * @param schema                      the value of the <code>discriminator/propertyName</code> field
+     * @param at                          the logging prefix
      */
     protected static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
@@ -345,7 +161,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
                     if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
                         throw new JsonSchemaException(at + "discriminator mapping redefinition from " + mappingKeyToAdd
-                                                              + "/" + currentMappingValue + " to " + mappingValueToAdd);
+                                + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {
                         mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
                     }
@@ -388,5 +204,89 @@ public abstract class BaseJsonValidator implements JsonValidator {
             }
         }
         return true;
+    }
+
+    public String getSchemaPath() {
+        return this.schemaPath;
+    }
+
+    public JsonNode getSchemaNode() {
+        return this.schemaNode;
+    }
+
+    public JsonSchema getParentSchema() {
+        return this.parentSchema;
+    }
+
+    protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
+        return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
+    }
+
+    @Override
+    public Set<ValidationMessage> validate(JsonNode node) {
+        return validate(node, node, atRoot());
+    }
+
+    protected String getNodeFieldType() {
+        JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
+        if (typeField != null) {
+            return typeField.asText();
+        }
+        return null;
+    }
+
+    /**
+     * This is default implementation of walk method. Its job is to call the
+     * validate method if shouldValidateSchema is enabled.
+     */
+    @Override
+    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
+        if (shouldValidateSchema) {
+            validationMessages = validate(node, rootNode, at);
+        }
+        return validationMessages;
+    }
+
+    protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
+        for (final JsonSchema schema : schemas) {
+            schema.initializeValidators();
+        }
+    }
+
+
+    protected PathType getPathType() {
+        return this.pathType;
+    }
+
+    /**
+     * Get the root path.
+     *
+     * @return The path.
+     */
+    protected String atRoot() {
+        return this.pathType.getRoot();
+    }
+
+    /**
+     * Create the path for a given child token.
+     *
+     * @param currentPath The current path.
+     * @param token       The child token.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, String token) {
+        return this.pathType.append(currentPath, token);
+    }
+
+    /**
+     * Create the path for a given child indexed item.
+     *
+     * @param currentPath The current path.
+     * @param index       The child index.
+     * @return The complete path.
+     */
+    protected String atPath(String currentPath, int index) {
+        return this.pathType.append(currentPath, index);
     }
 }
