@@ -22,7 +22,10 @@ import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import org.slf4j.Logger;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class BaseJsonValidator extends ValidationMessageHandler implements JsonValidator {
     protected final boolean suppressSubSchemaRetrieval;
@@ -233,19 +236,6 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             return typeField.asText();
         }
         return null;
-    }
-
-    /**
-     * This is default implementation of walk method. Its job is to call the
-     * validate method if shouldValidateSchema is enabled.
-     */
-    @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
-        if (shouldValidateSchema) {
-            validationMessages = validate(node, rootNode, at);
-        }
-        return validationMessages;
     }
 
     protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
