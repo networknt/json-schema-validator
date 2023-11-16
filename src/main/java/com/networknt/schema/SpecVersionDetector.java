@@ -19,7 +19,13 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class is used to detect schema version
@@ -29,7 +35,16 @@ import java.util.Optional;
  */
 public final class SpecVersionDetector {
 
+    protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
     private static final String SCHEMA_TAG = "$schema";
+
+    static {
+        supportedVersions.put("draft2019-09", VersionFlag.V201909);
+        supportedVersions.put("draft2020-12", VersionFlag.V202012);
+        supportedVersions.put("draft4", VersionFlag.V4);
+        supportedVersions.put("draft6", VersionFlag.V6);
+        supportedVersions.put("draft7", VersionFlag.V7);
+    }
 
     private SpecVersionDetector() {
         // Prevent instantiation of this utility class
@@ -62,8 +77,33 @@ public final class SpecVersionDetector {
             String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue);
 
             return VersionFlag.fromId(schemaUri)
-                .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
+                    .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
         });
+    }
+
+
+    // For 2019-09 and later published drafts, implementations that are able to
+    // detect the draft of each schema via $schema SHOULD be configured to do so
+    public static VersionFlag detectVersion(JsonNode jsonNode, Path specification, VersionFlag defaultVersion) {
+        return Stream.of(
+                        detectOptionalVersion(jsonNode),
+                        detectVersionFromPath(specification)
+                )
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .orElse(defaultVersion);
+    }
+
+    // For draft-07 and earlier, draft-next, and implementations unable to
+    // detect via $schema, implementations MUST be configured to expect the
+    // draft matching the test directory name
+    public static Optional<VersionFlag> detectVersionFromPath(Path path) {
+        return StreamSupport.stream(path.spliterator(), false)
+                .map(Path::toString)
+                .map(supportedVersions::get)
+                .filter(Objects::nonNull)
+                .findAny();
     }
 
     public static Optional<VersionFlag> detectOptionalVersion(String schemaUri) {
