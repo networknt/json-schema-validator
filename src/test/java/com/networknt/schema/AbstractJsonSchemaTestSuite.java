@@ -22,7 +22,6 @@ import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
 import com.networknt.schema.uri.URITranslator;
-
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
@@ -34,38 +33,111 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import static com.networknt.schema.SpecVersionDetector.detectOptionalVersion;
+import static com.networknt.schema.SpecVersionDetector.detectVersion;
 import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
-    protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
-    static {
-        supportedVersions.put("draft2019-09", VersionFlag.V201909);
-        supportedVersions.put("draft2020-12", VersionFlag.V202012);
-        supportedVersions.put("draft4", VersionFlag.V4);
-        supportedVersions.put("draft6", VersionFlag.V6);
-        supportedVersions.put("draft7", VersionFlag.V7);
-    }
+
 
     protected ObjectMapper mapper = new ObjectMapper();
 
+    private static String toForwardSlashPath(Path file) {
+        return file.toString().replace('\\', '/');
+    }
+
+    private static void executeTest(JsonSchema schema, TestSpec testSpec) {
+
+        Set<ValidationMessage> errors = schema.validate(testSpec.getData());
+
+        if (testSpec.isValid()) {
+            if (!errors.isEmpty()) {
+                String msg = new StringBuilder("Expected success")
+                        .append("\n  description: ")
+                        .append(testSpec.getDescription())
+                        .append("\n  schema: ")
+                        .append(schema)
+                        .append("\n  data: ")
+                        .append(testSpec.getData())
+                        .toString();
+
+                AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
+                        .message(msg)
+                        .reason(errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
+                        .build();
+                t.setStackTrace(new StackTraceElement[0]);
+                throw t;
+            }
+        } else {
+            if (errors.isEmpty()) {
+                String msg = new StringBuilder("Expected failure")
+                        .append("\n  description: ")
+                        .append(testSpec.getDescription())
+                        .append("\n  schema: ")
+                        .append(schema)
+                        .append("\n  data: ")
+                        .append(testSpec.getData())
+                        .toString();
+
+                AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
+                        .message(msg)
+                        .build();
+                t.setStackTrace(new StackTraceElement[0]);
+                throw t;
+            }
+        }
+
+        // Expected Validation Messages need not be exactly same as actual errors.
+        // This code checks if expected validation message is subset of actual errors
+        Set<String> actual = errors.stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
+        Set<String> expected = testSpec.getValidationMessages();
+        expected.removeAll(actual);
+        if (!expected.isEmpty()) {
+            String msg = new StringBuilder("Expected Validation Messages")
+                    .append("\n  description: ")
+                    .append(testSpec.getDescription())
+                    .append("\n  schema: ")
+                    .append(schema)
+                    .append("\n  data: ")
+                    .append(testSpec.getData())
+                    .append(actual.stream().collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
+                    .toString();
+
+            AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
+                    .message(msg)
+                    .reason(expected.stream().collect(Collectors.joining("\n    ", "\n  expected:\n    ", "")))
+                    .build();
+            t.setStackTrace(new StackTraceElement[0]);
+            throw t;
+        }
+    }
+
+    private static Iterable<? extends DynamicNode> unsupportedMetaSchema(TestCase testCase) {
+        return Collections.singleton(
+                dynamicTest("Detected an unsupported schema", () -> {
+                    String schema = testCase.getSchema().asText();
+                    AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
+                            .message("Detected an unsupported schema: " + schema)
+                            .reason("Future and custom meta-schemas are not supported")
+                            .build();
+                    t.setStackTrace(new StackTraceElement[0]);
+                    throw t;
+                })
+        );
+    }
+
     protected Stream<DynamicNode> createTests(VersionFlag defaultVersion, String basePath) {
         return findTestCases(basePath)
-            .stream()
-            .peek(System.out::println)
-            .flatMap(path -> buildContainers(defaultVersion, path));
+                .stream()
+                .peek(System.out::println)
+                .flatMap(path -> buildContainers(defaultVersion, path));
     }
 
     protected boolean enabled(@SuppressWarnings("unused") Path path) {
@@ -80,8 +152,8 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         boolean disabled = !enabled(path);
         String reason = reason(path).orElse("Unknown");
         return TestSource.loadFrom(path, disabled, reason)
-            .map(testSource -> buildContainer(defaultVersion, testSource))
-            .orElse(Stream.empty());
+                .map(testSource -> buildContainer(defaultVersion, testSource))
+                .orElse(Stream.empty());
     }
 
     private Stream<DynamicNode> buildContainer(VersionFlag defaultVersion, TestSource testSource) {
@@ -107,16 +179,16 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
         if (testCase.isDisabled()) return null;
 
-        VersionFlag specVersion = detectVersion(testCase, defaultVersion);
+        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
-    		.builder(base)
-    		.objectMapper(this.mapper)
-    		.addUriTranslator(URITranslator.combine(
-		        URITranslator.prefix("https://", "http://"),
-				URITranslator.prefix("http://json-schema.org", "resource:")
-			))
-    		.build();
+                .builder(base)
+                .objectMapper(this.mapper)
+                .addUriTranslator(URITranslator.combine(
+                        URITranslator.prefix("https://", "http://"),
+                        URITranslator.prefix("http://json-schema.org", "resource:")
+                ))
+                .build();
     }
 
     private DynamicNode buildTest(JsonSchemaFactory validatorFactory, TestSpec testSpec) {
@@ -151,34 +223,6 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }
 
-    private static String toForwardSlashPath(Path file) {
-        return file.toString().replace('\\', '/');
-    }
-
-    // For 2019-09 and later published drafts, implementations that are able to
-    // detect the draft of each schema via $schema SHOULD be configured to do so
-    private static VersionFlag detectVersion(TestCase testCase, VersionFlag defaultVersion) {
-        return Stream.of(
-            detectOptionalVersion(testCase.getSchema()),
-            detectVersionFromPath(testCase.getSpecification())
-        )
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .findFirst()
-        .orElse(defaultVersion);
-    }
-
-    // For draft-07 and earlier, draft-next, and implementations unable to
-    // detect via $schema, implementations MUST be configured to expect the
-    // draft matching the test directory name
-    private static Optional<VersionFlag> detectVersionFromPath(Path path) {
-        return StreamSupport.stream(path.spliterator(), false)
-            .map(Path::toString)
-            .map(supportedVersions::get)
-            .filter(Objects::nonNull)
-            .findAny();
-    }
-
     private void abortAndReset(String reason) {
         try {
             abort(reason);
@@ -195,94 +239,14 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         }
     }
 
-    private static void executeTest(JsonSchema schema, TestSpec testSpec) {
-
-        Set<ValidationMessage> errors = schema.validate(testSpec.getData());
-
-        if (testSpec.isValid()) {
-            if (!errors.isEmpty()) {
-                String msg = new StringBuilder("Expected success")
-                    .append("\n  description: ")
-                    .append(testSpec.getDescription())
-                    .append("\n  schema: ")
-                    .append(schema)
-                    .append("\n  data: ")
-                    .append(testSpec.getData())
-                    .toString();
-
-                AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
-                    .message(msg)
-                    .reason(errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
-                    .build();
-                t.setStackTrace(new StackTraceElement[0]);
-                throw t;
-            }
-        } else {
-            if (errors.isEmpty()) {
-                String msg = new StringBuilder("Expected failure")
-                    .append("\n  description: ")
-                    .append(testSpec.getDescription())
-                    .append("\n  schema: ")
-                    .append(schema)
-                    .append("\n  data: ")
-                    .append(testSpec.getData())
-                    .toString();
-
-                AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
-                    .message(msg)
-                    .build();
-                t.setStackTrace(new StackTraceElement[0]);
-                throw t;
-            }
-        }
-
-        // Expected Validation Messages need not be exactly same as actual errors.
-        // This code checks if expected validation message is subset of actual errors
-        Set<String> actual = errors.stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
-        Set<String> expected = testSpec.getValidationMessages();
-        expected.removeAll(actual);
-        if (!expected.isEmpty()) {
-            String msg = new StringBuilder("Expected Validation Messages")
-                .append("\n  description: ")
-                .append(testSpec.getDescription())
-                .append("\n  schema: ")
-                .append(schema)
-                .append("\n  data: ")
-                .append(testSpec.getData())
-                .append(actual.stream().collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
-                .toString();
-
-            AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
-                .message(msg)
-                .reason(expected.stream().collect(Collectors.joining("\n    ", "\n  expected:\n    ", "")))
-                .build();
-            t.setStackTrace(new StackTraceElement[0]);
-            throw t;
-        }
-    }
-
     private List<Path> findTestCases(String basePath) {
         try (Stream<Path> paths = Files.walk(Paths.get(basePath))) {
             return paths
-                .filter(path -> path.toString().endsWith(".json"))
-                .collect(Collectors.toList());
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private static Iterable<? extends DynamicNode> unsupportedMetaSchema(TestCase testCase) {
-        return Collections.singleton(
-            dynamicTest("Detected an unsupported schema", () -> {
-                String schema = testCase.getSchema().asText();
-                AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
-                    .message("Detected an unsupported schema: " + schema)
-                    .reason("Future and custom meta-schemas are not supported")
-                    .build();
-                t.setStackTrace(new StackTraceElement[0]);
-                throw t;
-            })
-        );
     }
 
 }

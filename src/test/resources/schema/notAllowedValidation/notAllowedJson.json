@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "field1": {},
+    "field2": {}
+  },
+  "additionalProperties": false,
+  "notAllowed": ["field3"]
+}

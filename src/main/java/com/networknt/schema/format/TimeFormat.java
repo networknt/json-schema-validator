@@ -17,10 +17,10 @@ import java.text.ParsePosition;
 import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import static java.time.temporal.ChronoField.*;
 import java.time.temporal.TemporalAccessor;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
+import static java.time.temporal.ChronoField.*;
 
 /**
  * Validates that a value conforms to the time specification in RFC 3339.
@@ -28,15 +28,15 @@ import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 public class TimeFormat extends AbstractFormat {
     // In 2023, time-zone offsets around the world extend from -12:00 to +14:00.
     // However, RFC 3339 accepts -23:59 to +23:59.
-    private static final long MAX_OFFSET_MIN =  24 * 60 - 1;
+    private static final long MAX_OFFSET_MIN = 24 * 60 - 1;
     private static final long MIN_OFFSET_MIN = -MAX_OFFSET_MIN;
 
     private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-        .parseCaseInsensitive()
-        .append(ISO_LOCAL_TIME)
-        .appendOffset("+HH:MM", "Z")
-        .parseLenient()
-        .toFormatter();
+            .parseCaseInsensitive()
+            .append(ISO_LOCAL_TIME)
+            .appendOffset("+HH:MM", "Z")
+            .parseLenient()
+            .toFormatter();
 
     public TimeFormat() {
         super("time", "must be a valid RFC 3339 time");
@@ -68,8 +68,11 @@ public class TimeFormat extends AbstractFormat {
                 hr += 24;
             }
 
-            return (sec <= 59 && min <= 59 && hr <= 23)
-                || (sec == 60 && min == 59 && hr == 23);
+            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
+            boolean isSpecialCaseEndOfDay = (sec == 60 && min == 59 && hr == 23);
+
+            return isStandardTimeRange
+                    || isSpecialCaseEndOfDay;
 
         } catch (DateTimeException e) {
             return false;
