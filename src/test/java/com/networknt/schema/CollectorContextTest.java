@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,17 +36,10 @@ public class CollectorContextTest {
     private JsonSchema jsonSchema;
 
     private JsonSchema jsonSchemaForCombine;
-
+    
     @BeforeEach
     public void setup() throws Exception {
         setupSchema();
-    }
-
-    @AfterEach
-    public void cleanup() {
-        if (CollectorContext.getInstance() != null) {
-            CollectorContext.getInstance().reset();
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -113,15 +105,15 @@ public class CollectorContextTest {
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
-
+    
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
                 .addKeyword(new CustomKeyword()).addKeyword(new CustomKeyword1()).addFormat(new Format() {
 
                     @SuppressWarnings("unchecked")
                     @Override
-                    public boolean matches(String value) {
-                        CollectorContext collectorContext = CollectorContext.getInstance();
+                    public boolean matches(ExecutionContext executionContext, String value) {
+                        CollectorContext collectorContext = executionContext.getCollectorContext();
                         if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
                             collectorContext.add(SAMPLE_COLLECTOR, new ArrayList<String>());
                         }
@@ -220,7 +212,7 @@ public class CollectorContextTest {
         private String name;
 
         private ValidationResult validationResult;
-
+        
         ValidationThread(String data, String name) {
             this.name = name;
             this.data = data;
@@ -279,9 +271,9 @@ public class CollectorContextTest {
     private class CustomValidator implements JsonValidator {
 
         @Override
-        public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
             // Get an instance of collector context.
-            CollectorContext collectorContext = CollectorContext.getInstance();
+            CollectorContext collectorContext = executionContext.getCollectorContext();
             if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
                 collectorContext.add(SAMPLE_COLLECTOR, new CustomCollector());
             }
@@ -290,12 +282,12 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(JsonNode rootNode) {
-            return validate(rootNode, rootNode, PathType.DEFAULT.getRoot());
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
+            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
         }
 
         @Override
-        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }
@@ -354,9 +346,9 @@ public class CollectorContextTest {
     private class CustomValidator1 implements JsonValidator {
         @SuppressWarnings("unchecked")
         @Override
-        public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
             // Get an instance of collector context.
-            CollectorContext collectorContext = CollectorContext.getInstance();
+            CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
             if (collectorContext.get(SAMPLE_COLLECTOR_OTHER) == null) {
                 collectorContext.add(SAMPLE_COLLECTOR_OTHER, new ArrayList<String>());
@@ -367,12 +359,12 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(JsonNode rootNode) {
-            return validate(rootNode, rootNode, PathType.DEFAULT.getRoot());
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
+            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
         }
 
         @Override
-        public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }

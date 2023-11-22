@@ -70,7 +70,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<>();
@@ -82,23 +82,23 @@ public class ItemsValidator extends BaseJsonValidator {
         if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {
-                doValidate(errors, i, n, rootNode, at);
+                doValidate(executionContext, errors, i, n, rootNode, at);
                 i++;
             }
         } else {
-            doValidate(errors, 0, node, rootNode, at);
+            doValidate(executionContext, errors, 0, node, rootNode, at);
         }
         return Collections.unmodifiableSet(errors);
     }
 
-    private void doValidate(Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, String at) {
-        Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+    private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, String at) {
+        Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
         String path = atPath(at, i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
             // schema)
-            Set<ValidationMessage> results = this.schema.validate(node, rootNode, path);
+            Set<ValidationMessage> results = this.schema.validate(executionContext, node, rootNode, path);
             if (results.isEmpty()) {
                 evaluatedItems.add(path);
             } else {
@@ -107,7 +107,7 @@ public class ItemsValidator extends BaseJsonValidator {
         } else if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // validate against tuple schema
-                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(node, rootNode, path);
+                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node, rootNode, path);
                 if (results.isEmpty()) {
                     evaluatedItems.add(path);
                 } else {
@@ -116,7 +116,7 @@ public class ItemsValidator extends BaseJsonValidator {
             } else {
                 if (this.additionalSchema != null) {
                     // validate against additional item schema
-                    Set<ValidationMessage> results = this.additionalSchema.validate(node, rootNode, path);
+                    Set<ValidationMessage> results = this.additionalSchema.validate(executionContext, node, rootNode, path);
                     if (results.isEmpty()) {
                         evaluatedItems.add(path);
                     } else {
@@ -137,7 +137,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
@@ -151,48 +151,48 @@ public class ItemsValidator extends BaseJsonValidator {
                     arrayNode.set(i, defaultNode);
                     n = defaultNode;
                 }
-                doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
+                doWalk(executionContext, validationMessages, i, n, rootNode, at, shouldValidateSchema);
                 i++;
             }
         } else {
-            doWalk(validationMessages, 0, node, rootNode, at, shouldValidateSchema);
+            doWalk(executionContext, validationMessages, 0, node, rootNode, at, shouldValidateSchema);
         }
         return validationMessages;
     }
 
-    private void doWalk(HashSet<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode,
-            String at, boolean shouldValidateSchema) {
+    private void doWalk(ExecutionContext executionContext, HashSet<ValidationMessage> validationMessages, int i, JsonNode node,
+            JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (this.schema != null) {
             // Walk the schema.
-            walkSchema(this.schema, node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
+            walkSchema(executionContext, this.schema, node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
         }
 
         if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // walk tuple schema
-                walkSchema(this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema,
-                        validationMessages);
+                walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, atPath(at, i),
+                        shouldValidateSchema, validationMessages);
             } else {
                 if (this.additionalSchema != null) {
                     // walk additional item schema
-                    walkSchema(this.additionalSchema, node, rootNode, atPath(at, i), shouldValidateSchema,
-                            validationMessages);
+                    walkSchema(executionContext, this.additionalSchema, node, rootNode, atPath(at, i),
+                            shouldValidateSchema, validationMessages);
                 }
             }
         }
     }
 
-    private void walkSchema(JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at,
-                            boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(ValidatorTypeCode.ITEMS.getValue(), node,
-                rootNode, at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(), walkSchema.getParentSchema(),
-                this.validationContext, this.validationContext.getJsonSchemaFactory());
+    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+                            String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
+                node, rootNode, at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(),
+                walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(node, rootNode, at, shouldValidateSchema));
+            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(ValidatorTypeCode.ITEMS.getValue(), node, rootNode, at,
-                walkSchema.getSchemaPath(), walkSchema.getSchemaNode(), walkSchema.getParentSchema(),
-                this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
+        this.arrayItemWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
+                at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(),
+                walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 
     }
 

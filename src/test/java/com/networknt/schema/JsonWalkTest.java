@@ -7,7 +7,6 @@ import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,11 +31,6 @@ public class JsonWalkTest {
     @BeforeEach
     public void setup() {
         setupSchema();
-    }
-
-    @AfterEach
-    public void cleanup() {
-       CollectorContext.getInstance().reset();
     }
 
     private void setupSchema() {
@@ -105,11 +99,10 @@ public class JsonWalkTest {
                 + "     }"
                 + "}")));
         // This instance of schema contains one listener removed.
-        CollectorContext collectorContext = result.getCollectorContext();
+        CollectorContext collectorContext = result.getExecutionContext().getCollectorContext();
         collectorContext.reset();
-        result = jsonSchema1.walk(
-                objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
-        collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
+        result = jsonSchema1.walk(objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
+        collectedNode = (JsonNode) result.getExecutionContext().getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
         assertEquals(collectedNode, (objectMapper.readTree("{"
                 + "    \"property3\": {"
                 + "        \"street_address\":\"test-address\","
@@ -152,18 +145,18 @@ public class JsonWalkTest {
         private static class CustomValidator implements JsonValidator {
 
             @Override
-            public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
                 return new TreeSet<ValidationMessage>();
             }
 
             @Override
-            public Set<ValidationMessage> validate(JsonNode rootNode) {
-                return validate(rootNode, rootNode, PathType.DEFAULT.getRoot());
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
+                return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
             }
 
             @Override
-            public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at,
-                                               boolean shouldValidateSchema) {
+            public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                                               String at, boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
             }
         }
@@ -175,7 +168,7 @@ public class JsonWalkTest {
             ObjectMapper mapper = new ObjectMapper();
             String keyWordName = keywordWalkEvent.getKeyWordName();
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
-            CollectorContext collectorContext = CollectorContext.getInstance();
+            CollectorContext collectorContext = keywordWalkEvent.getExecutionContext().getCollectorContext();
             if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
                 collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
@@ -198,7 +191,7 @@ public class JsonWalkTest {
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
-            CollectorContext collectorContext = CollectorContext.getInstance();
+            CollectorContext collectorContext = keywordWalkEvent.getExecutionContext().getCollectorContext();
             if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
                 collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }

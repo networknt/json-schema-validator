@@ -21,10 +21,8 @@ import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.resource.FileResourceManager;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import java.io.File;
-import java.util.Optional;
 
 import static io.undertow.Handlers.*;
 
@@ -84,10 +82,6 @@ public abstract class HTTPServiceSupport {
         }
     }
 
-    @AfterEach
     protected void cleanup() {
-        // Clear CollectorContext after every test.
-        Optional.ofNullable(CollectorContext.getInstance()).ifPresent(CollectorContext::reset);
     }
-
 }

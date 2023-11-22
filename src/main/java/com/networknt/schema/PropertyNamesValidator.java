@@ -34,14 +34,14 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
         innerSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             final String pname = it.next();
             final TextNode pnameText = TextNode.valueOf(pname);
-            final Set<ValidationMessage> schemaErrors = innerSchema.validate(pnameText, node, atPath(at, pname));
+            final Set<ValidationMessage> schemaErrors = innerSchema.validate(executionContext, pnameText, node, atPath(at, pname));
             for (final ValidationMessage schemaError : schemaErrors) {
                 final String path = schemaError.getPath();
                 String msg = schemaError.getMessage();

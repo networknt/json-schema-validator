@@ -16,24 +16,20 @@
 
 package com.networknt.schema.format;
 
-import com.networknt.schema.Format;
+import com.networknt.schema.ExecutionContext;
 
-public abstract class AbstractFormat implements Format {
-    private final String name;
-    private final String errorMessageDescription;
-
+/**
+ * Used for Formats that do not need to use the {@link ExecutionContext}.
+ */
+public abstract class AbstractFormat extends BaseFormat {
     public AbstractFormat(String name, String errorMessageDescription) {
-        this.name = name;
-        this.errorMessageDescription = errorMessageDescription;
+        super(name, errorMessageDescription);
     }
 
     @Override
-    public String getName() {
-        return name;
+    public boolean matches(ExecutionContext executionContext, String value) {
+        return matches(value);
     }
 
-    @Override
-    public String getErrorMessageDescription() {
-        return errorMessageDescription;
-    }
+    abstract public boolean matches(String value);
 }

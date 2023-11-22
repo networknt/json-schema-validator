@@ -40,11 +40,11 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         if (this.disabled || !node.isArray()) return Collections.emptySet();
 
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         collectorContext.exitDynamicScope();
         try {
@@ -56,7 +56,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                 return Collections.emptySet();
             }
 
-            Set<String> unevaluatedPaths = unevaluatedPaths(allPaths);
+            Set<String> unevaluatedPaths = unevaluatedPaths(collectorContext, allPaths);
 
             // Short-circuit since schema is 'false'
             if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
@@ -67,7 +67,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             unevaluatedPaths.forEach(path -> {
                 String pointer = getPathType().convertToJsonPointer(path);
                 JsonNode property = rootNode.at(pointer);
-                if (!this.schema.validate(property, rootNode, path).isEmpty()) {
+                if (!this.schema.validate(executionContext, property, rootNode, path).isEmpty()) {
                     failingPaths.add(path);
                 }
             });
@@ -101,9 +101,9 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         return Collections.singleton(buildValidationMessage(String.join("\n  ", paths)));
     }
 
-    private static Set<String> unevaluatedPaths(Set<String> allPaths) {
+    private static Set<String> unevaluatedPaths(CollectorContext collectorContext, Set<String> allPaths) {
         Set<String> unevaluatedProperties = new HashSet<>(allPaths);
-        unevaluatedProperties.removeAll(CollectorContext.getInstance().getEvaluatedItems());
+        unevaluatedProperties.removeAll(collectorContext.getEvaluatedItems());
         return unevaluatedProperties;
     }
 

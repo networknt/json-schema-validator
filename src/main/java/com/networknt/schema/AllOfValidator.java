@@ -40,9 +40,9 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
@@ -55,9 +55,9 @@ public class AllOfValidator extends BaseJsonValidator {
             Scope parentScope = collectorContext.enterDynamicScope();
             try {
                 if (!state.isWalkEnabled()) {
-                    localErrors = schema.validate(node, rootNode, at);
+                    localErrors = schema.validate(executionContext, node, rootNode, at);
                 } else {
-                    localErrors = schema.walk(node, rootNode, at, true);
+                    localErrors = schema.walk(executionContext, node, rootNode, at, true);
                 }
 
                 childSchemaErrors.addAll(localErrors);
@@ -105,13 +105,13 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
         for (JsonSchema schema : this.schemas) {
             // Walk through the schema
-            schema.walk(node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, at, false);
         }
         return Collections.emptySet();
     }

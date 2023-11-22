@@ -30,7 +30,7 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         // For the false validator, it is always not valid
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();

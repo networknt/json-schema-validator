@@ -42,7 +42,7 @@ public class DependentSchemas extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<>();
@@ -51,7 +51,7 @@ public class DependentSchemas extends BaseJsonValidator {
             String pname = it.next();
             JsonSchema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
-                errors.addAll(schema.validate(node, rootNode, at));
+                errors.addAll(schema.validate(executionContext, node, rootNode, at));
             }
         }
 
@@ -64,12 +64,12 @@ public class DependentSchemas extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
         for (JsonSchema schema : this.schemaDependencies.values()) {
-            schema.walk(node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, at, false);
         }
         return Collections.emptySet();
     }

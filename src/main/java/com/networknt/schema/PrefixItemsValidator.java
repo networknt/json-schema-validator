@@ -57,16 +57,16 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         // ignores non-arrays
         if (node.isArray()) {
-            Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+            Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
                 String path = atPath(at, i);
-                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(node.get(i), rootNode, path);
+                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
                     evaluatedItems.add(path);
                 } else {
@@ -79,7 +79,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
         if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
@@ -91,20 +91,21 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                     array.set(i, defaultNode);
                     n = defaultNode;
                 }
-                doWalk(validationMessages, i, n, rootNode, at, shouldValidateSchema);
+                doWalk(executionContext, validationMessages, i, n, rootNode, at, shouldValidateSchema);
             }
         }
 
         return validationMessages;
     }
 
-    private void doWalk(Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        walkSchema(this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
+    private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
     }
 
-    private void walkSchema(JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
+            executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
@@ -112,13 +113,13 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
-            this.validationContext,
-            this.validationContext.getJsonSchemaFactory()
+            this.validationContext, this.validationContext.getJsonSchemaFactory()
         );
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(node, rootNode, at, shouldValidateSchema));
+            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
         }
         this.arrayItemWalkListenerRunner.runPostWalkListeners(
+            executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
@@ -127,8 +128,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
             this.validationContext,
-            this.validationContext.getJsonSchemaFactory(),
-            validationMessages
+            this.validationContext.getJsonSchemaFactory(), validationMessages
         );
         //@formatter:on
     }

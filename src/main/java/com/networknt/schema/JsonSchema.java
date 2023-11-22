@@ -376,13 +376,13 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode jsonNode, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, String at) {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
-        CollectorContext collectorContext = getCollectorContext();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-        setValidatorState(false, true);
+        setValidatorState(executionContext, false, true);
 
         try {
             for (JsonValidator v : getValidators().values()) {
@@ -390,7 +390,7 @@ public class JsonSchema extends BaseJsonValidator {
 
                 Scope parentScope = collectorContext.enterDynamicScope(this);
                 try {
-                    results = v.validate(jsonNode, rootNode, at);
+                    results = v.validate(executionContext, jsonNode, rootNode, at);
                 } finally {
                     Scope scope = collectorContext.exitDynamicScope();
                     if (results.isEmpty()) {
@@ -447,37 +447,53 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
-    public ValidationResult validateAndCollect(JsonNode node) {
-        return validateAndCollect(node, node, atRoot());
+    /**
+     * Validate the given root JsonNode, starting at the root of the data path.
+     * @param rootNode JsonNode
+     *
+     * @return A list of ValidationMessage if there is any validation error, or an empty
+     * list if there is no error.
+     */
+    public Set<ValidationMessage> validate(JsonNode rootNode) {
+        return validate(createExecutionContext(), rootNode);
+    }
+
+    public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
+        return validateAndCollect(executionContext, node, node, atRoot());
     }
 
     /**
      * This method both validates and collects the data in a CollectorContext.
      * Unlike others this methods cleans and removes everything from collector
      * context before returning.
-     *
+     * @param executionContext ExecutionContext
      * @param jsonNode JsonNode
      * @param rootNode JsonNode
      * @param at       String path
+     *
      * @return ValidationResult
      */
-    private ValidationResult validateAndCollect(JsonNode jsonNode, JsonNode rootNode, String at) {
+    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, String at) {
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // Get the collector context from the thread local.
-        CollectorContext collectorContext = getCollectorContext();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-        setValidatorState(false, true);
+        setValidatorState(executionContext, false, true);
         // Validate.
-        Set<ValidationMessage> errors = validate(jsonNode, rootNode, at);
+        Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, at);
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
         if (config.doLoadCollectors()) {
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
         // Collect errors and collector context into validation result.
-        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+        ValidationResult validationResult = new ValidationResult(errors, executionContext);
         return validationResult;
+    }
+
+    public ValidationResult validateAndCollect(JsonNode node) {
+        return validateAndCollect(createExecutionContext(), node, node, atRoot());
     }
 
     /************************ END OF VALIDATE METHODS **********************************/
@@ -486,66 +502,72 @@ public class JsonSchema extends BaseJsonValidator {
 
     /**
      * Walk the JSON node
-     *
+     * @param executionContext     ExecutionContext
      * @param node                 JsonNode
      * @param shouldValidateSchema indicator on validation
+     *
      * @return result of ValidationResult
      */
+    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), shouldValidateSchema);
+    }
+    
     public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(node, node, atRoot(), shouldValidateSchema);
+        return walk(createExecutionContext(), node, shouldValidateSchema);
     }
 
-    public ValidationResult walkAtNode(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(node, rootNode, at, shouldValidateSchema);
+    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(executionContext, node, rootNode, at, shouldValidateSchema);
     }
 
-    private ValidationResult walkAtNodeInternal(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         try {
             // Get the config.
             SchemaValidatorsConfig config = this.validationContext.getConfig();
             // Get the collector context from the thread local.
-            CollectorContext collectorContext = getCollectorContext();
+            CollectorContext collectorContext = executionContext.getCollectorContext();
             // Set the walkEnabled flag in internal validator state.
-            setValidatorState(true, shouldValidateSchema);
+            setValidatorState(executionContext, true, shouldValidateSchema);
             // Walk through the schema.
-            Set<ValidationMessage> errors = walk(node, rootNode, at, shouldValidateSchema);
+            Set<ValidationMessage> errors = walk(executionContext, node, rootNode, at, shouldValidateSchema);
             // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
             if (config.doLoadCollectors()) {
                 // Load all the data from collectors into the context.
                 collectorContext.loadCollectors();
             }
 
-            ValidationResult validationResult = new ValidationResult(errors, collectorContext);
+            ValidationResult validationResult = new ValidationResult(errors, executionContext);
             return validationResult;
         } finally {
             if (this.validationContext.getConfig().isResetCollectorContext()) {
-                CollectorContext.getInstance().reset();
+                executionContext.getCollectorContext().reset();
             }
         }
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
         getValidators().forEach((String schemaPathWithKeyword, JsonSchemaWalker jsonWalker) -> {
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
-                if (this.keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword,
+                if (this.keywordWalkListenerRunner.runPreWalkListeners(executionContext,
+                        schemaPathWithKeyword,
                         node,
                         rootNode,
                         at,
                         this.schemaPath,
                         this.schemaNode,
                         this.parentSchema,
-                        this.validationContext,
-                        this.validationContext.getJsonSchemaFactory())) {
-                    validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
+                        this.validationContext, this.validationContext.getJsonSchemaFactory())) {
+                    validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, at, shouldValidateSchema));
                 }
             } finally {
                 // Call all the post-walk listeners.
-                this.keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword,
+                this.keywordWalkListenerRunner.runPostWalkListeners(executionContext,
+                        schemaPathWithKeyword,
                         node,
                         rootNode,
                         at,
@@ -553,8 +575,7 @@ public class JsonSchema extends BaseJsonValidator {
                         this.schemaNode,
                         this.parentSchema,
                         this.validationContext,
-                        this.validationContext.getJsonSchemaFactory(),
-                        validationMessages);
+                        this.validationContext.getJsonSchemaFactory(), validationMessages);
             }
         });
 
@@ -563,10 +584,9 @@ public class JsonSchema extends BaseJsonValidator {
 
     /************************ END OF WALK METHODS **********************************/
 
-    private static void setValidatorState(boolean isWalkEnabled, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
-
+    private static void setValidatorState(ExecutionContext executionContext, boolean isWalkEnabled, boolean shouldValidateSchema) {
         // Get the Validator state object storing validation data
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         Object stateObj = collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
         // if one has not been created, instantiate one
         if (stateObj == null) {
@@ -575,18 +595,6 @@ public class JsonSchema extends BaseJsonValidator {
             state.setValidationEnabled(shouldValidateSchema);
             collectorContext.add(ValidatorState.VALIDATOR_STATE_KEY, state);
         }
-    }
-
-    public CollectorContext getCollectorContext() {
-        return (CollectorContext) ThreadInfo.computeIfAbsent(
-            CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY,
-            k -> Optional.ofNullable(this.validationContext.getConfig())
-                .map(SchemaValidatorsConfig::getCollectorContext)
-                .orElseGet(() -> Optional.ofNullable(this.validationContext.getConfig())
-                    .map(config -> new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(), config.isUnevaluatedPropertiesAnalysisDisabled()))
-                    .orElseGet(() -> new CollectorContext(false, false))
-                )
-        );
     }
 
     @Override
@@ -639,4 +647,18 @@ public class JsonSchema extends BaseJsonValidator {
         return this.dynamicAnchor;
     }
 
+    /**
+     * Creates an execution context.
+     * 
+     * @return the execution context
+     */
+    public ExecutionContext createExecutionContext() {
+        SchemaValidatorsConfig config = validationContext.getConfig();
+        if(config.getExecutionContextSupplier() != null) {
+            return config.getExecutionContextSupplier().get();
+        }
+        CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
+                config.isUnevaluatedPropertiesAnalysisDisabled());
+        return new ExecutionContext(collectorContext);
+    }
 }

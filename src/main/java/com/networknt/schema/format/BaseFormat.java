@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.format;
 
-public interface Format {
-    /**
-     * @return the format name as referred to in a json schema format node.
-     */
-    String getName();
+import com.networknt.schema.Format;
 
-    boolean matches(ExecutionContext executionContext, String value);
+/**
+ * Base implementation of {@link Format}.
+ */
+public abstract class BaseFormat implements Format {
+    private final String name;
+    private final String errorMessageDescription;
 
-    String getErrorMessageDescription();
+    public BaseFormat(String name, String errorMessageDescription) {
+        this.name = name;
+        this.errorMessageDescription = errorMessageDescription;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getErrorMessageDescription() {
+        return errorMessageDescription;
+    }
 }

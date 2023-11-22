@@ -34,15 +34,15 @@ public class JsonSchemaRef {
         this.schema = schema;
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        return schema.validate(node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        return schema.validate(executionContext, node, rootNode, at);
     }
 
     public JsonSchema getSchema() {
         return schema;
     }
 
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		return schema.walk(node, rootNode, at, shouldValidateSchema);
+	public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+		return schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
 	}
 }

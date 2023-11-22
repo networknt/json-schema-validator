@@ -32,16 +32,6 @@ import java.util.Set;
  * implementations.
  */
 public class CollectorContext {
-
-    // Using a namespace string as key in ThreadLocal so that it is unique in
-    // ThreadLocal.
-    static final String COLLECTOR_CONTEXT_THREAD_LOCAL_KEY = "com.networknt.schema.CollectorKey";
-
-    // Get an instance from thread info (which uses ThreadLocal).
-    public static CollectorContext getInstance() {
-        return (CollectorContext) ThreadInfo.get(COLLECTOR_CONTEXT_THREAD_LOCAL_KEY);
-    }
-
     /**
      * Map for holding the name and {@link Collector} or a simple Object.
      */

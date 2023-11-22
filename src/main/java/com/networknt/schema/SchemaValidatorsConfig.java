@@ -22,6 +22,7 @@ import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class SchemaValidatorsConfig {
 
@@ -133,7 +134,7 @@ public class SchemaValidatorsConfig {
 
     private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
 
-    private CollectorContext collectorContext;
+    private Supplier<ExecutionContext> executionContextSupplier;
 
     private boolean loadCollectors = true;
 
@@ -218,8 +219,8 @@ public class SchemaValidatorsConfig {
     }
 
     /**
-     * When enabled, {@link JsonValidator#validate(JsonNode, JsonNode, String)} or
-     * {@link JsonValidator#validate(JsonNode)} doesn't return any
+     * When enabled, {@link JsonValidator#validate(ExecutionContext, JsonNode, JsonNode, String)} or
+     * {@link JsonValidator#validate(ExecutionContext, JsonNode)} doesn't return any
      * {@link Set}&lt;{@link ValidationMessage}&gt;, instead a
      * {@link JsonSchemaException} is thrown as soon as a validation errors is
      * discovered.
@@ -367,12 +368,12 @@ public class SchemaValidatorsConfig {
     public SchemaValidatorsConfig() {
     }
 
-    public CollectorContext getCollectorContext() {
-        return this.collectorContext;
+    public Supplier<ExecutionContext> getExecutionContextSupplier() {
+        return this.executionContextSupplier;
     }
 
-    public void setCollectorContext(CollectorContext collectorContext) {
-        this.collectorContext = collectorContext;
+    public void setExecutionContextSupplier(Supplier<ExecutionContext> executionContextSupplier) {
+        this.executionContextSupplier = executionContextSupplier;
     }
 
     public boolean isLosslessNarrowing() {

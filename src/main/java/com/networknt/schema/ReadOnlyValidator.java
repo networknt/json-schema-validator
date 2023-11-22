@@ -38,7 +38,7 @@ public class ReadOnlyValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         Set<ValidationMessage> errors= new HashSet<>();
         if (this.readOnly) {

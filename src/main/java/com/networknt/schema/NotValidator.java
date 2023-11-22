@@ -37,14 +37,14 @@ public class NotValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, at);
-            errors = this.schema.validate(node, rootNode, at);
+            errors = this.schema.validate(executionContext, node, rootNode, at);
             if (errors.isEmpty()) {
                 return Collections.singleton(buildValidationMessage(at, this.schema.toString()));
             }
@@ -58,12 +58,12 @@ public class NotValidator extends BaseJsonValidator {
     }
     
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
 
-        Set<ValidationMessage> errors = this.schema.walk(node, rootNode, at, shouldValidateSchema);
+        Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
         if (errors.isEmpty()) {
             return Collections.singleton(buildValidationMessage(at, this.schema.toString()));
         }
