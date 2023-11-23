@@ -203,16 +203,6 @@ public class CollectorContext {
     }
 
     /**
-     * Reset the context
-     */
-    public void reset() {
-        this.collectorMap = new HashMap<>();
-        this.collectorLoadMap = new HashMap<>();
-        this.dynamicScopes.clear();
-        this.dynamicScopes.push(newTopScope());
-    }
-
-    /**
      * Loads data from all collectors.
      */
     void loadCollectors() {

@@ -384,67 +384,61 @@ public class JsonSchema extends BaseJsonValidator {
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
-        try {
-            for (JsonValidator v : getValidators().values()) {
-                Set<ValidationMessage> results = Collections.emptySet();
+        for (JsonValidator v : getValidators().values()) {
+            Set<ValidationMessage> results = Collections.emptySet();
 
-                Scope parentScope = collectorContext.enterDynamicScope(this);
-                try {
-                    results = v.validate(executionContext, jsonNode, rootNode, at);
-                } finally {
-                    Scope scope = collectorContext.exitDynamicScope();
-                    if (results.isEmpty()) {
-                        parentScope.mergeWith(scope);
-                    } else {
-                        errors.addAll(results);
-                        if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
-                                || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-                            collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-                        }
-                        if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
-                                || v instanceof PatternPropertiesValidator) {
-                            collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-                        }
+            Scope parentScope = collectorContext.enterDynamicScope(this);
+            try {
+                results = v.validate(executionContext, jsonNode, rootNode, at);
+            } finally {
+                Scope scope = collectorContext.exitDynamicScope();
+                if (results.isEmpty()) {
+                    parentScope.mergeWith(scope);
+                } else {
+                    errors.addAll(results);
+                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
+                            || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
                     }
-
-                }
-            }
-
-            if (config.isOpenAPI3StyleDiscriminators()) {
-                ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
-                if (null != discriminator) {
-                    final DiscriminatorContext discriminatorContext = this.validationContext
-                            .getCurrentDiscriminatorContext();
-                    if (null != discriminatorContext) {
-                        final ObjectNode discriminatorToUse;
-                        final ObjectNode discriminatorFromContext = discriminatorContext
-                                .getDiscriminatorForPath(this.schemaPath);
-                        if (null == discriminatorFromContext) {
-                            // register the current discriminator. This can only happen when the current context discriminator
-                            // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
-                            // used for validation before allOf validation has kicked in
-                            discriminatorContext.registerDiscriminator(this.schemaPath, discriminator);
-                            discriminatorToUse = discriminator;
-                        } else {
-                            discriminatorToUse = discriminatorFromContext;
-                        }
-
-                        final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
-                        final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
-                        final String discriminatorPropertyValue = discriminatorNode == null ? null
-                                : discriminatorNode.asText();
-                        checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
-                                this);
+                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
+                            || v instanceof PatternPropertiesValidator) {
+                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
                     }
                 }
-            }
 
-            return errors;
-        } finally {
-            if (collectorContext.getDynamicScope().isTop() && config.isResetCollectorContext()) {
-                collectorContext.reset();
             }
         }
+
+        if (config.isOpenAPI3StyleDiscriminators()) {
+            ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
+            if (null != discriminator) {
+                final DiscriminatorContext discriminatorContext = this.validationContext
+                        .getCurrentDiscriminatorContext();
+                if (null != discriminatorContext) {
+                    final ObjectNode discriminatorToUse;
+                    final ObjectNode discriminatorFromContext = discriminatorContext
+                            .getDiscriminatorForPath(this.schemaPath);
+                    if (null == discriminatorFromContext) {
+                        // register the current discriminator. This can only happen when the current context discriminator
+                        // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
+                        // used for validation before allOf validation has kicked in
+                        discriminatorContext.registerDiscriminator(this.schemaPath, discriminator);
+                        discriminatorToUse = discriminator;
+                    } else {
+                        discriminatorToUse = discriminatorFromContext;
+                    }
+
+                    final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
+                    final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
+                    final String discriminatorPropertyValue = discriminatorNode == null ? null
+                            : discriminatorNode.asText();
+                    checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
+                            this);
+                }
+            }
+        }
+
+        return errors;
     }
 
     /**
@@ -521,28 +515,22 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        try {
-            // Get the config.
-            SchemaValidatorsConfig config = this.validationContext.getConfig();
-            // Get the collector context from the thread local.
-            CollectorContext collectorContext = executionContext.getCollectorContext();
-            // Set the walkEnabled flag in internal validator state.
-            setValidatorState(executionContext, true, shouldValidateSchema);
-            // Walk through the schema.
-            Set<ValidationMessage> errors = walk(executionContext, node, rootNode, at, shouldValidateSchema);
-            // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-            if (config.doLoadCollectors()) {
-                // Load all the data from collectors into the context.
-                collectorContext.loadCollectors();
-            }
-
-            ValidationResult validationResult = new ValidationResult(errors, executionContext);
-            return validationResult;
-        } finally {
-            if (this.validationContext.getConfig().isResetCollectorContext()) {
-                executionContext.getCollectorContext().reset();
-            }
+        // Get the config.
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
+        // Get the collector context.
+        CollectorContext collectorContext = executionContext.getCollectorContext();
+        // Set the walkEnabled flag in internal validator state.
+        setValidatorState(executionContext, true, shouldValidateSchema);
+        // Walk through the schema.
+        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, at, shouldValidateSchema);
+        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
+        if (config.doLoadCollectors()) {
+            // Load all the data from collectors into the context.
+            collectorContext.loadCollectors();
         }
+
+        ValidationResult validationResult = new ValidationResult(errors, executionContext);
+        return validationResult;
     }
 
     @Override

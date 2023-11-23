@@ -105,12 +105,6 @@ public class SchemaValidatorsConfig {
     private boolean handleNullableField = true;
 
     /**
-     * When set to true resets the {@link CollectorContext} by calling
-     * {@link CollectorContext#reset()}.
-     */
-    private boolean resetCollectorContext = true;
-
-    /**
      * When set to true assumes that schema is used to validate incoming data from an API.
      */
     private Boolean readOnly = null;
@@ -437,14 +431,6 @@ public class SchemaValidatorsConfig {
 
     public boolean doLoadCollectors() {
         return this.loadCollectors;
-    }
-
-    public boolean isResetCollectorContext() {
-        return this.resetCollectorContext;
-    }
-
-    public void setResetCollectorContext(boolean resetCollectorContext) {
-        this.resetCollectorContext = resetCollectorContext;
     }
 
     public boolean isReadOnly() {

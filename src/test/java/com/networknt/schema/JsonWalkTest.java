@@ -41,7 +41,6 @@ public class JsonWalkTest {
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
-        schemaValidatorsConfig.setResetCollectorContext(false);
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
                 .build();
@@ -51,7 +50,6 @@ public class JsonWalkTest {
         schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
         schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
-        schemaValidatorsConfig1.setResetCollectorContext(false);
         this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1);
     }
 
@@ -99,8 +97,6 @@ public class JsonWalkTest {
                 + "     }"
                 + "}")));
         // This instance of schema contains one listener removed.
-        CollectorContext collectorContext = result.getExecutionContext().getCollectorContext();
-        collectorContext.reset();
         result = jsonSchema1.walk(objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
         collectedNode = (JsonNode) result.getExecutionContext().getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
         assertEquals(collectedNode, (objectMapper.readTree("{"
