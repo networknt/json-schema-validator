@@ -94,7 +94,7 @@ Gradle:
 
 ```java
 dependencies {
-    compile(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.87');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.87');
 }
 ```
 
