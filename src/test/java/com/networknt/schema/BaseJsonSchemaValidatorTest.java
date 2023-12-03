@@ -47,14 +47,18 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static JsonSchema getJsonSchemaFromClasspath(String name) {
-        return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4);
+        return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4, null);
     }
 
     public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
+        return getJsonSchemaFromClasspath(name, schemaVersion, null);
+    }
+
+    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion, SchemaValidatorsConfig config) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
-        return factory.getSchema(is);
+        return factory.getSchema(is, config);
     }
 
     public static JsonSchema getJsonSchemaFromStringContent(String schemaContent) {

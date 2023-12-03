@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "foo": {
+      "type": "string",
+      "enum": [
+        "foo1",
+        "foo2"
+      ]
+    },
+    "bar": {
+      "type": "string",
+      "pattern": "(bar)+"
+    }
+  }
+}
