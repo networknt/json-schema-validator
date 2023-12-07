@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.uri.URIFactory;
+import com.networknt.schema.uri.URNURIFactory;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class RefValidator extends BaseJsonValidator {
     private JsonSchema parentSchema;
 
     private static final String REF_CURRENT = "#";
-    private static final String URN_SCHEME = "urn";
+    private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);

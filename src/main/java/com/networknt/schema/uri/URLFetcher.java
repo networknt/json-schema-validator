@@ -34,8 +34,7 @@ public final class URLFetcher implements URIFetcher {
 
     // These supported schemes are defined in {@link #URL(String, String, int, String)}.
     // This fetcher also supports the {@link URL}s created with the {@link ClasspathURIFactory}.
-    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("http", "https", "ftp", "file", "jar")));
+    public static final Set<String> SUPPORTED_SCHEMES = URLFactory.SUPPORTED_SCHEMES;
 
     /**
      * {@inheritDoc}
