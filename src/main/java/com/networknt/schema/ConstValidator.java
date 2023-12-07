@@ -32,7 +32,7 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
         this.schemaNode = schemaNode;
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();

@@ -67,18 +67,18 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         // ignores non-arrays
         if (null != this.schema && node.isArray()) {
-            Collection<String> evaluatedItems = CollectorContext.getInstance().getEvaluatedItems();
+            Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
 
             int actual = 0, i = 0;
             for (JsonNode n : node) {
                 String path = atPath(at, i);
 
-                if (this.schema.validate(n, rootNode, path).isEmpty()) {
+                if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;
                     evaluatedItems.add(path);
                 }

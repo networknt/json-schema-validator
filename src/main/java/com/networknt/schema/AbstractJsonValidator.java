@@ -23,15 +23,15 @@ import java.util.Set;
 
 public abstract class AbstractJsonValidator implements JsonValidator {
 
-    public Set<ValidationMessage> validate(JsonNode node) {
-        return validate(node, node, PathType.LEGACY.getRoot());
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
+        return validate(executionContext, node, node, PathType.LEGACY.getRoot());
     }
 
     @Override
-	public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+	public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
 		Set<ValidationMessage> validationMessages = Collections.emptySet();
 		if (shouldValidateSchema) {
-			validationMessages = validate(node, rootNode, at);
+			validationMessages = validate(executionContext, node, rootNode, at);
 		}
 		return validationMessages;
 	}

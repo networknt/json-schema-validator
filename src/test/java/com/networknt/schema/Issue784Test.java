@@ -23,7 +23,7 @@ public class Issue784Test {
         }
 
         @Override
-        public boolean matches(String value) {
+        public boolean matches(ExecutionContext executionContext, String value) {
             return value.equals(FOO_BAR);
         }
 

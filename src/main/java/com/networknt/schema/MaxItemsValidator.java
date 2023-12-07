@@ -39,7 +39,7 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         if (node.isArray()) {

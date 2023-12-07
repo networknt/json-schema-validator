@@ -51,11 +51,11 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         if (this.schemaType == JsonType.UNION) {
-            return this.unionTypeValidator.validate(node, rootNode, at);
+            return this.unionTypeValidator.validate(executionContext, node, rootNode, at);
         }
 
         if (!equalsToSchemaType(node)) {
@@ -68,9 +68,9 @@ public class TypeValidator extends BaseJsonValidator {
         // Hack to catch patternProperties like "^foo":"value"
         if (this.schemaPath.endsWith("/type")) {
             if (rootNode.isArray()) {
-                CollectorContext.getInstance().getEvaluatedItems().add(at);
+                executionContext.getCollectorContext().getEvaluatedItems().add(at);
             } else if (rootNode.isObject()) {
-                CollectorContext.getInstance().getEvaluatedProperties().add(at);
+                executionContext.getCollectorContext().getEvaluatedProperties().add(at);
             }
         }
         return Collections.emptySet();

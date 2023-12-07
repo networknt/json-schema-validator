@@ -130,8 +130,8 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
@@ -143,7 +143,7 @@ public class RefValidator extends BaseJsonValidator {
             // with the latest config. Reset the config.
             this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (this.schema != null) {
-                errors =  this.schema.validate(node, rootNode, at);
+                errors =  this.schema.validate(executionContext, node, rootNode, at);
             } else {
                 errors = Collections.emptySet();
             }
@@ -157,8 +157,8 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
@@ -170,7 +170,7 @@ public class RefValidator extends BaseJsonValidator {
             // with the latest config. Reset the config.
             this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (this.schema != null) {
-                errors = this.schema.walk(node, rootNode, at, shouldValidateSchema);
+                errors = this.schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
             }
             return errors;
         } finally {

@@ -42,7 +42,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -57,9 +57,9 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    Set<ValidationMessage> results = entry.getValue().validate(n, rootNode, atPath(at, name));
+                    Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, atPath(at, name));
                     if (results.isEmpty()) {
-                        CollectorContext.getInstance().getEvaluatedProperties().add(atPath(at, name));
+                        executionContext.getCollectorContext().getEvaluatedProperties().add(atPath(at, name));
                     }
                     errors.addAll(results);
                 }

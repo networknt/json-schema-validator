@@ -58,9 +58,9 @@ public class IfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
@@ -68,7 +68,7 @@ public class IfValidator extends BaseJsonValidator {
         boolean ifConditionPassed = false;
         try {
             try {
-                ifConditionPassed = this.ifSchema.validate(node, rootNode, at).isEmpty();
+                ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, at).isEmpty();
             } catch (JsonSchemaException ex) {
                 // When failFast is enabled, validations are thrown as exceptions.
                 // An exception means the condition failed
@@ -76,13 +76,13 @@ public class IfValidator extends BaseJsonValidator {
             }
 
             if (ifConditionPassed && this.thenSchema != null) {
-                errors.addAll(this.thenSchema.validate(node, rootNode, at));
+                errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, at));
             } else if (!ifConditionPassed && this.elseSchema != null) {
                 // discard ifCondition results
                 collectorContext.exitDynamicScope();
                 collectorContext.enterDynamicScope();
 
-                errors.addAll(this.elseSchema.validate(node, rootNode, at));
+                errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, at));
             }
 
         } finally {
@@ -109,19 +109,19 @@ public class IfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
 
         if (null != this.ifSchema) {
-            this.ifSchema.walk(node, rootNode, at, false);
+            this.ifSchema.walk(executionContext, node, rootNode, at, false);
         }
         if (null != this.thenSchema) {
-            this.thenSchema.walk(node, rootNode, at, false);
+            this.thenSchema.walk(executionContext, node, rootNode, at, false);
         }
         if (null != this.elseSchema) {
-            this.elseSchema.walk(node, rootNode, at, false);
+            this.elseSchema.walk(executionContext, node, rootNode, at, false);
         }
 
         return Collections.emptySet();

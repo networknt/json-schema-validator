@@ -64,9 +64,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (!node.isObject()) {
@@ -102,9 +102,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
+                            errors.addAll(additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
                         } else {
-                            errors.addAll(additionalPropertiesSchema.validate(node.get(pname), rootNode, atPath(at, pname)));
+                            errors.addAll(additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, atPath(at, pname)));
                         }
                     }
                 }
@@ -114,9 +114,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
 
         if (node == null || !node.isObject()) {
@@ -142,9 +142,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (allowAdditionalProperties) {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = (ValidatorState) executionContext.getCollectorContext().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
+                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
                         }
                     }
                 }

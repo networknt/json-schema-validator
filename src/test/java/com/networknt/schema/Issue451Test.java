@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -25,7 +23,6 @@ public class Issue451Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         SchemaValidatorsConfig svc = new SchemaValidatorsConfig();
-        svc.setResetCollectorContext(false);
         svc.addPropertyWalkListener(new CountingWalker());
         return factory.getSchema(schemaContent, svc);
     }
@@ -33,24 +30,6 @@ public class Issue451Test {
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(content);
-    }
-
-
-    @BeforeAll
-    public static void beforeAll() {
-        reset();
-    }
-
-    @AfterEach
-    public void cleanup() {
-        reset();
-    }
-
-
-    private static void reset() {
-        if (CollectorContext.getInstance() != null) {
-            CollectorContext.getInstance().reset();
-        }
     }
 
     @Test
@@ -78,9 +57,9 @@ public class Issue451Test {
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
 
-        schema.walk(data, shouldValidate);
+        CollectorContext collectorContext = schema.walk(data, shouldValidate).getCollectorContext();
 
-        Map<String, Integer> collector = (Map<String, Integer>) CollectorContext.getInstance().get(COLLECTOR_ID);
+        Map<String, Integer> collector = (Map<String, Integer>) collectorContext.get(COLLECTOR_ID);
         Assertions.assertEquals(2, collector.get("#/definitions/definition1/properties/a"));
         Assertions.assertEquals(2, collector.get("#/definitions/definition2/properties/x"));
     }
@@ -90,7 +69,7 @@ public class Issue451Test {
         @Override
         public WalkFlow onWalkStart(WalkEvent walkEvent) {
             String path = walkEvent.getSchemaPath();
-            collector().compute(path, (k, v) -> v == null ? 1 : v + 1);
+            collector(walkEvent.getExecutionContext()).compute(path, (k, v) -> v == null ? 1 : v + 1);
             return WalkFlow.CONTINUE;
         }
 
@@ -99,11 +78,11 @@ public class Issue451Test {
 
         }
 
-        private Map<String, Integer> collector() {
-            Map<String, Integer> collector = (Map<String, Integer>) CollectorContext.getInstance().get(COLLECTOR_ID);
+        private Map<String, Integer> collector(ExecutionContext executionContext) {
+            Map<String, Integer> collector = (Map<String, Integer>) executionContext.getCollectorContext().get(COLLECTOR_ID);
             if(collector == null) {
                 collector = new HashMap<>();
-                CollectorContext.getInstance().add(COLLECTOR_ID, collector);
+                executionContext.getCollectorContext().add(COLLECTOR_ID, collector);
             }
 
             return collector;

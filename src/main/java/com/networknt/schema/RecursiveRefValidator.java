@@ -44,8 +44,8 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
@@ -59,7 +59,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
                 // with the latest config. Reset the config.
                 schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors =  schema.validate(node, rootNode, at);
+                errors =  schema.validate(executionContext, node, rootNode, at);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();
@@ -72,8 +72,8 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = CollectorContext.getInstance();
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
@@ -87,7 +87,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
                 // with the latest config. Reset the config.
                 schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors = schema.walk(node, rootNode, at, shouldValidateSchema);
+                errors = schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();

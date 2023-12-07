@@ -37,7 +37,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
@@ -58,7 +58,7 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
                 }
             }
             try {
-                if (!format.matches(node.textValue())) {
+                if (!format.matches(executionContext, node.textValue())) {
                     errors.add(buildValidationMessage(at, format.getName(), format.getErrorMessageDescription()));
                 }
             } catch (PatternSyntaxException pse) {

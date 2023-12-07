@@ -40,9 +40,9 @@ public class OneOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
@@ -65,9 +65,9 @@ public class OneOfValidator extends BaseJsonValidator {
                     state.setMatchedNode(true);
 
                     if (!state.isWalkEnabled()) {
-                        schemaErrors = schema.validate(node, rootNode, at);
+                        schemaErrors = schema.validate(executionContext, node, rootNode, at);
                     } else {
-                        schemaErrors = schema.walk(node, rootNode, at, state.isValidationEnabled());
+                        schemaErrors = schema.walk(executionContext, node, rootNode, at, state.isValidationEnabled());
                     }
 
                     // check if any validation errors have occurred
@@ -109,8 +109,8 @@ public class OneOfValidator extends BaseJsonValidator {
             if (errors.isEmpty())
                 state.setMatchedNode(true);
 
-            // reset the ValidatorState object in the ThreadLocal
-            resetValidatorState();
+            // reset the ValidatorState object
+            resetValidatorState(collectorContext);
 
             return Collections.unmodifiableSet(errors);
         } finally {
@@ -121,20 +121,20 @@ public class OneOfValidator extends BaseJsonValidator {
         }
     }
 
-    private static void resetValidatorState() {
-        ValidatorState state = (ValidatorState) CollectorContext.getInstance().get(ValidatorState.VALIDATOR_STATE_KEY);
+    private static void resetValidatorState(CollectorContext collectorContext) {
+        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
         state.setComplexValidator(false);
         state.setMatchedNode(true);
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (shouldValidateSchema) {
-            validationMessages.addAll(validate(node, rootNode, at));
+            validationMessages.addAll(validate(executionContext, node, rootNode, at));
         } else {
             for (JsonSchema schema : this.schemas) {
-                schema.walk(node, rootNode, at, shouldValidateSchema);
+                schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
             }
         }
         return validationMessages;

@@ -226,8 +226,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node) {
-        return validate(node, node, atRoot());
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
+        return validate(executionContext, node, node, atRoot());
     }
 
     protected String getNodeFieldType() {

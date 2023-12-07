@@ -48,9 +48,9 @@ public class AnyOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = CollectorContext.getInstance();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
@@ -82,9 +82,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         }
                     }
                     if (!state.isWalkEnabled()) {
-                        errors = schema.validate(node, rootNode, at);
+                        errors = schema.validate(executionContext, node, rootNode, at);
                     } else {
-                        errors = schema.walk(node, rootNode, at, true);
+                        errors = schema.walk(executionContext, node, rootNode, at, true);
                     }
 
                     // check if any validation errors have occurred
@@ -151,12 +151,12 @@ public class AnyOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(node, rootNode, at);
+            return validate(executionContext, node, rootNode, at);
         }
         for (JsonSchema schema : this.schemas) {
-            schema.walk(node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, at, false);
         }
         return new LinkedHashSet<>();
     }

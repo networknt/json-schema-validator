@@ -21,20 +21,23 @@ public class ValidationResult {
 
     private Set<ValidationMessage> validationMessages;
 
-    private CollectorContext collectorContext;
+    private ExecutionContext executionContext;
 
-    public ValidationResult(Set<ValidationMessage> validationMessages, CollectorContext collectorContext) {
+    public ValidationResult(Set<ValidationMessage> validationMessages, ExecutionContext executionContext) {
         super();
         this.validationMessages = validationMessages;
-        this.collectorContext = collectorContext;
+        this.executionContext = executionContext;
     }
 
     public Set<ValidationMessage> getValidationMessages() {
         return validationMessages;
     }
 
-    public CollectorContext getCollectorContext() {
-        return collectorContext;
+    public ExecutionContext getExecutionContext() {
+        return executionContext;
     }
 
+    public CollectorContext getCollectorContext() {
+        return getExecutionContext().getCollectorContext();
+    }
 }
