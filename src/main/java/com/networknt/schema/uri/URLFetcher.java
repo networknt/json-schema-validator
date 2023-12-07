@@ -22,7 +22,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -32,7 +34,8 @@ public final class URLFetcher implements URIFetcher {
 
     // These supported schemes are defined in {@link #URL(String, String, int, String)}.
     // This fetcher also supports the {@link URL}s created with the {@link ClasspathURIFactory}.
-    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(URLFactory.SUPPORTED_SCHEMES);
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("http", "https", "ftp", "file", "jar")));
 
     /**
      * {@inheritDoc}

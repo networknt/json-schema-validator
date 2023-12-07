@@ -214,7 +214,7 @@ public class JsonSchema extends BaseJsonValidator {
             if (node.isMissingNode()) {
                 node = handleNullNode(ref, schema);
             }
-        } else if (ref.startsWith("#") && ref.length() > 1) {
+        } else if ((ref.startsWith("#") && ref.length() > 1) || (ref.startsWith("urn:") && ref.length() > 4)) {
             node = this.metaSchema.getNodeByFragmentRef(ref, node);
             if (node == null) {
                 node = handleNullNode(ref, schema);

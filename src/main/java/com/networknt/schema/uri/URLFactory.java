@@ -30,8 +30,8 @@ import java.util.Set;
  */
 public final class URLFactory implements URIFactory {
     // These supported schemes are defined in {@link #URL(String, String, int, String)}.
-    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<String>(
-            Arrays.asList("http", "https", "ftp", "file", "jar")));
+    public static final Set<String> SUPPORTED_SCHEMES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("http", "https", "ftp", "file", "jar", "urn")));
 
     /**
      * @param uri String
