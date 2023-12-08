@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.0.88 - 2023-12-08
+
+### Added
+
+### Changed
+
+- fixes #906 Cannot load JSON schemas with URN value in id field. Thanks @martin-sladecek
+- upgrade logback to 1.4.14 
+- fixes #896 Refactor to remove ThreadLocal usage. Thanks @justin-tay
+- upgrade slf4j to 2.0.9
+- fixes #900 compile configuration is depricated. Thanks @saurvkmr
+- fixes #898 Escape single quotes in validation messages. Thanks @sdurrenmatt
+- fixes #888 Fix JDK regex support. Thanks @Stephan202
+- fixes #891 fix: make JsonSchemaFactory more thread-safe. Thanks @mpayne-coveo
+- fixes #876 Adapt collector context documentation. Thanks @holgpar
+- fixes #890 Added test cases for not allowed validator, Handled invalid keyword. Thanks @Ketul3012
+- fixes #887 Fix pl_PL message translations. Thanks @brempusz
+- fixes #886 Fix invalid class passed to getLogger. Thanks @brempusz
+- upgrade jackson to 2.15.3
+- fixes #883 docs clarify commons-lang3 exclusion only required for 1.0.81. Thanks @JonasGroeger
+- fixes #866 Fix identation in example in walkers.md. Thanks @bpaquet 
+
+
 ## 1.0.87 - 2023-09-08
 
 ### Added
