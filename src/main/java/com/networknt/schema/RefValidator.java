@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.uri.URIFactory;
+import com.networknt.schema.uri.URNURIFactory;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public class RefValidator extends BaseJsonValidator {
     private JsonSchema parentSchema;
 
     private static final String REF_CURRENT = "#";
+    private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
     public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
@@ -78,6 +80,12 @@ public class RefValidator extends BaseJsonValidator {
                 if (schemaUri == null) {
                     return null;
                 }
+            } else if (URN_SCHEME.equals(schemaUri.getScheme())) {
+                // Try to resolve URN schema as a JsonSchemaRef to some sub-schema of the parent
+                JsonSchemaRef ref = getJsonSchemaRef(parent, validationContext, schemaUri.toString(), refValueOriginal);
+                if (ref != null) {
+                    return ref;
+                }
             }
 
             // This should retrieve schemas regardless of the protocol that is in the uri.
@@ -91,6 +99,13 @@ public class RefValidator extends BaseJsonValidator {
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(parent.findAncestor());
         }
+        return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal);
+    }
+
+    private static JsonSchemaRef getJsonSchemaRef(JsonSchema parent,
+                                                  ValidationContext validationContext,
+                                                  String refValue,
+                                                  String refValueOriginal) {
         JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);

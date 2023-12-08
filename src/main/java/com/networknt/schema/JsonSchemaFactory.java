@@ -59,6 +59,8 @@ public class JsonSchemaFactory {
             for (final String scheme : URLFactory.SUPPORTED_SCHEMES) {
                 this.uriFactoryMap.put(scheme, urlFactory);
             }
+            // Adds support for creating URNs.
+            this.uriFactoryMap.put(URNURIFactory.SCHEME, new URNURIFactory());
 
             // Adds support for fetching with {@link URL}s.
             final URIFetcher urlFetcher = new URLFetcher();
