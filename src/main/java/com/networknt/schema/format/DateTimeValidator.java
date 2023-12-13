@@ -54,8 +54,8 @@ public class DateTimeValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
         if (!isLegalDateTime(node.textValue())) {
-            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), node.textValue(),
-                    DATETIME));
+            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(),
+                    node.textValue(), DATETIME));
         }
         return Collections.emptySet();
     }

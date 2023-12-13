@@ -32,6 +32,6 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         // For the false validator, it is always not valid
-        return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale()));
+        return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
     }
 }

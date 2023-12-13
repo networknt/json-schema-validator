@@ -48,7 +48,7 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
             return Collections.singleton(
-                    buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), "" + maxLength));
+                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + maxLength));
         }
         return Collections.emptySet();
     }

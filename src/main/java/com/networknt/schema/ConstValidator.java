@@ -36,12 +36,12 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                return Collections.singleton(buildValidationMessage(at,
-                        executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+                return Collections.singleton(buildValidationMessage(null,
+                        at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
             }
         } else if (!schemaNode.equals(node)) {
             return Collections.singleton(
-                    buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
         }
         return Collections.emptySet();
     }

@@ -97,7 +97,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (!allowAdditionalProperties) {
-                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), pname));
+                    errors.add(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), pname));
                 } else {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);

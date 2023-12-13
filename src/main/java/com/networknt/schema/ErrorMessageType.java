@@ -16,6 +16,8 @@
 
 package com.networknt.schema;
 
+import java.util.Map;
+
 public interface ErrorMessageType {
     /**
      * Your error code. Please ensure global uniqueness. Builtin error codes are sequential numbers.
@@ -26,7 +28,7 @@ public interface ErrorMessageType {
      */
     String getErrorCode();
 
-    default String getCustomMessage() {
+    default Map<String, String> getCustomMessage() {
         return null;
     }
 

@@ -73,7 +73,7 @@ public class FormatKeyword implements Keyword {
     }
 
     @Override
-    public void setCustomMessage(String message) {
+    public void setCustomMessage(Map<String, String> message) {
         this.type.setCustomMessage(message);
     }
 }

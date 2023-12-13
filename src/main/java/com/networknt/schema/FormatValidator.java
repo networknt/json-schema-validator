@@ -50,18 +50,18 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
                     // leading and trailing spaces
-                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
-                            format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(null, at,
+                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 } else if(node.textValue().contains("%")) {
                     // zone id is not part of the ipv6
-                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
-                            format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(null, at,
+                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
-                            format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(null, at,
+                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid

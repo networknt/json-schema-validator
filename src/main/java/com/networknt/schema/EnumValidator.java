@@ -82,7 +82,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
 
         if (node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
         if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
-            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), error));
+            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), error));
         }
 
         return Collections.emptySet();

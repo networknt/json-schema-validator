@@ -60,8 +60,8 @@ public class TypeValidator extends BaseJsonValidator {
 
         if (!equalsToSchemaType(node)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
-                    nodeType.toString(), this.schemaType.toString()));
+            return Collections.singleton(buildValidationMessage(null, at,
+                    executionContext.getExecutionConfig().getLocale(), nodeType.toString(), this.schemaType.toString()));
         }
 
         // TODO: Is this really necessary?

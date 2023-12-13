@@ -17,12 +17,14 @@
 package com.networknt.schema;
 
 
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface Keyword {
     String getValue();
 
-    default void setCustomMessage(String message) {
+    default void setCustomMessage(Map<String, String> message) {
         //setCustom message
     }
 

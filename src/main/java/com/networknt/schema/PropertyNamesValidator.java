@@ -48,8 +48,8 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                 if (msg.startsWith(path))
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
 
-                errors.add(buildValidationMessage(schemaError.getPath(),
-                        executionContext.getExecutionConfig().getLocale(), msg));
+                errors.add(buildValidationMessage(pname,
+                        schemaError.getPath(), executionContext.getExecutionConfig().getLocale(), msg));
             }
         }
         return Collections.unmodifiableSet(errors);

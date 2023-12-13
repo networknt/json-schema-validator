@@ -99,5 +99,98 @@
         ]
       }
     ]
+  },
+  {
+    "description": "messages for keywords for different properties",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "number"
+        },
+        "bar": {
+          "type": "string"
+        }
+      },
+      "required": ["foo", "bar"],
+      "message": {
+        "type" : "should be an object",
+        "required": {
+          "foo" : "{0}: ''foo'' is required",
+          "bar" : "{0}: ''bar'' is required"
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "bar is required",
+        "data": {
+          "foo": 1
+        },
+        "valid": false,
+        "validationMessages": [
+          "$: 'bar' is required"
+        ]
+      },
+      {
+        "description": "foo is required",
+        "data": {
+          "bar": "bar"
+        },
+        "valid": false,
+        "validationMessages": [
+          "$: 'foo' is required"
+        ]
+      },
+      {
+        "description": "both foo and bar are required",
+        "data": {
+        },
+        "valid": false,
+        "validationMessages": [
+          "$: 'foo' is required",
+          "$: 'bar' is required"
+        ]
+      }
+   ]
+  },
+  {
+    "description": "messages for keywords with arguments",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "requestedItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "properties": {
+              "item": {
+                "type": "string",
+                "minLength": 1,
+                "message": {
+                  "minLength": "{0}: Item should not be empty"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tests": [
+      {
+        "description": "should not be empty",
+        "data": {
+          "requestedItems": [
+          {
+            "item": ""
+          }
+          ]
+        },
+        "valid": false,
+        "validationMessages": [
+          "$.requestedItems[0].item: Item should not be empty"
+        ]
+      }
+   ]
   }
 ]

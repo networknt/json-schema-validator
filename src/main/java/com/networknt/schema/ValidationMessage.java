@@ -131,7 +131,7 @@ public class ValidationMessage {
 
     @Deprecated // Use the builder
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, Object... arguments) {
-        return ofWithCustom(type, errorMessageType, messageFormat, errorMessageType.getCustomMessage(), at, schemaPath, arguments);
+        return ofWithCustom(type, errorMessageType, messageFormat, errorMessageType.getCustomMessage().get(""), at, schemaPath, arguments);
     }
 
     @Deprecated // Use the builder

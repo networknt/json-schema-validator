@@ -107,8 +107,8 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator {
         }
 
         if (typedMaximum.crossesThreshold(node)) {
-            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
-                    typedMaximum.thresholdValue()));
+            return Collections.singleton(buildValidationMessage(null, at,
+                    executionContext.getExecutionConfig().getLocale(), typedMaximum.thresholdValue()));
         }
         return Collections.emptySet();
     }

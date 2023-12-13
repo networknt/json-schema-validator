@@ -97,7 +97,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths, ExecutionContext executionContext) {
         List<String> paths = new ArrayList<>(unevaluatedPaths);
         paths.sort(String.CASE_INSENSITIVE_ORDER);
-        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths), executionContext.getExecutionConfig().getLocale()));
+        return Collections.singleton(buildValidationMessage(null, String.join("\n  ", paths), executionContext.getExecutionConfig().getLocale()));
     }
 
     private static Set<String> unevaluatedPaths(CollectorContext collectorContext, Set<String> allPaths) {
