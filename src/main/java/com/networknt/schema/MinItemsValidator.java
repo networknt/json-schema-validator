@@ -42,11 +42,13 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
 
         if (node.isArray()) {
             if (node.size() < min) {
-                return Collections.singleton(buildValidationMessage(at, "" + min));
+                return Collections.singleton(
+                        buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), "" + min));
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 < min) {
-                return Collections.singleton(buildValidationMessage(at, "" + min));
+                return Collections.singleton(
+                        buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), "" + min));
             }
         }
 

@@ -52,7 +52,7 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode == null) {
-                errors.add(buildValidationMessage(at, fieldName));
+                errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), fieldName));
             }
         }
 

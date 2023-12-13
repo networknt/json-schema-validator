@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class EnumValidator extends BaseJsonValidator implements JsonValidator {
@@ -81,13 +80,12 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
         if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
-            errors.add(buildValidationMessage(at, error));
+            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), error));
         }
 
-        return Collections.unmodifiableSet(errors);
+        return Collections.emptySet();
     }
 
     /**

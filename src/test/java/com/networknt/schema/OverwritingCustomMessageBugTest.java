@@ -27,8 +27,8 @@ public class OverwritingCustomMessageBugTest {
     Map<String, String> errorMsgMap = transferErrorMsg(errors);
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].foos"), "error message must contains key: $.foos");
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].bars"), "error message must contains key: $.bars");
-    Assertions.assertEquals("{0}: Must be a string with the a shape foofoofoofoo... with at least one foo", errorMsgMap.get("$.toplevel[1].foos"));
-    Assertions.assertEquals("{0}: Must be a string with the a shape barbarbar... with at least one bar", errorMsgMap.get("$.toplevel[1].bars"));
+    Assertions.assertEquals("$.toplevel[1].foos: Must be a string with the a shape foofoofoofoo... with at least one foo", errorMsgMap.get("$.toplevel[1].foos"));
+    Assertions.assertEquals("$.toplevel[1].bars: Must be a string with the a shape barbarbar... with at least one bar", errorMsgMap.get("$.toplevel[1].bars"));
   }
 
 

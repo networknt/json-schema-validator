@@ -56,7 +56,8 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
             if (dependencies != null && !dependencies.isEmpty()) {
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(at, field, pname));
+                        errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), field,
+                                pname));
                     }
                 }
             }

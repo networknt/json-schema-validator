@@ -60,7 +60,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
 
             // Short-circuit since schema is 'false'
             if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
-                return reportUnevaluatedPaths(unevaluatedPaths);
+                return reportUnevaluatedPaths(unevaluatedPaths, executionContext);
             }
 
             Set<String> failingPaths = new HashSet<>();
@@ -75,7 +75,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
             if (failingPaths.isEmpty()) {
                 collectorContext.getEvaluatedProperties().addAll(allPaths);
             } else {
-                return reportUnevaluatedPaths(failingPaths);
+                return reportUnevaluatedPaths(failingPaths, executionContext);
             }
 
             return Collections.emptySet();
@@ -94,10 +94,10 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         return collector;
     }
 
-    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths) {
+    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths, ExecutionContext executionContext) {
         List<String> paths = new ArrayList<>(unevaluatedPaths);
         paths.sort(String.CASE_INSENSITIVE_ORDER);
-        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths)));
+        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths), executionContext.getExecutionConfig().getLocale()));
     }
 
     private static Set<String> unevaluatedPaths(CollectorContext collectorContext, Set<String> allPaths) {

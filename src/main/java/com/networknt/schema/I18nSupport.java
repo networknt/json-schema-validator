@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
  *
  * @author leaves chen leaves615@gmail.com
  */
+@Deprecated
 public class I18nSupport {
 
     public static final String DEFAULT_BUNDLE_BASE_NAME = "jsv-messages";

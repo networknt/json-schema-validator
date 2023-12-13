@@ -16,30 +16,40 @@
 
 package com.networknt.schema;
 
+import com.networknt.schema.i18n.MessageFormatter;
+import com.networknt.schema.utils.CachingSupplier;
 import com.networknt.schema.utils.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class ValidationMessage {
-    private String type;
-    private String code;
-    private String path;
-    private String schemaPath;
-    private String[] arguments;
-    private Map<String, Object> details;
-    private String message;
+    private final String type;
+    private final String code;
+    private final String path;
+    private final String schemaPath;
+    private final Object[] arguments;
+    private final Map<String, Object> details;
+    private final String messageKey;
+    private final Supplier<String> messageSupplier;
 
-    ValidationMessage() {
+    ValidationMessage(String type, String code, String path, String schemaPath, Object[] arguments,
+            Map<String, Object> details, String messageKey, Supplier<String> messageSupplier) {
+        super();
+        this.type = type;
+        this.code = code;
+        this.path = path;
+        this.schemaPath = schemaPath;
+        this.arguments = arguments;
+        this.details = details;
+        this.messageKey = messageKey;
+        this.messageSupplier = messageSupplier;
     }
 
     public String getCode() {
         return code;
-    }
-
-    void setCode(String code) {
-        this.code = code;
     }
 
     /**
@@ -49,10 +59,6 @@ public class ValidationMessage {
         return path;
     }
 
-    void setPath(String path) {
-        this.path = path;
-    }
-
     /**
      * @return The path to the schema
      */
@@ -60,20 +66,8 @@ public class ValidationMessage {
         return schemaPath;
     }
 
-    public void setSchemaPath(String schemaPath) {
-        this.schemaPath = schemaPath;
-    }
-
-    public String[] getArguments() {
+    public Object[] getArguments() {
         return arguments;
-    }
-
-    void setArguments(String[] arguments) {
-        this.arguments = arguments;
-    }
-
-    void setDetails(Map<String, Object> details) {
-        this.details = details;
     }
 
     public Map<String, Object> getDetails() {
@@ -81,16 +75,16 @@ public class ValidationMessage {
     }
 
     public String getMessage() {
-        return message;
+        return messageSupplier.get();
     }
 
-    void setMessage(String message) {
-        this.message = message;
+    public String getMessageKey() {
+        return messageKey;
     }
 
     @Override
     public String toString() {
-        return message;
+        return messageSupplier.get();
     }
 
     @Override
@@ -105,9 +99,9 @@ public class ValidationMessage {
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
         if (schemaPath != null ? !schemaPath.equals(that.schemaPath) : that.schemaPath != null) return false;
         if (details != null ? !details.equals(that.details) : that.details != null) return false;
+        if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) return false;
         if (!Arrays.equals(arguments, that.arguments)) return false;
-        return !(message != null ? !message.equals(that.message) : that.message != null);
-
+        return true;
     }
 
     @Override
@@ -118,7 +112,7 @@ public class ValidationMessage {
         result = 31 * result + (schemaPath != null ? schemaPath.hashCode() : 0);
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (arguments != null ? Arrays.hashCode(arguments) : 0);
-        result = 31 * result + (message != null ? message.hashCode() : 0);
+        result = 31 * result + (messageKey != null ? messageKey.hashCode() : 0);
         return result;
     }
 
@@ -126,27 +120,30 @@ public class ValidationMessage {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public static ValidationMessage ofWithCustom(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String customMessage, String at, String schemaPath, String... arguments) {
+    @Deprecated // Use the builder
+    public static ValidationMessage ofWithCustom(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String customMessage, String at, String schemaPath, Object... arguments) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).arguments(arguments)
                 .format(messageFormat).type(type)
-                .customMessage(customMessage);
+                .message(customMessage);
         return builder.build();
     }
 
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, String... arguments) {
+    @Deprecated // Use the builder
+    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, Object... arguments) {
         return ofWithCustom(type, errorMessageType, messageFormat, errorMessageType.getCustomMessage(), at, schemaPath, arguments);
     }
 
+    @Deprecated // Use the builder
     public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, Map<String, Object> details) {
         ValidationMessage.Builder builder = new ValidationMessage.Builder();
         builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).details(details)
                 .format(messageFormat).type(type);
         return builder.build();
+    }
+    
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
@@ -154,10 +151,13 @@ public class ValidationMessage {
         private String code;
         private String path;
         private String schemaPath;
-        private String[] arguments;
+        private Object[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
-        private String customMessage;
+        private String message;
+        private Supplier<String> messageSupplier;
+        private MessageFormatter messageFormatter;
+        private String messageKey;
 
         public Builder type(String type) {
             this.type = type;
@@ -179,7 +179,7 @@ public class ValidationMessage {
             return this;
         }
 
-        public Builder arguments(String... arguments) {
+        public Builder arguments(Object... arguments) {
             this.arguments = arguments;
             return this;
         }
@@ -194,37 +194,69 @@ public class ValidationMessage {
             return this;
         }
 
-        public Builder customMessage(String customMessage) {
-            this.customMessage = customMessage;
+        @Deprecated
+        public Builder customMessage(String message) {
+            return message(message);
+        }
+
+        /**
+         * Explicitly sets the message pattern to be used.
+         * <p>
+         * If set the message supplier and message formatter will be ignored.
+         * 
+         * @param message the message pattern
+         * @return the builder
+         */
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder messageSupplier(Supplier<String> messageSupplier) {
+            this.messageSupplier = messageSupplier;
+            return this;
+        }
+
+        public Builder messageFormatter(MessageFormatter messageFormatter) {
+            this.messageFormatter = messageFormatter;
+            return this;
+        }
+
+        public Builder messageKey(String messageKey) {
+            this.messageKey = messageKey;
             return this;
         }
 
         public ValidationMessage build() {
-            ValidationMessage msg = new ValidationMessage();
-            msg.setType(type);
-            msg.setCode(code);
-            msg.setPath(path);
-            msg.setSchemaPath(schemaPath);
-            msg.setArguments(arguments);
-            msg.setDetails(details);
-
-            if (format != null) {
-                String[] objs = new String[(arguments == null ? 0 : arguments.length) + 1];
-                objs[0] = path;
-                if (arguments != null) {
-                    for (int i = 1; i < objs.length; i++) {
-                        objs[i] = arguments[i - 1];
-                    }
-                }
-                if(StringUtils.isNotBlank(customMessage)) {
-                    msg.setMessage(customMessage);
+            Supplier<String> messageSupplier = this.messageSupplier;
+            String messageKey = this.messageKey;
+            
+            if (StringUtils.isNotBlank(this.message)) {
+                messageKey = this.message;
+                if (this.message.contains("{")) {
+                    Object[] objs = getArguments();
+                    MessageFormat format = new MessageFormat(this.message);
+                    messageSupplier = new CachingSupplier<>(() -> format.format(objs));
                 } else {
-                    msg.setMessage(format.format(objs));
+                    messageSupplier = message::toString;
                 }
-
+            } else if (messageSupplier == null) {
+                Object[] objs = getArguments();
+                MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
+                messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
-
-            return msg;
+            return new ValidationMessage(type, code, path, schemaPath, arguments, details, messageKey, messageSupplier);
+        }
+        
+        private Object[] getArguments() {
+            Object[] objs = new Object[(arguments == null ? 0 : arguments.length) + 1];
+            objs[0] = path;
+            if (arguments != null) {
+                for (int i = 1; i < objs.length; i++) {
+                    objs[i] = arguments[i - 1];
+                }
+            }
+            return objs;
         }
     }
 }

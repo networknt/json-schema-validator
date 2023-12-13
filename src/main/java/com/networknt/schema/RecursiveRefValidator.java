@@ -21,7 +21,6 @@ import com.networknt.schema.CollectorContext.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 public class RecursiveRefValidator extends BaseJsonValidator {
@@ -32,14 +31,11 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {
-            throw new JsonSchemaException(
-                ValidationMessage.of(
-                    ValidatorTypeCode.RECURSIVE_REF.getValue(),
-                    CustomErrorMessageType.of("internal.invalidRecursiveRef"),
-                    new MessageFormat("{0}: The value of a $recursiveRef must be '#' but is '{1}'"),
-                    schemaPath, schemaPath, refValue
-                )
-            );
+            ValidationMessage validationMessage = ValidationMessage.builder()
+                    .type(ValidatorTypeCode.RECURSIVE_REF.getValue()).code("internal.invalidRecursiveRef")
+                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").path(schemaPath)
+                    .schemaPath(schemaPath).arguments(refValue).build();
+            throw new JsonSchemaException(validationMessage);
         }
     }
 

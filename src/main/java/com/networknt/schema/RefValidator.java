@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.*;
 
 public class RefValidator extends BaseJsonValidator {
@@ -44,12 +43,10 @@ public class RefValidator extends BaseJsonValidator {
         this.parentSchema = parentSchema;
         this.schema = getRefSchema(parentSchema, validationContext, refValue);
         if (this.schema == null) {
-            throw new JsonSchemaException(
-                    ValidationMessage.of(
-                            ValidatorTypeCode.REF.getValue(),
-                            CustomErrorMessageType.of("internal.unresolvedRef"),
-                            new MessageFormat("{0}: Reference {1} cannot be resolved"),
-                            schemaPath, schemaPath, refValue));
+            ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
+                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .path(schemaPath).schemaPath(schemaPath).arguments(refValue).build();
+            throw new JsonSchemaException(validationMessage);
         }
     }
 

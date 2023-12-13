@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -89,14 +90,16 @@ public class ContainsValidator extends BaseJsonValidator {
                 if(isMinV201909) {
                     updateValidatorType(ValidatorTypeCode.MIN_CONTAINS);
                 }
-                return boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(), at, this.min);
+                return boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(),
+                        executionContext.getExecutionConfig().getLocale(), at, this.min);
             }
 
             if (actual > this.max) {
                 if(isMinV201909) {
                     updateValidatorType(ValidatorTypeCode.MAX_CONTAINS);
                 }
-                return boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(), at, this.max);
+                return boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(),
+                        executionContext.getExecutionConfig().getLocale(), at, this.max);
             }
         }
 
@@ -108,7 +111,7 @@ public class ContainsValidator extends BaseJsonValidator {
         Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
     }
 
-    private Set<ValidationMessage> boundsViolated(String messageKey, String at, int bounds) {
-        return Collections.singleton(constructValidationMessage(messageKey, at, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
+    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, String at, int bounds) {
+        return Collections.singleton(buildValidationMessage(at, messageKey, locale, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
     }
 }

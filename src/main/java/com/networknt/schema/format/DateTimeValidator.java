@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class DateTimeValidator extends BaseJsonValidator {
@@ -50,16 +49,15 @@ public class DateTimeValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
-            return errors;
+            return Collections.emptySet();
         }
         if (!isLegalDateTime(node.textValue())) {
-            errors.add(buildValidationMessage(at, node.textValue(), DATETIME));
+            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), node.textValue(),
+                    DATETIME));
         }
-        return Collections.unmodifiableSet(errors);
+        return Collections.emptySet();
     }
 
     private static boolean isLegalDateTime(String string) {

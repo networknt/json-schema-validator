@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -24,11 +24,10 @@ public class WriteOnlyValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
-        Set<ValidationMessage> errors= new HashSet<>();
         if (this.writeOnly) {
-            errors.add(buildValidationMessage(at));
+            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale()));
         } 
-        return errors;
+        return Collections.emptySet();
     }
 
 }

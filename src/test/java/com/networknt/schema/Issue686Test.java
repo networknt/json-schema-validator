@@ -2,6 +2,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.i18n.DefaultMessageSource;
+import com.networknt.schema.i18n.ResourceBundleMessageSource;
+
 import org.junit.jupiter.api.Test;
 
 import java.text.MessageFormat;
@@ -16,37 +19,14 @@ public class Issue686Test {
     @Test
     void testDefaults() {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        assertEquals(I18nSupport.DEFAULT_RESOURCE_BUNDLE, config.getResourceBundle());
-    }
-
-    @Test
-    void testCustomLocale() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.FRENCH);
-        assertEquals(Locale.FRENCH.getLanguage(), config.getResourceBundle().getLocale().getLanguage());
-    }
-
-    @Test
-    void testLocaleDoesNotOverrideCustomResourceBundle() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.FRENCH);
-        ResourceBundle bundle = ResourceBundle.getBundle("issue686/translations", Locale.GERMAN);
-        assertEquals(Locale.GERMAN.getLanguage(), bundle.getLocale().getLanguage());
-    }
-
-    @Test
-    void testBundleResetAfterChangingLocale() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.FRENCH);
-        assertEquals(Locale.FRENCH.getLanguage(), config.getResourceBundle().getLocale().getLanguage());
-        config.setLocale(Locale.GERMAN);
-        assertEquals(Locale.GERMAN.getLanguage(), config.getResourceBundle().getLocale().getLanguage());
+        assertEquals(DefaultMessageSource.getInstance(), config.getMessageSource());
     }
 
     @Test
     void testValidationWithDefaultBundleAndLocale() throws JsonProcessingException {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        String expectedMessage = new MessageFormat(I18nSupport.DEFAULT_RESOURCE_BUNDLE.getString("type")).format(new String[] {"$.foo", "integer", "string"});
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(DefaultMessageSource.BUNDLE_BASE_NAME, Locale.getDefault());
+        String expectedMessage = new MessageFormat(resourceBundle.getString("type")).format(new String[] {"$.foo", "integer", "string"});
         verify(config, expectedMessage);
     }
 
@@ -60,7 +40,8 @@ public class Issue686Test {
     @Test
     void testValidationWithCustomBundle() throws JsonProcessingException {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setResourceBundle(ResourceBundle.getBundle("issue686/translations", Locale.FRENCH));
+        config.setMessageSource(new ResourceBundleMessageSource("issue686/translations"));
+        config.setLocale(Locale.FRENCH);
         verify(config, "$.foo: integer found, string expected (TEST) (FR)");
     }
 

@@ -127,7 +127,8 @@ public class ItemsValidator extends BaseJsonValidator {
                         evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(buildValidationMessage(at, "" + i));
+                        errors.add(
+                                buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), "" + i));
                     }
                 }
             }

@@ -30,7 +30,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -141,12 +140,13 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(),
-                        ValidatorTypeCode.ID,
-                        new MessageFormat(validationContext.getConfig().getResourceBundle().getString(ValidatorTypeCode.ID.getErrorCodeValue())),
-                        id,
-                        this.schemaPath,
-                        currentUri == null ? "null" : currentUri.toString()));
+                ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
+                        .type(ValidatorTypeCode.ID.getValue()).path(id).schemaPath(schemaPath)
+                        .arguments(currentUri == null ? "null" : currentUri.toString())
+                        .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
+                                ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
+                        .build();
+                throw new JsonSchemaException(validationMessage);
             }
         }
     }
@@ -280,14 +280,15 @@ public class JsonSchema extends BaseJsonValidator {
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {
-                        throw new JsonSchemaException(
-                            ValidationMessage.of(
-                                "$recursiveAnchor",
-                                CustomErrorMessageType.of("internal.invalidRecursiveAnchor"),
-                                new MessageFormat("{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}"),
-                                schemaPath, schemaPath, nodeToUse.getNodeType().toString()
-                            )
-                        );
+                        ValidationMessage validationMessage = ValidationMessage.builder().type("$recursiveAnchor")
+                                .code("internal.invalidRecursiveAnchor")
+                                .message(
+                                        "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
+                                .path(schemaPath)
+                                .schemaPath(schemaPath)
+                                .arguments(nodeToUse.getNodeType().toString())
+                                .build();
+                        throw new JsonSchemaException(validationMessage);
                     }
                     this.dynamicAnchor = nodeToUse.booleanValue();
                 }
@@ -647,6 +648,8 @@ public class JsonSchema extends BaseJsonValidator {
         }
         CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
                 config.isUnevaluatedPropertiesAnalysisDisabled());
-        return new ExecutionContext(collectorContext);
+        ExecutionConfig executionConfig = new ExecutionConfig();
+        executionConfig.setLocale(config.getLocale());
+        return new ExecutionContext(executionConfig, collectorContext);
     }
 }

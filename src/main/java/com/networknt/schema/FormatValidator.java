@@ -40,26 +40,28 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
-            return errors;
+            return Collections.emptySet();
         }
 
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
         if (format != null) {
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
                     // leading and trailing spaces
-                    errors.add(buildValidationMessage(at, format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
+                            format.getName(), format.getErrorMessageDescription()));
                 } else if(node.textValue().contains("%")) {
                     // zone id is not part of the ipv6
-                    errors.add(buildValidationMessage(at, format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
+                            format.getName(), format.getErrorMessageDescription()));
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(buildValidationMessage(at, format.getName(), format.getErrorMessageDescription()));
+                    errors.add(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
+                            format.getName(), format.getErrorMessageDescription()));
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid

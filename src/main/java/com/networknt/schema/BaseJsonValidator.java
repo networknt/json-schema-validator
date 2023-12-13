@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
+import com.networknt.schema.i18n.DefaultMessageSource;
+
 import org.slf4j.Logger;
 
 import java.net.URI;
@@ -47,7 +49,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                              ValidatorTypeCode validatorType,
                              ValidationContext validationContext,
                              boolean suppressSubSchemaRetrieval) {
-        super(validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(), validatorType, validatorType != null ? validatorType.getCustomMessage() : null, (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getResourceBundle() : I18nSupport.DEFAULT_RESOURCE_BUNDLE, validatorType, parentSchema, schemaPath);
+        super(validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(), validatorType, validatorType != null ? validatorType.getCustomMessage() : null, (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getMessageSource() : DefaultMessageSource.getInstance(), validatorType, parentSchema, schemaPath);
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;

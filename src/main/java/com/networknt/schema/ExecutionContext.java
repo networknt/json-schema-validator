@@ -20,6 +20,7 @@ package com.networknt.schema;
  * Stores the execution context for the validation run.
  */
 public class ExecutionContext {
+    private ExecutionConfig executionConfig;
     private CollectorContext collectorContext;
 
     public ExecutionContext() {
@@ -27,7 +28,16 @@ public class ExecutionContext {
     }
 
     public ExecutionContext(CollectorContext collectorContext) {
+        this(new ExecutionConfig(), collectorContext);
+    }
+    
+    public ExecutionContext(ExecutionConfig executionConfig) {
+        this(executionConfig, new CollectorContext());
+    }
+    
+    public ExecutionContext(ExecutionConfig executionConfig, CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
+        this.executionConfig = executionConfig;
     }
 
     public CollectorContext getCollectorContext() {
@@ -36,5 +46,13 @@ public class ExecutionContext {
 
     public void setCollectorContext(CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
+    }
+
+    public ExecutionConfig getExecutionConfig() {
+        return executionConfig;
+    }
+
+    public void setExecutionConfig(ExecutionConfig executionConfig) {
+        this.executionConfig = executionConfig;
     }
 }

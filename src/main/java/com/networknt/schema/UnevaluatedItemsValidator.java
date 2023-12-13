@@ -60,7 +60,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
             // Short-circuit since schema is 'false'
             if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
-                return reportUnevaluatedPaths(unevaluatedPaths);
+                return reportUnevaluatedPaths(unevaluatedPaths, executionContext);
             }
 
             Set<String> failingPaths = new HashSet<>();
@@ -75,7 +75,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             if (failingPaths.isEmpty()) {
                 collectorContext.getEvaluatedItems().addAll(allPaths);
             } else {
-                return reportUnevaluatedPaths(failingPaths);
+                return reportUnevaluatedPaths(failingPaths, executionContext);
             }
 
             return Collections.emptySet();
@@ -86,7 +86,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     private Set<String> allPaths(JsonNode node, String at) {
         PathType pathType = getPathType();
-        Set<String> collector = new HashSet<>();
+        Set<String> collector = new LinkedHashSet<>();
         int size = node.size();
         for (int i = 0; i < size; ++i) {
             String path = pathType.append(at, i);
@@ -95,10 +95,10 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         return collector;
     }
 
-    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths) {
+    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths, ExecutionContext executionContext) {
         List<String> paths = new ArrayList<>(unevaluatedPaths);
         paths.sort(String.CASE_INSENSITIVE_ORDER);
-        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths)));
+        return Collections.singleton(buildValidationMessage(String.join("\n  ", paths), executionContext.getExecutionConfig().getLocale()));
     }
 
     private static Set<String> unevaluatedPaths(CollectorContext collectorContext, Set<String> allPaths) {

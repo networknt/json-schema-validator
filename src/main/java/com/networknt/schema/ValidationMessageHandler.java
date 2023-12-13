@@ -1,15 +1,15 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
-import java.text.MessageFormat;
-import java.util.ResourceBundle;
+import java.util.Locale;
 
 public abstract class ValidationMessageHandler {
     protected final boolean failFast;
     protected final String customMessage;
-    protected final ResourceBundle resourceBundle;
+    protected final MessageSource messageSource;
     protected ValidatorTypeCode validatorType;
     protected ErrorMessageType errorMessageType;
 
@@ -17,36 +17,30 @@ public abstract class ValidationMessageHandler {
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, String customMessage, ResourceBundle resourceBundle, ValidatorTypeCode validatorType, JsonSchema parentSchema, String schemaPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, String customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, String schemaPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
-        this.resourceBundle = resourceBundle;
+        this.messageSource = messageSource;
         this.validatorType = validatorType;
         this.schemaPath = schemaPath;
         this.parentSchema = parentSchema;
     }
 
-
-    protected ValidationMessage buildValidationMessage(String at, String... arguments) {
-        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(getErrorMessageType().getErrorCodeValue()));
-        final ValidationMessage message = ValidationMessage.ofWithCustom(getValidatorType().getValue(), getErrorMessageType(), messageFormat, this.customMessage, at, this.schemaPath, arguments);
-        if (this.failFast && isApplicator()) {
-            throw new JsonSchemaException(message);
-        }
-        return message;
+    protected ValidationMessage buildValidationMessage(String at, Locale locale, Object... arguments) {
+        return buildValidationMessage(at, getErrorMessageType().getErrorCodeValue(), locale, arguments);
     }
 
-    protected ValidationMessage constructValidationMessage(String messageKey, String at, String... arguments) {
-        MessageFormat messageFormat = new MessageFormat(this.resourceBundle.getString(messageKey));
-        final ValidationMessage message = new ValidationMessage.Builder()
+    protected ValidationMessage buildValidationMessage(String at, String messageKey, Locale locale, Object... arguments) {
+        final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
                 .path(at)
                 .schemaPath(this.schemaPath)
                 .arguments(arguments)
-                .format(messageFormat)
+                .messageKey(messageKey)
+                .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))
                 .type(getValidatorType().getValue())
-                .customMessage(this.customMessage)
+                .message(this.customMessage)
                 .build();
         if (this.failFast && isApplicator()) {
             throw new JsonSchemaException(message);

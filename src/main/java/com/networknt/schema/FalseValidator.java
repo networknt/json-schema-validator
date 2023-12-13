@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FalseValidator extends BaseJsonValidator implements JsonValidator {
@@ -33,8 +32,6 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
         // For the false validator, it is always not valid
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-        errors.add(buildValidationMessage(at));
-        return Collections.unmodifiableSet(errors);
+        return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale()));
     }
 }

@@ -95,7 +95,8 @@ public class OneOfValidator extends BaseJsonValidator {
 
             // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
             if (numberOfValidSchema != 1) {
-                ValidationMessage message = buildValidationMessage(at, Integer.toString(numberOfValidSchema));
+                ValidationMessage message = buildValidationMessage(at,
+                        executionContext.getExecutionConfig().getLocale(), Integer.toString(numberOfValidSchema));
                 if (this.failFast) {
                     throw new JsonSchemaException(message);
                 }

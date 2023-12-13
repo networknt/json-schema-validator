@@ -78,7 +78,8 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         }
 
         if (!valid) {
-            return Collections.singleton(buildValidationMessage(at, nodeType.toString(), error));
+            return Collections.singleton(buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(),
+                    nodeType.toString(), error));
         }
 
         return Collections.emptySet();

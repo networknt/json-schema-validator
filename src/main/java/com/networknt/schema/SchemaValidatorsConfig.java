@@ -17,11 +17,18 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.i18n.DefaultMessageSource;
+import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.uri.URITranslator;
 import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class SchemaValidatorsConfig {
@@ -138,11 +145,9 @@ public class SchemaValidatorsConfig {
     private Locale locale;
 
     /**
-     * An alternative resource bundle to consider instead of the default one when producing validation messages. If this
-     * is provided the 'locale' is ignored given that the resource bundle is already loaded for a specific locale.
+     * The message source to use for generating localised messages.
      */
-    private ResourceBundle resourceBundle;
-    private ResourceBundle resourceBundleToUse;
+    private MessageSource messageSource;
 
     /************************ START OF UNEVALUATED CHECKS **********************************/
 
@@ -215,7 +220,7 @@ public class SchemaValidatorsConfig {
     /**
      * When enabled, {@link JsonValidator#validate(ExecutionContext, JsonNode, JsonNode, String)} or
      * {@link JsonValidator#validate(ExecutionContext, JsonNode)} doesn't return any
-     * {@link Set}&lt;{@link ValidationMessage}&gt;, instead a
+     * {@link java.util.Set}&lt;{@link ValidationMessage}&gt;, instead a
      * {@link JsonSchemaException} is thrown as soon as a validation errors is
      * discovered.
      *
@@ -520,58 +525,53 @@ public class SchemaValidatorsConfig {
     }
 
     /**
-     * Get the locale to consider when generating localised messages (default is the JVM default).
+     * Get the locale to consider when generating localised messages (default is the
+     * JVM default).
+     * <p>
+     * This locale is on a schema basis and will be used as the default locale for
+     * {@link com.networknt.schema.ExecutionConfig}.
      *
      * @return The locale.
      */
     public Locale getLocale() {
+        if (this.locale == null) {
+            // This should not be cached as it can be changed using Locale#setDefault(Locale)
+            return Locale.getDefault();
+        }
         return this.locale;
     }
 
     /**
-     * Get the locale to consider when generating localised messages.
+     * Set the locale to consider when generating localised messages.
+     * <p>
+     * Note that this locale is set on a schema basis. To configure the schema on a
+     * per execution basis use
+     * {@link com.networknt.schema.ExecutionConfig#setLocale(Locale)}.
      *
      * @param locale The locale.
      */
     public void setLocale(Locale locale) {
         this.locale = locale;
-        if (this.locale == null || (this.resourceBundleToUse != null && !this.locale.equals(this.resourceBundleToUse.getLocale()))) {
-            // If we have already loaded a resource bundle for a different locale set it to null so that it is reinitialised.
-            this.resourceBundleToUse = null;
-        }
     }
 
     /**
-     * Get the resource bundle to use when generating localised messages.
-     *
-     * @return The resource bundle.
+     * Get the message source to use for generating localised messages.
+     * 
+     * @return the message source
      */
-    public ResourceBundle getResourceBundle() {
-        if (this.resourceBundleToUse == null) {
-            // Load and cache the resource bundle to use.
-            this.resourceBundleToUse = this.resourceBundle;
-            if (this.resourceBundleToUse == null) {
-                if (this.locale == null) {
-                    this.resourceBundleToUse = I18nSupport.DEFAULT_RESOURCE_BUNDLE;
-                } else {
-                    this.resourceBundleToUse = ResourceBundle.getBundle(I18nSupport.DEFAULT_BUNDLE_BASE_NAME, this.locale);
-                }
-            }
+    public MessageSource getMessageSource() {
+        if (this.messageSource == null) {
+            return DefaultMessageSource.getInstance();
         }
-        return this.resourceBundleToUse;
+        return this.messageSource;
     }
 
     /**
-     * Set the resource bundle to use when generating localised messages.
-     *
-     * @param resourceBundle The resource bundle.
+     * Set the message source to use for generating localised messages.
+     * 
+     * @param messageSource the message source
      */
-    public void setResourceBundle(ResourceBundle resourceBundle) {
-        this.resourceBundle = resourceBundle;
-        if (this.resourceBundle == null || !(this.resourceBundle.equals(this.resourceBundleToUse))) {
-            // If we have already loaded a different resource bundle set it to null so that it is reinitialised.
-            this.resourceBundleToUse = null;
-        }
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
-
 }

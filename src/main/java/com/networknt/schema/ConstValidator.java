@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ConstValidator extends BaseJsonValidator implements JsonValidator {
@@ -35,14 +34,15 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                errors.add(buildValidationMessage(at, schemaNode.asText()));
+                return Collections.singleton(buildValidationMessage(at,
+                        executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
             }
         } else if (!schemaNode.equals(node)) {
-            errors.add(buildValidationMessage(at, schemaNode.asText()));
+            return Collections.singleton(
+                    buildValidationMessage(at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
         }
-        return Collections.unmodifiableSet(errors);
+        return Collections.emptySet();
     }
 }
