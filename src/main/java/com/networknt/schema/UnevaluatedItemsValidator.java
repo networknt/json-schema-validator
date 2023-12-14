@@ -66,7 +66,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
             Set<JsonNodePath> failingPaths = new LinkedHashSet<>();
             unevaluatedPaths.forEach(path -> {
-                String pointer = getPathType().convertToJsonPointer(path.toString());
+                String pointer = path.getPathType().convertToJsonPointer(path.toString());
                 JsonNode property = rootNode.at(pointer);
                 if (!this.schema.validate(executionContext, property, rootNode, path).isEmpty()) {
                     failingPaths.add(path);

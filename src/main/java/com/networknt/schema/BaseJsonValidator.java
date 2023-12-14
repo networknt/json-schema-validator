@@ -247,7 +247,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     }
 
 
-    protected PathType getPathType() {
+    @Override
+    public PathType getPathType() {
         return this.pathType;
     }
 

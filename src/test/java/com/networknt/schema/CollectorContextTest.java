@@ -281,11 +281,6 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT));
-        }
-
-        @Override
         public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
@@ -355,11 +350,6 @@ public class CollectorContextTest {
             List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER);
             returnList.add(node.textValue());
             return new TreeSet<ValidationMessage>();
-        }
-
-        @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT));
         }
 
         @Override
