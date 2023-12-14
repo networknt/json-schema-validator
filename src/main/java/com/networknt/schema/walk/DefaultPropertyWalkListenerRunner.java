@@ -2,6 +2,7 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationContext;
@@ -20,7 +21,7 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode,
-                                       String at, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+            JsonNodePath at, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                        ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, at, schemaPath, schemaNode,
                 parentSchema, validationContext, currentJsonSchemaFactory);
@@ -28,7 +29,7 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, String at,
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, JsonNodePath at,
                                      String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
                                      JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, at, schemaPath, schemaNode,

@@ -36,7 +36,7 @@ public interface JsonValidator extends JsonSchemaWalker {
      * list if there is no error.
      */
     default Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-        return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot()); // TODO: This is not valid when using JSON Pointer.
+        return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT)); // TODO: This is not valid when using JSON Pointer.
     }
 
     /**
@@ -50,7 +50,7 @@ public interface JsonValidator extends JsonSchemaWalker {
      * @return A list of ValidationMessage if there is any validation error, or an empty
      * list if there is no error.
      */
-    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at);
+    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at);
 
     /**
      * In case the {@link com.networknt.schema.JsonValidator} has a related {@link com.networknt.schema.JsonSchema} or several
@@ -69,7 +69,7 @@ public interface JsonValidator extends JsonSchemaWalker {
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
         if (shouldValidateSchema) {
             validationMessages = validate(executionContext, node, rootNode, at);

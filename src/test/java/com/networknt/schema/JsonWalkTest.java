@@ -141,18 +141,18 @@ public class JsonWalkTest {
         private static class CustomValidator implements JsonValidator {
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
                 return new TreeSet<ValidationMessage>();
             }
 
             @Override
             public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-                return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
+                return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT));
             }
 
             @Override
             public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                                               String at, boolean shouldValidateSchema) {
+                    JsonNodePath at, boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
             }
         }

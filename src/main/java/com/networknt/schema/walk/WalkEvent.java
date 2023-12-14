@@ -2,6 +2,7 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -21,7 +22,7 @@ public class WalkEvent {
     private String keyWordName;
     private JsonNode node;
     private JsonNode rootNode;
-    private String at;
+    private JsonNodePath at;
     private JsonSchemaFactory currentJsonSchemaFactory;
     private ValidationContext validationContext;
 
@@ -53,7 +54,7 @@ public class WalkEvent {
         return rootNode;
     }
 
-    public String getAt() {
+    public JsonNodePath getAt() {
         return at;
     }
 
@@ -116,7 +117,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder at(String at) {
+        public WalkEventBuilder at(JsonNodePath at) {
             walkEvent.at = at;
             return this;
         }

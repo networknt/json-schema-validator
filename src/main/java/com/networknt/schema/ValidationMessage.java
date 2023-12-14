@@ -28,14 +28,14 @@ import java.util.function.Supplier;
 public class ValidationMessage {
     private final String type;
     private final String code;
-    private final String path;
+    private final JsonNodePath path;
     private final String schemaPath;
     private final Object[] arguments;
     private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, String path, String schemaPath, Object[] arguments,
+    ValidationMessage(String type, String code, JsonNodePath path, String schemaPath, Object[] arguments,
             Map<String, Object> details, String messageKey, Supplier<String> messageSupplier) {
         super();
         this.type = type;
@@ -55,7 +55,7 @@ public class ValidationMessage {
     /**
      * @return The path to the input json
      */
-    public String getPath() {
+    public JsonNodePath getPath() {
         return path;
     }
 
@@ -120,28 +120,6 @@ public class ValidationMessage {
         return type;
     }
 
-    @Deprecated // Use the builder
-    public static ValidationMessage ofWithCustom(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String customMessage, String at, String schemaPath, Object... arguments) {
-        ValidationMessage.Builder builder = new ValidationMessage.Builder();
-        builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).arguments(arguments)
-                .format(messageFormat).type(type)
-                .message(customMessage);
-        return builder.build();
-    }
-
-    @Deprecated // Use the builder
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, Object... arguments) {
-        return ofWithCustom(type, errorMessageType, messageFormat, errorMessageType.getCustomMessage().get(""), at, schemaPath, arguments);
-    }
-
-    @Deprecated // Use the builder
-    public static ValidationMessage of(String type, ErrorMessageType errorMessageType, MessageFormat messageFormat, String at, String schemaPath, Map<String, Object> details) {
-        ValidationMessage.Builder builder = new ValidationMessage.Builder();
-        builder.code(errorMessageType.getErrorCode()).path(at).schemaPath(schemaPath).details(details)
-                .format(messageFormat).type(type);
-        return builder.build();
-    }
-    
     public static Builder builder() {
         return new Builder();
     }
@@ -149,7 +127,7 @@ public class ValidationMessage {
     public static class Builder {
         private String type;
         private String code;
-        private String path;
+        private JsonNodePath path;
         private String schemaPath;
         private Object[] arguments;
         private Map<String, Object> details;
@@ -169,7 +147,7 @@ public class ValidationMessage {
             return this;
         }
 
-        public Builder path(String path) {
+        public Builder path(JsonNodePath path) {
             this.path = path;
             return this;
         }

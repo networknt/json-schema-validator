@@ -22,7 +22,7 @@ public class WriteOnlyValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
         if (this.writeOnly) {
             return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));

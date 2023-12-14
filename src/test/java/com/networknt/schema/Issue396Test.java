@@ -39,7 +39,7 @@ public class Issue396Test {
         });
 
         Set<ValidationMessage> errors = schema.validate(node);
-        final Set<String> actual = errors.stream().map(ValidationMessage::getPath).collect(Collectors.toSet());
+        final Set<String> actual = errors.stream().map(ValidationMessage::getPath).map(Object::toString).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }
 }

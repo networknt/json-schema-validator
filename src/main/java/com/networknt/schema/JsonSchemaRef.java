@@ -34,7 +34,7 @@ public class JsonSchemaRef {
         this.schema = schema;
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         return schema.validate(executionContext, node, rootNode, at);
     }
 
@@ -42,7 +42,7 @@ public class JsonSchemaRef {
         return schema;
     }
 
-	public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+	public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
 		return schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
 	}
 }

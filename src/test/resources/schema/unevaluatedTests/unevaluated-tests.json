@@ -89,7 +89,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.invalid"
+          "$.invalid: must not have unevaluated properties"
         ]
       },
       {
@@ -106,7 +106,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.address.invalid"
+          "$.address.invalid: must not have unevaluated properties"
         ]
       },
       {
@@ -123,7 +123,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.address.invalid2"
+          "$.address.invalid2: must not have unevaluated properties"
         ]
       },
       {
@@ -142,7 +142,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.address.residence.invalid"
+          "$.address.residence.invalid: must not have unevaluated properties"
         ]
       }
     ]
@@ -237,7 +237,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.wheels"
+          "$.vehicle.wheels: must not have unevaluated properties"
         ]
       },
       {
@@ -253,7 +253,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.pontoons\n  $.vehicle.wings"
+          "$.vehicle.pontoons: must not have unevaluated properties",
+          "$.vehicle.wings: must not have unevaluated properties"
         ]
       },
       {
@@ -270,7 +271,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.invalid\n  $.vehicle.pontoons\n  $.vehicle.wings"
+          "$.vehicle.invalid: must not have unevaluated properties",
+          "$.vehicle.pontoons: must not have unevaluated properties",
+          "$.vehicle.wings: must not have unevaluated properties"
         ]
       },
       {
@@ -285,7 +288,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.invalid"
+          "$.vehicle.invalid: must not have unevaluated properties"
         ]
       }
     ]
@@ -380,7 +383,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.unevaluated"
+          "$.vehicle.unevaluated: must not have unevaluated properties"
         ]
       },
       {
@@ -395,7 +398,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.unevaluated"
+          "$.vehicle.unevaluated: must not have unevaluated properties"
         ]
       },
       {
@@ -412,7 +415,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.vehicle.unevaluated\n  $.vehicle.wings"
+          "$.vehicle.unevaluated: must not have unevaluated properties",
+          "$.vehicle.wings: must not have unevaluated properties"
         ]
       }
     ]
@@ -510,7 +514,9 @@
         "valid": false,
         "validationMessages": [
           "$.vehicle.wings: is missing but it is required",
-          "There are unevaluated properties at the following paths $.vehicle.pontoons\n  $.vehicle.unevaluated\n  $.vehicle.wheels"
+          "$.vehicle.pontoons: must not have unevaluated properties",
+          "$.vehicle.unevaluated: must not have unevaluated properties",
+          "$.vehicle.wheels: must not have unevaluated properties"
         ]
       }
     ]
@@ -572,7 +578,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "There are unevaluated properties at the following paths $.age\n  $.unevaluated"
+          "$.age: must not have unevaluated properties",
+          "$.unevaluated: must not have unevaluated properties"
         ]
       }
     ]

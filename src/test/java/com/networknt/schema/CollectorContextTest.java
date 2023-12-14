@@ -270,7 +270,7 @@ public class CollectorContextTest {
     private class CustomValidator implements JsonValidator {
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
@@ -282,11 +282,11 @@ public class CollectorContextTest {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
+            return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT));
         }
 
         @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }
@@ -345,7 +345,7 @@ public class CollectorContextTest {
     private class CustomValidator1 implements JsonValidator {
         @SuppressWarnings("unchecked")
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
@@ -359,11 +359,11 @@ public class CollectorContextTest {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
+            return validate(executionContext, rootNode, rootNode, new JsonNodePath(PathType.DEFAULT));
         }
 
         @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }

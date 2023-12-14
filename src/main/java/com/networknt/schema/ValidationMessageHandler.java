@@ -28,11 +28,11 @@ public abstract class ValidationMessageHandler {
         this.parentSchema = parentSchema;
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, String at, Locale locale, Object... arguments) {
+    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, Locale locale, Object... arguments) {
         return buildValidationMessage(propertyName, at, getErrorMessageType().getErrorCodeValue(), locale, arguments);
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, String at, String messageKey, Locale locale, Object... arguments) {
+    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, String messageKey, Locale locale, Object... arguments) {
         String messagePattern = null;
         if (this.customMessage != null) {
             messagePattern = this.customMessage.get("");

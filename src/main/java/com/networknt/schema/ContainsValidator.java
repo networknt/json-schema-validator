@@ -68,16 +68,16 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
 
         // ignores non-arrays
         if (null != this.schema && node.isArray()) {
-            Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
 
             int actual = 0, i = 0;
             for (JsonNode n : node) {
-                String path = atPath(at, i);
+                JsonNodePath path = atPath(at, i);
 
                 if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;
@@ -111,7 +111,7 @@ public class ContainsValidator extends BaseJsonValidator {
         Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
     }
 
-    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, String at, int bounds) {
+    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, JsonNodePath at, int bounds) {
         return Collections.singleton(buildValidationMessage(null, at, messageKey, locale, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
     }
 }

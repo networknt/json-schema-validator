@@ -31,7 +31,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("minContains", schemaPath));
+                analysis.add(new Analysis("minContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
             } else {
                 min = minNode.intValue();
             }
@@ -43,7 +43,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("maxContains", schemaPath));
+                analysis.add(new Analysis("maxContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
             } else {
                 max = maxNode.intValue();
             }
@@ -53,14 +53,14 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             if (analysis == null) {
                 analysis = new LinkedHashSet<>();
             }
-            analysis.add(new Analysis("minContainsVsMaxContains", schemaPath));
+            analysis.add(new Analysis("minContainsVsMaxContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
         }
         this.analysis = analysis;
     }
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            String at) {
+            JsonNodePath at) {
         return this.analysis != null ? this.analysis.stream()
                 .map(analysis -> buildValidationMessage(null, analysis.getAt(),
                         analysis.getMessageKey(), executionContext.getExecutionConfig().getLocale(), parentSchema.getSchemaNode().toString()))
@@ -72,14 +72,14 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             return messageKey;
         }
 
-        public String getAt() {
+        public JsonNodePath getAt() {
             return at;
         }
 
         private final String messageKey;
-        private final String at;
+        private final JsonNodePath at;
 
-        public Analysis(String messageKey, String at) {
+        public Analysis(String messageKey, JsonNodePath at) {
             super();
             this.messageKey = messageKey;
             this.at = at;

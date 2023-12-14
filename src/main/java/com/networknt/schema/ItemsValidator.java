@@ -70,7 +70,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
 
         Set<ValidationMessage> errors = new LinkedHashSet<>();
@@ -91,9 +91,9 @@ public class ItemsValidator extends BaseJsonValidator {
         return Collections.unmodifiableSet(errors);
     }
 
-    private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, String at) {
-        Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
-        String path = atPath(at, i);
+    private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+        Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+        JsonNodePath path = atPath(at, i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
@@ -138,7 +138,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
@@ -162,7 +162,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     private void doWalk(ExecutionContext executionContext, HashSet<ValidationMessage> validationMessages, int i, JsonNode node,
-            JsonNode rootNode, String at, boolean shouldValidateSchema) {
+            JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         if (this.schema != null) {
             // Walk the schema.
             walkSchema(executionContext, this.schema, node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
@@ -184,7 +184,7 @@ public class ItemsValidator extends BaseJsonValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
-                            String at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+            JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
                 node, rootNode, at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(),
                 walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());

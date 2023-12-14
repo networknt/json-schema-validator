@@ -3,6 +3,7 @@ package com.networknt.schema.walk;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonValidator;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.ValidationMessage;
 
 import java.util.Set;
@@ -15,7 +16,7 @@ public interface JsonSchemaWalker {
 	 * cutting concerns like logging or instrumentation. This method also performs
 	 * the validation if {@code shouldValidateSchema} is set to true. <br>
 	 * <br>
-	 * {@link BaseJsonValidator#walk(ExecutionContext, JsonNode, JsonNode, String, boolean)} provides
+	 * {@link BaseJsonValidator#walk(ExecutionContext, JsonNode, JsonNode, JsonNodePath, boolean)} provides
 	 * a default implementation of this method. However validators that parse
 	 * sub-schemas should override this method to call walk method on those
 	 * sub-schemas.
@@ -23,9 +24,9 @@ public interface JsonSchemaWalker {
 	 * @param executionContext     ExecutionContext
 	 * @param node                 JsonNode
 	 * @param rootNode             JsonNode
-	 * @param at                   String
+	 * @param at                   JsonNodePath
 	 * @param shouldValidateSchema boolean
 	 * @return a set of validation messages if shouldValidateSchema is true.
 	 */
-	Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema);
+	Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema);
 }

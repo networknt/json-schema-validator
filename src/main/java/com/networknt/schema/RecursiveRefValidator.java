@@ -33,14 +33,14 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         if (!"#".equals(refValue)) {
             ValidationMessage validationMessage = ValidationMessage.builder()
                     .type(ValidatorTypeCode.RECURSIVE_REF.getValue()).code("internal.invalidRecursiveRef")
-                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").path(schemaPath)
+                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").path(new JsonNodePath(PathType.SCHEMA).resolve(schemaPath))
                     .schemaPath(schemaPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
@@ -68,7 +68,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();

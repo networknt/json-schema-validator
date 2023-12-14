@@ -119,7 +119,7 @@ public class CollectorContext {
      * 
      * @return the set of evaluated items (never null)
      */
-    public Collection<String> getEvaluatedItems() {
+    public Collection<JsonNodePath> getEvaluatedItems() {
         return getDynamicScope().getEvaluatedItems();
     }
 
@@ -128,7 +128,7 @@ public class CollectorContext {
      * 
      * @return the set of evaluated properties (never null)
      */
-    public Collection<String> getEvaluatedProperties() {
+    public Collection<JsonNodePath> getEvaluatedProperties() {
         return getDynamicScope().getEvaluatedProperties();
     }
 
@@ -231,12 +231,12 @@ public class CollectorContext {
         /**
          * Used to track which array items have been evaluated.
          */
-        private final Collection<String> evaluatedItems;
+        private final Collection<JsonNodePath> evaluatedItems;
 
         /**
          * Used to track which properties have been evaluated.
          */
-        private final Collection<String> evaluatedProperties;
+        private final Collection<JsonNodePath> evaluatedProperties;
 
         private final boolean top;
 
@@ -251,16 +251,16 @@ public class CollectorContext {
             this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
         }
 
-        private static Collection<String> newCollection(boolean disabled) {
-            return !disabled ? new ArrayList<>() : new AbstractCollection<String>() {
+        private static Collection<JsonNodePath> newCollection(boolean disabled) {
+            return !disabled ? new ArrayList<>() : new AbstractCollection<JsonNodePath>() {
 
                 @Override
-                public boolean add(String e) {
+                public boolean add(JsonNodePath e) {
                     return false;
                 }
 
                 @Override
-                public Iterator<String> iterator() {
+                public Iterator<JsonNodePath> iterator() {
                     return Collections.emptyIterator();
                 }
 
@@ -290,7 +290,7 @@ public class CollectorContext {
          * 
          * @return the set of evaluated items (never null)
          */
-        public Collection<String> getEvaluatedItems() {
+        public Collection<JsonNodePath> getEvaluatedItems() {
             return this.evaluatedItems;
         }
 
@@ -299,7 +299,7 @@ public class CollectorContext {
          * 
          * @return the set of evaluated properties (never null)
          */
-        public Collection<String> getEvaluatedProperties() {
+        public Collection<JsonNodePath> getEvaluatedProperties() {
             return this.evaluatedProperties;
         }
 

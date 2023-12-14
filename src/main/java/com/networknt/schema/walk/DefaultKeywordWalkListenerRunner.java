@@ -21,7 +21,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode,
-                                       String at, String schemaPath, JsonNode schemaNode,
+            JsonNodePath at, String schemaPath, JsonNode schemaNode,
                                        JsonSchema parentSchema,
                                        ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
         String keyword = getKeywordName(keyWordPath);
@@ -41,7 +41,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, String at,
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, JsonNodePath at,
                                      String schemaPath, JsonNode schemaNode,
                                      JsonSchema parentSchema,
                                      ValidationContext validationContext,

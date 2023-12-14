@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 
 /**
@@ -11,12 +11,13 @@ public enum PathType {
     /**
      * The legacy approach, loosely based on JSONPath (but not guaranteed to give valid JSONPath expressions).
      */
-    LEGACY("$", (token) -> "." + replaceCommonSpecialCharactersIfPresent(token), (index) -> "[" + index + "]"),
+    LEGACY("$", (currentPath, token) -> currentPath + "." + replaceCommonSpecialCharactersIfPresent(token),
+            (currentPath, index) -> currentPath + "[" + index + "]"),
 
     /**
      * Paths as JSONPath expressions.
      */
-    JSON_PATH("$", (token) -> {
+    JSON_PATH("$", (currentPath, token) -> {
 
         if (token.isEmpty()) {
             throw new IllegalArgumentException("A JSONPath selector cannot be empty");
@@ -31,7 +32,7 @@ public enum PathType {
          * - any non-ASCII Unicode character
          */
         if (JSONPath.isShorthand(token)) {
-            return "." + token;
+            return currentPath + "." + token;
         }
 
         // Replace single quote (used to wrap property names when not shorthand form.
@@ -39,13 +40,13 @@ public enum PathType {
         // Replace other special characters.
         token = replaceCommonSpecialCharactersIfPresent(token);
 
-        return "['" + token + "']";
-    }, (index) -> "[" + index + "]"),
+        return currentPath + "['" + token + "']";
+    }, (currentPath, index) -> currentPath + "[" + index + "]"),
 
     /**
      * Paths as JSONPointer expressions.
      */
-    JSON_POINTER("", (token) -> {
+    JSON_POINTER("", (currentPath, token) -> {
         /*
          * Escape '~' with '~0' and '/' with '~1'.
          */
@@ -53,16 +54,22 @@ public enum PathType {
         if (token.indexOf('/') != -1) token = token.replace("/", "~1");
         // Replace other special characters.
         token = replaceCommonSpecialCharactersIfPresent(token);
-        return "/" + token;
-    }, (index) -> "/" + index);
+        return currentPath + "/" + token;
+    }, (currentPath, index) -> currentPath + "/" + index),
+    
+    /**
+     * Paths as Schema expressions.
+     */
+    SCHEMA("", (currentPath, token) -> currentPath.isEmpty() ? token : currentPath + "/" + token,
+            (currentPath, index) -> currentPath + "/" + index);
 
     /**
      * The default path generation approach to use.
      */
     public static final PathType DEFAULT = LEGACY;
     private final String rootToken;
-    private final Function<String, String> appendTokenFn;
-    private final Function<Integer, String> appendIndexFn;
+    private final BiFunction<String, String, String> appendTokenFn;
+    private final BiFunction<String, Integer, String> appendIndexFn;
 
     /**
      * Constructor.
@@ -71,7 +78,7 @@ public enum PathType {
      * @param appendTokenFn A function used to define the path fragment used to append a token (e.g. property) to an existing path.
      * @param appendIndexFn A function used to append an index (for arrays) to an existing path.
      */
-    PathType(String rootToken, Function<String, String> appendTokenFn, Function<Integer, String> appendIndexFn) {
+    PathType(String rootToken, BiFunction<String, String, String> appendTokenFn, BiFunction<String, Integer, String> appendIndexFn) {
         this.rootToken = rootToken;
         this.appendTokenFn = appendTokenFn;
         this.appendIndexFn = appendIndexFn;
@@ -100,7 +107,7 @@ public enum PathType {
      * @return The resulting complete path.
      */
     public String append(String currentPath, String child) {
-        return currentPath + this.appendTokenFn.apply(child);
+        return this.appendTokenFn.apply(currentPath, child);
     }
 
     /**
@@ -111,7 +118,7 @@ public enum PathType {
      * @return The resulting complete path.
      */
     public String append(String currentPath, int index) {
-        return currentPath + this.appendIndexFn.apply(index);
+        return this.appendIndexFn.apply(currentPath, index);
     }
 
     /**

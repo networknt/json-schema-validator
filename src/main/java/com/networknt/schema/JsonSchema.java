@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
@@ -142,8 +141,8 @@ public class JsonSchema extends BaseJsonValidator {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
                 ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
-                        .type(ValidatorTypeCode.ID.getValue()).path(id).schemaPath(schemaPath)
-                        .arguments(currentUri == null ? "null" : currentUri.toString())
+                        .type(ValidatorTypeCode.ID.getValue()).path(new JsonNodePath(PathType.SCHEMA).resolve("id")).schemaPath(schemaPath)
+                        .arguments(currentUri == null ? "null" : currentUri.toString(), id)
                         .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
                                 ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
                         .build();
@@ -285,7 +284,7 @@ public class JsonSchema extends BaseJsonValidator {
                                 .code("internal.invalidRecursiveAnchor")
                                 .message(
                                         "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
-                                .path(schemaPath)
+                                .path(new JsonNodePath(PathType.SCHEMA).resolve(schemaPath))
                                 .schemaPath(schemaPath)
                                 .arguments(nodeToUse.getNodeType().toString())
                                 .build();
@@ -391,7 +390,7 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath at) {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
@@ -482,7 +481,7 @@ public class JsonSchema extends BaseJsonValidator {
      *
      * @return ValidationResult
      */
-    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, String at) {
+    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath at) {
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // Get the collector context from the thread local.
@@ -525,11 +524,11 @@ public class JsonSchema extends BaseJsonValidator {
         return walk(createExecutionContext(), node, shouldValidateSchema);
     }
 
-    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         return walkAtNodeInternal(executionContext, node, rootNode, at, shouldValidateSchema);
     }
 
-    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // Get the collector context.
@@ -549,7 +548,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
         getValidators().forEach((String schemaPathWithKeyword, JsonSchemaWalker jsonWalker) -> {

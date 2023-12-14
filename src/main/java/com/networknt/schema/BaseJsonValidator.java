@@ -86,7 +86,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return Math.abs(n1 - n2) < 1e-12;
     }
 
-    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
+    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         logger.debug("validate( {}, {}, {})", node, rootNode, at);
     }
 
@@ -139,7 +139,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
                                                         final JsonSchema schema,
-                                                        final String at) {
+                                                        final JsonNodePath at) {
         final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
                 .getDiscriminatorForPath(schema.schemaPath)) {
@@ -256,8 +256,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      *
      * @return The path.
      */
-    protected String atRoot() {
-        return this.pathType.getRoot();
+    protected JsonNodePath atRoot() {
+        return new JsonNodePath(this.pathType);
     }
 
     /**
@@ -267,8 +267,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param token       The child token.
      * @return The complete path.
      */
-    protected String atPath(String currentPath, String token) {
-        return this.pathType.append(currentPath, token);
+    protected JsonNodePath atPath(JsonNodePath currentPath, String token) {
+        return currentPath.resolve(token);
     }
 
     /**
@@ -278,7 +278,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param index       The child index.
      * @return The complete path.
      */
-    protected String atPath(String currentPath, int index) {
-        return this.pathType.append(currentPath, index);
+    protected JsonNodePath atPath(JsonNodePath currentPath, int index) {
+        return currentPath.resolve(index);
     }
 }
