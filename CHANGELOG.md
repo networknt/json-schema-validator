@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-## 1.0.88 - 2023-12-08
+## 1.1.0 - 2023-12-15
 
 ### Added
 
@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - upgrade jackson to 2.15.3
 - fixes #883 docs clarify commons-lang3 exclusion only required for 1.0.81. Thanks @JonasGroeger
 - fixes #866 Fix identation in example in walkers.md. Thanks @bpaquet 
+
+### Upgrade Guide
+
+With #896 implemented, it breaks the API. Users code might need to change in order to move to this version. 
 
 
 ## 1.0.87 - 2023-09-08
