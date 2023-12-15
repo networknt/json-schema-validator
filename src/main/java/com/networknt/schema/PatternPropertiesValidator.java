@@ -45,27 +45,30 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
-
         if (!node.isObject()) {
-            return errors;
+            return Collections.emptySet();
         }
-
+        Set<ValidationMessage> errors = null;
         Iterator<String> names = node.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, atPath(at, name));
+                    JsonNodePath path = at.resolve(name);
+                    Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, path);
                     if (results.isEmpty()) {
-                        executionContext.getCollectorContext().getEvaluatedProperties().add(atPath(at, name));
+                        executionContext.getCollectorContext().getEvaluatedProperties().add(path);
+                    } else {
+                        if (errors == null) {
+                            errors = new LinkedHashSet<>();
+                        }
+                        errors.addAll(results);
                     }
-                    errors.addAll(results);
                 }
             }
         }
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override

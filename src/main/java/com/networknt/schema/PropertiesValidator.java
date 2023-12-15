@@ -47,16 +47,17 @@ public class PropertiesValidator extends BaseJsonValidator {
 
         WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        Set<ValidationMessage> errors = null;
 
         // get the Validator state object storing validation data
-		ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
 
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
-                collectorContext.getEvaluatedProperties().add(atPath(at, entry.getKey())); // TODO: This should happen after validation
+                JsonNodePath path = at.resolve(entry.getKey());
+                collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
@@ -68,9 +69,18 @@ public class PropertiesValidator extends BaseJsonValidator {
                 
                 if (!state.isWalkEnabled()) {
                     //validate the child element(s)
-                    errors.addAll(propertySchema.validate(executionContext, propertyNode, rootNode, atPath(at, entry.getKey())));
+                    Set<ValidationMessage> result = propertySchema.validate(executionContext, propertyNode, rootNode, path);
+                    if (!result.isEmpty()) {
+                        if (errors == null) {
+                            errors = new LinkedHashSet<>();
+                        }
+                        errors.addAll(result);
+                    }
                 } else {
                     // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
+                    if (errors == null) {
+                        errors = new LinkedHashSet<>();
+                    }
                     walkSchema(executionContext, entry, node, rootNode, at, state.isValidationEnabled(), errors, propertyWalkListenerRunner);
                 }
 
@@ -92,13 +102,15 @@ public class PropertiesValidator extends BaseJsonValidator {
                             state.setMatchedNode(false);
                             return Collections.emptySet();
                         }
+                        if (errors == null) {
+                            errors = new LinkedHashSet<>();
+                        }
                         errors.addAll(requiredErrors);
                     }
                 }
             }
         }
-
-        return Collections.unmodifiableSet(errors);
+        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override
@@ -143,16 +155,17 @@ public class PropertiesValidator extends BaseJsonValidator {
                             boolean shouldValidateSchema, Set<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
+        JsonNodePath path = at.resolve(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
-                ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, atPath(at, entry.getKey()),
+                ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema.getSchemaPath(), propertySchema.getSchemaNode(), propertySchema.getParentSchema(),
                 this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(
-                    propertySchema.walk(executionContext, propertyNode, rootNode, atPath(at, entry.getKey()), shouldValidateSchema));
+                    propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema));
         }
         propertyWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
-                rootNode, atPath(at, entry.getKey()), propertySchema.getSchemaPath(),
+                rootNode, path, propertySchema.getSchemaPath(),
                 propertySchema.getSchemaNode(), propertySchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 
     }
