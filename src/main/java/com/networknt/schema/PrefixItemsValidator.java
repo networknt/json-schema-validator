@@ -59,12 +59,12 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-
         // ignores non-arrays
         if (node.isArray()) {
+            Set<ValidationMessage> errors = new LinkedHashSet<>();
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
-            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
+            int count = Math.min(node.size(), this.tupleSchema.size());
+            for (int i = 0; i < count; ++i) {
                 JsonNodePath path = atPath(at, i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
@@ -73,9 +73,10 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                     errors.addAll(results);
                 }
             }
+            return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+        } else {
+            return Collections.emptySet();
         }
-
-        return Collections.unmodifiableSet(errors);
     }
 
     @Override
@@ -84,7 +85,8 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
         if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
             ArrayNode array = (ArrayNode) node;
-            for (int i = 0; i < Math.min(node.size(), this.tupleSchema.size()); ++i) {
+            int count = Math.min(node.size(), this.tupleSchema.size());
+            for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
                 JsonNode defaultNode = this.tupleSchema.get(i).getSchemaNode().get("default");
                 if (n.isNull() && defaultNode != null) {

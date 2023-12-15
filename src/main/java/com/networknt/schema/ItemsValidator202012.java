@@ -62,10 +62,9 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-
         // ignores non-arrays
         if (node.isArray()) {
+            Set<ValidationMessage> errors = new LinkedHashSet<>();
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = atPath(at, i);
@@ -77,9 +76,10 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     errors.addAll(results);
                 }
             }
+            return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+        } else {
+            return Collections.emptySet();
         }
-
-        return Collections.unmodifiableSet(errors);
     }
 
     @Override

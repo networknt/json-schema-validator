@@ -73,12 +73,11 @@ public class ItemsValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-
         if (!node.isArray() && !this.validationContext.getConfig().isTypeLoose()) {
             // ignores non-arrays
-            return errors;
+            return Collections.emptySet();
         }
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
         if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {
@@ -88,7 +87,7 @@ public class ItemsValidator extends BaseJsonValidator {
         } else {
             doValidate(executionContext, errors, 0, node, rootNode, at);
         }
-        return Collections.unmodifiableSet(errors);
+        return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, JsonNodePath at) {
@@ -128,7 +127,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     } else {
                         // no additional item allowed, return error
                         errors.add(
-                                buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + i));
+                                buildValidationMessage(null, path, executionContext.getExecutionConfig().getLocale(), "" + i));
                     }
                 }
             }
