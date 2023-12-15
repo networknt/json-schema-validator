@@ -129,7 +129,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: 'bar' is required"
+          "$.bar: 'bar' is required"
         ]
       },
       {
@@ -139,7 +139,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: 'foo' is required"
+          "$.foo: 'foo' is required"
         ]
       },
       {
@@ -148,8 +148,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: 'foo' is required",
-          "$: 'bar' is required"
+          "$.foo: 'foo' is required",
+          "$.bar: 'bar' is required"
         ]
       }
    ]

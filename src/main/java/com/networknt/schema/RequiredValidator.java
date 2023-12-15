@@ -46,17 +46,21 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
             return Collections.emptySet();
         }
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = null;
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode == null) {
-                errors.add(buildValidationMessage(fieldName, at, executionContext.getExecutionConfig().getLocale(), fieldName));
+                if (errors == null) {
+                    errors = new LinkedHashSet<>();
+                }
+                errors.add(buildValidationMessage(fieldName, at.resolve(fieldName),
+                        executionContext.getExecutionConfig().getLocale(), fieldName));
             }
         }
 
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
 }

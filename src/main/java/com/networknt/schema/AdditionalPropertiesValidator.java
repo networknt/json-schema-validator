@@ -46,12 +46,14 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             additionalPropertiesSchema = null;
         }
 
-        allowedProperties = new HashSet<String>();
         JsonNode propertiesNode = parentSchema.getSchemaNode().get(PropertiesValidator.PROPERTY);
         if (propertiesNode != null) {
+            allowedProperties = new HashSet<>();
             for (Iterator<String> it = propertiesNode.fieldNames(); it.hasNext(); ) {
                 allowedProperties.add(it.next());
             }
+        } else {
+            allowedProperties = Collections.emptySet();
         }
 
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
@@ -66,20 +68,20 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         if (!node.isObject()) {
             // ignore no object
-            return errors;
+            return Collections.emptySet();
         }
 
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
                 collectorContext.getEvaluatedProperties().add(atPath(at, it.next()));
             }
         }
+
+        Set<ValidationMessage> errors = null;
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -97,20 +99,36 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (!allowAdditionalProperties) {
-                    errors.add(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), pname));
+                    if (errors == null) {
+                        errors = new LinkedHashSet<>();
+                    }
+                    errors.add(buildValidationMessage(pname, at.resolve(pname),
+                            executionContext.getExecutionConfig().getLocale(), pname));
                 } else {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
+                            if (!results.isEmpty()) {
+                                if (errors == null) {
+                                    errors = new LinkedHashSet<>();
+                                }
+                                errors.addAll(results);
+                            }
                         } else {
-                            errors.addAll(additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, atPath(at, pname)));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, atPath(at, pname));
+                            if (!results.isEmpty()) {
+                                if (errors == null) {
+                                    errors = new LinkedHashSet<>();
+                                }
+                                errors.addAll(results);
+                            }
                         }
                     }
                 }
             }
         }
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override
