@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class MinMaxContainsValidator extends BaseJsonValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MinMaxContainsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
 
@@ -31,7 +31,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("minContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
+                analysis.add(new Analysis("minContains", schemaPath));
             } else {
                 min = minNode.intValue();
             }
@@ -43,7 +43,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("maxContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
+                analysis.add(new Analysis("maxContains", schemaPath));
             } else {
                 max = maxNode.intValue();
             }
@@ -53,7 +53,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             if (analysis == null) {
                 analysis = new LinkedHashSet<>();
             }
-            analysis.add(new Analysis("minContainsVsMaxContains", new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)));
+            analysis.add(new Analysis("minContainsVsMaxContains", schemaPath));
         }
         this.analysis = analysis;
     }

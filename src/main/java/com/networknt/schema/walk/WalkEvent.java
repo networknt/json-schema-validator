@@ -16,7 +16,7 @@ import java.net.URI;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private String schemaPath;
+    private JsonNodePath schemaPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
     private String keyWordName;
@@ -30,7 +30,7 @@ public class WalkEvent {
         return executionContext;
     }
 
-    public String getSchemaPath() {
+    public JsonNodePath getSchemaPath() {
         return schemaPath;
     }
 
@@ -87,7 +87,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schemaPath(String schemaPath) {
+        public WalkEventBuilder schemaPath(JsonNodePath schemaPath) {
             walkEvent.schemaPath = schemaPath;
             return this;
         }

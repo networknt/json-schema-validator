@@ -29,7 +29,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
 
     private double divisor = 0;
 
-    public MultipleOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public MultipleOfValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MULTIPLE_OF, validationContext);
         if (schemaNode.isNumber()) {

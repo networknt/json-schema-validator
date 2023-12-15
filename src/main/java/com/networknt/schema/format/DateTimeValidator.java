@@ -39,7 +39,7 @@ public class DateTimeValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";
 
-    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
+    public DateTimeValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
         super(schemaPath, schemaNode, parentSchema, type, validationContext);
 
         this.validationContext = validationContext;

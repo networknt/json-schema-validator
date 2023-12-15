@@ -38,12 +38,12 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     protected ValidationContext validationContext;
 
-    public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public BaseJsonValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                              ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaPath, schemaNode, parentSchema, validatorType, validationContext, false);
     }
 
-    public BaseJsonValidator(String schemaPath,
+    public BaseJsonValidator(JsonNodePath schemaPath,
                              JsonNode schemaNode,
                              JsonSchema parentSchema,
                              ValidatorTypeCode validatorType,
@@ -142,7 +142,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                                                         final JsonNodePath at) {
         final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
-                .getDiscriminatorForPath(schema.schemaPath)) {
+                .getDiscriminatorForPath(schema.schemaPath.toString())) {
             // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
@@ -173,13 +173,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                 }
             }
         }
-        currentDiscriminatorContext.registerDiscriminator(schema.schemaPath, discriminator);
+        currentDiscriminatorContext.registerDiscriminator(schema.schemaPath.toString(), discriminator);
     }
 
     private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                                   final String discriminatorPropertyValue,
                                                                   final JsonSchema schema) {
-        if (schema.schemaPath.endsWith("/" + discriminatorPropertyValue)) {
+        if (schema.schemaPath.getName(-1).equals(discriminatorPropertyValue)) {
             currentDiscriminatorContext.markMatch();
         }
     }
@@ -192,7 +192,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
             if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
-                    && schema.schemaPath.equals(candidateExplicitMapping.getValue().asText())) {
+                    && schema.schemaPath.toString().equals(candidateExplicitMapping.getValue().asText())) {
                 currentDiscriminatorContext.markMatch();
                 break;
             }
@@ -204,14 +204,14 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getValue().asText().equals(parentSchema.schemaPath)) {
+            if (candidateExplicitMapping.getValue().asText().equals(parentSchema.schemaPath.toString())) {
                 return false;
             }
         }
         return true;
     }
 
-    public String getSchemaPath() {
+    public JsonNodePath getSchemaPath() {
         return this.schemaPath;
     }
 

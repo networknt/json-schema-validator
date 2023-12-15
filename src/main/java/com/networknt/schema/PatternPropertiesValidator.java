@@ -28,7 +28,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
 
-    public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public PatternPropertiesValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
         if (!schemaNode.isObject()) {
@@ -38,7 +38,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         while (names.hasNext()) {
             String name = names.next();
             RegularExpression pattern = RegularExpression.compile(name, validationContext);
-            schemas.put(pattern, validationContext.newSchema(name, schemaNode.get(name), parentSchema));
+            schemas.put(pattern, validationContext.newSchema(schemaPath.resolve(name), schemaNode.get(name), parentSchema));
         }
     }
 

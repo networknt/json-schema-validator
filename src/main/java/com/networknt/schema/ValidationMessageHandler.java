@@ -14,11 +14,11 @@ public abstract class ValidationMessageHandler {
     protected ValidatorTypeCode validatorType;
     protected ErrorMessageType errorMessageType;
 
-    protected String schemaPath;
+    protected JsonNodePath schemaPath;
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, String schemaPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
@@ -76,21 +76,32 @@ public abstract class ValidationMessageHandler {
 
 
     private boolean isPartOfAnyOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ANY_OF.getValue() + "/");
+        return schemaPathContains(ValidatorTypeCode.ANY_OF.getValue());
     }
 
     private boolean isPartOfIfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.IF_THEN_ELSE.getValue() + "/");
+        return schemaPathContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
     }
 
     private boolean isPartOfNotMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.NOT.getValue() + "/");
+        return schemaPathContains(ValidatorTypeCode.NOT.getValue());
+    }
+    
+    protected boolean schemaPathContains(String match) {
+        int count = this.parentSchema.schemaPath.getNameCount();
+        for (int x = 0; x < count; x++) {
+            String name = this.parentSchema.schemaPath.getName(x);
+            if (match.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
 
     protected boolean isPartOfOneOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
+        return schemaPathContains(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     protected void parseErrorCode(String errorCodeKey) {

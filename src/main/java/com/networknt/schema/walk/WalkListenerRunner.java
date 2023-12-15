@@ -13,10 +13,10 @@ import java.util.Set;
 public interface WalkListenerRunner {
 
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode,
-            JsonNodePath at, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, JsonSchemaFactory jsonSchemaFactory);
+            JsonNodePath at, JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, JsonSchemaFactory jsonSchemaFactory);
 
     public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, JsonNodePath at,
-                                     String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
+            JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
                                      JsonSchemaFactory jsonSchemaFactory, Set<ValidationMessage> validationMessages);
 
 }

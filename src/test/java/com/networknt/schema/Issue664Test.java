@@ -31,7 +31,8 @@ class Issue664Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<String> errorSchemaPaths = schema.validate(node).stream().map(ValidationMessage::getSchemaPath).collect(Collectors.toList());
+        List<String> errorSchemaPaths = schema.validate(node).stream().map(ValidationMessage::getSchemaPath)
+                .map(Object::toString).collect(Collectors.toList());
 
         List<String> expectedSchemaPaths = Arrays.asList(
             "#/items/allOf/0/anyOf/0/oneOf",

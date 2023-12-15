@@ -14,7 +14,7 @@ import java.util.Set;
 public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 
     protected WalkEvent constructWalkEvent(ExecutionContext executionContext, String keyWordName, JsonNode node, JsonNode rootNode,
-            JsonNodePath at, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+            JsonNodePath at, JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                            ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
         return WalkEvent.builder().executionContext(executionContext).at(at).keyWordName(keyWordName).node(node)
                 .parentSchema(parentSchema).rootNode(rootNode).schemaNode(schemaNode).schemaPath(schemaPath)

@@ -66,7 +66,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", ExclusiveMinimumValidator.class, VersionCode.MinV6),
     FALSE("false", "1041", FalseValidator.class, VersionCode.MinV6),
     FORMAT("format", "1009", null, VersionCode.AllVersions) {
-        @Override public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        @Override public JsonValidator newValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
@@ -151,15 +151,15 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     }
 
     @Override
-    public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {
+    public JsonValidator newValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws Exception {
         if (this.validator == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());
         }
         // if the config version is not match the validator
         @SuppressWarnings("unchecked")
         Constructor<JsonValidator> c = ((Class<JsonValidator>) this.validator).getConstructor(
-                new Class[]{String.class, JsonNode.class, JsonSchema.class, ValidationContext.class});
-        return c.newInstance(schemaPath + "/" + getValue(), schemaNode, parentSchema, validationContext);
+                new Class[]{JsonNodePath.class, JsonNode.class, JsonSchema.class, ValidationContext.class});
+        return c.newInstance(schemaPath.resolve(getValue()), schemaNode, parentSchema, validationContext);
     }
 
     @Override

@@ -25,7 +25,7 @@ import java.util.Set;
 public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
 
-    public FalseValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public FalseValidator(JsonNodePath schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
     }
 

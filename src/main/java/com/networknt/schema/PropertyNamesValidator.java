@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class PropertyNamesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
     private final JsonSchema innerSchema;
-    public PropertyNamesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PropertyNamesValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
         innerSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
     }

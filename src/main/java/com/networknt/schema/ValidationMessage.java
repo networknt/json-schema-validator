@@ -29,13 +29,13 @@ public class ValidationMessage {
     private final String type;
     private final String code;
     private final JsonNodePath path;
-    private final String schemaPath;
+    private final JsonNodePath schemaPath;
     private final Object[] arguments;
     private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, JsonNodePath path, String schemaPath, Object[] arguments,
+    ValidationMessage(String type, String code, JsonNodePath path, JsonNodePath schemaPath, Object[] arguments,
             Map<String, Object> details, String messageKey, Supplier<String> messageSupplier) {
         super();
         this.type = type;
@@ -62,7 +62,7 @@ public class ValidationMessage {
     /**
      * @return The path to the schema
      */
-    public String getSchemaPath() {
+    public JsonNodePath getSchemaPath() {
         return schemaPath;
     }
 
@@ -128,7 +128,7 @@ public class ValidationMessage {
         private String type;
         private String code;
         private JsonNodePath path;
-        private String schemaPath;
+        private JsonNodePath schemaPath;
         private Object[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
@@ -152,7 +152,7 @@ public class ValidationMessage {
             return this;
         }
 
-        public Builder schemaPath(String schemaPath) {
+        public Builder schemaPath(JsonNodePath schemaPath) {
             this.schemaPath = schemaPath;
             return this;
         }

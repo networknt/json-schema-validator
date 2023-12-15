@@ -21,7 +21,7 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode,
-            JsonNodePath at, String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+            JsonNodePath at, JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                        ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, at, schemaPath, schemaNode,
                 parentSchema, validationContext, currentJsonSchemaFactory);
@@ -30,7 +30,7 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, JsonNodePath at,
-                                     String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
+            JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
                                      JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, at, schemaPath, schemaNode,
                 parentSchema, validationContext, currentJsonSchemaFactory);

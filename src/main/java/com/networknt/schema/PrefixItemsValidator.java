@@ -36,7 +36,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     private final List<JsonSchema> tupleSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public PrefixItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PrefixItemsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();

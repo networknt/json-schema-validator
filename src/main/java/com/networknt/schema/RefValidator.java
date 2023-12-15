@@ -37,7 +37,7 @@ public class RefValidator extends BaseJsonValidator {
     private static final String REF_CURRENT = "#";
     private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
-    public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public RefValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         this.parentSchema = parentSchema;
@@ -45,7 +45,7 @@ public class RefValidator extends BaseJsonValidator {
         if (this.schema == null) {
             ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
                     .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                    .path(new JsonNodePath(PathType.SCHEMA).resolve(schemaPath)).schemaPath(schemaPath).arguments(refValue).build();
+                    .path(schemaPath).schemaPath(schemaPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }
@@ -107,7 +107,8 @@ public class RefValidator extends BaseJsonValidator {
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
-                final JsonSchema schema = validationContext.newSchema(refValue, node, parent);
+                JsonNodePath path = UriReference.get(refValue);
+                final JsonSchema schema = validationContext.newSchema(path, node, parent);
                 ref = new JsonSchemaRef(schema);
                 validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }

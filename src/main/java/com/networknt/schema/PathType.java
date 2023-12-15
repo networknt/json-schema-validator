@@ -58,10 +58,11 @@ public enum PathType {
     }, (currentPath, index) -> currentPath + "/" + index),
     
     /**
-     * Paths as Schema expressions.
+     * Paths as a URI reference.
      */
-    SCHEMA("", (currentPath, token) -> currentPath.isEmpty() ? token : currentPath + "/" + token,
-            (currentPath, index) -> currentPath + "/" + index);
+    URI_REFERENCE("", (currentPath, token) -> {
+        return !currentPath.isEmpty() ? currentPath + "/" + token : token;
+    }, (currentPath, index) -> currentPath + "/" + index);
 
     /**
      * The default path generation approach to use.

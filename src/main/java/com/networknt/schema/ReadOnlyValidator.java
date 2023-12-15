@@ -29,7 +29,7 @@ public class ReadOnlyValidator extends BaseJsonValidator {
 
     private final boolean readOnly;
 
-    public ReadOnlyValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ReadOnlyValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.READ_ONLY, validationContext);
 
         this.readOnly = validationContext.getConfig().isReadOnly();

@@ -30,7 +30,7 @@ public class PatternValidator extends BaseJsonValidator {
     private String pattern;
     private RegularExpression compiledPattern;
 
-    public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PatternValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);

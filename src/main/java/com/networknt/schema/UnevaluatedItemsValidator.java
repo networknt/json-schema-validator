@@ -29,7 +29,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
     private final JsonSchema schema;
     private final boolean disabled;
 
-    public UnevaluatedItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public UnevaluatedItemsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS, validationContext);
 
         this.disabled = validationContext.getConfig().isUnevaluatedItemsAnalysisDisabled();

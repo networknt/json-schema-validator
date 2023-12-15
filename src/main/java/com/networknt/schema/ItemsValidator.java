@@ -36,7 +36,7 @@ public class ItemsValidator extends BaseJsonValidator {
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public ItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ItemsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();
@@ -55,7 +55,8 @@ public class ItemsValidator extends BaseJsonValidator {
                 if (addItemNode.isBoolean()) {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    foundAdditionalSchema = validationContext.newSchema("#", addItemNode, parentSchema);
+                    foundAdditionalSchema = validationContext.newSchema(
+                            UriReference.DOCUMENT.resolve(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
                 }
             }
         }

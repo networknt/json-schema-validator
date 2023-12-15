@@ -27,7 +27,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
     private final Map<String, List<String>> propertyDeps = new HashMap<String, List<String>>();
     private final Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
 
-    public DependenciesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependenciesValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENCIES, validationContext);
 
@@ -44,7 +44,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                     depsProps.add(pvalue.get(i).asText());
                 }
             } else if (pvalue.isObject() || pvalue.isBoolean()) {
-                schemaDeps.put(pname, validationContext.newSchema(pname, pvalue, parentSchema));
+                schemaDeps.put(pname, validationContext.newSchema(schemaPath.resolve(pname), pvalue, parentSchema));
             }
         }
 

@@ -32,7 +32,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private final Set<String> allowedProperties;
     private final List<RegularExpression> patternProperties = new ArrayList<>();
 
-    public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public AdditionalPropertiesValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
         if (schemaNode.isBoolean()) {
@@ -40,7 +40,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             additionalPropertiesSchema = null;
         } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = validationContext.newSchema(getValidatorType().getValue(), schemaNode, parentSchema);
+            additionalPropertiesSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
         } else {
             allowAdditionalProperties = false;
             additionalPropertiesSchema = null;

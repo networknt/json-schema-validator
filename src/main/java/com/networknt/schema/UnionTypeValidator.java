@@ -32,7 +32,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     private final String error;
 
 
-    public UnionTypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public UnionTypeValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);
         this.validationContext = validationContext;
         StringBuilder errorBuilder = new StringBuilder();
@@ -50,9 +50,9 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             sep = ", ";
 
             if (n.isObject())
-                schemas.add(validationContext.newSchema(ValidatorTypeCode.TYPE.getValue(), n, parentSchema));
+                schemas.add(validationContext.newSchema(UriReference.get(ValidatorTypeCode.TYPE.getValue()), n, parentSchema));
             else
-                schemas.add(new TypeValidator(schemaPath + "/" + i, n, parentSchema, validationContext));
+                schemas.add(new TypeValidator(schemaPath.resolve(i), n, parentSchema, validationContext));
 
             i++;
         }

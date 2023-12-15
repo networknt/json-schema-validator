@@ -28,5 +28,5 @@ public interface Keyword {
         //setCustom message
     }
 
-    JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
+    JsonValidator newValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
 }

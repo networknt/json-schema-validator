@@ -41,7 +41,7 @@ public class FormatKeyword implements Keyword {
     }
 
     @Override
-    public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public JsonValidator newValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         Format format = null;
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
