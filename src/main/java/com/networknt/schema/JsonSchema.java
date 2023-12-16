@@ -142,7 +142,7 @@ public class JsonSchema extends BaseJsonValidator {
             } catch (IllegalArgumentException e) {
                 JsonNodePath path = schemaPath.resolve(this.metaSchema.getIdKeyword());
                 ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
-                        .type(ValidatorTypeCode.ID.getValue()).path(path).schemaPath(path)
+                        .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path).keywordLocation(path)
                         .arguments(currentUri == null ? "null" : currentUri.toString(), id)
                         .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
                                 ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
@@ -287,8 +287,8 @@ public class JsonSchema extends BaseJsonValidator {
                                 .code("internal.invalidRecursiveAnchor")
                                 .message(
                                         "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
-                                .path(schemaPath)
-                                .schemaPath(schemaPath)
+                                .instanceLocation(schemaPath)
+                                .keywordLocation(schemaPath)
                                 .arguments(nodeToUse.getNodeType().toString())
                                 .build();
                         throw new JsonSchemaException(validationMessage);

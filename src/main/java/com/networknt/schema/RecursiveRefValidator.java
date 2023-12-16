@@ -33,8 +33,8 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         if (!"#".equals(refValue)) {
             ValidationMessage validationMessage = ValidationMessage.builder()
                     .type(ValidatorTypeCode.RECURSIVE_REF.getValue()).code("internal.invalidRecursiveRef")
-                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").path(schemaPath)
-                    .schemaPath(schemaPath).arguments(refValue).build();
+                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").instanceLocation(schemaPath)
+                    .keywordLocation(schemaPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }

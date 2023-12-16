@@ -45,7 +45,7 @@ public class RefValidator extends BaseJsonValidator {
         if (this.schema == null) {
             ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
                     .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                    .path(schemaPath).schemaPath(schemaPath).arguments(refValue).build();
+                    .instanceLocation(schemaPath).keywordLocation(schemaPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }

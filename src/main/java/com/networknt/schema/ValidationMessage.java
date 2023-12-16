@@ -28,20 +28,20 @@ import java.util.function.Supplier;
 public class ValidationMessage {
     private final String type;
     private final String code;
-    private final JsonNodePath path;
-    private final JsonNodePath schemaPath;
+    private final JsonNodePath instanceLocation;
+    private final JsonNodePath keywordLocation;
     private final Object[] arguments;
     private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, JsonNodePath path, JsonNodePath schemaPath, Object[] arguments,
+    ValidationMessage(String type, String code, JsonNodePath instanceLocation, JsonNodePath keywordLocation, Object[] arguments,
             Map<String, Object> details, String messageKey, Supplier<String> messageSupplier) {
         super();
         this.type = type;
         this.code = code;
-        this.path = path;
-        this.schemaPath = schemaPath;
+        this.instanceLocation = instanceLocation;
+        this.keywordLocation = keywordLocation;
         this.arguments = arguments;
         this.details = details;
         this.messageKey = messageKey;
@@ -56,14 +56,14 @@ public class ValidationMessage {
      * @return The path to the input json
      */
     public JsonNodePath getPath() {
-        return path;
+        return instanceLocation;
     }
 
     /**
      * @return The path to the schema
      */
     public JsonNodePath getSchemaPath() {
-        return schemaPath;
+        return keywordLocation;
     }
 
     public Object[] getArguments() {
@@ -96,8 +96,8 @@ public class ValidationMessage {
 
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (path != null ? !path.equals(that.path) : that.path != null) return false;
-        if (schemaPath != null ? !schemaPath.equals(that.schemaPath) : that.schemaPath != null) return false;
+        if (instanceLocation != null ? !instanceLocation.equals(that.instanceLocation) : that.instanceLocation != null) return false;
+        if (keywordLocation != null ? !keywordLocation.equals(that.keywordLocation) : that.keywordLocation != null) return false;
         if (details != null ? !details.equals(that.details) : that.details != null) return false;
         if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) return false;
         if (!Arrays.equals(arguments, that.arguments)) return false;
@@ -108,8 +108,8 @@ public class ValidationMessage {
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (path != null ? path.hashCode() : 0);
-        result = 31 * result + (schemaPath != null ? schemaPath.hashCode() : 0);
+        result = 31 * result + (instanceLocation != null ? instanceLocation.hashCode() : 0);
+        result = 31 * result + (keywordLocation != null ? keywordLocation.hashCode() : 0);
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (arguments != null ? Arrays.hashCode(arguments) : 0);
         result = 31 * result + (messageKey != null ? messageKey.hashCode() : 0);
@@ -127,8 +127,8 @@ public class ValidationMessage {
     public static class Builder {
         private String type;
         private String code;
-        private JsonNodePath path;
-        private JsonNodePath schemaPath;
+        private JsonNodePath instanceLocation;
+        private JsonNodePath keywordLocation;
         private Object[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
@@ -147,13 +147,13 @@ public class ValidationMessage {
             return this;
         }
 
-        public Builder path(JsonNodePath path) {
-            this.path = path;
+        public Builder instanceLocation(JsonNodePath instanceLocation) {
+            this.instanceLocation = instanceLocation;
             return this;
         }
 
-        public Builder schemaPath(JsonNodePath schemaPath) {
-            this.schemaPath = schemaPath;
+        public Builder keywordLocation(JsonNodePath keywordLocation) {
+            this.keywordLocation = keywordLocation;
             return this;
         }
 
@@ -223,12 +223,12 @@ public class ValidationMessage {
                 MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
                 messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
-            return new ValidationMessage(type, code, path, schemaPath, arguments, details, messageKey, messageSupplier);
+            return new ValidationMessage(type, code, instanceLocation, keywordLocation, arguments, details, messageKey, messageSupplier);
         }
         
         private Object[] getArguments() {
             Object[] objs = new Object[(arguments == null ? 0 : arguments.length) + 1];
-            objs[0] = path;
+            objs[0] = instanceLocation;
             if (arguments != null) {
                 for (int i = 1; i < objs.length; i++) {
                     objs[i] = arguments[i - 1];

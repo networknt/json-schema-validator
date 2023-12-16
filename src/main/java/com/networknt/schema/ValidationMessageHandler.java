@@ -45,8 +45,8 @@ public abstract class ValidationMessageHandler {
         }
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
-                .path(at)
-                .schemaPath(this.schemaPath)
+                .instanceLocation(at)
+                .keywordLocation(this.schemaPath)
                 .arguments(arguments)
                 .messageKey(messageKey)
                 .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))
