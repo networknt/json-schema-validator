@@ -32,12 +32,12 @@ public class AnyOfValidator extends BaseJsonValidator {
     private final List<JsonSchema> schemas = new ArrayList<>();
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
-    public AnyOfValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
+    public AnyOfValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         this.validationContext = validationContext;
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            this.schemas.add(validationContext.newSchema(schemaPath.resolve(i), schemaNode.get(i), parentSchema));
+            this.schemas.add(validationContext.newSchema(schemaPath.resolve(i), schemaNode.get(i), parentSchema, null));
         }
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {

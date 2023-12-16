@@ -37,11 +37,11 @@ public class RefValidator extends BaseJsonValidator {
     private static final String REF_CURRENT = "#";
     private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
-    public RefValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
+    public RefValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         this.parentSchema = parentSchema;
-        this.schema = getRefSchema(parentSchema, validationContext, refValue);
+        this.schema = getRefSchema(parentSchema, validationContext, refValue, validationPath);
         if (this.schema == null) {
             ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
                     .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
@@ -50,7 +50,9 @@ public class RefValidator extends BaseJsonValidator {
         }
     }
 
-    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
+    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+            JsonNodePath validationPath) {
+        // The validationPath is used to derive the keywordLocation
         final String refValueOriginal = refValue;
 
         JsonSchema parent = parentSchema;
@@ -79,7 +81,7 @@ public class RefValidator extends BaseJsonValidator {
                 }
             } else if (URN_SCHEME.equals(schemaUri.getScheme())) {
                 // Try to resolve URN schema as a JsonSchemaRef to some sub-schema of the parent
-                JsonSchemaRef ref = getJsonSchemaRef(parent, validationContext, schemaUri.toString(), refValueOriginal);
+                JsonSchemaRef ref = getJsonSchemaRef(parent, validationContext, schemaUri.toString(), refValueOriginal, validationPath);
                 if (ref != null) {
                     return ref;
                 }
@@ -96,19 +98,20 @@ public class RefValidator extends BaseJsonValidator {
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(parent.findAncestor());
         }
-        return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal);
+        return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal, validationPath);
     }
 
     private static JsonSchemaRef getJsonSchemaRef(JsonSchema parent,
                                                   ValidationContext validationContext,
                                                   String refValue,
-                                                  String refValueOriginal) {
+                                                  String refValueOriginal,
+                                                  JsonNodePath validationPath) {
         JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
                 JsonNodePath path = UriReference.get(refValue);
-                final JsonSchema schema = validationContext.newSchema(path, node, parent);
+                final JsonSchema schema = validationContext.newSchema(path, node, parent, validationPath);
                 ref = new JsonSchemaRef(schema);
                 validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }

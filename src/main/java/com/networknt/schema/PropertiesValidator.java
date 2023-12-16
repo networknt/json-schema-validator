@@ -31,12 +31,12 @@ public class PropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
 
-    public PropertiesValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
+    public PropertiesValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
         this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            this.schemas.put(pname, validationContext.newSchema(schemaPath.resolve(pname), schemaNode.get(pname), parentSchema));
+            this.schemas.put(pname, validationContext.newSchema(schemaPath.resolve(pname), schemaNode.get(pname), parentSchema, null));
         }
     }
 

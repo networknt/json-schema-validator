@@ -36,8 +36,8 @@ public class MaximumValidator extends BaseJsonValidator {
     private final ThresholdMixin typedMaximum;
 
 
-    public MaximumValidator(JsonNodePath schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
+    public MaximumValidator(JsonNodePath schemaPath, JsonNodePath validationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
         this.validationContext = validationContext;
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("maximum value is not a number");

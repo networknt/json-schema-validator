@@ -27,9 +27,9 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
 
     private List<String> fieldNames = new ArrayList<String>();
 
-    public RequiredValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public RequiredValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
         if (schemaNode.isArray()) {
             for (JsonNode fieldNme : schemaNode) {
                 fieldNames.add(fieldNme.asText());
@@ -55,8 +55,8 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
-                errors.add(buildValidationMessage(fieldName, at.resolve(fieldName),
-                        executionContext.getExecutionConfig().getLocale(), fieldName));
+                errors.add(buildValidationMessage(fieldName, at, executionContext.getExecutionConfig().getLocale(),
+                        fieldName));
             }
         }
 

@@ -128,6 +128,7 @@ public class ValidationMessage {
         private String type;
         private String code;
         private JsonNodePath instanceLocation;
+        private JsonNodePath absoluteKeywordLocation;
         private JsonNodePath keywordLocation;
         private Object[] arguments;
         private Map<String, Object> details;
@@ -149,6 +150,11 @@ public class ValidationMessage {
 
         public Builder instanceLocation(JsonNodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
+            return this;
+        }
+        
+        public Builder absoluteKeywordLocation(JsonNodePath absoluteKeywordLocation) {
+            this.absoluteKeywordLocation = absoluteKeywordLocation;
             return this;
         }
 

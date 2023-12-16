@@ -41,8 +41,8 @@ public class ContainsValidator extends BaseJsonValidator {
     private int min = 1;
     private int max = Integer.MAX_VALUE;
 
-    public ContainsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
+    public ContainsValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
@@ -50,7 +50,7 @@ public class ContainsValidator extends BaseJsonValidator {
         isMinV201909 = MinV201909.getVersions().contains(SpecVersionDetector.detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
+            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
                     .filter(JsonNode::canConvertToExactIntegral)

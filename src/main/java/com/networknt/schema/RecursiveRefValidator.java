@@ -26,8 +26,8 @@ import java.util.*;
 public class RecursiveRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
 
-    public RecursiveRefValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
+    public RecursiveRefValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {

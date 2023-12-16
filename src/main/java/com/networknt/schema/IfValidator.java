@@ -33,8 +33,8 @@ public class IfValidator extends BaseJsonValidator {
     private final JsonSchema thenSchema;
     private final JsonSchema elseSchema;
 
-    public IfValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
+    public IfValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
 
         JsonSchema foundIfSchema = null;
         JsonSchema foundThenSchema = null;
@@ -44,11 +44,11 @@ public class IfValidator extends BaseJsonValidator {
             final JsonNode node = schemaNode.get(keyword);
             final JsonNodePath schemaPathOfSchema = parentSchema.schemaPath.resolve(keyword);
             if (keyword.equals("if")) {
-                foundIfSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
+                foundIfSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema, null);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
+                foundThenSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema, null);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema);
+                foundElseSchema = validationContext.newSchema(schemaPathOfSchema, node, parentSchema, null);
             }
         }
 

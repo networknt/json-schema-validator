@@ -327,17 +327,17 @@ public class JsonSchemaFactory {
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode);
         validationContext.setConfig(config);
-        return doCreate(validationContext, UriReference.DOCUMENT, schemaUri, schemaNode, null, false);
+        return doCreate(validationContext, UriReference.DOCUMENT, new JsonNodePath(config.getPathType()), schemaUri, schemaNode, null, false);
     }
 
-    public JsonSchema create(ValidationContext validationContext, JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
+    public JsonSchema create(ValidationContext validationContext, JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema) {
         return doCreate(validationContext,
                 null == schemaPath ? UriReference.DOCUMENT : schemaPath,
-                parentSchema.getCurrentUri(), schemaNode, parentSchema, false);
+                validationPath, parentSchema.getCurrentUri(), schemaNode, parentSchema, false);
     }
 
-    private JsonSchema doCreate(ValidationContext validationContext, JsonNodePath schemaPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return JsonSchema.from(validationContext, schemaPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
+    private JsonSchema doCreate(ValidationContext validationContext, JsonNodePath schemaPath, JsonNodePath validationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return JsonSchema.from(validationContext, schemaPath, validationPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -435,15 +435,15 @@ public class JsonSchemaFactory {
                 }
 
                 final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-
+                JsonNodePath validationPath = new JsonNodePath(config.getPathType());
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
                     ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
-                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, validationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
-                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, mappedUri, schemaNode, null, false);
+                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, validationPath, mappedUri, schemaNode, null, false);
                 }
 
                 if (enableUriSchemaCache) {

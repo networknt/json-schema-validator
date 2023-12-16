@@ -29,8 +29,8 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
 
     private boolean unique = false;
 
-    public UniqueItemsValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
+    public UniqueItemsValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         }

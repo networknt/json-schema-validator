@@ -38,8 +38,8 @@ public class NonValidationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public JsonValidator newValidator(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                      ValidationContext validationContext) throws JsonSchemaException, Exception {
+    public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode,
+                                      JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
         return new Validator();
     }
 }

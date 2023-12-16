@@ -15,10 +15,11 @@ public abstract class ValidationMessageHandler {
     protected ErrorMessageType errorMessageType;
 
     protected JsonNodePath schemaPath;
+    protected JsonNodePath validationPath;
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath, JsonNodePath validationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
@@ -26,6 +27,7 @@ public abstract class ValidationMessageHandler {
         this.validatorType = validatorType;
         this.schemaPath = schemaPath;
         this.parentSchema = parentSchema;
+        this.validationPath = validationPath;
     }
 
     protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, Locale locale, Object... arguments) {
@@ -46,7 +48,7 @@ public abstract class ValidationMessageHandler {
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
                 .instanceLocation(at)
-                .keywordLocation(this.schemaPath)
+                .absoluteKeywordLocation(this.schemaPath)
                 .arguments(arguments)
                 .messageKey(messageKey)
                 .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))
