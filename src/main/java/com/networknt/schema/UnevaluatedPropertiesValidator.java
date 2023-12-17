@@ -29,12 +29,12 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private final JsonSchema schema;
     private final boolean disabled;
 
-    public UnevaluatedPropertiesValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
+    public UnevaluatedPropertiesValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
 
         this.disabled = validationContext.getConfig().isUnevaluatedPropertiesAnalysisDisabled();
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
+            this.schema = validationContext.newSchema(schemaPath, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedProperties' MUST be a valid JSON Schema.");
         }

@@ -252,7 +252,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator();
@@ -320,7 +320,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1();

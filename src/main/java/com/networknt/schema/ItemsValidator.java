@@ -36,18 +36,18 @@ public class ItemsValidator extends BaseJsonValidator {
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public ItemsValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
+    public ItemsValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();
         JsonSchema foundSchema = null;
         JsonSchema foundAdditionalSchema = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            foundSchema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
+            foundSchema = validationContext.newSchema(schemaPath, evaluationPath, schemaNode, parentSchema);
         } else {
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaPath, null, s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaPath, evaluationPath, s, parentSchema));
             }
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
@@ -56,7 +56,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
                     foundAdditionalSchema = validationContext.newSchema(
-                            UriReference.DOCUMENT.resolve(PROPERTY_ADDITIONAL_ITEMS), null, addItemNode, parentSchema);
+                            schemaPath.resolve(PROPERTY_ADDITIONAL_ITEMS), evaluationPath, addItemNode, parentSchema);
                 }
             }
         }

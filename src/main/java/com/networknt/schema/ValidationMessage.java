@@ -25,27 +25,34 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * The output format.
+ * 
+ * @see <a href=
+ *      "https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md">JSON
+ *      Schema</a>
+ */
 public class ValidationMessage {
     private final String type;
     private final String code;
+    private final JsonNodePath evaluationPath;
+    private final JsonNodePath schemaLocation;
     private final JsonNodePath instanceLocation;
-    private final JsonNodePath absoluteKeywordLocation;
-    private final JsonNodePath keywordLocation;
     private final String property;
     private final Object[] arguments;
     private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, JsonNodePath instanceLocation, JsonNodePath keywordLocation,
-            JsonNodePath absoluteKeywordLocation, String property, Object[] arguments, Map<String, Object> details,
+    ValidationMessage(String type, String code, JsonNodePath evaluationPath, JsonNodePath schemaLocation,
+            JsonNodePath instanceLocation, String property, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier) {
         super();
         this.type = type;
         this.code = code;
         this.instanceLocation = instanceLocation;
-        this.absoluteKeywordLocation = absoluteKeywordLocation;
-        this.keywordLocation = keywordLocation;
+        this.schemaLocation = schemaLocation;
+        this.evaluationPath = evaluationPath;
         this.property = property;
         this.arguments = arguments;
         this.details = details;
@@ -58,6 +65,9 @@ public class ValidationMessage {
     }
 
     /**
+     * The instance location is the location of the JSON value within the root
+     * instance being validated.
+     * 
      * @return The path to the input json
      */
     public JsonNodePath getInstanceLocation() {
@@ -65,14 +75,26 @@ public class ValidationMessage {
     }
 
     /**
-     * @return The path to the schema
+     * The evaluation path is the set of keys, starting from the schema root,
+     * through which evaluation passes to reach the schema object that produced a
+     * specific result.
+     * 
+     * @return the evaluation path
      */
-    public JsonNodePath getKeywordLocation() {
-        return keywordLocation;
+    public JsonNodePath getEvaluationPath() {
+        return evaluationPath;
     }
     
-    public JsonNodePath getAbsoluteKeywordLocation() {
-        return absoluteKeywordLocation;
+    /**
+     * The schema location is the canonical URI of the schema object plus a JSON
+     * Pointer fragment indicating the subschema that produced a result. In contrast
+     * with the evaluation path, the schema location MUST NOT include by-reference
+     * applicators such as $ref or $dynamicRef.
+     * 
+     * @return the schema location
+     */
+    public JsonNodePath getSchemaLocation() {
+        return schemaLocation;
     }
     
     public String getProperty() {
@@ -94,6 +116,10 @@ public class ValidationMessage {
     public String getMessageKey() {
         return messageKey;
     }
+    
+    public boolean isValid() {
+        return messageSupplier != null;
+    }
 
     @Override
     public String toString() {
@@ -110,7 +136,7 @@ public class ValidationMessage {
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
         if (instanceLocation != null ? !instanceLocation.equals(that.instanceLocation) : that.instanceLocation != null) return false;
-        if (keywordLocation != null ? !keywordLocation.equals(that.keywordLocation) : that.keywordLocation != null) return false;
+        if (evaluationPath != null ? !evaluationPath.equals(that.evaluationPath) : that.evaluationPath != null) return false;
         if (details != null ? !details.equals(that.details) : that.details != null) return false;
         if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) return false;
         if (!Arrays.equals(arguments, that.arguments)) return false;
@@ -122,7 +148,7 @@ public class ValidationMessage {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
         result = 31 * result + (instanceLocation != null ? instanceLocation.hashCode() : 0);
-        result = 31 * result + (keywordLocation != null ? keywordLocation.hashCode() : 0);
+        result = 31 * result + (evaluationPath != null ? evaluationPath.hashCode() : 0);
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (arguments != null ? Arrays.hashCode(arguments) : 0);
         result = 31 * result + (messageKey != null ? messageKey.hashCode() : 0);
@@ -140,9 +166,9 @@ public class ValidationMessage {
     public static class Builder {
         private String type;
         private String code;
+        private JsonNodePath evaluationPath;
+        private JsonNodePath schemaLocation;
         private JsonNodePath instanceLocation;
-        private JsonNodePath absoluteKeywordLocation;
-        private JsonNodePath keywordLocation;
         private String property;
         private Object[] arguments;
         private Map<String, Object> details;
@@ -162,18 +188,37 @@ public class ValidationMessage {
             return this;
         }
 
+        /**
+         * The instance location is the location of the JSON value within the root
+         * instance being validated.
+         * 
+         * @return The path to the input json
+         */
         public Builder instanceLocation(JsonNodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
             return this;
         }
         
-        public Builder absoluteKeywordLocation(JsonNodePath absoluteKeywordLocation) {
-            this.absoluteKeywordLocation = absoluteKeywordLocation;
+        /**
+         * The schema location is the canonical URI of the schema object plus a JSON
+         * Pointer fragment indicating the subschema that produced a result. In contrast
+         * with the evaluation path, the schema location MUST NOT include by-reference
+         * applicators such as $ref or $dynamicRef.
+         */
+        public Builder schemaLocation(JsonNodePath schemaLocation) {
+            this.schemaLocation = schemaLocation;
             return this;
         }
 
-        public Builder keywordLocation(JsonNodePath keywordLocation) {
-            this.keywordLocation = keywordLocation;
+        /**
+         * The evaluation path is the set of keys, starting from the schema root,
+         * through which evaluation passes to reach the schema object that produced a
+         * specific result.
+         * 
+         * @return the evaluation path
+         */
+        public Builder evaluationPath(JsonNodePath evaluationPath) {
+            this.evaluationPath = evaluationPath;
             return this;
         }
         
@@ -248,7 +293,7 @@ public class ValidationMessage {
                 MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
                 messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
-            return new ValidationMessage(type, code, instanceLocation, keywordLocation, absoluteKeywordLocation,
+            return new ValidationMessage(type, code, evaluationPath, schemaLocation, instanceLocation,
                     property, arguments, details, messageKey, messageSupplier);
         }
         

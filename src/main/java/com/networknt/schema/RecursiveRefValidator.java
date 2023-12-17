@@ -26,15 +26,15 @@ import java.util.*;
 public class RecursiveRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
 
-    public RecursiveRefValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
+    public RecursiveRefValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {
             ValidationMessage validationMessage = ValidationMessage.builder()
                     .type(ValidatorTypeCode.RECURSIVE_REF.getValue()).code("internal.invalidRecursiveRef")
                     .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").instanceLocation(schemaPath)
-                    .keywordLocation(schemaPath).arguments(refValue).build();
+                    .evaluationPath(schemaPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }

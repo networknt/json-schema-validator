@@ -26,15 +26,16 @@ public class DependentSchemas extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependentSchemas.class);
     private final Map<String, JsonSchema> schemaDependencies = new HashMap<>();
 
-    public DependentSchemas(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependentSchemas(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENT_SCHEMAS, validationContext);
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENT_SCHEMAS, validationContext);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             JsonNode pvalue = schemaNode.get(pname);
             if (pvalue.isObject() || pvalue.isBoolean()) {
-                this.schemaDependencies.put(pname, validationContext.newSchema(schemaPath.resolve(pname), null, pvalue, parentSchema));
+                this.schemaDependencies.put(pname, validationContext.newSchema(schemaPath.resolve(pname),
+                        evaluationPath.resolve(pname), pvalue, parentSchema));
             }
         }
 

@@ -33,8 +33,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
 
-    public ItemsValidator202012(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
+    public ItemsValidator202012(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
         if (prefixItems instanceof ArrayNode) {
@@ -46,7 +46,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         }
     
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, validationPath, schemaNode, parentSchema);
+            this.schema = validationContext.newSchema(schemaPath, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'items' MUST be a valid JSON Schema.");
         }

@@ -28,8 +28,8 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
 
     private int minLength;
 
-    public MinLengthValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_LENGTH, validationContext);
+    public MinLengthValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_LENGTH, validationContext);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();

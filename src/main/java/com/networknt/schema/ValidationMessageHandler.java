@@ -16,18 +16,18 @@ public abstract class ValidationMessageHandler {
     protected ErrorMessageType errorMessageType;
 
     protected JsonNodePath schemaPath;
-    protected JsonNodePath validationPath;
+    protected JsonNodePath evaluationPath;
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath, JsonNodePath validationPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
         this.messageSource = messageSource;
         this.validatorType = validatorType;
         this.schemaPath = Objects.requireNonNull(schemaPath);
-        this.validationPath = Objects.requireNonNull(validationPath);
+        this.evaluationPath = Objects.requireNonNull(evaluationPath);
         this.parentSchema = parentSchema;
     }
 
@@ -49,8 +49,8 @@ public abstract class ValidationMessageHandler {
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
                 .instanceLocation(Objects.requireNonNull(at))
-                .absoluteKeywordLocation(this.schemaPath)
-                .keywordLocation(this.validationPath)
+                .schemaLocation(this.schemaPath)
+                .evaluationPath(this.evaluationPath)
                 .property(propertyName)
                 .arguments(arguments)
                 .messageKey(messageKey)
