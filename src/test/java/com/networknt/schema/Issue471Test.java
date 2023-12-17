@@ -74,7 +74,7 @@ class Issue471Test {
     }
 
     private Map<String, String> convertValidationMessagesToMap(Set<ValidationMessage> validationMessages) {
-        return validationMessages.stream().collect(Collectors.toMap(m -> m.getPath().toString(), ValidationMessage::getMessage));
+        return validationMessages.stream().collect(Collectors.toMap(m -> m.getInstanceLocation().toString(), ValidationMessage::getMessage));
     }
 
     private JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {

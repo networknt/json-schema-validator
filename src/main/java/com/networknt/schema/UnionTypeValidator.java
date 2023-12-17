@@ -50,7 +50,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             sep = ", ";
 
             if (n.isObject())
-                schemas.add(validationContext.newSchema(UriReference.get(ValidatorTypeCode.TYPE.getValue()), n, parentSchema, null));
+                schemas.add(validationContext.newSchema(UriReference.get(ValidatorTypeCode.TYPE.getValue()), null, n, parentSchema));
             else
                 schemas.add(new TypeValidator(schemaPath.resolve(i), validationPath.resolve(i), n, parentSchema, validationContext));
 

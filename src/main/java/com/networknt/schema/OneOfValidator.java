@@ -34,7 +34,7 @@ public class OneOfValidator extends BaseJsonValidator {
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
-            this.schemas.add(validationContext.newSchema( schemaPath.resolve(i), childNode, parentSchema, null));
+            this.schemas.add(validationContext.newSchema( schemaPath.resolve(i), null, childNode, parentSchema));
         }
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }

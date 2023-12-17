@@ -6,6 +6,7 @@ import com.networknt.schema.utils.StringUtils;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class ValidationMessageHandler {
     protected final boolean failFast;
@@ -25,9 +26,9 @@ public abstract class ValidationMessageHandler {
         this.customMessage = customMessage;
         this.messageSource = messageSource;
         this.validatorType = validatorType;
-        this.schemaPath = schemaPath;
+        this.schemaPath = Objects.requireNonNull(schemaPath);
+        this.validationPath = Objects.requireNonNull(validationPath);
         this.parentSchema = parentSchema;
-        this.validationPath = validationPath;
     }
 
     protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, Locale locale, Object... arguments) {
@@ -47,8 +48,10 @@ public abstract class ValidationMessageHandler {
         }
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
-                .instanceLocation(at)
+                .instanceLocation(Objects.requireNonNull(at))
                 .absoluteKeywordLocation(this.schemaPath)
+                .keywordLocation(this.validationPath)
+                .property(propertyName)
                 .arguments(arguments)
                 .messageKey(messageKey)
                 .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))

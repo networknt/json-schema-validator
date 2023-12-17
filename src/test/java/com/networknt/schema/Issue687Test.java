@@ -87,7 +87,7 @@ public class Issue687Test {
         Set<ValidationMessage> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
         for (String expectedPath: expectedMessagePaths) {
-            assertTrue(messages.stream().anyMatch(msg -> expectedPath.equals(msg.getPath().toString())));
+            assertTrue(messages.stream().anyMatch(msg -> expectedPath.equals(msg.getInstanceLocation().toString())));
         }
     }
 
@@ -128,7 +128,7 @@ public class Issue687Test {
                         "}"), schemaValidatorsConfig);
         Set<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
         assertEquals(1, validationMessages.size());
-        assertEquals(expectedPath, validationMessages.iterator().next().getPath().toString());
+        assertEquals(expectedPath, validationMessages.iterator().next().getInstanceLocation().toString());
     }
 
 }

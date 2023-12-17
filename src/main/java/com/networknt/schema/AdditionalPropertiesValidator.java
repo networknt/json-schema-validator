@@ -40,7 +40,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             additionalPropertiesSchema = null;
         } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
+            additionalPropertiesSchema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
         } else {
             allowAdditionalProperties = false;
             additionalPropertiesSchema = null;

@@ -31,7 +31,7 @@ class Issue664Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<String> errorSchemaPaths = schema.validate(node).stream().map(ValidationMessage::getSchemaPath)
+        List<String> errorSchemaPaths = schema.validate(node).stream().map(ValidationMessage::getKeywordLocation)
                 .map(Object::toString).collect(Collectors.toList());
 
         List<String> expectedSchemaPaths = Arrays.asList(

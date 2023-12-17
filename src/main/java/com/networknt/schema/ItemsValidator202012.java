@@ -46,7 +46,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         }
     
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
+            this.schema = validationContext.newSchema(schemaPath, validationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'items' MUST be a valid JSON Schema.");
         }

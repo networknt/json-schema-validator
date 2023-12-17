@@ -31,7 +31,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
     private final JsonSchema innerSchema;
     public PropertyNamesValidator(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaPath, validationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
-        innerSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
+        innerSchema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
@@ -43,13 +43,13 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
             final TextNode pnameText = TextNode.valueOf(pname);
             final Set<ValidationMessage> schemaErrors = innerSchema.validate(executionContext, pnameText, node, atPath(at, pname));
             for (final ValidationMessage schemaError : schemaErrors) {
-                final String path = schemaError.getPath().toString();
+                final String path = schemaError.getInstanceLocation().toString();
                 String msg = schemaError.getMessage();
                 if (msg.startsWith(path))
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
 
                 errors.add(buildValidationMessage(pname,
-                        schemaError.getPath(), executionContext.getExecutionConfig().getLocale(), msg));
+                        schemaError.getInstanceLocation(), executionContext.getExecutionConfig().getLocale(), msg));
             }
         }
         return Collections.unmodifiableSet(errors);

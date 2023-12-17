@@ -29,19 +29,24 @@ public class ValidationMessage {
     private final String type;
     private final String code;
     private final JsonNodePath instanceLocation;
+    private final JsonNodePath absoluteKeywordLocation;
     private final JsonNodePath keywordLocation;
+    private final String property;
     private final Object[] arguments;
     private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, JsonNodePath instanceLocation, JsonNodePath keywordLocation, Object[] arguments,
-            Map<String, Object> details, String messageKey, Supplier<String> messageSupplier) {
+    ValidationMessage(String type, String code, JsonNodePath instanceLocation, JsonNodePath keywordLocation,
+            JsonNodePath absoluteKeywordLocation, String property, Object[] arguments, Map<String, Object> details,
+            String messageKey, Supplier<String> messageSupplier) {
         super();
         this.type = type;
         this.code = code;
         this.instanceLocation = instanceLocation;
+        this.absoluteKeywordLocation = absoluteKeywordLocation;
         this.keywordLocation = keywordLocation;
+        this.property = property;
         this.arguments = arguments;
         this.details = details;
         this.messageKey = messageKey;
@@ -55,15 +60,23 @@ public class ValidationMessage {
     /**
      * @return The path to the input json
      */
-    public JsonNodePath getPath() {
+    public JsonNodePath getInstanceLocation() {
         return instanceLocation;
     }
 
     /**
      * @return The path to the schema
      */
-    public JsonNodePath getSchemaPath() {
+    public JsonNodePath getKeywordLocation() {
         return keywordLocation;
+    }
+    
+    public JsonNodePath getAbsoluteKeywordLocation() {
+        return absoluteKeywordLocation;
+    }
+    
+    public String getProperty() {
+        return property;
     }
 
     public Object[] getArguments() {
@@ -130,6 +143,7 @@ public class ValidationMessage {
         private JsonNodePath instanceLocation;
         private JsonNodePath absoluteKeywordLocation;
         private JsonNodePath keywordLocation;
+        private String property;
         private Object[] arguments;
         private Map<String, Object> details;
         private MessageFormat format;
@@ -160,6 +174,11 @@ public class ValidationMessage {
 
         public Builder keywordLocation(JsonNodePath keywordLocation) {
             this.keywordLocation = keywordLocation;
+            return this;
+        }
+        
+        public Builder property(String property) {
+            this.property = property;
             return this;
         }
 
@@ -229,7 +248,8 @@ public class ValidationMessage {
                 MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
                 messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
-            return new ValidationMessage(type, code, instanceLocation, keywordLocation, arguments, details, messageKey, messageSupplier);
+            return new ValidationMessage(type, code, instanceLocation, keywordLocation, absoluteKeywordLocation,
+                    property, arguments, details, messageKey, messageSupplier);
         }
         
         private Object[] getArguments() {

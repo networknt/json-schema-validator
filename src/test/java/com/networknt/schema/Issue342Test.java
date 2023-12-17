@@ -32,7 +32,7 @@ public class Issue342Test {
         Set<ValidationMessage> errors = schema.validate(node);
         Assertions.assertEquals(1, errors.size());
         final ValidationMessage error = errors.iterator().next();
-        Assertions.assertEquals("$.z", error.getPath().toString());
+        Assertions.assertEquals("$.z", error.getInstanceLocation().toString());
         Assertions.assertEquals("Property name $.z is not valid for validation: does not have a value in the enumeration [a, b, c]", error.getMessage());
     }
 }

@@ -54,7 +54,7 @@ public class ValidationContext {
         this.config = config;
     }
 
-    public JsonSchema newSchema(JsonNodePath schemaPath, JsonNode schemaNode, JsonSchema parentSchema, JsonNodePath validationPath) {
+    public JsonSchema newSchema(JsonNodePath schemaPath, JsonNodePath validationPath, JsonNode schemaNode, JsonSchema parentSchema) {
         return getJsonSchemaFactory().create(this, schemaPath, validationPath, schemaNode, parentSchema);
     }
 

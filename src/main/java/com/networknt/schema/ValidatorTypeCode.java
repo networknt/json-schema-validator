@@ -157,9 +157,10 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         }
         // if the config version is not match the validator
         @SuppressWarnings("unchecked")
-        Constructor<JsonValidator> c = ((Class<JsonValidator>) this.validator).getConstructor(
-                new Class[]{JsonNodePath.class, JsonNode.class, JsonSchema.class, ValidationContext.class});
-        return c.newInstance(schemaPath.resolve(getValue()), schemaNode, parentSchema, validationContext);
+        Constructor<JsonValidator> c = ((Class<JsonValidator>) this.validator).getConstructor(new Class[] {
+                JsonNodePath.class, JsonNodePath.class, JsonNode.class, JsonSchema.class, ValidationContext.class });
+        return c.newInstance(schemaPath.resolve(getValue()), validationPath.resolve(getValue()), schemaNode,
+                parentSchema, validationContext);
     }
 
     @Override

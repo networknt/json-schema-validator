@@ -1,0 +1,48 @@
+package com.networknt.schema;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+class OutputFormatTest {
+
+    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    private static String schemaPath1 = "/schema/output-format-schema.json";
+
+    private JsonNode getJsonNodeFromJsonData(String jsonFilePath) throws Exception {
+        InputStream content = getClass().getResourceAsStream(jsonFilePath);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(content);
+    }
+
+    @Test
+    @DisplayName("Test Validation Messages")
+    void testInvalidJson() throws Exception {
+        InputStream schemaInputStream = OutputFormatTest.class.getResourceAsStream(schemaPath1);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaInputStream, config);
+        JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
+        Set<ValidationMessage> errors = schema.validate(node);
+        Assertions.assertEquals(3, errors.size());
+
+        Set<String> allErrorMessages = new HashSet<>();
+        errors.forEach(vm -> {
+            allErrorMessages.add(vm.getMessage());
+        });
+        assertThat(allErrorMessages,
+                Matchers.containsInAnyOrder("$.parameters[1].value: string found, integer expected",
+                        "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
+                        "$.parameters[1]: should be valid to one and only one schema, but 0 are valid"));
+    }
+}

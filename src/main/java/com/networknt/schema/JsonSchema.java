@@ -126,7 +126,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public JsonSchema createChildSchema(JsonNodePath schemaPath, JsonNode schemaNode) {
-        return getValidationContext().newSchema(schemaPath, schemaNode, this, null);
+        return getValidationContext().newSchema(schemaPath, null, schemaNode, this);
     }
 
     ValidationContext getValidationContext() {

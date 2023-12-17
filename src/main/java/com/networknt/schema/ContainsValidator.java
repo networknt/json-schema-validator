@@ -50,7 +50,7 @@ public class ContainsValidator extends BaseJsonValidator {
         isMinV201909 = MinV201909.getVersions().contains(SpecVersionDetector.detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
+            this.schema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
                     .filter(JsonNode::canConvertToExactIntegral)

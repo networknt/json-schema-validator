@@ -34,7 +34,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
 
         this.disabled = validationContext.getConfig().isUnevaluatedPropertiesAnalysisDisabled();
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema, null);
+            this.schema = validationContext.newSchema(schemaPath, null, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedProperties' MUST be a valid JSON Schema.");
         }

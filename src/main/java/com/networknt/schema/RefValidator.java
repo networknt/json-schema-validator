@@ -111,7 +111,7 @@ public class RefValidator extends BaseJsonValidator {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
                 JsonNodePath path = UriReference.get(refValue);
-                final JsonSchema schema = validationContext.newSchema(path, node, parent, validationPath);
+                final JsonSchema schema = validationContext.newSchema(path, validationPath, node, parent);
                 ref = new JsonSchemaRef(schema);
                 validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }

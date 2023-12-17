@@ -36,7 +36,8 @@ public class PropertiesValidator extends BaseJsonValidator {
         this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            this.schemas.put(pname, validationContext.newSchema(schemaPath.resolve(pname), schemaNode.get(pname), parentSchema, null));
+            this.schemas.put(pname, validationContext.newSchema(schemaPath.resolve(pname),
+                    validationPath.resolve(pname), schemaNode.get(pname), parentSchema));
         }
     }
 

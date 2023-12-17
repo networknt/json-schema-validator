@@ -33,7 +33,7 @@ public class Issue550Test {
         Set<ValidationMessage> errors = schema.validate(node);
         ValidationMessage validationMessage = errors.stream().findFirst().get();
 
-        Assertions.assertEquals("#/properties/age/minimum", validationMessage.getSchemaPath().toString());
+        Assertions.assertEquals("#/properties/age/minimum", validationMessage.getKeywordLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 
@@ -48,7 +48,7 @@ public class Issue550Test {
         ValidationMessage validationMessage = errors.stream().findFirst().get();
 
         // Instead of capturing all subSchema within oneOf, a pointer to oneOf should be provided.
-        Assertions.assertEquals("#/oneOf", validationMessage.getSchemaPath().toString());
+        Assertions.assertEquals("#/oneOf", validationMessage.getKeywordLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 
