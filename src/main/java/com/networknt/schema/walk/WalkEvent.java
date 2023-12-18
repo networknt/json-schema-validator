@@ -20,7 +20,7 @@ public class WalkEvent {
     private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
-    private String keyWordName;
+    private String keyword;
     private JsonNode node;
     private JsonNode rootNode;
     private JsonNodePath instanceLocation;
@@ -47,8 +47,8 @@ public class WalkEvent {
         return parentSchema;
     }
 
-    public String getKeyWordName() {
-        return keyWordName;
+    public String getKeyword() {
+        return keyword;
     }
 
     public JsonNode getNode() {
@@ -118,8 +118,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder keyWordName(String keyWordName) {
-            walkEvent.keyWordName = keyWordName;
+        public WalkEventBuilder keyword(String keyword) {
+            walkEvent.keyword = keyword;
             return this;
         }
 

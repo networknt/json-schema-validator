@@ -20,21 +20,21 @@ public class DefaultItemWalkListenerRunner extends AbstractWalkListenerRunner {
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node,
+    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, JsonNodePath evaluationPath, JsonNodePath schemaLocation,
             JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
             JsonSchemaFactory currentJsonSchemaFactory) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, instanceLocation,
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation,
                 evaluationPath, schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
         return runPreWalkListeners(itemWalkListeners, walkEvent);
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node,
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, JsonNodePath evaluationPath, JsonNodePath schemaLocation,
             JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
             JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, instanceLocation,
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation,
                 evaluationPath, schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
         runPostWalkListeners(itemWalkListeners, walkEvent, validationMessages);
     }

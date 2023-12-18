@@ -20,19 +20,19 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode,
+    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, JsonNodePath evaluationPath, JsonNodePath schemaLocation, JsonNode schemaNode,
                                        JsonSchema parentSchema, ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, instanceLocation, evaluationPath, schemaLocation,
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation, evaluationPath, schemaLocation,
                 schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
         return runPreWalkListeners(propertyWalkListeners, walkEvent);
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyWordPath, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation,
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation,
             JsonNodePath evaluationPath, JsonNodePath schemaLocation, JsonNode schemaNode, JsonSchema parentSchema,
                                      ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyWordPath, node, rootNode, instanceLocation, evaluationPath, schemaLocation,
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation, evaluationPath, schemaLocation,
                 schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
         runPostWalkListeners(propertyWalkListeners, walkEvent, validationMessages);
 

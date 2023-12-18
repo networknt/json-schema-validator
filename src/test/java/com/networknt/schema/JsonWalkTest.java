@@ -161,7 +161,7 @@ public class JsonWalkTest {
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
-            String keyWordName = keywordWalkEvent.getKeyWordName();
+            String keyWordName = keywordWalkEvent.getKeyword();
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
             CollectorContext collectorContext = keywordWalkEvent.getExecutionContext().getCollectorContext();
             if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
