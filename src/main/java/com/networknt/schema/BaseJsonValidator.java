@@ -215,7 +215,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return this.schemaPath;
     }
 
-    public JsonNodePath getValidationPath() {
+    public JsonNodePath getEvaluationPath() {
         return this.evaluationPath;
     }
 

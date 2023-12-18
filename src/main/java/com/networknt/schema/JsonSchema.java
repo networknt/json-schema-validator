@@ -265,11 +265,11 @@ public class JsonSchema extends BaseJsonValidator {
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
                 final Map<String, String> customMessage = getCustomMessage(schemaNode, "true");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getValidationPath(), "true", schemaNode, this, customMessage);
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getEvaluationPath(), "true", schemaNode, this, customMessage);
                 validators.put(getSchemaPath().resolve("true"), validator);
             } else {
                 final Map<String, String> customMessage = getCustomMessage(schemaNode, "false");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getValidationPath(), "false", schemaNode, this, customMessage);
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getEvaluationPath(), "false", schemaNode, this, customMessage);
                 validators.put(getSchemaPath().resolve("false"), validator);
             }
         } else {
@@ -299,7 +299,7 @@ public class JsonSchema extends BaseJsonValidator {
                     this.dynamicAnchor = nodeToUse.booleanValue();
                 }
 
-                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getValidationPath(), pname, nodeToUse, this, customMessage);
+                JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), getEvaluationPath(), pname, nodeToUse, this, customMessage);
                 if (validator != null) {
                     validators.put(getSchemaPath().resolve(pname), validator);
 
