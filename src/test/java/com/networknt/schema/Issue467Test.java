@@ -59,7 +59,7 @@ public class Issue467Test {
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
-        assertEquals(new HashSet<>(Arrays.asList("$.properties", "$.properties.tags.items.properties")),
+        assertEquals(new HashSet<>(Arrays.asList("$.properties", "$.properties.tags.items[0].properties")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getValidationMessages().size());
     }
@@ -83,7 +83,8 @@ public class Issue467Test {
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
-        assertEquals(new HashSet<>(Arrays.asList("$.properties.tags", "$.properties.tags.items.properties.category")),
+        assertEquals(
+                new HashSet<>(Arrays.asList("$.properties.tags", "$.properties.tags.items[0].properties.category")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getValidationMessages().size());
     }
