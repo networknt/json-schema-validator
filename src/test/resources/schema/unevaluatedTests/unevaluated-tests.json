@@ -513,7 +513,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.wings: is missing but it is required",
+          "$.vehicle: required property 'wings' not found",
           "$.vehicle.pontoons: must not have unevaluated properties",
           "$.vehicle.unevaluated: must not have unevaluated properties",
           "$.vehicle.wheels: must not have unevaluated properties"

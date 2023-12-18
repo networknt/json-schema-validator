@@ -15,7 +15,7 @@ public class Issue347Test {
             JsonSchema schema = factory.getSchema(Thread.currentThread().getContextClassLoader().getResourceAsStream("schema/issue347-v7.json"));
         } catch (Throwable e) {
             assertThat(e, instanceOf(JsonSchemaException.class));
-            assertEquals("#/$id: null is an invalid segment for URI test", e.getMessage());
+            assertEquals("test#/$id: null is an invalid segment for URI test", e.getMessage());
         }
     }
 }

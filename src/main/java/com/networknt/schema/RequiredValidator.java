@@ -55,6 +55,11 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
+                /**
+                 * Note that for the required validation the instanceLocation does not contain the missing property
+                 * <p>
+                 * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
+                 */
                 errors.add(buildValidationMessage(fieldName, at, executionContext.getExecutionConfig().getLocale(),
                         fieldName));
             }

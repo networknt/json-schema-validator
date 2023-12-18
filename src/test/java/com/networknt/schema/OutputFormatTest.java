@@ -46,6 +46,6 @@ class OutputFormatTest {
                         new String[] { "/minItems", "https://example.com/polygon#/minItems", "", ": expected at least 3 items but found 2" },
                         new String[] { "/items/$ref/additionalProperties", "https://example.com/polygon#/$defs/point/additionalProperties", "/1/z",
                                 "/1/z: is not defined in the schema and the schema does not allow additional properties" },
-                        new String[] { "/items/$ref/required", "https://example.com/polygon#/$defs/point/required", "/1", "/1: required property 'y' not found."}));
+                        new String[] { "/items/$ref/required", "https://example.com/polygon#/$defs/point/required", "/1", "/1: required property 'y' not found"}));
     }
 }

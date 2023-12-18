@@ -81,7 +81,7 @@
         "valid": false,
         "validationMessages": [
           "$.pets[0]: should be valid to one and only one schema, but 0 are valid",
-          "$.pets[0].age: is missing but it is required",
+          "$.pets[0]: required property 'age' not found",
           "Boolean schema false is not valid"
         ]
       }

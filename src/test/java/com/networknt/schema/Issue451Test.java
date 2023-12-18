@@ -60,8 +60,10 @@ public class Issue451Test {
         CollectorContext collectorContext = schema.walk(data, shouldValidate).getCollectorContext();
 
         Map<String, Integer> collector = (Map<String, Integer>) collectorContext.get(COLLECTOR_ID);
-        Assertions.assertEquals(2, collector.get("#/definitions/definition1/properties/a"));
-        Assertions.assertEquals(2, collector.get("#/definitions/definition2/properties/x"));
+        Assertions.assertEquals(2,
+                collector.get("https://example.com/issue-451.json#/definitions/definition1/properties/a"));
+        Assertions.assertEquals(2,
+                collector.get("https://example.com/issue-451.json#/definitions/definition2/properties/x"));
     }
 
 

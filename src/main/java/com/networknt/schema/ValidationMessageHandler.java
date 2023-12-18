@@ -31,11 +31,14 @@ public abstract class ValidationMessageHandler {
         this.parentSchema = parentSchema;
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, Locale locale, Object... arguments) {
-        return buildValidationMessage(propertyName, at, getErrorMessageType().getErrorCodeValue(), locale, arguments);
+    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath instanceLocation,
+            Locale locale, Object... arguments) {
+        return buildValidationMessage(propertyName, instanceLocation, getErrorMessageType().getErrorCodeValue(), locale,
+                arguments);
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath at, String messageKey, Locale locale, Object... arguments) {
+    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath instanceLocation,
+            String messageKey, Locale locale, Object... arguments) {
         String messagePattern = null;
         if (this.customMessage != null) {
             messagePattern = this.customMessage.get("");
@@ -48,7 +51,7 @@ public abstract class ValidationMessageHandler {
         }
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
-                .instanceLocation(Objects.requireNonNull(at))
+                .instanceLocation(Objects.requireNonNull(instanceLocation))
                 .schemaLocation(this.schemaPath)
                 .evaluationPath(this.evaluationPath)
                 .property(propertyName)
