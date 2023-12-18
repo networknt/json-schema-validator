@@ -31,12 +31,12 @@ public class PropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
 
-    public PropertiesValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
+    public PropertiesValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
         this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            this.schemas.put(pname, validationContext.newSchema(schemaPath.resolve(pname),
+            this.schemas.put(pname, validationContext.newSchema(schemaLocation.resolve(pname),
                     evaluationPath.resolve(pname), schemaNode.get(pname), parentSchema));
         }
     }
@@ -159,7 +159,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         JsonNodePath path = at.resolve(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
                 ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, path,
-                propertySchema.getEvaluationPath(), propertySchema.getSchemaPath(), propertySchema.getSchemaNode(),
+                propertySchema.getEvaluationPath(), propertySchema.getSchemaLocation(), propertySchema.getSchemaNode(),
                 propertySchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(
@@ -167,7 +167,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         }
         propertyWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
                 rootNode, path, propertySchema.getEvaluationPath(),
-                propertySchema.getSchemaPath(), propertySchema.getSchemaNode(), propertySchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
+                propertySchema.getSchemaLocation(), propertySchema.getSchemaNode(), propertySchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 
     }
 

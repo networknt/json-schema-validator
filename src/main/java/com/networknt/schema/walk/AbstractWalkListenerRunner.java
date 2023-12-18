@@ -14,11 +14,11 @@ import java.util.Set;
 public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 
     protected WalkEvent constructWalkEvent(ExecutionContext executionContext, String keyWordName, JsonNode node, JsonNode rootNode,
-            JsonNodePath at, JsonNodePath evaluationPath, JsonNodePath schemaPath, JsonNode schemaNode,
+            JsonNodePath at, JsonNodePath evaluationPath, JsonNodePath schemaLocation, JsonNode schemaNode,
                                            JsonSchema parentSchema, ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
         return WalkEvent.builder().executionContext(executionContext).instanceLocation(at)
                 .evaluationPath(evaluationPath).keyWordName(keyWordName).node(node).parentSchema(parentSchema)
-                .rootNode(rootNode).schemaNode(schemaNode).schemaLocation(schemaPath)
+                .rootNode(rootNode).schemaNode(schemaNode).schemaLocation(schemaLocation)
                 .currentJsonSchemaFactory(currentJsonSchemaFactory).validationContext(validationContext).build();
     }
 

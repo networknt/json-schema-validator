@@ -49,9 +49,9 @@ public class CustomMetaSchemaTest {
             private final List<String> enumNames;
             private final String keyword;
 
-            private Validator(JsonNodePath schemaPath, JsonNodePath evaluationPath, String keyword,
+            private Validator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, String keyword,
                     List<String> enumValues, List<String> enumNames) {
-                super(schemaPath, evaluationPath);
+                super(schemaLocation, evaluationPath);
                 if (enumNames.size() != enumValues.size()) {
                     throw new IllegalArgumentException("enum and enumNames need to be of same length");
                 }
@@ -83,7 +83,7 @@ public class CustomMetaSchemaTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                           JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
@@ -97,7 +97,7 @@ public class CustomMetaSchemaTest {
             }
             JsonNode enumSchemaNode = parentSchemaNode.get("enum");
 
-            return new Validator(schemaPath, evaluationPath, getValue(), readStringList(enumSchemaNode), readStringList(schemaNode));
+            return new Validator(schemaLocation, evaluationPath, getValue(), readStringList(enumSchemaNode), readStringList(schemaNode));
         }
 
         private List<String> readStringList(JsonNode node) {

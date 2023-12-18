@@ -54,13 +54,13 @@ public class ValidationContext {
         this.config = config;
     }
 
-    public JsonSchema newSchema(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
-        return getJsonSchemaFactory().create(this, schemaPath, evaluationPath, schemaNode, parentSchema);
+    public JsonSchema newSchema(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+        return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
+    public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema, Map<String, String> customMessage) {
-        return this.metaSchema.newValidator(this, schemaPath, evaluationPath, keyword, schemaNode, parentSchema, customMessage);
+        return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema, customMessage);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
@@ -127,12 +127,12 @@ public class ValidationContext {
 
         private boolean discriminatorMatchFound = false;
 
-        public void registerDiscriminator(final String schemaPath, final ObjectNode discriminator) {
-            this.discriminators.put(schemaPath, discriminator);
+        public void registerDiscriminator(final String schemaLocation, final ObjectNode discriminator) {
+            this.discriminators.put(schemaLocation, discriminator);
         }
 
-        public ObjectNode getDiscriminatorForPath(final String schemaPath) {
-            return this.discriminators.get(schemaPath);
+        public ObjectNode getDiscriminatorForPath(final String schemaLocation) {
+            return this.discriminators.get(schemaLocation);
         }
 
         public void markMatch() {

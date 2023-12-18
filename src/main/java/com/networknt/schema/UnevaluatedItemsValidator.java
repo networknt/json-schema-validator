@@ -29,12 +29,12 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
     private final JsonSchema schema;
     private final boolean disabled;
 
-    public UnevaluatedItemsValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS, validationContext);
+    public UnevaluatedItemsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS, validationContext);
 
         this.disabled = validationContext.getConfig().isUnevaluatedItemsAnalysisDisabled();
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, evaluationPath, schemaNode, parentSchema);
+            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedItems' MUST be a valid JSON Schema.");
         }

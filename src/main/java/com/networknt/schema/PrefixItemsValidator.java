@@ -36,14 +36,14 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     private final List<JsonSchema> tupleSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public PrefixItemsValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
+    public PrefixItemsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();
 
         if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaPath, evaluationPath, s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaLocation, evaluationPath, s, parentSchema));
             }
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
@@ -113,7 +113,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             rootNode,
             at,
             walkSchema.getEvaluationPath(),
-            walkSchema.getSchemaPath(),
+            walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory()
         );
@@ -127,7 +127,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             rootNode,
             at,
             this.evaluationPath,
-            walkSchema.getSchemaPath(),
+            walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
             this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages

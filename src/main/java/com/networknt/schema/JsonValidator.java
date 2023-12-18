@@ -85,7 +85,7 @@ public interface JsonValidator extends JsonSchemaWalker {
         return validationMessages;
     }
 
-    public JsonNodePath getSchemaPath();
+    public JsonNodePath getSchemaLocation();
 
     public JsonNodePath getEvaluationPath();
 }

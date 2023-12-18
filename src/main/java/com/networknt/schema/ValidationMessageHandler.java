@@ -15,18 +15,18 @@ public abstract class ValidationMessageHandler {
     protected ValidatorTypeCode validatorType;
     protected ErrorMessageType errorMessageType;
 
-    protected JsonNodePath schemaPath;
+    protected JsonNodePath schemaLocation;
     protected JsonNodePath evaluationPath;
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaPath, JsonNodePath evaluationPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
         this.messageSource = messageSource;
         this.validatorType = validatorType;
-        this.schemaPath = Objects.requireNonNull(schemaPath);
+        this.schemaLocation = Objects.requireNonNull(schemaLocation);
         this.evaluationPath = Objects.requireNonNull(evaluationPath);
         this.parentSchema = parentSchema;
     }
@@ -52,7 +52,7 @@ public abstract class ValidationMessageHandler {
         final ValidationMessage message = ValidationMessage.builder()
                 .code(getErrorMessageType().getErrorCode())
                 .instanceLocation(Objects.requireNonNull(instanceLocation))
-                .schemaLocation(this.schemaPath)
+                .schemaLocation(this.schemaLocation)
                 .evaluationPath(this.evaluationPath)
                 .property(propertyName)
                 .arguments(arguments)
@@ -84,21 +84,21 @@ public abstract class ValidationMessageHandler {
 
 
     private boolean isPartOfAnyOfMultipleType() {
-        return schemaPathContains(ValidatorTypeCode.ANY_OF.getValue());
+        return schemaLocationContains(ValidatorTypeCode.ANY_OF.getValue());
     }
 
     private boolean isPartOfIfMultipleType() {
-        return schemaPathContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
+        return schemaLocationContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
     }
 
     private boolean isPartOfNotMultipleType() {
-        return schemaPathContains(ValidatorTypeCode.NOT.getValue());
+        return schemaLocationContains(ValidatorTypeCode.NOT.getValue());
     }
     
-    protected boolean schemaPathContains(String match) {
-        int count = this.parentSchema.schemaPath.getNameCount();
+    protected boolean schemaLocationContains(String match) {
+        int count = this.parentSchema.schemaLocation.getNameCount();
         for (int x = 0; x < count; x++) {
-            String name = this.parentSchema.schemaPath.getName(x);
+            String name = this.parentSchema.schemaLocation.getName(x);
             if (match.equals(name)) {
                 return true;
             }
@@ -109,7 +109,7 @@ public abstract class ValidationMessageHandler {
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
 
     protected boolean isPartOfOneOfMultipleType() {
-        return schemaPathContains(ValidatorTypeCode.ONE_OF.getValue());
+        return schemaLocationContains(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     protected void parseErrorCode(String errorCodeKey) {

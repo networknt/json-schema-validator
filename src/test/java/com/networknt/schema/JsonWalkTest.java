@@ -124,10 +124,10 @@ public class JsonWalkTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                           JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator(schemaPath, evaluationPath);
+                return new CustomValidator(schemaLocation, evaluationPath);
             }
             return null;
         }
@@ -140,8 +140,8 @@ public class JsonWalkTest {
          */
         private static class CustomValidator extends AbstractJsonValidator {
 
-            public CustomValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath) {
-                super(schemaPath, evaluationPath);
+            public CustomValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+                super(schemaLocation, evaluationPath);
             }
 
             @Override

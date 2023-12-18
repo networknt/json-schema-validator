@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.Set;
 
 public abstract class AbstractJsonValidator implements JsonValidator {
-    private final JsonNodePath schemaPath;
+    private final JsonNodePath schemaLocation;
     private final JsonNodePath evaluationPath;
 
-    public AbstractJsonValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath) {
-        this.schemaPath = schemaPath;
+    public AbstractJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+        this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
     }
 
@@ -41,8 +41,8 @@ public abstract class AbstractJsonValidator implements JsonValidator {
     }
 
     @Override
-    public JsonNodePath getSchemaPath() {
-        return schemaPath;
+    public JsonNodePath getSchemaLocation() {
+        return schemaLocation;
     }
 
     @Override

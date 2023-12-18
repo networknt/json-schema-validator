@@ -30,13 +30,13 @@ public class TypeValidator extends BaseJsonValidator {
     private JsonSchema parentSchema;
     private UnionTypeValidator unionTypeValidator;
 
-    public TypeValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
+    public TypeValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         this.parentSchema = parentSchema;
         this.validationContext = validationContext;
         if (this.schemaType == JsonType.UNION) {
-            this.unionTypeValidator = new UnionTypeValidator(schemaPath, evaluationPath, schemaNode, parentSchema, validationContext);
+            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
         }
 
         parseErrorCode(getValidatorType().getErrorCodeKey());
@@ -67,7 +67,7 @@ public class TypeValidator extends BaseJsonValidator {
         // TODO: Is this really necessary?
         // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
         // Hack to catch patternProperties like "^foo":"value"
-        if (this.schemaPath.getName(-1).equals("type")) {
+        if (this.schemaLocation.getName(-1).equals("type")) {
             if (rootNode.isArray()) {
                 executionContext.getCollectorContext().getEvaluatedItems().add(at);
             } else if (rootNode.isObject()) {

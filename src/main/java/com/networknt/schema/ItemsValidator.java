@@ -36,18 +36,18 @@ public class ItemsValidator extends BaseJsonValidator {
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
-    public ItemsValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
+    public ItemsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();
         JsonSchema foundSchema = null;
         JsonSchema foundAdditionalSchema = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            foundSchema = validationContext.newSchema(schemaPath, evaluationPath, schemaNode, parentSchema);
+            foundSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaPath, evaluationPath, s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaLocation, evaluationPath, s, parentSchema));
             }
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
@@ -56,7 +56,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
                     foundAdditionalSchema = validationContext.newSchema(
-                            schemaPath.resolve(PROPERTY_ADDITIONAL_ITEMS), evaluationPath, addItemNode, parentSchema);
+                            schemaLocation.resolve(PROPERTY_ADDITIONAL_ITEMS), evaluationPath, addItemNode, parentSchema);
                 }
             }
         }
@@ -186,13 +186,13 @@ public class ItemsValidator extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
-                node, rootNode, at, walkSchema.getEvaluationPath(), walkSchema.getSchemaPath(),
+                node, rootNode, at, walkSchema.getEvaluationPath(), walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
         }
         this.arrayItemWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
-                at, this.evaluationPath, walkSchema.getSchemaPath(),
+                at, this.evaluationPath, walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 
     }

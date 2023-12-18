@@ -33,8 +33,8 @@ public class IfValidator extends BaseJsonValidator {
     private final JsonSchema thenSchema;
     private final JsonSchema elseSchema;
 
-    public IfValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
+    public IfValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
 
         JsonSchema foundIfSchema = null;
         JsonSchema foundThenSchema = null;
@@ -42,13 +42,13 @@ public class IfValidator extends BaseJsonValidator {
 
         for (final String keyword : KEYWORDS) {
             final JsonNode node = schemaNode.get(keyword);
-            final JsonNodePath schemaPathOfSchema = parentSchema.schemaPath.resolve(keyword);
+            final JsonNodePath schemaLocationOfSchema = parentSchema.schemaLocation.resolve(keyword);
             if (keyword.equals("if")) {
-                foundIfSchema = validationContext.newSchema(schemaPathOfSchema, evaluationPath, node, parentSchema);
+                foundIfSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = validationContext.newSchema(schemaPathOfSchema, evaluationPath, node, parentSchema);
+                foundThenSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = validationContext.newSchema(schemaPathOfSchema, evaluationPath, node, parentSchema);
+                foundElseSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
             }
         }
 

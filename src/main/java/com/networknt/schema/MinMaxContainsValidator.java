@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 public class MinMaxContainsValidator extends BaseJsonValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MinMaxContainsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
-        super(schemaPath, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
 
         Set<Analysis> analysis = null;
         int min = 1;
@@ -31,7 +31,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("minContains", schemaPath));
+                analysis.add(new Analysis("minContains", schemaLocation));
             } else {
                 min = minNode.intValue();
             }
@@ -43,7 +43,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("maxContains", schemaPath));
+                analysis.add(new Analysis("maxContains", schemaLocation));
             } else {
                 max = maxNode.intValue();
             }
@@ -53,7 +53,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             if (analysis == null) {
                 analysis = new LinkedHashSet<>();
             }
-            analysis.add(new Analysis("minContainsVsMaxContains", schemaPath));
+            analysis.add(new Analysis("minContainsVsMaxContains", schemaLocation));
         }
         this.analysis = analysis;
     }
