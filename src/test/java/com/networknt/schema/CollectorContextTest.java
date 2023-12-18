@@ -255,7 +255,7 @@ public class CollectorContextTest {
         public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator();
+                return new CustomValidator(schemaPath, evaluationPath);
             }
             return null;
         }
@@ -267,7 +267,10 @@ public class CollectorContextTest {
      * This will be helpful in cases where we don't want to revisit the entire JSON
      * document again just for gathering this kind of information.
      */
-    private class CustomValidator implements JsonValidator {
+    private class CustomValidator extends AbstractJsonValidator {
+        public CustomValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath) {
+            super(schemaPath, evaluationPath);
+        }
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
@@ -323,7 +326,7 @@ public class CollectorContextTest {
         public JsonValidator newValidator(JsonNodePath schemaPath, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator1();
+                return new CustomValidator1(schemaPath, evaluationPath);
             }
             return null;
         }
@@ -337,7 +340,11 @@ public class CollectorContextTest {
      * we expect this validator to be called multiple times as the associated
      * keyword has been used multiple times in JSON Schema.
      */
-    private class CustomValidator1 implements JsonValidator {
+    private class CustomValidator1 extends AbstractJsonValidator {
+        public CustomValidator1(JsonNodePath schemaPath, JsonNodePath evaluationPath) {
+            super(schemaPath, evaluationPath);
+        }
+
         @SuppressWarnings("unchecked")
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {

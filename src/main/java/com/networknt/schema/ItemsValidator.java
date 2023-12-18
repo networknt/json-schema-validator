@@ -186,7 +186,7 @@ public class ItemsValidator extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
-                node, rootNode, at, this.evaluationPath, walkSchema.getSchemaPath(),
+                node, rootNode, at, walkSchema.getEvaluationPath(), walkSchema.getSchemaPath(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));

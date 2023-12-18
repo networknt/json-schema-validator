@@ -116,7 +116,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             node,
             rootNode,
             at,
-            this.evaluationPath,
+            walkSchema.getEvaluationPath(),
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory()

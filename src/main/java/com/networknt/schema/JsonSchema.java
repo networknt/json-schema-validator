@@ -23,7 +23,6 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
-import com.networknt.schema.walk.JsonSchemaWalker;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
@@ -521,7 +520,7 @@ public class JsonSchema extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
-        getValidators().forEach((JsonNodePath schemaPathWithKeyword, JsonSchemaWalker jsonWalker) -> {
+        getValidators().forEach((JsonNodePath schemaPathWithKeyword, JsonValidator jsonWalker) -> {
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
@@ -530,8 +529,8 @@ public class JsonSchema extends BaseJsonValidator {
                         node,
                         rootNode,
                         at,
-                        this.evaluationPath,
-                        this.schemaPath,
+                        jsonWalker.getEvaluationPath(),
+                        jsonWalker.getSchemaPath(),
                         this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
                     validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, at, shouldValidateSchema));
@@ -543,8 +542,8 @@ public class JsonSchema extends BaseJsonValidator {
                         node,
                         rootNode,
                         at,
-                        this.evaluationPath,
-                        this.schemaPath,
+                        jsonWalker.getEvaluationPath(),
+                        jsonWalker.getSchemaPath(),
                         this.schemaNode,
                         this.parentSchema,
                         this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
