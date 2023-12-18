@@ -570,10 +570,10 @@ public class JsonSchema extends BaseJsonValidator {
                         node,
                         rootNode,
                         at,
+                        this.evaluationPath,
                         this.schemaPath,
                         this.schemaNode,
-                        this.parentSchema,
-                        this.validationContext, this.validationContext.getJsonSchemaFactory())) {
+                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
                     validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, at, shouldValidateSchema));
                 }
             } finally {
@@ -583,11 +583,11 @@ public class JsonSchema extends BaseJsonValidator {
                         node,
                         rootNode,
                         at,
+                        this.evaluationPath,
                         this.schemaPath,
                         this.schemaNode,
                         this.parentSchema,
-                        this.validationContext,
-                        this.validationContext.getJsonSchemaFactory(), validationMessages);
+                        this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
             }
         });
 

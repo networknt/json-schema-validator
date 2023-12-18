@@ -16,13 +16,14 @@ import java.net.URI;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private JsonNodePath schemaPath;
+    private JsonNodePath schemaLocation;
+    private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
     private String keyWordName;
     private JsonNode node;
     private JsonNode rootNode;
-    private JsonNodePath at;
+    private JsonNodePath instanceLocation;
     private JsonSchemaFactory currentJsonSchemaFactory;
     private ValidationContext validationContext;
 
@@ -30,8 +31,12 @@ public class WalkEvent {
         return executionContext;
     }
 
-    public JsonNodePath getSchemaPath() {
-        return schemaPath;
+    public JsonNodePath getSchemaLocation() {
+        return schemaLocation;
+    }
+    
+    public JsonNodePath getEvaluationPath() {
+        return evaluationPath;
     }
 
     public JsonNode getSchemaNode() {
@@ -54,8 +59,8 @@ public class WalkEvent {
         return rootNode;
     }
 
-    public JsonNodePath getAt() {
-        return at;
+    public JsonNodePath getInstanceLocation() {
+        return instanceLocation;
     }
 
     public JsonSchema getRefSchema(URI schemaUri) {
@@ -74,6 +79,12 @@ public class WalkEvent {
         return currentJsonSchemaFactory;
     }
 
+    @Override
+    public String toString() {
+        return "WalkEvent [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
+                + ", instanceLocation=" + instanceLocation + "]";
+    }
+
     static class WalkEventBuilder {
 
         private WalkEvent walkEvent;
@@ -87,8 +98,13 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schemaPath(JsonNodePath schemaPath) {
-            walkEvent.schemaPath = schemaPath;
+        public WalkEventBuilder evaluationPath(JsonNodePath evaluationPath) {
+            walkEvent.evaluationPath = evaluationPath;
+            return this;
+        }
+
+        public WalkEventBuilder schemaLocation(JsonNodePath schemaLocation) {
+            walkEvent.schemaLocation = schemaLocation;
             return this;
         }
 
@@ -117,8 +133,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder at(JsonNodePath at) {
-            walkEvent.at = at;
+        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
+            walkEvent.instanceLocation = instanceLocation;
             return this;
         }
 

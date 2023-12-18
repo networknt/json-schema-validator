@@ -116,10 +116,10 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             node,
             rootNode,
             at,
+            this.evaluationPath,
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
-            walkSchema.getParentSchema(),
-            this.validationContext, this.validationContext.getJsonSchemaFactory()
+            walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory()
         );
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
@@ -130,11 +130,11 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             node,
             rootNode,
             at,
+            this.evaluationPath,
             walkSchema.getSchemaPath(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(),
-            this.validationContext,
-            this.validationContext.getJsonSchemaFactory(), validationMessages
+            this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages
         );
         //@formatter:on
     }

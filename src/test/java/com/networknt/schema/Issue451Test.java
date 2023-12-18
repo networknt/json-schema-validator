@@ -70,7 +70,7 @@ public class Issue451Test {
     private static class CountingWalker implements JsonSchemaWalkListener {
         @Override
         public WalkFlow onWalkStart(WalkEvent walkEvent) {
-            JsonNodePath path = walkEvent.getSchemaPath();
+            JsonNodePath path = walkEvent.getSchemaLocation();
             collector(walkEvent.getExecutionContext()).compute(path.toString(), (k, v) -> v == null ? 1 : v + 1);
             return WalkFlow.CONTINUE;
         }

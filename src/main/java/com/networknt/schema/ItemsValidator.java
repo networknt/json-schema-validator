@@ -186,14 +186,14 @@ public class ItemsValidator extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
-                node, rootNode, at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(),
-                walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
+                node, rootNode, at, this.evaluationPath, walkSchema.getSchemaPath(),
+                walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
         }
         this.arrayItemWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
-                at, walkSchema.getSchemaPath(), walkSchema.getSchemaNode(),
-                walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
+                at, this.evaluationPath, walkSchema.getSchemaPath(),
+                walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 
     }
 
