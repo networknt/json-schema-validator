@@ -60,9 +60,9 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath at) {
+            JsonNodePath instanceLocation) {
         return this.analysis != null ? this.analysis.stream()
-                .map(analysis -> buildValidationMessage(null, analysis.getAt(),
+                .map(analysis -> buildValidationMessage(null, analysis.getInstanceLocation(),
                         analysis.getMessageKey(), executionContext.getExecutionConfig().getLocale(), parentSchema.getSchemaNode().toString()))
                 .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
     }
@@ -72,17 +72,17 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             return messageKey;
         }
 
-        public JsonNodePath getAt() {
-            return at;
+        public JsonNodePath getInstanceLocation() {
+            return instanceLocation;
         }
 
         private final String messageKey;
-        private final JsonNodePath at;
+        private final JsonNodePath instanceLocation;
 
-        public Analysis(String messageKey, JsonNodePath at) {
+        public Analysis(String messageKey, JsonNodePath instanceLocation) {
             super();
             this.messageKey = messageKey;
-            this.at = at;
+            this.instanceLocation = instanceLocation;
         }
     }
 }

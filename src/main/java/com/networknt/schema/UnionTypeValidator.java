@@ -63,15 +63,15 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         error = errorBuilder.toString();
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
 
         boolean valid = false;
 
         for (JsonValidator schema : schemas) {
-            Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, at);
+            Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
             if (errors == null || errors.isEmpty()) {
                 valid = true;
                 break;
@@ -79,7 +79,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         }
 
         if (!valid) {
-            return Collections.singleton(buildValidationMessage(null, at,
+            return Collections.singleton(buildValidationMessage(null, instanceLocation,
                     executionContext.getExecutionConfig().getLocale(), nodeType.toString(), error));
         }
 

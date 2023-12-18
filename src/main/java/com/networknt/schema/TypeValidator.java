@@ -51,16 +51,16 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (this.schemaType == JsonType.UNION) {
-            return this.unionTypeValidator.validate(executionContext, node, rootNode, at);
+            return this.unionTypeValidator.validate(executionContext, node, rootNode, instanceLocation);
         }
 
         if (!equalsToSchemaType(node)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-            return Collections.singleton(buildValidationMessage(null, at,
+            return Collections.singleton(buildValidationMessage(null, instanceLocation,
                     executionContext.getExecutionConfig().getLocale(), nodeType.toString(), this.schemaType.toString()));
         }
 
@@ -69,9 +69,9 @@ public class TypeValidator extends BaseJsonValidator {
         // Hack to catch patternProperties like "^foo":"value"
         if (this.schemaLocation.getName(-1).equals("type")) {
             if (rootNode.isArray()) {
-                executionContext.getCollectorContext().getEvaluatedItems().add(at);
+                executionContext.getCollectorContext().getEvaluatedItems().add(instanceLocation);
             } else if (rootNode.isObject()) {
-                executionContext.getCollectorContext().getEvaluatedProperties().add(at);
+                executionContext.getCollectorContext().getEvaluatedProperties().add(instanceLocation);
             }
         }
         return Collections.emptySet();

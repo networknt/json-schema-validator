@@ -29,8 +29,8 @@ public class TrueValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TRUE, validationContext);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         // For the true validator, it is always valid which means there is no ValidationMessage.
         return Collections.emptySet();
     }

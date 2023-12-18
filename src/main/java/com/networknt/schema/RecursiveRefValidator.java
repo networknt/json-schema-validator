@@ -40,14 +40,14 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
-            debug(logger, node, rootNode, at);
+            debug(logger, node, rootNode, instanceLocation);
 
             JsonSchema schema = collectorContext.getOutermostSchema();
             if (null != schema) {
@@ -55,7 +55,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
                 // with the latest config. Reset the config.
                 schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors =  schema.validate(executionContext, node, rootNode, at);
+                errors =  schema.validate(executionContext, node, rootNode, instanceLocation);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();
@@ -68,14 +68,14 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
-            debug(logger, node, rootNode, at);
+            debug(logger, node, rootNode, instanceLocation);
 
             JsonSchema schema = collectorContext.getOutermostSchema();
             if (null != schema) {
@@ -83,7 +83,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                 // these schemas will be cached along with config. We have to replace the config for cached $ref references
                 // with the latest config. Reset the config.
                 schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors = schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
+                errors = schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();

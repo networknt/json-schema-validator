@@ -59,15 +59,15 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             for (int i = this.prefixCount; i < node.size(); ++i) {
-                JsonNodePath path = at.resolve(i);
+                JsonNodePath path = instanceLocation.resolve(i);
                 // validate with item schema (the whole array has the same item schema)
                 Set<ValidationMessage> results = this.schema.validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
@@ -83,7 +83,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
         if (node instanceof ArrayNode) {
@@ -99,37 +99,38 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     n = defaultNode;
                 }
                 // Walk the schema.
-                walkSchema(executionContext, this.schema, n, rootNode, at.resolve(i), shouldValidateSchema, validationMessages);
+                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.resolve(i), shouldValidateSchema, validationMessages);
             }
         } else {
-            walkSchema(executionContext, this.schema, node, rootNode, at, shouldValidateSchema, validationMessages);
+            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages);
         }
 
         return validationMessages;
     }
 
-    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
             rootNode,
-            at,
+            instanceLocation,
             walkSchema.getEvaluationPath(),
             walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory()
         );
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
+            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
         this.arrayItemWalkListenerRunner.runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
             rootNode,
-            at,
+            instanceLocation,
             this.evaluationPath,
             walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),

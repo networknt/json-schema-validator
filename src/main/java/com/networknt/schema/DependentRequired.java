@@ -45,8 +45,8 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -56,7 +56,7 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
             if (dependencies != null && !dependencies.isEmpty()) {
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(pname, at, executionContext.getExecutionConfig().getLocale(),
+                        errors.add(buildValidationMessage(pname, instanceLocation, executionContext.getExecutionConfig().getLocale(),
                                 field, pname));
                     }
                 }

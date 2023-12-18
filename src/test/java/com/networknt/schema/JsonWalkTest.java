@@ -145,13 +145,13 @@ public class JsonWalkTest {
             }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
                 return new TreeSet<ValidationMessage>();
             }
 
             @Override
             public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                    JsonNodePath at, boolean shouldValidateSchema) {
+                    JsonNodePath instanceLocation, boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
             }
         }

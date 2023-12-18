@@ -32,10 +32,10 @@ public abstract class AbstractJsonValidator implements JsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath at, boolean shouldValidateSchema) {
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = Collections.emptySet();
         if (shouldValidateSchema) {
-            validationMessages = validate(executionContext, node, rootNode, at);
+            validationMessages = validate(executionContext, node, rootNode, instanceLocation);
         }
         return validationMessages;
     }

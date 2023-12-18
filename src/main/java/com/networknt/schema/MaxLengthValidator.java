@@ -38,8 +38,8 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -48,7 +48,7 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
             return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + maxLength));
+                    buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + maxLength));
         }
         return Collections.emptySet();
     }

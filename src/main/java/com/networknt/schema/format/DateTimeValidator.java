@@ -47,15 +47,15 @@ public class DateTimeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
         if (!isLegalDateTime(node.textValue())) {
-            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(),
+            return Collections.singleton(buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(),
                     node.textValue(), DATETIME));
         }
         return Collections.emptySet();

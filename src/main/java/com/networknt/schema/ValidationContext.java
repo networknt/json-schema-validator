@@ -105,11 +105,11 @@ public class ValidationContext {
         return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
     }
 
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath at) {
+    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
         this.discriminatorContexts.push(ctx);
     }
 
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath at) {
+    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
         this.discriminatorContexts.pop();
     }
 

@@ -38,14 +38,14 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (unique) {
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
-                    return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
+                    return Collections.singleton(buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale()));
                 }
             }
         }

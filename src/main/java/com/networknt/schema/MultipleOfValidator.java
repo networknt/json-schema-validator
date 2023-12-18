@@ -39,8 +39,8 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isNumber()) {
             double nodeValue = node.doubleValue();
@@ -50,7 +50,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
                 BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
                 if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     return Collections.singleton(buildValidationMessage(null,
-                            at, executionContext.getExecutionConfig().getLocale(), "" + divisor));
+                            instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + divisor));
                 }
             }
         }

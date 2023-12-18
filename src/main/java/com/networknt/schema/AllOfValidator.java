@@ -41,8 +41,8 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
@@ -56,9 +56,9 @@ public class AllOfValidator extends BaseJsonValidator {
             Scope parentScope = collectorContext.enterDynamicScope();
             try {
                 if (!state.isWalkEnabled()) {
-                    localErrors = schema.validate(executionContext, node, rootNode, at);
+                    localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
-                    localErrors = schema.walk(executionContext, node, rootNode, at, true);
+                    localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
                 }
 
                 childSchemaErrors.addAll(localErrors);
@@ -75,7 +75,7 @@ public class AllOfValidator extends BaseJsonValidator {
                                 final ObjectNode discriminator = currentDiscriminatorContext
                                         .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
                                 if (null != discriminator) {
-                                    registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, this.parentSchema, at);
+                                    registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, this.parentSchema, instanceLocation);
                                     // now we have to check whether we have hit the right target
                                     final String discriminatorPropertyName = discriminator.get("propertyName").asText();
                                     final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
@@ -106,13 +106,13 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, at);
+            return validate(executionContext, node, rootNode, instanceLocation);
         }
         for (JsonSchema schema : this.schemas) {
             // Walk through the schema
-            schema.walk(executionContext, node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
         return Collections.emptySet();
     }

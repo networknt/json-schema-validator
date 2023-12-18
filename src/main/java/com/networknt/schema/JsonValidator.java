@@ -53,12 +53,13 @@ public interface JsonValidator extends JsonSchemaWalker {
      * @param executionContext  ExecutionContext
      * @param node     JsonNode
      * @param rootNode JsonNode
-     * @param at       String
+     * @param instanceLocation JsonNodePath
      *
      * @return A list of ValidationMessage if there is any validation error, or an empty
      * list if there is no error.
      */
-    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at);
+    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation);
 
     /**
      * In case the {@link com.networknt.schema.JsonValidator} has a related {@link com.networknt.schema.JsonSchema} or several
@@ -77,10 +78,10 @@ public interface JsonValidator extends JsonSchemaWalker {
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
         if (shouldValidateSchema) {
-            validationMessages = validate(executionContext, node, rootNode, at);
+            validationMessages = validate(executionContext, node, rootNode, instanceLocation);
         }
         return validationMessages;
     }

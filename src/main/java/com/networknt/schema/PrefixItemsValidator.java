@@ -57,15 +57,15 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
-                JsonNodePath path = at.resolve(i);
+                JsonNodePath path = instanceLocation.resolve(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
                     evaluatedItems.add(path);
@@ -80,7 +80,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
         if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
@@ -93,39 +93,42 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                     array.set(i, defaultNode);
                     n = defaultNode;
                 }
-                doWalk(executionContext, validationMessages, i, n, rootNode, at, shouldValidateSchema);
+                doWalk(executionContext, validationMessages, i, n, rootNode, instanceLocation, shouldValidateSchema);
             }
         }
 
         return validationMessages;
     }
 
-    private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
-        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, at.resolve(i), shouldValidateSchema, validationMessages);
+    private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
+            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.resolve(i),
+                shouldValidateSchema, validationMessages);
     }
 
-    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
         boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
-            at,
+            instanceLocation,
             walkSchema.getEvaluationPath(),
             walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),
             walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory()
         );
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, at, shouldValidateSchema));
+            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
         this.arrayItemWalkListenerRunner.runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
-            at,
+            instanceLocation,
             this.evaluationPath,
             walkSchema.getSchemaLocation(),
             walkSchema.getSchemaNode(),

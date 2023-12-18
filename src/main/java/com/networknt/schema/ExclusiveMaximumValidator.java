@@ -98,8 +98,8 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!JsonNodeUtil.isNumber(node, validationContext.getConfig())) {
             // maximum only applies to numbers
@@ -107,7 +107,7 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator {
         }
 
         if (typedMaximum.crossesThreshold(node)) {
-            return Collections.singleton(buildValidationMessage(null, at,
+            return Collections.singleton(buildValidationMessage(null, instanceLocation,
                     executionContext.getExecutionConfig().getLocale(), typedMaximum.thresholdValue()));
         }
         return Collections.emptySet();

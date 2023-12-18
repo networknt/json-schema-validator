@@ -40,8 +40,8 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = null;
 
@@ -52,7 +52,7 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
-                errors.add(buildValidationMessage(fieldName, at.resolve(fieldName),
+                errors.add(buildValidationMessage(fieldName, instanceLocation.resolve(fieldName),
                         executionContext.getExecutionConfig().getLocale(), fieldName));
             }
         }

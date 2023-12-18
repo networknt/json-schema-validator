@@ -39,16 +39,16 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isArray()) {
             if (node.size() > max) {
-                return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + max));
+                return Collections.singleton(buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + max));
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 > max) {
-                return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + max));
+                return Collections.singleton(buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + max));
             }
         }
 

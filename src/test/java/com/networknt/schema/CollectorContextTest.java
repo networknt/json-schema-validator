@@ -273,7 +273,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
@@ -284,7 +284,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }
@@ -347,7 +347,7 @@ public class CollectorContextTest {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
@@ -360,7 +360,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }

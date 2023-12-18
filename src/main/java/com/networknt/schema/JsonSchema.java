@@ -359,7 +359,7 @@ public class JsonSchema extends BaseJsonValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Get the collector context.
@@ -372,7 +372,7 @@ public class JsonSchema extends BaseJsonValidator {
 
             Scope parentScope = collectorContext.enterDynamicScope(this);
             try {
-                results = v.validate(executionContext, jsonNode, rootNode, at);
+                results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
                 Scope scope = collectorContext.exitDynamicScope();
                 if (results.isEmpty()) {
@@ -446,11 +446,11 @@ public class JsonSchema extends BaseJsonValidator {
      * @param executionContext ExecutionContext
      * @param jsonNode JsonNode
      * @param rootNode JsonNode
-     * @param at       String path
+     * @param instanceLocation JsonNodePath
      *
      * @return ValidationResult
      */
-    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath at) {
+    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // Get the collector context from the thread local.
@@ -458,7 +458,7 @@ public class JsonSchema extends BaseJsonValidator {
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
         // Validate.
-        Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, at);
+        Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, instanceLocation);
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
         if (config.doLoadCollectors()) {
             // Load all the data from collectors into the context.
@@ -493,11 +493,13 @@ public class JsonSchema extends BaseJsonValidator {
         return walk(createExecutionContext(), node, shouldValidateSchema);
     }
 
-    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(executionContext, node, rootNode, at, shouldValidateSchema);
+    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 
-    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // Get the collector context.
@@ -505,7 +507,7 @@ public class JsonSchema extends BaseJsonValidator {
         // Set the walkEnabled flag in internal validator state.
         setValidatorState(executionContext, true, shouldValidateSchema);
         // Walk through the schema.
-        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, at, shouldValidateSchema);
+        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
         if (config.doLoadCollectors()) {
             // Load all the data from collectors into the context.
@@ -517,7 +519,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
         getValidators().forEach((JsonNodePath schemaLocationWithKeyword, JsonValidator jsonWalker) -> {
@@ -528,12 +530,12 @@ public class JsonSchema extends BaseJsonValidator {
                         schemaLocationWithKeyword.getName(-1),
                         node,
                         rootNode,
-                        at,
+                        instanceLocation,
                         jsonWalker.getEvaluationPath(),
                         jsonWalker.getSchemaLocation(),
                         this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
-                    validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, at, shouldValidateSchema));
+                    validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
                 }
             } finally {
                 // Call all the post-walk listeners.
@@ -541,7 +543,7 @@ public class JsonSchema extends BaseJsonValidator {
                         schemaLocationWithKeyword.getName(-1),
                         node,
                         rootNode,
-                        at,
+                        instanceLocation,
                         jsonWalker.getEvaluationPath(),
                         jsonWalker.getSchemaLocation(),
                         this.schemaNode,

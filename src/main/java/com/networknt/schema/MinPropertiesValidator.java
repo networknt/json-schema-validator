@@ -38,13 +38,13 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isObject()) {
             if (node.size() < min) {
                 return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + min));
+                        buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + min));
             }
         }
 

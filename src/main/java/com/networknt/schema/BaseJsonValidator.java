@@ -86,8 +86,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return Math.abs(n1 - n2) < 1e-12;
     }
 
-    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        logger.debug("validate( {}, {}, {})", node, rootNode, at);
+    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
     }
 
     /**
@@ -134,19 +134,19 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check
      * @param schema                      the value of the <code>discriminator/propertyName</code> field
-     * @param at                          the logging prefix
+     * @param instanceLocation                          the logging prefix
      */
     protected static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
                                                         final JsonSchema schema,
-                                                        final JsonNodePath at) {
+                                                        final JsonNodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
                 .getDiscriminatorForPath(schema.schemaLocation.toString())) {
             // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
-                throw new JsonSchemaException(at + " schema " + schema + " attempts redefining the discriminator property");
+                throw new JsonSchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
             }
             final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
             final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
@@ -165,7 +165,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
                     if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
-                        throw new JsonSchemaException(at + "discriminator mapping redefinition from " + mappingKeyToAdd
+                        throw new JsonSchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
                                 + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {
                         mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);

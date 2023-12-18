@@ -61,7 +61,7 @@ public class CustomMetaSchemaTest {
             }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
                 String value = node.asText();
                 int idx = enumValues.indexOf(value);
                 if (idx < 0) {
@@ -70,7 +70,7 @@ public class CustomMetaSchemaTest {
                 String valueName = enumNames.get(idx);
                 Set<ValidationMessage> messages = new HashSet<>();
                 ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
-                        .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(at)
+                        .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
                 messages.add(validationMessage);
                 return messages;

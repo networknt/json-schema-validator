@@ -24,9 +24,10 @@ public interface JsonSchemaWalker {
 	 * @param executionContext     ExecutionContext
 	 * @param node                 JsonNode
 	 * @param rootNode             JsonNode
-	 * @param at                   JsonNodePath
+	 * @param instanceLocation     JsonNodePath
 	 * @param shouldValidateSchema boolean
 	 * @return a set of validation messages if shouldValidateSchema is true.
 	 */
-	Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema);
+    Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema);
 }

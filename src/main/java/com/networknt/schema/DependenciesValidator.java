@@ -52,8 +52,8 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -63,14 +63,14 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (deps != null && !deps.isEmpty()) {
                 for (String field : deps) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(pname, at,
+                        errors.add(buildValidationMessage(pname, instanceLocation,
                                 executionContext.getExecutionConfig().getLocale(), propertyDeps.toString()));
                     }
                 }
             }
             JsonSchema schema = schemaDeps.get(pname);
             if (schema != null) {
-                errors.addAll(schema.validate(executionContext, node, rootNode, at));
+                errors.addAll(schema.validate(executionContext, node, rootNode, instanceLocation));
             }
         }
 

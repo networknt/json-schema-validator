@@ -31,17 +31,17 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
         this.schemaNode = schemaNode;
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
                 return Collections.singleton(buildValidationMessage(null,
-                        at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+                        instanceLocation, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
             }
         } else if (!schemaNode.equals(node)) {
             return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+                    buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
         }
         return Collections.emptySet();
     }

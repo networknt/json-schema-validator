@@ -43,8 +43,8 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!node.isObject()) {
             return Collections.emptySet();
@@ -56,7 +56,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    JsonNodePath path = at.resolve(name);
+                    JsonNodePath path = instanceLocation.resolve(name);
                     Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, path);
                     if (results.isEmpty()) {
                         executionContext.getCollectorContext().getEvaluatedProperties().add(path);

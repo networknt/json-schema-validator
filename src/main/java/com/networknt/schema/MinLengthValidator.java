@@ -38,8 +38,8 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -49,7 +49,7 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
             return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + minLength));
+                    buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + minLength));
         }
         return Collections.emptySet();
     }

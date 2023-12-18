@@ -37,8 +37,8 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
         parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -50,22 +50,22 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
                     // leading and trailing spaces
-                    errors.add(buildValidationMessage(null, at,
+                    errors.add(buildValidationMessage(null, instanceLocation,
                             executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 } else if(node.textValue().contains("%")) {
                     // zone id is not part of the ipv6
-                    errors.add(buildValidationMessage(null, at,
+                    errors.add(buildValidationMessage(null, instanceLocation,
                             executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(buildValidationMessage(null, at,
+                    errors.add(buildValidationMessage(null, instanceLocation,
                             executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", at, format.getName(), pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);
             }
         }
 

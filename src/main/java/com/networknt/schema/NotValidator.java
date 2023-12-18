@@ -37,17 +37,17 @@ public class NotValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
-            debug(logger, node, rootNode, at);
-            errors = this.schema.validate(executionContext, node, rootNode, at);
+            debug(logger, node, rootNode, instanceLocation);
+            errors = this.schema.validate(executionContext, node, rootNode, instanceLocation);
             if (errors.isEmpty()) {
                 return Collections.singleton(buildValidationMessage(null,
-                        at, executionContext.getExecutionConfig().getLocale(), this.schema.toString()));
+                        instanceLocation, executionContext.getExecutionConfig().getLocale(), this.schema.toString()));
             }
             return Collections.emptySet();
         } finally {
@@ -59,14 +59,14 @@ public class NotValidator extends BaseJsonValidator {
     }
     
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, at);
+            return validate(executionContext, node, rootNode, instanceLocation);
         }
 
-        Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
+        Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         if (errors.isEmpty()) {
-            return Collections.singleton(buildValidationMessage(null, at,
+            return Collections.singleton(buildValidationMessage(null, instanceLocation,
                     executionContext.getExecutionConfig().getLocale(), this.schema.toString()));
         }
         return Collections.emptySet();

@@ -41,15 +41,15 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         if (this.disabled || !node.isObject()) return Collections.emptySet();
 
-        debug(logger, node, rootNode, at);
+        debug(logger, node, rootNode, instanceLocation);
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         collectorContext.exitDynamicScope();
         try {
-            Set<JsonNodePath> allPaths = allPaths(node, at);
+            Set<JsonNodePath> allPaths = allPaths(node, instanceLocation);
 
             // Short-circuit since schema is 'true'
             if (super.schemaNode.isBoolean() && super.schemaNode.asBoolean()) {
@@ -85,10 +85,10 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    private Set<JsonNodePath> allPaths(JsonNode node, JsonNodePath at) {
+    private Set<JsonNodePath> allPaths(JsonNode node, JsonNodePath instanceLocation) {
         Set<JsonNodePath> collector = new LinkedHashSet<>();
         node.fields().forEachRemaining(entry -> {
-            collector.add(at.resolve(entry.getKey()));
+            collector.add(instanceLocation.resolve(entry.getKey()));
         });
         return collector;
     }
