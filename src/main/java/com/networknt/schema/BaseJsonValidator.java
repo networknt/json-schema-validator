@@ -264,26 +264,4 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected JsonNodePath atRoot() {
         return new JsonNodePath(this.pathType);
     }
-
-    /**
-     * Create the path for a given child token.
-     *
-     * @param currentPath The current path.
-     * @param token       The child token.
-     * @return The complete path.
-     */
-    protected JsonNodePath atPath(JsonNodePath currentPath, String token) {
-        return currentPath.resolve(token);
-    }
-
-    /**
-     * Create the path for a given child indexed item.
-     *
-     * @param currentPath The current path.
-     * @param index       The child index.
-     * @return The complete path.
-     */
-    protected JsonNodePath atPath(JsonNodePath currentPath, int index) {
-        return currentPath.resolve(index);
-    }
 }

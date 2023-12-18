@@ -76,7 +76,7 @@ public class ContainsValidator extends BaseJsonValidator {
 
             int actual = 0, i = 0;
             for (JsonNode n : node) {
-                JsonNodePath path = atPath(at, i);
+                JsonNodePath path = at.resolve(i);
 
                 if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;

@@ -65,7 +65,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
-                JsonNodePath path = atPath(at, i);
+                JsonNodePath path = at.resolve(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
                     evaluatedItems.add(path);
@@ -101,7 +101,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
-        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
+        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, at.resolve(i), shouldValidateSchema, validationMessages);
     }
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {

@@ -65,46 +65,6 @@ public class JsonSchema extends BaseJsonValidator {
         return new JsonSchema(validationContext, schemaPath, evaluationPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
     }
 
-    /**
-     * @param validationContext validation context
-     * @param baseUri           base URL
-     * @param schemaNode        schema node
-     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
-     */
-    @Deprecated
-    public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode) {
-        // TODO?
-        this(validationContext, UriReference.DOCUMENT, new JsonNodePath(PathType.JSON_POINTER), baseUri, schemaNode, null);
-    }
-
-    /**
-     * @param validationContext validation context
-     * @param schemaPath        schema path
-     * @param currentUri        current URI
-     * @param schemaNode        schema node
-     * @param parent            parent schema
-     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
-     */
-    @Deprecated
-    public JsonSchema(ValidationContext validationContext, JsonNodePath schemaPath, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode,
-                      JsonSchema parent) {
-        // TODO?
-        this(validationContext, schemaPath, evaluationPath, currentUri, schemaNode, parent, false);
-    }
-
-    /**
-     * @param validationContext validation context
-     * @param baseUri           base URI
-     * @param schemaNode        schema node
-     * @param suppressSubSchemaRetrieval suppress sub schema retrieval
-     * @deprecated Use {@code JsonSchemaFactory#create(ValidationContext, String, JsonNode, JsonSchema)}
-     */
-    @Deprecated
-    public JsonSchema(ValidationContext validationContext, URI baseUri, JsonNode schemaNode, boolean suppressSubSchemaRetrieval) {
-        // TODO?
-        this(validationContext, UriReference.DOCUMENT, new JsonNodePath(PathType.JSON_POINTER), baseUri, schemaNode, null, suppressSubSchemaRetrieval);
-    }
-
     private JsonSchema(ValidationContext validationContext, JsonNodePath schemaPath, JsonNodePath evaluationPath, URI currentUri,
                        JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaPath, evaluationPath, schemaNode, parent, null, validationContext, suppressSubSchemaRetrieval);

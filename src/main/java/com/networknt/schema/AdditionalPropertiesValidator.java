@@ -77,7 +77,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                collectorContext.getEvaluatedProperties().add(atPath(at, it.next()));
+                collectorContext.getEvaluatedProperties().add(at.resolve(it.next()));
             }
         }
 
@@ -108,7 +108,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
+                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, at.resolve(pname), state.isValidationEnabled());
                             if (!results.isEmpty()) {
                                 if (errors == null) {
                                     errors = new LinkedHashSet<>();
@@ -116,7 +116,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                                 errors.addAll(results);
                             }
                         } else {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, atPath(at, pname));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, at.resolve(pname));
                             if (!results.isEmpty()) {
                                 if (errors == null) {
                                     errors = new LinkedHashSet<>();
@@ -162,7 +162,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) executionContext.getCollectorContext().get(ValidatorState.VALIDATOR_STATE_KEY);
                         if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
+                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, at.resolve(pname), state.isValidationEnabled());
                         }
                     }
                 }

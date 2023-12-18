@@ -93,7 +93,7 @@ public class ItemsValidator extends BaseJsonValidator {
 
     private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node, JsonNode rootNode, JsonNodePath at) {
         Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
-        JsonNodePath path = atPath(at, i);
+        JsonNodePath path = at.resolve(i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
@@ -165,18 +165,18 @@ public class ItemsValidator extends BaseJsonValidator {
             JsonNode rootNode, JsonNodePath at, boolean shouldValidateSchema) {
         if (this.schema != null) {
             // Walk the schema.
-            walkSchema(executionContext, this.schema, node, rootNode, atPath(at, i), shouldValidateSchema, validationMessages);
+            walkSchema(executionContext, this.schema, node, rootNode, at.resolve(i), shouldValidateSchema, validationMessages);
         }
 
         if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // walk tuple schema
-                walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, atPath(at, i),
+                walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, at.resolve(i),
                         shouldValidateSchema, validationMessages);
             } else {
                 if (this.additionalSchema != null) {
                     // walk additional item schema
-                    walkSchema(executionContext, this.additionalSchema, node, rootNode, atPath(at, i),
+                    walkSchema(executionContext, this.additionalSchema, node, rootNode, at.resolve(i),
                             shouldValidateSchema, validationMessages);
                 }
             }
