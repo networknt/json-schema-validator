@@ -69,7 +69,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     private JsonSchema(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, URI currentUri,
                        JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation, evaluationPath, schemaNode, parent, null, null, null, validationContext,
+        super(schemaLocation, evaluationPath, schemaNode, parent, null, null, validationContext,
                 suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
@@ -226,16 +226,14 @@ public class JsonSchema extends BaseJsonValidator {
         Map<JsonNodePath, JsonValidator> validators = new TreeMap<>(VALIDATOR_SORT);
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
-                final Map<String, String> customMessage = getCustomMessage(schemaNode, "true");
                 JsonNodePath path = getEvaluationPath().resolve("true");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("true"), path,
-                        "true", schemaNode, this, customMessage);
+                        "true", schemaNode, this);
                 validators.put(path, validator);
             } else {
-                final Map<String, String> customMessage = getCustomMessage(schemaNode, "false");
                 JsonNodePath path = getEvaluationPath().resolve("false");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("false"),
-                        path, "false", schemaNode, this, customMessage);
+                        path, "false", schemaNode, this);
                 validators.put(path, validator);
             }
         } else {
@@ -248,7 +246,6 @@ public class JsonSchema extends BaseJsonValidator {
             while (pnames.hasNext()) {
                 String pname = pnames.next();
                 JsonNode nodeToUse = schemaNode.get(pname);
-                Map<String, String> customMessage = getCustomMessage(schemaNode, pname);
 
                 JsonNodePath path = getEvaluationPath().resolve(pname);
                 JsonNodePath schemaPath = getSchemaLocation().resolve(pname);
@@ -270,7 +267,7 @@ public class JsonSchema extends BaseJsonValidator {
                 }
 
                 JsonValidator validator = this.validationContext.newValidator(schemaPath, path,
-                        pname, nodeToUse, this, customMessage);
+                        pname, nodeToUse, this);
                 if (validator != null) {
                     validators.put(path, validator);
 
@@ -327,46 +324,6 @@ public class JsonSchema extends BaseJsonValidator {
 
         return lhs.compareTo(rhs); // TODO: This smells. We are performing a lexicographical ordering of paths of unknown depth.
     };
-
-    private Map<String, String> getCustomMessage(JsonNode schemaNode, String pname) {
-        if (!this.validationContext.getConfig().isCustomMessageSupported()) {
-            return null;
-        }
-        final JsonSchema parentSchema = getParentSchema();
-        final JsonNode message = getMessageNode(schemaNode, parentSchema, pname);
-        if (message != null) {
-            JsonNode messageNode = message.get(pname);
-            if (messageNode != null) {
-                if (messageNode.isTextual()) {
-                    return Collections.singletonMap("", messageNode.asText());
-                } else if (messageNode.isObject()) {
-                    Map<String, String> result = new LinkedHashMap<>();
-                    messageNode.fields().forEachRemaining(entry -> {
-                        result.put(entry.getKey(), entry.getValue().textValue());
-                    });
-                    if (!result.isEmpty()) {
-                        return result;
-                    }
-                }
-            }
-        }
-        return Collections.emptyMap();
-    }
-
-    private JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
-        if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
-            return schemaNode.get("message");
-        }
-        JsonNode messageNode;
-        messageNode = schemaNode.get("message");
-        if (messageNode == null && parentSchema != null) {
-            messageNode = parentSchema.schemaNode.get("message");
-            if (messageNode == null) {
-                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
-            }
-        }
-        return messageNode;
-    }
 
     /************************ START OF VALIDATE METHODS **********************************/
 

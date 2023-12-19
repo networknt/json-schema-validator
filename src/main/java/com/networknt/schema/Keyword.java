@@ -16,17 +16,11 @@
 
 package com.networknt.schema;
 
-
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 public interface Keyword {
     String getValue();
 
-    default void setCustomMessage(Map<String, String> message) {
-        //setCustom message
-    }
-
-    JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
+    JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
 }

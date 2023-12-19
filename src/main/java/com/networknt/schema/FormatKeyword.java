@@ -57,8 +57,6 @@ public class FormatKeyword implements Keyword {
 
                 case DATE_TIME: {
                     ValidatorTypeCode typeCode = ValidatorTypeCode.DATETIME;
-                    // Set custom error message
-                    typeCode.setCustomMessage(this.type.getCustomMessage());
                     return new DateTimeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, typeCode);
                 }
             }
@@ -70,10 +68,5 @@ public class FormatKeyword implements Keyword {
     @Override
     public String getValue() {
         return this.type.getValue();
-    }
-
-    @Override
-    public void setCustomMessage(Map<String, String> message) {
-        this.type.setCustomMessage(message);
     }
 }

@@ -39,26 +39,34 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected ValidationContext validationContext;
 
     public BaseJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                             JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType,
-                validatorType != null ? validatorType.getErrorCodeKey() : null, validationContext, false);
+            JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
+        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext,
+                false);
     }
 
     public BaseJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword, String errorCodeKey,
+            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
             ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
-        super(validationContext != null && validationContext.getConfig() != null
-                && validationContext.getConfig().isFailFast(), errorMessageType,
-                errorMessageType != null ? errorMessageType.getCustomMessage() : null,
+        super(validationContext != null
+                && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+                errorMessageType,
+                (validationContext != null && validationContext.getConfig() != null)
+                        ? validationContext.getConfig().isCustomMessageSupported()
+                        : true,
                 (validationContext != null && validationContext.getConfig() != null)
                         ? validationContext.getConfig().getMessageSource()
                         : DefaultMessageSource.getInstance(),
-                keyword, errorCodeKey, parentSchema, schemaLocation, evaluationPath);
+                keyword, parentSchema, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
-        this.pathType = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType() : PathType.DEFAULT;
+        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null
+                && validationContext.getConfig().getApplyDefaultsStrategy() != null)
+                        ? validationContext.getConfig().getApplyDefaultsStrategy()
+                        : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        this.pathType = (validationContext != null && validationContext.getConfig() != null
+                && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType()
+                        : PathType.DEFAULT;
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {

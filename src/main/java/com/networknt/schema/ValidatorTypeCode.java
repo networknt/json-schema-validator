@@ -122,19 +122,14 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
 
     private final String value;
     private final String errorCode;
-    private Map<String, String> customMessage;
-    private final String errorCodeKey;
     private final ValidatorFactory validatorFactory;
     private final VersionCode versionCode;
-
 
     private ValidatorTypeCode(String value, String errorCode, ValidatorFactory validatorFactory, VersionCode versionCode) {
         this.value = value;
         this.errorCode = errorCode;
-        this.errorCodeKey = value + "ErrorCode";
         this.validatorFactory = validatorFactory;
         this.versionCode = versionCode;
-        this.customMessage = null;
     }
 
     public static List<ValidatorTypeCode> getNonFormatKeywords(SpecVersion.VersionFlag versionFlag) {
@@ -178,20 +173,6 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     @Override
     public String getErrorCode() {
         return this.errorCode;
-    }
-
-    @Override
-    public void setCustomMessage(Map<String, String> message) {
-        this.customMessage = message;
-    }
-
-    @Override
-    public Map<String, String> getCustomMessage() {
-        return this.customMessage;
-    }
-
-    public String getErrorCodeKey() {
-        return this.errorCodeKey;
     }
 
     public VersionCode getVersionCode() {

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,38 +19,26 @@ public abstract class ValidationMessageHandler {
 
     protected JsonSchema parentSchema;
 
-    protected Map<String, String> customMessage;
+    protected boolean customErrorMessagesEnabled;
+    protected Map<String, String> errorMessage;
 
     protected Keyword keyword;
-    protected String errorCodeKey;
 
     protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
-            Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType,
-            JsonSchema parentSchema, JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
-        this(failFast, errorMessageType, customMessage, messageSource, validatorType,
-                validatorType != null ? validatorType.getErrorCodeKey() : null, parentSchema, schemaLocation,
-                evaluationPath);
-    }
-    
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
-            Map<String, String> customMessage, MessageSource messageSource, Keyword keyword, String errorCodeKey,
-            JsonSchema parentSchema, JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+            boolean customErrorMessagesEnabled, MessageSource messageSource, Keyword keyword, JsonSchema parentSchema,
+            JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
-        this.customMessage = customMessage;
         this.messageSource = messageSource;
-        this.errorCodeKey = errorCodeKey;
         this.schemaLocation = Objects.requireNonNull(schemaLocation);
         this.evaluationPath = Objects.requireNonNull(evaluationPath);
         this.parentSchema = parentSchema;
-        this.keyword = keyword;
-        if (errorCodeKey != null) {
-            parseErrorCode(errorCodeKey);
-        }
+        this.customErrorMessagesEnabled = customErrorMessagesEnabled;
+        updateKeyword(keyword);
     }
 
     protected MessageSourceValidationMessage.Builder message() {
-        return MessageSourceValidationMessage.builder(this.messageSource, this.customMessage, message -> {
+        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, message -> {
             if (this.failFast && isApplicator()) {
                 throw new JsonSchemaException(message);
             }
@@ -98,7 +88,7 @@ public abstract class ValidationMessageHandler {
     }
 
     protected void parseErrorCode(String errorCodeKey) {
-        if (this.parentSchema != null) {
+        if (errorCodeKey != null && this.parentSchema != null) {
             JsonNode errorCodeNode = this.parentSchema.getSchemaNode().get(errorCodeKey);
             if (errorCodeNode != null && errorCodeNode.isTextual()) {
                 String errorCodeText = errorCodeNode.asText();
@@ -110,11 +100,72 @@ public abstract class ValidationMessageHandler {
     }
 
     protected void updateValidatorType(ValidatorTypeCode validatorTypeCode) {
-        this.errorMessageType = validatorTypeCode;
-        this.keyword = validatorTypeCode;
-        this.customMessage = validatorTypeCode.getCustomMessage();
-        parseErrorCode(validatorTypeCode.getErrorCodeKey());
+        updateKeyword(validatorTypeCode);
+        updateErrorMessageType(validatorTypeCode);
+    }
+
+    protected void updateErrorMessageType(ErrorMessageType errorMessageType) {
+        this.errorMessageType = errorMessageType;
+    }
+
+    protected void updateKeyword(Keyword keyword) {
+        this.keyword = keyword;
+        if (this.keyword != null) {
+            if (this.customErrorMessagesEnabled && keyword != null && parentSchema != null) {
+                this.errorMessage = getErrorMessage(parentSchema.getSchemaNode(), keyword.getValue());
+            }
+            parseErrorCode(getErrorCodeKey(keyword.getValue()));
+        }
+    }
+
+    /**
+     * Gets the custom error message to use.
+     * 
+     * @param schemaNode the schema node
+     * @param keyword    the keyword
+     * @return the custom error message
+     */
+    protected Map<String, String> getErrorMessage(JsonNode schemaNode, String keyword) {
+        final JsonSchema parentSchema = this.parentSchema;
+        final JsonNode message = getMessageNode(schemaNode, parentSchema, keyword);
+        if (message != null) {
+            JsonNode messageNode = message.get(keyword);
+            if (messageNode != null) {
+                if (messageNode.isTextual()) {
+                    return Collections.singletonMap("", messageNode.asText());
+                } else if (messageNode.isObject()) {
+                    Map<String, String> result = new LinkedHashMap<>();
+                    messageNode.fields().forEachRemaining(entry -> {
+                        result.put(entry.getKey(), entry.getValue().textValue());
+                    });
+                    if (!result.isEmpty()) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return Collections.emptyMap();
+    }
+
+    protected JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
+        if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
+            return schemaNode.get("message");
+        }
+        JsonNode messageNode;
+        messageNode = schemaNode.get("message");
+        if (messageNode == null && parentSchema != null) {
+            messageNode = parentSchema.schemaNode.get("message");
+            if (messageNode == null) {
+                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
+            }
+        }
+        return messageNode;
     }
     
-
+    protected String getErrorCodeKey(String keyword) {
+        if (keyword != null) {
+            return keyword + "ErrorCode";
+        }
+        return null;
+    }
 }

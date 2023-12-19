@@ -58,9 +58,9 @@ public class ValidationContext {
         return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema, Map<String, String> customMessage) {
-        return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema, customMessage);
+    public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath,
+            String keyword /* keyword */, JsonNode schemaNode, JsonSchema parentSchema) {
+        return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
