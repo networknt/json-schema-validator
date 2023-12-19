@@ -141,7 +141,7 @@ public class JsonWalkTest {
         private static class CustomValidator extends AbstractJsonValidator {
 
             public CustomValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
-                super(schemaLocation, evaluationPath);
+                super(schemaLocation, evaluationPath,null);
             }
 
             @Override

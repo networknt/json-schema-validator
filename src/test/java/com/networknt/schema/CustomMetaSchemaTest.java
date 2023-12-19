@@ -51,7 +51,7 @@ public class CustomMetaSchemaTest {
 
             private Validator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, String keyword,
                     List<String> enumValues, List<String> enumNames) {
-                super(schemaLocation, evaluationPath);
+                super(schemaLocation, evaluationPath,null);
                 if (enumNames.size() != enumValues.size()) {
                     throw new IllegalArgumentException("enum and enumNames need to be of same length");
                 }

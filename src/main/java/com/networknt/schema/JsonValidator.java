@@ -81,4 +81,11 @@ public interface JsonValidator extends JsonSchemaWalker {
      * @return the evaluation path
      */
     public JsonNodePath getEvaluationPath();
+
+    /**
+     * The keyword of the validator.
+     * 
+     * @return the keyword
+     */
+    public String getKeyword();
 }

@@ -224,12 +224,19 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return true;
     }
 
+    @Override
     public JsonNodePath getSchemaLocation() {
         return this.schemaLocation;
     }
 
+    @Override
     public JsonNodePath getEvaluationPath() {
         return this.evaluationPath;
+    }
+
+    @Override
+    public String getKeyword() {
+        return this.keyword.getValue();
     }
 
     public JsonNode getSchemaNode() {

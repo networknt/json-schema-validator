@@ -269,7 +269,7 @@ public class CollectorContextTest {
      */
     private class CustomValidator extends AbstractJsonValidator {
         public CustomValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
-            super(schemaLocation, evaluationPath);
+            super(schemaLocation, evaluationPath,null);
         }
 
         @Override
@@ -342,7 +342,7 @@ public class CollectorContextTest {
      */
     private class CustomValidator1 extends AbstractJsonValidator {
         public CustomValidator1(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
-            super(schemaLocation, evaluationPath);
+            super(schemaLocation, evaluationPath,null);
         }
 
         @SuppressWarnings("unchecked")
