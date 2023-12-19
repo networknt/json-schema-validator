@@ -123,8 +123,9 @@ public class MinimumValidator extends BaseJsonValidator {
         }
 
         if (typedMinimum.crossesThreshold(node)) {
-            return Collections.singleton(buildValidationMessage(null, instanceLocation,
-                    executionContext.getExecutionConfig().getLocale(), typedMinimum.thresholdValue()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(typedMinimum.thresholdValue())
+                    .build());
         }
         return Collections.emptySet();
     }

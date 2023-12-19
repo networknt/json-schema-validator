@@ -63,8 +63,9 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (deps != null && !deps.isEmpty()) {
                 for (String field : deps) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(pname, instanceLocation,
-                                executionContext.getExecutionConfig().getLocale(), propertyDeps.toString()));
+                        errors.add(message().property(pname).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(propertyDeps.toString()).build());
                     }
                 }
             }

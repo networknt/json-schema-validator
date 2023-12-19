@@ -52,8 +52,8 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
-                errors.add(buildValidationMessage(fieldName, instanceLocation.resolve(fieldName),
-                        executionContext.getExecutionConfig().getLocale(), fieldName));
+                errors.add(message().property(fieldName).instanceLocation(instanceLocation.resolve(fieldName))
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
             }
         }
 

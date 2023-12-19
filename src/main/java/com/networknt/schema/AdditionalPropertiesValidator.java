@@ -102,8 +102,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
-                    errors.add(buildValidationMessage(pname, instanceLocation.resolve(pname),
-                            executionContext.getExecutionConfig().getLocale(), pname));
+                    errors.add(message().property(pname).instanceLocation(instanceLocation.resolve(pname))
+                            .locale(executionContext.getExecutionConfig().getLocale()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);

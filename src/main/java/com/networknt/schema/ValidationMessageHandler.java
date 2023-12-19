@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public abstract class ValidationMessageHandler {
     protected final boolean failFast;
@@ -21,7 +19,9 @@ public abstract class ValidationMessageHandler {
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
+            Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType,
+            JsonSchema parentSchema, JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.customMessage = customMessage;
@@ -32,49 +32,14 @@ public abstract class ValidationMessageHandler {
         this.parentSchema = parentSchema;
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath instanceLocation,
-            Locale locale, Object... arguments) {
-        return buildValidationMessage(propertyName, instanceLocation, getErrorMessageType().getErrorCodeValue(), locale,
-                arguments);
-    }
-
-    protected ValidationMessage buildValidationMessage(String propertyName, JsonNodePath instanceLocation,
-            String messageKey, Locale locale, Object... arguments) {
-        String messagePattern = null;
-        if (this.customMessage != null) {
-            messagePattern = this.customMessage.get("");
-            if (propertyName != null) {
-                String specificMessagePattern = this.customMessage.get(propertyName);
-                if (specificMessagePattern != null) {
-                   messagePattern = specificMessagePattern; 
-                }
-            }
-        }
-        final ValidationMessage message = ValidationMessage.builder()
-                .code(getErrorMessageType().getErrorCode())
-                .instanceLocation(Objects.requireNonNull(instanceLocation))
-                .schemaLocation(this.schemaLocation)
-                .evaluationPath(this.evaluationPath)
-                .property(propertyName)
-                .arguments(arguments)
-                .messageKey(messageKey)
-                .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))
-                .type(getValidatorType().getValue())
-                .message(messagePattern)
-                .build();
-        if (this.failFast && isApplicator()) {
-            throw new JsonSchemaException(message);
-        }
-        return message;
-    }
-    
     protected MessageSourceValidationMessage.Builder message() {
         return MessageSourceValidationMessage.builder(this.messageSource, this.customMessage, message -> {
             if (this.failFast && isApplicator()) {
                 throw new JsonSchemaException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
-                .evaluationPath(this.evaluationPath).type(getValidatorType().getValue());
+                .evaluationPath(this.evaluationPath).type(getValidatorType().getValue())
+                .messageKey(getErrorMessageType().getErrorCodeValue());
     }
 
     protected ValidatorTypeCode getValidatorType() {

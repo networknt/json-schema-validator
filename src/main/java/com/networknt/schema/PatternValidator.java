@@ -60,8 +60,8 @@ public class PatternValidator extends BaseJsonValidator {
 
         try {
             if (!matches(node.asText())) {
-                return Collections.singleton(
-                        buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), this.pattern));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.pattern).build());
             }
         } catch (JsonSchemaException e) {
             throw e;

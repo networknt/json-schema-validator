@@ -43,8 +43,8 @@ public class MaxPropertiesValidator extends BaseJsonValidator implements JsonVal
 
         if (node.isObject()) {
             if (node.size() > max) {
-                return Collections.singleton(
-                        buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale(), "" + max));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
             }
         }
 

@@ -50,18 +50,21 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
                     // leading and trailing spaces
-                    errors.add(buildValidationMessage(null, instanceLocation,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 } else if(node.textValue().contains("%")) {
                     // zone id is not part of the ipv6
-                    errors.add(buildValidationMessage(null, instanceLocation,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(buildValidationMessage(null, instanceLocation,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid

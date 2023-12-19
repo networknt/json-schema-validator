@@ -78,8 +78,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         //If schema has type validator and node type doesn't match with schemaType then ignore it
                         //For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors.add(buildValidationMessage(null, instanceLocation,
-                                    executionContext.getExecutionConfig().getLocale(), typeValidator.getSchemaType().toString()));
+                            allErrors.add(message().instanceLocation(instanceLocation)
+                                    .locale(executionContext.getExecutionConfig().getLocale())
+                                    .arguments(typeValidator.getSchemaType().toString()).build());
                             continue;
                         }
                     }
@@ -108,8 +109,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         if (this.discriminatorContext.isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
                                 allErrors.addAll(errors);
-                                allErrors.add(buildValidationMessage(null,
-                                        instanceLocation, executionContext.getExecutionConfig().getLocale(), DISCRIMINATOR_REMARK));
+                                allErrors.add(message().instanceLocation(instanceLocation)
+                                        .locale(executionContext.getExecutionConfig().getLocale())
+                                        .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
                                 // Clear all errors.
                                 allErrors.clear();
@@ -136,8 +138,11 @@ public class AnyOfValidator extends BaseJsonValidator {
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
                 final Set<ValidationMessage> errors = new HashSet<>();
-                errors.add(buildValidationMessage(null, instanceLocation,
-                        executionContext.getExecutionConfig().getLocale(), "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
+                errors.add(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(
+                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                        .build());
                 return Collections.unmodifiableSet(errors);
             }
         } finally {

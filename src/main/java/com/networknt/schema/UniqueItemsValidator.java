@@ -45,7 +45,8 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
-                    return Collections.singleton(buildValidationMessage(null, instanceLocation, executionContext.getExecutionConfig().getLocale()));
+                    return Collections.singleton(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale()).build());
                 }
             }
         }

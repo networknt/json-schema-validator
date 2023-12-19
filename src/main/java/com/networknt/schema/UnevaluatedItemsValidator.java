@@ -96,9 +96,10 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
     }
 
     private Set<ValidationMessage> reportUnevaluatedPaths(Set<JsonNodePath> unevaluatedPaths, ExecutionContext executionContext) {
-        return unevaluatedPaths.stream().map(path -> 
-            buildValidationMessage(null, path, executionContext.getExecutionConfig().getLocale())
-        ).collect(Collectors.toCollection(LinkedHashSet::new));
+        return unevaluatedPaths
+                .stream().map(path -> message().instanceLocation(path)
+                        .locale(executionContext.getExecutionConfig().getLocale()).build())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static Set<JsonNodePath> unevaluatedPaths(CollectorContext collectorContext, Set<JsonNodePath> allPaths) {

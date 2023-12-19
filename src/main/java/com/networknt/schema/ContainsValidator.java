@@ -111,6 +111,7 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, JsonNodePath instanceLocation, int bounds) {
-        return Collections.singleton(buildValidationMessage(null, instanceLocation, messageKey, locale, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
+        return Collections.singleton(message().instanceLocation(instanceLocation).messageKey(messageKey).locale(locale)
+                .arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString()).build());
     }
 }
