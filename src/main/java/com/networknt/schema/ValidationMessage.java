@@ -201,18 +201,22 @@ public class ValidationMessage {
          * The instance location is the location of the JSON value within the root
          * instance being validated.
          * 
-         * @return The path to the input json
+         * @param instanceLocation the instance location
+         * @return the builder
          */
         public S instanceLocation(JsonNodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
             return self();
         }
-        
+
         /**
          * The schema location is the canonical URI of the schema object plus a JSON
          * Pointer fragment indicating the subschema that produced a result. In contrast
          * with the evaluation path, the schema location MUST NOT include by-reference
          * applicators such as $ref or $dynamicRef.
+         * 
+         * @param schemaLocation the schema location
+         * @return the builder
          */
         public S schemaLocation(JsonNodePath schemaLocation) {
             this.schemaLocation = schemaLocation;
@@ -223,8 +227,9 @@ public class ValidationMessage {
          * The evaluation path is the set of keys, starting from the schema root,
          * through which evaluation passes to reach the schema object that produced a
          * specific result.
-         * 
-         * @return the evaluation path
+         *
+         * @param evaluationPath the evaluation path
+         * @return the builder
          */
         public S evaluationPath(JsonNodePath evaluationPath) {
             this.evaluationPath = evaluationPath;
