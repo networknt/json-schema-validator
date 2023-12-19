@@ -161,8 +161,8 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         if (this.validatorFactory == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());
         }
-        return validatorFactory.newInstance(schemaLocation.resolve(getValue()), evaluationPath.resolve(getValue()),
-                schemaNode, parentSchema, validationContext);
+        return validatorFactory.newInstance(schemaLocation, evaluationPath, schemaNode, parentSchema,
+                validationContext);
     }
 
     @Override
