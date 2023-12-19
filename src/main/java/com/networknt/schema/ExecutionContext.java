@@ -23,35 +23,74 @@ public class ExecutionContext {
     private ExecutionConfig executionConfig;
     private CollectorContext collectorContext;
 
+    /**
+     * Creates an execution context.
+     */
     public ExecutionContext() {
         this(new CollectorContext());
     }
 
+    /**
+     * Creates an execution context.
+     * 
+     * @param collectorContext the collector context
+     */
     public ExecutionContext(CollectorContext collectorContext) {
         this(new ExecutionConfig(), collectorContext);
     }
-    
+
+    /**
+     * Creates an execution context.
+     * 
+     * @param executionConfig the execution configuration
+     */
     public ExecutionContext(ExecutionConfig executionConfig) {
         this(executionConfig, new CollectorContext());
     }
-    
+
+    /**
+     * Creates an execution context.
+     * 
+     * @param executionConfig  the execution configuration
+     * @param collectorContext the collector context
+     */
     public ExecutionContext(ExecutionConfig executionConfig, CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
         this.executionConfig = executionConfig;
     }
 
+    /**
+     * Gets the collector context.
+     * 
+     * @return the collector context
+     */
     public CollectorContext getCollectorContext() {
         return collectorContext;
     }
 
+    /**
+     * Sets the collector context.
+     * 
+     * @param collectorContext the collector context
+     */
     public void setCollectorContext(CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
     }
 
+    /**
+     * Gets the execution configuration.
+     * 
+     * @return the execution configuration
+     */
     public ExecutionConfig getExecutionConfig() {
         return executionConfig;
     }
 
+    /**
+     * Sets the execution configuration.
+     * 
+     * @param executionConfig the execution configuration
+     */
     public void setExecutionConfig(ExecutionConfig executionConfig) {
         this.executionConfig = executionConfig;
     }
