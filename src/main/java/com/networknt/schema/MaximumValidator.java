@@ -48,8 +48,6 @@ public class MaximumValidator extends BaseJsonValidator {
             excludeEqual = exclusiveMaximumNode.booleanValue();
         }
 
-        parseErrorCode(getValidatorType().getErrorCodeKey());
-
         final String maximumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range

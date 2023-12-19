@@ -48,8 +48,6 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                         evaluationPath.resolve(pname), pvalue, parentSchema));
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

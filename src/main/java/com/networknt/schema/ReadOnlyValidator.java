@@ -34,7 +34,6 @@ public class ReadOnlyValidator extends BaseJsonValidator {
 
         this.readOnly = validationContext.getConfig().isReadOnly();
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override

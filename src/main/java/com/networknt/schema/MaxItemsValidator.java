@@ -36,7 +36,6 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
             max = schemaNode.intValue();
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

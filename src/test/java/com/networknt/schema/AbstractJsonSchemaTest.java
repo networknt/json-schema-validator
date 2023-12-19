@@ -21,8 +21,8 @@ public abstract class AbstractJsonSchemaTest {
 
     private static final String SCHEMA = "$schema";
     private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;
-    private static final String ASSERT_MSG_ERROR_CODE = "Validation result should contain {} error code";
-    private static final String ASSERT_MSG_TYPE = "Validation result should contain {} type";
+    private static final String ASSERT_MSG_ERROR_CODE = "Validation result should contain {0} error code";
+    private static final String ASSERT_MSG_TYPE = "Validation result should contain {0} type";
 
     protected Set<ValidationMessage> validate(String dataPath) {
         JsonNode dataNode = getJsonNodeFromPath(dataPath);

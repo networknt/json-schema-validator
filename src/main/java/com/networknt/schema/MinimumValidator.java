@@ -51,8 +51,6 @@ public class MinimumValidator extends BaseJsonValidator {
             excludeEqual = exclusiveMinimumNode.booleanValue();
         }
 
-        parseErrorCode(getValidatorType().getErrorCodeKey());
-
         final String minimumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range

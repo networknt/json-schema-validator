@@ -34,8 +34,6 @@ public class MaxPropertiesValidator extends BaseJsonValidator implements JsonVal
         if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

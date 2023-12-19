@@ -34,8 +34,6 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

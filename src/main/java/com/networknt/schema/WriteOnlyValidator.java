@@ -18,7 +18,6 @@ public class WriteOnlyValidator extends BaseJsonValidator {
 
         this.writeOnly = validationContext.getConfig().isWriteOnly();
         logger.debug("Loaded WriteOnlyValidator for property {} as {}", parentSchema, "write mode");
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override

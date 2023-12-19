@@ -38,8 +38,6 @@ public class TypeValidator extends BaseJsonValidator {
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public JsonType getSchemaType() {

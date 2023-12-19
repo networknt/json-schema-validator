@@ -42,9 +42,6 @@ public class ExclusiveMinimumValidator extends BaseJsonValidator {
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMinimum value is not a number");
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
-
         final String minimumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range

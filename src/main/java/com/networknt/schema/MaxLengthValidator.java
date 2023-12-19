@@ -35,7 +35,6 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
             maxLength = schemaNode.intValue();
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

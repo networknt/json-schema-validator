@@ -68,8 +68,6 @@ public class ItemsValidator extends BaseJsonValidator {
 
         this.validationContext = validationContext;
 
-        parseErrorCode(getValidatorType().getErrorCodeKey());
-
         this.schema = foundSchema;
         this.additionalSchema = foundAdditionalSchema;
     }

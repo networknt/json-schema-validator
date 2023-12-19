@@ -38,8 +38,6 @@ public class DependentSchemas extends BaseJsonValidator {
                         evaluationPath.resolve(pname), pvalue, parentSchema));
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override

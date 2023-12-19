@@ -50,6 +50,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                              ValidatorTypeCode validatorType,
                              ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
         super(validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(), validatorType, validatorType != null ? validatorType.getCustomMessage() : null, (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getMessageSource() : DefaultMessageSource.getInstance(), validatorType, parentSchema, schemaLocation, evaluationPath);
+        this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;

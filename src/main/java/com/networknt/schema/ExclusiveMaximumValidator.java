@@ -38,9 +38,6 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator {
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMaximum value is not a number");
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
-
         final String maximumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range

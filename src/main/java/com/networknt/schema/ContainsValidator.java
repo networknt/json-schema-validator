@@ -62,8 +62,6 @@ public class ContainsValidator extends BaseJsonValidator {
         } else {
             this.schema = null;
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override

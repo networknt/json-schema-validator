@@ -34,8 +34,6 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();
         }
-        this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

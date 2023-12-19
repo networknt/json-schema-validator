@@ -34,8 +34,6 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

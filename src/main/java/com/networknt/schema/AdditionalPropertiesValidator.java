@@ -62,8 +62,6 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

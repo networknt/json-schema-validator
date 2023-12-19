@@ -52,8 +52,6 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
 
         this.validationContext = validationContext;
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override

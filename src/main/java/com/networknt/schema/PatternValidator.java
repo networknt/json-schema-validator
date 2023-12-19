@@ -42,7 +42,6 @@ public class PatternValidator extends BaseJsonValidator {
             throw e;
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     private boolean matches(String value) {
