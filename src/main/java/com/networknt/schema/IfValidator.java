@@ -27,7 +27,7 @@ import java.util.*;
 public class IfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 
-    private static final ArrayList<String> KEYWORDS = new ArrayList<>(Arrays.asList("if", "then", "else"));
+    private static final List<String> KEYWORDS = Arrays.asList("if", "then", "else");
 
     private final JsonSchema ifSchema;
     private final JsonSchema thenSchema;
@@ -41,14 +41,18 @@ public class IfValidator extends BaseJsonValidator {
         JsonSchema foundElseSchema = null;
 
         for (final String keyword : KEYWORDS) {
-            final JsonNode node = schemaNode.get(keyword);
+            final JsonNode node = parentSchema.getSchemaNode().get(keyword);
             final JsonNodePath schemaLocationOfSchema = parentSchema.schemaLocation.resolve(keyword);
+            final JsonNodePath evaluationPathOfSchema = parentSchema.evaluationPath.resolve(keyword);
             if (keyword.equals("if")) {
-                foundIfSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
+                foundIfSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                        parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
+                foundThenSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                        parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPath, node, parentSchema);
+                foundElseSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                        parentSchema);
             }
         }
 

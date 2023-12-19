@@ -246,7 +246,7 @@ public class JsonSchema extends BaseJsonValidator {
             Iterator<String> pnames = schemaNode.fieldNames();
             while (pnames.hasNext()) {
                 String pname = pnames.next();
-                JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
+                JsonNode nodeToUse = schemaNode.get(pname);
                 Map<String, String> customMessage = getCustomMessage(schemaNode, pname);
 
                 JsonNodePath path = getEvaluationPath().resolve(pname);
