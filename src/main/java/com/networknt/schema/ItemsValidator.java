@@ -59,8 +59,8 @@ public class ItemsValidator extends BaseJsonValidator {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
                     foundAdditionalSchema = validationContext.newSchema(
-                            schemaLocation.resolve(PROPERTY_ADDITIONAL_ITEMS),
-                            evaluationPath.resolve(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
+                            parentSchema.schemaLocation.resolve(PROPERTY_ADDITIONAL_ITEMS),
+                            parentSchema.evaluationPath.resolve(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
                 }
             }
         }
