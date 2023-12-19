@@ -16,6 +16,8 @@
 
 package com.networknt.schema;
 
+import com.networknt.schema.annotation.JsonNodeAnnotations;
+import com.networknt.schema.assertion.JsonNodeAssertions;
 import java.util.Stack;
 
 /**
@@ -26,6 +28,8 @@ public class ExecutionContext {
     private CollectorContext collectorContext;
     private ValidatorState validatorState = null;
     private Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
+    private JsonNodeAnnotations annotations = new JsonNodeAnnotations();
+    private JsonNodeAssertions assertions = new JsonNodeAssertions();
 
     /**
      * Creates an execution context.
@@ -97,6 +101,14 @@ public class ExecutionContext {
      */
     public void setExecutionConfig(ExecutionConfig executionConfig) {
         this.executionConfig = executionConfig;
+    }
+
+    public JsonNodeAnnotations getAnnotations() {
+        return annotations;
+    }
+
+    public JsonNodeAssertions getAssertions() {
+        return assertions;
     }
 
     /**

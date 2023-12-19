@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -58,18 +59,34 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
-            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
+//                    evaluatedItems.add(path);
                 } else {
                     errors.addAll(results);
                 }
+            }
+
+            // Add annotation
+            // Tuples
+            int items = node.isArray() ? node.size() : 1;
+            int schemas = this.tupleSchema.size();
+            if (items > schemas) {
+                // More items than schemas so the keyword only applied to the number of schemas
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(schemas).build());
+            } else {
+                // Applies to all
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(true).build());
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
         } else {

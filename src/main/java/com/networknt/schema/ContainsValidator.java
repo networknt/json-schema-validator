@@ -18,11 +18,15 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -38,8 +42,8 @@ public class ContainsValidator extends BaseJsonValidator {
     private final JsonSchema schema;
     private final boolean isMinV201909;
 
-    private int min = 1;
-    private int max = Integer.MAX_VALUE;
+    private Integer min = null;
+    private Integer max = null;
 
     public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
@@ -69,40 +73,83 @@ public class ContainsValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, instanceLocation);
 
         // ignores non-arrays
+        Set<ValidationMessage> results = null;
+        int actual = 0, i = 0;
+        List<Integer> indexes = new ArrayList<>(); // for the annotation
         if (null != this.schema && node.isArray()) {
-            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
 
-            int actual = 0, i = 0;
             for (JsonNode n : node) {
                 JsonNodePath path = instanceLocation.append(i);
-
                 if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
+//                    evaluatedItems.add(path);
+                    indexes.add(i);
                 }
                 ++i;
             }
-
-            if (actual < this.min) {
+            int m = 1; // default to 1 if "min" not specified
+            if (this.min != null) {
+                m = this.min;
+            }
+            if (actual < m) {
                 if(isMinV201909) {
                     updateValidatorType(ValidatorTypeCode.MIN_CONTAINS);
                 }
-                return boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(),
-                        executionContext.getExecutionConfig().getLocale(), instanceLocation, this.min);
+                results = boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(),
+                        executionContext.getExecutionConfig().getLocale(), instanceLocation, m);
             }
 
-            if (actual > this.max) {
+            if (this.max != null && actual > this.max) {
                 if(isMinV201909) {
                     updateValidatorType(ValidatorTypeCode.MAX_CONTAINS);
                 }
-                return boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(),
+                results = boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(),
                         executionContext.getExecutionConfig().getLocale(), instanceLocation, this.max);
             }
         }
 
-        return Collections.emptySet();
+        if (this.schema != null) {
+            // This keyword produces an annotation value which is an array of the indexes to
+            // which this keyword validates successfully when applying its subschema, in
+            // ascending order. The value MAY be a boolean "true" if the subschema validates
+            // successfully when applied to every index of the instance. The annotation MUST
+            // be present if the instance array to which this keyword's schema applies is
+            // empty.
+            if (actual == i) {
+                // evaluated all
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(true).build());
+            } else {
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(indexes).build());
+            }
+            // Add minContains and maxContains annotations
+            if (this.min != null) {
+                // Omitted keywords MUST NOT produce annotation results. However, as described
+                // in the section for contains, the absence of this keyword's annotation causes
+                // contains to assume a minimum value of 1.
+                String minContainsKeyword = "minContains";
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath.append(minContainsKeyword))
+                                .schemaLocation(this.schemaLocation.append(minContainsKeyword))
+                                .keyword(minContainsKeyword).value(this.min).build());
+            }
+            if (this.max != null) {
+                String maxContainsKeyword = "maxContains";
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
+                                .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
+                                .keyword(maxContainsKeyword).value(this.max).build());
+            }
+        }
+        return results == null ? Collections.emptySet() : results;
     }
 
     @Override

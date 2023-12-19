@@ -43,16 +43,12 @@ public class CollectorContext {
     private Map<String, Object> collectorLoadMap = new HashMap<>();
 
     private final Deque<Scope> dynamicScopes = new LinkedList<>();
-    private final boolean disableUnevaluatedItems;
-    private final boolean disableUnevaluatedProperties;
 
     public CollectorContext() {
         this(false, false);
     }
 
     public CollectorContext(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
-        this.disableUnevaluatedItems = disableUnevaluatedItems;
-        this.disableUnevaluatedProperties = disableUnevaluatedProperties;
         this.dynamicScopes.push(newTopScope());
     }
 
@@ -112,24 +108,6 @@ public class CollectorContext {
         }
 
         return context.findLexicalRoot();
-    }
-
-    /**
-     * Identifies which array items have been evaluated.
-     * 
-     * @return the set of evaluated items (never null)
-     */
-    public Collection<JsonNodePath> getEvaluatedItems() {
-        return getDynamicScope().getEvaluatedItems();
-    }
-
-    /**
-     * Identifies which properties have been evaluated.
-     * 
-     * @return the set of evaluated properties (never null)
-     */
-    public Collection<JsonNodePath> getEvaluatedProperties() {
-        return getDynamicScope().getEvaluatedProperties();
     }
 
     /**
@@ -226,38 +204,26 @@ public class CollectorContext {
     }
 
     private Scope newScope(JsonSchema containingSchema) {
-        return new Scope(this.disableUnevaluatedItems, this.disableUnevaluatedProperties, containingSchema);
+        return new Scope(containingSchema);
     }
 
     private Scope newTopScope() {
-        return new Scope(true, this.disableUnevaluatedItems, this.disableUnevaluatedProperties, null);
+        return new Scope(true, null);
     }
 
     public static class Scope {
 
         private final JsonSchema containingSchema;
 
-        /**
-         * Used to track which array items have been evaluated.
-         */
-        private final Collection<JsonNodePath> evaluatedItems;
-
-        /**
-         * Used to track which properties have been evaluated.
-         */
-        private final Collection<JsonNodePath> evaluatedProperties;
-
         private final boolean top;
 
-        Scope(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties, JsonSchema containingSchema) {
-            this(false, disableUnevaluatedItems, disableUnevaluatedProperties, containingSchema);
+        Scope(JsonSchema containingSchema) {
+            this(false, containingSchema);
         }
 
-        Scope(boolean top, boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties, JsonSchema containingSchema) {
+        Scope(boolean top, JsonSchema containingSchema) {
             this.top = top;
             this.containingSchema = containingSchema;
-            this.evaluatedItems = newCollection(disableUnevaluatedItems);
-            this.evaluatedProperties = newCollection(disableUnevaluatedProperties);
         }
 
         private static Collection<JsonNodePath> newCollection(boolean disabled) {
@@ -295,46 +261,24 @@ public class CollectorContext {
         }
 
         /**
-         * Identifies which array items have been evaluated.
-         * 
-         * @return the set of evaluated items (never null)
-         */
-        public Collection<JsonNodePath> getEvaluatedItems() {
-            return this.evaluatedItems;
-        }
-
-        /**
-         * Identifies which properties have been evaluated.
-         * 
-         * @return the set of evaluated properties (never null)
-         */
-        public Collection<JsonNodePath> getEvaluatedProperties() {
-            return this.evaluatedProperties;
-        }
-
-        /**
          * Merges the provided scope into this scope.
          * @param scope the scope to merge
          * @return this scope
          */
         public Scope mergeWith(Scope scope) {
-            if (!scope.getEvaluatedItems().isEmpty()) {
-                getEvaluatedItems().addAll(scope.getEvaluatedItems());
-            }
-            if (!scope.getEvaluatedProperties().isEmpty()) {
-                getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-            }
+//            getEvaluatedItems().addAll(scope.getEvaluatedItems());
+//            getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
             return this;
         }
 
-        @Override
-        public String toString() {
-            return new StringBuilder("{ ")
-                .append("\"evaluatedItems\": ").append(this.evaluatedItems)
-                .append(", ")
-                .append("\"evaluatedProperties\": ").append(this.evaluatedProperties)
-                .append(" }").toString();
-        }
+//        @Override
+//        public String toString() {
+//            return new StringBuilder("{ ")
+//                .append("\"evaluatedItems\": ").append(this.evaluatedItems)
+//                .append(", ")
+//                .append("\"evaluatedProperties\": ").append(this.evaluatedProperties)
+//                .append(" }").toString();
+//        }
 
     }
 }

@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -43,7 +44,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
@@ -52,16 +52,15 @@ public class PropertiesValidator extends BaseJsonValidator {
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();
 
-        Set<ValidationMessage> requiredErrors = null; 
-
+        Set<ValidationMessage> requiredErrors = null;
+        Set<String> matchedInstancePropertyNames = new LinkedHashSet<>();
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
                 JsonNodePath path = instanceLocation.append(entry.getKey());
-                if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                    collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
-                }
+//                collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
+                matchedInstancePropertyNames.add(entry.getKey());
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
@@ -70,7 +69,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
                  // reset the complex validator for child element validation, and reset it after the return from the recursive call
                 state.setComplexValidator(false);
-                
+
                 if (!state.isWalkEnabled()) {
                     //validate the child element(s)
                     Set<ValidationMessage> result = propertySchema.validate(executionContext, propertyNode, rootNode, path);
@@ -119,6 +118,11 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
+        executionContext.getAnnotations()
+                .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
+                        .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(matchedInstancePropertyNames)
+                        .build());
+
         return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 

@@ -65,13 +65,13 @@ public class TypeValidator extends BaseJsonValidator {
         // TODO: Is this really necessary?
         // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
         // Hack to catch patternProperties like "^foo":"value"
-        if (this.schemaLocation.getFragment().getName(-1).equals("type")) {
-            if (rootNode.isArray()) {
-                executionContext.getCollectorContext().getEvaluatedItems().add(instanceLocation);
-            } else if (rootNode.isObject()) {
-                executionContext.getCollectorContext().getEvaluatedProperties().add(instanceLocation);
-            }
-        }
+//        if (this.schemaLocation.getName(-1).equals("type")) {
+//            if (rootNode.isArray()) {
+//                executionContext.getCollectorContext().getEvaluatedItems().add(instanceLocation);
+//            } else if (rootNode.isObject()) {
+//                executionContext.getCollectorContext().getEvaluatedProperties().add(instanceLocation);
+//            }
+//        }
         return Collections.emptySet();
     }
 }

@@ -102,8 +102,8 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
                 errors.add(message);
                 errors.addAll(childErrors);
-                collectorContext.getEvaluatedItems().clear();
-                collectorContext.getEvaluatedProperties().clear();
+//                collectorContext.getEvaluatedItems().clear();
+//                collectorContext.getEvaluatedProperties().clear();
             }
 
             // Make sure to signal parent handlers we matched

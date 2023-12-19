@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -61,18 +62,25 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
-            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+            boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 // validate with item schema (the whole array has the same item schema)
                 Set<ValidationMessage> results = this.schema.validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
+//                    evaluatedItems.add(path);
                 } else {
                     errors.addAll(results);
                 }
+                evaluated = true;
+            }
+            if (evaluated) {
+                // Applies to all
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(true).build());
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
         } else {

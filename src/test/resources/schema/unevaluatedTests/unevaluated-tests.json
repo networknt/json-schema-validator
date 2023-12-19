@@ -514,9 +514,7 @@
         "valid": false,
         "validationMessages": [
           "$.vehicle: required property 'wings' not found",
-          "$.vehicle.pontoons: must not have unevaluated properties",
-          "$.vehicle.unevaluated: must not have unevaluated properties",
-          "$.vehicle.wheels: must not have unevaluated properties"
+          "$.vehicle.unevaluated: must not have unevaluated properties"
         ]
       }
     ]

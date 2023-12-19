@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
 
 import org.slf4j.Logger;
@@ -71,13 +72,15 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
 
+        Set<String> matchedInstancePropertyNames = new LinkedHashSet<>();
+
         CollectorContext collectorContext = executionContext.getCollectorContext();
-        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-            // if allowAdditionalProperties is true, add all the properties as evaluated.
-            if (allowAdditionalProperties) {
-                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                    collectorContext.getEvaluatedProperties().add(instanceLocation.append(it.next()));
-                }
+        // if allowAdditionalProperties is true, add all the properties as evaluated.
+        if (allowAdditionalProperties) {
+            for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+                String fieldName = it.next();
+                matchedInstancePropertyNames.add(fieldName);
+//                collectorContext.getEvaluatedProperties().add(instanceLocation.resolve(fieldName));
             }
         }
 
@@ -128,6 +131,10 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
+        executionContext.getAnnotations()
+                .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
+                        .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(matchedInstancePropertyNames)
+                        .build());
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
