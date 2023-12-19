@@ -27,27 +27,6 @@ import com.networknt.schema.walk.JsonSchemaWalker;
  */
 public interface JsonValidator extends JsonSchemaWalker {
     /**
-     * Gets the {@link PathType} to use.
-     *
-     * @return the path type use for the root path
-     */
-    default PathType getPathType() {
-        return PathType.DEFAULT;
-    }
-
-    /**
-     * Validate the given root JsonNode, starting at the root of the data path.
-     * @param executionContext  ExecutionContext
-     * @param rootNode JsonNode
-     *
-     * @return A list of ValidationMessage if there is any validation error, or an empty
-     * list if there is no error.
-     */
-    default Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-        return validate(executionContext, rootNode, rootNode, new JsonNodePath(getPathType()));
-    }
-
-    /**
      * Validate the given JsonNode, the given node is the child node of the root node at given
      * data path.
      * @param executionContext  ExecutionContext

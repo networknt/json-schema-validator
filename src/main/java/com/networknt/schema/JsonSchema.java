@@ -69,7 +69,8 @@ public class JsonSchema extends BaseJsonValidator {
 
     private JsonSchema(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, URI currentUri,
                        JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation, evaluationPath, schemaNode, parent, null, validationContext, suppressSubSchemaRetrieval);
+        super(schemaLocation, evaluationPath, schemaNode, parent, null, null, null, validationContext,
+                suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
