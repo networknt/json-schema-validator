@@ -7,6 +7,7 @@ import com.networknt.schema.utils.StringUtils;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class ValidationMessageHandler {
     protected final boolean failFast;
@@ -66,6 +67,15 @@ public abstract class ValidationMessageHandler {
         }
         return message;
     }
+    
+    protected MessageSourceValidationMessage.Builder message() {
+        return MessageSourceValidationMessage.builder(this.messageSource, this.customMessage, message -> {
+            if (this.failFast && isApplicator()) {
+                throw new JsonSchemaException(message);
+            }
+        }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
+                .evaluationPath(this.evaluationPath).type(getValidatorType().getValue());
+    }
 
     protected ValidatorTypeCode getValidatorType() {
         return this.validatorType;
@@ -81,7 +91,6 @@ public abstract class ValidationMessageHandler {
                 && !isPartOfNotMultipleType()
                 && !isPartOfOneOfMultipleType();
     }
-
 
     private boolean isPartOfAnyOfMultipleType() {
         return schemaLocationContains(ValidatorTypeCode.ANY_OF.getValue());
@@ -127,4 +136,6 @@ public abstract class ValidationMessageHandler {
         this.errorMessageType = validatorTypeCode;
         parseErrorCode(validatorTypeCode.getErrorCodeKey());
     }
+    
+
 }

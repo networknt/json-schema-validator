@@ -163,29 +163,38 @@ public class ValidationMessage {
         return new Builder();
     }
 
-    public static class Builder {
-        private String type;
-        private String code;
-        private JsonNodePath evaluationPath;
-        private JsonNodePath schemaLocation;
-        private JsonNodePath instanceLocation;
-        private String property;
-        private Object[] arguments;
-        private Map<String, Object> details;
-        private MessageFormat format;
-        private String message;
-        private Supplier<String> messageSupplier;
-        private MessageFormatter messageFormatter;
-        private String messageKey;
-
-        public Builder type(String type) {
-            this.type = type;
+    public static class Builder extends BuilderSupport<Builder> {
+        @Override
+        public Builder self() {
             return this;
         }
+    }
 
-        public Builder code(String code) {
+    public static abstract class BuilderSupport<S> {
+        public abstract S self();
+
+        protected String type;
+        protected String code;
+        protected JsonNodePath evaluationPath;
+        protected JsonNodePath schemaLocation;
+        protected JsonNodePath instanceLocation;
+        protected String property;
+        protected Object[] arguments;
+        protected Map<String, Object> details;
+        protected MessageFormat format;
+        protected String message;
+        protected Supplier<String> messageSupplier;
+        protected MessageFormatter messageFormatter;
+        protected String messageKey;
+
+        public S type(String type) {
+            this.type = type;
+            return self();
+        }
+
+        public S code(String code) {
             this.code = code;
-            return this;
+            return self();
         }
 
         /**
@@ -194,9 +203,9 @@ public class ValidationMessage {
          * 
          * @return The path to the input json
          */
-        public Builder instanceLocation(JsonNodePath instanceLocation) {
+        public S instanceLocation(JsonNodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
-            return this;
+            return self();
         }
         
         /**
@@ -205,9 +214,9 @@ public class ValidationMessage {
          * with the evaluation path, the schema location MUST NOT include by-reference
          * applicators such as $ref or $dynamicRef.
          */
-        public Builder schemaLocation(JsonNodePath schemaLocation) {
+        public S schemaLocation(JsonNodePath schemaLocation) {
             this.schemaLocation = schemaLocation;
-            return this;
+            return self();
         }
 
         /**
@@ -217,33 +226,33 @@ public class ValidationMessage {
          * 
          * @return the evaluation path
          */
-        public Builder evaluationPath(JsonNodePath evaluationPath) {
+        public S evaluationPath(JsonNodePath evaluationPath) {
             this.evaluationPath = evaluationPath;
-            return this;
+            return self();
         }
         
-        public Builder property(String property) {
+        public S property(String property) {
             this.property = property;
-            return this;
+            return self();
         }
 
-        public Builder arguments(Object... arguments) {
+        public S arguments(Object... arguments) {
             this.arguments = arguments;
-            return this;
+            return self();
         }
 
-        public Builder details(Map<String, Object> details) {
+        public S details(Map<String, Object> details) {
             this.details = details;
-            return this;
+            return self();
         }
 
-        public Builder format(MessageFormat format) {
+        public S format(MessageFormat format) {
             this.format = format;
-            return this;
+            return self();
         }
 
         @Deprecated
-        public Builder customMessage(String message) {
+        public S customMessage(String message) {
             return message(message);
         }
 
@@ -255,24 +264,24 @@ public class ValidationMessage {
          * @param message the message pattern
          * @return the builder
          */
-        public Builder message(String message) {
+        public S message(String message) {
             this.message = message;
-            return this;
+            return self();
         }
 
-        public Builder messageSupplier(Supplier<String> messageSupplier) {
+        public S messageSupplier(Supplier<String> messageSupplier) {
             this.messageSupplier = messageSupplier;
-            return this;
+            return self();
         }
 
-        public Builder messageFormatter(MessageFormatter messageFormatter) {
+        public S messageFormatter(MessageFormatter messageFormatter) {
             this.messageFormatter = messageFormatter;
-            return this;
+            return self();
         }
 
-        public Builder messageKey(String messageKey) {
+        public S messageKey(String messageKey) {
             this.messageKey = messageKey;
-            return this;
+            return self();
         }
 
         public ValidationMessage build() {
@@ -282,14 +291,14 @@ public class ValidationMessage {
             if (StringUtils.isNotBlank(this.message)) {
                 messageKey = this.message;
                 if (this.message.contains("{")) {
-                    Object[] objs = getArguments();
+                    Object[] objs = getMessageArguments();
                     MessageFormat format = new MessageFormat(this.message);
                     messageSupplier = new CachingSupplier<>(() -> format.format(objs));
                 } else {
                     messageSupplier = message::toString;
                 }
             } else if (messageSupplier == null) {
-                Object[] objs = getArguments();
+                Object[] objs = getMessageArguments();
                 MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
                 messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
@@ -297,7 +306,7 @@ public class ValidationMessage {
                     property, arguments, details, messageKey, messageSupplier);
         }
         
-        private Object[] getArguments() {
+        protected Object[] getMessageArguments() {
             Object[] objs = new Object[(arguments == null ? 0 : arguments.length) + 1];
             objs[0] = instanceLocation;
             if (arguments != null) {
@@ -306,6 +315,58 @@ public class ValidationMessage {
                 }
             }
             return objs;
+        }
+
+        protected String getType() {
+            return type;
+        }
+
+        protected String getCode() {
+            return code;
+        }
+
+        protected JsonNodePath getEvaluationPath() {
+            return evaluationPath;
+        }
+
+        protected JsonNodePath getSchemaLocation() {
+            return schemaLocation;
+        }
+
+        protected JsonNodePath getInstanceLocation() {
+            return instanceLocation;
+        }
+
+        protected String getProperty() {
+            return property;
+        }
+
+        protected Object[] getArguments() {
+            return arguments;
+        }
+
+        protected Map<String, Object> getDetails() {
+            return details;
+        }
+
+        protected MessageFormat getFormat() {
+            return format;
+        }
+
+        protected String getMessage() {
+            return message;
+        }
+
+        protected Supplier<String> getMessageSupplier() {
+            return messageSupplier;
+        }
+
+        protected MessageFormatter getMessageFormatter() {
+            return messageFormatter;
+        }
+
+        protected String getMessageKey() {
+            return messageKey;
         }
     }
 }
