@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class ValidationMessageHandler {
-    protected final boolean failFast;
+    protected boolean failFast;
     protected final MessageSource messageSource;
     protected ErrorMessageType errorMessageType;
 

@@ -255,6 +255,39 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return validate(executionContext, node, node, atRoot());
     }
 
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>              the result type
+     * @param executionContext the execution context
+     * @param node             the node
+     * @param format           the format
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
+        return validate(executionContext, node, format, null);
+    }
+
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param node                the node
+     * @param format              the format
+     * @param executionCustomizer the customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
+            ExecutionCustomizer executionCustomizer) {
+        format.customize(executionContext, this.validationContext);
+        if (executionCustomizer != null) {
+            executionCustomizer.customize(executionContext, validationContext);
+        }
+        Set<ValidationMessage> validationMessages = validate(executionContext, node);
+        return format.format(validationMessages, executionContext, this.validationContext);
+    }
+
     protected String getNodeFieldType() {
         JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
         if (typeField != null) {

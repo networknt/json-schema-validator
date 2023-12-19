@@ -105,7 +105,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     TRUE("true", "1040", TrueValidator::new, VersionCode.MinV6),
     TYPE("type", "1029", TypeValidator::new, VersionCode.AllVersions),
     UNEVALUATED_ITEMS("unevaluatedItems", "1021", UnevaluatedItemsValidator::new, VersionCode.MinV201909),
-    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",UnevaluatedPropertiesValidator::new,VersionCode.MinV6),
+    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",UnevaluatedPropertiesValidator::new,VersionCode.MinV201909),
     UNION_TYPE("unionType", "1030", UnionTypeValidator::new, VersionCode.AllVersions),
     UNIQUE_ITEMS("uniqueItems", "1031", UniqueItemsValidator::new, VersionCode.AllVersions),
     UUID("uuid", "1035", null, VersionCode.AllVersions),
