@@ -72,10 +72,12 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         }
 
         CollectorContext collectorContext = executionContext.getCollectorContext();
-        // if allowAdditionalProperties is true, add all the properties as evaluated.
-        if (allowAdditionalProperties) {
-            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                collectorContext.getEvaluatedProperties().add(instanceLocation.resolve(it.next()));
+        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+            // if allowAdditionalProperties is true, add all the properties as evaluated.
+            if (allowAdditionalProperties) {
+                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+                    collectorContext.getEvaluatedProperties().add(instanceLocation.resolve(it.next()));
+                }
             }
         }
 

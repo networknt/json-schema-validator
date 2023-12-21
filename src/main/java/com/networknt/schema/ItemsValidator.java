@@ -103,7 +103,9 @@ public class ItemsValidator extends BaseJsonValidator {
             // schema)
             Set<ValidationMessage> results = this.schema.validate(executionContext, node, rootNode, path);
             if (results.isEmpty()) {
-                evaluatedItems.add(path);
+                if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                    evaluatedItems.add(path);
+                }
             } else {
                 errors.addAll(results);
             }
@@ -112,7 +114,9 @@ public class ItemsValidator extends BaseJsonValidator {
                 // validate against tuple schema
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node, rootNode, path);
                 if (results.isEmpty()) {
-                    evaluatedItems.add(path);
+                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                        evaluatedItems.add(path);
+                    }
                 } else {
                     errors.addAll(results);
                 }
@@ -121,13 +125,17 @@ public class ItemsValidator extends BaseJsonValidator {
                     // validate against additional item schema
                     Set<ValidationMessage> results = this.additionalSchema.validate(executionContext, node, rootNode, path);
                     if (results.isEmpty()) {
-                        evaluatedItems.add(path);
+                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                            evaluatedItems.add(path);
+                        }
                     } else {
                         errors.addAll(results);
                     }
                 } else if (this.additionalItems != null) {
                     if (this.additionalItems) {
-                        evaluatedItems.add(path);
+                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                            evaluatedItems.add(path);
+                        }
                     } else {
                         // no additional item allowed, return error
                         errors.add(message().instanceLocation(path)

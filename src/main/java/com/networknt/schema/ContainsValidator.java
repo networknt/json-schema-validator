@@ -78,7 +78,9 @@ public class ContainsValidator extends BaseJsonValidator {
 
                 if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;
-                    evaluatedItems.add(path);
+                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                        evaluatedItems.add(path);
+                    }
                 }
                 ++i;
             }

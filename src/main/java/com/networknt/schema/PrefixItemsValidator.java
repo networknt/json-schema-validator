@@ -66,7 +66,9 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                 JsonNodePath path = instanceLocation.resolve(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
-                    evaluatedItems.add(path);
+                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                        evaluatedItems.add(path);
+                    }
                 } else {
                     errors.addAll(results);
                 }

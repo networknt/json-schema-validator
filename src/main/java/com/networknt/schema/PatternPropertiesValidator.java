@@ -59,7 +59,9 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
                     JsonNodePath path = instanceLocation.resolve(name);
                     Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, path);
                     if (results.isEmpty()) {
-                        executionContext.getCollectorContext().getEvaluatedProperties().add(path);
+                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                            executionContext.getCollectorContext().getEvaluatedProperties().add(path);
+                        }
                     } else {
                         if (errors == null) {
                             errors = new LinkedHashSet<>();
