@@ -42,7 +42,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * The validators sorted and indexed by evaluation path.
      */
-    private Map<JsonNodePath, JsonValidator> validators;
+    private List<JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
     private boolean dynamicAnchor = false;
@@ -220,19 +220,19 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Please note that the key in {@link #validators} map is the evaluation path.
      */
-    private Map<JsonNodePath, JsonValidator> read(JsonNode schemaNode) {
-        Map<JsonNodePath, JsonValidator> validators = new TreeMap<>(VALIDATOR_SORT);
+    private List<JsonValidator> read(JsonNode schemaNode) {
+        List<JsonValidator> validators = new ArrayList<>();
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
                 JsonNodePath path = getEvaluationPath().resolve("true");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("true"), path,
                         "true", schemaNode, this);
-                validators.put(path, validator);
+                validators.add(validator);
             } else {
                 JsonNodePath path = getEvaluationPath().resolve("false");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("false"),
                         path, "false", schemaNode, this);
-                validators.put(path, validator);
+                validators.add(validator);
             }
         } else {
 
@@ -267,7 +267,7 @@ public class JsonSchema extends BaseJsonValidator {
                 JsonValidator validator = this.validationContext.newValidator(schemaPath, path,
                         pname, nodeToUse, this);
                 if (validator != null) {
-                    validators.put(path, validator);
+                    validators.add(validator);
 
                     if ("$ref".equals(pname)) {
                         refValidator = validator;
@@ -283,10 +283,12 @@ public class JsonSchema extends BaseJsonValidator {
             // Ignore siblings for older drafts
             if (null != refValidator && activeDialect() < V201909_VALUE) {
                 validators.clear();
-                validators.put(refValidator.getEvaluationPath(), refValidator);
+                validators.add(refValidator);
             }
         }
-
+        if (validators.size() > 1) {
+            Collections.sort(validators, VALIDATOR_SORT);
+        }
         return validators;
     }
 
@@ -301,11 +303,11 @@ public class JsonSchema extends BaseJsonValidator {
      * A comparator that sorts validators, such that 'properties' comes before 'required',
      * so that we can apply default values before validating required.
      */
-    private static Comparator<JsonNodePath> VALIDATOR_SORT = (lhs, rhs) -> {
-        if (lhs.equals(rhs)) return 0;
+    private static Comparator<JsonValidator> VALIDATOR_SORT = (lhs, rhs) -> {
+        String lhsName = lhs.getEvaluationPath().getName(-1);
+        String rhsName = rhs.getEvaluationPath().getName(-1);
 
-        String lhsName = lhs.getName(-1);
-        String rhsName = rhs.getName(-1);
+        if (lhsName.equals(rhsName)) return 0;
 
         if (lhsName.equals("properties")) return -1;
         if (rhsName.equals("properties")) return 1;
@@ -316,7 +318,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (lhsName.equals("unevaluatedProperties")) return 1;
         if (rhsName.equals("unevaluatedProperties")) return -1;
 
-        return lhs.compareTo(rhs); // TODO: This smells. We are performing a lexicographical ordering of paths of unknown depth.
+        return 0; // retain original schema definition order
     };
 
     /************************ START OF VALIDATE METHODS **********************************/
@@ -330,7 +332,7 @@ public class JsonSchema extends BaseJsonValidator {
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
-        for (JsonValidator v : getValidators().values()) {
+        for (JsonValidator v : getValidators()) {
             Set<ValidationMessage> results = null;
 
             Scope parentScope = collectorContext.enterDynamicScope(this);
@@ -515,7 +517,8 @@ public class JsonSchema extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
-        getValidators().forEach((JsonNodePath evaluationPathWithKeyword, JsonValidator jsonWalker) -> {
+        getValidators().forEach(jsonWalker -> {
+            JsonNodePath evaluationPathWithKeyword = jsonWalker.getEvaluationPath();
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
@@ -584,9 +587,9 @@ public class JsonSchema extends BaseJsonValidator {
         return this.typeValidator;
     }
 
-    private Map<JsonNodePath, JsonValidator> getValidators() {
+    public List<JsonValidator> getValidators() {
         if (this.validators == null) {
-            this.validators = Collections.unmodifiableMap(read(getSchemaNode()));
+            this.validators = Collections.unmodifiableList(read(getSchemaNode()));
         }
         return this.validators;
     }
@@ -603,7 +606,7 @@ public class JsonSchema extends BaseJsonValidator {
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
             this.validatorsLoaded = true;
-            for (final JsonValidator validator : getValidators().values()) {
+            for (final JsonValidator validator : getValidators()) {
                 validator.preloadJsonSchema();
             }
         }

@@ -310,4 +310,9 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected JsonNodePath atRoot() {
         return new JsonNodePath(this.pathType);
     }
+
+    @Override
+    public String toString() {
+        return getEvaluationPath().getName(-1);
+    }
 }

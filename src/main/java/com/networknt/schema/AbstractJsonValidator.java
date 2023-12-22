@@ -41,4 +41,9 @@ public abstract class AbstractJsonValidator implements JsonValidator {
     public String getKeyword() {
         return keyword.getValue();
     }
+
+    @Override
+    public String toString() {
+        return getEvaluationPath().getName(-1);
+    }
 }
