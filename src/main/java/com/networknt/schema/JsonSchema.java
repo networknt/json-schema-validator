@@ -273,13 +273,9 @@ public class JsonSchema extends BaseJsonValidator {
 
                     if ("$ref".equals(pname)) {
                         refValidator = validator;
-                    }
-
-                    if ("required".equals(pname)) {
+                    } else if ("required".equals(pname)) {
                         this.requiredValidator = validator;
-                    }
-
-                    if ("type".equals(pname)) {
+                    } else if ("type".equals(pname)) {
                         this.typeValidator = (TypeValidator) validator;
                     }
                 }
@@ -330,23 +326,26 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         SchemaValidatorsConfig config = this.validationContext.getConfig();
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        Set<ValidationMessage> errors = null;
         // Get the collector context.
         CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
         for (JsonValidator v : getValidators().values()) {
-            Set<ValidationMessage> results = Collections.emptySet();
+            Set<ValidationMessage> results = null;
 
             Scope parentScope = collectorContext.enterDynamicScope(this);
             try {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
                 Scope scope = collectorContext.exitDynamicScope();
-                if (results.isEmpty()) {
+                if (results == null || results.isEmpty()) {
                     parentScope.mergeWith(scope);
                 } else {
+                    if (errors == null) {
+                        errors = new LinkedHashSet<>();
+                    }
                     errors.addAll(results);
                     if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
                             || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
@@ -390,7 +389,7 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
-        return errors;
+        return errors == null ? Collections.emptySet() : errors;
     }
 
     /**

@@ -309,8 +309,12 @@ public class CollectorContext {
          * @return this scope
          */
         public Scope mergeWith(Scope scope) {
-            getEvaluatedItems().addAll(scope.getEvaluatedItems());
-            getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+            if (!scope.getEvaluatedItems().isEmpty()) {
+                getEvaluatedItems().addAll(scope.getEvaluatedItems());
+            }
+            if (!scope.getEvaluatedProperties().isEmpty()) {
+                getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+            }
             return this;
         }
 

@@ -42,8 +42,8 @@ public class JsonSchemaFactory {
 
 
     public static class Builder {
-        private ObjectMapper objectMapper = new ObjectMapper();
-        private YAMLMapper yamlMapper = new YAMLMapper();
+        private ObjectMapper objectMapper = null;
+        private YAMLMapper yamlMapper = null;
         private String defaultMetaSchemaURI;
         private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
         private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
