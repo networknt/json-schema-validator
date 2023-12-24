@@ -456,8 +456,13 @@ public class JsonSchemaFactory {
                 JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
                 JsonSchema jsonSchema;
                 if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
+                    String schemaLocationValue = schemaUri.toString();
+                    if(!schemaLocationValue.contains("#")) {
+                        schemaLocationValue = schemaLocationValue + "#";
+                    }
+                    JsonNodePath schemaLocation = UriReference.get(schemaLocationValue);
                     ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
-                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                    jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
