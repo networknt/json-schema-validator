@@ -580,10 +580,15 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public boolean hasTypeValidator() {
-        return this.typeValidator != null;
+        return getTypeValidator() != null;
     }
 
     public TypeValidator getTypeValidator() {
+        // As the validators are lazy loaded the typeValidator is only known if the
+        // validators are not null
+        if (this.validators == null) {
+            getValidators();
+        }
         return this.typeValidator;
     }
 

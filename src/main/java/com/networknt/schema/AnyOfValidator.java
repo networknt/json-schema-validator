@@ -73,14 +73,13 @@ public class AnyOfValidator extends BaseJsonValidator {
                 try {
                     state.setMatchedNode(initialHasMatchedNode);
 
-                    if (schema.hasTypeValidator()) {
-                        TypeValidator typeValidator = schema.getTypeValidator();
+                    TypeValidator typeValidator = schema.getTypeValidator();
+                    if (typeValidator != null) {
                         //If schema has type validator and node type doesn't match with schemaType then ignore it
                         //For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors.add(message().instanceLocation(instanceLocation)
-                                    .locale(executionContext.getExecutionConfig().getLocale())
-                                    .arguments(typeValidator.getSchemaType().toString()).build());
+                            allErrors
+                                    .addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
                             continue;
                         }
                     }
@@ -129,7 +128,9 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
 
             // determine only those errors which are NOT of type "required" property missing
-            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream().filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType())).collect(Collectors.toSet());
+            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream()
+                    .filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType()))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
             // in case we had at least one (anyOf, i.e. any number >= 1 of) valid subschemas, we can remove all other errors about "required" properties
             if (numberOfValidSubSchemas >= 1 && childNotRequiredErrors.isEmpty()) {
@@ -137,7 +138,7 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
-                final Set<ValidationMessage> errors = new HashSet<>();
+                final Set<ValidationMessage> errors = new LinkedHashSet<>();
                 errors.add(message().instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
