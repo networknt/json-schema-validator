@@ -198,7 +198,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -333,7 +333,7 @@
                 }
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -468,7 +468,7 @@
                 }
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -530,7 +530,7 @@
             },
             "allOf": [ { "$ref": "schema-relative-uri-defs2.json" } ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -584,7 +584,7 @@
             },
             "allOf": [ { "$ref": "schema-refs-absolute-uris-defs2.json" } ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -642,7 +642,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -667,7 +667,7 @@
                 "foo": {"$ref": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed"}
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -793,7 +793,7 @@
                 "bar": {"type": "string"}
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -822,7 +822,7 @@
                 }
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -850,7 +850,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -878,7 +878,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -906,7 +906,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -939,7 +939,7 @@
                 { "$ref": "/absref/foobar.json" }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {

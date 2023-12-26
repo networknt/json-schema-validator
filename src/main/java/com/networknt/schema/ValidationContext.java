@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,6 +36,7 @@ public class ValidationContext {
     private SchemaValidatorsConfig config;
     private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
     private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
+    private final Map<String, JsonSchema> schemaResources = new ConcurrentHashMap<>();
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
@@ -96,6 +98,10 @@ public class ValidationContext {
 
     public JsonSchemaRef getReferenceParsingInProgress(String refValue) {
         return this.refParsingInProgress.get(refValue);
+    }
+
+    public Map<String, JsonSchema> getSchemaResources() {
+        return this.schemaResources;
     }
 
     public DiscriminatorContext getCurrentDiscriminatorContext() {

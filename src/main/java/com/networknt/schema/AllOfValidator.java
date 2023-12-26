@@ -38,6 +38,11 @@ public class AllOfValidator extends BaseJsonValidator {
             this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                     schemaNode.get(i), parentSchema));
         }
+        for (JsonSchema schema : this.schemas) {
+            // Load the validators to parse the schema so that schema resources with $id can
+            // be identified
+            schema.getValidators();
+        }
     }
 
     @Override
