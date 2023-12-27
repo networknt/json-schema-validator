@@ -421,68 +421,61 @@ public class JsonSchemaFactory {
     }
 
     public JsonSchema getSchema(final URI schemaUri, final SchemaValidatorsConfig config) {
+        final URITranslator uriTranslator = null == config ? getUriTranslator()
+                : config.getUriTranslator().with(getUriTranslator());
+
+        final URI mappedUri;
         try {
-            InputStream inputStream = null;
-            final URITranslator uriTranslator = null == config ? getUriTranslator() : config.getUriTranslator().with(getUriTranslator());
+            mappedUri = this.uriFactory.create(uriTranslator.translate(schemaUri).toString());
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed to create URI.", e);
+            throw new JsonSchemaException(e);
+        }
 
-            final URI mappedUri;
-            try {
-                mappedUri = this.uriFactory.create(uriTranslator.translate(schemaUri).toString());
-            } catch (IllegalArgumentException e) {
-                logger.error("Failed to create URI.", e);
-                throw new JsonSchemaException(e);
+        if (enableUriSchemaCache) {
+            JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(mappedUri, key -> {
+                return getMappedSchema(schemaUri, config, mappedUri);
+            });
+            // This is important because if we use same JsonSchemaFactory for creating
+            // multiple JSONSchema instances,
+            // these schemas will be cached along with config. We have to replace the config
+            // for cached $ref references
+            // with the latest config.
+            cachedUriSchema.getValidationContext().setConfig(config);
+            return cachedUriSchema;
+        }
+        return getMappedSchema(schemaUri, config, mappedUri);
+    }
+    
+    protected JsonSchema getMappedSchema(final URI schemaUri, SchemaValidatorsConfig config, final URI mappedUri) {
+        try (InputStream inputStream = this.uriFetcher.fetch(mappedUri)) {
+            final JsonNode schemaNode;
+            if (isYaml(mappedUri)) {
+                schemaNode = yamlMapper.readTree(inputStream);
+            } else {
+                schemaNode = jsonMapper.readTree(inputStream);
             }
 
-            if (enableUriSchemaCache && uriSchemaCache.containsKey(mappedUri)) {
-                JsonSchema cachedUriSchema =  uriSchemaCache.get(mappedUri);
-                // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-                // these schemas will be cached along with config. We have to replace the config for cached $ref references
-                // with the latest config.
-                cachedUriSchema.getValidationContext().setConfig(config);
-                return cachedUriSchema;
+            final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
+            JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
+            JsonSchema jsonSchema;
+            if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
+                String schemaLocationValue = schemaUri.toString();
+                if(!schemaLocationValue.contains("#")) {
+                    schemaLocationValue = schemaLocationValue + "#";
+                }
+                SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
+                ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
+                jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+            } else {
+                final ValidationContext validationContext = createValidationContext(schemaNode);
+                validationContext.setConfig(config);
+                jsonSchema = doCreate(validationContext, SchemaLocation.of(""), evaluationPath, mappedUri, schemaNode, null, false);
             }
-
-            try {
-                inputStream = this.uriFetcher.fetch(mappedUri);
-
-                final JsonNode schemaNode;
-                if (isYaml(mappedUri)) {
-                    schemaNode = yamlMapper.readTree(inputStream);
-                } else {
-                    schemaNode = jsonMapper.readTree(inputStream);
-                }
-
-                final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-                JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
-                JsonSchema jsonSchema;
-                if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                    String schemaLocationValue = schemaUri.toString();
-                    if(!schemaLocationValue.contains("#")) {
-                        schemaLocationValue = schemaLocationValue + "#";
-                    }
-                    SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
-                    ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
-                    jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
-                } else {
-                    final ValidationContext validationContext = createValidationContext(schemaNode);
-                    validationContext.setConfig(config);
-                    jsonSchema = doCreate(validationContext, SchemaLocation.DOCUMENT, evaluationPath, mappedUri,
-                            schemaNode, null, false);
-                }
-
-                if (enableUriSchemaCache) {
-                    uriSchemaCache.put(mappedUri, jsonSchema);
-                }
-
-                return jsonSchema;
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            }
-        } catch (IOException ioe) {
-            logger.error("Failed to load json schema!", ioe);
-            throw new JsonSchemaException(ioe);
+            return jsonSchema;
+        } catch (IOException e) {
+            logger.error("Failed to load json schema!", e);
+            throw new JsonSchemaException(e);
         }
     }
 
