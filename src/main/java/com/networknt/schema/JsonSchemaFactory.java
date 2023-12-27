@@ -212,7 +212,7 @@ public class JsonSchemaFactory {
     private final URNFactory urnFactory;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final Map<String, String> uriMap;
-    private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<URI, JsonSchema>();
+    private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<>();
     private final boolean enableUriSchemaCache;
 
 

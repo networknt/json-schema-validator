@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,9 +35,9 @@ public class ValidationContext {
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
-    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
     private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
-    private final Map<String, JsonSchema> schemaResources = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, JsonSchemaRef> schemaReferences = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, JsonSchema> schemaResources = new ConcurrentHashMap<>();
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
@@ -92,15 +93,21 @@ public class ValidationContext {
         this.config = config;
     }
 
-    public void setReferenceParsingInProgress(String refValue, JsonSchemaRef ref) {
-        this.refParsingInProgress.put(refValue, ref);
+    /**
+     * Gets the schema references identified by the ref uri.
+     *
+     * @return the schema references
+     */
+    public ConcurrentMap<String, JsonSchemaRef> getSchemaReferences() {
+        return this.schemaReferences;
     }
 
-    public JsonSchemaRef getReferenceParsingInProgress(String refValue) {
-        return this.refParsingInProgress.get(refValue);
-    }
-
-    public Map<String, JsonSchema> getSchemaResources() {
+    /**
+     * Gets the schema resources identified by id.
+     *
+     * @return the schema resources
+     */
+    public ConcurrentMap<String, JsonSchema> getSchemaResources() {
         return this.schemaResources;
     }
 

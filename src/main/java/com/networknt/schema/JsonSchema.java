@@ -79,9 +79,6 @@ public class JsonSchema extends BaseJsonValidator {
         if (uriRefersToSubschema(currentUri, schemaLocation)) {
             updateThisAsSubschema(currentUri);
         }
-        if (this.currentUri != null) {
-            this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString(), this);
-        }
         String idKeyword = this.validationContext.getMetaSchema().getIdKeyword();
         if (idKeyword != null) {
             readDefinitions(idKeyword, "definitions");
@@ -98,6 +95,10 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
         this.id = validationContext.resolveSchemaId(this.schemaNode);
+        if (this.id != null) {
+            this.validationContext.getSchemaResources()
+                    .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
+        }
     }
 
     public JsonSchema createChildSchema(SchemaLocation schemaLocation, JsonNode schemaNode) {

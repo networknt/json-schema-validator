@@ -119,8 +119,7 @@ public class RefValidator extends BaseJsonValidator {
         JsonSchema parent = parentSupplier.get();
         JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
-            JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
-            if (ref == null) {
+            return validationContext.getSchemaReferences().computeIfAbsent(refValueOriginal, key -> {
                 SchemaLocation path = null;
                 if (refValue.startsWith(REF_CURRENT)) {
                     // relative to document
@@ -143,10 +142,8 @@ public class RefValidator extends BaseJsonValidator {
                     }
                 }
                 final JsonSchema schema = validationContext.newSchema(path, evaluationPath, node, parent);
-                ref = new JsonSchemaRef(() -> schema);
-                validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
-            }
-            return ref;
+                return new JsonSchemaRef(() -> schema);
+            });
         }
         return null;
     }
