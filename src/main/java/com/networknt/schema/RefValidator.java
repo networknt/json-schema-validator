@@ -98,7 +98,7 @@ public class RefValidator extends BaseJsonValidator {
                     return schemaResource.fromRef(parentSchema, evaluationPath);
                 }
                 return validationContext.getJsonSchemaFactory().getSchema(schemaUriFinal, validationContext.getConfig())
-                        .findAncestor();
+                        .findAncestor().fromRef(null, evaluationPath); // Setting the parent affects the lexical root
             });
             if (index < 0) {
                 return new JsonSchemaRef(parent);

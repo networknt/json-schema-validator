@@ -477,13 +477,18 @@ public class JsonSchemaFactory {
                 if (id != null) {
                     schemaLocationValue = id;
                 }
-                if(!schemaLocationValue.contains("#")) {
+                if (schemaLocationValue.contains("#")) {
+                    // Schema location needs to strip off the fragment as the json schema for the constructor to detect
+                    // it is a subschema
+                    schemaLocationValue = schemaLocationValue.substring(0, schemaLocationValue.indexOf("#") + 1);
+                }
+                if (!schemaLocationValue.contains("#")) {
                     schemaLocationValue = schemaLocationValue + "#";
                 }
                 SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
                 final ValidationContext validationContext = createValidationContext(schemaNode);
                 validationContext.setConfig(config);
-                jsonSchema = doCreate(validationContext, SchemaLocation.of(""), evaluationPath, mappedUri, schemaNode, null, false);
+                jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, false);
             }
             return jsonSchema;
         } catch (IOException e) {
