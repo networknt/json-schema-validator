@@ -94,7 +94,8 @@ public class RefValidator extends BaseJsonValidator {
             parent = new CachedSupplier<>(() -> {
                 JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal.toString());
                 if (schemaResource != null) {
-                    return schemaResource;
+                    // Schema resource needs to update the parent and evaluation path
+                    return schemaResource.fromRef(parentSchema, evaluationPath);
                 }
                 return validationContext.getJsonSchemaFactory().getSchema(schemaUriFinal, validationContext.getConfig())
                         .findAncestor();
