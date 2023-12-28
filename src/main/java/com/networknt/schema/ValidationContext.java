@@ -127,8 +127,12 @@ public class ValidationContext {
 
         private boolean discriminatorMatchFound = false;
 
-        public void registerDiscriminator(final String schemaLocation, final ObjectNode discriminator) {
-            this.discriminators.put(schemaLocation, discriminator);
+        public void registerDiscriminator(final SchemaLocation schemaLocation, final ObjectNode discriminator) {
+            this.discriminators.put("#" + schemaLocation.getFragment().toString(), discriminator);
+        }
+
+        public ObjectNode getDiscriminatorForPath(final SchemaLocation schemaLocation) {
+            return this.discriminators.get("#" + schemaLocation.getFragment().toString());
         }
 
         public ObjectNode getDiscriminatorForPath(final String schemaLocation) {

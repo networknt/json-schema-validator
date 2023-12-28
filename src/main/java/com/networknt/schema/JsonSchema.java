@@ -82,7 +82,7 @@ public class JsonSchema extends BaseJsonValidator {
             if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
                 if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
-                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation.toString(), discriminator);
+                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation, discriminator);
                 }
             }
         }
@@ -369,12 +369,12 @@ public class JsonSchema extends BaseJsonValidator {
                 if (null != discriminatorContext) {
                     final ObjectNode discriminatorToUse;
                     final ObjectNode discriminatorFromContext = discriminatorContext
-                            .getDiscriminatorForPath(this.schemaLocation.toString());
+                            .getDiscriminatorForPath(this.schemaLocation);
                     if (null == discriminatorFromContext) {
                         // register the current discriminator. This can only happen when the current context discriminator
                         // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
                         // used for validation before allOf validation has kicked in
-                        discriminatorContext.registerDiscriminator(this.schemaLocation.toString(), discriminator);
+                        discriminatorContext.registerDiscriminator(this.schemaLocation, discriminator);
                         discriminatorToUse = discriminator;
                     } else {
                         discriminatorToUse = discriminatorFromContext;

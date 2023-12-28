@@ -155,7 +155,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                                                         final JsonNodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
-                .getDiscriminatorForPath(schema.schemaLocation.toString())) {
+                .getDiscriminatorForPath(schema.schemaLocation)) {
             // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
@@ -186,7 +186,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                 }
             }
         }
-        currentDiscriminatorContext.registerDiscriminator(schema.schemaLocation.toString(), discriminator);
+        currentDiscriminatorContext.registerDiscriminator(schema.schemaLocation, discriminator);
     }
 
     private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
@@ -205,7 +205,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
             if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
-                    && schema.schemaLocation.toString().equals(candidateExplicitMapping.getValue().asText())) {
+                    && ("#" + schema.schemaLocation.getFragment().toString())
+                            .equals(candidateExplicitMapping.getValue().asText())) {
                 currentDiscriminatorContext.markMatch();
                 break;
             }
@@ -217,7 +218,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getValue().asText().equals(parentSchema.schemaLocation.toString())) {
+            if (candidateExplicitMapping.getValue().asText()
+                    .equals(parentSchema.schemaLocation.getFragment().toString())) {
                 return false;
             }
         }
