@@ -255,6 +255,20 @@ public class JsonSchema extends BaseJsonValidator {
         JsonSchema ancestor = this;
         while (ancestor.getId() == null) {
             if (null == ancestor.getParentSchema()) break;
+            // The lexical root should not cross
+            if (ancestor.currentUri != null && ancestor.parentSchema.currentUri == null) break;
+            if (ancestor.currentUri == null && ancestor.parentSchema.currentUri != null) break;
+            if (ancestor.getCurrentUri() != null && ancestor.getParentSchema().getCurrentUri() != null) {
+                if (!Objects.equals(ancestor.getCurrentUri().getScheme(), ancestor.getParentSchema().getCurrentUri().getScheme())) {
+                    break;
+                }
+                if (!Objects.equals(ancestor.getCurrentUri().getHost(), ancestor.getParentSchema().getCurrentUri().getHost())) {
+                    break;
+                }
+                if (!Objects.equals(ancestor.getCurrentUri().getPath(), ancestor.getParentSchema().getCurrentUri().getPath())) {
+                    break;
+                }
+            }
             ancestor = ancestor.getParentSchema();
         }
         return ancestor;
