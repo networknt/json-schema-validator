@@ -139,11 +139,12 @@ public class RefValidator extends BaseJsonValidator {
                             if (id.contains(":")) {
                                 // absolute
                                 currentUri = URI.create(id);
-                                path = SchemaLocation.of(id + "#");
+                                path = SchemaLocation.of(id);
                             } else {
                                 // relative
-                                currentUri = URI.create(path.append(id).toString());
-                                path = path.append(id + "#");
+                                String absoluteUri = path.getAbsoluteIri().resolve(id).toString();
+                                currentUri = URI.create(absoluteUri);
+                                path = SchemaLocation.of(absoluteUri);
                             }
                         }
                     }
