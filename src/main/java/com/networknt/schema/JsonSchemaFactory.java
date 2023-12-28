@@ -330,17 +330,21 @@ public class JsonSchemaFactory {
         return doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaUri, schemaNode, null, false);
     }
-    
-    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+
+    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema) {
         return doCreate(validationContext,
-                null == schemaLocation ? getSchemaLocation(null, schemaNode, validationContext) : schemaLocation,
-                evaluationPath, parentSchema.getCurrentUri(), schemaNode, parentSchema, false);
+                null == schemaLocation ? getSchemaLocation(currentUri, schemaNode, validationContext) : schemaLocation,
+                evaluationPath, currentUri, schemaNode, parentSchema, false);
+    }
+
+    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+        return create(validationContext, schemaLocation, evaluationPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
     }
 
     private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
         return JsonSchema.from(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
-    
+
     /**
      * Gets the schema location from the $id or retrieval uri.
      *

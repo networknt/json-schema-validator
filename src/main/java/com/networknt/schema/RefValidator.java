@@ -121,32 +121,28 @@ public class RefValidator extends BaseJsonValidator {
 
         if (node != null) {
             return validationContext.getSchemaReferences().computeIfAbsent(refValueOriginal, key -> {
-                SchemaLocation path = parent.schemaLocation;
+                SchemaLocation path = null;
                 JsonSchema currentParent = parent;
+                URI currentUri = parent.getCurrentUri();
                 if (refValue.startsWith(REF_CURRENT)) {
                     // relative to document
+                    path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(),
+                            new JsonNodePath(PathType.JSON_POINTER));
                     // Attempt to get subschema node
                     String[] refParts = refValue.split("/");
-                    if (refParts.length > 2) {
+                    if (refParts.length > 3) {
                         String[] subschemaParts = Arrays.copyOf(refParts, refParts.length - 2);
                         JsonNode subschemaNode = parent.getRefSchemaNode(String.join("/", subschemaParts));
                         String id = validationContext.resolveSchemaId(subschemaNode);
                         if (id != null) {
                             if (id.contains(":")) {
                                 // absolute
-                                JsonSchema subschema = validationContext.getSchemaResources().get(id);
-                                if (subschema != null) {
-                                    currentParent = subschema;
-                                }
+                                currentUri = URI.create(id);
                                 path = SchemaLocation.of(id + "#");
                             } else {
                                 // relative
-                                JsonSchema subschema = validationContext.getSchemaResources()
-                                        .get(path.getFragment().getParent().append(id).toString());
-                                if (subschema != null) {
-                                    currentParent = subschema;
-                                }
-                                path = SchemaLocation.of(id + "#");
+                                currentUri = URI.create(path.append(id).toString());
+                                path = path.append(id + "#");
                             }
                         }
                     }
@@ -166,7 +162,7 @@ public class RefValidator extends BaseJsonValidator {
                         path = path.append(parts[x]);
                     }
                 }
-                final JsonSchema schema = validationContext.newSchema(path, evaluationPath, node, currentParent);
+                final JsonSchema schema = validationContext.newSchema(path, evaluationPath, currentUri, node, currentParent);
                 return new JsonSchemaRef(() -> schema);
             });
         }

@@ -243,7 +243,7 @@ public class JsonSchema extends BaseJsonValidator {
         JsonNode definitionsNode = schemaNode.get(definitionsKeyword);
         if (definitionsNode != null) {
             readSchemaResources(idKeyword, definitionsKeyword, definitionsNode,
-                    this.schemaLocation.resolve(definitionsKeyword), this.evaluationPath.resolve(definitionsKeyword),
+                    this.schemaLocation.append(definitionsKeyword), this.evaluationPath.append(definitionsKeyword),
                     this.currentUri);
         }
     }
@@ -268,7 +268,7 @@ public class JsonSchema extends BaseJsonValidator {
         while (pnames.hasNext()) {
             String pname = pnames.next();
             JsonNode nodeToUse = schemaNode.get(pname);
-            readSchemaResources(idKeyword, definitionsKeyword, nodeToUse, schemaLocation.resolve(pname), evaluationPath.resolve(pname), currentIdUri);
+            readSchemaResources(idKeyword, definitionsKeyword, nodeToUse, schemaLocation.append(pname), evaluationPath.append(pname), currentIdUri);
         }
     }
 

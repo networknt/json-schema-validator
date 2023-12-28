@@ -16,6 +16,7 @@
 
 package com.networknt.schema;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +60,10 @@ public class ValidationContext {
 
     public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
         return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
+    }
+
+    public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema) {
+        return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema);
     }
 
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
