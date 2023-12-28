@@ -69,6 +69,20 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                         : PathType.DEFAULT;
     }
 
+    /**
+     * Copy constructor.
+     * 
+     * @param copy to copy from
+     */
+    protected BaseJsonValidator(BaseJsonValidator copy) {
+        super(copy);
+        this.suppressSubSchemaRetrieval = copy.suppressSubSchemaRetrieval;
+        this.applyDefaultsStrategy = copy.applyDefaultsStrategy;
+        this.pathType = copy.pathType;
+        this.schemaNode = copy.schemaNode;
+        this.validationContext = copy.validationContext;
+    }
+
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
 
