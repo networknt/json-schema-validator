@@ -256,21 +256,11 @@ public class JsonSchema extends BaseJsonValidator {
             // This is a schema resource
             // $id inside an unknown keyword is not a read identifier
             if (definitionsKeyword.equals(evaluationPath.getElement(evaluationPath.getNameCount() - 2))) {
-                String id = idNode.asText();
-                URI uri = null;
-                if (id.contains(":")) {
-                    uri = URI.create(id);
-                } else {
-                    uri = idUri;
-                    if (uri == null) {
-                        uri = URI.create("");
-                    }
-                    uri = uri.resolve(id);
-                }
-                currentIdUri = uri;
-                JsonSchema resource = new JsonSchema(validationContext, schemaLocation, evaluationPath, uri, schemaNode,
-                        this, true);
-                this.validationContext.getSchemaResources().put(uri.toString(), resource);
+                // The schema resource will be registered in the JsonSchema constructor
+                // The combineCurrentUriWithIds will combine the uri with the id to get the new currentIdUri
+                JsonSchema schemaResource = new JsonSchema(validationContext, schemaLocation, evaluationPath, idUri, schemaNode, this,
+                        true);
+                currentIdUri = schemaResource.getCurrentUri();
             }
         }
 
