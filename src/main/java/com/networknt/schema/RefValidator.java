@@ -127,7 +127,7 @@ public class RefValidator extends BaseJsonValidator {
         }
         if (refValue.equals(REF_CURRENT)) {
             Supplier<JsonSchema> supplier = parent;
-            return new JsonSchemaRef(() -> supplier.get().findLexicalRoot());
+            return new JsonSchemaRef(() -> supplier.get().findSchemaResourceRoot());
         }
         return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal, evaluationPath);
     }
@@ -177,7 +177,7 @@ public class RefValidator extends BaseJsonValidator {
                     path = SchemaLocation.of(refValue); 
                 } else {
                     // relative to lexical root
-                    String id = parent.findLexicalRoot().getId();
+                    String id = parent.findSchemaResourceRoot().getId();
                     path = SchemaLocation.of(id);
                     String[] parts = refValue.split("/");
                     for (int x = 1; x < parts.length; x++) {

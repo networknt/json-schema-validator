@@ -134,6 +134,7 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public JsonSchema fromRef(JsonSchema refParent, JsonNodePath refEvaluationPath) {
         JsonSchema copy = new JsonSchema(this);
+        copy.validationContext.setConfig(refParent.validationContext.getConfig());
         copy.evaluationPath = refEvaluationPath;
         copy.parentSchema = refParent;
         // Validator state is reset due to the changes in evaluation path
@@ -219,7 +220,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return JsonNode
      */
     public JsonNode getRefSchemaNode(String ref) {
-        JsonSchema schema = findLexicalRoot();
+        JsonSchema schema = findSchemaResourceRoot();
         JsonNode node = schema.getSchemaNode();
 
         String jsonPointer = ref;
@@ -252,28 +253,63 @@ public class JsonSchema extends BaseJsonValidator {
         return node;
     }
 
-    // This represents the lexical scope
     public JsonSchema findLexicalRoot() {
         JsonSchema ancestor = this;
         while (ancestor.getId() == null) {
             if (null == ancestor.getParentSchema()) break;
-            // The lexical root should not cross
-            if (ancestor.currentUri != null && ancestor.parentSchema.currentUri == null) break;
-            if (ancestor.currentUri == null && ancestor.parentSchema.currentUri != null) break;
-            if (ancestor.getCurrentUri() != null && ancestor.getParentSchema().getCurrentUri() != null) {
-                if (!Objects.equals(ancestor.getCurrentUri().getScheme(), ancestor.getParentSchema().getCurrentUri().getScheme())) {
-                    break;
-                }
-                if (!Objects.equals(ancestor.getCurrentUri().getHost(), ancestor.getParentSchema().getCurrentUri().getHost())) {
-                    break;
-                }
-                if (!Objects.equals(ancestor.getCurrentUri().getPath(), ancestor.getParentSchema().getCurrentUri().getPath())) {
-                    break;
-                }
-            }
             ancestor = ancestor.getParentSchema();
         }
         return ancestor;
+    }
+
+    /**
+     * Finds the root of the schema resource.
+     * <p>
+     * This is either the schema document root or the subschema resource root.
+     *
+     * @return the root of the schema
+     */
+    public JsonSchema findSchemaResourceRoot() {
+        JsonSchema ancestor = this;
+        while (!ancestor.isSchemaResourceRoot()) {
+            ancestor = ancestor.getParentSchema();
+        }
+        return ancestor;
+    }
+
+    /**
+     * Determines if this schema resource is a schema resource root.
+     * <p>
+     * This is either the schema document root or the subschema resource root.
+     *
+     * @return if this schema is a schema resource root
+     */
+    public boolean isSchemaResourceRoot() {
+        if (getId() != null) {
+            return true;
+        }
+        if (getParentSchema() == null) {
+            return true;
+        }
+        // The schema should not cross
+        if (getCurrentUri() != null && getParentSchema().getCurrentUri() == null) {
+            return true;
+        }
+        if (getCurrentUri() == null && getParentSchema().getCurrentUri() != null) {
+            return true;
+        }
+        if (getCurrentUri() != null && getParentSchema().getCurrentUri() != null) {
+            if (!Objects.equals(getCurrentUri().getScheme(), getParentSchema().getCurrentUri().getScheme())) {
+                return true;
+            }
+            if (!Objects.equals(getCurrentUri().getHost(), getParentSchema().getCurrentUri().getHost())) {
+                return true;
+            }
+            if (!Objects.equals(getCurrentUri().getPath(), getParentSchema().getCurrentUri().getPath())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getId() {
