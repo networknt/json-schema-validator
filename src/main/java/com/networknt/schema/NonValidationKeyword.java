@@ -31,7 +31,8 @@ public class NonValidationKeyword extends AbstractKeyword {
                 JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
             super(schemaLocation, evaluationPath, keyword);
             String id = validationContext.resolveSchemaId(schemaNode);
-            if (id != null) {
+            String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
+            if (id != null || anchor != null) {
                 // Used to register schema resources with $id
                 validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             }
