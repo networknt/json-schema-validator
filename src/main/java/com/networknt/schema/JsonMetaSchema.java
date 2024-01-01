@@ -263,7 +263,7 @@ public class JsonMetaSchema {
         return this.keywords;
     }
 
-    public JsonValidator newValidator(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
+    public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
 
         try {

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class MinMaxContainsValidator extends BaseJsonValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
 
@@ -62,7 +62,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         return this.analysis != null ? this.analysis.stream()
-                .map(analysis -> message().instanceLocation(analysis.getInstanceLocation())
+                .map(analysis -> message().instanceLocation(analysis.getSchemaLocation().getFragment())
                         .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(parentSchema.getSchemaNode().toString()).build())
                 .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
@@ -73,17 +73,17 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             return messageKey;
         }
 
-        public JsonNodePath getInstanceLocation() {
-            return instanceLocation;
+        public SchemaLocation getSchemaLocation() {
+            return schemaLocation;
         }
 
         private final String messageKey;
-        private final JsonNodePath instanceLocation;
+        private final SchemaLocation schemaLocation;
 
-        public Analysis(String messageKey, JsonNodePath instanceLocation) {
+        public Analysis(String messageKey, SchemaLocation schemaLocation) {
             super();
             this.messageKey = messageKey;
-            this.instanceLocation = instanceLocation;
+            this.schemaLocation = schemaLocation;
         }
     }
 }

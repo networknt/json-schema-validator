@@ -331,13 +331,13 @@ public class JsonSchemaFactory {
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaUri, schemaNode, null, false);
     }
     
-    public JsonSchema create(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
         return doCreate(validationContext,
                 null == schemaLocation ? getSchemaLocation(schemaNode, validationContext) : schemaLocation,
                 evaluationPath, parentSchema.getCurrentUri(), schemaNode, parentSchema, false);
     }
 
-    private JsonSchema doCreate(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
+    private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
         return JsonSchema.from(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
     
@@ -348,14 +348,14 @@ public class JsonSchemaFactory {
      * @param validationContext the validationContext
      * @return the schema location
      */
-    protected JsonNodePath getSchemaLocation(JsonNode schemaNode, ValidationContext validationContext) {
+    protected SchemaLocation getSchemaLocation(JsonNode schemaNode, ValidationContext validationContext) {
         String schema = null;
         String idKeyword = validationContext.getMetaSchema().getIdKeyword();
         JsonNode idNode = schemaNode.get(idKeyword);
         if (idNode != null) {
             schema = idNode.asText() + "#";
         }
-        return schema != null ? UriReference.get(schema) : UriReference.DOCUMENT;
+        return schema != null ? SchemaLocation.of(schema) : SchemaLocation.of("");
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -460,13 +460,13 @@ public class JsonSchemaFactory {
                     if(!schemaLocationValue.contains("#")) {
                         schemaLocationValue = schemaLocationValue + "#";
                     }
-                    JsonNodePath schemaLocation = UriReference.get(schemaLocationValue);
+                    SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
                     ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
                     jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
-                    jsonSchema = doCreate(validationContext, UriReference.DOCUMENT, evaluationPath, mappedUri, schemaNode, null, false);
+                    jsonSchema = doCreate(validationContext, SchemaLocation.of(""), evaluationPath, mappedUri, schemaNode, null, false);
                 }
 
                 if (enableUriSchemaCache) {

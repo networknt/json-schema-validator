@@ -252,7 +252,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath);
@@ -268,7 +268,7 @@ public class CollectorContextTest {
      * document again just for gathering this kind of information.
      */
     private class CustomValidator extends AbstractJsonValidator {
-        public CustomValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+        public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
             super(schemaLocation, evaluationPath,null);
         }
 
@@ -323,7 +323,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1(schemaLocation, evaluationPath);
@@ -341,7 +341,7 @@ public class CollectorContextTest {
      * keyword has been used multiple times in JSON Schema.
      */
     private class CustomValidator1 extends AbstractJsonValidator {
-        public CustomValidator1(JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+        public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
             super(schemaLocation, evaluationPath,null);
         }
 

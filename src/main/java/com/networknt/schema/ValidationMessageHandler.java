@@ -14,7 +14,7 @@ public abstract class ValidationMessageHandler {
     protected final MessageSource messageSource;
     protected ErrorMessageType errorMessageType;
 
-    protected JsonNodePath schemaLocation;
+    protected SchemaLocation schemaLocation;
     protected JsonNodePath evaluationPath;
 
     protected JsonSchema parentSchema;
@@ -26,7 +26,7 @@ public abstract class ValidationMessageHandler {
 
     protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
             boolean customErrorMessagesEnabled, MessageSource messageSource, Keyword keyword, JsonSchema parentSchema,
-            JsonNodePath schemaLocation, JsonNodePath evaluationPath) {
+            SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
         this.messageSource = messageSource;
@@ -71,9 +71,9 @@ public abstract class ValidationMessageHandler {
     }
     
     protected boolean schemaLocationContains(String match) {
-        int count = this.parentSchema.schemaLocation.getNameCount();
+        int count = this.parentSchema.schemaLocation.getFragment().getNameCount();
         for (int x = 0; x < count; x++) {
-            String name = this.parentSchema.schemaLocation.getName(x);
+            String name = this.parentSchema.schemaLocation.getFragment().getName(x);
             if (match.equals(name)) {
                 return true;
             }

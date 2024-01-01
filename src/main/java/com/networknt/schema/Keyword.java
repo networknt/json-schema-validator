@@ -21,6 +21,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 public interface Keyword {
     String getValue();
 
-    JsonValidator newValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
 }

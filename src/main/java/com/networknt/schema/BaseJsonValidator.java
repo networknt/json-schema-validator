@@ -38,13 +38,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     protected ValidationContext validationContext;
 
-    public BaseJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext,
                 false);
     }
 
-    public BaseJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
             ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
         super(validationContext != null
@@ -192,7 +192,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                                   final String discriminatorPropertyValue,
                                                                   final JsonSchema schema) {
-        if (schema.schemaLocation.getName(-1).equals(discriminatorPropertyValue)) {
+        if (schema.schemaLocation.getFragment().getName(-1).equals(discriminatorPropertyValue)) {
             currentDiscriminatorContext.markMatch();
         }
     }
@@ -225,7 +225,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     }
 
     @Override
-    public JsonNodePath getSchemaLocation() {
+    public SchemaLocation getSchemaLocation() {
         return this.schemaLocation;
     }
 

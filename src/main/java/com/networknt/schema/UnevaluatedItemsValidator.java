@@ -28,7 +28,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     private final JsonSchema schema;
 
-    public UnevaluatedItemsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public UnevaluatedItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS, validationContext);
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {

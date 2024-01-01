@@ -33,7 +33,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
 
-    public ItemsValidator202012(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");

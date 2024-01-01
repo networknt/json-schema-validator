@@ -32,7 +32,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     private final List<JsonSchema> schemas = new ArrayList<>();
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
-    public AnyOfValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         this.validationContext = validationContext;
         int size = schemaNode.size();

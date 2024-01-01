@@ -41,7 +41,7 @@ public class ContainsValidator extends BaseJsonValidator {
     private int min = 1;
     private int max = Integer.MAX_VALUE;
 
-    public ContainsValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
 
         // Draft 6 added the contains keyword but maxContains and minContains first

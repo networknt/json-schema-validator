@@ -63,11 +63,11 @@ public class JsonSchema extends BaseJsonValidator {
 
     WalkListenerRunner keywordWalkListenerRunner = null;
 
-    static JsonSchema from(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
     }
 
-    private JsonSchema(ValidationContext validationContext, JsonNodePath schemaLocation, JsonNodePath evaluationPath, URI currentUri,
+    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri,
                        JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaLocation, evaluationPath, schemaNode, parent, null, null, validationContext,
                 suppressSubSchemaRetrieval);
@@ -88,7 +88,7 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
-    public JsonSchema createChildSchema(JsonNodePath schemaLocation, JsonNode schemaNode) {
+    public JsonSchema createChildSchema(SchemaLocation schemaLocation, JsonNode schemaNode) {
         return getValidationContext().newSchema(schemaLocation, evaluationPath, schemaNode, this);
     }
 
@@ -106,9 +106,10 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                JsonNodePath path = schemaLocation.resolve(this.metaSchema.getIdKeyword());
+                SchemaLocation path = schemaLocation.resolve(this.metaSchema.getIdKeyword());
                 ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
-                        .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path).evaluationPath(path)
+                        .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path.getFragment())
+                        .evaluationPath(path.getFragment())
                         .arguments(currentUri == null ? "null" : currentUri.toString(), id)
                         .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
                                 ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
@@ -122,10 +123,10 @@ public class JsonSchema extends BaseJsonValidator {
         return id.startsWith("#") && currentUri == null;
     }
 
-    private static boolean uriRefersToSubschema(URI originalUri, JsonNodePath schemaLocation) {
+    private static boolean uriRefersToSubschema(URI originalUri, SchemaLocation schemaLocation) {
         return originalUri != null
             && StringUtils.isNotBlank(originalUri.getRawFragment())  // Original currentUri parameter has a fragment, so it refers to a subschema
-            && (UriReference.DOCUMENT.equals(schemaLocation) || schemaLocation.getNameCount() == 0); // We aren't already in a subschema
+            && (schemaLocation.getFragment().getNameCount() == 0); // We aren't already in a subschema
     }
 
     /**
@@ -145,8 +146,8 @@ public class JsonSchema extends BaseJsonValidator {
         } catch (URISyntaxException ex) {
             throw new JsonSchemaException("Unable to create URI without fragment from " + this.currentUri + ": " + ex.getMessage());
         }
-        this.parentSchema = new JsonSchema(this.validationContext, UriReference.get(currentUriWithoutFragment.toString()), this.evaluationPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
-        this.schemaLocation = UriReference.get(originalUri.toString());
+        this.parentSchema = new JsonSchema(this.validationContext, SchemaLocation.of(currentUriWithoutFragment.toString()), this.evaluationPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
+        this.schemaLocation = SchemaLocation.of(originalUri.toString());
         this.schemaNode = fragmentSchemaNode;
         this.currentUri = combineCurrentUriWithIds(this.currentUri, fragmentSchemaNode);
     }
@@ -246,7 +247,7 @@ public class JsonSchema extends BaseJsonValidator {
                 JsonNode nodeToUse = schemaNode.get(pname);
 
                 JsonNodePath path = getEvaluationPath().resolve(pname);
-                JsonNodePath schemaPath = getSchemaLocation().resolve(pname);
+                SchemaLocation schemaPath = getSchemaLocation().resolve(pname);
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {

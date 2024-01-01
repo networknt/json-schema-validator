@@ -5,6 +5,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationContext;
 
@@ -16,7 +17,7 @@ import java.net.URI;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private JsonNodePath schemaLocation;
+    private SchemaLocation schemaLocation;
     private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
@@ -31,7 +32,7 @@ public class WalkEvent {
         return executionContext;
     }
 
-    public JsonNodePath getSchemaLocation() {
+    public SchemaLocation getSchemaLocation() {
         return schemaLocation;
     }
     
@@ -103,7 +104,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schemaLocation(JsonNodePath schemaLocation) {
+        public WalkEventBuilder schemaLocation(SchemaLocation schemaLocation) {
             walkEvent.schemaLocation = schemaLocation;
             return this;
         }

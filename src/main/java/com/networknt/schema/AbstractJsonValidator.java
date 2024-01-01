@@ -17,18 +17,18 @@
 package com.networknt.schema;
 
 public abstract class AbstractJsonValidator implements JsonValidator {
-    private final JsonNodePath schemaLocation;
+    private final SchemaLocation schemaLocation;
     private final JsonNodePath evaluationPath;
     private final Keyword keyword;
 
-    public AbstractJsonValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, Keyword keyword) {
+    public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword) {
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
         this.keyword = keyword;
     }
 
     @Override
-    public JsonNodePath getSchemaLocation() {
+    public SchemaLocation getSchemaLocation() {
         return schemaLocation;
     }
 

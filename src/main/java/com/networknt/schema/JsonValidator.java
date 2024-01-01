@@ -71,7 +71,7 @@ public interface JsonValidator extends JsonSchemaWalker {
      * 
      * @return the schema location
      */
-    public JsonNodePath getSchemaLocation();
+    public SchemaLocation getSchemaLocation();
 
     /**
      * The evaluation path is the set of keys, starting from the schema root,

@@ -32,7 +32,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     private final Set<JsonNode> nodes;
     private final String error;
 
-    public EnumValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
         this.validationContext = validationContext;
         if (schemaNode != null && schemaNode.isArray()) {

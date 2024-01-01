@@ -36,7 +36,7 @@ public class ValidationMessage {
     private final String type;
     private final String code;
     private final JsonNodePath evaluationPath;
-    private final JsonNodePath schemaLocation;
+    private final SchemaLocation schemaLocation;
     private final JsonNodePath instanceLocation;
     private final String property;
     private final Object[] arguments;
@@ -44,7 +44,7 @@ public class ValidationMessage {
     private final String messageKey;
     private final Supplier<String> messageSupplier;
 
-    ValidationMessage(String type, String code, JsonNodePath evaluationPath, JsonNodePath schemaLocation,
+    ValidationMessage(String type, String code, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
             JsonNodePath instanceLocation, String property, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier) {
         super();
@@ -86,14 +86,14 @@ public class ValidationMessage {
     }
     
     /**
-     * The schema location is the canonical URI of the schema object plus a JSON
+     * The schema location is the canonical IRI of the schema object plus a JSON
      * Pointer fragment indicating the subschema that produced a result. In contrast
      * with the evaluation path, the schema location MUST NOT include by-reference
      * applicators such as $ref or $dynamicRef.
      * 
      * @return the schema location
      */
-    public JsonNodePath getSchemaLocation() {
+    public SchemaLocation getSchemaLocation() {
         return schemaLocation;
     }
     
@@ -176,7 +176,7 @@ public class ValidationMessage {
         protected String type;
         protected String code;
         protected JsonNodePath evaluationPath;
-        protected JsonNodePath schemaLocation;
+        protected SchemaLocation schemaLocation;
         protected JsonNodePath instanceLocation;
         protected String property;
         protected Object[] arguments;
@@ -218,7 +218,7 @@ public class ValidationMessage {
          * @param schemaLocation the schema location
          * @return the builder
          */
-        public S schemaLocation(JsonNodePath schemaLocation) {
+        public S schemaLocation(SchemaLocation schemaLocation) {
             this.schemaLocation = schemaLocation;
             return self();
         }
@@ -334,7 +334,7 @@ public class ValidationMessage {
             return evaluationPath;
         }
 
-        protected JsonNodePath getSchemaLocation() {
+        protected SchemaLocation getSchemaLocation() {
             return schemaLocation;
         }
 

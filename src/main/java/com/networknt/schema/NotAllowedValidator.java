@@ -27,7 +27,7 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
 
     private List<String> fieldNames = new ArrayList<String>();
 
-    public NotAllowedValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();

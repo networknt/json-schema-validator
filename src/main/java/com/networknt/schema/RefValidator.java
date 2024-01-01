@@ -37,7 +37,7 @@ public class RefValidator extends BaseJsonValidator {
     private static final String REF_CURRENT = "#";
     private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
-    public RefValidator(JsonNodePath schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         this.parentSchema = parentSchema;
@@ -45,7 +45,7 @@ public class RefValidator extends BaseJsonValidator {
         if (this.schema == null) {
             ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
                     .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                    .instanceLocation(schemaLocation).evaluationPath(schemaLocation).arguments(refValue).build();
+                    .instanceLocation(schemaLocation.getFragment()).evaluationPath(schemaLocation.getFragment()).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }
@@ -110,21 +110,19 @@ public class RefValidator extends BaseJsonValidator {
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
-                JsonNodePath path = null;
+                SchemaLocation path = null;
                 if (refValue.startsWith(REF_CURRENT)) {
                     // relative
                     path = parent.schemaLocation;
-                    // get base
-                    while (!path.getName(-1).contains(REF_CURRENT)) {
-                        path = path.getParent();
-                    }
+                    JsonNodePath fragment = new JsonNodePath(PathType.JSON_POINTER);
                     String[] parts = refValue.split("/");
                     for (int x = 1; x < parts.length; x++) {
-                        path = path.resolve(parts[x]);
+                        fragment = fragment.resolve(parts[x]);
                     }
+                    path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(), fragment);
                 } else {
                     // absolute
-                    path = UriReference.get(refValue); 
+                    path = SchemaLocation.of(refValue); 
                 }
                 final JsonSchema schema = validationContext.newSchema(path, evaluationPath, node, parent);
                 ref = new JsonSchemaRef(schema);
