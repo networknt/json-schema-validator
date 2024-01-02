@@ -47,4 +47,9 @@ class SchemaLocationTest {
         assertEquals("street_address", schemaLocation.getFragment().toString());
     }
 
+    @Test
+    void document() {
+        assertEquals(SchemaLocation.DOCUMENT.toString(), "#");
+    }
+
 }

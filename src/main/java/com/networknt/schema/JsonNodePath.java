@@ -27,7 +27,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
     private final String pathSegment;
     private final int pathSegmentIndex;
 
-    private String value = null; // computed lazily
+    private volatile String value = null; // computed lazily
 
     public JsonNodePath(PathType type) {
         this.type = type;

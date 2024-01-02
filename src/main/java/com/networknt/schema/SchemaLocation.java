@@ -27,11 +27,22 @@ public class SchemaLocation {
     private static final JsonNodePath JSON_POINTER = new JsonNodePath(PathType.JSON_POINTER);
     private static final JsonNodePath ANCHOR = new JsonNodePath(PathType.URI_REFERENCE);
 
+    /**
+     * Represents a relative schema location to the current document.
+     */
+    public static final SchemaLocation DOCUMENT = new SchemaLocation(null, JSON_POINTER);
+
     private final AbsoluteIri absoluteIri;
     private final JsonNodePath fragment;
 
     private volatile String value = null; // computed lazily
 
+    /**
+     * Constructs a new {@link SchemaLocation}.
+     * 
+     * @param absoluteIri canonical absolute IRI of the schema object
+     * @param fragment    the fragment
+     */
     public SchemaLocation(AbsoluteIri absoluteIri, JsonNodePath fragment) {
         this.absoluteIri = absoluteIri;
         this.fragment = fragment;
@@ -39,7 +50,10 @@ public class SchemaLocation {
 
     /**
      * Gets the canonical absolute IRI of the schema object.
-     * 
+     * <p>
+     * This is a unique identifier indicated by the $id property or id property in
+     * Draft 4 and earlier. This does not have to be network accessible.
+     *
      * @return the canonical absolute IRI of the schema object.
      */
     public AbsoluteIri getAbsoluteIri() {
@@ -128,6 +142,58 @@ public class SchemaLocation {
             }
         }
         return new SchemaLocation(absoluteIri, fragment);
+    }
+
+    /**
+     * Returns a builder for building {@link SchemaLocation}.
+     * 
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for building {@link SchemaLocation}.
+     */
+    public static class Builder {
+        private AbsoluteIri absoluteIri;
+        private JsonNodePath fragment;
+
+        /**
+         * Sets the canonical absolute IRI of the schema object.
+         * <p>
+         * This is a unique identifier indicated by the $id property or id property in
+         * Draft 4 and earlier. This does not have to be network accessible.
+         *
+         * @param absoluteIri the canonical IRI of the schema object
+         * @return the builder
+         */
+        protected Builder absoluteIri(AbsoluteIri absoluteIri) {
+            this.absoluteIri = absoluteIri;
+            return this;
+        }
+
+        /**
+         * Sets the fragment.
+         * 
+         * @param fragment the fragment
+         * @return the builder
+         */
+        protected Builder fragment(JsonNodePath fragment) {
+            this.fragment = fragment;
+            return this;
+        }
+
+        /**
+         * Builds a {@link SchemaLocation}.
+         * 
+         * @return the schema location
+         */
+        public SchemaLocation build() {
+            return new SchemaLocation(absoluteIri, fragment);
+        }
+
     }
 
     @Override

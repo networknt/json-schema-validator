@@ -355,7 +355,7 @@ public class JsonSchemaFactory {
         if (idNode != null) {
             schema = idNode.asText() + "#";
         }
-        return schema != null ? SchemaLocation.of(schema) : SchemaLocation.of("");
+        return schema != null ? SchemaLocation.of(schema) : SchemaLocation.DOCUMENT;
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode) {
@@ -466,7 +466,8 @@ public class JsonSchemaFactory {
                 } else {
                     final ValidationContext validationContext = createValidationContext(schemaNode);
                     validationContext.setConfig(config);
-                    jsonSchema = doCreate(validationContext, SchemaLocation.of(""), evaluationPath, mappedUri, schemaNode, null, false);
+                    jsonSchema = doCreate(validationContext, SchemaLocation.DOCUMENT, evaluationPath, mappedUri,
+                            schemaNode, null, false);
                 }
 
                 if (enableUriSchemaCache) {
