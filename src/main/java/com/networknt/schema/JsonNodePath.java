@@ -65,7 +65,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      * @param token the child token
      * @return the path
      */
-    public JsonNodePath resolve(String token) {
+    public JsonNodePath append(String token) {
         return new JsonNodePath(this, token);
     }
 
@@ -75,7 +75,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      * @param index the index
      * @return the path
      */
-    public JsonNodePath resolve(int index) {
+    public JsonNodePath append(int index) {
         return new JsonNodePath(this, index);
     }
 

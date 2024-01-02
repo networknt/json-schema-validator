@@ -117,7 +117,7 @@ public class RefValidator extends BaseJsonValidator {
                     JsonNodePath fragment = new JsonNodePath(PathType.JSON_POINTER);
                     String[] parts = refValue.split("/");
                     for (int x = 1; x < parts.length; x++) {
-                        fragment = fragment.resolve(parts[x]);
+                        fragment = fragment.append(parts[x]);
                     }
                     path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(), fragment);
                 } else {

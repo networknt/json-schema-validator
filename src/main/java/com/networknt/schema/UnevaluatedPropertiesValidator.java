@@ -86,7 +86,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private Set<JsonNodePath> allPaths(JsonNode node, JsonNodePath instanceLocation) {
         Set<JsonNodePath> collector = new LinkedHashSet<>();
         node.fields().forEachRemaining(entry -> {
-            collector.add(instanceLocation.resolve(entry.getKey()));
+            collector.add(instanceLocation.append(entry.getKey()));
         });
         return collector;
     }

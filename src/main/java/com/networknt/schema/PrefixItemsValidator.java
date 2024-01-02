@@ -63,7 +63,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
-                JsonNodePath path = instanceLocation.resolve(i);
+                JsonNodePath path = instanceLocation.append(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
                     if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
@@ -102,7 +102,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
     private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.resolve(i),
+        walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.append(i),
                 shouldValidateSchema, validationMessages);
     }
 

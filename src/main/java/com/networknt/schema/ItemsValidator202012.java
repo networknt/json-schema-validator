@@ -65,7 +65,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
             Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             for (int i = this.prefixCount; i < node.size(); ++i) {
-                JsonNodePath path = instanceLocation.resolve(i);
+                JsonNodePath path = instanceLocation.append(i);
                 // validate with item schema (the whole array has the same item schema)
                 Set<ValidationMessage> results = this.schema.validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
@@ -99,7 +99,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     n = defaultNode;
                 }
                 // Walk the schema.
-                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.resolve(i), shouldValidateSchema, validationMessages);
+                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema, validationMessages);
             }
         } else {
             walkSchema(executionContext, this.schema, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages);

@@ -106,7 +106,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                SchemaLocation path = schemaLocation.resolve(this.metaSchema.getIdKeyword());
+                SchemaLocation path = schemaLocation.append(this.metaSchema.getIdKeyword());
                 ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
                         .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path.getFragment())
                         .evaluationPath(path.getFragment())
@@ -225,13 +225,13 @@ public class JsonSchema extends BaseJsonValidator {
         List<JsonValidator> validators = new ArrayList<>();
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
-                JsonNodePath path = getEvaluationPath().resolve("true");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("true"), path,
+                JsonNodePath path = getEvaluationPath().append("true");
+                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().append("true"), path,
                         "true", schemaNode, this);
                 validators.add(validator);
             } else {
-                JsonNodePath path = getEvaluationPath().resolve("false");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().resolve("false"),
+                JsonNodePath path = getEvaluationPath().append("false");
+                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().append("false"),
                         path, "false", schemaNode, this);
                 validators.add(validator);
             }
@@ -246,8 +246,8 @@ public class JsonSchema extends BaseJsonValidator {
                 String pname = pnames.next();
                 JsonNode nodeToUse = schemaNode.get(pname);
 
-                JsonNodePath path = getEvaluationPath().resolve(pname);
-                SchemaLocation schemaPath = getSchemaLocation().resolve(pname);
+                JsonNodePath path = getEvaluationPath().append(pname);
+                SchemaLocation schemaPath = getSchemaLocation().append(pname);
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {

@@ -87,7 +87,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         Set<JsonNodePath> collector = new LinkedHashSet<>();
         int size = node.size();
         for (int i = 0; i < size; ++i) {
-            JsonNodePath path = instanceLocation.resolve(i);
+            JsonNodePath path = instanceLocation.append(i);
             collector.add(path);
         }
         return collector;

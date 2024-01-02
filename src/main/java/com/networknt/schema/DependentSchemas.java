@@ -34,8 +34,8 @@ public class DependentSchemas extends BaseJsonValidator {
             String pname = it.next();
             JsonNode pvalue = schemaNode.get(pname);
             if (pvalue.isObject() || pvalue.isBoolean()) {
-                this.schemaDependencies.put(pname, validationContext.newSchema(schemaLocation.resolve(pname),
-                        evaluationPath.resolve(pname), pvalue, parentSchema));
+                this.schemaDependencies.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+                        evaluationPath.append(pname), pvalue, parentSchema));
             }
         }
     }

@@ -29,14 +29,14 @@ class JsonNodePathTest {
     @Test
     void getNameCount() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath path = root.resolve("hello").resolve("world");
+        JsonNodePath path = root.append("hello").append("world");
         assertEquals(2, path.getNameCount());
     }
 
     @Test
     void getName() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath path = root.resolve("hello").resolve("world");
+        JsonNodePath path = root.append("hello").append("world");
         assertEquals("hello", path.getName(0));
         assertEquals("world", path.getName(1));
         assertEquals("world", path.getName(-1));
@@ -46,16 +46,16 @@ class JsonNodePathTest {
     @Test
     void compareTo() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a = root.resolve("a");
-        JsonNodePath aa = a.resolve("a");
+        JsonNodePath a = root.append("a");
+        JsonNodePath aa = a.append("a");
 
-        JsonNodePath b = root.resolve("b");
-        JsonNodePath bb = b.resolve("b");
-        JsonNodePath b1 = b.resolve(1);
-        JsonNodePath bbb = bb.resolve("b");
+        JsonNodePath b = root.append("b");
+        JsonNodePath bb = b.append("b");
+        JsonNodePath b1 = b.append(1);
+        JsonNodePath bbb = bb.append("b");
 
-        JsonNodePath c = root.resolve("c");
-        JsonNodePath cc = c.resolve("c");
+        JsonNodePath c = root.append("c");
+        JsonNodePath cc = c.append("c");
 
         List<JsonNodePath> paths = new ArrayList<>();
         paths.add(cc);
@@ -80,16 +80,16 @@ class JsonNodePathTest {
     @Test
     void equalsEquals() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a1 = root.resolve("a");
-        JsonNodePath a2 = root.resolve("a");
+        JsonNodePath a1 = root.append("a");
+        JsonNodePath a2 = root.append("a");
         assertEquals(a1, a2);
     }
 
     @Test
     void hashCodeEquals() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a1 = root.resolve("a");
-        JsonNodePath a2 = root.resolve("a");
+        JsonNodePath a1 = root.append("a");
+        JsonNodePath a2 = root.append("a");
         assertEquals(a1.hashCode(), a2.hashCode());
     }
 
@@ -102,7 +102,7 @@ class JsonNodePathTest {
     @Test
     void getElement() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_PATH);
-        JsonNodePath path = root.resolve("hello").resolve(1).resolve("world");
+        JsonNodePath path = root.append("hello").append(1).append("world");
         assertEquals("hello", path.getElement(0));
         assertEquals(Integer.valueOf(1), path.getElement(1));
         assertEquals("world", path.getElement(2));
@@ -114,24 +114,24 @@ class JsonNodePathTest {
     @Test
     void startsWith() {
         JsonNodePath root = new JsonNodePath(PathType.JSON_PATH);
-        JsonNodePath path = root.resolve("items");
-        JsonNodePath other = root.resolve("unevaluatedItems");
+        JsonNodePath path = root.append("items");
+        JsonNodePath other = root.append("unevaluatedItems");
         assertTrue(path.startsWith(other.getParent()));
 
-        path = root.resolve("allOf").resolve(0).resolve("items");
-        other = root.resolve("allOf").resolve(1).resolve("unevaluatedItems");
+        path = root.append("allOf").append(0).append("items");
+        other = root.append("allOf").append(1).append("unevaluatedItems");
         assertFalse(path.startsWith(other.getParent()));
 
-        path = root.resolve("allOf").resolve(0).resolve("items");
-        other = root.resolve("allOf").resolve(0).resolve("unevaluatedItems");
+        path = root.append("allOf").append(0).append("items");
+        other = root.append("allOf").append(0).append("unevaluatedItems");
         assertTrue(path.startsWith(other.getParent()));
         
-        path = root.resolve("items");
-        other = root.resolve("items").resolve(0);
+        path = root.append("items");
+        other = root.append("items").append(0);
         assertTrue(path.startsWith(other.getParent()));
         
-        path = root.resolve("allOf");
-        other = root.resolve("allOf").resolve(0).resolve("items");
+        path = root.append("allOf");
+        other = root.append("allOf").append(0).append("items");
         assertFalse(path.startsWith(other.getParent()));
     }
 }

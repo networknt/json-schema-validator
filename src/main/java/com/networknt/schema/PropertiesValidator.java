@@ -36,8 +36,8 @@ public class PropertiesValidator extends BaseJsonValidator {
         this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            this.schemas.put(pname, validationContext.newSchema(schemaLocation.resolve(pname),
-                    evaluationPath.resolve(pname), schemaNode.get(pname), parentSchema));
+            this.schemas.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+                    evaluationPath.append(pname), schemaNode.get(pname), parentSchema));
         }
     }
 
@@ -59,7 +59,7 @@ public class PropertiesValidator extends BaseJsonValidator {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
-                JsonNodePath path = instanceLocation.resolve(entry.getKey());
+                JsonNodePath path = instanceLocation.append(entry.getKey());
                 if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
                     collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
                 }
@@ -166,7 +166,7 @@ public class PropertiesValidator extends BaseJsonValidator {
             Set<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
-        JsonNodePath path = instanceLocation.resolve(entry.getKey());
+        JsonNodePath path = instanceLocation.append(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
                 ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema.getEvaluationPath(), propertySchema.getSchemaLocation(), propertySchema.getSchemaNode(),

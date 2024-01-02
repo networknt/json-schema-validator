@@ -75,8 +75,8 @@ public class SchemaLocation {
      * @param token the segment
      * @return a new schema location with the segment
      */
-    public SchemaLocation resolve(String token) {
-        return new SchemaLocation(this.absoluteIri, this.fragment.resolve(token));
+    public SchemaLocation append(String token) {
+        return new SchemaLocation(this.absoluteIri, this.fragment.append(token));
     }
 
     /**
@@ -85,8 +85,8 @@ public class SchemaLocation {
      * @param index the segment
      * @return a new schema location with the segment
      */
-    public SchemaLocation resolve(int index) {
-        return new SchemaLocation(this.absoluteIri, this.fragment.resolve(index));
+    public SchemaLocation append(int index) {
+        return new SchemaLocation(this.absoluteIri, this.fragment.append(index));
     }
 
     /**
@@ -135,9 +135,9 @@ public class SchemaLocation {
                     }
                 }
                 if (index != -1) {
-                    fragment = fragment.resolve(index);
+                    fragment = fragment.append(index);
                 } else {
-                    fragment = fragment.resolve(fragmentPart.toString());
+                    fragment = fragment.append(fragmentPart.toString());
                 }
             }
         }

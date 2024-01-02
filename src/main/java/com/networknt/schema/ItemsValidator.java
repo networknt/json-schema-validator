@@ -48,7 +48,7 @@ public class ItemsValidator extends BaseJsonValidator {
         } else {
             int i = 0;
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaLocation.resolve(i), evaluationPath.resolve(i),
+                this.tupleSchema.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                         s, parentSchema));
                 i++;
             }
@@ -59,8 +59,8 @@ public class ItemsValidator extends BaseJsonValidator {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
                     foundAdditionalSchema = validationContext.newSchema(
-                            parentSchema.schemaLocation.resolve(PROPERTY_ADDITIONAL_ITEMS),
-                            parentSchema.evaluationPath.resolve(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
+                            parentSchema.schemaLocation.append(PROPERTY_ADDITIONAL_ITEMS),
+                            parentSchema.evaluationPath.append(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
                 }
             }
         }
@@ -96,7 +96,7 @@ public class ItemsValidator extends BaseJsonValidator {
     private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation) {
         Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
-        JsonNodePath path = instanceLocation.resolve(i);
+        JsonNodePath path = instanceLocation.append(i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
@@ -176,18 +176,18 @@ public class ItemsValidator extends BaseJsonValidator {
             JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (this.schema != null) {
             // Walk the schema.
-            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation.resolve(i), shouldValidateSchema, validationMessages);
+            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation.append(i), shouldValidateSchema, validationMessages);
         }
 
         if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // walk tuple schema
-                walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.resolve(i),
+                walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.append(i),
                         shouldValidateSchema, validationMessages);
             } else {
                 if (this.additionalSchema != null) {
                     // walk additional item schema
-                    walkSchema(executionContext, this.additionalSchema, node, rootNode, instanceLocation.resolve(i),
+                    walkSchema(executionContext, this.additionalSchema, node, rootNode, instanceLocation.append(i),
                             shouldValidateSchema, validationMessages);
                 }
             }
