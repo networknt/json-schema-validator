@@ -93,4 +93,24 @@ class AbsoluteIriTest {
         assertEquals("classpath:resource/test.json", iri.resolve("/test.json").toString());
     }
 
+    @Test
+    void schemeClasspath() {
+        assertEquals("classpath", AbsoluteIri.of("classpath:resource/test.json").getScheme());
+    }
+
+    @Test
+    void schemeHttps() {
+        assertEquals("https", AbsoluteIri.of("https://www.example.org").getScheme());
+    }
+
+    @Test
+    void schemeNone() {
+        assertEquals("", AbsoluteIri.of("relative").getScheme());
+    }
+
+    @Test
+    void schemeUrn() {
+        assertEquals("urn", AbsoluteIri.of("urn:isbn:1234567890").getScheme());
+    }
+
 }

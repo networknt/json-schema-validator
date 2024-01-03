@@ -49,6 +49,15 @@ public class SchemaLocation {
     }
 
     /**
+     * Constructs a new {@link SchemaLocation}.
+     * 
+     * @param absoluteIri canonical absolute IRI of the schema object
+     */
+    public SchemaLocation(AbsoluteIri absoluteIri) {
+        this(absoluteIri, JSON_POINTER);
+    }
+
+    /**
      * Gets the canonical absolute IRI of the schema object.
      * <p>
      * This is a unique identifier indicated by the $id property or id property in
@@ -96,17 +105,98 @@ public class SchemaLocation {
      * @return the schema location
      */
     public static SchemaLocation of(String iri) {
+        if (iri == null) {
+            return null;
+        }
+        if ("#".equals(iri)) {
+            return DOCUMENT;
+        }
         String[] iriParts = iri.split("#");
         AbsoluteIri absoluteIri = null;
         JsonNodePath fragment = JSON_POINTER;
         if (iriParts.length > 0) {
-            absoluteIri = new AbsoluteIri(iriParts[0]);
+            absoluteIri = AbsoluteIri.of(iriParts[0]);
         }
         if (iriParts.length > 1) {
-            String[] fragmentParts = iriParts[1].split("/");
+            fragment = Fragment.of(iriParts[1]);
+        }
+        return new SchemaLocation(absoluteIri, fragment);
+    }
+
+    /**
+     * Resolves against a absolute IRI reference or fragment.
+     * 
+     * @param absoluteIriReferenceOrFragment to resolve
+     * @return the resolved schema location
+     */
+    public SchemaLocation resolve(String absoluteIriReferenceOrFragment) {
+        if ("#".equals(absoluteIriReferenceOrFragment)) {
+            return new SchemaLocation(this.getAbsoluteIri(), JSON_POINTER);
+        }
+        JsonNodePath fragment = JSON_POINTER;
+        String[] parts = absoluteIriReferenceOrFragment.split("#");
+        AbsoluteIri absoluteIri = this.getAbsoluteIri();
+        if (absoluteIri != null) {
+            if (!parts[0].isEmpty()) {
+                absoluteIri = absoluteIri.resolve(parts[0]);
+            }
+        } else {
+            absoluteIri = AbsoluteIri.of(parts[0]);
+        }
+        if (parts.length > 1 && !parts[1].isEmpty()) {
+            fragment = Fragment.of(parts[1]);
+        }
+        return new SchemaLocation(absoluteIri, fragment);
+    }
+
+    /**
+     * Resolves against a absolute IRI reference or fragment.
+     * 
+     * @param schemaLocation                 the parent
+     * @param absoluteIriReferenceOrFragment to resolve
+     * @return the resolved schema location
+     */
+    public static String resolve(SchemaLocation schemaLocation, String absoluteIriReferenceOrFragment) {
+        if ("#".equals(absoluteIriReferenceOrFragment)) {
+            return schemaLocation.getAbsoluteIri().toString() + "#";
+        }
+        String[] parts = absoluteIriReferenceOrFragment.split("#");
+        AbsoluteIri absoluteIri = schemaLocation.getAbsoluteIri();
+        String resolved = parts[0];
+        if (absoluteIri != null) {
+            if (!parts[0].isEmpty()) {
+                resolved = absoluteIri.resolve(parts[0]).toString();
+            } else {
+                resolved = absoluteIri.toString();
+            }
+        }
+        if (parts.length > 1 && !parts[1].isEmpty()) {
+            resolved = resolved + "#" + parts[1];
+        } else {
+            resolved = resolved + "#";
+        }
+        return resolved;
+    }
+
+    /**
+     * The fragment can be a JSON pointer to the document or an anchor.
+     */
+    public static class Fragment {
+        /**
+         * Parses a string representing a fragment.
+         * 
+         * @param fragmentString
+         * @return the path
+         */
+        public static JsonNodePath of(String fragmentString) {
+            if (fragmentString.startsWith("#")) {
+                fragmentString = fragmentString.substring(1);
+            }
+            JsonNodePath fragment = JSON_POINTER;
+            String[] fragmentParts = fragmentString.split("/");
 
             boolean jsonPointer = false;
-            if (iriParts[1].startsWith("/")) {
+            if (fragmentString.startsWith("/")) {
                 // json pointer
                 jsonPointer = true;
             } else {
@@ -140,8 +230,49 @@ public class SchemaLocation {
                     fragment = fragment.append(fragmentPart.toString());
                 }
             }
+            return fragment;
         }
-        return new SchemaLocation(absoluteIri, fragment);
+
+        /**
+         * Determine if the string is a fragment.
+         * 
+         * @param fragmentString to evaluate
+         * @return true if it is a fragment
+         */
+        public static boolean isFragment(String fragmentString) {
+            return fragmentString.startsWith("#");
+        }
+
+        /**
+         * Determine if the string is a JSON Pointer fragment.
+         * 
+         * @param fragmentString to evaluate
+         * @return true if it is a JSON Pointer fragment
+         */
+        public static boolean isJsonPointerFragment(String fragmentString) {
+            return fragmentString.startsWith("#/");
+        }
+
+        /**
+         * Determine if the string is an anchor fragment.
+         * 
+         * @param fragmentString to evaluate
+         * @return true if it is an anchor fragment
+         */
+        public static boolean isAnchorFragment(String fragmentString) {
+            return isFragment(fragmentString) && !isDocumentFragment(fragmentString)
+                    && !isJsonPointerFragment(fragmentString);
+        }
+
+        /**
+         * Determine if the string is a fragment referencing the document.
+         * 
+         * @param fragmentString to evaluate
+         * @return true if it is a fragment
+         */
+        public static boolean isDocumentFragment(String fragmentString) {
+            return "#".equals(fragmentString);
+        }
     }
 
     /**
@@ -158,7 +289,7 @@ public class SchemaLocation {
      */
     public static class Builder {
         private AbsoluteIri absoluteIri;
-        private JsonNodePath fragment;
+        private JsonNodePath fragment = JSON_POINTER;
 
         /**
          * Sets the canonical absolute IRI of the schema object.
@@ -175,6 +306,19 @@ public class SchemaLocation {
         }
 
         /**
+         * Sets the canonical absolute IRI of the schema object.
+         * <p>
+         * This is a unique identifier indicated by the $id property or id property in
+         * Draft 4 and earlier. This does not have to be network accessible.
+         *
+         * @param absoluteIri the canonical IRI of the schema object
+         * @return the builder
+         */
+        protected Builder absoluteIri(String absoluteIri) {
+            return absoluteIri(AbsoluteIri.of(absoluteIri));
+        }
+
+        /**
          * Sets the fragment.
          * 
          * @param fragment the fragment
@@ -183,6 +327,16 @@ public class SchemaLocation {
         protected Builder fragment(JsonNodePath fragment) {
             this.fragment = fragment;
             return this;
+        }
+
+        /**
+         * Sets the fragment.
+         * 
+         * @param fragment the fragment
+         * @return the builder
+         */
+        protected Builder fragment(String fragment) {
+            return fragment(Fragment.of(fragment));
         }
 
         /**

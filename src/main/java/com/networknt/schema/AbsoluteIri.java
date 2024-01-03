@@ -55,33 +55,16 @@ public class AbsoluteIri {
      * @return the new absolute IRI
      */
     public AbsoluteIri resolve(String iri) {
-        if (iri.contains(":")) {
-            // IRI is absolute
-            return new AbsoluteIri(iri);
-        } else {
-            // IRI is relative to this
-            if (this.value == null) {
-                return new AbsoluteIri(iri);
-            }
-            if (iri.startsWith("/")) {
-                // IRI is relative to this root
-                return new AbsoluteIri(getSchemeAuthority() + iri);
-            } else {
-                // IRI is relative to this path
-                String base = this.value;
-                int scheme = this.value.indexOf("://");
-                if (scheme == -1) {
-                    scheme = 0;
-                } else {
-                    scheme = scheme + 3;
-                }
-                int slash = this.value.lastIndexOf('/');
-                if (slash != -1 && slash > scheme) {
-                    base = this.value.substring(0, slash);
-                }
-                return new AbsoluteIri(base + "/" + iri);
-            }
-        }
+        return new AbsoluteIri(resolve(this.value, iri));
+    }
+
+    /**
+     * Gets the scheme of the IRI.
+     * 
+     * @return the scheme
+     */
+    public String getScheme() {
+        return getScheme(this.value);
     }
 
     /**
@@ -90,18 +73,85 @@ public class AbsoluteIri {
      * @return the scheme and authority components
      */
     protected String getSchemeAuthority() {
-        if (this.value == null) {
+        return getSchemeAuthority(this.value);
+    }
+
+    /**
+     * Constructs a new IRI by parsing the given string and then resolving it
+     * against this IRI.
+     *
+     * @param parent the parent absolute IRI
+     * @param iri    to resolve
+     * @return the new absolute IRI
+     */
+    public static String resolve(String parent, String iri) {
+        if (iri.contains(":")) {
+            // IRI is absolute
+            return iri;
+        } else {
+            // IRI is relative to this
+            if (parent == null) {
+                return iri;
+            }
+            if (iri.startsWith("/")) {
+                // IRI is relative to this root
+                return getSchemeAuthority(parent) + iri;
+            } else {
+                // IRI is relative to this path
+                String base = parent;
+                int scheme = parent.indexOf("://");
+                if (scheme == -1) {
+                    scheme = 0;
+                } else {
+                    scheme = scheme + 3;
+                }
+                int slash = parent.lastIndexOf('/');
+                if (slash != -1 && slash > scheme) {
+                    base = parent.substring(0, slash);
+                }
+                return base + "/" + iri;
+            }
+        }
+    }
+
+    /**
+     * Returns the scheme and authority components of the IRI.
+     * 
+     * @param iri to parse
+     * @return the scheme and authority components
+     */
+    protected static String getSchemeAuthority(String iri) {
+        if (iri == null) {
             return "";
         }
         // iri refers to root
-        int start = this.value.indexOf("://");
+        int start = iri.indexOf("://");
         if (start == -1) {
             start = 0;
         } else {
             start = start + 3;
         }
-        int end = this.value.indexOf('/', start);
-        return end != -1 ? this.value.substring(0, end) : this.value;
+        int end = iri.indexOf('/', start);
+        return end != -1 ? iri.substring(0, end) : iri;
+    }
+
+    /**
+     * Returns the scheme of the IRI.
+     * 
+     * @param iri to parse
+     * @return the scheme
+     */
+    public static String getScheme(String iri) {
+        if (iri == null) {
+            return "";
+        }
+        // iri refers to root
+        int start = iri.indexOf(":");
+        if (start == -1) {
+            return "";
+        } else {
+            return iri.substring(0, start);
+        }
     }
 
     @Override

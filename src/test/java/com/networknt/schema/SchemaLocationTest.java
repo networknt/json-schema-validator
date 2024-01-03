@@ -48,8 +48,159 @@ class SchemaLocationTest {
     }
 
     @Test
+    void ofDocument() {
+        assertEquals(SchemaLocation.DOCUMENT, SchemaLocation.of("#"));
+    }
+
+    @Test
     void document() {
         assertEquals(SchemaLocation.DOCUMENT.toString(), "#");
+    }
+
+    @Test
+    void schemaLocationResolveDocument() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#", SchemaLocation.resolve(schemaLocation, "#"));
+    }
+
+    @Test
+    void schemaLocationResolveDocumentPointer() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#/allOf/12/properties",
+                SchemaLocation.resolve(schemaLocation, "#/allOf/12/properties"));
+    }
+
+    @Test
+    void schemaLocationResolveEmptyString() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#", SchemaLocation.resolve(schemaLocation, ""));
+    }
+
+    @Test
+    void schemaLocationResolveRelative() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/test#", SchemaLocation.resolve(schemaLocation, "test"));
+    }
+
+    @Test
+    void schemaLocationResolveRelativeIndex() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address/#street_address");
+        assertEquals("https://example.com/schemas/address/test#", SchemaLocation.resolve(schemaLocation, "test"));
+    }
+
+    @Test
+    void resolveDocument() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#", schemaLocation.resolve("#").toString());
+    }
+
+    @Test
+    void resolveDocumentPointer() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#/allOf/10/properties",
+                schemaLocation.resolve("#/allOf/10/properties").toString());
+    }
+
+    @Test
+    void resolveEmptyString() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/address#", schemaLocation.resolve("").toString());
+    }
+
+    @Test
+    void resolveRelative() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals("https://example.com/schemas/test#", schemaLocation.resolve("test").toString());
+    }
+
+    @Test
+    void resolveRelativeIndex() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address/#street_address");
+        assertEquals("https://example.com/schemas/address/test#", schemaLocation.resolve("test").toString());
+    }
+
+    @Test
+    void resolveNull() {
+        SchemaLocation schemaLocation = new SchemaLocation(null);
+        assertEquals("test#", schemaLocation.resolve("test").toString());
+    }
+
+    @Test
+    void build() {
+        SchemaLocation schemaLocation = SchemaLocation.builder().absoluteIri("https://example.com/schemas/address/")
+                .fragment("/allOf/10/properties").build();
+        assertEquals("https://example.com/schemas/address/#/allOf/10/properties", schemaLocation.toString());
+        assertEquals("https://example.com/schemas/address/", schemaLocation.getAbsoluteIri().toString());
+        assertEquals("/allOf/10/properties", schemaLocation.getFragment().toString());
+    }
+
+    @Test
+    void append() {
+        SchemaLocation schemaLocation = SchemaLocation.builder().absoluteIri("https://example.com/schemas/address/")
+                .build().append("allOf").append(10).append("properties");
+        assertEquals("https://example.com/schemas/address/#/allOf/10/properties", schemaLocation.toString());
+        assertEquals("https://example.com/schemas/address/", schemaLocation.getAbsoluteIri().toString());
+        assertEquals("/allOf/10/properties", schemaLocation.getFragment().toString());
+    }
+
+    @Test
+    void anchorFragment() {
+        assertTrue(SchemaLocation.Fragment.isAnchorFragment("#test"));
+        assertFalse(SchemaLocation.Fragment.isAnchorFragment("#"));
+        assertFalse(SchemaLocation.Fragment.isAnchorFragment("#/allOf/10/properties"));
+        assertFalse(SchemaLocation.Fragment.isAnchorFragment(""));
+    }
+
+    @Test
+    void jsonPointerFragment() {
+        assertTrue(SchemaLocation.Fragment.isJsonPointerFragment("#/allOf/10/properties"));
+        assertFalse(SchemaLocation.Fragment.isJsonPointerFragment("#"));
+        assertFalse(SchemaLocation.Fragment.isJsonPointerFragment("#test"));
+    }
+
+    @Test
+    void fragment() {
+        assertTrue(SchemaLocation.Fragment.isFragment("#/allOf/10/properties"));
+        assertTrue(SchemaLocation.Fragment.isFragment("#test"));
+        assertFalse(SchemaLocation.Fragment.isFragment("test"));
+    }
+
+    @Test
+    void documentFragment() {
+        assertFalse(SchemaLocation.Fragment.isDocumentFragment("#/allOf/10/properties"));
+        assertFalse(SchemaLocation.Fragment.isDocumentFragment("#test"));
+        assertFalse(SchemaLocation.Fragment.isDocumentFragment("test"));
+        assertTrue(SchemaLocation.Fragment.isDocumentFragment("#"));
+    }
+
+    @Test
+    void ofNull() {
+        assertNull(SchemaLocation.of(null));
+    }
+
+    @Test
+    void ofEmptyString() {
+        SchemaLocation schemaLocation = SchemaLocation.of("");
+        assertEquals("", schemaLocation.getAbsoluteIri().toString());
+        assertEquals("#", schemaLocation.toString());
+    }
+
+    @Test
+    void newNull() {
+        SchemaLocation schemaLocation = new SchemaLocation(null);
+        assertEquals("#", schemaLocation.toString());
+    }
+
+    @Test
+    void equalsEquals() {
+        assertEquals(SchemaLocation.of("https://example.com/schemas/address/#street_address"),
+                SchemaLocation.of("https://example.com/schemas/address/#street_address"));
+    }
+
+    @Test
+    void hashCodeEquals() {
+        assertEquals(SchemaLocation.of("https://example.com/schemas/address/#street_address").hashCode(),
+                SchemaLocation.of("https://example.com/schemas/address/#street_address").hashCode());
     }
 
 }
