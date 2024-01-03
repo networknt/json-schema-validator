@@ -51,7 +51,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = null;
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = executionContext.getValidatorState();
 
         Set<ValidationMessage> requiredErrors = null; 
 

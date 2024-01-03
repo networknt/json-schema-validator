@@ -47,7 +47,7 @@ public class OneOfValidator extends BaseJsonValidator {
         try {
             debug(logger, node, rootNode, instanceLocation);
 
-            ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+            ValidatorState state = executionContext.getValidatorState();
 
             // this is a complex validator, we set the flag to true
             state.setComplexValidator(true);
@@ -111,7 +111,7 @@ public class OneOfValidator extends BaseJsonValidator {
                 state.setMatchedNode(true);
 
             // reset the ValidatorState object
-            resetValidatorState(collectorContext);
+            resetValidatorState(executionContext);
 
             return Collections.unmodifiableSet(errors);
         } finally {
@@ -122,8 +122,8 @@ public class OneOfValidator extends BaseJsonValidator {
         }
     }
 
-    private static void resetValidatorState(CollectorContext collectorContext) {
-        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+    private static void resetValidatorState(ExecutionContext executionContext) {
+        ValidatorState state = executionContext.getValidatorState();
         state.setComplexValidator(false);
         state.setMatchedNode(true);
     }

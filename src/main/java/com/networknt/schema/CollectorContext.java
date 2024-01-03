@@ -178,6 +178,15 @@ public class CollectorContext {
     }
 
     /**
+     * Gets the collector map.
+     * 
+     * @return the collector map
+     */
+    public Map<String, Object> getCollectorMap() {
+        return this.collectorMap;
+    }
+
+    /**
      * Returns all the collected data. Please look into {@link #get(String)} method for more details.
      * @return Map
      */

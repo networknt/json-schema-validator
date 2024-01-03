@@ -22,6 +22,7 @@ package com.networknt.schema;
 public class ExecutionContext {
     private ExecutionConfig executionConfig;
     private CollectorContext collectorContext;
+    private ValidatorState validatorState = null;
 
     /**
      * Creates an execution context.
@@ -93,5 +94,23 @@ public class ExecutionContext {
      */
     public void setExecutionConfig(ExecutionConfig executionConfig) {
         this.executionConfig = executionConfig;
+    }
+
+    /**
+     * Gets the validator state.
+     * 
+     * @return the validator state
+     */
+    public ValidatorState getValidatorState() {
+        return validatorState;
+    }
+
+    /**
+     * Sets the validator state.
+     * 
+     * @param validatorState the validator state
+     */
+    public void setValidatorState(ValidatorState validatorState) {
+        this.validatorState = validatorState;
     }
 }

@@ -106,7 +106,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                             .locale(executionContext.getExecutionConfig().getLocale()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = executionContext.getValidatorState();
                         if (state != null && state.isWalkEnabled()) {
                             Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
                             if (!results.isEmpty()) {
@@ -160,7 +160,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (allowAdditionalProperties) {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) executionContext.getCollectorContext().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = executionContext.getValidatorState();
                         if (state != null && state.isWalkEnabled()) {
                            additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
                         }

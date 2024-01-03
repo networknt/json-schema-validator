@@ -54,7 +54,7 @@ public class AnyOfValidator extends BaseJsonValidator {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = executionContext.getValidatorState();
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             this.validationContext.enterDiscriminatorContext(this.discriminatorContext, instanceLocation);
