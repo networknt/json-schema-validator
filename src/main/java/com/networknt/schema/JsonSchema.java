@@ -80,15 +80,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (uriRefersToSubschema(currentUri, schemaLocation)) {
             updateThisAsSubschema(currentUri);
         }
-        if (validationContext.getConfig() != null) {
-            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
-            if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-                if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
-                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation, discriminator);
-                }
-            }
-        }
+        initializeConfig();
         this.id = validationContext.resolveSchemaId(this.schemaNode);
         this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
         readDefinitions("definitions");
@@ -99,6 +91,20 @@ public class JsonSchema extends BaseJsonValidator {
         }
         if (this.anchor != null) {
             this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString() + "#" + anchor, this);
+        }
+    }
+    
+    private void initializeConfig() {
+        if (validationContext.getConfig() != null) {
+            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(
+                    this.validationContext.getConfig().getKeywordWalkListenersMap());
+            if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
+                if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
+                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
+                            discriminator);
+                }
+            }
         }
     }
 
@@ -142,6 +148,7 @@ public class JsonSchema extends BaseJsonValidator {
         copy.requiredValidator = null;
         copy.typeValidator = null;
         copy.validators = null;
+        copy.initializeConfig();
         return copy;
     }
 
