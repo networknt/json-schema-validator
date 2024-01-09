@@ -98,14 +98,9 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             return null;
         }
 
-        final URI uri;
-        try {
-            uri = validationContext.getURIFactory().create(node.textValue());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        final SchemaLocation schemaLocation = SchemaLocation.of(node.textValue());
 
-        return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
+        return validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig());
     }
 
     protected static boolean equals(double n1, double n2) {

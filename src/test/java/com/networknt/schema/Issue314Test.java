@@ -12,7 +12,6 @@ public class Issue314Test {
                                     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0",
                                     JsonMetaSchema.getV7())
                                     .build())
-                    .forceHttps(false)
                     .build();
 
     @Test

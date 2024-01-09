@@ -1,18 +1,11 @@
 package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
-import com.networknt.schema.uri.URIFactory;
-import com.networknt.schema.uri.URIFetcher;
+import com.networknt.schema.uri.InputStreamSource;
+import com.networknt.schema.uri.SchemaLoader;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
@@ -38,27 +31,15 @@ public class CustomUriTest {
 
     private JsonSchemaFactory buildJsonSchemaFactory() {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .uriFetcher(new CustomUriFetcher(), "custom").uriFactory(new CustomUriFactory(), "custom").build();
+                .schemaLoaders(schemaLoaders -> schemaLoaders.add(0, new CustomUriFetcher())).build();
     }
 
-    private static class CustomUriFetcher implements URIFetcher {
+    private static class CustomUriFetcher implements SchemaLoader {
         private static final String SCHEMA = "{\"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\"$id\":\"custom:date\",\"type\":\"string\",\"format\":\"date\"}";
 
         @Override
-        public InputStream fetch(final URI uri) throws IOException {
-            return new ByteArrayInputStream(SCHEMA.getBytes(StandardCharsets.UTF_8));
-        }
-    }
-
-    private static class CustomUriFactory implements URIFactory {
-        @Override
-        public URI create(final String uri) {
-            return URI.create(uri);
-        }
-
-        @Override
-        public URI create(final URI baseURI, final String segment) {
-            return baseURI.resolve(segment);
+        public InputStreamSource getSchema(SchemaLocation schemaLocation) {
+            return () -> new ByteArrayInputStream(SCHEMA.getBytes(StandardCharsets.UTF_8));
         }
     }
 }

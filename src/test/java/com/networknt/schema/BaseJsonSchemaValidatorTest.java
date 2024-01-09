@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -68,7 +67,7 @@ public class BaseJsonSchemaValidatorTest {
 
     public static JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        return factory.getSchema(new URI(uri));
+        return factory.getSchema(SchemaLocation.of(uri));
     }
 
     public static JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {

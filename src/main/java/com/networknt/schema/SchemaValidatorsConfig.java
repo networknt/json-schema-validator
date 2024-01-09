@@ -19,8 +19,11 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
-import com.networknt.schema.uri.URITranslator;
-import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
+import com.networknt.schema.uri.AbsoluteIriMapper;
+import com.networknt.schema.uri.ClasspathSchemaLoader;
+import com.networknt.schema.uri.DefaultSchemaLoader;
+import com.networknt.schema.uri.SchemaLoader;
+import com.networknt.schema.uri.UriSchemaLoader;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 import java.util.ArrayList;
@@ -90,16 +93,6 @@ public class SchemaValidatorsConfig {
     private final Map<String, Boolean> strictness = new HashMap<>(0);
 
     /**
-     * Map of public, normally internet accessible schema URLs to alternate
-     * locations; this allows for offline validation of schemas that refer to public
-     * URLs. This is merged with any mappings the {@link JsonSchemaFactory} may have
-     * been built with.
-     */
-    private Map<String, String> uriMappings = new HashMap<>();
-
-    private CompositeURITranslator uriTranslators = new CompositeURITranslator();
-
-    /**
      * When a field is set as nullable in the OpenAPI specification, the schema
      * validator validates that it is nullable however continues with validation
      * against the nullable field
@@ -154,7 +147,7 @@ public class SchemaValidatorsConfig {
     // These are costly in terms of performance so we provide a way to disable them.
     private boolean disableUnevaluatedItems = false;
     private boolean disableUnevaluatedProperties = false;
-
+    
     public SchemaValidatorsConfig disableUnevaluatedAnalysis() {
         disableUnevaluatedItems();
         disableUnevaluatedProperties();
@@ -240,36 +233,6 @@ public class SchemaValidatorsConfig {
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
         return this.applyDefaultsStrategy;
-    }
-
-    public CompositeURITranslator getUriTranslator() {
-        return this.uriTranslators
-            .with(URITranslator.map(this.uriMappings));
-    }
-
-    public void addUriTranslator(URITranslator uriTranslator) {
-        if (null != uriTranslator) {
-            this.uriTranslators.add(uriTranslator);
-        }
-    }
-
-    /**
-     * @deprecated Use {@code getUriTranslator()} instead
-     * @return Map of public, normally internet accessible schema URLs
-     */
-    @Deprecated
-    public Map<String, String> getUriMappings() {
-        // return a copy of the mappings
-        return new HashMap<>(this.uriMappings);
-    }
-
-    /**
-     * @deprecated Use {@code addUriTranslator()} instead
-     * @param uriMappings Map of public, normally internet accessible schema URLs
-     */
-    @Deprecated
-    public void setUriMappings(Map<String, String> uriMappings) {
-        this.uriMappings = uriMappings;
     }
 
     public boolean isHandleNullableField() {

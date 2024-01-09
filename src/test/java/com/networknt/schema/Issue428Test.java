@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class Issue428Test extends HTTPServiceSupport {
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
 
     private void runTestFile(String testCaseFile) throws Exception {
-        final URI testCaseFileUri = URI.create("classpath:" + testCaseFile);
+        final SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + testCaseFile);
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(testCaseFile);
         ArrayNode testCases = mapper.readValue(in, ArrayNode.class);

@@ -16,45 +16,34 @@
 
 package com.networknt.schema;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.uri.URIFactory;
-import com.networknt.schema.urn.URNFactory;
 
 public class ValidationContext {
-    private final URIFactory uriFactory;
-    private final URNFactory urnFactory;
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private final SchemaValidatorsConfig config;
     private final ConcurrentMap<String, JsonSchema> schemaReferences;
     private final ConcurrentMap<String, JsonSchema> schemaResources;
 
-    public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
-            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
-        this(uriFactory, urnFactory, metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(),
-                new ConcurrentHashMap<>());
+    public ValidationContext(JsonMetaSchema metaSchema,
+                             JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+        this(metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
-
-    public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
-            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config,
-            ConcurrentMap<String, JsonSchema> schemaReferences, ConcurrentMap<String, JsonSchema> schemaResources) {
-        if (uriFactory == null) {
-            throw new IllegalArgumentException("URIFactory must not be null");
-        }
+    
+    public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory,
+            SchemaValidatorsConfig config, ConcurrentMap<String, JsonSchema> schemaReferences,
+            ConcurrentMap<String, JsonSchema> schemaResources) {
         if (metaSchema == null) {
             throw new IllegalArgumentException("JsonMetaSchema must not be null");
         }
         if (jsonSchemaFactory == null) {
             throw new IllegalArgumentException("JsonSchemaFactory must not be null");
         }
-        this.uriFactory = uriFactory;
-        this.urnFactory = urnFactory;
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
         this.config = config == null ? new SchemaValidatorsConfig() : config;
@@ -66,10 +55,6 @@ public class ValidationContext {
         return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema) {
-        return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema);
-    }
-
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             String keyword /* keyword */, JsonNode schemaNode, JsonSchema parentSchema) {
         return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
@@ -77,14 +62,6 @@ public class ValidationContext {
 
     public String resolveSchemaId(JsonNode schemaNode) {
         return this.metaSchema.readId(schemaNode);
-    }
-
-    public URIFactory getURIFactory() {
-        return this.uriFactory;
-    }
-
-    public URNFactory getURNFactory() {
-        return this.urnFactory;
     }
 
     public JsonSchemaFactory getJsonSchemaFactory() {

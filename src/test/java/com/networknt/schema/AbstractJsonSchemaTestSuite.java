@@ -21,14 +21,14 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
-import com.networknt.schema.uri.URITranslator;
+import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
+
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -184,10 +184,10 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return JsonSchemaFactory
                 .builder(base)
                 .objectMapper(this.mapper)
-                .addUriTranslator(URITranslator.combine(
-                        URITranslator.prefix("https://", "http://"),
-                        URITranslator.prefix("http://json-schema.org", "resource:")
-                ))
+                .absoluteIriMappers(absoluteIriMappers -> {
+                    absoluteIriMappers.add(new PrefixAbsoluteIriMapper("https://", "http://"));
+                    absoluteIriMappers.add(new PrefixAbsoluteIriMapper("http://json-schema.org", "resource:"));
+                })
                 .build();
     }
 
@@ -217,7 +217,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
             }
         }
 
-        URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
+        SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));

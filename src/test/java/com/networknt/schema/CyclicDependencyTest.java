@@ -3,8 +3,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CyclicDependencyTest {
@@ -34,9 +32,8 @@ public class CyclicDependencyTest {
                 "  ]\n" +
                 "}";
 
-        URI jsonSchemaLocation = URI.create("resource:/draft4/issue258/Master.json");
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        JsonSchema schema = schemaFactory.getSchema(jsonSchemaLocation, config);
+        JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of("resource:/draft4/issue258/Master.json"), config);
         assertEquals(0, schema.validate(new ObjectMapper().readTree(jsonObject)).size());
     }
 

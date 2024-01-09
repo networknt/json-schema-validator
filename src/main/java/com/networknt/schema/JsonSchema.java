@@ -44,16 +44,6 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean validatorsLoaded = false;
     private boolean dynamicAnchor = false;
 
-    /**
-     * This is the current uri of this schema. This uri could refer to the uri of this schema's file
-     * or it could potentially be a uri that has been altered by an id. An 'id' is able to completely overwrite
-     * the current uri or add onto it. This is necessary so that '$ref's are able to be relative to a
-     * combination of the current schema file's uri and 'id' uris visible to this schema.
-     * <p>
-     * This can be null. If it is null, then the creation of relative uris will fail. However, an absolute
-     * 'id' would still be able to specify an absolute uri.
-     */
-    private URI currentUri;
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
 
@@ -62,23 +52,22 @@ public class JsonSchema extends BaseJsonValidator {
     private final String id;
     private final String anchor;
 
-    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        return new JsonSchema(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
+    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
     }
 
-    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri,
-                       JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation, evaluationPath, schemaNode, parent, null, null, validationContext,
-                suppressSubSchemaRetrieval);
+    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+            JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
+                null, null, validationContext, suppressSubSchemaRetrieval);
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
-        this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
         initializeConfig();
         this.id = validationContext.resolveSchemaId(this.schemaNode);
         this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
         if (this.id != null) {
             this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
+                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
         }
         if (this.anchor != null) {
             this.validationContext.getSchemaResources()
@@ -105,7 +94,6 @@ public class JsonSchema extends BaseJsonValidator {
         this.metaSchema = copy.metaSchema;
         this.validatorsLoaded = copy.validatorsLoaded;
         this.dynamicAnchor = copy.dynamicAnchor;
-        this.currentUri = copy.currentUri;
         this.requiredValidator = copy.requiredValidator;
         this.typeValidator = copy.typeValidator;
         this.keywordWalkListenerRunner = copy.keywordWalkListenerRunner;
@@ -126,8 +114,7 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
         JsonSchema copy = new JsonSchema(this);
-        copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
-                copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+        copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
                 copy.getValidationContext().getJsonSchemaFactory(),
                 refEvaluationParentSchema.validationContext.getConfig(),
                 copy.getValidationContext().getSchemaReferences(), copy.getValidationContext().getSchemaResources());
@@ -145,8 +132,7 @@ public class JsonSchema extends BaseJsonValidator {
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
         if (!this.getValidationContext().getConfig().equals(config)) {
             JsonSchema copy = new JsonSchema(this);
-            copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
-                    copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+            copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
                     copy.getValidationContext().getJsonSchemaFactory(), config,
                     copy.getValidationContext().getSchemaReferences(),
                     copy.getValidationContext().getSchemaResources());
@@ -162,37 +148,6 @@ public class JsonSchema extends BaseJsonValidator {
 
     ValidationContext getValidationContext() {
         return this.validationContext;
-    }
-
-    private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
-        final String id = this.validationContext.resolveSchemaId(schemaNode);
-        if (id == null) {
-            return currentUri;
-        } else if (isUriFragmentWithNoContext(currentUri, id)) {
-            return null;
-        } else {
-            try {
-                return this.validationContext.getURIFactory().create(currentUri, id);
-            } catch (IllegalArgumentException e) {
-                SchemaLocation path = schemaLocation.append(this.metaSchema.getIdKeyword());
-                ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
-                        .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path.getFragment())
-                        .evaluationPath(path.getFragment())
-                        .arguments(currentUri == null ? "null" : currentUri.toString(), id)
-                        .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
-                                ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
-                        .build();
-                throw new JsonSchemaException(validationMessage);
-            }
-        }
-    }
-
-    private static boolean isUriFragmentWithNoContext(URI currentUri, String id) {
-        return id.startsWith("#") && (currentUri == null || currentUri.toString().startsWith("#"));
-    }
-
-    public URI getCurrentUri() {
-        return this.currentUri;
     }
 
     /**
@@ -274,22 +229,8 @@ public class JsonSchema extends BaseJsonValidator {
             return true;
         }
         // The schema should not cross
-        if (getCurrentUri() != null && getParentSchema().getCurrentUri() == null) {
+        if (!getSchemaLocation().getAbsoluteIri().equals(getParentSchema().getSchemaLocation().getAbsoluteIri())) {
             return true;
-        }
-        if (getCurrentUri() == null && getParentSchema().getCurrentUri() != null) {
-            return true;
-        }
-        if (getCurrentUri() != null && getParentSchema().getCurrentUri() != null) {
-            if (!Objects.equals(getCurrentUri().getScheme(), getParentSchema().getCurrentUri().getScheme())) {
-                return true;
-            }
-            if (!Objects.equals(getCurrentUri().getHost(), getParentSchema().getCurrentUri().getHost())) {
-                return true;
-            }
-            if (!Objects.equals(getCurrentUri().getPath(), getParentSchema().getCurrentUri().getPath())) {
-                return true;
-            }
         }
         return false;
     }

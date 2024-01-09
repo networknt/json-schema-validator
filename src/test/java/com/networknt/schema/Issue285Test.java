@@ -1,13 +1,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.URITranslator;
+import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Set;
@@ -19,10 +18,10 @@ public class Issue285Test {
     private JsonSchemaFactory schemaFactory = JsonSchemaFactory
 		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
 		.objectMapper(mapper)
-		.addUriTranslator(URITranslator.combine(
-			URITranslator.prefix("http://json-schema.org", "resource:"),
-			URITranslator.prefix("https://json-schema.org", "resource:")
-		))
+		.absoluteIriMappers(absoluteIriMappers -> {
+		   absoluteIriMappers.add(new PrefixAbsoluteIriMapper("http://json-schema.org", "resource:")); 
+           absoluteIriMappers.add(new PrefixAbsoluteIriMapper("https://json-schema.org", "resource:")); 
+		})
 		.build();
 
 
@@ -101,9 +100,8 @@ public class Issue285Test {
     // In this case a nested type declaration isn't valid and should raise an error.
     // The result is not as expected and we get no validation error.
     @Test
-    @Disabled
     public void nestedTypeValidation() throws IOException, URISyntaxException {
-        URI uri = new URI("https://json-schema.org/draft/2019-09/schema");
+        SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
 
@@ -126,7 +124,7 @@ public class Issue285Test {
     // The result is as expected and we get no validation error: '[$.type: does not have a value in the enumeration [array, boolean, integer, null, number, object, string], $.type: should be valid to any of the schemas array]'.
     @Test
     public void typeValidation() throws IOException, URISyntaxException {
-        URI uri = new URI("https://json-schema.org/draft/2019-09/schema");
+        SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
 

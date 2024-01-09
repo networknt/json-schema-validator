@@ -130,6 +130,9 @@ public class SchemaLocation {
      * @return the resolved schema location
      */
     public SchemaLocation resolve(String absoluteIriReferenceOrFragment) {
+        if (absoluteIriReferenceOrFragment == null) {
+            return this;
+        }
         if ("#".equals(absoluteIriReferenceOrFragment)) {
             return new SchemaLocation(this.getAbsoluteIri(), JSON_POINTER);
         }

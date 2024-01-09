@@ -37,7 +37,7 @@ public class SharedConfigTest {
         AllKeywordListener allKeywordListener = new AllKeywordListener();
         schemaValidatorsConfig.addKeywordWalkListener(allKeywordListener);
 
-        URI draft07Schema = new URI("resource:/draft-07/schema#");
+        SchemaLocation draft07Schema = SchemaLocation.of("resource:/draft-07/schema#");
 
         // depending on this line the test either passes or fails:
         // - if this line is executed, then it passes

@@ -1,7 +1,6 @@
 package com.networknt.schema;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
     }
 
     private void runTestFile(String testCaseFile) throws Exception {
-        final URI testCaseFileUri = URI.create("classpath:" + testCaseFile);
+        final SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + testCaseFile);
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(testCaseFile);
         ArrayNode testCases = mapper.readValue(in, ArrayNode.class);

@@ -9,14 +9,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
 public class Issue461Test {
     protected ObjectMapper mapper = new ObjectMapper();
 
-    protected JsonSchema getJsonSchemaFromStreamContentV7(URI schemaUri) {
+    protected JsonSchema getJsonSchemaFromStreamContentV7(SchemaLocation schemaUri) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         SchemaValidatorsConfig svc = new SchemaValidatorsConfig();
         svc.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new Walker());
@@ -25,7 +24,7 @@ public class Issue461Test {
 
     @Test
     public void shouldWalkWithValidation() throws URISyntaxException, IOException {
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(new URI("resource:/draft-07/schema#"));
+        JsonSchema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
         JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
         ValidationResult result = schema.walk(data, true);
         Assertions.assertTrue(result.getValidationMessages().isEmpty());

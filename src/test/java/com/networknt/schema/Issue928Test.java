@@ -1,11 +1,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.URITranslator;
+import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.net.URI;
 
 public class Issue928Test {
     private final ObjectMapper mapper = new ObjectMapper();
@@ -14,9 +12,7 @@ public class Issue928Test {
         return JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(version))
                 .objectMapper(mapper)
-                .addUriTranslator(
-                        URITranslator.prefix("https://example.org", "resource:")
-                )
+                .absoluteIriMappers(mappers -> mappers.add(new PrefixAbsoluteIriMapper("https://example.org", "classpath:")))
                 .build();
     }
 
@@ -45,13 +41,13 @@ public class Issue928Test {
         System.out.println("baseUrl: " + baseUrl);
 
         JsonSchema byPointer = schemaFactory.getSchema(
-                URI.create(baseUrl + "#/definitions/example"));
+                SchemaLocation.of(baseUrl + "#/definitions/example"));
 
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("A")).size(), 0);
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("Z")).size(), 1);
 
         JsonSchema byAnchor = schemaFactory.getSchema(
-                URI.create(baseUrl + "#example"));
+                SchemaLocation.of(baseUrl + "#example"));
 
         Assertions.assertEquals(
                 byPointer.getSchemaNode(),
