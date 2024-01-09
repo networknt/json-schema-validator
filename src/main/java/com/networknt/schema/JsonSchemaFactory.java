@@ -463,35 +463,27 @@ public class JsonSchemaFactory {
             final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             JsonSchema jsonSchema;
-            if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri)) {
-                String schemaLocationValue = schemaUri.toString();
-                if(!schemaLocationValue.contains("#")) {
-                    schemaLocationValue = schemaLocationValue + "#";
-                }
-                SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
+            SchemaLocation schemaLocation = SchemaLocation.of(schemaUri.toString());
+            if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri) || schemaUri.getFragment() == null
+                    || "".equals(schemaUri.getFragment())) {
                 ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
                 jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
-                String schemaLocationValue = schemaUri.toString();
-                String id = jsonMetaSchema.readId(schemaNode);
-                if (id != null) {
-                    schemaLocationValue = id;
-                }
-                if (schemaLocationValue.contains("#")) {
-                    // Schema location needs to strip off the fragment as the json schema for the constructor to detect
-                    // it is a subschema
-                    schemaLocationValue = schemaLocationValue.substring(0, schemaLocationValue.indexOf("#") + 1);
-                }
-                if (!schemaLocationValue.contains("#")) {
-                    schemaLocationValue = schemaLocationValue + "#";
-                }
-                SchemaLocation schemaLocation = SchemaLocation.of(schemaLocationValue);
+                // Subschema
                 final ValidationContext validationContext = createValidationContext(schemaNode);
                 validationContext.setConfig(config);
-                jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, false);
+                URI documentUri = "".equals(schemaUri.getSchemeSpecificPart()) ? new URI(schemaUri.getScheme(), schemaUri.getUserInfo(), schemaUri.getHost(), schemaUri.getPort(), schemaUri.getPath(), schemaUri.getQuery(), null) : new URI(schemaUri.getScheme(), schemaUri.getSchemeSpecificPart(), null);
+                SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
+                JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, documentUri, schemaNode, null, false);
+                JsonNode subSchemaNode = document.getRefSchemaNode(schemaLocation.getFragment().toString());
+                if (subSchemaNode != null) {
+                    jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, subSchemaNode, document, false);
+                } else {
+                    throw new JsonSchemaException("Unable to find subschema");
+                }
             }
             return jsonSchema;
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             logger.error("Failed to load json schema!", e);
             throw new JsonSchemaException(e);
         }

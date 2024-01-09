@@ -21,13 +21,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
-import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -76,10 +74,6 @@ public class JsonSchema extends BaseJsonValidator {
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
-
-        if (uriRefersToSubschema(currentUri, schemaLocation)) {
-            updateThisAsSubschema(currentUri);
-        }
         initializeConfig();
         this.id = validationContext.resolveSchemaId(this.schemaNode);
         this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
@@ -185,35 +179,6 @@ public class JsonSchema extends BaseJsonValidator {
 
     private static boolean isUriFragmentWithNoContext(URI currentUri, String id) {
         return id.startsWith("#") && (currentUri == null || currentUri.toString().startsWith("#"));
-    }
-
-    private static boolean uriRefersToSubschema(URI originalUri, SchemaLocation schemaLocation) {
-        return originalUri != null
-            && StringUtils.isNotBlank(originalUri.getRawFragment())  // Original currentUri parameter has a fragment, so it refers to a subschema
-            && (schemaLocation.getFragment().getNameCount() == 0); // We aren't already in a subschema
-    }
-
-    /**
-     * Creates a new parent schema from the current state and updates this object to refer to the subschema instead.
-     */
-    private void updateThisAsSubschema(URI originalUri) {
-        String fragment = "#" + originalUri.getFragment();
-        JsonNode fragmentSchemaNode = getRefSchemaNode(fragment);
-        if (fragmentSchemaNode == null) {
-            throw new JsonSchemaException("Fragment " + fragment + " cannot be resolved");
-        }
-        // We need to strip the fragment off of the new parent schema's currentUri, so that its constructor
-        // won't also end up in this method and get stuck in an infinite recursive loop.
-        URI currentUriWithoutFragment;
-        try {
-            currentUriWithoutFragment = new URI(this.currentUri.getScheme(), this.currentUri.getSchemeSpecificPart(), null);
-        } catch (URISyntaxException ex) {
-            throw new JsonSchemaException("Unable to create URI without fragment from " + this.currentUri + ": " + ex.getMessage());
-        }
-        this.parentSchema = new JsonSchema(this.validationContext, SchemaLocation.of(currentUriWithoutFragment.toString() + "#"), this.evaluationPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
-        this.schemaLocation = SchemaLocation.of(originalUri.toString());
-        this.schemaNode = fragmentSchemaNode;
-        this.currentUri = combineCurrentUriWithIds(this.currentUri, fragmentSchemaNode);
     }
 
     public URI getCurrentUri() {
