@@ -229,7 +229,8 @@ public class JsonSchema extends BaseJsonValidator {
             return true;
         }
         // The schema should not cross
-        if (!getSchemaLocation().getAbsoluteIri().equals(getParentSchema().getSchemaLocation().getAbsoluteIri())) {
+        if (!Objects.equals(getSchemaLocation().getAbsoluteIri(),
+                getParentSchema().getSchemaLocation().getAbsoluteIri())) {
             return true;
         }
         return false;

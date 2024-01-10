@@ -376,7 +376,7 @@ public class JsonSchemaFactory {
     }
 
     private boolean isYaml(final SchemaLocation schemaUri) {
-        final String schemeSpecificPart = schemaUri.toString();
+        final String schemeSpecificPart = schemaUri.getAbsoluteIri().toString();
         final int idx = schemeSpecificPart.lastIndexOf('.');
 
         if (idx == -1) {
