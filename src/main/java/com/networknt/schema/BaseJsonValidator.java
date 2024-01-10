@@ -22,7 +22,6 @@ import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;

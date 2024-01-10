@@ -1,7 +1,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ public class Issue928Test {
         return JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(version))
                 .objectMapper(mapper)
-                .absoluteIriMappers(mappers -> mappers.add(new PrefixAbsoluteIriMapper("https://example.org", "classpath:")))
+                .schemaLoaderBuilder(builder -> builder.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }
 

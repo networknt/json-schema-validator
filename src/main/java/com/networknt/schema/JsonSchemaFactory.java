@@ -290,7 +290,7 @@ public class JsonSchemaFactory {
     protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
         try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri).getInputStream()) {
             if (inputStream == null) {
-                throw new IOException("Cannot load schema uri");
+                throw new IOException("Cannot load schema at " + schemaUri.toString());
             }
             final JsonNode schemaNode;
             if (isYaml(schemaUri)) {
@@ -312,12 +312,7 @@ public class JsonSchemaFactory {
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
                 SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
-                JsonNode subSchemaNode = document.getRefSchemaNode("#" + schemaLocation.getFragment().toString());
-                if (subSchemaNode != null) {
-                    jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, subSchemaNode, document, false);
-                } else {
-                    throw new JsonSchemaException("Unable to find subschema");
-                }
+                return document.getSubSchema(schemaLocation.getFragment());
             }
             return jsonSchema;
         } catch (IOException e) {
@@ -325,7 +320,7 @@ public class JsonSchemaFactory {
             throw new JsonSchemaException(e);
         }
     }
-
+    
     public JsonSchema getSchema(final SchemaLocation schemaUri) {
         return getSchema(schemaUri, new SchemaValidatorsConfig());
     }

@@ -24,7 +24,6 @@ import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -188,6 +187,46 @@ public class JsonSchema extends BaseJsonValidator {
         }
 
         return node;
+    }
+    
+    public JsonSchema getSubSchema(JsonNodePath fragment) {
+        JsonSchema document = findSchemaResourceRoot(); 
+        JsonSchema parent = document; 
+        JsonSchema subSchema = null;
+        for (int x = 0; x < fragment.getNameCount(); x++) {
+            Object segment = fragment.getElement(x);
+            JsonNode subSchemaNode = parent.getNode(segment);
+            if (subSchemaNode != null) {
+                SchemaLocation schemaLocation = parent.getSchemaLocation();
+                JsonNodePath evaluationPath = parent.getEvaluationPath();
+                if (segment instanceof Number) {
+                    int index = ((Number) segment).intValue();
+                    schemaLocation = schemaLocation.append(index);
+                    evaluationPath = evaluationPath.append(index);
+                } else {
+                    schemaLocation = schemaLocation.append(segment.toString());
+                    evaluationPath = evaluationPath.append(segment.toString());
+                }
+                subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
+                        parent);
+                parent = subSchema;
+            } else {
+                throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
+                        + document.getSchemaLocation().toString());
+            }
+        }
+        return subSchema;
+    }
+    
+    protected JsonNode getNode(Object propertyOrIndex) {
+        JsonNode node = getSchemaNode();
+        JsonNode value = null;
+        if (propertyOrIndex instanceof Number) {
+            value = node.get(((Number) propertyOrIndex).intValue());
+        } else {
+            value = node.get(propertyOrIndex.toString());
+        }
+        return value;
     }
 
     public JsonSchema findLexicalRoot() {
