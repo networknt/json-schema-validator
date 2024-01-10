@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -45,14 +43,8 @@ public class JsonSchemaFactory {
         private YAMLMapper yamlMapper = null;
         private String defaultMetaSchemaURI;
         private final ConcurrentMap<String, JsonMetaSchema> jsonMetaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
-        private List<SchemaLoader> schemaLoaders = new ArrayList<>();
-        private List<AbsoluteIriMapper> absoluteIriMappers = new ArrayList<>();
+        private SchemaLoaderBuilder schemaLoaderBuilder = new SchemaLoaderBuilder();
         private boolean enableUriSchemaCache = true;
-
-        public Builder() {
-            this.schemaLoaders.add(new ClasspathSchemaLoader());
-            this.schemaLoaders.add(new UriSchemaLoader());
-        }
 
         public Builder objectMapper(final ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
@@ -86,13 +78,8 @@ public class JsonSchemaFactory {
             return this;
         }
         
-        public Builder schemaLoaders(Consumer<List<SchemaLoader>> schemaLoaderCustomizer) {
-            schemaLoaderCustomizer.accept(this.schemaLoaders);
-            return this;
-        }
-        
-        public Builder absoluteIriMappers(Consumer<List<AbsoluteIriMapper>> absoluteIriCustomizer) {
-            absoluteIriCustomizer.accept(this.absoluteIriMappers);
+        public Builder schemaLoaderBuilder(Consumer<SchemaLoaderBuilder> schemaLoaderBuilderCustomizer) {
+            schemaLoaderBuilderCustomizer.accept(this.schemaLoaderBuilder);
             return this;
         }
 
@@ -102,8 +89,7 @@ public class JsonSchemaFactory {
                     objectMapper == null ? new ObjectMapper() : objectMapper,
                     yamlMapper == null ? new YAMLMapper(): yamlMapper,
                     defaultMetaSchemaURI,
-                    schemaLoaders,
-                    absoluteIriMappers,
+                    schemaLoaderBuilder,
                     jsonMetaSchemas,
                     enableUriSchemaCache
             );
@@ -113,8 +99,7 @@ public class JsonSchemaFactory {
     private final ObjectMapper jsonMapper;
     private final YAMLMapper yamlMapper;
     private final String defaultMetaSchemaURI;
-    private final List<SchemaLoader> schemaLoaders;
-    private final List<AbsoluteIriMapper> absoluteIriMappers;
+    private final SchemaLoaderBuilder schemaLoaderBuilder;
     private final SchemaLoader schemaLoader;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final ConcurrentMap<SchemaLocation, JsonSchema> uriSchemaCache = new ConcurrentHashMap<>();
@@ -125,8 +110,7 @@ public class JsonSchemaFactory {
             final ObjectMapper jsonMapper,
             final YAMLMapper yamlMapper,
             final String defaultMetaSchemaURI,
-            List<SchemaLoader> schemaLoaders,
-            final List<AbsoluteIriMapper> absoluteIriMappers,
+            SchemaLoaderBuilder schemaLoaderBuilder,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final boolean enableUriSchemaCache) {
         if (jsonMapper == null) {
@@ -135,7 +119,7 @@ public class JsonSchemaFactory {
             throw new IllegalArgumentException("YAMLMapper must not be null");
         } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
-        } else if (schemaLoaders == null) {
+        } else if (schemaLoaderBuilder == null) {
             throw new IllegalArgumentException("SchemaLoaders must not be null");
         } else if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
             throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
@@ -145,9 +129,8 @@ public class JsonSchemaFactory {
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
-        this.schemaLoaders = schemaLoaders;
-        this.absoluteIriMappers = absoluteIriMappers;
-        this.schemaLoader = new DefaultSchemaLoader(schemaLoaders, absoluteIriMappers);
+        this.schemaLoaderBuilder = schemaLoaderBuilder;
+        this.schemaLoader = schemaLoaderBuilder.build();
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.enableUriSchemaCache = enableUriSchemaCache;
     }
@@ -208,8 +191,7 @@ public class JsonSchemaFactory {
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
                 .objectMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper);
-        builder.schemaLoaders = blueprint.schemaLoaders;
-        builder.absoluteIriMappers = blueprint.absoluteIriMappers;
+        builder.schemaLoaderBuilder = blueprint.schemaLoaderBuilder;
         return builder;
     }
 

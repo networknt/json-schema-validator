@@ -3,8 +3,6 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.uri.MapAbsoluteIriMapper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -27,9 +25,9 @@ public class Issue665Test extends BaseJsonSchemaValidatorTest {
     void testUrnUriAsLocalRef_ExternalURN() {
         JsonSchemaFactory factory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .absoluteIriMappers(absoluteIriMappers -> {
-                    absoluteIriMappers.add(new MapAbsoluteIriMapper(Collections.singletonMap("urn:data",
-                            "classpath:draft7/urn/issue665_external_urn_subschema.json")));
+                .schemaLoaderBuilder(schemaLoaderBuilder -> {
+                    schemaLoaderBuilder.map(Collections.singletonMap("urn:data",
+                            "classpath:draft7/urn/issue665_external_urn_subschema.json"));
                 })
                 .build();
 

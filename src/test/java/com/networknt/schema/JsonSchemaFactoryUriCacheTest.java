@@ -45,7 +45,7 @@ public class JsonSchemaFactoryUriCacheTest {
     private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableUriSchemaCache) {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
                 .enableUriSchemaCache(enableUriSchemaCache)
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(0, uriFetcher))
+                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.schemaLoader(uriFetcher))
                 .addMetaSchema(JsonMetaSchema.getV202012())
                 .build();
     }

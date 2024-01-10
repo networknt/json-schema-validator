@@ -9,15 +9,14 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
 
 public class Issue824Test {
     @Test
     void validate() throws JsonProcessingException {
         final JsonSchema v201909SpecSchema = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .absoluteIriMappers(absoluteIriMappers -> {
-                    absoluteIriMappers.add(new PrefixAbsoluteIriMapper("https://json-schema.org", "resource:"));
+                .schemaLoaderBuilder(schemaLoaderBuilder -> {
+                    schemaLoaderBuilder.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
                 .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getUri()));
         v201909SpecSchema.preloadJsonSchema();

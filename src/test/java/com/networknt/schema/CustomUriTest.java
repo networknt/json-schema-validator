@@ -31,7 +31,7 @@ public class CustomUriTest {
 
     private JsonSchemaFactory buildJsonSchemaFactory() {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(0, new CustomUriFetcher())).build();
+                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.schemaLoader(new CustomUriFetcher())).build();
     }
 
     private static class CustomUriFetcher implements SchemaLoader {

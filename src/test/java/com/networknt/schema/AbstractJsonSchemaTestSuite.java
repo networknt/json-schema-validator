@@ -184,10 +184,9 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return JsonSchemaFactory
                 .builder(base)
                 .objectMapper(this.mapper)
-                .absoluteIriMappers(absoluteIriMappers -> {
-                    absoluteIriMappers.add(new PrefixAbsoluteIriMapper("https://", "http://"));
-                    absoluteIriMappers.add(new PrefixAbsoluteIriMapper("http://json-schema.org", "resource:"));
-                })
+                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder
+                        .mapPrefix("https://", "http://")
+                        .mapPrefix("http://json-schema.org", "resource:"))
                 .build();
     }
 
