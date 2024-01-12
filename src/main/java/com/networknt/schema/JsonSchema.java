@@ -128,15 +128,15 @@ public class JsonSchema extends BaseJsonValidator {
      * This is typically used if this schema is a schema resource that can be
      * pointed to by various references.
      *
-     * @param refParent         the parent ref
+     * @param refEvaluationParentSchema the parent ref
      * @param refEvaluationPath the ref evaluation path
      * @return the schema
      */
-    public JsonSchema fromRef(JsonSchema refParent, JsonNodePath refEvaluationPath) {
+    public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
         JsonSchema copy = new JsonSchema(this);
-        copy.validationContext.setConfig(refParent.validationContext.getConfig());
+        copy.validationContext.setConfig(refEvaluationParentSchema.validationContext.getConfig());
         copy.evaluationPath = refEvaluationPath;
-        copy.parentSchema = refParent;
+        copy.evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
         copy.validatorsLoaded = false;
         copy.requiredValidator = null;

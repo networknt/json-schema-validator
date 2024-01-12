@@ -16,6 +16,7 @@ public abstract class ValidationMessageHandler {
 
     protected SchemaLocation schemaLocation;
     protected JsonNodePath evaluationPath;
+    protected JsonSchema evaluationParentSchema;
 
     protected JsonSchema parentSchema;
 
@@ -49,6 +50,7 @@ public abstract class ValidationMessageHandler {
         this.schemaLocation = copy.schemaLocation;
         this.evaluationPath = copy.evaluationPath;
         this.parentSchema = copy.parentSchema;
+        this.evaluationParentSchema = copy.evaluationParentSchema;
         this.customErrorMessagesEnabled = copy.customErrorMessagesEnabled;
         this.errorMessage = copy.errorMessage;
         this.keyword = copy.keyword;

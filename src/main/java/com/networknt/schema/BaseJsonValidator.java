@@ -263,6 +263,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return this.parentSchema;
     }
 
+    public JsonSchema getEvaluationParentSchema() {
+        if (this.evaluationParentSchema != null) {
+            return this.evaluationParentSchema;
+        }
+        return getParentSchema();
+    }
+
     protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
         return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
     }
