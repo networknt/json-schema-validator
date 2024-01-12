@@ -81,7 +81,8 @@ public class JsonSchema extends BaseJsonValidator {
                     .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
         }
         if (this.anchor != null) {
-            this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString() + "#" + anchor, this);
+            this.validationContext.getSchemaResources()
+                    .putIfAbsent(this.schemaLocation.getAbsoluteIri().toString() + "#" + anchor, this);
         }
         getValidators();
     }
