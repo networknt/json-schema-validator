@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -92,13 +91,6 @@ public class JsonSchema extends BaseJsonValidator {
         if (validationContext.getConfig() != null) {
             this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(
                     this.validationContext.getConfig().getKeywordWalkListenersMap());
-            if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-                if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
-                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
-                            discriminator);
-                }
-            }
         }
     }
 
@@ -431,6 +423,14 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
+        if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
+            if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
+                executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
+                        discriminator);
+            }
+        }
+
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = null;
         // Get the collector context.
@@ -469,7 +469,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (config.isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
-                final DiscriminatorContext discriminatorContext = this.validationContext
+                final DiscriminatorContext discriminatorContext = executionContext
                         .getCurrentDiscriminatorContext();
                 if (null != discriminatorContext) {
                     final ObjectNode discriminatorToUse;

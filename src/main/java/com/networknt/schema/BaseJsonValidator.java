@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
@@ -126,7 +125,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param discriminatorPropertyValue  the value of the <code>discriminator/propertyName</code> field
      * @param jsonSchema                  the {@link JsonSchema} to check
      */
-    protected static void checkDiscriminatorMatch(final ValidationContext.DiscriminatorContext currentDiscriminatorContext,
+    protected static void checkDiscriminatorMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                   final ObjectNode discriminator,
                                                   final String discriminatorPropertyValue,
                                                   final JsonSchema jsonSchema) {

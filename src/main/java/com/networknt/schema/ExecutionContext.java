@@ -16,6 +16,8 @@
 
 package com.networknt.schema;
 
+import java.util.Stack;
+
 /**
  * Stores the execution context for the validation run.
  */
@@ -23,6 +25,7 @@ public class ExecutionContext {
     private ExecutionConfig executionConfig;
     private CollectorContext collectorContext;
     private ValidatorState validatorState = null;
+    private Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
 
     /**
      * Creates an execution context.
@@ -112,5 +115,20 @@ public class ExecutionContext {
      */
     public void setValidatorState(ValidatorState validatorState) {
         this.validatorState = validatorState;
+    }
+
+    public DiscriminatorContext getCurrentDiscriminatorContext() {
+        if (!this.discriminatorContexts.empty()) {
+            return this.discriminatorContexts.peek();
+        }
+        return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
+    }
+
+    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
+        this.discriminatorContexts.push(ctx);
+    }
+
+    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
+        this.discriminatorContexts.pop();
     }
 }

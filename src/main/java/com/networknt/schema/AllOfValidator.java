@@ -74,7 +74,7 @@ public class AllOfValidator extends BaseJsonValidator {
                         final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();
                         final JsonNode $ref = allOfEntry.get("$ref");
                         if (null != $ref) {
-                            final ValidationContext.DiscriminatorContext currentDiscriminatorContext = this.validationContext
+                            final DiscriminatorContext currentDiscriminatorContext = executionContext
                                     .getCurrentDiscriminatorContext();
                             if (null != currentDiscriminatorContext) {
                                 final ObjectNode discriminator = currentDiscriminatorContext

@@ -30,7 +30,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<JsonSchema> schemas = new ArrayList<>();
-    private final ValidationContext.DiscriminatorContext discriminatorContext;
+    private final DiscriminatorContext discriminatorContext;
 
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
@@ -42,7 +42,7 @@ public class AnyOfValidator extends BaseJsonValidator {
         }
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            this.discriminatorContext = new ValidationContext.DiscriminatorContext();
+            this.discriminatorContext = new DiscriminatorContext();
         } else {
             this.discriminatorContext = null;
         }
@@ -62,7 +62,7 @@ public class AnyOfValidator extends BaseJsonValidator {
         ValidatorState state = executionContext.getValidatorState();
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            this.validationContext.enterDiscriminatorContext(this.discriminatorContext, instanceLocation);
+            executionContext.enterDiscriminatorContext(this.discriminatorContext, instanceLocation);
         }
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
@@ -153,7 +153,7 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
         } finally {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                this.validationContext.leaveDiscriminatorContextImmediately(instanceLocation);
+                executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
 
             Scope parentScope = collectorContext.exitDynamicScope();
