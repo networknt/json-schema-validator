@@ -37,7 +37,7 @@ public class ValidationContext {
     private final JsonSchemaFactory jsonSchemaFactory;
     private SchemaValidatorsConfig config;
     private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
-    private final ConcurrentMap<String, JsonSchemaRef> schemaReferences = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, JsonSchema> schemaReferences = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, JsonSchema> schemaResources = new ConcurrentHashMap<>();
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
@@ -103,7 +103,7 @@ public class ValidationContext {
      *
      * @return the schema references
      */
-    public ConcurrentMap<String, JsonSchemaRef> getSchemaReferences() {
+    public ConcurrentMap<String, JsonSchema> getSchemaReferences() {
         return this.schemaReferences;
     }
 
