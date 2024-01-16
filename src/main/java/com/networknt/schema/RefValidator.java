@@ -31,8 +31,6 @@ public class RefValidator extends BaseJsonValidator {
 
     protected JsonSchemaRef schema;
 
-    private JsonSchema parentSchema;
-
     private static final String REF_CURRENT = "#";
 
     public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -232,7 +230,6 @@ public class RefValidator extends BaseJsonValidator {
             if (refSchema == null) {
                 throw new JsonSchemaException("Unable to resolve ref");
             }
-            refSchema.getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (this.schema != null) {
                 errors =  this.schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
@@ -263,7 +260,6 @@ public class RefValidator extends BaseJsonValidator {
             if (refSchema == null) {
                 throw new JsonSchemaException("Unable to resolve ref");
             }
-            refSchema.getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (refSchema != null) {
                 errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }

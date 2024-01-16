@@ -325,8 +325,7 @@ public class JsonSchemaFactory {
     }
 
     protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
-        final ValidationContext validationContext = createValidationContext(schemaNode);
-        validationContext.setConfig(config);
+        final ValidationContext validationContext = createValidationContext(schemaNode, config);
         return doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaUri, schemaNode, null, false);
     }
@@ -362,9 +361,9 @@ public class JsonSchemaFactory {
         return schemaLocation != null ? SchemaLocation.of(schemaLocation) : SchemaLocation.DOCUMENT;
     }
 
-    protected ValidationContext createValidationContext(final JsonNode schemaNode) {
+    protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, null);
+        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
@@ -440,13 +439,7 @@ public class JsonSchemaFactory {
             JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(mappedUri, key -> {
                 return getMappedSchema(schemaUri, config, mappedUri);
             });
-            // This is important because if we use same JsonSchemaFactory for creating
-            // multiple JSONSchema instances,
-            // these schemas will be cached along with config. We have to replace the config
-            // for cached $ref references
-            // with the latest config.
-            cachedUriSchema.getValidationContext().setConfig(config);
-            return cachedUriSchema;
+            return cachedUriSchema.withConfig(config);
         }
         return getMappedSchema(schemaUri, config, mappedUri);
     }
@@ -470,8 +463,7 @@ public class JsonSchemaFactory {
                 jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
                 // Subschema
-                final ValidationContext validationContext = createValidationContext(schemaNode);
-                validationContext.setConfig(config);
+                final ValidationContext validationContext = createValidationContext(schemaNode, config);
                 URI documentUri = "".equals(schemaUri.getSchemeSpecificPart()) ? new URI(schemaUri.getScheme(), schemaUri.getUserInfo(), schemaUri.getHost(), schemaUri.getPort(), schemaUri.getPath(), schemaUri.getQuery(), null) : new URI(schemaUri.getScheme(), schemaUri.getSchemeSpecificPart(), null);
                 SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, documentUri, schemaNode, null, false);

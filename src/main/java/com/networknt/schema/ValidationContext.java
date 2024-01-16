@@ -31,12 +31,19 @@ public class ValidationContext {
     private final URNFactory urnFactory;
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
-    private SchemaValidatorsConfig config;
-    private final ConcurrentMap<String, JsonSchema> schemaReferences = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, JsonSchema> schemaResources = new ConcurrentHashMap<>();
+    private final SchemaValidatorsConfig config;
+    private final ConcurrentMap<String, JsonSchema> schemaReferences;
+    private final ConcurrentMap<String, JsonSchema> schemaResources;
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
-                             JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+        this(uriFactory, urnFactory, metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(),
+                new ConcurrentHashMap<>());
+    }
+
+    public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
+            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config,
+            ConcurrentMap<String, JsonSchema> schemaReferences, ConcurrentMap<String, JsonSchema> schemaResources) {
         if (uriFactory == null) {
             throw new IllegalArgumentException("URIFactory must not be null");
         }
@@ -50,7 +57,9 @@ public class ValidationContext {
         this.urnFactory = urnFactory;
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
-        this.config = config;
+        this.config = config == null ? new SchemaValidatorsConfig() : config;
+        this.schemaReferences = schemaReferences;
+        this.schemaResources = schemaResources;
     }
 
     public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
@@ -83,14 +92,7 @@ public class ValidationContext {
     }
 
     public SchemaValidatorsConfig getConfig() {
-        if (this.config == null) {
-            this.config = new SchemaValidatorsConfig();
-        }
         return this.config;
-    }
-
-    public void setConfig(SchemaValidatorsConfig config) {
-        this.config = config;
     }
 
     /**

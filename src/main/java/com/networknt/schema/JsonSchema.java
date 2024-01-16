@@ -126,7 +126,11 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
         JsonSchema copy = new JsonSchema(this);
-        copy.validationContext.setConfig(refEvaluationParentSchema.validationContext.getConfig());
+        copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
+                copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+                copy.getValidationContext().getJsonSchemaFactory(),
+                refEvaluationParentSchema.validationContext.getConfig(),
+                copy.getValidationContext().getSchemaReferences(), copy.getValidationContext().getSchemaResources());
         copy.evaluationPath = refEvaluationPath;
         copy.evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
@@ -136,6 +140,24 @@ public class JsonSchema extends BaseJsonValidator {
         copy.validators = null;
         copy.initializeConfig();
         return copy;
+    }
+
+    public JsonSchema withConfig(SchemaValidatorsConfig config) {
+        if (!this.getValidationContext().getConfig().equals(config)) {
+            JsonSchema copy = new JsonSchema(this);
+            copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
+                    copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+                    copy.getValidationContext().getJsonSchemaFactory(), config,
+                    copy.getValidationContext().getSchemaReferences(),
+                    copy.getValidationContext().getSchemaResources());
+            copy.validatorsLoaded = false;
+            copy.requiredValidator = null;
+            copy.typeValidator = null;
+            copy.validators = null;
+            copy.initializeConfig();
+            return copy;
+        }
+        return this;
     }
 
     public JsonSchema createChildSchema(SchemaLocation schemaLocation, JsonNode schemaNode) {
