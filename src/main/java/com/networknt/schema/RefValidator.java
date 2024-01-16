@@ -19,7 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.uri.URIFactory;
-import com.networknt.schema.uri.URNURIFactory;
 import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,6 @@ public class RefValidator extends BaseJsonValidator {
     private JsonSchema parentSchema;
 
     private static final String REF_CURRENT = "#";
-    private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
     public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
@@ -79,12 +77,6 @@ public class RefValidator extends BaseJsonValidator {
                 if (schemaUri == null) {
                     return null;
                 }
-            } else if (URN_SCHEME.equals(schemaUri.getScheme())) {
-                // Try to resolve URN schema as a JsonSchemaRef to some sub-schema of the parent
-                JsonSchema ref = getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath);
-                if (ref != null) {
-                    return new JsonSchemaRef(() -> ref);
-                }
             }
 
             URI schemaUriFinal = schemaUri;
@@ -95,10 +87,15 @@ public class RefValidator extends BaseJsonValidator {
                     schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaUriFinal, validationContext.getConfig()); 
                 }
                 if (index < 0) {
-                    return schemaResource;
+                    return schemaResource.fromRef(parentSchema, evaluationPath);
                 } else {
                     String newRefValue = refValue.substring(index);
-                    return getJsonSchema(schemaResource, validationContext, newRefValue, refValueOriginal, evaluationPath);
+                    schemaResource = getJsonSchema(schemaResource, validationContext, newRefValue, refValueOriginal,
+                            evaluationPath);
+                    if (schemaResource == null) {
+                        throw new JsonSchemaException("Failed to resolve ref");
+                    }
+                    return schemaResource.fromRef(parentSchema, evaluationPath);
                 }
             }));
             
@@ -119,9 +116,11 @@ public class RefValidator extends BaseJsonValidator {
             }
         }
         if (refValue.equals(REF_CURRENT)) {
-            return new JsonSchemaRef(() -> parentSchema.findSchemaResourceRoot());
+            return new JsonSchemaRef(new CachedSupplier<>(
+                    () -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath)));
         }
-        return new JsonSchemaRef(() -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath));
+        return new JsonSchemaRef(new CachedSupplier<>(
+                () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)));
     }
 
     private static JsonSchema getJsonSchema(JsonSchema parent,
