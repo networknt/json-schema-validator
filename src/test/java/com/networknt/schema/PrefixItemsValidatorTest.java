@@ -2,7 +2,6 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
-import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
@@ -22,12 +21,9 @@ public class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         Stream<DynamicNode> dynamicNodeStream = createTests(SpecVersion.VersionFlag.V7, "src/test/suite/tests/prefixItemsException");
         dynamicNodeStream.forEach(
                 dynamicNode -> {
-                    ((DynamicContainer) dynamicNode).getChildren().forEach(dynamicNode1 -> {
-                        if (dynamicNode1 instanceof DynamicTest) {
-                            assertThrows(JsonSchemaException.class, () -> {
-                                ((DynamicTest) dynamicNode1).getExecutable().execute();
-                            });
-                        }
+                    assertThrows(JsonSchemaException.class, () -> {
+                        ((DynamicContainer) dynamicNode).getChildren().forEach(dynamicNode1 -> {
+                        });
                     });
                 }
         );

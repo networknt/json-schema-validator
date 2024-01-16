@@ -46,11 +46,6 @@ public class AnyOfValidator extends BaseJsonValidator {
         } else {
             this.discriminatorContext = null;
         }
-        for (JsonSchema schema : this.schemas) {
-            // Load the validators to parse the schema so that schema resources with $id can
-            // be identified
-            schema.getValidators();
-        }
     }
 
     @Override

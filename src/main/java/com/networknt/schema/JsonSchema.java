@@ -76,8 +76,6 @@ public class JsonSchema extends BaseJsonValidator {
         initializeConfig();
         this.id = validationContext.resolveSchemaId(this.schemaNode);
         this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
-        readDefinitions("definitions");
-        readDefinitions("$defs");
         if (this.id != null) {
             this.validationContext.getSchemaResources()
                     .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
@@ -85,6 +83,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (this.anchor != null) {
             this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString() + "#" + anchor, this);
         }
+        getValidators();
     }
     
     private void initializeConfig() {
@@ -158,10 +157,6 @@ public class JsonSchema extends BaseJsonValidator {
             return copy;
         }
         return this;
-    }
-
-    public JsonSchema createChildSchema(SchemaLocation schemaLocation, JsonNode schemaNode) {
-        return getValidationContext().newSchema(schemaLocation, evaluationPath, schemaNode, this);
     }
 
     ValidationContext getValidationContext() {
@@ -318,28 +313,6 @@ public class JsonSchema extends BaseJsonValidator {
         return null;
     }
     
-    private void readDefinitions(String definitionsKeyword) {
-        JsonNode definitionsNode = schemaNode.get(definitionsKeyword);
-        if (definitionsNode != null) {
-            readSchemaResources(definitionsNode, this.schemaLocation.append(definitionsKeyword),
-                    this.evaluationPath.append(definitionsKeyword));
-        }
-    }
-
-    private void readSchemaResources(JsonNode definitionsNode, SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
-        Iterator<String> pnames = definitionsNode.fieldNames();
-        while (pnames.hasNext()) {
-            String pname = pnames.next();
-            JsonNode nodeToUse = definitionsNode.get(pname);
-            // The schema resources with id or anchor will be stored during the constructor
-            // call of JsonSchema
-            JsonSchema schema = this.validationContext.newSchema(schemaLocation.append(pname), evaluationPath.append(pname), nodeToUse,
-                    this);
-            schema.getValidators();
-        }
-    }
-
-
     /**
      * Please note that the key in {@link #validators} map is the evaluation path.
      */

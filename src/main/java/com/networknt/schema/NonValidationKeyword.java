@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -35,6 +37,13 @@ public class NonValidationKeyword extends AbstractKeyword {
             if (id != null || anchor != null) {
                 // Used to register schema resources with $id
                 validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            }
+            if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
+                for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
+                    Entry<String, JsonNode> property = field.next();
+                    validationContext.newSchema(schemaLocation.append(property.getKey()),
+                            evaluationPath.append(property.getKey()), property.getValue(), parentSchema);
+                }
             }
         }
 

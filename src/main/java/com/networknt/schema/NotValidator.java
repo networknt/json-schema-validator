@@ -32,10 +32,6 @@ public class NotValidator extends BaseJsonValidator {
     public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
         this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
-
-        // Load the validators to parse the schema so that schema resources with $id can
-        // be identified
-        this.schema.getValidators();
     }
 
     @Override
