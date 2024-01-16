@@ -57,7 +57,7 @@ public class RefValidator extends BaseJsonValidator {
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
             // This should retrieve schemas regardless of the protocol that is in the uri.
             return new JsonSchemaRef(new CachedSupplier<>(() -> {
-                JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal.toString());
+                JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
                     schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig()); 
                     if (schemaResource != null) {
@@ -139,7 +139,6 @@ public class RefValidator extends BaseJsonValidator {
         if (node != null) {
             SchemaLocation path = null;
             JsonSchema currentParent = parent;
-            SchemaLocation currentUri = parent.getSchemaLocation();
             if (refValue.startsWith(REF_CURRENT)) {
                 // relative to document
                 path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(),
@@ -153,12 +152,10 @@ public class RefValidator extends BaseJsonValidator {
                     if (id != null) {
                         if (id.contains(":")) {
                             // absolute
-                            currentUri = currentUri.resolve(id);
                             path = SchemaLocation.of(id);
                         } else {
                             // relative
                             String absoluteUri = path.getAbsoluteIri().resolve(id).toString();
-                            currentUri = currentUri.resolve(absoluteUri);
                             path = SchemaLocation.of(absoluteUri);
                         }
                     }
