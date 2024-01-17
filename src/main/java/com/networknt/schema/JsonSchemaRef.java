@@ -15,9 +15,6 @@
  */
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -31,17 +28,7 @@ public class JsonSchemaRef {
         this.schemaSupplier = schema;
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
-        return getSchema().validate(executionContext, node, rootNode, instanceLocation);
-    }
-
     public JsonSchema getSchema() {
         return this.schemaSupplier.get();
-    }
-
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        return getSchema().walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 }

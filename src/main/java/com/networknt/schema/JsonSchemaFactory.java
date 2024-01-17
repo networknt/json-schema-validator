@@ -476,7 +476,7 @@ public class JsonSchemaFactory {
             }
             return jsonSchema;
         } catch (IOException | URISyntaxException e) {
-            logger.error("Failed to load json schema!", e);
+            logger.error("Failed to load json schema from {}", schemaUri, e);
             throw new JsonSchemaException(e);
         }
     }
