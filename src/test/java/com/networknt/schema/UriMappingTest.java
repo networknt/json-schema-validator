@@ -41,6 +41,24 @@ public class UriMappingTest {
     private final URLFactory urlFactory = new URLFactory();
 
     /**
+     * Validate URI Create API
+     */
+    @Test
+    public void testUrlFactoryCreate()  {
+        try {
+            this.urlFactory.create("://example.com/invalid/schema/url");
+            fail("Invalid URI, should throw error.");
+        }
+        catch(IllegalArgumentException e){
+
+        }
+        catch(Exception e){
+            fail("Unknown Exception occured ");
+        }
+
+    }
+
+    /**
      * Validate that a JSON URI Mapping file containing the URI Mapping schema is
      * schema valid.
      *
@@ -113,7 +131,7 @@ public class UriMappingTest {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.addUriTranslator(getUriMappingsFromUrl(mappings));
         JsonSchema schema = instance.getSchema(this.urlFactory.create(
-                "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"),
+                        "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"),
                 config);
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
