@@ -17,11 +17,13 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +47,10 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             for (JsonNode n : schemaNode) {
                 if (n.isNumber()) {
                     // convert to DecimalNode for number comparison
-                    nodes.add(DecimalNode.valueOf(n.decimalValue()));
+                    nodes.add(processNumberNode(n));
+                } else if (n.isArray()) {
+                    ArrayNode a = processArrayNode((ArrayNode) n);
+                    nodes.add(a);
                 } else {
                     nodes.add(n);
                 }
@@ -65,7 +70,6 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
                     sb.append("null");
                 }
             }
-            //
             sb.append(']');
 
             error = sb.toString();
@@ -78,7 +82,11 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
-        if (node.isNumber()) node = DecimalNode.valueOf(node.decimalValue());
+        if (node.isNumber()) {
+            node = processNumberNode(node);
+        } else if (node.isArray()) {
+            node = processArrayNode((ArrayNode) node);
+        }
         if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             return Collections.singleton(message().instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(error).build());
@@ -105,4 +113,50 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
         return false;
     }
 
+    /**
+     * Processes the number and ensures trailing zeros are stripped.
+     * 
+     * @param n the node
+     * @return the node
+     */
+    protected JsonNode processNumberNode(JsonNode n) {
+        return DecimalNode.valueOf(new BigDecimal(n.decimalValue().toPlainString()));
+    }
+
+    /**
+     * Processes the array and ensures that numbers within have trailing zeroes stripped.
+     * 
+     * @param node the node
+     * @return the node
+     */
+    protected ArrayNode processArrayNode(ArrayNode node) {
+        if (!hasNumber(node)) {
+            return node;
+        }
+        ArrayNode a = (ArrayNode) node.deepCopy();
+        for (int x = 0; x < a.size(); x++) {
+            JsonNode v = a.get(x);
+            if (v.isNumber()) {
+                v = processNumberNode(v);
+                a.set(x, v);
+            }
+        }
+        return a;
+    }
+
+    /**
+     * Determines if the array node contains a number.
+     * 
+     * @param node the node
+     * @return the node
+     */
+    protected boolean hasNumber(ArrayNode node) {
+        for (int x = 0; x < node.size(); x++) {
+            JsonNode v = node.get(x);
+            if (v.isNumber()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
