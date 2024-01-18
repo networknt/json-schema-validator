@@ -117,7 +117,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
 
     private final String value;
     private final String errorCode;
-    private String customMessage;
+    private Map<String, String> customMessage;
     private final String errorCodeKey;
     private final Class<?> validator;
     private final VersionCode versionCode;
@@ -178,12 +178,12 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     }
 
     @Override
-    public void setCustomMessage(String message) {
+    public void setCustomMessage(Map<String, String> message) {
         this.customMessage = message;
     }
 
     @Override
-    public String getCustomMessage() {
+    public Map<String, String> getCustomMessage() {
         return this.customMessage;
     }
 

@@ -264,7 +264,7 @@ public class JsonMetaSchema {
     }
 
     public JsonValidator newValidator(ValidationContext validationContext, String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema, String customMessage) {
+                                      JsonSchema parentSchema, Map<String, String> customMessage) {
 
         try {
             Keyword kw = this.keywords.get(keyword);

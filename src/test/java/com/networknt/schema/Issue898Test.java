@@ -17,9 +17,8 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testMessagesWithSingleQuotes() throws Exception {
-        ResourceBundle bundle = ResourceBundle.getBundle(I18nSupport.DEFAULT_BUNDLE_BASE_NAME, Locale.FRENCH);
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setResourceBundle(bundle);
+        config.setLocale(Locale.FRENCH);
 
         JsonSchema schema = getJsonSchemaFromClasspath("schema/issue898.json", SpecVersion.VersionFlag.V202012, config);
         JsonNode node = getJsonNodeFromClasspath("data/issue898.json");

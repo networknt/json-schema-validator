@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationContext.DiscriminatorContext;
@@ -30,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -141,12 +141,13 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 return this.validationContext.getURIFactory().create(currentUri, id);
             } catch (IllegalArgumentException e) {
-                throw new JsonSchemaException(ValidationMessage.of(ValidatorTypeCode.ID.getValue(),
-                        ValidatorTypeCode.ID,
-                        new MessageFormat(validationContext.getConfig().getResourceBundle().getString(ValidatorTypeCode.ID.getErrorCodeValue())),
-                        id,
-                        this.schemaPath,
-                        currentUri == null ? "null" : currentUri.toString()));
+                ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
+                        .type(ValidatorTypeCode.ID.getValue()).path(id).schemaPath(schemaPath)
+                        .arguments(currentUri == null ? "null" : currentUri.toString())
+                        .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
+                                ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
+                        .build();
+                throw new JsonSchemaException(validationMessage);
             }
         }
     }
@@ -258,11 +259,11 @@ public class JsonSchema extends BaseJsonValidator {
         Map<String, JsonValidator> validators = new TreeMap<>(VALIDATOR_SORT);
         if (schemaNode.isBoolean()) {
             if (schemaNode.booleanValue()) {
-                final String customMessage = getCustomMessage(schemaNode, "true");
+                final Map<String, String> customMessage = getCustomMessage(schemaNode, "true");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), "true", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/true", validator);
             } else {
-                final String customMessage = getCustomMessage(schemaNode, "false");
+                final Map<String, String> customMessage = getCustomMessage(schemaNode, "false");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaPath(), "false", schemaNode, this, customMessage);
                 validators.put(getSchemaPath() + "/false", validator);
             }
@@ -276,18 +277,19 @@ public class JsonSchema extends BaseJsonValidator {
             while (pnames.hasNext()) {
                 String pname = pnames.next();
                 JsonNode nodeToUse = pname.equals("if") ? schemaNode : schemaNode.get(pname);
-                String customMessage = getCustomMessage(schemaNode, pname);
+                Map<String, String> customMessage = getCustomMessage(schemaNode, pname);
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {
-                        throw new JsonSchemaException(
-                            ValidationMessage.of(
-                                "$recursiveAnchor",
-                                CustomErrorMessageType.of("internal.invalidRecursiveAnchor"),
-                                new MessageFormat("{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}"),
-                                schemaPath, schemaPath, nodeToUse.getNodeType().toString()
-                            )
-                        );
+                        ValidationMessage validationMessage = ValidationMessage.builder().type("$recursiveAnchor")
+                                .code("internal.invalidRecursiveAnchor")
+                                .message(
+                                        "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
+                                .path(schemaPath)
+                                .schemaPath(schemaPath)
+                                .arguments(nodeToUse.getNodeType().toString())
+                                .build();
+                        throw new JsonSchemaException(validationMessage);
                     }
                     this.dynamicAnchor = nodeToUse.booleanValue();
                 }
@@ -346,16 +348,29 @@ public class JsonSchema extends BaseJsonValidator {
         return lhs.compareTo(rhs); // TODO: This smells. We are performing a lexicographical ordering of paths of unknown depth.
     };
 
-    private String getCustomMessage(JsonNode schemaNode, String pname) {
+    private Map<String, String> getCustomMessage(JsonNode schemaNode, String pname) {
         if (!this.validationContext.getConfig().isCustomMessageSupported()) {
             return null;
         }
         final JsonSchema parentSchema = getParentSchema();
         final JsonNode message = getMessageNode(schemaNode, parentSchema, pname);
-        if (message != null && message.get(pname) != null) {
-            return message.get(pname).asText();
+        if (message != null) {
+            JsonNode messageNode = message.get(pname);
+            if (messageNode != null) {
+                if (messageNode.isTextual()) {
+                    return Collections.singletonMap("", messageNode.asText());
+                } else if (messageNode.isObject()) {
+                    Map<String, String> result = new LinkedHashMap<>();
+                    messageNode.fields().forEachRemaining(entry -> {
+                        result.put(entry.getKey(), entry.getValue().textValue());
+                    });
+                    if (!result.isEmpty()) {
+                        return result;
+                    }
+                }
+            }
         }
-        return null;
+        return Collections.emptyMap();
     }
 
     private JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
@@ -647,6 +662,8 @@ public class JsonSchema extends BaseJsonValidator {
         }
         CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
                 config.isUnevaluatedPropertiesAnalysisDisabled());
-        return new ExecutionContext(collectorContext);
+        ExecutionConfig executionConfig = new ExecutionConfig();
+        executionConfig.setLocale(config.getLocale());
+        return new ExecutionContext(executionConfig, collectorContext);
     }
 }
