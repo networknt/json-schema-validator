@@ -298,5 +298,8 @@ public class JsonMetaSchema {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return this.uri;
+    }
 }

@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://www.example.org/driver",
+    "type": "object",
+    "required": [
+        "DriverProperties"
+    ],
+    "properties": {
+        "DriverProperties": {
+            "type": "object",
+            "properties": {
+                "CommonProperties": {
+                    "$ref": "common#/definitions/DriverProperties"
+                }
+            },
+            "required": [
+                "CommonProperties"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false,
+    "definitions": {
+        "common": {
+            "id": "https://www.example.org/common",
+            "type": "object",
+            "additionalProperties": false,
+            "definitions": {
+                "DriverProperties": {
+                    "type": "object",
+                    "properties": {
+                        "field1": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 512
+                        },
+                        "field2": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 512
+                        }
+                    },
+                    "required": [
+                        "field1"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        }
+    }
+}

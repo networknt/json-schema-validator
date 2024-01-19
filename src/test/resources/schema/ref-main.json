@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required" : ["DriverProperties"],
+    "properties": {
+        "DriverProperties": {
+            "type": "object",
+            "properties": {
+                "CommonProperties": {
+                    "$ref": "ref-ref.json#/definitions/DriverProperties"
+                }
+            },
+            "required": ["CommonProperties"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

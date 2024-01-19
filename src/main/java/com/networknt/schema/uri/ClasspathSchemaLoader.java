@@ -34,10 +34,14 @@ public class ClasspathSchemaLoader implements SchemaLoader {
             }
             ClassLoader loader = classLoader;
             String name = schemaLocation.getAbsoluteIri().toString().substring(scheme.length() + 1);
+            if (name.startsWith("//")) {
+                name = name.substring(2);
+            }
+            String resource = name;
             return () -> {
-                InputStream result = loader.getResourceAsStream(name);
+                InputStream result = loader.getResourceAsStream(resource);
                 if (result == null) {
-                    result = loader.getResourceAsStream(name.substring(1));
+                    result = loader.getResourceAsStream(resource.substring(1));
                 }
                 return result;
             };

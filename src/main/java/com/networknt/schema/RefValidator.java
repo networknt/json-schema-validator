@@ -126,14 +126,13 @@ public class RefValidator extends BaseJsonValidator {
         JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
             return validationContext.getSchemaReferences().computeIfAbsent(refValueOriginal, key -> {
-                return getJsonSchema(node, parent, validationContext, refValue, evaluationPath);
+                return getJsonSchema(node, parent, refValue, evaluationPath);
             });
         }
         return null;
     }
     
     private static JsonSchema getJsonSchema(JsonNode node, JsonSchema parent,
-                                                  ValidationContext validationContext,
                                                   String refValue,
                                                   JsonNodePath evaluationPath) {
         if (node != null) {
@@ -148,7 +147,7 @@ public class RefValidator extends BaseJsonValidator {
                 if (refParts.length > 3) {
                     String[] subschemaParts = Arrays.copyOf(refParts, refParts.length - 2);
                     JsonNode subschemaNode = parent.getRefSchemaNode(String.join("/", subschemaParts));
-                    String id = validationContext.resolveSchemaId(subschemaNode);
+                    String id = parent.getValidationContext().resolveSchemaId(subschemaNode);
                     if (id != null) {
                         if (id.contains(":")) {
                             // absolute
@@ -176,7 +175,7 @@ public class RefValidator extends BaseJsonValidator {
                     path = path.append(parts[x]);
                 }
             }
-            return validationContext.newSchema(path, evaluationPath, node, currentParent);
+            return parent.getValidationContext().newSchema(path, evaluationPath, node, currentParent);
         }
         throw null;
     }
