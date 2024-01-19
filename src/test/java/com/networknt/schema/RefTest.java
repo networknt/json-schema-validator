@@ -60,5 +60,10 @@ public class RefTest {
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",
                 error.getEvaluationPath().toString());
         assertEquals("field1", error.getProperty());
+        JsonSchema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
+        JsonSchema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
+        assertEquals("https://json-schema.org/draft-04/schema", driver.getValidationContext().getMetaSchema().getUri());
+        assertEquals("https://json-schema.org/draft-07/schema", common.getValidationContext().getMetaSchema().getUri());
+
     }
 }

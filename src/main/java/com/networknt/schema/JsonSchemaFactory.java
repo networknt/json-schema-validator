@@ -206,7 +206,18 @@ public class JsonSchemaFactory {
     }
 
     private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return JsonSchema.from(validationContext, schemaLocation, evaluationPath, schemaNode, parentSchema, suppressSubSchemaRetrieval);
+        return JsonSchema.from(withMetaSchema(validationContext, schemaNode), schemaLocation, evaluationPath,
+                schemaNode, parentSchema, suppressSubSchemaRetrieval);
+    }
+    
+    private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
+        JsonMetaSchema metaSchema = getMetaSchema(schemaNode);
+        if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
+            return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
+                    validationContext.getConfig(), validationContext.getSchemaReferences(),
+                    validationContext.getSchemaResources());
+        }
+        return validationContext;
     }
 
     /**
@@ -229,6 +240,14 @@ public class JsonSchemaFactory {
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
         return new ValidationContext(jsonMetaSchema, this, config);
+    }
+    
+    private JsonMetaSchema getMetaSchema(final JsonNode schemaNode) {
+        final JsonNode uriNode = schemaNode.get("$schema");
+        if (uriNode != null && uriNode.isTextual()) {
+            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), this::fromId);
+        }
+        return null;
     }
 
     private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
