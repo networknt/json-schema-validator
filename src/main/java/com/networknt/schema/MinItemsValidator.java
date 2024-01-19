@@ -28,27 +28,26 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
 
     private int min = 0;
 
-    public MinItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_ITEMS, validationContext);
+    public MinItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_ITEMS, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isArray()) {
             if (node.size() < min) {
-                return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + min));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min, node.size()).build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 < min) {
-                return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + min));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min, 1).build());
             }
         }
 

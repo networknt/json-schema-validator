@@ -21,34 +21,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
 
     private final JsonSchema schema;
-    private final boolean disabled;
 
-    public UnevaluatedPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
+    public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
 
-        this.disabled = validationContext.getConfig().isUnevaluatedPropertiesAnalysisDisabled();
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
+            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedProperties' MUST be a valid JSON Schema.");
         }
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        if (this.disabled || !node.isObject()) return Collections.emptySet();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        if (!executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword()) || !node.isObject()) return Collections.emptySet();
 
-        debug(logger, node, rootNode, at);
+        debug(logger, node, rootNode, instanceLocation);
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         collectorContext.exitDynamicScope();
         try {
-            Set<String> allPaths = allPaths(node, at);
+            Set<JsonNodePath> allPaths = allPaths(node, instanceLocation);
 
             // Short-circuit since schema is 'true'
             if (super.schemaNode.isBoolean() && super.schemaNode.asBoolean()) {
@@ -56,16 +55,16 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                 return Collections.emptySet();
             }
 
-            Set<String> unevaluatedPaths = unevaluatedPaths(collectorContext, allPaths);
+            Set<JsonNodePath> unevaluatedPaths = unevaluatedPaths(collectorContext, allPaths);
 
             // Short-circuit since schema is 'false'
             if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
                 return reportUnevaluatedPaths(unevaluatedPaths, executionContext);
             }
 
-            Set<String> failingPaths = new HashSet<>();
+            Set<JsonNodePath> failingPaths = new LinkedHashSet<>();
             unevaluatedPaths.forEach(path -> {
-                String pointer = getPathType().convertToJsonPointer(path);
+                String pointer = path.getPathType().convertToJsonPointer(path.toString());
                 JsonNode property = rootNode.at(pointer);
                 if (!this.schema.validate(executionContext, property, rootNode, path).isEmpty()) {
                     failingPaths.add(path);
@@ -84,24 +83,23 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    private Set<String> allPaths(JsonNode node, String at) {
-        PathType pathType = getPathType();
-        Set<String> collector = new HashSet<>();
+    private Set<JsonNodePath> allPaths(JsonNode node, JsonNodePath instanceLocation) {
+        Set<JsonNodePath> collector = new LinkedHashSet<>();
         node.fields().forEachRemaining(entry -> {
-            String path = pathType.append(at, entry.getKey());
-            collector.add(path);
+            collector.add(instanceLocation.append(entry.getKey()));
         });
         return collector;
     }
 
-    private Set<ValidationMessage> reportUnevaluatedPaths(Set<String> unevaluatedPaths, ExecutionContext executionContext) {
-        List<String> paths = new ArrayList<>(unevaluatedPaths);
-        paths.sort(String.CASE_INSENSITIVE_ORDER);
-        return Collections.singleton(buildValidationMessage(null, String.join("\n  ", paths), executionContext.getExecutionConfig().getLocale()));
+    private Set<ValidationMessage> reportUnevaluatedPaths(Set<JsonNodePath> unevaluatedPaths, ExecutionContext executionContext) {
+        return unevaluatedPaths
+                .stream().map(path -> message().instanceLocation(path)
+                        .locale(executionContext.getExecutionConfig().getLocale()).build())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static Set<String> unevaluatedPaths(CollectorContext collectorContext, Set<String> allPaths) {
-        Set<String> unevaluatedProperties = new HashSet<>(allPaths);
+    private static Set<JsonNodePath> unevaluatedPaths(CollectorContext collectorContext, Set<JsonNodePath> allPaths) {
+        Set<JsonNodePath> unevaluatedProperties = new LinkedHashSet<>(allPaths);
         unevaluatedProperties.removeAll(collectorContext.getEvaluatedProperties());
         return unevaluatedProperties;
     }

@@ -28,9 +28,9 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
 
-    public PatternPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
         if (!schemaNode.isObject()) {
             throw new JsonSchemaException("patternProperties must be an object node");
         }
@@ -38,34 +38,40 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
         while (names.hasNext()) {
             String name = names.next();
             RegularExpression pattern = RegularExpression.compile(name, validationContext);
-            schemas.put(pattern, validationContext.newSchema(name, schemaNode.get(name), parentSchema));
+            schemas.put(pattern, validationContext.newSchema(schemaLocation.append(name), evaluationPath.append(name),
+                    schemaNode.get(name), parentSchema));
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!node.isObject()) {
-            return errors;
+            return Collections.emptySet();
         }
-
+        Set<ValidationMessage> errors = null;
         Iterator<String> names = node.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, atPath(at, name));
+                    JsonNodePath path = instanceLocation.append(name);
+                    Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, path);
                     if (results.isEmpty()) {
-                        executionContext.getCollectorContext().getEvaluatedProperties().add(atPath(at, name));
+                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                            executionContext.getCollectorContext().getEvaluatedProperties().add(path);
+                        }
+                    } else {
+                        if (errors == null) {
+                            errors = new LinkedHashSet<>();
+                        }
+                        errors.addAll(results);
                     }
-                    errors.addAll(results);
                 }
             }
         }
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override

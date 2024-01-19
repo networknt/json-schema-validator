@@ -30,15 +30,14 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
 
     private final Format format;
 
-    public FormatValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
-        super(schemaPath, schemaNode, parentSchema, type, validationContext);
+    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
         this.format = format;
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -50,22 +49,25 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
                     // leading and trailing spaces
-                    errors.add(buildValidationMessage(null, at,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 } else if(node.textValue().contains("%")) {
                     // zone id is not part of the ipv6
-                    errors.add(buildValidationMessage(null, at,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(buildValidationMessage(null, at,
-                            executionContext.getExecutionConfig().getLocale(), format.getName(), format.getErrorMessageDescription()));
+                    errors.add(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", at, format.getName(), pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);
             }
         }
 

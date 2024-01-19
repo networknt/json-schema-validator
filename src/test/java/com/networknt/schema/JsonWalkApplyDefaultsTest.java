@@ -108,12 +108,12 @@ class JsonWalkApplyDefaultsTest {
                 throw new UnsupportedOperationException();
         }
         assertThat(validationMessages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
-                   Matchers.containsInAnyOrder("$.outer.mixedObject.intValue_missing: is missing but it is required",
-                                               "$.outer.mixedObject.intValue_missingButError: is missing but it is required",
+                   Matchers.containsInAnyOrder("$.outer.mixedObject: required property 'intValue_missing' not found",
+                                               "$.outer.mixedObject: required property 'intValue_missingButError' not found",
                                                "$.outer.mixedObject.intValue_null: null found, integer expected",
                                                "$.outer.goodArray[1]: null found, string expected",
                                                "$.outer.badArray[1]: null found, string expected",
-                                               "$.outer.reference.stringValue_missing: is missing but it is required"));
+                                               "$.outer.reference: required property 'stringValue_missing' not found"));
         assertEquals(inputNodeOriginal, inputNode);
     }
 

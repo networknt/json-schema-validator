@@ -28,18 +28,17 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
 
     private int maxLength;
 
-    public MaxLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_LENGTH, validationContext);
+    public MaxLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_LENGTH, validationContext);
         maxLength = Integer.MAX_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             maxLength = schemaNode.intValue();
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -47,8 +46,8 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
             return Collections.emptySet();
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
-            return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + maxLength));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(maxLength).build());
         }
         return Collections.emptySet();
     }

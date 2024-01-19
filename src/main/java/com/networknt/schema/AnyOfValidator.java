@@ -32,12 +32,13 @@ public class AnyOfValidator extends BaseJsonValidator {
     private final List<JsonSchema> schemas = new ArrayList<>();
     private final ValidationContext.DiscriminatorContext discriminatorContext;
 
-    public AnyOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
+    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         this.validationContext = validationContext;
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            this.schemas.add(validationContext.newSchema(schemaPath + "/" + i, schemaNode.get(i), parentSchema));
+            this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+                    schemaNode.get(i), parentSchema));
         }
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
@@ -48,15 +49,15 @@ public class AnyOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = executionContext.getValidatorState();
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            this.validationContext.enterDiscriminatorContext(this.discriminatorContext, at);
+            this.validationContext.enterDiscriminatorContext(this.discriminatorContext, instanceLocation);
         }
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
@@ -72,20 +73,20 @@ public class AnyOfValidator extends BaseJsonValidator {
                 try {
                     state.setMatchedNode(initialHasMatchedNode);
 
-                    if (schema.hasTypeValidator()) {
-                        TypeValidator typeValidator = schema.getTypeValidator();
+                    TypeValidator typeValidator = schema.getTypeValidator();
+                    if (typeValidator != null) {
                         //If schema has type validator and node type doesn't match with schemaType then ignore it
                         //For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors.add(buildValidationMessage(null, at,
-                                    executionContext.getExecutionConfig().getLocale(), typeValidator.getSchemaType().toString()));
+                            allErrors
+                                    .addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
                             continue;
                         }
                     }
                     if (!state.isWalkEnabled()) {
-                        errors = schema.validate(executionContext, node, rootNode, at);
+                        errors = schema.validate(executionContext, node, rootNode, instanceLocation);
                     } else {
-                        errors = schema.walk(executionContext, node, rootNode, at, true);
+                        errors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
                     }
 
                     // check if any validation errors have occurred
@@ -107,8 +108,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         if (this.discriminatorContext.isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
                                 allErrors.addAll(errors);
-                                allErrors.add(buildValidationMessage(null,
-                                        at, executionContext.getExecutionConfig().getLocale(), DISCRIMINATOR_REMARK));
+                                allErrors.add(message().instanceLocation(instanceLocation)
+                                        .locale(executionContext.getExecutionConfig().getLocale())
+                                        .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
                                 // Clear all errors.
                                 allErrors.clear();
@@ -126,7 +128,9 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
 
             // determine only those errors which are NOT of type "required" property missing
-            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream().filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType())).collect(Collectors.toSet());
+            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream()
+                    .filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType()))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
             // in case we had at least one (anyOf, i.e. any number >= 1 of) valid subschemas, we can remove all other errors about "required" properties
             if (numberOfValidSubSchemas >= 1 && childNotRequiredErrors.isEmpty()) {
@@ -134,14 +138,17 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
-                final Set<ValidationMessage> errors = new HashSet<>();
-                errors.add(buildValidationMessage(null, at,
-                        executionContext.getExecutionConfig().getLocale(), "based on the provided discriminator. No alternative could be chosen based on the discriminator property"));
+                final Set<ValidationMessage> errors = new LinkedHashSet<>();
+                errors.add(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(
+                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                        .build());
                 return Collections.unmodifiableSet(errors);
             }
         } finally {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                this.validationContext.leaveDiscriminatorContextImmediately(at);
+                this.validationContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
 
             Scope parentScope = collectorContext.exitDynamicScope();
@@ -154,12 +161,12 @@ public class AnyOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, at);
+            return validate(executionContext, node, rootNode, instanceLocation);
         }
         for (JsonSchema schema : this.schemas) {
-            schema.walk(executionContext, node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
         return new LinkedHashSet<>();
     }

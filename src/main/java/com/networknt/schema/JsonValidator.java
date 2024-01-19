@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,31 +26,19 @@ import com.networknt.schema.walk.JsonSchemaWalker;
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
 public interface JsonValidator extends JsonSchemaWalker {
-
-    /**
-     * Validate the given root JsonNode, starting at the root of the data path.
-     * @param executionContext  ExecutionContext
-     * @param rootNode JsonNode
-     *
-     * @return A list of ValidationMessage if there is any validation error, or an empty
-     * list if there is no error.
-     */
-    default Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-        return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot()); // TODO: This is not valid when using JSON Pointer.
-    }
-
     /**
      * Validate the given JsonNode, the given node is the child node of the root node at given
      * data path.
      * @param executionContext  ExecutionContext
      * @param node     JsonNode
      * @param rootNode JsonNode
-     * @param at       String
+     * @param instanceLocation JsonNodePath
      *
      * @return A list of ValidationMessage if there is any validation error, or an empty
      * list if there is no error.
      */
-    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at);
+    Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation);
 
     /**
      * In case the {@link com.networknt.schema.JsonValidator} has a related {@link com.networknt.schema.JsonSchema} or several
@@ -69,12 +57,35 @@ public interface JsonValidator extends JsonSchemaWalker {
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        if (shouldValidateSchema) {
-            validationMessages = validate(executionContext, node, rootNode, at);
-        }
-        return validationMessages;
+    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        return shouldValidateSchema ? validate(executionContext, node, rootNode, instanceLocation)
+                : Collections.emptySet();
     }
 
+    /**
+     * The schema location is the canonical URI of the schema object plus a JSON
+     * Pointer fragment indicating the subschema that produced a result. In contrast
+     * with the evaluation path, the schema location MUST NOT include by-reference
+     * applicators such as $ref or $dynamicRef.
+     * 
+     * @return the schema location
+     */
+    public SchemaLocation getSchemaLocation();
+
+    /**
+     * The evaluation path is the set of keys, starting from the schema root,
+     * through which evaluation passes to reach the schema object that produced a
+     * specific result.
+     * 
+     * @return the evaluation path
+     */
+    public JsonNodePath getEvaluationPath();
+
+    /**
+     * The keyword of the validator.
+     * 
+     * @return the keyword
+     */
+    public String getKeyword();
 }

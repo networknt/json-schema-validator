@@ -28,18 +28,16 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
 
     private int minLength;
 
-    public MinLengthValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_LENGTH, validationContext);
+    public MinLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_LENGTH, validationContext);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();
         }
-        this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -48,8 +46,8 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         }
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
-            return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + minLength));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(minLength).build());
         }
         return Collections.emptySet();
     }

@@ -25,13 +25,14 @@ import java.util.Set;
 public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
 
-    public FalseValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
+    public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         // For the false validator, it is always not valid
-        return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
+        return Collections.singleton(message().instanceLocation(instanceLocation)
+                .locale(executionContext.getExecutionConfig().getLocale()).build());
     }
 }

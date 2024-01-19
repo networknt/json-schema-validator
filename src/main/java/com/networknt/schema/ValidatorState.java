@@ -16,9 +16,6 @@
 package com.networknt.schema;
 
 public class ValidatorState {
-
-    public static final String VALIDATOR_STATE_KEY = "com.networknt.schema.ValidatorState";
-
     /**
      * Flag set when a node has matched Works in conjunction with the next flag:
      * isComplexValidator, to be used for complex validators such as oneOf, for ex
@@ -41,6 +38,23 @@ public class ValidatorState {
      * Flag to check if validation is enabled while walking.
      */
     private boolean isValidationEnabled = false;
+
+    /**
+     * Constructor for validation state.
+     */
+    public ValidatorState() {
+    }
+
+    /**
+     * Constructor for validation state.
+     * 
+     * @param walkEnabled       whether walk is enabled
+     * @param validationEnabled whether validation is enabled
+     */
+    public ValidatorState(boolean walkEnabled, boolean validationEnabled) {
+        this.isWalkEnabled = walkEnabled;
+        this.isValidationEnabled = validationEnabled;
+    }
 
     public void setMatchedNode(boolean matchedNode) {
         this.matchedNode = matchedNode;

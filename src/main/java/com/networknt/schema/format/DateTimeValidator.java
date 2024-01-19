@@ -21,8 +21,10 @@ import com.ethlo.time.LeapSecondException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonValidator;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonType;
+import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.ValidationMessage;
@@ -38,24 +40,23 @@ public class DateTimeValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";
 
-    public DateTimeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
-        super(schemaPath, schemaNode, parentSchema, type, validationContext);
-
+    public DateTimeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
         if (!isLegalDateTime(node.textValue())) {
-            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(),
-                    node.textValue(), DATETIME));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(node.textValue(), DATETIME)
+                    .build());
         }
         return Collections.emptySet();
     }

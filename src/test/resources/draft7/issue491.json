@@ -82,7 +82,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: is missing but it is required",
+          "$.search: required property 'name' not found",
           "$.search.searchAge.age: string found, integer expected",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
@@ -97,7 +97,7 @@
         "valid": false,
         "validationMessages": [
           "$.search.name: integer found, string expected",
-          "$.search.searchAge: is missing but it is required",
+          "$.search: required property 'searchAge' not found",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
       }
@@ -184,7 +184,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: is missing but it is required",
+          "$.search: required property 'name' not found",
           "$.search.byAge.age: string found, integer expected",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
@@ -199,7 +199,7 @@
         "valid": false,
         "validationMessages": [
           "$.search.name: integer found, string expected",
-          "$.search.byAge: is missing but it is required",
+          "$.search: required property 'byAge' not found",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
       }
@@ -276,7 +276,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: is missing but it is required",
+          "$.search: required property 'name' not found",
           "$.search.age: string found, integer expected",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
@@ -291,7 +291,7 @@
         "valid": false,
         "validationMessages": [
           "$.search.name: integer found, string expected",
-          "$.search.age: is missing but it is required",
+          "$.search: required property 'age' not found",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
       },
@@ -304,7 +304,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: is missing but it is required",
+          "$.search: required property 'name' not found",
           "$.search.age: must have a maximum value of 150",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
@@ -319,7 +319,7 @@
         "valid": false,
         "validationMessages": [
           "$.search.name: may only be 20 characters long",
-          "$.search.age: is missing but it is required",
+          "$.search: required property 'age' not found",
           "$.search: should be valid to one and only one schema, but 0 are valid"
         ]
       }

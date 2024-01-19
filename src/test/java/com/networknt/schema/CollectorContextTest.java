@@ -252,10 +252,10 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                ValidationContext validationContext) throws JsonSchemaException, Exception {
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator();
+                return new CustomValidator(schemaLocation, evaluationPath);
             }
             return null;
         }
@@ -267,10 +267,13 @@ public class CollectorContextTest {
      * This will be helpful in cases where we don't want to revisit the entire JSON
      * document again just for gathering this kind of information.
      */
-    private class CustomValidator implements JsonValidator {
+    private class CustomValidator extends AbstractJsonValidator {
+        public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+            super(schemaLocation, evaluationPath,null);
+        }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
@@ -281,12 +284,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
-        }
-
-        @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }
@@ -325,10 +323,10 @@ public class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                ValidationContext validationContext) throws JsonSchemaException, Exception {
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator1();
+                return new CustomValidator1(schemaLocation, evaluationPath);
             }
             return null;
         }
@@ -342,10 +340,14 @@ public class CollectorContextTest {
      * we expect this validator to be called multiple times as the associated
      * keyword has been used multiple times in JSON Schema.
      */
-    private class CustomValidator1 implements JsonValidator {
+    private class CustomValidator1 extends AbstractJsonValidator {
+        public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+            super(schemaLocation, evaluationPath,null);
+        }
+
         @SuppressWarnings("unchecked")
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
@@ -358,12 +360,7 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-            return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
-        }
-
-        @Override
-        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
             return null;
         }

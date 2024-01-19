@@ -27,9 +27,9 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
     private final Map<String, List<String>> propertyDeps = new HashMap<String, List<String>>();
     private final Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
 
-    public DependenciesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENCIES, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENCIES, validationContext);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -44,15 +44,14 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                     depsProps.add(pvalue.get(i).asText());
                 }
             } else if (pvalue.isObject() || pvalue.isBoolean()) {
-                schemaDeps.put(pname, validationContext.newSchema(pname, pvalue, parentSchema));
+                schemaDeps.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+                        evaluationPath.append(pname), pvalue, parentSchema));
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -62,14 +61,15 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (deps != null && !deps.isEmpty()) {
                 for (String field : deps) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(pname, at,
-                                executionContext.getExecutionConfig().getLocale(), propertyDeps.toString()));
+                        errors.add(message().property(pname).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(propertyDeps.toString()).build());
                     }
                 }
             }
             JsonSchema schema = schemaDeps.get(pname);
             if (schema != null) {
-                errors.addAll(schema.validate(executionContext, node, rootNode, at));
+                errors.addAll(schema.validate(executionContext, node, rootNode, instanceLocation));
             }
         }
 

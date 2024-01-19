@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 public class MinMaxContainsValidator extends BaseJsonValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
 
         Set<Analysis> analysis = null;
         int min = 1;
@@ -31,7 +31,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("minContains", schemaPath));
+                analysis.add(new Analysis("minContains", schemaLocation));
             } else {
                 min = minNode.intValue();
             }
@@ -43,7 +43,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                 if (analysis == null) {
                     analysis = new LinkedHashSet<>();
                 }
-                analysis.add(new Analysis("maxContains", schemaPath));
+                analysis.add(new Analysis("maxContains", schemaLocation));
             } else {
                 max = maxNode.intValue();
             }
@@ -53,17 +53,18 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             if (analysis == null) {
                 analysis = new LinkedHashSet<>();
             }
-            analysis.add(new Analysis("minContainsVsMaxContains", schemaPath));
+            analysis.add(new Analysis("minContainsVsMaxContains", schemaLocation));
         }
         this.analysis = analysis;
     }
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            String at) {
+            JsonNodePath instanceLocation) {
         return this.analysis != null ? this.analysis.stream()
-                .map(analysis -> buildValidationMessage(null, analysis.getAt(),
-                        analysis.getMessageKey(), executionContext.getExecutionConfig().getLocale(), parentSchema.getSchemaNode().toString()))
+                .map(analysis -> message().instanceLocation(analysis.getSchemaLocation().getFragment())
+                        .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(parentSchema.getSchemaNode().toString()).build())
                 .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
     }
     
@@ -72,17 +73,17 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
             return messageKey;
         }
 
-        public String getAt() {
-            return at;
+        public SchemaLocation getSchemaLocation() {
+            return schemaLocation;
         }
 
         private final String messageKey;
-        private final String at;
+        private final SchemaLocation schemaLocation;
 
-        public Analysis(String messageKey, String at) {
+        public Analysis(String messageKey, SchemaLocation schemaLocation) {
             super();
             this.messageKey = messageKey;
-            this.at = at;
+            this.schemaLocation = schemaLocation;
         }
     }
 }

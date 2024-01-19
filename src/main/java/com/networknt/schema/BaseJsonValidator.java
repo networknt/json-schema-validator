@@ -38,22 +38,35 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     protected ValidationContext validationContext;
 
-    public BaseJsonValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaPath, schemaNode, parentSchema, validatorType, validationContext, false);
+    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
+        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext,
+                false);
     }
 
-    public BaseJsonValidator(String schemaPath,
-                             JsonNode schemaNode,
-                             JsonSchema parentSchema,
-                             ValidatorTypeCode validatorType,
-                             ValidationContext validationContext,
-                             boolean suppressSubSchemaRetrieval) {
-        super(validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(), validatorType, validatorType != null ? validatorType.getCustomMessage() : null, (validationContext != null && validationContext.getConfig() != null) ? validationContext.getConfig().getMessageSource() : DefaultMessageSource.getInstance(), validatorType, parentSchema, schemaPath);
+    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
+            ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
+        super(validationContext != null
+                && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
+                errorMessageType,
+                (validationContext != null && validationContext.getConfig() != null)
+                        ? validationContext.getConfig().isCustomMessageSupported()
+                        : true,
+                (validationContext != null && validationContext.getConfig() != null)
+                        ? validationContext.getConfig().getMessageSource()
+                        : DefaultMessageSource.getInstance(),
+                keyword, parentSchema, schemaLocation, evaluationPath);
+        this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getApplyDefaultsStrategy() != null) ? validationContext.getConfig().getApplyDefaultsStrategy() : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
-        this.pathType = (validationContext != null && validationContext.getConfig() != null && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType() : PathType.DEFAULT;
+        this.applyDefaultsStrategy = (validationContext != null && validationContext.getConfig() != null
+                && validationContext.getConfig().getApplyDefaultsStrategy() != null)
+                        ? validationContext.getConfig().getApplyDefaultsStrategy()
+                        : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
+        this.pathType = (validationContext != null && validationContext.getConfig() != null
+                && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType()
+                        : PathType.DEFAULT;
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
@@ -86,8 +99,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return Math.abs(n1 - n2) < 1e-12;
     }
 
-    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, String at) {
-        logger.debug("validate( {}, {}, {})", node, rootNode, at);
+    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
     }
 
     /**
@@ -134,19 +147,19 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check
      * @param schema                      the value of the <code>discriminator/propertyName</code> field
-     * @param at                          the logging prefix
+     * @param instanceLocation                          the logging prefix
      */
     protected static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
                                                         final JsonSchema schema,
-                                                        final String at) {
+                                                        final JsonNodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
-                .getDiscriminatorForPath(schema.schemaPath)) {
+                .getDiscriminatorForPath(schema.schemaLocation)) {
             // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
-                throw new JsonSchemaException(at + " schema " + schema + " attempts redefining the discriminator property");
+                throw new JsonSchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
             }
             final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
             final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
@@ -165,7 +178,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
                     if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
-                        throw new JsonSchemaException(at + "discriminator mapping redefinition from " + mappingKeyToAdd
+                        throw new JsonSchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
                                 + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {
                         mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
@@ -173,13 +186,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                 }
             }
         }
-        currentDiscriminatorContext.registerDiscriminator(schema.schemaPath, discriminator);
+        currentDiscriminatorContext.registerDiscriminator(schema.schemaLocation, discriminator);
     }
 
     private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                                   final String discriminatorPropertyValue,
                                                                   final JsonSchema schema) {
-        if (schema.schemaPath.endsWith("/" + discriminatorPropertyValue)) {
+        if (schema.schemaLocation.getFragment().getName(-1).equals(discriminatorPropertyValue)) {
             currentDiscriminatorContext.markMatch();
         }
     }
@@ -192,7 +205,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
             if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
-                    && schema.schemaPath.equals(candidateExplicitMapping.getValue().asText())) {
+                    && ("#" + schema.schemaLocation.getFragment().toString())
+                            .equals(candidateExplicitMapping.getValue().asText())) {
                 currentDiscriminatorContext.markMatch();
                 break;
             }
@@ -204,15 +218,27 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getValue().asText().equals(parentSchema.schemaPath)) {
+            if (candidateExplicitMapping.getValue().asText()
+                    .equals(parentSchema.schemaLocation.getFragment().toString())) {
                 return false;
             }
         }
         return true;
     }
 
-    public String getSchemaPath() {
-        return this.schemaPath;
+    @Override
+    public SchemaLocation getSchemaLocation() {
+        return this.schemaLocation;
+    }
+
+    @Override
+    public JsonNodePath getEvaluationPath() {
+        return this.evaluationPath;
+    }
+
+    @Override
+    public String getKeyword() {
+        return this.keyword.getValue();
     }
 
     public JsonNode getSchemaNode() {
@@ -227,9 +253,41 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
     }
 
-    @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
         return validate(executionContext, node, node, atRoot());
+    }
+
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>              the result type
+     * @param executionContext the execution context
+     * @param node             the node
+     * @param format           the format
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
+        return validate(executionContext, node, format, null);
+    }
+
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param node                the node
+     * @param format              the format
+     * @param executionCustomizer the customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
+            ExecutionCustomizer executionCustomizer) {
+        format.customize(executionContext, this.validationContext);
+        if (executionCustomizer != null) {
+            executionCustomizer.customize(executionContext, validationContext);
+        }
+        Set<ValidationMessage> validationMessages = validate(executionContext, node);
+        return format.format(validationMessages, executionContext, this.validationContext);
     }
 
     protected String getNodeFieldType() {
@@ -246,39 +304,17 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         }
     }
 
-
-    protected PathType getPathType() {
-        return this.pathType;
-    }
-
     /**
      * Get the root path.
      *
      * @return The path.
      */
-    protected String atRoot() {
-        return this.pathType.getRoot();
+    protected JsonNodePath atRoot() {
+        return new JsonNodePath(this.pathType);
     }
 
-    /**
-     * Create the path for a given child token.
-     *
-     * @param currentPath The current path.
-     * @param token       The child token.
-     * @return The complete path.
-     */
-    protected String atPath(String currentPath, String token) {
-        return this.pathType.append(currentPath, token);
-    }
-
-    /**
-     * Create the path for a given child indexed item.
-     *
-     * @param currentPath The current path.
-     * @param index       The child index.
-     * @return The complete path.
-     */
-    protected String atPath(String currentPath, int index) {
-        return this.pathType.append(currentPath, index);
+    @Override
+    public String toString() {
+        return getEvaluationPath().getName(-1);
     }
 }

@@ -4,63 +4,47 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
-import java.util.Locale;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class ValidationMessageHandler {
-    protected final boolean failFast;
-    protected final Map<String, String> customMessage;
+    protected boolean failFast;
     protected final MessageSource messageSource;
-    protected ValidatorTypeCode validatorType;
     protected ErrorMessageType errorMessageType;
 
-    protected String schemaPath;
+    protected SchemaLocation schemaLocation;
+    protected JsonNodePath evaluationPath;
 
     protected JsonSchema parentSchema;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType, Map<String, String> customMessage, MessageSource messageSource, ValidatorTypeCode validatorType, JsonSchema parentSchema, String schemaPath) {
+    protected boolean customErrorMessagesEnabled;
+    protected Map<String, String> errorMessage;
+
+    protected Keyword keyword;
+
+    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
+            boolean customErrorMessagesEnabled, MessageSource messageSource, Keyword keyword, JsonSchema parentSchema,
+            SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
         this.failFast = failFast;
         this.errorMessageType = errorMessageType;
-        this.customMessage = customMessage;
         this.messageSource = messageSource;
-        this.validatorType = validatorType;
-        this.schemaPath = schemaPath;
+        this.schemaLocation = Objects.requireNonNull(schemaLocation);
+        this.evaluationPath = Objects.requireNonNull(evaluationPath);
         this.parentSchema = parentSchema;
+        this.customErrorMessagesEnabled = customErrorMessagesEnabled;
+        updateKeyword(keyword);
     }
 
-    protected ValidationMessage buildValidationMessage(String propertyName, String at, Locale locale, Object... arguments) {
-        return buildValidationMessage(propertyName, at, getErrorMessageType().getErrorCodeValue(), locale, arguments);
-    }
-
-    protected ValidationMessage buildValidationMessage(String propertyName, String at, String messageKey, Locale locale, Object... arguments) {
-        String messagePattern = null;
-        if (this.customMessage != null) {
-            messagePattern = this.customMessage.get("");
-            if (propertyName != null) {
-                String specificMessagePattern = this.customMessage.get(propertyName);
-                if (specificMessagePattern != null) {
-                   messagePattern = specificMessagePattern; 
-                }
+    protected MessageSourceValidationMessage.Builder message() {
+        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, message -> {
+            if (this.failFast && isApplicator()) {
+                throw new JsonSchemaException(message);
             }
-        }
-        final ValidationMessage message = ValidationMessage.builder()
-                .code(getErrorMessageType().getErrorCode())
-                .path(at)
-                .schemaPath(this.schemaPath)
-                .arguments(arguments)
-                .messageKey(messageKey)
-                .messageFormatter(args -> this.messageSource.getMessage(messageKey, locale, args))
-                .type(getValidatorType().getValue())
-                .message(messagePattern)
-                .build();
-        if (this.failFast && isApplicator()) {
-            throw new JsonSchemaException(message);
-        }
-        return message;
-    }
-
-    protected ValidatorTypeCode getValidatorType() {
-        return this.validatorType;
+        }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
+                .evaluationPath(this.evaluationPath).type(this.keyword != null ? this.keyword.getValue() : null)
+                .messageKey(getErrorMessageType().getErrorCodeValue());
     }
 
     protected ErrorMessageType getErrorMessageType() {
@@ -74,38 +58,114 @@ public abstract class ValidationMessageHandler {
                 && !isPartOfOneOfMultipleType();
     }
 
-
     private boolean isPartOfAnyOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ANY_OF.getValue() + "/");
+        return schemaLocationContains(ValidatorTypeCode.ANY_OF.getValue());
     }
 
     private boolean isPartOfIfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.IF_THEN_ELSE.getValue() + "/");
+        return schemaLocationContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
     }
 
     private boolean isPartOfNotMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.NOT.getValue() + "/");
+        return schemaLocationContains(ValidatorTypeCode.NOT.getValue());
+    }
+    
+    protected boolean schemaLocationContains(String match) {
+        int count = this.parentSchema.schemaLocation.getFragment().getNameCount();
+        for (int x = 0; x < count; x++) {
+            String name = this.parentSchema.schemaLocation.getFragment().getName(x);
+            if (match.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
 
     protected boolean isPartOfOneOfMultipleType() {
-        return this.parentSchema.schemaPath.contains("/" + ValidatorTypeCode.ONE_OF.getValue() + "/");
+        return schemaLocationContains(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     protected void parseErrorCode(String errorCodeKey) {
-        JsonNode errorCodeNode = this.parentSchema.getSchemaNode().get(errorCodeKey);
-        if (errorCodeNode != null && errorCodeNode.isTextual()) {
-            String errorCodeText = errorCodeNode.asText();
-            if (StringUtils.isNotBlank(errorCodeText)) {
-                this.errorMessageType = CustomErrorMessageType.of(errorCodeText);
+        if (errorCodeKey != null && this.parentSchema != null) {
+            JsonNode errorCodeNode = this.parentSchema.getSchemaNode().get(errorCodeKey);
+            if (errorCodeNode != null && errorCodeNode.isTextual()) {
+                String errorCodeText = errorCodeNode.asText();
+                if (StringUtils.isNotBlank(errorCodeText)) {
+                    this.errorMessageType = CustomErrorMessageType.of(errorCodeText);
+                }
             }
         }
     }
 
     protected void updateValidatorType(ValidatorTypeCode validatorTypeCode) {
-        this.validatorType = validatorTypeCode;
-        this.errorMessageType = validatorTypeCode;
-        parseErrorCode(validatorTypeCode.getErrorCodeKey());
+        updateKeyword(validatorTypeCode);
+        updateErrorMessageType(validatorTypeCode);
+    }
+
+    protected void updateErrorMessageType(ErrorMessageType errorMessageType) {
+        this.errorMessageType = errorMessageType;
+    }
+
+    protected void updateKeyword(Keyword keyword) {
+        this.keyword = keyword;
+        if (this.keyword != null) {
+            if (this.customErrorMessagesEnabled && keyword != null && parentSchema != null) {
+                this.errorMessage = getErrorMessage(parentSchema.getSchemaNode(), keyword.getValue());
+            }
+            parseErrorCode(getErrorCodeKey(keyword.getValue()));
+        }
+    }
+
+    /**
+     * Gets the custom error message to use.
+     * 
+     * @param schemaNode the schema node
+     * @param keyword    the keyword
+     * @return the custom error message
+     */
+    protected Map<String, String> getErrorMessage(JsonNode schemaNode, String keyword) {
+        final JsonSchema parentSchema = this.parentSchema;
+        final JsonNode message = getMessageNode(schemaNode, parentSchema, keyword);
+        if (message != null) {
+            JsonNode messageNode = message.get(keyword);
+            if (messageNode != null) {
+                if (messageNode.isTextual()) {
+                    return Collections.singletonMap("", messageNode.asText());
+                } else if (messageNode.isObject()) {
+                    Map<String, String> result = new LinkedHashMap<>();
+                    messageNode.fields().forEachRemaining(entry -> {
+                        result.put(entry.getKey(), entry.getValue().textValue());
+                    });
+                    if (!result.isEmpty()) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return Collections.emptyMap();
+    }
+
+    protected JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
+        if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
+            return schemaNode.get("message");
+        }
+        JsonNode messageNode;
+        messageNode = schemaNode.get("message");
+        if (messageNode == null && parentSchema != null) {
+            messageNode = parentSchema.schemaNode.get("message");
+            if (messageNode == null) {
+                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
+            }
+        }
+        return messageNode;
+    }
+    
+    protected String getErrorCodeKey(String keyword) {
+        if (keyword != null) {
+            return keyword + "ErrorCode";
+        }
+        return null;
     }
 }

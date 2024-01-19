@@ -27,8 +27,12 @@ import java.util.Set;
 public class NonValidationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractJsonValidator {
+        public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword) {
+            super(schemaLocation, evaluationPath, keyword);
+        }
+
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
             return Collections.emptySet();
         }
     }
@@ -38,8 +42,8 @@ public class NonValidationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                      ValidationContext validationContext) throws JsonSchemaException, Exception {
-        return new Validator();
+    public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                                      JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+        return new Validator(schemaLocation, evaluationPath, this);
     }
 }

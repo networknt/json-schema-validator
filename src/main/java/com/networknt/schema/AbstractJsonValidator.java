@@ -16,23 +16,34 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Collections;
-import java.util.Set;
-
 public abstract class AbstractJsonValidator implements JsonValidator {
+    private final SchemaLocation schemaLocation;
+    private final JsonNodePath evaluationPath;
+    private final Keyword keyword;
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
-        return validate(executionContext, node, node, PathType.LEGACY.getRoot());
+    public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword) {
+        this.schemaLocation = schemaLocation;
+        this.evaluationPath = evaluationPath;
+        this.keyword = keyword;
     }
 
     @Override
-	public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-		Set<ValidationMessage> validationMessages = Collections.emptySet();
-		if (shouldValidateSchema) {
-			validationMessages = validate(executionContext, node, rootNode, at);
-		}
-		return validationMessages;
-	}
+    public SchemaLocation getSchemaLocation() {
+        return schemaLocation;
+    }
+
+    @Override
+    public JsonNodePath getEvaluationPath() {
+        return evaluationPath;
+    }
+
+    @Override
+    public String getKeyword() {
+        return keyword.getValue();
+    }
+
+    @Override
+    public String toString() {
+        return getEvaluationPath().getName(-1);
+    }
 }

@@ -32,26 +32,28 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private final Set<String> allowedProperties;
     private final List<RegularExpression> patternProperties = new ArrayList<>();
 
-    public AdditionalPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
             additionalPropertiesSchema = null;
         } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = validationContext.newSchema(getValidatorType().getValue(), schemaNode, parentSchema);
+            additionalPropertiesSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             allowAdditionalProperties = false;
             additionalPropertiesSchema = null;
         }
 
-        allowedProperties = new HashSet<String>();
         JsonNode propertiesNode = parentSchema.getSchemaNode().get(PropertiesValidator.PROPERTY);
         if (propertiesNode != null) {
+            allowedProperties = new HashSet<>();
             for (Iterator<String> it = propertiesNode.fieldNames(); it.hasNext(); ) {
                 allowedProperties.add(it.next());
             }
+        } else {
+            allowedProperties = Collections.emptySet();
         }
 
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
@@ -60,26 +62,26 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         if (!node.isObject()) {
             // ignore no object
-            return errors;
+            return Collections.emptySet();
         }
 
-        // if allowAdditionalProperties is true, add all the properties as evaluated.
-        if (allowAdditionalProperties) {
-            for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-                collectorContext.getEvaluatedProperties().add(atPath(at, it.next()));
+        CollectorContext collectorContext = executionContext.getCollectorContext();
+        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+            // if allowAdditionalProperties is true, add all the properties as evaluated.
+            if (allowAdditionalProperties) {
+                for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+                    collectorContext.getEvaluatedProperties().add(instanceLocation.append(it.next()));
+                }
             }
         }
+
+        Set<ValidationMessage> errors = null;
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -97,26 +99,42 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (!allowAdditionalProperties) {
-                    errors.add(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), pname));
+                    if (errors == null) {
+                        errors = new LinkedHashSet<>();
+                    }
+                    errors.add(message().property(pname).instanceLocation(instanceLocation.append(pname))
+                            .locale(executionContext.getExecutionConfig().getLocale()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = executionContext.getValidatorState();
                         if (state != null && state.isWalkEnabled()) {
-                            errors.addAll(additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled()));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
+                            if (!results.isEmpty()) {
+                                if (errors == null) {
+                                    errors = new LinkedHashSet<>();
+                                }
+                                errors.addAll(results);
+                            }
                         } else {
-                            errors.addAll(additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, atPath(at, pname)));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, instanceLocation.append(pname));
+                            if (!results.isEmpty()) {
+                                if (errors == null) {
+                                    errors = new LinkedHashSet<>();
+                                }
+                                errors.addAll(results);
+                            }
                         }
                     }
                 }
             }
         }
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, at);
+            return validate(executionContext, node, rootNode, instanceLocation);
         }
 
         if (node == null || !node.isObject()) {
@@ -142,9 +160,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
                 if (allowAdditionalProperties) {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = (ValidatorState) executionContext.getCollectorContext().get(ValidatorState.VALIDATOR_STATE_KEY);
+                        ValidatorState state = executionContext.getValidatorState();
                         if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, atPath(at, pname), state.isValidationEnabled());
+                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
                         }
                     }
                 }

@@ -17,18 +17,20 @@ public interface JsonSchemaWalker {
      * cutting concerns like logging or instrumentation. This method also performs
      * the validation if {@code shouldValidateSchema} is set to true. <br>
      * <br>
-     * {@link BaseJsonValidator#walk(JsonNode, JsonNode, String, boolean)} provides
-     * a default implementation of this method. However keywords that parse
+     * {@link BaseJsonValidator#walk(ExecutionContext, JsonNode, JsonNode, JsonNodePath, boolean)} provides
+     * a default implementation of this method. However validators that parse
      * sub-schemas should override this method to call walk method on those
-     * subschemas.
+     * sub-schemas.
      * 
+     * @param executionContext     ExecutionContext
      * @param node                 JsonNode
      * @param rootNode             JsonNode
-     * @param at                   String
+     * @param instanceLocation     JsonNodePath
      * @param shouldValidateSchema boolean
      * @return a set of validation messages if shouldValidateSchema is true.
      */
-    Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema);
+    Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema);
 }
 
 ```
@@ -41,10 +43,11 @@ The JSONValidator interface extends this new interface thus allowing all the val
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema);
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
         if (shouldValidateSchema) {
-            validationMessages = validate(node, rootNode, at);
+            validationMessages = validate(executionContext, node, rootNode, instanceLocation);
         }
         return validationMessages;
     }
@@ -54,7 +57,7 @@ The JSONValidator interface extends this new interface thus allowing all the val
 A new walk method added to the JSONSchema class allows us to walk through the JSONSchema.
 
 ```java
- public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
+    public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
         // Create the collector context object.
         CollectorContext collectorContext = new CollectorContext();
         // Set the collector context in thread info, this is unique for every thread.
@@ -66,7 +69,7 @@ A new walk method added to the JSONSchema class allows us to walk through the JS
         ValidationResult validationResult = new ValidationResult(errors, collectorContext);
         return validationResult;
     }
-    
+
     @Override
     public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
@@ -174,14 +177,15 @@ Following snippet shows the details captured by WalkEvent instance.
 ```java
 public class WalkEvent {
 
-    private String schemaPath;
+    private ExecutionContext executionContext;
+    private SchemaLocation schemaLocation;
+    private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
-    private String keyWordName;
+    private String keyword;
     private JsonNode node;
     private JsonNode rootNode;
-    private String at;
-
+    private JsonNodePath instanceLocation;
 ```
 
 ### Sample Flow

@@ -37,20 +37,22 @@ public class RefValidator extends BaseJsonValidator {
     private static final String REF_CURRENT = "#";
     private static final String URN_SCHEME = URNURIFactory.SCHEME;
 
-    public RefValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
+    public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
         String refValue = schemaNode.asText();
         this.parentSchema = parentSchema;
-        this.schema = getRefSchema(parentSchema, validationContext, refValue);
+        this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
         if (this.schema == null) {
             ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
                     .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                    .path(schemaPath).schemaPath(schemaPath).arguments(refValue).build();
+                    .instanceLocation(schemaLocation.getFragment()).evaluationPath(schemaLocation.getFragment()).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
     }
 
-    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue) {
+    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+            JsonNodePath evaluationPath) {
+        // The evaluationPath is used to derive the keywordLocation
         final String refValueOriginal = refValue;
 
         JsonSchema parent = parentSchema;
@@ -79,7 +81,7 @@ public class RefValidator extends BaseJsonValidator {
                 }
             } else if (URN_SCHEME.equals(schemaUri.getScheme())) {
                 // Try to resolve URN schema as a JsonSchemaRef to some sub-schema of the parent
-                JsonSchemaRef ref = getJsonSchemaRef(parent, validationContext, schemaUri.toString(), refValueOriginal);
+                JsonSchemaRef ref = getJsonSchemaRef(parent, validationContext, schemaUri.toString(), refValueOriginal, evaluationPath);
                 if (ref != null) {
                     return ref;
                 }
@@ -96,18 +98,33 @@ public class RefValidator extends BaseJsonValidator {
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(parent.findAncestor());
         }
-        return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal);
+        return getJsonSchemaRef(parent, validationContext, refValue, refValueOriginal, evaluationPath);
     }
 
     private static JsonSchemaRef getJsonSchemaRef(JsonSchema parent,
                                                   ValidationContext validationContext,
                                                   String refValue,
-                                                  String refValueOriginal) {
+                                                  String refValueOriginal,
+                                                  JsonNodePath evaluationPath) {
         JsonNode node = parent.getRefSchemaNode(refValue);
         if (node != null) {
             JsonSchemaRef ref = validationContext.getReferenceParsingInProgress(refValueOriginal);
             if (ref == null) {
-                final JsonSchema schema = validationContext.newSchema(refValue, node, parent);
+                SchemaLocation path = null;
+                if (refValue.startsWith(REF_CURRENT)) {
+                    // relative
+                    path = parent.schemaLocation;
+                    JsonNodePath fragment = new JsonNodePath(PathType.JSON_POINTER);
+                    String[] parts = refValue.split("/");
+                    for (int x = 1; x < parts.length; x++) {
+                        fragment = fragment.append(parts[x]);
+                    }
+                    path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(), fragment);
+                } else {
+                    // absolute
+                    path = SchemaLocation.of(refValue); 
+                }
+                final JsonSchema schema = validationContext.newSchema(path, evaluationPath, node, parent);
                 ref = new JsonSchemaRef(schema);
                 validationContext.setReferenceParsingInProgress(refValueOriginal, ref);
             }
@@ -142,20 +159,20 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
-            debug(logger, node, rootNode, at);
+            debug(logger, node, rootNode, instanceLocation);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
             // these schemas will be cached along with config. We have to replace the config for cached $ref references
             // with the latest config. Reset the config.
             this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (this.schema != null) {
-                errors =  this.schema.validate(executionContext, node, rootNode, at);
+                errors =  this.schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
                 errors = Collections.emptySet();
             }
@@ -169,20 +186,20 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         Set<ValidationMessage> errors = new HashSet<>();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
-            debug(logger, node, rootNode, at);
+            debug(logger, node, rootNode, instanceLocation);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
             // these schemas will be cached along with config. We have to replace the config for cached $ref references
             // with the latest config. Reset the config.
             this.schema.getSchema().getValidationContext().setConfig(this.parentSchema.getValidationContext().getConfig());
             if (this.schema != null) {
-                errors = this.schema.walk(executionContext, node, rootNode, at, shouldValidateSchema);
+                errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
             return errors;
         } finally {

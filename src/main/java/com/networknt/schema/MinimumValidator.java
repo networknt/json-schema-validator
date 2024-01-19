@@ -39,8 +39,8 @@ public class MinimumValidator extends BaseJsonValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public MinimumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MINIMUM, validationContext);
+    public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MINIMUM, validationContext);
 
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("minimum value is not a number");
@@ -50,8 +50,6 @@ public class MinimumValidator extends BaseJsonValidator {
         if (exclusiveMinimumNode != null && exclusiveMinimumNode.isBoolean()) {
             excludeEqual = exclusiveMinimumNode.booleanValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
 
         final String minimumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
@@ -114,8 +112,8 @@ public class MinimumValidator extends BaseJsonValidator {
         this.validationContext = validationContext;
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
             // minimum only applies to numbers
@@ -123,8 +121,9 @@ public class MinimumValidator extends BaseJsonValidator {
         }
 
         if (typedMinimum.crossesThreshold(node)) {
-            return Collections.singleton(buildValidationMessage(null, at,
-                    executionContext.getExecutionConfig().getLocale(), typedMinimum.thresholdValue()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(typedMinimum.thresholdValue())
+                    .build());
         }
         return Collections.emptySet();
     }

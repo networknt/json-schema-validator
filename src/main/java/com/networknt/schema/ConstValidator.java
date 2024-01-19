@@ -26,22 +26,23 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ConstValidator.class);
     JsonNode schemaNode;
 
-    public ConstValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONST, validationContext);
+    public ConstValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONST, validationContext);
         this.schemaNode = schemaNode;
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                return Collections.singleton(buildValidationMessage(null,
-                        at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText())
+                        .build());
             }
         } else if (!schemaNode.equals(node)) {
-            return Collections.singleton(
-                    buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), schemaNode.asText()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText()).build());
         }
         return Collections.emptySet();
     }

@@ -41,8 +41,8 @@ public class ContainsValidator extends BaseJsonValidator {
     private int min = 1;
     private int max = Integer.MAX_VALUE;
 
-    public ContainsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
+    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
@@ -50,8 +50,7 @@ public class ContainsValidator extends BaseJsonValidator {
         isMinV201909 = MinV201909.getVersions().contains(SpecVersionDetector.detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(getValidatorType().getValue(), schemaNode, parentSchema);
-
+            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
                     .filter(JsonNode::canConvertToExactIntegral)
@@ -63,25 +62,25 @@ public class ContainsValidator extends BaseJsonValidator {
         } else {
             this.schema = null;
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         // ignores non-arrays
         if (null != this.schema && node.isArray()) {
-            Collection<String> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
 
             int actual = 0, i = 0;
             for (JsonNode n : node) {
-                String path = atPath(at, i);
+                JsonNodePath path = instanceLocation.append(i);
 
                 if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
                     ++actual;
-                    evaluatedItems.add(path);
+                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
+                        evaluatedItems.add(path);
+                    }
                 }
                 ++i;
             }
@@ -91,7 +90,7 @@ public class ContainsValidator extends BaseJsonValidator {
                     updateValidatorType(ValidatorTypeCode.MIN_CONTAINS);
                 }
                 return boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(),
-                        executionContext.getExecutionConfig().getLocale(), at, this.min);
+                        executionContext.getExecutionConfig().getLocale(), instanceLocation, this.min);
             }
 
             if (actual > this.max) {
@@ -99,7 +98,7 @@ public class ContainsValidator extends BaseJsonValidator {
                     updateValidatorType(ValidatorTypeCode.MAX_CONTAINS);
                 }
                 return boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(),
-                        executionContext.getExecutionConfig().getLocale(), at, this.max);
+                        executionContext.getExecutionConfig().getLocale(), instanceLocation, this.max);
             }
         }
 
@@ -111,7 +110,8 @@ public class ContainsValidator extends BaseJsonValidator {
         Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
     }
 
-    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, String at, int bounds) {
-        return Collections.singleton(buildValidationMessage(null, at, messageKey, locale, String.valueOf(bounds), this.schema.getSchemaNode().toString()));
+    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, JsonNodePath instanceLocation, int bounds) {
+        return Collections.singleton(message().instanceLocation(instanceLocation).messageKey(messageKey).locale(locale)
+                .arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString()).build());
     }
 }

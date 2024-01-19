@@ -30,16 +30,14 @@ public class TypeValidator extends BaseJsonValidator {
     private JsonSchema parentSchema;
     private UnionTypeValidator unionTypeValidator;
 
-    public TypeValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
+    public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         this.parentSchema = parentSchema;
         this.validationContext = validationContext;
         if (this.schemaType == JsonType.UNION) {
-            this.unionTypeValidator = new UnionTypeValidator(schemaPath, schemaNode, parentSchema, validationContext);
+            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     public JsonType getSchemaType() {
@@ -51,27 +49,28 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (this.schemaType == JsonType.UNION) {
-            return this.unionTypeValidator.validate(executionContext, node, rootNode, at);
+            return this.unionTypeValidator.validate(executionContext, node, rootNode, instanceLocation);
         }
 
         if (!equalsToSchemaType(node)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-            return Collections.singleton(buildValidationMessage(null, at,
-                    executionContext.getExecutionConfig().getLocale(), nodeType.toString(), this.schemaType.toString()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .arguments(nodeType.toString(), this.schemaType.toString()).build());
         }
 
         // TODO: Is this really necessary?
         // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
         // Hack to catch patternProperties like "^foo":"value"
-        if (this.schemaPath.endsWith("/type")) {
+        if (this.schemaLocation.getFragment().getName(-1).equals("type")) {
             if (rootNode.isArray()) {
-                executionContext.getCollectorContext().getEvaluatedItems().add(at);
+                executionContext.getCollectorContext().getEvaluatedItems().add(instanceLocation);
             } else if (rootNode.isObject()) {
-                executionContext.getCollectorContext().getEvaluatedProperties().add(at);
+                executionContext.getCollectorContext().getEvaluatedProperties().add(instanceLocation);
             }
         }
         return Collections.emptySet();

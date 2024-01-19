@@ -30,22 +30,23 @@ public class AllOfValidator extends BaseJsonValidator {
 
     private final List<JsonSchema> schemas = new ArrayList<>();
 
-    public AllOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
+    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
         this.validationContext = validationContext;
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
-            this.schemas.add(validationContext.newSchema(schemaPath + "/" + i, schemaNode.get(i), parentSchema));
+            this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+                    schemaNode.get(i), parentSchema));
         }
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
-        ValidatorState state = (ValidatorState) collectorContext.get(ValidatorState.VALIDATOR_STATE_KEY);
+        ValidatorState state = executionContext.getValidatorState();
 
         Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<>();
 
@@ -55,9 +56,9 @@ public class AllOfValidator extends BaseJsonValidator {
             Scope parentScope = collectorContext.enterDynamicScope();
             try {
                 if (!state.isWalkEnabled()) {
-                    localErrors = schema.validate(executionContext, node, rootNode, at);
+                    localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
-                    localErrors = schema.walk(executionContext, node, rootNode, at, true);
+                    localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
                 }
 
                 childSchemaErrors.addAll(localErrors);
@@ -74,7 +75,7 @@ public class AllOfValidator extends BaseJsonValidator {
                                 final ObjectNode discriminator = currentDiscriminatorContext
                                         .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
                                 if (null != discriminator) {
-                                    registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, this.parentSchema, at);
+                                    registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, this.parentSchema, instanceLocation);
                                     // now we have to check whether we have hit the right target
                                     final String discriminatorPropertyName = discriminator.get("propertyName").asText();
                                     final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
@@ -105,13 +106,13 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, at);
+            return validate(executionContext, node, rootNode, instanceLocation);
         }
         for (JsonSchema schema : this.schemas) {
             // Walk through the schema
-            schema.walk(executionContext, node, rootNode, at, false);
+            schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
         return Collections.emptySet();
     }

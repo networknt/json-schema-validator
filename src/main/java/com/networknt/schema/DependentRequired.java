@@ -26,9 +26,9 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
     private static final Logger logger = LoggerFactory.getLogger(DependentRequired.class);
     private final Map<String, List<String>> propertyDependencies = new HashMap<String, List<String>>();
 
-    public DependentRequired(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependentRequired(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENT_REQUIRED, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENT_REQUIRED, validationContext);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -41,12 +41,10 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
                 }
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
 
@@ -56,8 +54,9 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
             if (dependencies != null && !dependencies.isEmpty()) {
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
-                        errors.add(buildValidationMessage(pname, at, executionContext.getExecutionConfig().getLocale(),
-                                field, pname));
+                        errors.add(message().property(pname).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale()).arguments(field, pname)
+                                .build());
                     }
                 }
             }

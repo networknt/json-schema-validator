@@ -1,0 +1,32 @@
+[
+    {
+        "description": "object properties validation with required",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "properties": {
+                "foo": {"type": "integer"},
+                "bar": {"type": "string"},
+                "hello": {"type": "string"},
+                "world": {"type": "string"}
+            },
+            "required": [ "bar", "hello", "world" ]
+        },
+        "tests": [
+            {
+                "description": "required hello and world is not present",
+                "data": {"foo": 1, "bar": "baz"},
+                "valid": false
+            },
+            {
+                "description": "one property invalid is invalid",
+                "data": {"foo": 1, "bar": {}, "hello": "v", "world": "b"},
+                "valid": false
+            },
+            {
+                "description": "all valid",
+                "data": {"foo": 1, "bar": "b", "hello": "c", "world": "d"},
+                "valid": true
+            }
+        ]
+    }
+]

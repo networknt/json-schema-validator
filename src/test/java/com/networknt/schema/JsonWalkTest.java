@@ -124,10 +124,10 @@ public class JsonWalkTest {
         }
 
         @Override
-        public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
-                                          ValidationContext validationContext) throws JsonSchemaException {
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                                          JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator();
+                return new CustomValidator(schemaLocation, evaluationPath);
             }
             return null;
         }
@@ -138,21 +138,20 @@ public class JsonWalkTest {
          * This will be helpful in cases where we don't want to revisit the entire JSON
          * document again just for gathering this kind of information.
          */
-        private static class CustomValidator implements JsonValidator {
+        private static class CustomValidator extends AbstractJsonValidator {
+
+            public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+                super(schemaLocation, evaluationPath,null);
+            }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
+            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
                 return new TreeSet<ValidationMessage>();
             }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode rootNode) {
-                return validate(executionContext, rootNode, rootNode, PathType.DEFAULT.getRoot());
-            }
-
-            @Override
             public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                                               String at, boolean shouldValidateSchema) {
+                    JsonNodePath instanceLocation, boolean shouldValidateSchema) {
                 return new LinkedHashSet<ValidationMessage>();
             }
         }
@@ -162,7 +161,7 @@ public class JsonWalkTest {
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
-            String keyWordName = keywordWalkEvent.getKeyWordName();
+            String keyWordName = keywordWalkEvent.getKeyword();
             JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
             CollectorContext collectorContext = keywordWalkEvent.getExecutionContext().getCollectorContext();
             if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {

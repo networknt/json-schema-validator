@@ -27,33 +27,34 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
 
     private List<String> fieldNames = new ArrayList<String>();
 
-    public NotAllowedValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);
+    public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
             for (int i = 0; i < size; i++) {
                 fieldNames.add(schemaNode.get(i).asText());
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = null;
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode != null) {
-                errors.add(buildValidationMessage(fieldName, at, executionContext.getExecutionConfig().getLocale(), fieldName));
+                if (errors == null) {
+                    errors = new LinkedHashSet<>();
+                }
+                errors.add(message().property(fieldName).instanceLocation(instanceLocation.append(fieldName))
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
             }
         }
 
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
 }

@@ -27,36 +27,42 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
 
     private List<String> fieldNames = new ArrayList<String>();
 
-    public RequiredValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
+    public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
         if (schemaNode.isArray()) {
             for (JsonNode fieldNme : schemaNode) {
                 fieldNames.add(fieldNme.asText());
             }
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!node.isObject()) {
             return Collections.emptySet();
         }
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = null;
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode == null) {
-                errors.add(buildValidationMessage(fieldName, at, executionContext.getExecutionConfig().getLocale(), fieldName));
+                if (errors == null) {
+                    errors = new LinkedHashSet<>();
+                }
+                /**
+                 * Note that for the required validation the instanceLocation does not contain the missing property
+                 * <p>
+                 * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
+                 */
+                errors.add(message().property(fieldName).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
             }
         }
 
-        return Collections.unmodifiableSet(errors);
+        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
 }

@@ -2,8 +2,10 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationContext;
 
@@ -15,13 +17,14 @@ import java.net.URI;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private String schemaPath;
+    private SchemaLocation schemaLocation;
+    private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
     private JsonSchema parentSchema;
-    private String keyWordName;
+    private String keyword;
     private JsonNode node;
     private JsonNode rootNode;
-    private String at;
+    private JsonNodePath instanceLocation;
     private JsonSchemaFactory currentJsonSchemaFactory;
     private ValidationContext validationContext;
 
@@ -29,8 +32,12 @@ public class WalkEvent {
         return executionContext;
     }
 
-    public String getSchemaPath() {
-        return schemaPath;
+    public SchemaLocation getSchemaLocation() {
+        return schemaLocation;
+    }
+    
+    public JsonNodePath getEvaluationPath() {
+        return evaluationPath;
     }
 
     public JsonNode getSchemaNode() {
@@ -41,8 +48,8 @@ public class WalkEvent {
         return parentSchema;
     }
 
-    public String getKeyWordName() {
-        return keyWordName;
+    public String getKeyword() {
+        return keyword;
     }
 
     public JsonNode getNode() {
@@ -53,8 +60,8 @@ public class WalkEvent {
         return rootNode;
     }
 
-    public String getAt() {
-        return at;
+    public JsonNodePath getInstanceLocation() {
+        return instanceLocation;
     }
 
     public JsonSchema getRefSchema(URI schemaUri) {
@@ -73,6 +80,12 @@ public class WalkEvent {
         return currentJsonSchemaFactory;
     }
 
+    @Override
+    public String toString() {
+        return "WalkEvent [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
+                + ", instanceLocation=" + instanceLocation + "]";
+    }
+
     static class WalkEventBuilder {
 
         private WalkEvent walkEvent;
@@ -86,8 +99,13 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schemaPath(String schemaPath) {
-            walkEvent.schemaPath = schemaPath;
+        public WalkEventBuilder evaluationPath(JsonNodePath evaluationPath) {
+            walkEvent.evaluationPath = evaluationPath;
+            return this;
+        }
+
+        public WalkEventBuilder schemaLocation(SchemaLocation schemaLocation) {
+            walkEvent.schemaLocation = schemaLocation;
             return this;
         }
 
@@ -101,8 +119,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder keyWordName(String keyWordName) {
-            walkEvent.keyWordName = keyWordName;
+        public WalkEventBuilder keyword(String keyword) {
+            walkEvent.keyword = keyword;
             return this;
         }
 
@@ -116,8 +134,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder at(String at) {
-            walkEvent.at = at;
+        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
+            walkEvent.instanceLocation = instanceLocation;
             return this;
         }
 

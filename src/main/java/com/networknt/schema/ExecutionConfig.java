@@ -18,12 +18,14 @@ package com.networknt.schema;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Configuration per execution.
  */
 public class ExecutionConfig {
     private Locale locale = Locale.ROOT;
+    private Predicate<String> annotationAllowedPredicate = (keyword) -> true;
 
     public Locale getLocale() {
         return locale;
@@ -33,4 +35,53 @@ public class ExecutionConfig {
         this.locale = Objects.requireNonNull(locale, "Locale must not be null");
     }
 
+    /**
+     * Gets the predicate to determine if annotation collection is allowed for a
+     * particular keyword.
+     * <p>
+     * The default value is to allow annotation collection.
+     * <p>
+     * Setting this to return false improves performance but keywords such as
+     * unevaluatedItems and unevaluatedProperties will fail to evaluate properly.
+     * <p>
+     * This will also affect reporting if annotations need to be in the output
+     * format.
+     * <p>
+     * unevaluatedProperties depends on properties, patternProperties and
+     * additionalProperties.
+     * <p>
+     * unevaluatedItems depends on items/prefixItems, additionalItems/items and
+     * contains.
+     * 
+     * @return the predicate to determine if annotation collection is allowed for
+     *         the keyword
+     */
+    public Predicate<String> getAnnotationAllowedPredicate() {
+        return annotationAllowedPredicate;
+    }
+
+    /**
+     * Predicate to determine if annotation collection is allowed for a particular
+     * keyword.
+     * <p>
+     * The default value is to allow annotation collection.
+     * <p>
+     * Setting this to return false improves performance but keywords such as
+     * unevaluatedItems and unevaluatedProperties will fail to evaluate properly.
+     * <p>
+     * This will also affect reporting if annotations need to be in the output
+     * format.
+     * <p>
+     * unevaluatedProperties depends on properties, patternProperties and
+     * additionalProperties.
+     * <p>
+     * unevaluatedItems depends on items/prefixItems, additionalItems/items and
+     * contains.
+     * 
+     * @param annotationAllowedPredicate the predicate accepting the keyword
+     */
+    public void setAnnotationAllowedPredicate(Predicate<String> annotationAllowedPredicate) {
+        this.annotationAllowedPredicate = Objects.requireNonNull(annotationAllowedPredicate,
+                "annotationAllowedPredicate must not be null");
+    }
 }

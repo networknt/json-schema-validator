@@ -30,8 +30,8 @@ public class PatternValidator extends BaseJsonValidator {
     private String pattern;
     private RegularExpression compiledPattern;
 
-    public PatternValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);
+    public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
         try {
@@ -42,7 +42,6 @@ public class PatternValidator extends BaseJsonValidator {
             throw e;
         }
         this.validationContext = validationContext;
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     private boolean matches(String value) {
@@ -50,8 +49,8 @@ public class PatternValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
@@ -60,13 +59,13 @@ public class PatternValidator extends BaseJsonValidator {
 
         try {
             if (!matches(node.asText())) {
-                return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), this.pattern));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.pattern).build());
             }
         } catch (JsonSchemaException e) {
             throw e;
         } catch (RuntimeException e) {
-            logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, at, e.getMessage());
+            logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, instanceLocation, e.getMessage());
             throw e;
         }
 

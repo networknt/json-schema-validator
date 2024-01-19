@@ -13,19 +13,19 @@ public class WriteOnlyValidator extends BaseJsonValidator {
 
     private final boolean writeOnly;
 
-    public WriteOnlyValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.WRITE_ONLY, validationContext);
+    public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.WRITE_ONLY, validationContext);
 
         this.writeOnly = validationContext.getConfig().isWriteOnly();
         logger.debug("Loaded WriteOnlyValidator for property {} as {}", parentSchema, "write mode");
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         if (this.writeOnly) {
-            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).build());
         } 
         return Collections.emptySet();
     }

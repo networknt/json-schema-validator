@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue662Test extends BaseJsonSchemaValidatorTest {
@@ -41,17 +40,18 @@ public class Issue662Test extends BaseJsonSchemaValidatorTest {
         JsonNode node = getJsonNodeFromClasspath(resource("objectInvalidValue.json"));
         Set<ValidationMessage> errors = schema.validate(node);
         List<String> errorMessages = errors.stream()
-            .map(ValidationMessage::getMessage)
+            .map(v -> v.getEvaluationPath() + " = " + v.getMessage())
             .collect(toList());
 
-        assertTrue(
-            errorMessages.contains("$.optionalObject.value: does not have a value in the enumeration [one, two]"),
-            "Validation error for invalid object property is captured"
-        );
-        assertFalse(
-            errorMessages.contains("$.optionalObject: object found, null expected"),
-            "No validation error that the object is not expected"
-        );
+        // As this is from an anyOf evaluation both error messages should be present as they didn't match any
+        // The evaluation cannot be expected to know the semantic meaning that this is an optional object
+        // The evaluation path can be used to provide clarity on the reason
+        // Omitting the 'object found, null expected' message also provides the misleading impression that the
+        // object is required when leaving it empty is a possible option
+        assertTrue(errorMessages
+                .contains("$.properties.optionalObject.anyOf[0].type = $.optionalObject: object found, null expected"));
+        assertTrue(errorMessages.contains(
+                "$.properties.optionalObject.anyOf[1].properties.value.enum = $.optionalObject.value: does not have a value in the enumeration [one, two]"));
     }
 
     private static String resource(String name) {

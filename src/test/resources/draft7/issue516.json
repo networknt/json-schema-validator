@@ -121,22 +121,22 @@
         "validationMessages": [
           "$.activities[0]: should be valid to one and only one schema, but 0 are valid",
           "$.activities[0].age: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[0].chemicalCharacteristic: is missing but it is required",
+          "$.activities[0]: required property 'chemicalCharacteristic' not found",
           "$.activities[0].height: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[0].weight: is missing but it is required",
+          "$.activities[0]: required property 'weight' not found",
           "$.activities[1]: should be valid to one and only one schema, but 0 are valid",
           "$.activities[1].chemicalCharacteristic: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[1].height: is missing but it is required",
+          "$.activities[1]: required property 'height' not found",
           "$.activities[1].toxic: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[1].weight: is missing but it is required",
+          "$.activities[1]: required property 'weight' not found",
           "$.activities[2]: should be valid to one and only one schema, but 0 are valid",
           "$.activities[2].chemicalCharacteristic: is not defined in the schema and the schema does not allow additional properties",
           "$.activities[2].chemicalCharacteristic: should be valid to one and only one schema, but 0 are valid",
           "$.activities[2].chemicalCharacteristic.categoryName: is not defined in the schema and the schema does not allow additional properties",
           "$.activities[2].chemicalCharacteristic.name: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[2].height: is missing but it is required",
+          "$.activities[2]: required property 'height' not found",
           "$.activities[2].toxic: is not defined in the schema and the schema does not allow additional properties",
-          "$.activities[2].weight: is missing but it is required"
+          "$.activities[2]: required property 'weight' not found"
         ]
       }
     ]

@@ -29,19 +29,19 @@ public class ReadOnlyValidator extends BaseJsonValidator {
 
     private final boolean readOnly;
 
-    public ReadOnlyValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.READ_ONLY, validationContext);
+    public ReadOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.READ_ONLY, validationContext);
 
         this.readOnly = validationContext.getConfig().isReadOnly();
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
         if (this.readOnly) {
-            return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).build());
         }
         return Collections.emptySet();
     }

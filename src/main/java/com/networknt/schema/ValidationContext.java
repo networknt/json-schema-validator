@@ -54,13 +54,13 @@ public class ValidationContext {
         this.config = config;
     }
 
-    public JsonSchema newSchema(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema) {
-        return getJsonSchemaFactory().create(this, schemaPath, schemaNode, parentSchema);
+    public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+        return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public JsonValidator newValidator(String schemaPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema, Map<String, String> customMessage) {
-        return this.metaSchema.newValidator(this, schemaPath, keyword, schemaNode, parentSchema, customMessage);
+    public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+            String keyword /* keyword */, JsonNode schemaNode, JsonSchema parentSchema) {
+        return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
@@ -105,11 +105,11 @@ public class ValidationContext {
         return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
     }
 
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") String at) {
+    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
         this.discriminatorContexts.push(ctx);
     }
 
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") String at) {
+    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
         this.discriminatorContexts.pop();
     }
 
@@ -127,12 +127,16 @@ public class ValidationContext {
 
         private boolean discriminatorMatchFound = false;
 
-        public void registerDiscriminator(final String schemaPath, final ObjectNode discriminator) {
-            this.discriminators.put(schemaPath, discriminator);
+        public void registerDiscriminator(final SchemaLocation schemaLocation, final ObjectNode discriminator) {
+            this.discriminators.put("#" + schemaLocation.getFragment().toString(), discriminator);
         }
 
-        public ObjectNode getDiscriminatorForPath(final String schemaPath) {
-            return this.discriminators.get(schemaPath);
+        public ObjectNode getDiscriminatorForPath(final SchemaLocation schemaLocation) {
+            return this.discriminators.get("#" + schemaLocation.getFragment().toString());
+        }
+
+        public ObjectNode getDiscriminatorForPath(final String schemaLocation) {
+            return this.discriminators.get(schemaLocation);
         }
 
         public void markMatch() {

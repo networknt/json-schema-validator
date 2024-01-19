@@ -1,0 +1,18 @@
+{
+  "$id": "https://example.com/polygon",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "point": {
+      "type": "object",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      },
+      "additionalProperties": false,
+      "required": [ "x", "y" ]
+    }
+  },
+  "type": "array",
+  "items": { "$ref": "#/$defs/point" },
+  "minItems": 3
+}

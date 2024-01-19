@@ -36,8 +36,8 @@ public class MaximumValidator extends BaseJsonValidator {
     private final ThresholdMixin typedMaximum;
 
 
-    public MaximumValidator(String schemaPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
+    public MaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
         this.validationContext = validationContext;
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("maximum value is not a number");
@@ -47,8 +47,6 @@ public class MaximumValidator extends BaseJsonValidator {
         if (exclusiveMaximumNode != null && exclusiveMaximumNode.isBoolean()) {
             excludeEqual = exclusiveMaximumNode.booleanValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
 
         final String maximumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
@@ -107,8 +105,8 @@ public class MaximumValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
             // maximum only applies to numbers
@@ -116,8 +114,9 @@ public class MaximumValidator extends BaseJsonValidator {
         }
 
         if (typedMaximum.crossesThreshold(node)) {
-            return Collections.singleton(buildValidationMessage(null, at,
-                    executionContext.getExecutionConfig().getLocale(), typedMaximum.thresholdValue()));
+            return Collections.singleton(message().instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(typedMaximum.thresholdValue())
+                    .build());
         }
         return Collections.emptySet();
     }

@@ -29,18 +29,15 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
 
     private double divisor = 0;
 
-    public MultipleOfValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MULTIPLE_OF, validationContext);
+    public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MULTIPLE_OF, validationContext);
         if (schemaNode.isNumber()) {
             divisor = schemaNode.doubleValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isNumber()) {
             double nodeValue = node.doubleValue();
@@ -49,8 +46,8 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
                 BigDecimal accurateDividend = node.isBigDecimal() ? node.decimalValue() : new BigDecimal(String.valueOf(nodeValue));
                 BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
                 if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
-                    return Collections.singleton(buildValidationMessage(null,
-                            at, executionContext.getExecutionConfig().getLocale(), "" + divisor));
+                    return Collections.singleton(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale()).arguments(divisor).build());
                 }
             }
         }

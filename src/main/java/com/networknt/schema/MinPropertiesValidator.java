@@ -28,23 +28,21 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
 
     protected int min;
 
-    public MinPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                   ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isObject()) {
             if (node.size() < min) {
-                return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + min));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min).build());
             }
         }
 

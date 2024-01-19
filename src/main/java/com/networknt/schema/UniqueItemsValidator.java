@@ -29,23 +29,22 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
 
     private boolean unique = false;
 
-    public UniqueItemsValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
+    public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (unique) {
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
-                    return Collections.singleton(buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale()));
+                    return Collections.singleton(message().instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale()).build());
                 }
             }
         }

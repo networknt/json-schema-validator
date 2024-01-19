@@ -28,23 +28,21 @@ public class MaxPropertiesValidator extends BaseJsonValidator implements JsonVal
 
     private int max;
 
-    public MaxPropertiesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                   ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_PROPERTIES, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_PROPERTIES, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         }
-
-        parseErrorCode(getValidatorType().getErrorCodeKey());
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (node.isObject()) {
             if (node.size() > max) {
-                return Collections.singleton(
-                        buildValidationMessage(null, at, executionContext.getExecutionConfig().getLocale(), "" + max));
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
             }
         }
 

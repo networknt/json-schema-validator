@@ -29,27 +29,27 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class PropertyNamesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
     private final JsonSchema innerSchema;
-    public PropertyNamesValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
-        innerSchema = validationContext.newSchema(schemaPath, schemaNode, parentSchema);
+    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
+        innerSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, String at) {
-        debug(logger, node, rootNode, at);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             final String pname = it.next();
             final TextNode pnameText = TextNode.valueOf(pname);
-            final Set<ValidationMessage> schemaErrors = innerSchema.validate(executionContext, pnameText, node, atPath(at, pname));
+            final Set<ValidationMessage> schemaErrors = innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
             for (final ValidationMessage schemaError : schemaErrors) {
-                final String path = schemaError.getPath();
+                final String path = schemaError.getInstanceLocation().toString();
                 String msg = schemaError.getMessage();
                 if (msg.startsWith(path))
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
 
-                errors.add(buildValidationMessage(pname,
-                        schemaError.getPath(), executionContext.getExecutionConfig().getLocale(), msg));
+                errors.add(message().property(pname).instanceLocation(schemaError.getInstanceLocation())
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(msg).build());
             }
         }
         return Collections.unmodifiableSet(errors);

@@ -41,13 +41,13 @@ public class FormatKeyword implements Keyword {
     }
 
     @Override
-    public JsonValidator newValidator(String schemaPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         Format format = null;
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = this.formats.get(formatName);
             if (format != null) {
-                return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format, type);
+                return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, type);
             }
 
             switch (formatName) {
@@ -57,23 +57,16 @@ public class FormatKeyword implements Keyword {
 
                 case DATE_TIME: {
                     ValidatorTypeCode typeCode = ValidatorTypeCode.DATETIME;
-                    // Set custom error message
-                    typeCode.setCustomMessage(this.type.getCustomMessage());
-                    return new DateTimeValidator(schemaPath, schemaNode, parentSchema, validationContext, typeCode);
+                    return new DateTimeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, typeCode);
                 }
             }
         }
 
-        return new FormatValidator(schemaPath, schemaNode, parentSchema, validationContext, format, this.type);
+        return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, this.type);
     }
 
     @Override
     public String getValue() {
         return this.type.getValue();
-    }
-
-    @Override
-    public void setCustomMessage(Map<String, String> message) {
-        this.type.setCustomMessage(message);
     }
 }
