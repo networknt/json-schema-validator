@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.2.0 - 2024-01-19
+
+### Added
+
+### Changed
+
+- fixes #913 Update docs on CollectorContext. Thanks @mjustin-tay
+- fixes #910 Refactor validation message generation. Thanks @justin-tay
+- fixes #923 Basic test on URI create to improve coverage. Thanks @pradoshtnair
+- fixes #915 Refactor of paths. Thanks @justin-tay
+- fixes #922 Support schema resource. Thanks @justin-tay
+
+### Upgrade Guide
+
+With #915 and #922 implemented, it breaks the API. Users code might need to change in order to move to this version.
+
 ## 1.1.0 - 2023-12-15
 
 ### Added
