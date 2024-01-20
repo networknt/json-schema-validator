@@ -105,13 +105,22 @@ public class AbsoluteIri {
                 } else {
                     scheme = scheme + 3;
                 }
-                int slash = parent.lastIndexOf('/');
-                if (slash != -1 && slash > scheme) {
-                    base = parent.substring(0, slash);
+                base = parent(base, scheme);
+                while (iri.startsWith("../")) {
+                    base = parent(base, scheme);
+                    iri = iri.substring(3);
                 }
                 return base + "/" + iri;
             }
         }
+    }
+    
+    protected static String parent(String iri, int scheme) {
+        int slash = iri.lastIndexOf('/');
+        if (slash != -1 && slash > scheme) {
+            return iri.substring(0, slash);
+        }
+        return iri;
     }
 
     /**

@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ValidationContext.DiscriminatorContext;
 import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
@@ -69,6 +68,20 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                         : PathType.DEFAULT;
     }
 
+    /**
+     * Copy constructor.
+     * 
+     * @param copy to copy from
+     */
+    protected BaseJsonValidator(BaseJsonValidator copy) {
+        super(copy);
+        this.suppressSubSchemaRetrieval = copy.suppressSubSchemaRetrieval;
+        this.applyDefaultsStrategy = copy.applyDefaultsStrategy;
+        this.pathType = copy.pathType;
+        this.schemaNode = copy.schemaNode;
+        this.validationContext = copy.validationContext;
+    }
+
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
 
@@ -112,7 +125,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param discriminatorPropertyValue  the value of the <code>discriminator/propertyName</code> field
      * @param jsonSchema                  the {@link JsonSchema} to check
      */
-    protected static void checkDiscriminatorMatch(final ValidationContext.DiscriminatorContext currentDiscriminatorContext,
+    protected static void checkDiscriminatorMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                   final ObjectNode discriminator,
                                                   final String discriminatorPropertyValue,
                                                   final JsonSchema jsonSchema) {
@@ -247,6 +260,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     public JsonSchema getParentSchema() {
         return this.parentSchema;
+    }
+
+    public JsonSchema getEvaluationParentSchema() {
+        if (this.evaluationParentSchema != null) {
+            return this.evaluationParentSchema;
+        }
+        return getParentSchema();
     }
 
     protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {

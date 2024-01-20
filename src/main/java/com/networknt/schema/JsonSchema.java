@@ -20,14 +20,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationContext.DiscriminatorContext;
-import com.networknt.schema.utils.StringUtils;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -57,11 +54,13 @@ public class JsonSchema extends BaseJsonValidator {
      * 'id' would still be able to specify an absolute uri.
      */
     private URI currentUri;
-    private boolean hasId = false;
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
 
     WalkListenerRunner keywordWalkListenerRunner = null;
+
+    private final String id;
+    private final String anchor;
 
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
@@ -74,22 +73,90 @@ public class JsonSchema extends BaseJsonValidator {
         this.validationContext = validationContext;
         this.metaSchema = validationContext.getMetaSchema();
         this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
-        if (uriRefersToSubschema(currentUri, schemaLocation)) {
-            updateThisAsSubschema(currentUri);
+        initializeConfig();
+        this.id = validationContext.resolveSchemaId(this.schemaNode);
+        this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
+        if (this.id != null) {
+            this.validationContext.getSchemaResources()
+                    .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
         }
+        if (this.anchor != null) {
+            this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString() + "#" + anchor, this);
+        }
+        getValidators();
+    }
+    
+    private void initializeConfig() {
         if (validationContext.getConfig() != null) {
-            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(this.validationContext.getConfig().getKeywordWalkListenersMap());
-            if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-                if (null != discriminator && null != validationContext.getCurrentDiscriminatorContext()) {
-                    validationContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation, discriminator);
-                }
-            }
+            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(
+                    this.validationContext.getConfig().getKeywordWalkListenersMap());
         }
     }
 
-    public JsonSchema createChildSchema(SchemaLocation schemaLocation, JsonNode schemaNode) {
-        return getValidationContext().newSchema(schemaLocation, evaluationPath, schemaNode, this);
+    /**
+     * Copy constructor.
+     * 
+     * @param copy to copy from
+     */
+    protected JsonSchema(JsonSchema copy) {
+        super(copy);
+        this.validators = copy.validators;
+        this.metaSchema = copy.metaSchema;
+        this.validatorsLoaded = copy.validatorsLoaded;
+        this.dynamicAnchor = copy.dynamicAnchor;
+        this.currentUri = copy.currentUri;
+        this.requiredValidator = copy.requiredValidator;
+        this.typeValidator = copy.typeValidator;
+        this.keywordWalkListenerRunner = copy.keywordWalkListenerRunner;
+        this.id = copy.id;
+        this.anchor = copy.anchor;
+    }
+
+    /**
+     * Creates a schema using the current one as a template with the parent as the
+     * ref.
+     * <p>
+     * This is typically used if this schema is a schema resource that can be
+     * pointed to by various references.
+     *
+     * @param refEvaluationParentSchema the parent ref
+     * @param refEvaluationPath the ref evaluation path
+     * @return the schema
+     */
+    public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
+        JsonSchema copy = new JsonSchema(this);
+        copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
+                copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+                copy.getValidationContext().getJsonSchemaFactory(),
+                refEvaluationParentSchema.validationContext.getConfig(),
+                copy.getValidationContext().getSchemaReferences(), copy.getValidationContext().getSchemaResources());
+        copy.evaluationPath = refEvaluationPath;
+        copy.evaluationParentSchema = refEvaluationParentSchema;
+        // Validator state is reset due to the changes in evaluation path
+        copy.validatorsLoaded = false;
+        copy.requiredValidator = null;
+        copy.typeValidator = null;
+        copy.validators = null;
+        copy.initializeConfig();
+        return copy;
+    }
+
+    public JsonSchema withConfig(SchemaValidatorsConfig config) {
+        if (!this.getValidationContext().getConfig().equals(config)) {
+            JsonSchema copy = new JsonSchema(this);
+            copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
+                    copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+                    copy.getValidationContext().getJsonSchemaFactory(), config,
+                    copy.getValidationContext().getSchemaReferences(),
+                    copy.getValidationContext().getSchemaResources());
+            copy.validatorsLoaded = false;
+            copy.requiredValidator = null;
+            copy.typeValidator = null;
+            copy.validators = null;
+            copy.initializeConfig();
+            return copy;
+        }
+        return this;
     }
 
     ValidationContext getValidationContext() {
@@ -120,36 +187,7 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     private static boolean isUriFragmentWithNoContext(URI currentUri, String id) {
-        return id.startsWith("#") && currentUri == null;
-    }
-
-    private static boolean uriRefersToSubschema(URI originalUri, SchemaLocation schemaLocation) {
-        return originalUri != null
-            && StringUtils.isNotBlank(originalUri.getRawFragment())  // Original currentUri parameter has a fragment, so it refers to a subschema
-            && (schemaLocation.getFragment().getNameCount() == 0); // We aren't already in a subschema
-    }
-
-    /**
-     * Creates a new parent schema from the current state and updates this object to refer to the subschema instead.
-     */
-    private void updateThisAsSubschema(URI originalUri) {
-        String fragment = "#" + originalUri.getFragment();
-        JsonNode fragmentSchemaNode = getRefSchemaNode(fragment);
-        if (fragmentSchemaNode == null) {
-            throw new JsonSchemaException("Fragment " + fragment + " cannot be resolved");
-        }
-        // We need to strip the fragment off of the new parent schema's currentUri, so that its constructor
-        // won't also end up in this method and get stuck in an infinite recursive loop.
-        URI currentUriWithoutFragment;
-        try {
-            currentUriWithoutFragment = new URI(this.currentUri.getScheme(), this.currentUri.getSchemeSpecificPart(), null);
-        } catch (URISyntaxException ex) {
-            throw new JsonSchemaException("Unable to create URI without fragment from " + this.currentUri + ": " + ex.getMessage());
-        }
-        this.parentSchema = new JsonSchema(this.validationContext, SchemaLocation.of(currentUriWithoutFragment.toString()), this.evaluationPath, currentUriWithoutFragment, this.schemaNode, this.parentSchema, super.suppressSubSchemaRetrieval); // TODO: Should this be delegated to the factory?
-        this.schemaLocation = SchemaLocation.of(originalUri.toString());
-        this.schemaNode = fragmentSchemaNode;
-        this.currentUri = combineCurrentUriWithIds(this.currentUri, fragmentSchemaNode);
+        return id.startsWith("#") && (currentUri == null || currentUri.toString().startsWith("#"));
     }
 
     public URI getCurrentUri() {
@@ -163,12 +201,16 @@ public class JsonSchema extends BaseJsonValidator {
      * @return JsonNode
      */
     public JsonNode getRefSchemaNode(String ref) {
-        JsonSchema schema = findAncestor();
+        JsonSchema schema = findSchemaResourceRoot();
         JsonNode node = schema.getSchemaNode();
 
         String jsonPointer = ref;
+        if (schema.getId() != null && ref.startsWith(schema.getId())) {
+            String refValue = ref.substring(schema.getId().length());
+            jsonPointer = refValue;
+        }
         if (jsonPointer.startsWith("#/")) {
-            jsonPointer = ref.substring(1);
+            jsonPointer = jsonPointer.substring(1);
         }
 
         if (jsonPointer.startsWith("/")) {
@@ -192,14 +234,67 @@ public class JsonSchema extends BaseJsonValidator {
         return node;
     }
 
-    // This represents the lexical scope
-    JsonSchema findLexicalRoot() {
+    public JsonSchema findLexicalRoot() {
         JsonSchema ancestor = this;
-        while (!ancestor.hasId) {
+        while (ancestor.getId() == null) {
             if (null == ancestor.getParentSchema()) break;
             ancestor = ancestor.getParentSchema();
         }
         return ancestor;
+    }
+
+    /**
+     * Finds the root of the schema resource.
+     * <p>
+     * This is either the schema document root or the subschema resource root.
+     *
+     * @return the root of the schema
+     */
+    public JsonSchema findSchemaResourceRoot() {
+        JsonSchema ancestor = this;
+        while (!ancestor.isSchemaResourceRoot()) {
+            ancestor = ancestor.getParentSchema();
+        }
+        return ancestor;
+    }
+
+    /**
+     * Determines if this schema resource is a schema resource root.
+     * <p>
+     * This is either the schema document root or the subschema resource root.
+     *
+     * @return if this schema is a schema resource root
+     */
+    public boolean isSchemaResourceRoot() {
+        if (getId() != null) {
+            return true;
+        }
+        if (getParentSchema() == null) {
+            return true;
+        }
+        // The schema should not cross
+        if (getCurrentUri() != null && getParentSchema().getCurrentUri() == null) {
+            return true;
+        }
+        if (getCurrentUri() == null && getParentSchema().getCurrentUri() != null) {
+            return true;
+        }
+        if (getCurrentUri() != null && getParentSchema().getCurrentUri() != null) {
+            if (!Objects.equals(getCurrentUri().getScheme(), getParentSchema().getCurrentUri().getScheme())) {
+                return true;
+            }
+            if (!Objects.equals(getCurrentUri().getHost(), getParentSchema().getCurrentUri().getHost())) {
+                return true;
+            }
+            if (!Objects.equals(getCurrentUri().getPath(), getParentSchema().getCurrentUri().getPath())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getId() {
+        return this.id;
     }
 
     public JsonSchema findAncestor() {
@@ -217,7 +312,7 @@ public class JsonSchema extends BaseJsonValidator {
         }
         return null;
     }
-
+    
     /**
      * Please note that the key in {@link #validators} map is the evaluation path.
      */
@@ -236,9 +331,6 @@ public class JsonSchema extends BaseJsonValidator {
                 validators.add(validator);
             }
         } else {
-
-            this.hasId = schemaNode.has(this.validationContext.getMetaSchema().getIdKeyword());
-
             JsonValidator refValidator = null;
 
             Iterator<String> pnames = schemaNode.fieldNames();
@@ -326,6 +418,14 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
+        if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
+            if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
+                executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
+                        discriminator);
+            }
+        }
+
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = null;
         // Get the collector context.
@@ -364,7 +464,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (config.isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
-                final DiscriminatorContext discriminatorContext = this.validationContext
+                final DiscriminatorContext discriminatorContext = executionContext
                         .getCurrentDiscriminatorContext();
                 if (null != discriminatorContext) {
                     final ObjectNode discriminatorToUse;

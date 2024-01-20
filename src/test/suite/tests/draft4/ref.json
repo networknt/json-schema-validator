@@ -198,7 +198,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -301,7 +301,7 @@
                 }
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -436,7 +436,7 @@
                 }
             }
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
@@ -497,7 +497,7 @@
                 }
             ]
         },
-        "disabled": true,
+        "disabled": false,
         "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {

@@ -226,6 +226,14 @@ public class JsonMetaSchema {
         return readText(schemaNode, this.idKeyword);
     }
 
+    public String readAnchor(JsonNode schemaNode) {
+        boolean supportsAnchor = this.keywords.containsKey("$anchor");
+        if (supportsAnchor) {
+            return readText(schemaNode, "$anchor");
+        }
+        return null;
+    }
+
     public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
         boolean supportsAnchor = this.keywords.containsKey("$anchor");
         String refName = supportsAnchor ? ref.substring(1) : ref;

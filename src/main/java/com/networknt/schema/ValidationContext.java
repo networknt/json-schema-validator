@@ -16,13 +16,12 @@
 
 package com.networknt.schema;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URI;
 import java.util.Optional;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.uri.URIFactory;
 import com.networknt.schema.urn.URNFactory;
@@ -32,12 +31,19 @@ public class ValidationContext {
     private final URNFactory urnFactory;
     private final JsonMetaSchema metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
-    private SchemaValidatorsConfig config;
-    private final Map<String, JsonSchemaRef> refParsingInProgress = new HashMap<>();
-    private final Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
+    private final SchemaValidatorsConfig config;
+    private final ConcurrentMap<String, JsonSchema> schemaReferences;
+    private final ConcurrentMap<String, JsonSchema> schemaResources;
 
     public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
-                             JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+        this(uriFactory, urnFactory, metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(),
+                new ConcurrentHashMap<>());
+    }
+
+    public ValidationContext(URIFactory uriFactory, URNFactory urnFactory, JsonMetaSchema metaSchema,
+            JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config,
+            ConcurrentMap<String, JsonSchema> schemaReferences, ConcurrentMap<String, JsonSchema> schemaResources) {
         if (uriFactory == null) {
             throw new IllegalArgumentException("URIFactory must not be null");
         }
@@ -51,11 +57,17 @@ public class ValidationContext {
         this.urnFactory = urnFactory;
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
-        this.config = config;
+        this.config = config == null ? new SchemaValidatorsConfig() : config;
+        this.schemaReferences = schemaReferences;
+        this.schemaResources = schemaResources;
     }
 
     public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
         return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
+    }
+
+    public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema) {
+        return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema);
     }
 
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
@@ -80,37 +92,25 @@ public class ValidationContext {
     }
 
     public SchemaValidatorsConfig getConfig() {
-        if (this.config == null) {
-            this.config = new SchemaValidatorsConfig();
-        }
         return this.config;
     }
 
-    public void setConfig(SchemaValidatorsConfig config) {
-        this.config = config;
+    /**
+     * Gets the schema references identified by the ref uri.
+     *
+     * @return the schema references
+     */
+    public ConcurrentMap<String, JsonSchema> getSchemaReferences() {
+        return this.schemaReferences;
     }
 
-    public void setReferenceParsingInProgress(String refValue, JsonSchemaRef ref) {
-        this.refParsingInProgress.put(refValue, ref);
-    }
-
-    public JsonSchemaRef getReferenceParsingInProgress(String refValue) {
-        return this.refParsingInProgress.get(refValue);
-    }
-
-    public DiscriminatorContext getCurrentDiscriminatorContext() {
-        if (!this.discriminatorContexts.empty()) {
-            return this.discriminatorContexts.peek();
-        }
-        return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
-    }
-
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
-        this.discriminatorContexts.push(ctx);
-    }
-
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
-        this.discriminatorContexts.pop();
+    /**
+     * Gets the schema resources identified by id.
+     *
+     * @return the schema resources
+     */
+    public ConcurrentMap<String, JsonSchema> getSchemaResources() {
+        return this.schemaResources;
     }
 
     public JsonMetaSchema getMetaSchema() {
@@ -120,40 +120,5 @@ public class ValidationContext {
     public Optional<VersionFlag> activeDialect() {
         String metaSchema = getMetaSchema().getUri();
         return SpecVersionDetector.detectOptionalVersion(metaSchema);
-    }
-
-    public static class DiscriminatorContext {
-        private final Map<String, ObjectNode> discriminators = new HashMap<>();
-
-        private boolean discriminatorMatchFound = false;
-
-        public void registerDiscriminator(final SchemaLocation schemaLocation, final ObjectNode discriminator) {
-            this.discriminators.put("#" + schemaLocation.getFragment().toString(), discriminator);
-        }
-
-        public ObjectNode getDiscriminatorForPath(final SchemaLocation schemaLocation) {
-            return this.discriminators.get("#" + schemaLocation.getFragment().toString());
-        }
-
-        public ObjectNode getDiscriminatorForPath(final String schemaLocation) {
-            return this.discriminators.get(schemaLocation);
-        }
-
-        public void markMatch() {
-            this.discriminatorMatchFound = true;
-        }
-
-        public boolean isDiscriminatorMatchFound() {
-            return this.discriminatorMatchFound;
-        }
-
-        /**
-         * Returns true if we have a discriminator active. In this case no valid match in anyOf should lead to validation failure
-         *
-         * @return true in case there are discriminator candidates
-         */
-        public boolean isActive() {
-            return !this.discriminators.isEmpty();
-        }
     }
 }

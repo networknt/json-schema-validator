@@ -64,6 +64,12 @@ class AbsoluteIriTest {
     }
 
     @Test
+    void relativeParentWithSchemeSpecificPart() {
+        AbsoluteIri iri = new AbsoluteIri("classpath:resource/hello/world/testing.json");
+        assertEquals("classpath:resource/test.json", iri.resolve("../../test.json").toString());
+    }
+
+    @Test
     void rootAbsoluteAtDocument() {
         AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
         assertEquals("http://www.example.org/test.json", iri.resolve("/test.json").toString());

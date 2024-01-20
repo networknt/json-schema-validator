@@ -26,6 +26,8 @@ import java.util.*;
 public class RecursiveRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
 
+    private Map<SchemaLocation, JsonSchema> schemas = new HashMap<>();
+
     public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
 
@@ -51,11 +53,10 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
             JsonSchema schema = collectorContext.getOutermostSchema();
             if (null != schema) {
-                // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-                // these schemas will be cached along with config. We have to replace the config for cached $ref references
-                // with the latest config. Reset the config.
-                schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors =  schema.validate(executionContext, node, rootNode, instanceLocation);
+                JsonSchema refSchema = schemas.computeIfAbsent(schema.getSchemaLocation(), key -> {
+                   return schema.fromRef(getParentSchema(), getEvaluationPath());
+                });
+                errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();
@@ -79,11 +80,10 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
             JsonSchema schema = collectorContext.getOutermostSchema();
             if (null != schema) {
-                // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-                // these schemas will be cached along with config. We have to replace the config for cached $ref references
-                // with the latest config. Reset the config.
-                schema.getValidationContext().setConfig(getParentSchema().getValidationContext().getConfig());
-                errors = schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                JsonSchema refSchema = schemas.computeIfAbsent(schema.getSchemaLocation(), key -> {
+                    return schema.fromRef(getParentSchema(), getEvaluationPath());
+                 });
+                errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
         } finally {
             Scope scope = collectorContext.exitDynamicScope();

@@ -16,6 +16,7 @@ public abstract class ValidationMessageHandler {
 
     protected SchemaLocation schemaLocation;
     protected JsonNodePath evaluationPath;
+    protected JsonSchema evaluationParentSchema;
 
     protected JsonSchema parentSchema;
 
@@ -35,6 +36,24 @@ public abstract class ValidationMessageHandler {
         this.parentSchema = parentSchema;
         this.customErrorMessagesEnabled = customErrorMessagesEnabled;
         updateKeyword(keyword);
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param copy to copy from
+     */
+    protected ValidationMessageHandler(ValidationMessageHandler copy) {
+        this.failFast = copy.failFast;
+        this.messageSource = copy.messageSource;
+        this.errorMessageType = copy.errorMessageType;
+        this.schemaLocation = copy.schemaLocation;
+        this.evaluationPath = copy.evaluationPath;
+        this.parentSchema = copy.parentSchema;
+        this.evaluationParentSchema = copy.evaluationParentSchema;
+        this.customErrorMessagesEnabled = copy.customErrorMessagesEnabled;
+        this.errorMessage = copy.errorMessage;
+        this.keyword = copy.keyword;
     }
 
     protected MessageSourceValidationMessage.Builder message() {

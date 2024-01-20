@@ -15,36 +15,20 @@
  */
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Use this object instead a JsonSchema for references.
- * <p>
- * This reference may be empty (if the reference is being parsed) or with data (after the reference has been parsed),
- * helping to prevent recursive reference to cause an infinite loop.
  */
-
 public class JsonSchemaRef {
 
-    private final JsonSchema schema;
+    private final Supplier<JsonSchema> schemaSupplier;
 
-    public JsonSchemaRef(JsonSchema schema) {
-        this.schema = schema;
-    }
-
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
-        return schema.validate(executionContext, node, rootNode, instanceLocation);
+    public JsonSchemaRef(Supplier<JsonSchema> schema) {
+        this.schemaSupplier = schema;
     }
 
     public JsonSchema getSchema() {
-        return schema;
-    }
-
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        return schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        return this.schemaSupplier.get();
     }
 }
