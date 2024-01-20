@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- fixes #913 Update docs on CollectorContext. Thanks @mjustin-tay
+- fixes #913 Update docs on CollectorContext. Thanks @justin-tay
 - fixes #910 Refactor validation message generation. Thanks @justin-tay
 - fixes #923 Basic test on URI create to improve coverage. Thanks @pradoshtnair
 - fixes #915 Refactor of paths. Thanks @justin-tay
