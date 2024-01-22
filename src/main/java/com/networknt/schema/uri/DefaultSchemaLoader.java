@@ -35,15 +35,16 @@ public class DefaultSchemaLoader implements SchemaLoader {
     @Override
     public InputStreamSource getSchema(SchemaLocation schemaLocation) {
         AbsoluteIri absoluteIri = schemaLocation.getAbsoluteIri();
-        AbsoluteIri mapped = null;
+        boolean modified = false;
         SchemaLocation mappedSchemaLocation = schemaLocation;
         for (AbsoluteIriMapper mapper : absoluteIriMappers) {
-            mapped = mapper.map(absoluteIri);
+            AbsoluteIri mapped = mapper.map(absoluteIri);
             if (mapped != null) {
                 absoluteIri = mapped;
+                modified = true;
             }
         }
-        if (mapped != null) {
+        if (modified) {
             mappedSchemaLocation = new SchemaLocation(absoluteIri, schemaLocation.getFragment());
         }
         for (SchemaLoader loader : schemaLoaders) {
