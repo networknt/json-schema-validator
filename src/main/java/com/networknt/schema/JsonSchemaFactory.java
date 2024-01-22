@@ -339,7 +339,19 @@ public class JsonSchemaFactory {
             throw new JsonSchemaException(e);
         }
     }
-    
+
+    public JsonSchema getSchema(final URI schemaUri) {
+        return getSchema(SchemaLocation.of(schemaUri.toString()), new SchemaValidatorsConfig());
+    }
+
+    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
+    }
+
+    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
+        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, null);
+    }
+
     public JsonSchema getSchema(final SchemaLocation schemaUri) {
         return getSchema(schemaUri, new SchemaValidatorsConfig());
     }
@@ -347,14 +359,13 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(schemaUri, jsonNode, config);
     }
-
+    
+    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
+        return newJsonSchema(schemaUri, jsonNode, null);
+    }
 
     public JsonSchema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
-    }
-
-    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(schemaUri, jsonNode, null);
     }
 
     public JsonSchema getSchema(final JsonNode jsonNode) {

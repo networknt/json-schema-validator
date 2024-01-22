@@ -61,18 +61,7 @@ public class RefValidator extends BaseJsonValidator {
                 if (schemaResource == null) {
                     schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig()); 
                     if (schemaResource != null) {
-                        if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
-                            validationContext.getSchemaResources()
-                                    .putAll(schemaResource.getValidationContext().getSchemaResources());
-                        }
-                        if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
-                            validationContext.getSchemaReferences()
-                                    .putAll(schemaResource.getValidationContext().getSchemaReferences());
-                        }
-                        if (!schemaResource.getValidationContext().getDynamicAnchors().isEmpty()) {
-                            validationContext.getDynamicAnchors()
-                                    .putAll(schemaResource.getValidationContext().getDynamicAnchors());
-                        }
+                        copySchemaResources(validationContext, schemaResource);
                     }
                 }
                 if (index < 0) {
@@ -84,22 +73,8 @@ public class RefValidator extends BaseJsonValidator {
                     String newRefValue = refValue.substring(index);
                     String find = schemaLocation.getAbsoluteIri() + newRefValue;
                     JsonSchema findSchemaResource = validationContext.getSchemaResources().get(find);
-                    if (schemaResource == null) {
-                        schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig()); 
-                        if (schemaResource != null) {
-                            if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
-                                validationContext.getSchemaResources()
-                                        .putAll(schemaResource.getValidationContext().getSchemaResources());
-                            }
-                            if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
-                                validationContext.getSchemaReferences()
-                                        .putAll(schemaResource.getValidationContext().getSchemaReferences());
-                            }
-                            if (!schemaResource.getValidationContext().getDynamicAnchors().isEmpty()) {
-                                validationContext.getDynamicAnchors()
-                                        .putAll(schemaResource.getValidationContext().getDynamicAnchors());
-                            }
-                        }
+                    if (findSchemaResource == null) {
+                        findSchemaResource = validationContext.getDynamicAnchors().get(find); 
                     }
                     if (findSchemaResource != null) {
                        schemaResource = findSchemaResource;   
@@ -137,6 +112,21 @@ public class RefValidator extends BaseJsonValidator {
         }
         return new JsonSchemaRef(new CachedSupplier<>(
                 () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)));
+    }
+
+    private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
+        if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
+            validationContext.getSchemaResources()
+                    .putAll(schemaResource.getValidationContext().getSchemaResources());
+        }
+        if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
+            validationContext.getSchemaReferences()
+                    .putAll(schemaResource.getValidationContext().getSchemaReferences());
+        }
+        if (!schemaResource.getValidationContext().getDynamicAnchors().isEmpty()) {
+            validationContext.getDynamicAnchors()
+                    .putAll(schemaResource.getValidationContext().getDynamicAnchors());
+        }
     }
     
     private static String resolve(JsonSchema parentSchema, String refValue) {
