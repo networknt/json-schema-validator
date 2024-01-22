@@ -17,7 +17,7 @@ package com.networknt.schema.uri;
 
 import java.io.InputStream;
 
-import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.AbsoluteIri;
 
 /**
  * Loads from classpath.
@@ -25,15 +25,15 @@ import com.networknt.schema.SchemaLocation;
 public class ClasspathSchemaLoader implements SchemaLoader {
 
     @Override
-    public InputStreamSource getSchema(SchemaLocation schemaLocation) {
-        String scheme = schemaLocation.getAbsoluteIri().getScheme();
+    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        String scheme = absoluteIri.getScheme();
         if (scheme.startsWith("classpath") || scheme.startsWith("resource")) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             if (classLoader == null) {
                 classLoader = SchemaLoader.class.getClassLoader();
             }
             ClassLoader loader = classLoader;
-            String name = schemaLocation.getAbsoluteIri().toString().substring(scheme.length() + 1);
+            String name = absoluteIri.toString().substring(scheme.length() + 1);
             if (name.startsWith("//")) {
                 name = name.substring(2);
             }

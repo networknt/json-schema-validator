@@ -18,7 +18,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
-import com.networknt.schema.uri.AbsoluteIriMapper;
+import com.networknt.schema.uri.SchemaMapper;
 import com.networknt.schema.uri.MapAbsoluteIriMapper;
 import org.junit.jupiter.api.Test;
 
@@ -155,7 +155,7 @@ public class UriMappingTest {
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }
 
-    private AbsoluteIriMapper getUriMappingsFromUrl(URL url) {
+    private SchemaMapper getUriMappingsFromUrl(URL url) {
         HashMap<String, String> map = new HashMap<String, String>();
         try {
             for (JsonNode mapping : mapper.readTree(url)) {

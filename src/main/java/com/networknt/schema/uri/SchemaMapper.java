@@ -21,6 +21,6 @@ import com.networknt.schema.AbsoluteIri;
  * Maps absolute IRI.
  */
 @FunctionalInterface
-public interface AbsoluteIriMapper {
+public interface SchemaMapper {
     AbsoluteIri map(AbsoluteIri absoluteIRI);
 }

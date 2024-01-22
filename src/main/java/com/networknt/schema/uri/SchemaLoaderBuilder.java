@@ -25,9 +25,9 @@ import java.util.function.Consumer;
  * Builder for {@link SchemaLoader}.
  */
 public class SchemaLoaderBuilder {
-    private BiFunction<List<SchemaLoader>, List<AbsoluteIriMapper>, SchemaLoader> schemaLoaderFactory = DefaultSchemaLoader::new;
+    private BiFunction<List<SchemaLoader>, List<SchemaMapper>, SchemaLoader> schemaLoaderFactory = DefaultSchemaLoader::new;
     private List<SchemaLoader> schemaLoaders = new ArrayList<>();
-    private List<AbsoluteIriMapper> absoluteIriMappers = new ArrayList<>();
+    private List<SchemaMapper> absoluteIriMappers = new ArrayList<>();
 
     public SchemaLoaderBuilder() {
         this.schemaLoaders.add(new ClasspathSchemaLoader());
@@ -35,7 +35,7 @@ public class SchemaLoaderBuilder {
     }
 
     public SchemaLoaderBuilder schemaLoaderFactory(
-            BiFunction<List<SchemaLoader>, List<AbsoluteIriMapper>, SchemaLoader> schemaLoaderFactory) {
+            BiFunction<List<SchemaLoader>, List<SchemaMapper>, SchemaLoader> schemaLoaderFactory) {
         this.schemaLoaderFactory = schemaLoaderFactory;
         return this;
     }
@@ -45,7 +45,7 @@ public class SchemaLoaderBuilder {
         return this;
     }
 
-    public SchemaLoaderBuilder absoluteIriMappers(List<AbsoluteIriMapper> absoluteIriMappers) {
+    public SchemaLoaderBuilder absoluteIriMappers(List<SchemaMapper> absoluteIriMappers) {
         this.absoluteIriMappers = absoluteIriMappers;
         return this;
     }
@@ -55,12 +55,12 @@ public class SchemaLoaderBuilder {
         return this;
     }
 
-    public SchemaLoaderBuilder absoluteIriMappers(Consumer<List<AbsoluteIriMapper>> absoluteIriCustomizer) {
+    public SchemaLoaderBuilder absoluteIriMappers(Consumer<List<SchemaMapper>> absoluteIriCustomizer) {
         absoluteIriCustomizer.accept(this.absoluteIriMappers);
         return this;
     }
 
-    public SchemaLoaderBuilder absoluteIriMapper(AbsoluteIriMapper absoluteIriMapper) {
+    public SchemaLoaderBuilder absoluteIriMapper(SchemaMapper absoluteIriMapper) {
         this.absoluteIriMappers.add(absoluteIriMapper);
         return this;
     }

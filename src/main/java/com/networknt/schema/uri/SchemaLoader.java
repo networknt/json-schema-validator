@@ -15,12 +15,12 @@
  */
 package com.networknt.schema.uri;
 
-import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.AbsoluteIri;
 
 /**
  * Loader for schema.
  */
 @FunctionalInterface
 public interface SchemaLoader {
-    InputStreamSource getSchema(SchemaLocation schemaLocation);
+    InputStreamSource getSchema(AbsoluteIri absoluteIri);
 }

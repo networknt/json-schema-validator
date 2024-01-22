@@ -3,9 +3,9 @@ package com.networknt.schema.uri;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Prefix implementation of {@link AbsoluteIriMapper}.
+ * Prefix implementation of {@link SchemaMapper}.
  */
-public class PrefixAbsoluteIriMapper implements AbsoluteIriMapper {
+public class PrefixAbsoluteIriMapper implements SchemaMapper {
     private final String source;
     private final String replacement;
 

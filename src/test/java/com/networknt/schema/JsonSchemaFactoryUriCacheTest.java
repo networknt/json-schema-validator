@@ -33,11 +33,11 @@ public class JsonSchemaFactoryUriCacheTest {
         JsonSchemaFactory factory = buildJsonSchemaFactory(fetcher, enableCache);
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
         String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
-        fetcher.addResource(schemaUri, schema);
+        fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
         assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
 
         String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
-        fetcher.addResource(schemaUri, modifiedSchema);
+        fetcher.addResource(schemaUri.getAbsoluteIri(), modifiedSchema);
 
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
     }
@@ -52,19 +52,19 @@ public class JsonSchemaFactoryUriCacheTest {
 
     private class CustomURIFetcher implements SchemaLoader {
 
-        private Map<SchemaLocation, InputStream> uriToResource = new HashMap<>();
+        private Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
 
-        void addResource(SchemaLocation uri, String schema) {
+        void addResource(AbsoluteIri uri, String schema) {
             addResource(uri, new ByteArrayInputStream(schema.getBytes(StandardCharsets.UTF_8)));
         }
 
-        void addResource(SchemaLocation uri, InputStream is) {
+        void addResource(AbsoluteIri uri, InputStream is) {
             uriToResource.put(uri, is);
         }
 
         @Override
-        public InputStreamSource getSchema(SchemaLocation schemaLocation) {
-            return () -> uriToResource.get(schemaLocation);
+        public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            return () -> uriToResource.get(absoluteIri);
         }
     }
 }

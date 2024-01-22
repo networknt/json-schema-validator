@@ -17,15 +17,15 @@ package com.networknt.schema.uri;
 
 import java.net.URI;
 
-import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.AbsoluteIri;
 
 /**
  * Loads from uri.
  */
 public class UriSchemaLoader implements SchemaLoader {
     @Override
-    public InputStreamSource getSchema(SchemaLocation schemaLocation) {
-        URI uri = URI.create(schemaLocation.getAbsoluteIri().toString());
+    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        URI uri = URI.create(absoluteIri.toString());
         return () -> uri.toURL().openStream();
     }
 }

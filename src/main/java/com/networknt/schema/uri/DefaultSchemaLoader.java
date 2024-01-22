@@ -18,37 +18,30 @@ package com.networknt.schema.uri;
 import java.util.List;
 
 import com.networknt.schema.AbsoluteIri;
-import com.networknt.schema.SchemaLocation;
 
 /**
  * Default {@link SchemaLoader}.
  */
 public class DefaultSchemaLoader implements SchemaLoader {
     private final List<SchemaLoader> schemaLoaders;
-    private final List<AbsoluteIriMapper> absoluteIriMappers;
+    private final List<SchemaMapper> schemaMappers;
 
-    public DefaultSchemaLoader(List<SchemaLoader> schemaLoaders, List<AbsoluteIriMapper> absoluteIriMappers) {
+    public DefaultSchemaLoader(List<SchemaLoader> schemaLoaders, List<SchemaMapper> schemaMappers) {
         this.schemaLoaders = schemaLoaders;
-        this.absoluteIriMappers = absoluteIriMappers;
+        this.schemaMappers = schemaMappers;
     }
 
     @Override
-    public InputStreamSource getSchema(SchemaLocation schemaLocation) {
-        AbsoluteIri absoluteIri = schemaLocation.getAbsoluteIri();
-        boolean modified = false;
-        SchemaLocation mappedSchemaLocation = schemaLocation;
-        for (AbsoluteIriMapper mapper : absoluteIriMappers) {
-            AbsoluteIri mapped = mapper.map(absoluteIri);
+    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        AbsoluteIri mappedResult = absoluteIri;
+        for (SchemaMapper mapper : schemaMappers) {
+            AbsoluteIri mapped = mapper.map(mappedResult);
             if (mapped != null) {
-                absoluteIri = mapped;
-                modified = true;
+                mappedResult = mapped;
             }
         }
-        if (modified) {
-            mappedSchemaLocation = new SchemaLocation(absoluteIri, schemaLocation.getFragment());
-        }
         for (SchemaLoader loader : schemaLoaders) {
-            InputStreamSource result = loader.getSchema(mappedSchemaLocation);
+            InputStreamSource result = loader.getSchema(mappedResult);
             if (result != null) {
                 return result;
             }

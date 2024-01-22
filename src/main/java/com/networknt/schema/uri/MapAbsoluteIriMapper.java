@@ -5,9 +5,9 @@ import java.util.Map;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Map implementation of {@link AbsoluteIriMapper}.
+ * Map implementation of {@link SchemaMapper}.
  */
-public class MapAbsoluteIriMapper implements AbsoluteIriMapper {
+public class MapAbsoluteIriMapper implements SchemaMapper {
     private final Map<String, String> mappings;
     
     public MapAbsoluteIriMapper(Map<String, String> mappings) {

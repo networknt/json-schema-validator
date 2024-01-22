@@ -327,7 +327,7 @@ public class JsonSchemaFactory {
     }
     
     protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
-        try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri).getInputStream()) {
+        try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
             if (inputStream == null) {
                 throw new IOException("Cannot load schema at " + schemaUri.toString());
             }

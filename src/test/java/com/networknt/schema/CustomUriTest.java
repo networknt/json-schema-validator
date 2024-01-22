@@ -46,7 +46,7 @@ public class CustomUriTest {
         private static final String SCHEMA = "{\"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\"$id\":\"custom:date\",\"type\":\"string\",\"format\":\"date\"}";
 
         @Override
-        public InputStreamSource getSchema(SchemaLocation schemaLocation) {
+        public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
             return () -> new ByteArrayInputStream(SCHEMA.getBytes(StandardCharsets.UTF_8));
         }
     }
