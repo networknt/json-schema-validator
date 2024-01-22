@@ -65,6 +65,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
     DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.MinV201909),
+    DYNAMIC_REF("$dynamicRef", "1051", DynamicRefValidator::new, VersionCode.MinV202012),
     EDITS("edits", "1005", null, VersionCode.AllVersions),
     ENUM("enum", "1008", EnumValidator::new, VersionCode.AllVersions),
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", ExclusiveMaximumValidator::new, VersionCode.MinV6),

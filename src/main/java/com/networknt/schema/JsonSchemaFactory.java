@@ -215,7 +215,7 @@ public class JsonSchemaFactory {
         if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
             return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
                     validationContext.getConfig(), validationContext.getSchemaReferences(),
-                    validationContext.getSchemaResources());
+                    validationContext.getSchemaResources(), validationContext.getDynamicAnchors());
         }
         return validationContext;
     }
@@ -331,7 +331,7 @@ public class JsonSchemaFactory {
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
                 SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
-                return document.getSubSchema(schemaLocation.getFragment());
+                return document.getRefSchema(schemaLocation.getFragment());
             }
             return jsonSchema;
         } catch (IOException e) {

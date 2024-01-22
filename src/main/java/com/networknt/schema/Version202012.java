@@ -28,6 +28,7 @@ public class Version202012 extends JsonSchemaVersion {
                         new NonValidationKeyword("$comment"),
                         new NonValidationKeyword("$defs"),
                         new NonValidationKeyword("$anchor"),
+                        new NonValidationKeyword("$dynamicAnchor"),
                         new NonValidationKeyword("deprecated"),
                         new NonValidationKeyword("contentMediaType"),
                         new NonValidationKeyword("contentEncoding"),

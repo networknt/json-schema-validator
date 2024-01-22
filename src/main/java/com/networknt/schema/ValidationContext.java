@@ -29,15 +29,16 @@ public class ValidationContext {
     private final SchemaValidatorsConfig config;
     private final ConcurrentMap<String, JsonSchema> schemaReferences;
     private final ConcurrentMap<String, JsonSchema> schemaResources;
+    private final ConcurrentMap<String, JsonSchema> dynamicAnchors;
 
     public ValidationContext(JsonMetaSchema metaSchema,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
-        this(metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        this(metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
     
     public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory,
             SchemaValidatorsConfig config, ConcurrentMap<String, JsonSchema> schemaReferences,
-            ConcurrentMap<String, JsonSchema> schemaResources) {
+            ConcurrentMap<String, JsonSchema> schemaResources, ConcurrentMap<String, JsonSchema> dynamicAnchors) {
         if (metaSchema == null) {
             throw new IllegalArgumentException("JsonMetaSchema must not be null");
         }
@@ -49,6 +50,7 @@ public class ValidationContext {
         this.config = config == null ? new SchemaValidatorsConfig() : config;
         this.schemaReferences = schemaReferences;
         this.schemaResources = schemaResources;
+        this.dynamicAnchors = dynamicAnchors;
     }
 
     public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
@@ -88,6 +90,15 @@ public class ValidationContext {
      */
     public ConcurrentMap<String, JsonSchema> getSchemaResources() {
         return this.schemaResources;
+    }
+
+    /**
+     * Gets the dynamic anchors.
+     *
+     * @return the dynamic anchors
+     */
+    public ConcurrentMap<String, JsonSchema> getDynamicAnchors() {
+        return this.dynamicAnchors;
     }
 
     public JsonMetaSchema getMetaSchema() {

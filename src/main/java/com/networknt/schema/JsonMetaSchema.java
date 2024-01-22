@@ -234,6 +234,14 @@ public class JsonMetaSchema {
         return null;
     }
 
+    public String readDynamicAnchor(JsonNode schemaNode) {
+        boolean supportsDynamicAnchor = this.keywords.containsKey("$dynamicAnchor");
+        if (supportsDynamicAnchor) {
+            return readText(schemaNode, "$dynamicAnchor");
+        }
+        return null;
+    }
+
     public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
         boolean supportsAnchor = this.keywords.containsKey("$anchor");
         String refName = supportsAnchor ? ref.substring(1) : ref;
