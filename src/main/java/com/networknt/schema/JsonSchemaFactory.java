@@ -211,7 +211,7 @@ public class JsonSchemaFactory {
     }
     
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
-        JsonMetaSchema metaSchema = getMetaSchema(schemaNode);
+        JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
         if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
             return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
                     validationContext.getConfig(), validationContext.getSchemaReferences(),
@@ -238,34 +238,38 @@ public class JsonSchemaFactory {
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
-        final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
+        final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode, config);
         return new ValidationContext(jsonMetaSchema, this, config);
     }
     
-    private JsonMetaSchema getMetaSchema(final JsonNode schemaNode) {
+    private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode uriNode = schemaNode.get("$schema");
         if (uriNode != null && uriNode.isTextual()) {
-            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), this::fromId);
+            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), id -> fromId(id, config));
         }
         return null;
     }
 
-    private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
+    private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode uriNode = schemaNode.get("$schema");
         if (uriNode != null && !uriNode.isNull() && !uriNode.isTextual()) {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, this::fromId);
+        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, id -> fromId(id, config));
         return jsonMetaSchema;
     }
 
-    private JsonMetaSchema fromId(String id) {
+    private JsonMetaSchema fromId(String id, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
         return SpecVersionDetector.detectOptionalVersion(id)
             .map(JsonSchemaFactory::checkVersion)
             .map(JsonSchemaVersion::getInstance)
-            .orElseThrow(() -> new JsonSchemaException("Unknown MetaSchema: " + id));
+            .orElseGet(() -> {
+                // Custom meta schema
+                JsonSchema schema = getSchema(SchemaLocation.of(id), config);
+                return schema.getValidationContext().getMetaSchema();
+            });
     }
 
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
@@ -318,7 +322,7 @@ public class JsonSchemaFactory {
                 schemaNode = jsonMapper.readTree(inputStream);
             }
 
-            final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
+            final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             JsonSchema jsonSchema;
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUri.toString());

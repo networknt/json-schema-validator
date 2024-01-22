@@ -178,7 +178,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
         if (testCase.isDisabled()) return null;
 
-        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion);
+        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
                 .builder(base)
@@ -216,7 +216,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         }
 
         SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
-        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
+        JsonSchema schema = validatorFactory.getSchema(/*testCaseFileUri, */testSpec.getTestCase().getSchema(), config);
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }

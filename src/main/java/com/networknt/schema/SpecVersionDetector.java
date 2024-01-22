@@ -58,7 +58,7 @@ public final class SpecVersionDetector {
      * @return Spec version if present, otherwise throws an exception
      */
     public static VersionFlag detect(JsonNode jsonNode) {
-        return detectOptionalVersion(jsonNode).orElseThrow(
+        return detectOptionalVersion(jsonNode, true).orElseThrow(
                 () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
         );
     }
@@ -70,23 +70,27 @@ public final class SpecVersionDetector {
      * @param jsonNode JSON Node to read from
      * @return Spec version if present, otherwise empty
      */
-    public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode) {
+    public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode, boolean throwIfUnsupported) {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
             String schemaTagValue = schemaTag.asText();
             String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue);
 
-            return VersionFlag.fromId(schemaUri)
-                    .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
+            if (throwIfUnsupported) {
+                return VersionFlag.fromId(schemaUri)
+                        .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
+            } else {
+                return VersionFlag.fromId(schemaUri).orElse(null);
+            }
         });
     }
 
 
     // For 2019-09 and later published drafts, implementations that are able to
     // detect the draft of each schema via $schema SHOULD be configured to do so
-    public static VersionFlag detectVersion(JsonNode jsonNode, Path specification, VersionFlag defaultVersion) {
+    public static VersionFlag detectVersion(JsonNode jsonNode, Path specification, VersionFlag defaultVersion, boolean throwIfUnsupported) {
         return Stream.of(
-                        detectOptionalVersion(jsonNode),
+                        detectOptionalVersion(jsonNode, throwIfUnsupported),
                         detectVersionFromPath(specification)
                 )
                 .filter(Optional::isPresent)
