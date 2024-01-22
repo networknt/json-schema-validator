@@ -46,7 +46,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
                 // A $dynamicRef without a matching $dynamicAnchor in the same schema resource
                 // behaves like a normal $ref to $anchor
                 // A $dynamicRef without anchor in fragment behaves identical to $ref
-                JsonSchemaRef r = RefValidator.getRefSchema(parentSchema, validationContext, ref, evaluationPath);
+                JsonSchemaRef r = RefValidator.getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
                 if (r != null) {
                     refSchema = r.getSchema();
                 }
