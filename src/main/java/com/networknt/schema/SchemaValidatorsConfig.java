@@ -19,11 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
-import com.networknt.schema.uri.AbsoluteIriMapper;
-import com.networknt.schema.uri.ClasspathSchemaLoader;
-import com.networknt.schema.uri.DefaultSchemaLoader;
-import com.networknt.schema.uri.SchemaLoader;
-import com.networknt.schema.uri.UriSchemaLoader;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 import java.util.ArrayList;

@@ -1,6 +1,5 @@
 package com.networknt.schema;
 
-import java.net.URI;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;

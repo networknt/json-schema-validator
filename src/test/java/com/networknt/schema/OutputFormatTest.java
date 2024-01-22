@@ -3,7 +3,6 @@ package com.networknt.schema;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 

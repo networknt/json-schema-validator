@@ -21,7 +21,6 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
-import com.networknt.schema.uri.PrefixAbsoluteIriMapper;
 
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;

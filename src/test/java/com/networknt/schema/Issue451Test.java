@@ -81,6 +81,7 @@ public class Issue451Test {
         }
 
         private Map<String, Integer> collector(ExecutionContext executionContext) {
+            @SuppressWarnings("unchecked")
             Map<String, Integer> collector = (Map<String, Integer>) executionContext.getCollectorContext().get(COLLECTOR_ID);
             if(collector == null) {
                 collector = new HashMap<>();

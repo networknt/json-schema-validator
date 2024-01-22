@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-
 import static com.networknt.schema.BaseJsonSchemaValidatorTest.getJsonNodeFromStringContent;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
