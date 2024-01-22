@@ -242,27 +242,6 @@ public class JsonMetaSchema {
         return null;
     }
 
-    public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
-        boolean supportsAnchor = this.keywords.containsKey("$anchor");
-        String refName = supportsAnchor ? ref.substring(1) : ref;
-        String fieldToRead = supportsAnchor ? "$anchor" : this.idKeyword;
-
-        boolean nodeContainsRef = refName.equals(readText(node, fieldToRead));
-        if (nodeContainsRef) {
-            return node;
-        }
-
-        Iterator<JsonNode> children = node.elements();
-        while (children.hasNext()) {
-            JsonNode refNode = getNodeByFragmentRef(ref, children.next());
-            if (refNode != null) {
-                return refNode;
-            }
-        }
-
-        return null;
-    }
-
     private static String readText(JsonNode node, String field) {
         JsonNode idNode = node.get(field);
         if (idNode == null || !idNode.isTextual()) {
