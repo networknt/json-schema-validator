@@ -26,6 +26,7 @@ import com.networknt.schema.walk.WalkListenerRunner;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -501,13 +502,33 @@ public class JsonSchema extends BaseJsonValidator {
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.
-     * @param rootNode JsonNode
+     * @param rootNode the root node
      *
      * @return A list of ValidationMessage if there is any validation error, or an empty
      * list if there is no error.
      */
     public Set<ValidationMessage> validate(JsonNode rootNode) {
         return validate(rootNode, OutputFormat.DEFAULT);
+    }
+
+    /**
+     * Validate the given root JsonNode, starting at the root of the data path.
+     * @param rootNode the root node
+     * @param executionCustomizer the execution customizer
+     * @return
+     */
+    public Set<ValidationMessage> validate(JsonNode rootNode, ExecutionCustomizer executionCustomizer) {
+        return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given root JsonNode, starting at the root of the data path.
+     * @param rootNode the root node
+     * @param executionCustomizer the execution customizer
+     * @return
+     */
+    public Set<ValidationMessage> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
     /**
@@ -520,7 +541,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return the result
      */
     public <T> T validate(JsonNode rootNode, OutputFormat<T> format) {
-        return validate(rootNode, format, null);
+        return validate(rootNode, format, (ExecutionCustomizer) null);
     }
 
     /**
@@ -528,13 +549,29 @@ public class JsonSchema extends BaseJsonValidator {
      * output will be formatted using the formatter specified.
      * 
      * @param <T>                 the result type
-     * @param rootNode            the root note
+     * @param rootNode            the root node
      * @param format              the formatter
      * @param executionCustomizer the execution customizer
      * @return the result
      */
     public <T> T validate(JsonNode rootNode, OutputFormat<T> format, ExecutionCustomizer executionCustomizer) {
         return validate(createExecutionContext(), rootNode, format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given root JsonNode, starting at the root of the data path. The
+     * output will be formatted using the formatter specified.
+     * 
+     * @param <T>                 the result type
+     * @param rootNode            the root node
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(createExecutionContext(), rootNode, format, (executionContext, validationContext) -> {
+            executionCustomizer.accept(executionContext);
+        });
     }
 
     public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
