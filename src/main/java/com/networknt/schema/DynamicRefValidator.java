@@ -58,8 +58,9 @@ public class DynamicRefValidator extends BaseJsonValidator {
                 String absoluteIri = ref.substring(0, index);
                 while (base.getEvaluationParentSchema() != null) {
                     base = base.getEvaluationParentSchema();
-                    if (!base.getSchemaLocation().getAbsoluteIri().toString().equals(absoluteIri)) {
-                        absoluteIri = base.getSchemaLocation().getAbsoluteIri().toString();
+                    String baseAbsoluteIri = base.getSchemaLocation().getAbsoluteIri() != null ? base.getSchemaLocation().getAbsoluteIri().toString() : "";
+                    if (!baseAbsoluteIri.equals(absoluteIri)) {
+                        absoluteIri = baseAbsoluteIri;
                         String parentRef = SchemaLocation.resolve(base.getSchemaLocation(), anchor);
                         JsonSchema parentRefSchema = validationContext.getDynamicAnchors().get(parentRef);
                         if (parentRefSchema != null) {

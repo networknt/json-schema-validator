@@ -41,7 +41,7 @@ public class JsonSchema extends BaseJsonValidator {
     private List<JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
-    private boolean dynamicAnchor = false;
+    private boolean recursiveAnchor = false;
 
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
@@ -49,7 +49,6 @@ public class JsonSchema extends BaseJsonValidator {
     WalkListenerRunner keywordWalkListenerRunner = null;
 
     private final String id;
-    private final String anchor;
 
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
@@ -62,19 +61,25 @@ public class JsonSchema extends BaseJsonValidator {
         this.metaSchema = this.validationContext.getMetaSchema();
         initializeConfig();
         this.id = this.validationContext.resolveSchemaId(this.schemaNode);
-        this.anchor = this.validationContext.getMetaSchema().readAnchor(this.schemaNode);
         if (this.id != null) {
             this.validationContext.getSchemaResources()
                     .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
         }
-        if (this.anchor != null) {
+        String anchor = this.validationContext.getMetaSchema().readAnchor(this.schemaNode);
+        if (anchor != null) {
+            String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
+                    ? this.schemaLocation.getAbsoluteIri().toString()
+                    : "";
             this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.schemaLocation.getAbsoluteIri().toString() + "#" + anchor, this);
+                    .putIfAbsent(absoluteIri + "#" + anchor, this);
         }
         String dynamicAnchor = this.validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
         if (dynamicAnchor != null) {
+            String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
+                    ? this.schemaLocation.getAbsoluteIri().toString()
+                    : "";
             this.validationContext.getDynamicAnchors()
-                    .putIfAbsent(this.schemaLocation.getAbsoluteIri().toString() + "#" + dynamicAnchor, this);
+                    .putIfAbsent(absoluteIri + "#" + dynamicAnchor, this);
         }
         getValidators();
     }
@@ -96,12 +101,11 @@ public class JsonSchema extends BaseJsonValidator {
         this.validators = copy.validators;
         this.metaSchema = copy.metaSchema;
         this.validatorsLoaded = copy.validatorsLoaded;
-        this.dynamicAnchor = copy.dynamicAnchor;
+        this.recursiveAnchor = copy.recursiveAnchor;
         this.requiredValidator = copy.requiredValidator;
         this.typeValidator = copy.typeValidator;
         this.keywordWalkListenerRunner = copy.keywordWalkListenerRunner;
         this.id = copy.id;
-        this.anchor = copy.anchor;
     }
 
     /**
@@ -356,7 +360,7 @@ public class JsonSchema extends BaseJsonValidator {
                                 .build();
                         throw new JsonSchemaException(validationMessage);
                     }
-                    this.dynamicAnchor = nodeToUse.booleanValue();
+                    this.recursiveAnchor = nodeToUse.booleanValue();
                 }
 
                 JsonValidator validator = this.validationContext.newValidator(schemaPath, path,
@@ -717,8 +721,8 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
-    public boolean isDynamicAnchor() {
-        return this.dynamicAnchor;
+    public boolean isRecursiveAnchor() {
+        return this.recursiveAnchor;
     }
 
     /**
