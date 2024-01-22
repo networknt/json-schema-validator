@@ -14,6 +14,7 @@ public class Version6 extends JsonSchemaVersion{
 
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V6)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V6))

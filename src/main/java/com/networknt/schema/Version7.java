@@ -13,6 +13,7 @@ public class Version7 extends JsonSchemaVersion{
     @Override
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V7)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))

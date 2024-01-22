@@ -13,6 +13,7 @@ public class Version201909 extends JsonSchemaVersion{
     @Override
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V201909)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
@@ -37,6 +38,12 @@ public class Version201909 extends JsonSchemaVersion{
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else")
                 ))
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/core")
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/applicator")
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/validation")
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/meta-data")
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/format", false)
+                .vocabulary("https://json-schema.org/draft/2019-09/vocab/content")
                 .build();
     }
 }

@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.uri.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
@@ -268,7 +270,21 @@ public class JsonSchemaFactory {
             .orElseGet(() -> {
                 // Custom meta schema
                 JsonSchema schema = getSchema(SchemaLocation.of(id), config);
-                return schema.getValidationContext().getMetaSchema();
+                JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
+                VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+                if (specification != null) {
+                    if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                        // Process vocabularies
+                        JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                        if (vocabulary != null) {
+                            for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                                builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+                            }
+                        }
+                        
+                    }
+                }
+                return builder.build();
             });
     }
 

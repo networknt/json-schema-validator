@@ -216,7 +216,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         }
 
         SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
-        JsonSchema schema = validatorFactory.getSchema(/*testCaseFileUri, */testSpec.getTestCase().getSchema(), config);
+        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }

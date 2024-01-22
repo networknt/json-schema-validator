@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.format.DateFormat;
 import com.networknt.schema.format.EmailFormat;
 import com.networknt.schema.format.IdnEmailFormat;
@@ -81,8 +82,10 @@ public class JsonMetaSchema {
     }
 
     public static class Builder {
+        private VersionFlag specification = null;
         private Map<String, Keyword> keywords = new HashMap<>();
         private Map<String, Format> formats = new HashMap<>();
+        private Map<String, Boolean> vocabularies = new HashMap<>();
         private String uri;
         private String idKeyword = "id";
 
@@ -133,6 +136,24 @@ public class JsonMetaSchema {
             return this;
         }
 
+        public Builder vocabulary(String vocabulary) {
+            return vocabulary(vocabulary, true);
+        }
+
+        public Builder vocabulary(String vocabulary, boolean enabled) {
+            this.vocabularies.put(vocabulary, enabled);
+            return this;
+        }
+
+        public Builder vocabularies(Map<String, Boolean> vocabularies) {
+            this.vocabularies = vocabularies;
+            return this;
+        }
+
+        public Builder specification(VersionFlag specification) {
+            this.specification = specification;
+            return this;
+        }
 
         public Builder idKeyword(String idKeyword) {
             this.idKeyword = idKeyword;
@@ -142,15 +163,17 @@ public class JsonMetaSchema {
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> kwords = createKeywordsMap(this.keywords, this.formats);
-            return new JsonMetaSchema(this.uri, this.idKeyword, kwords);
+            return new JsonMetaSchema(this.uri, this.idKeyword, kwords, this.vocabularies, this.specification);
         }
     }
 
     private final String uri;
     private final String idKeyword;
     private Map<String, Keyword> keywords;
+    private Map<String, Boolean> vocabularies;
+    private final VersionFlag specification;
 
-    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords) {
+    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, VersionFlag specification) {
         if (StringUtils.isBlank(uri)) {
             throw new IllegalArgumentException("uri must not be null or blank");
         }
@@ -164,6 +187,7 @@ public class JsonMetaSchema {
         this.uri = uri;
         this.idKeyword = idKeyword;
         this.keywords = keywords;
+        this.specification = specification;
     }
 
     public static JsonMetaSchema getV4() {
@@ -215,7 +239,10 @@ public class JsonMetaSchema {
         return builder(uri)
                 .idKeyword(blueprint.idKeyword)
                 .addKeywords(blueprint.keywords.values())
-                .addFormats(formatKeyword.getFormats());
+                .addFormats(formatKeyword.getFormats())
+                .specification(blueprint.getSpecification())
+                .vocabularies(blueprint.getVocabularies())
+                ;
     }
 
     public String getIdKeyword() {
@@ -256,6 +283,14 @@ public class JsonMetaSchema {
 
     public Map<String, Keyword> getKeywords() {
         return this.keywords;
+    }
+
+    public Map<String, Boolean> getVocabularies() {
+        return this.vocabularies;
+    }
+    
+    public VersionFlag getSpecification() {
+        return this.specification;
     }
 
     public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
