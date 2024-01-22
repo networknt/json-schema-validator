@@ -45,14 +45,6 @@ The default value is true in the SchemaValidatorsConfig object.
 
 For more details, please refer to this [issue](https://github.com/networknt/json-schema-validator/issues/183). 
 
-
-* uriMappings
-
-Map of public, typically internet-accessible schema URLs to alternate locations; this allows for offline validation of schemas that refer to public URLs. This is merged with any mappings the sonSchemaFactory 
-may have been built.
-
-The type for this variable is `Map<String, String>`. 
-
 * javaSemantics
 
 When set to true, use Java-specific semantics rather than native JavaScript semantics.

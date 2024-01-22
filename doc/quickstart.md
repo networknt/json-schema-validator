@@ -38,7 +38,7 @@ public class BaseJsonSchemaValidatorTest {
 
     protected JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        return factory.getSchema(new URI(uri));
+        return factory.getSchema(SchemaLocation.of(uri));
     }
 
     protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {

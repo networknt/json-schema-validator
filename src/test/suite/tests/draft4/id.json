@@ -40,16 +40,12 @@
             {
                 "description": "match $ref to id",
                 "data": "a string to match #/definitions/id_in_enum",
-                "valid": true,
-                "disabled": true,
-                "reason": "TODO: Dereferencing an id is conditional on the contxt"
+                "valid": true
             },
             {
                 "description": "no match on enum or $ref to id",
                 "data": 1,
-                "valid": false,
-                "disabled": true,
-                "reason": "TODO: Dereferencing an id is conditional on the contxt"
+                "valid": false
             }
         ]
     }

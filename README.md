@@ -110,9 +110,7 @@ For the latest version, please check the [release](https://github.com/networknt/
 
 ## [YAML Validation](doc/yaml.md)
 
-## [Schema Mapping](doc/schema-map.md)
-
-## [Customized URIFetcher](doc/cust-fetcher.md)
+## [Customizing Schema Retrieval](doc/schema-retrieval.md)
 
 ## [Customized MetaSchema](doc/cust-meta.md)
 
