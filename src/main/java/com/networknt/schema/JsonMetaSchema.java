@@ -188,6 +188,7 @@ public class JsonMetaSchema {
         this.idKeyword = idKeyword;
         this.keywords = keywords;
         this.specification = specification;
+        this.vocabularies = vocabularies;
     }
 
     public static JsonMetaSchema getV4() {
@@ -236,12 +237,13 @@ public class JsonMetaSchema {
         if (formatKeyword == null) {
             throw new IllegalArgumentException("The formatKeyword did not exist - blueprint is invalid.");
         }
+        Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
         return builder(uri)
                 .idKeyword(blueprint.idKeyword)
                 .addKeywords(blueprint.keywords.values())
                 .addFormats(formatKeyword.getFormats())
                 .specification(blueprint.getSpecification())
-                .vocabularies(blueprint.getVocabularies())
+                .vocabularies(vocabularies)
                 ;
     }
 

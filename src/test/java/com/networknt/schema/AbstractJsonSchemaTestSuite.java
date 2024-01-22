@@ -53,8 +53,11 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     }
 
     private static void executeTest(JsonSchema schema, TestSpec testSpec) {
-
-        Set<ValidationMessage> errors = schema.validate(testSpec.getData());
+        Set<ValidationMessage> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+            if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
+                executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            }
+        });
 
         if (testSpec.isValid()) {
             if (!errors.isEmpty()) {

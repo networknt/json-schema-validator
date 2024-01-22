@@ -26,6 +26,7 @@ import java.util.function.Predicate;
 public class ExecutionConfig {
     private Locale locale = Locale.ROOT;
     private Predicate<String> annotationAllowedPredicate = (keyword) -> true;
+    private Boolean formatAssertionsEnabled = null;
 
     public Locale getLocale() {
         return locale;
@@ -83,5 +84,29 @@ public class ExecutionConfig {
     public void setAnnotationAllowedPredicate(Predicate<String> annotationAllowedPredicate) {
         this.annotationAllowedPredicate = Objects.requireNonNull(annotationAllowedPredicate,
                 "annotationAllowedPredicate must not be null");
+    }
+
+    /**
+     * Gets the format assertion enabled flag.
+     * <p>
+     * This defaults to null meaning that it will follow the defaults of the
+     * specification.
+     * <p>
+     * Since draft 2019-09 this will default to false unless enabled by using the
+     * $vocabulary keyword.
+     * 
+     * @return the format assertions enabled flag
+     */
+    public Boolean getFormatAssertionsEnabled() {
+        return formatAssertionsEnabled;
+    }
+
+    /**
+     * Sets the format assertion enabled flag.
+     * 
+     * @param formatAssertionsEnabled the format assertions enabled flag
+     */
+    public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
+        this.formatAssertionsEnabled = formatAssertionsEnabled;
     }
 }

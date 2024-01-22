@@ -48,7 +48,9 @@ public class OverrideValidatorTest {
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(validatorMetaSchema).build();
         final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
 
-        Set<ValidationMessage> messages = validatorSchema.validate(targetNode);
+        Set<ValidationMessage> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        });
         assertEquals(1, messages.size());
 
         // Override EmailValidator

@@ -19,7 +19,6 @@ package com.networknt.schema.format;
 import com.ethlo.time.ITU;
 import com.ethlo.time.LeapSecondException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.BaseJsonValidator;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
-public class DateTimeValidator extends BaseJsonValidator {
+public class DateTimeValidator extends BaseFormatJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";
 
@@ -53,10 +52,14 @@ public class DateTimeValidator extends BaseJsonValidator {
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
+        boolean assertionsEnabled = isAssertionsEnabled(executionContext);
+
         if (!isLegalDateTime(node.textValue())) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(node.textValue(), DATETIME)
-                    .build());
+            if (assertionsEnabled) {
+                return Collections.singleton(message().instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(node.textValue(), DATETIME)
+                        .build());
+            }
         }
         return Collections.emptySet();
     }
