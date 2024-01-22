@@ -5,11 +5,11 @@ import com.networknt.schema.AbsoluteIri;
 /**
  * Prefix implementation of {@link SchemaMapper}.
  */
-public class PrefixAbsoluteIriMapper implements SchemaMapper {
+public class PrefixSchemaMapper implements SchemaMapper {
     private final String source;
     private final String replacement;
 
-    public PrefixAbsoluteIriMapper(String source, String replacement) {
+    public PrefixSchemaMapper(String source, String replacement) {
         this.source = source;
         this.replacement = replacement;
     }

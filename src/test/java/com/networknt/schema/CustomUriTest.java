@@ -3,7 +3,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.uri.InputStreamSource;
 import com.networknt.schema.uri.SchemaLoader;
-import com.networknt.schema.uri.UriSchemaLoader;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,13 +32,7 @@ public class CustomUriTest {
 
     private JsonSchemaFactory buildJsonSchemaFactory() {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.schemaLoaders(schemaLoaders -> {
-                    for (int x = 0; x < schemaLoaders.size(); x++) {
-                        if (schemaLoaders.get(x) instanceof UriSchemaLoader) {
-                            schemaLoaders.set(x, new CustomUriFetcher());
-                        }
-                    }
-                })).build();
+                .schemaLoaders(schemaLoaders -> schemaLoaders.add(new CustomUriFetcher())).build();
     }
 
     private static class CustomUriFetcher implements SchemaLoader {

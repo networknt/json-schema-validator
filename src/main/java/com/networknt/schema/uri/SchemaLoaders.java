@@ -17,12 +17,27 @@ package com.networknt.schema.uri;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Schema Loaders.
  */
 public class SchemaLoaders extends ArrayList<SchemaLoader> {
     private static final long serialVersionUID = 1L;
+
+    private static final ClasspathSchemaLoader CLASSPATH_SCHEMA_LOADER = new ClasspathSchemaLoader();
+    private static final UriSchemaLoader URI_SCHEMA_LOADER = new UriSchemaLoader();
+    private static final SchemaLoaders DEFAULT;
+    
+    static {
+        SchemaLoaders schemaLoaders = new SchemaLoaders();
+        schemaLoaders.add(CLASSPATH_SCHEMA_LOADER);
+        schemaLoaders.add(URI_SCHEMA_LOADER);
+        DEFAULT = schemaLoaders;
+    }
 
     public SchemaLoaders() {
         super();
@@ -35,16 +50,57 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
     public SchemaLoaders(int initialCapacity) {
         super(initialCapacity);
     }
-    
+
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        private SchemaLoaders values = new SchemaLoaders();
+        SchemaLoaders values = new SchemaLoaders();
+
+        public Builder() {
+        }
+
+        public Builder(Builder copy) {
+            this.values.addAll(copy.values);
+        }
+
+        public Builder with(Builder builder) {
+            if (!builder.values.isEmpty()) {
+                this.values.addAll(builder.values);
+            }
+            return this;
+        }
+
+        public Builder values(Consumer<List<SchemaLoader>> values) {
+            values.accept(this.values);
+            return this;
+        }
         
+        public Builder add(SchemaLoader schemaLoader) {
+            this.values.add(schemaLoader);
+            return this;
+        }
+
+        public Builder values(Map<String, String> mappings) {
+            this.values.add(new MapSchemaLoader(mappings));
+            return this;
+        }
+        
+        public Builder values(Function<String, String> mappings) {
+            this.values.add(new MapSchemaLoader(mappings));
+            return this;
+        }
+
         public SchemaLoaders build() {
-            return values;
+            if (this.values.isEmpty()) {
+                return DEFAULT;
+            }
+            SchemaLoaders result = new SchemaLoaders();
+            result.add(CLASSPATH_SCHEMA_LOADER);
+            result.addAll(this.values);
+            result.add(URI_SCHEMA_LOADER);
+            return result;
         }
     }
 }

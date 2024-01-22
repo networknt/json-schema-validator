@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
 import com.networknt.schema.uri.SchemaMapper;
-import com.networknt.schema.uri.MapAbsoluteIriMapper;
+import com.networknt.schema.uri.MapSchemaMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
@@ -49,7 +49,7 @@ public class UriMappingTest {
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
                 .addMetaSchema(draftV4)
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(getUriMappingsFromUrl(mappings)));
+                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         JsonSchemaFactory instance = builder.build();
         JsonSchema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
@@ -87,7 +87,7 @@ public class UriMappingTest {
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaURI(draftV4.getUri())
                 .addMetaSchema(draftV4)
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(getUriMappingsFromUrl(mappings)));
+                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         instance = builder.build();
         JsonSchema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
@@ -103,7 +103,7 @@ public class UriMappingTest {
     public void testValidatorConfigUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/uri-mapping.json");
         JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(getUriMappingsFromUrl(mappings))).build();
+                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
         JsonSchema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
@@ -139,7 +139,7 @@ public class UriMappingTest {
             fail("Unexpected exception thrown");
         }
         instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(getUriMappingsFromUrl(mappings))).build();
+                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
         JsonSchema schema = instance.getSchema(example, config);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
@@ -148,7 +148,7 @@ public class UriMappingTest {
     public void testMappingsForRef() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/schema-with-ref-mapping.json");
         JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(getUriMappingsFromUrl(mappings))).build();
+                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         JsonSchema schema = instance.getSchema(SchemaLocation.of("resource:draft4/extra/uri_mapping/schema-with-ref.json"),
                 config);
@@ -165,6 +165,6 @@ public class UriMappingTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new MapAbsoluteIriMapper(map);
+        return new MapSchemaMapper(map);
     }
 }

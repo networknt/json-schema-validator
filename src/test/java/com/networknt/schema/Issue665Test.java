@@ -25,8 +25,8 @@ public class Issue665Test extends BaseJsonSchemaValidatorTest {
     void testUrnUriAsLocalRef_ExternalURN() {
         JsonSchemaFactory factory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> {
-                    schemaLoaderBuilder.map(Collections.singletonMap("urn:data",
+                .schemaMappers(schemaMappers -> {
+                    schemaMappers.values(Collections.singletonMap("urn:data",
                             "classpath:draft7/urn/issue665_external_urn_subschema.json"));
                 })
                 .build();

@@ -186,7 +186,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         return JsonSchemaFactory
                 .builder(base)
                 .objectMapper(this.mapper)
-                .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder
+                .schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))
                 .build();

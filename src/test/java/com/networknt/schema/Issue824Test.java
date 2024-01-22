@@ -15,8 +15,8 @@ public class Issue824Test {
     void validate() throws JsonProcessingException {
         final JsonSchema v201909SpecSchema = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .schemaLoaderBuilder(schemaLoaderBuilder -> {
-                    schemaLoaderBuilder.mapPrefix("https://json-schema.org", "resource:");
+                .schemaMappers(schemaMappers -> {
+                    schemaMappers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
                 .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getUri()));
         v201909SpecSchema.preloadJsonSchema();

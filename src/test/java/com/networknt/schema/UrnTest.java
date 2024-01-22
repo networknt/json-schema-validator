@@ -29,7 +29,7 @@ public class UrnTest
       JsonSchemaFactory.Builder builder = JsonSchemaFactory.builder()
           .defaultMetaSchemaURI(draftV7.getUri())
           .addMetaSchema(draftV7)
-          .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.absoluteIriMapper(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
+          .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );
       JsonSchemaFactory instance = builder.build();
       JsonSchema schema = instance.getSchema(is);

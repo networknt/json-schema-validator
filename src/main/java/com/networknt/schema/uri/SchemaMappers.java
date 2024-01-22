@@ -17,6 +17,10 @@ package com.networknt.schema.uri;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Schema Mappers.
@@ -42,7 +46,46 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
 
     public static class Builder {
         private SchemaMappers values = new SchemaMappers();
+
+        public Builder() {
+        }
+
+        public Builder(Builder copy) {
+            this.values.addAll(copy.values);
+        }
+
+        public Builder with(Builder builder) {
+            if (!builder.values.isEmpty()) {
+                this.values.addAll(builder.values);
+            }
+            return this;
+        }
+
+        public Builder values(Consumer<List<SchemaMapper>> values) {
+            values.accept(this.values);
+            return this;
+        }
+
+        public Builder add(SchemaMapper schemaMapper) {
+            this.values.add(schemaMapper);
+            return this;
+        }
+
+        public Builder mapPrefix(String source, String replacement) {
+            this.values.add(new PrefixSchemaMapper(source, replacement));
+            return this;
+        }
+
+        public Builder values(Map<String, String> mappings) {
+            this.values.add(new MapSchemaMapper(mappings));
+            return this;
+        }
         
+        public Builder values(Function<String, String> mappings) {
+            this.values.add(new MapSchemaMapper(mappings));
+            return this;
+        }
+
         public SchemaMappers build() {
             return values;
         }
