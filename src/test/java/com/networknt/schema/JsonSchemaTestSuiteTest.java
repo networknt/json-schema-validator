@@ -77,7 +77,7 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     }
 
     private void disableV7Tests() {
-        this.disabled.put(Paths.get("src/test/suite/tests/draft7/optional/content.json"), "Unsupported behavior");
+        //this.disabled.put(Paths.get("src/test/suite/tests/draft7/optional/content.json"), "Unsupported behavior");
     }
 
     private void disableV6Tests() {

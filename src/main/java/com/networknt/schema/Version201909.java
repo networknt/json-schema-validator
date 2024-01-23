@@ -48,6 +48,7 @@ public class Version201909 extends JsonSchemaVersion{
                         new NonValidationKeyword("deprecated"),
                         new NonValidationKeyword("contentMediaType"),
                         new NonValidationKeyword("contentEncoding"),
+                        new NonValidationKeyword("contentSchema"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else")

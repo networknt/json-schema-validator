@@ -26,8 +26,6 @@ public class Version7 extends JsonSchemaVersion{
                         new NonValidationKeyword("default"),
                         new NonValidationKeyword("definitions"),
                         new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("contentMediaType"),
-                        new NonValidationKeyword("contentEncoding"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else"),
