@@ -407,17 +407,17 @@ public class JsonSchemaFactory {
             final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             JsonSchema jsonSchema;
-            SchemaLocation schemaLocation = SchemaLocation.of(schemaUri.toString());
-            if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri) || schemaUri.getFragment() == null
+            if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {
+                // Schema without fragment
                 ValidationContext validationContext = new ValidationContext(jsonMetaSchema, this, config);
-                jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                jsonSchema = doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
-                // Subschema
+                // Schema with fragment pointing to sub schema
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
-                SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
+                SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
-                return document.getRefSchema(schemaLocation.getFragment());
+                return document.getRefSchema(schemaUri.getFragment());
             }
             return jsonSchema;
         } catch (IOException e) {
@@ -523,16 +523,6 @@ public class JsonSchemaFactory {
      */
     public JsonSchema getSchema(final JsonNode jsonNode) {
         return newJsonSchema(null, jsonNode, null);
-    }
-
-    private boolean idMatchesSourceUri(final JsonMetaSchema metaSchema, final JsonNode schema, final SchemaLocation schemaUri) {
-        String id = metaSchema.readId(schema);
-        if (id == null || id.isEmpty()) {
-            return false;
-        }
-        boolean result = id.equals(schemaUri.toString());
-        logger.debug("Matching {} to {}: {}", id, schemaUri, result);
-        return result;
     }
 
     private boolean isYaml(final SchemaLocation schemaUri) {
