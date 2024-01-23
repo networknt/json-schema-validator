@@ -422,22 +422,6 @@ public class SchemaValidatorsConfig {
     }
 
     /**
-     * 
-     * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
-     * 
-     * @param writeMode true if schema is used to write data
-     * @deprecated Use {@code setReadOnly} or {@code setWriteOnly}
-     */
-    @Deprecated
-    public void setWriteMode(boolean writeMode) {
-        if (writeMode) {
-            setWriteOnly(true);
-        } else {
-            setReadOnly(true);
-        }
-    }
-
-    /**
      * Set the approach used to generate paths in messages, logs and errors (default is PathType.LEGACY).
      *
      * @param pathType The path generation approach.
