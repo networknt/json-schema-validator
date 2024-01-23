@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class Issue428Test extends HTTPServiceSupport {
     protected ObjectMapper mapper = new ObjectMapper();
     protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).objectMapper(mapper).build();
+            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).jsonMapper(mapper).build();
 
     private void runTestFile(String testCaseFile) throws Exception {
         final SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + testCaseFile);

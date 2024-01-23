@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.uri.*;
 import org.slf4j.Logger;
@@ -41,20 +40,20 @@ public class JsonSchemaFactory {
 
 
     public static class Builder {
-        private ObjectMapper objectMapper = null;
-        private YAMLMapper yamlMapper = null;
+        private ObjectMapper jsonMapper = null;
+        private ObjectMapper yamlMapper = null;
         private String defaultMetaSchemaURI;
         private final ConcurrentMap<String, JsonMetaSchema> jsonMetaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
         private SchemaLoaders.Builder schemaLoadersBuilder = SchemaLoaders.builder();
         private SchemaMappers.Builder schemaMappersBuilder = SchemaMappers.builder();
         private boolean enableUriSchemaCache = true;
 
-        public Builder objectMapper(final ObjectMapper objectMapper) {
-            this.objectMapper = objectMapper;
+        public Builder jsonMapper(final ObjectMapper jsonMapper) {
+            this.jsonMapper = jsonMapper;
             return this;
         }
 
-        public Builder yamlMapper(final YAMLMapper yamlMapper) {
+        public Builder yamlMapper(final ObjectMapper yamlMapper) {
             this.yamlMapper = yamlMapper;
             return this;
         }
@@ -94,8 +93,8 @@ public class JsonSchemaFactory {
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
-                    objectMapper == null ? new ObjectMapper() : objectMapper,
-                    yamlMapper == null ? new YAMLMapper(): yamlMapper,
+                    jsonMapper,
+                    yamlMapper,
                     defaultMetaSchemaURI,
                     schemaLoadersBuilder,
                     schemaMappersBuilder,
@@ -106,7 +105,7 @@ public class JsonSchemaFactory {
     }
 
     private final ObjectMapper jsonMapper;
-    private final YAMLMapper yamlMapper;
+    private final ObjectMapper yamlMapper;
     private final String defaultMetaSchemaURI;
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
@@ -118,17 +117,13 @@ public class JsonSchemaFactory {
 
     private JsonSchemaFactory(
             final ObjectMapper jsonMapper,
-            final YAMLMapper yamlMapper,
+            final ObjectMapper yamlMapper,
             final String defaultMetaSchemaURI,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
             final boolean enableUriSchemaCache) {
-        if (jsonMapper == null) {
-            throw new IllegalArgumentException("ObjectMapper must not be null");
-        } else if (yamlMapper == null) {
-            throw new IllegalArgumentException("YAMLMapper must not be null");
-        } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
+        if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
         } else if (schemaLoadersBuilder == null) {
             throw new IllegalArgumentException("SchemaLoaders must not be null");
@@ -203,7 +198,7 @@ public class JsonSchemaFactory {
         Builder builder = builder()
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
-                .objectMapper(blueprint.jsonMapper)
+                .jsonMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper);
         builder.schemaLoadersBuilder.with(blueprint.schemaLoadersBuilder);
         builder.schemaMappersBuilder.with(blueprint.schemaMappersBuilder);
@@ -303,7 +298,7 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = jsonMapper.readTree(schema);
+            final JsonNode schemaNode = getJsonMapper().readTree(schema);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -317,7 +312,7 @@ public class JsonSchemaFactory {
 
     public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = jsonMapper.readTree(schemaStream);
+            final JsonNode schemaNode = getJsonMapper().readTree(schemaStream);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -329,6 +324,13 @@ public class JsonSchemaFactory {
         return getSchema(schemaStream, null);
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableUriSchemaCache) {
             JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(schemaUri, key -> {
@@ -339,6 +341,14 @@ public class JsonSchemaFactory {
         return getMappedSchema(schemaUri, config);
     }
     
+    protected ObjectMapper getYamlMapper() {
+        return this.yamlMapper != null ? this.yamlMapper : YamlMapperFactory.getInstance();
+    }
+    
+    protected ObjectMapper getJsonMapper() {
+        return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
+    }
+    
     protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
         try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
             if (inputStream == null) {
@@ -346,9 +356,9 @@ public class JsonSchemaFactory {
             }
             final JsonNode schemaNode;
             if (isYaml(schemaUri)) {
-                schemaNode = yamlMapper.readTree(inputStream);
+                schemaNode = getYamlMapper().readTree(inputStream);
             } else {
-                schemaNode = jsonMapper.readTree(inputStream);
+                schemaNode = getJsonMapper().readTree(inputStream);
             }
 
             final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode, config);
@@ -385,22 +395,68 @@ public class JsonSchemaFactory {
         return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, null);
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @return the schema
+     */
     public JsonSchema getSchema(final SchemaLocation schemaUri) {
         return getSchema(schemaUri, new SchemaValidatorsConfig());
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the base absolute IRI
+     * @param jsonNode the node
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(schemaUri, jsonNode, config);
     }
     
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the base absolute IRI
+     * @param jsonNode  the node
+     * @return the schema
+     */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
         return newJsonSchema(schemaUri, jsonNode, null);
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * <p>
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode, SchemaValidatorsConfig)}
+     * instead to ensure the base IRI if no id is present.
+     * 
+     * @param jsonNode the node
+     * @param config   the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * <p>
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode)} instead to ensure the
+     * base IRI if no id is present.
+     * 
+     * @param jsonNode the node
+     * @return the schema
+     */
     public JsonSchema getSchema(final JsonNode jsonNode) {
         return newJsonSchema(null, jsonNode, null);
     }

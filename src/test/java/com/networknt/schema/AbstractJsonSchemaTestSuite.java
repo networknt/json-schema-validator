@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
 
-    protected ObjectMapper mapper = new ObjectMapper();
+    protected ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');
@@ -185,7 +185,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
                 .builder(base)
-                .objectMapper(this.mapper)
+                .jsonMapper(this.mapper)
                 .schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))

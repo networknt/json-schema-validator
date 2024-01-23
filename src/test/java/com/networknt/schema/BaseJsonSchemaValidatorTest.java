@@ -29,7 +29,7 @@ import java.net.URL;
  */
 public class BaseJsonSchemaValidatorTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     public static JsonNode getJsonNodeFromClasspath(String name) throws IOException {
         InputStream is1 = Thread.currentThread().getContextClassLoader()

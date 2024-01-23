@@ -12,10 +12,11 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.networknt.schema.JsonMapperFactory;
 
 public class TestSource {
     protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() { /* intentionally empty */};
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     /**
      * Indicates whether this test-source should be executed

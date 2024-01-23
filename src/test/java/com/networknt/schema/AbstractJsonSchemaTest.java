@@ -52,7 +52,7 @@ public abstract class AbstractJsonSchemaTest {
 
     private JsonNode getJsonNodeFromPath(String dataPath) {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonMapperFactory.getInstance();
         try {
             return mapper.readTree(dataInputStream);
         } catch(IOException e) {
