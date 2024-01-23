@@ -8,14 +8,14 @@ In the event that the schema does not define a schema identifier using the `$id`
 
 ## Mapping Schema Identifier to Retrieval IRI
 
-The schema identifier can be mapped to the retrieval IRI by implementing the `AbsoluteIriMapper` interface.
+The schema identifier can be mapped to the retrieval IRI by implementing the `SchemaMapper` interface.
 
-### Configuring AbsoluteIriMapper
+### Configuring Schema Mapper
 
 ```java
 JsonSchemaFactory schemaFactory = JsonSchemaFactory.builder()
-        .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder
-            .absoluteIriMapper(new CustomAbsoluteIriMapper())
+        .schemaMappers(schemaMappers -> schemaMappers
+            .add(new CustomSchemaMapper())
         .addMetaSchema(JsonMetaSchema.getV7())
         .defaultMetaSchemaURI(JsonMetaSchema.getV7().getUri())
         .build();
@@ -25,7 +25,7 @@ JsonSchemaFactory schemaFactory = JsonSchemaFactory.builder()
 
 ```java
 JsonSchemaFactory schemaFactory = JsonSchemaFactory.builder()
-        .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder
+        .schemaMappers(schemaMappers -> schemaMappers
             .mapPrefix("https://", "http://")
             .mapPrefix("http://json-schema.org", "classpath:"))
         .addMetaSchema(JsonMetaSchema.getV7())
@@ -58,8 +58,8 @@ public class CustomUriSchemaLoader implements SchemaLoader {
     }
 
     @Override
-    public InputStreamSource getSchema(SchemaLocation schemaLocation) {
-        URI uri = URI.create(schemaLocation.getAbsoluteIri().toString());
+    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        URI uri = URI.create(absoluteIri.toString());
         return () -> {
             HttpRequest request = HttpRequest.newBuilder().uri(uri).header("Authorization", authorizationToken).build();
             try {
@@ -83,12 +83,7 @@ Within the `JsonSchemaFactory` the custom `SchemaLoader` must be configured.
 CustomUriSchemaLoader uriSchemaLoader = new CustomUriSchemaLoader(authorizationToken);
 
 JsonSchemaFactory schemaFactory = JsonSchemaFactory.builder()
-        .schemaLoaderBuilder(schemaLoaderBuilder -> schemaLoaderBuilder.schemaLoaders(schemaLoaders -> {
-            for (int x = 0; x < schemaLoaders.size(); x++) {
-                if (schemaLoaders.get(x) instanceof UriSchemaLoader) {
-                    schemaLoaders.set(x, uriSchemaLoader);
-                }
-            }
+        .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriSchemaLoader))
         .addMetaSchema(JsonMetaSchema.getV7())
         .defaultMetaSchemaURI(JsonMetaSchema.getV7().getUri())
         .build();
