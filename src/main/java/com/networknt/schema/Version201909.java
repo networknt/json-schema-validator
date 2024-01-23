@@ -1,10 +1,24 @@
 package com.networknt.schema;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Version201909 extends JsonSchemaVersion{
     private static final String URI = "https://json-schema.org/draft/2019-09/schema";
     private static final String ID = "$id";
+    private static final Map<String, Boolean> VOCABULARY;
+
+    static {
+        Map<String, Boolean> vocabulary = new HashMap<>();
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/core", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/applicator", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/validation", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/meta-data", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/format", false);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/content", true);
+        VOCABULARY = vocabulary;
+    }
 
     static {
         // add version specific formats here.
@@ -38,12 +52,7 @@ public class Version201909 extends JsonSchemaVersion{
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else")
                 ))
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/core")
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/applicator")
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/validation")
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/meta-data")
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/format", false)
-                .vocabulary("https://json-schema.org/draft/2019-09/vocab/content")
+                .vocabularies(VOCABULARY)
                 .build();
     }
 }

@@ -1,10 +1,25 @@
 package com.networknt.schema;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Version202012 extends JsonSchemaVersion {
     private static final String URI = "https://json-schema.org/draft/2020-12/schema";
     private static final String ID = "$id";
+    private static final Map<String, Boolean> VOCABULARY;
+
+    static {
+        Map<String, Boolean> vocabulary = new HashMap<>();
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/core", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/applicator", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/unevaluated", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/validation", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/meta-data", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/format-annotation", true);
+        vocabulary.put("https://json-schema.org/draft/2020-12/vocab/content", true);
+        VOCABULARY = vocabulary;
+    }
 
     static {
         // add version specific formats here.
@@ -38,13 +53,7 @@ public class Version202012 extends JsonSchemaVersion {
                         new NonValidationKeyword("else"),
                         new NonValidationKeyword("additionalItems")
                 ))
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/core")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/applicator")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/unevaluated")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/validation")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/meta-data")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/format-annotation")
-                .vocabulary("https://json-schema.org/draft/2020-12/vocab/content")
+                .vocabularies(VOCABULARY)
                 .build();
     }
 }
