@@ -1,0 +1,14 @@
+{
+  "$id": "https://example.com/person.schema.json",
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "example": {
+      "$id": "#example",
+      "type": "string",
+      "enum": [
+        "A", "B"
+      ]
+    }
+  }
+}
