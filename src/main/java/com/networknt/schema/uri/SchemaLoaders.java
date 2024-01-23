@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Schema Loaders.
+ * Schema Loaders used to load a schema given the retrieval IRI.
  */
 public class SchemaLoaders extends ArrayList<SchemaLoader> {
     private static final long serialVersionUID = 1L;
@@ -56,7 +56,7 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
     }
 
     public static class Builder {
-        SchemaLoaders values = new SchemaLoaders();
+        private SchemaLoaders values = new SchemaLoaders();
 
         public Builder() {
         }
@@ -72,26 +72,55 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
             return this;
         }
 
-        public Builder values(Consumer<List<SchemaLoader>> values) {
-            values.accept(this.values);
+        /**
+         * Customize the schema loaders.
+         * 
+         * @param customizer the customizer
+         * @return the builder
+         */
+        public Builder values(Consumer<List<SchemaLoader>> customizer) {
+            customizer.accept(this.values);
             return this;
         }
-        
+
+        /**
+         * Adds a schema loader.
+         * 
+         * @param schemaLoader the schema loader
+         * @return the builder
+         */
         public Builder add(SchemaLoader schemaLoader) {
             this.values.add(schemaLoader);
             return this;
         }
 
-        public Builder values(Map<String, String> mappings) {
-            this.values.add(new MapSchemaLoader(mappings));
-            return this;
-        }
-        
-        public Builder values(Function<String, String> mappings) {
-            this.values.add(new MapSchemaLoader(mappings));
+        /**
+         * Sets the schema data by absolute IRI.
+         * 
+         * @param schemas the map of IRI to schema data
+         * @return the builder
+         */
+        public Builder schemas(Map<String, String> schemas) {
+            this.values.add(new MapSchemaLoader(schemas));
             return this;
         }
 
+        /**
+         * Sets the schema data by absolute IRI function.
+         * 
+         * @param schemas the function that returns schema data given IRI
+         * @return the builder
+         */
+        public Builder schemas(Function<String, String> schemas) {
+            this.values.add(new MapSchemaLoader(schemas));
+            return this;
+        }
+
+        /**
+         * Builds a {@link SchemaLoaders}.
+         * 
+         * @return the schema loaders
+         */
         public SchemaLoaders build() {
             if (this.values.isEmpty()) {
                 return DEFAULT;

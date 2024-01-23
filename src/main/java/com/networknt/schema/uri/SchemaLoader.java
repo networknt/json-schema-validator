@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 the original author or authors.
+ * Copyright (c) 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,15 @@ package com.networknt.schema.uri;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Loader for schema.
+ * Schema Loader used to load a schema given the retrieval IRI.
  */
 @FunctionalInterface
 public interface SchemaLoader {
+    /**
+     * Loads a schema given the retrieval IRI.
+     * 
+     * @param absoluteIri the retrieval IRI
+     * @return the input stream source
+     */
     InputStreamSource getSchema(AbsoluteIri absoluteIri);
 }

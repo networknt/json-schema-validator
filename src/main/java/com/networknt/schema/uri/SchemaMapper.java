@@ -18,9 +18,16 @@ package com.networknt.schema.uri;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Maps absolute IRI.
+ * Schema Mapper used to map an ID indicated by an absolute IRI to a retrieval
+ * IRI.
  */
 @FunctionalInterface
 public interface SchemaMapper {
+    /**
+     * Maps an ID indicated by an absolute IRI to a retrieval IRI.
+     * 
+     * @param absoluteIRI the ID
+     * @return the retrieval IRI or null if this mapper doesn't support the mapping
+     */
     AbsoluteIri map(AbsoluteIri absoluteIRI);
 }
