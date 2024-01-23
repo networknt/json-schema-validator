@@ -163,6 +163,18 @@ public class JsonMetaSchema {
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> kwords = createKeywordsMap(this.keywords, this.formats);
+            if (this.specification != null) {
+                if (this.specification.getVersionFlagValue() >= SpecVersion.VersionFlag.V201909.getVersionFlagValue()) {
+                    if (!this.uri.equals(this.specification.getId())) {
+                        String validation = Vocabularies.getVocabulary(specification, "validation");
+                        if (!this.vocabularies.getOrDefault(validation, false)) {
+                            for (String keywordToRemove : Vocabularies.getKeywords("validation")) {
+                                kwords.remove(keywordToRemove);
+                            }
+                        }
+                    }
+                }
+            }
             return new JsonMetaSchema(this.uri, this.idKeyword, kwords, this.vocabularies, this.specification);
         }
     }

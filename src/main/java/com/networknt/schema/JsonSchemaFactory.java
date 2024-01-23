@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -255,7 +256,7 @@ public class JsonSchemaFactory {
     private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode uriNode = schemaNode.get("$schema");
         if (uriNode != null && uriNode.isTextual()) {
-            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), id -> fromId(id, config));
+            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), id -> getMetaSchema(id, config));
         }
         return null;
     }
@@ -266,34 +267,39 @@ public class JsonSchemaFactory {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, id -> fromId(id, config));
+        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, id -> getMetaSchema(id, config));
         return jsonMetaSchema;
     }
 
-    private JsonMetaSchema fromId(String id, SchemaValidatorsConfig config) {
+    public JsonMetaSchema getMetaSchema(String id, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
         return SpecVersionDetector.detectOptionalVersion(id)
             .map(JsonSchemaFactory::checkVersion)
             .map(JsonSchemaVersion::getInstance)
             .orElseGet(() -> {
                 // Custom meta schema
-                JsonSchema schema = getSchema(SchemaLocation.of(id), config);
-                JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
-                VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
-                if (specification != null) {
-                    if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
-                        // Process vocabularies
-                        JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
-                        if (vocabulary != null) {
-                            for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
-                                builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
-                            }
-                        }
-                        
+                return loadMetaSchema(id, config);
+            });
+    }
+
+    protected JsonMetaSchema loadMetaSchema(String id, SchemaValidatorsConfig config) {
+        JsonSchema schema = getSchema(SchemaLocation.of(id), config);
+        JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
+        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+        if (specification != null) {
+            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                // Process vocabularies
+                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                if (vocabulary != null) {
+                    builder.vocabularies(new HashMap<>());
+                    for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
                     }
                 }
-                return builder.build();
-            });
+                
+            }
+        }
+        return builder.build();
     }
 
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
