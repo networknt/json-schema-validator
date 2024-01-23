@@ -169,6 +169,16 @@ public class JsonSchemaFactory {
                 .build();
     }
 
+    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag,
+            Consumer<JsonSchemaFactory.Builder> customizer) {
+        JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
+        JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
+        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaURI(metaSchema.getUri())
+                .addMetaSchema(metaSchema);
+        customizer.accept(builder);
+        return builder.build();
+    }
+
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
         if (null == versionFlag) return null;
         switch (versionFlag) {
