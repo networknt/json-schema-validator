@@ -152,9 +152,7 @@ public class JsonSchemaFactory {
     /**
      * Builder without keywords or formats.
      *
-     * <code>
-     * JsonSchemaFactory.builder(JsonSchemaFactory.getDraftV4()).build();
-     * </code>
+     * Typically {@link #builder(JsonSchemaFactory)} is what is required.
      *
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
@@ -195,6 +193,16 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Builder from an existing {@link JsonSchemaFactory}.
+     * <p>
+     * <code>
+     * JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909));
+     * </code>
+     * 
+     * @param blueprint the existing factory
+     * @return the builder
+     */
     public static Builder builder(final JsonSchemaFactory blueprint) {
         Builder builder = builder()
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
@@ -249,7 +257,7 @@ public class JsonSchemaFactory {
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
-        final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode, config);
+        final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
         return new ValidationContext(jsonMetaSchema, this, config);
     }
     
@@ -261,14 +269,13 @@ public class JsonSchemaFactory {
         return null;
     }
 
-    private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private JsonMetaSchema getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode uriNode = schemaNode.get("$schema");
         if (uriNode != null && !uriNode.isNull() && !uriNode.isTextual()) {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, id -> getMetaSchema(id, config));
-        return jsonMetaSchema;
+        return jsonMetaSchemas.computeIfAbsent(uri, id -> getMetaSchema(id, config));
     }
 
     public JsonMetaSchema getMetaSchema(String id, SchemaValidatorsConfig config) {
@@ -302,6 +309,16 @@ public class JsonSchemaFactory {
         return builder.build();
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schema the schema data as a string
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = getJsonMapper().readTree(schema);
@@ -312,10 +329,29 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schema the schema data as a string
+     * @return the schema
+     */
     public JsonSchema getSchema(final String schema) {
-        return getSchema(schema, null);
+        return getSchema(schema, createSchemaValidatorsConfig());
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schemaStream the input stream with the schema data
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = getJsonMapper().readTree(schemaStream);
@@ -326,8 +362,17 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schemaStream the input stream with the schema data
+     * @return the schema
+     */
     public JsonSchema getSchema(final InputStream schemaStream) {
-        return getSchema(schemaStream, null);
+        return getSchema(schemaStream, createSchemaValidatorsConfig());
     }
 
     /**
@@ -354,7 +399,11 @@ public class JsonSchemaFactory {
     protected ObjectMapper getJsonMapper() {
         return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
     }
-    
+
+    protected SchemaValidatorsConfig createSchemaValidatorsConfig() {
+        return new SchemaValidatorsConfig();
+    }
+
     protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
         try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
             if (inputStream == null) {
@@ -367,7 +416,7 @@ public class JsonSchemaFactory {
                 schemaNode = getJsonMapper().readTree(inputStream);
             }
 
-            final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode, config);
+            final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             JsonSchema jsonSchema;
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUri.toString());
@@ -389,16 +438,37 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @return the schema
+     */
     public JsonSchema getSchema(final URI schemaUri) {
-        return getSchema(SchemaLocation.of(schemaUri.toString()), new SchemaValidatorsConfig());
+        return getSchema(SchemaLocation.of(schemaUri.toString()), createSchemaValidatorsConfig());
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param jsonNode the node
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param jsonNode the node
+     * @return the schema
+     */
     public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, null);
+        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, createSchemaValidatorsConfig());
     }
 
     /**
@@ -408,7 +478,7 @@ public class JsonSchemaFactory {
      * @return the schema
      */
     public JsonSchema getSchema(final SchemaLocation schemaUri) {
-        return getSchema(schemaUri, new SchemaValidatorsConfig());
+        return getSchema(schemaUri, createSchemaValidatorsConfig());
     }
 
     /**
