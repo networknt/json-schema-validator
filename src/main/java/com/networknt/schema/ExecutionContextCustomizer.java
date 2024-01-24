@@ -20,7 +20,7 @@ package com.networknt.schema;
  * Customize the execution context before validation.
  */
 @FunctionalInterface
-public interface ExecutionCustomizer {
+public interface ExecutionContextCustomizer {
     /**
      * Customize the execution context before validation.
      * <p>

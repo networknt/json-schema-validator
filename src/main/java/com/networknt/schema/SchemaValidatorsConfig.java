@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public class SchemaValidatorsConfig {
 
@@ -123,7 +122,7 @@ public class SchemaValidatorsConfig {
 
     private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
 
-    private Supplier<ExecutionContext> executionContextSupplier;
+    private ExecutionContextCustomizer executionContextCustomizer;
 
     private boolean loadCollectors = true;
 
@@ -136,6 +135,11 @@ public class SchemaValidatorsConfig {
      * The message source to use for generating localised messages.
      */
     private MessageSource messageSource;
+
+    /**
+     * Since Draft 2019-09 format assertions are not enabled by default.
+     */
+    private Boolean formatAssertionsEnabled = null;
 
     /************************ START OF UNEVALUATED CHECKS **********************************/
 
@@ -325,12 +329,12 @@ public class SchemaValidatorsConfig {
     public SchemaValidatorsConfig() {
     }
 
-    public Supplier<ExecutionContext> getExecutionContextSupplier() {
-        return this.executionContextSupplier;
+    public ExecutionContextCustomizer getExecutionContextCustomizer() {
+        return this.executionContextCustomizer;
     }
 
-    public void setExecutionContextSupplier(Supplier<ExecutionContext> executionContextSupplier) {
-        this.executionContextSupplier = executionContextSupplier;
+    public void setExecutionContextCustomizer(ExecutionContextCustomizer executionContextCustomizer) {
+        this.executionContextCustomizer = executionContextCustomizer;
     }
 
     public boolean isLosslessNarrowing() {
@@ -516,4 +520,29 @@ public class SchemaValidatorsConfig {
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
+    
+    /**
+     * Gets the format assertion enabled flag.
+     * <p>
+     * This defaults to null meaning that it will follow the defaults of the
+     * specification.
+     * <p>
+     * Since draft 2019-09 this will default to false unless enabled by using the
+     * $vocabulary keyword.
+     * 
+     * @return the format assertions enabled flag
+     */
+    public Boolean getFormatAssertionsEnabled() {
+        return formatAssertionsEnabled;
+    }
+
+    /**
+     * Sets the format assertion enabled flag.
+     * 
+     * @param formatAssertionsEnabled the format assertions enabled flag
+     */
+    public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
+        this.formatAssertionsEnabled = formatAssertionsEnabled;
+    }
+
 }

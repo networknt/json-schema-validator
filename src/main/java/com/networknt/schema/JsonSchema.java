@@ -575,7 +575,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public Set<ValidationMessage> validate(JsonNode rootNode, ExecutionCustomizer executionCustomizer) {
+    public Set<ValidationMessage> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
         return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -612,7 +612,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return the result
      */
     public <T> T validate(JsonNode rootNode, OutputFormat<T> format) {
-        return validate(rootNode, format, (ExecutionCustomizer) null);
+        return validate(rootNode, format, (ExecutionContextCustomizer) null);
     }
 
     /**
@@ -631,7 +631,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @param executionCustomizer the execution customizer
      * @return the result
      */
-    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, ExecutionCustomizer executionCustomizer) {
+    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
         return validate(createExecutionContext(), rootNode, format, executionCustomizer);
     }
 
@@ -852,13 +852,18 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ExecutionContext createExecutionContext() {
         SchemaValidatorsConfig config = validationContext.getConfig();
-        if(config.getExecutionContextSupplier() != null) {
-            return config.getExecutionContextSupplier().get();
-        }
         CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
                 config.isUnevaluatedPropertiesAnalysisDisabled());
+
+        // Copy execution config defaults from validation config
         ExecutionConfig executionConfig = new ExecutionConfig();
         executionConfig.setLocale(config.getLocale());
-        return new ExecutionContext(executionConfig, collectorContext);
+        executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
+
+        ExecutionContext executionContext = new ExecutionContext(executionConfig, collectorContext);
+        if(config.getExecutionContextCustomizer() != null) {
+            config.getExecutionContextCustomizer().customize(executionContext, validationContext);
+        }
+        return executionContext;
     }
 }

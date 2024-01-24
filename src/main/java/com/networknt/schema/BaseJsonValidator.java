@@ -295,7 +295,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @return the result
      */
     public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
-            ExecutionCustomizer executionCustomizer) {
+            ExecutionContextCustomizer executionCustomizer) {
         format.customize(executionContext, this.validationContext);
         if (executionCustomizer != null) {
             executionCustomizer.customize(executionContext, validationContext);

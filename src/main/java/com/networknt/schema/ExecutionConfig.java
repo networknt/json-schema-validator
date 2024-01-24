@@ -26,6 +26,10 @@ import java.util.function.Predicate;
 public class ExecutionConfig {
     private Locale locale = Locale.ROOT;
     private Predicate<String> annotationAllowedPredicate = (keyword) -> true;
+
+    /**
+     * Since Draft 2019-09 format assertions are not enabled by default.
+     */
     private Boolean formatAssertionsEnabled = null;
 
     public Locale getLocale() {
