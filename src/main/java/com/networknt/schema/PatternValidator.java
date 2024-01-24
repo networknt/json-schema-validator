@@ -41,7 +41,6 @@ public class PatternValidator extends BaseJsonValidator {
             logger.error("Failed to compile pattern '{}': {}", this.pattern, e.getMessage());
             throw e;
         }
-        this.validationContext = validationContext;
     }
 
     private boolean matches(String value) {

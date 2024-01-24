@@ -34,7 +34,6 @@ public class TypeValidator extends BaseJsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         this.parentSchema = parentSchema;
-        this.validationContext = validationContext;
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
         }

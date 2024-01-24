@@ -41,7 +41,6 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
 
     public DateTimeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
-        this.validationContext = validationContext;
     }
 
     @Override

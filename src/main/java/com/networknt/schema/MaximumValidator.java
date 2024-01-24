@@ -38,7 +38,6 @@ public class MaximumValidator extends BaseJsonValidator {
 
     public MaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
-        this.validationContext = validationContext;
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("maximum value is not a number");
         }

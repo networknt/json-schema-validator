@@ -32,7 +32,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
     private final PathType pathType;
 
-    protected JsonNode schemaNode;
+    protected final JsonNode schemaNode;
 
     protected ValidationContext validationContext;
 
