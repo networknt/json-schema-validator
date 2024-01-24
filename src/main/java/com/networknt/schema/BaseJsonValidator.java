@@ -252,10 +252,25 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return this.schemaNode;
     }
 
+    /**
+     * Gets the parent schema.
+     * <p>
+     * This is the lexical parent schema.
+     * 
+     * @return the parent schema
+     */
     public JsonSchema getParentSchema() {
         return this.parentSchema;
     }
 
+    /**
+     * Gets the evaluation parent schema.
+     * <p>
+     * This is the dynamic parent schema when following references.
+     * 
+     * @see JsonSchema#fromRef(JsonSchema, JsonNodePath)
+     * @return the evaluation parent schema
+     */
     public JsonSchema getEvaluationParentSchema() {
         if (this.evaluationParentSchema != null) {
             return this.evaluationParentSchema;
