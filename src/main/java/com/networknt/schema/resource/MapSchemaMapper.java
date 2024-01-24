@@ -1,4 +1,4 @@
-package com.networknt.schema.uri;
+package com.networknt.schema.resource;
 
 import java.util.Map;
 import java.util.function.Function;

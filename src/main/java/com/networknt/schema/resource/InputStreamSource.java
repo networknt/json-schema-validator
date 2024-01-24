@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 the original author or authors.
+ * Copyright (c) 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema.uri;
+package com.networknt.schema.resource;
 
-import com.networknt.schema.AbsoluteIri;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Schema Mapper used to map an ID indicated by an absolute IRI to a retrieval
- * IRI.
+ * InputStream source.
  */
 @FunctionalInterface
-public interface SchemaMapper {
+public interface InputStreamSource {
     /**
-     * Maps an ID indicated by an absolute IRI to a retrieval IRI.
+     * Opens a new inputstream to the resource.
      * 
-     * @param absoluteIRI the ID
-     * @return the retrieval IRI or null if this mapper doesn't support the mapping
+     * @return a new inputstream
+     * @throws IOException
      */
-    AbsoluteIri map(AbsoluteIri absoluteIRI);
+    InputStream getInputStream() throws IOException;
 }

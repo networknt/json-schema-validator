@@ -1,8 +1,8 @@
 package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.InputStreamSource;
-import com.networknt.schema.uri.SchemaLoader;
+import com.networknt.schema.resource.InputStreamSource;
+import com.networknt.schema.resource.SchemaLoader;
 
 import org.junit.jupiter.api.Test;
 

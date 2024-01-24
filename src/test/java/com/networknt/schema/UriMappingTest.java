@@ -18,8 +18,9 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
-import com.networknt.schema.uri.SchemaMapper;
-import com.networknt.schema.uri.MapSchemaMapper;
+import com.networknt.schema.resource.MapSchemaMapper;
+import com.networknt.schema.resource.SchemaMapper;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;

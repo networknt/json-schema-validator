@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema.uri;
+package com.networknt.schema.resource;
 
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Schema Loader used to load a schema given the retrieval IRI.
+ * Schema Mapper used to map an ID indicated by an absolute IRI to a retrieval
+ * IRI.
  */
 @FunctionalInterface
-public interface SchemaLoader {
+public interface SchemaMapper {
     /**
-     * Loads a schema given the retrieval IRI.
+     * Maps an ID indicated by an absolute IRI to a retrieval IRI.
      * 
-     * @param absoluteIri the retrieval IRI
-     * @return the input stream source
+     * @param absoluteIRI the ID
+     * @return the retrieval IRI or null if this mapper doesn't support the mapping
      */
-    InputStreamSource getSchema(AbsoluteIri absoluteIri);
+    AbsoluteIri map(AbsoluteIri absoluteIRI);
 }

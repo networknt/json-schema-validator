@@ -1,4 +1,4 @@
-package com.networknt.schema.uri;
+package com.networknt.schema.resource;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
