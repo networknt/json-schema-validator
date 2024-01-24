@@ -1,7 +1,6 @@
 package com.networknt.schema;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -77,7 +76,7 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     }
 
     private void disableV7Tests() {
-        //this.disabled.put(Paths.get("src/test/suite/tests/draft7/optional/content.json"), "Unsupported behavior");
+        // nothing here
     }
 
     private void disableV6Tests() {

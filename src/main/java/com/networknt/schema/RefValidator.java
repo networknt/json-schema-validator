@@ -146,9 +146,6 @@ public class RefValidator extends BaseJsonValidator {
                                                   JsonNodePath evaluationPath) {
         JsonNode node = parent.getRefSchemaNode(refValue);
         JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
-        if (!refValue.startsWith("#/")) {
-            throw new IllegalArgumentException(refValue);
-        }
         if (node != null) {
             String schemaReference = resolve(parent, refValueOriginal);
             return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
@@ -156,54 +153,6 @@ public class RefValidator extends BaseJsonValidator {
             });
         }
         return null;
-    }
-    
-    private static JsonSchema getJsonSchema(JsonNode node, JsonSchema parent,
-                                                  String refValue,
-                                                  JsonNodePath evaluationPath) {
-        if (node != null) {
-            SchemaLocation path = null;
-            JsonSchema currentParent = parent;
-            if (refValue.startsWith(REF_CURRENT)) {
-                // relative to document
-                path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(),
-                        new JsonNodePath(PathType.JSON_POINTER));
-                // Attempt to get subschema node
-                String[] refParts = refValue.split("/");
-                if (refParts.length > 3) {
-                    String[] subschemaParts = Arrays.copyOf(refParts, refParts.length - 2);
-                    JsonNode subschemaNode = parent.getRefSchemaNode(String.join("/", subschemaParts));
-                    String id = parent.getValidationContext().resolveSchemaId(subschemaNode);
-                    if (id != null) {
-                        if (id.contains(":")) {
-                            // absolute
-                            path = SchemaLocation.of(id);
-                        } else {
-                            // relative
-                            String absoluteUri = path.getAbsoluteIri().resolve(id).toString();
-                            path = SchemaLocation.of(absoluteUri);
-                        }
-                    }
-                }
-                String[] parts = refValue.split("/");
-                for (int x = 1; x < parts.length; x++) {
-                    path = path.append(parts[x]);
-                }
-            } else if(refValue.contains(":")) {
-                // absolute
-                path = SchemaLocation.of(refValue); 
-            } else {
-                // relative to lexical root
-                String id = parent.findSchemaResourceRoot().getId();
-                path = SchemaLocation.of(id);
-                String[] parts = refValue.split("/");
-                for (int x = 1; x < parts.length; x++) {
-                    path = path.append(parts[x]);
-                }
-            }
-            return parent.getValidationContext().newSchema(path, evaluationPath, node, currentParent);
-        }
-        throw null;
     }
 
     @Override
