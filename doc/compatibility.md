@@ -1,3 +1,13 @@
+## Compatibility with JSON Schema versions
+
+This implementation does not currently generate annotations.
+
+The `pattern` validator by default uses the JDK regular expression implementation which is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. The library can however be configured to use a ECMA-262 compliant regular expression implementation.
+
+### Known Issues
+* The `anyOf` applicator currently returns immediately on matching a schema. This results in the `unevaluatedItems` and `unevaluatedProperties` keywords potentially returning an incorrect result as the rest of the schemas in the `anyOf` aren't processed.
+* The `unevaluatedItems` keyword does not currently consider `contains`.
+
 
 ### Legend
 
@@ -8,7 +18,7 @@
 |   🔴   | Not implemented       |
 |   🚫   | Not defined           |
 
-### Compatibility with JSON Schema versions
+### Keywords Support
 
 | Keyword                    | Draft 4 | Draft 6 | Draft 7 | Draft 2019-09 | Draft 2020-12 |
 |:---------------------------|:-------:|:-------:|:-------:|:-------------:|:-------------:|
@@ -19,16 +29,16 @@
 | $recursiveAnchor           | 🚫 | 🚫 | 🚫 | 🟢 | 🚫 |
 | $recursiveRef              | 🚫 | 🚫 | 🚫 | 🟢 | 🚫 |
 | $ref                       | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
-| $vocabulary                | 🚫 | 🚫 | 🚫 | 🔴 | 🔴 |
+| $vocabulary                | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | additionalItems            | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | additionalProperties       | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | allOf                      | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | anyOf                      | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | const                      | 🚫 | 🟢 | 🟢 | 🟢 | 🟢 |
 | contains                   | 🚫 | 🟢 | 🟢 | 🟢 | 🟢 |
-| contentEncoding            | 🚫 | 🚫 | 🔴 | 🔴 | 🔴 |
-| contentMediaType           | 🚫 | 🚫 | 🔴 | 🔴 | 🔴 |
-| contentSchema              | 🚫 | 🚫 | 🚫 | 🔴 | 🔴 |
+| contentEncoding            | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
+| contentMediaType           | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
+| contentSchema              | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | definitions                | 🟢 | 🟢 | 🟢 | 🚫 | 🚫 |
 | defs                       | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | dependencies               | 🟢 | 🟢 | 🟢 | 🚫 | 🚫 |
@@ -67,7 +77,38 @@
 | uniqueItems                | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | writeOnly                  | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 
-### Semantic Validation (Format)
+#### Content Encoding
+
+Since Draft 2019-09, the `contentEncoding` keyword does not generate assertions. As the implementation currently does not collect annotations this only generates assertions in Draft 7.
+
+#### Content Media Type
+
+Since Draft 2019-09, the `contentMediaType` keyword does not generate assertions. As the implementation currently does not collect annotations this only generates assertions in Draft 7.
+
+#### Content Schema
+
+The `contentSchema` keyword does not generate assertions. As the implementation currently does not collect annotations this doesn't do anything.
+
+#### Pattern
+
+By default the `pattern` keyword uses the JDK regular expression implementation validating regular expressions. 
+
+This is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. This is however the more likely desired behavior as other logic will most likely be using the default JDK regular expression implementation to perform downstream processing.
+
+The library can be configured to use a ECMA-262 compliant regular expression validator which is implemented using [joni](https://github.com/jruby/joni). This can be configured by setting `setEcma262Validator` to `true`.
+
+### Format
+
+Since Draft 2019-09 the `format` keyword only generates annotations by default and does not generate assertions.
+
+This can be configured on a schema basis by using a meta schema with the appropriate vocabulary.
+
+| Version               | Vocabulary                                                    | Value             |
+|:----------------------|---------------------------------------------------------------|-------------------|
+| Draft 2019-09         | `https://json-schema.org/draft/2019-09/vocab/format`          | `true`            |
+| Draft 2020-12         | `https://json-schema.org/draft/2020-12/vocab/format-assertion`| `true`/`false`    | 
+
+This behavior can be overridden to generate assertions on a per-execution basis by setting the `setFormatAssertionsEnabled` to `true`.
 
 | Format                | Draft 4 | Draft 6 | Draft 7 | Draft 2019-09 | Draft 2020-12 |
 |:----------------------|:-------:|:-------:|:-------:|:-------------:|:-------------:|
