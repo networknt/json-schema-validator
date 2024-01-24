@@ -111,7 +111,8 @@ public class RefValidator extends BaseJsonValidator {
                     () -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath)));
         }
         return new JsonSchemaRef(new CachedSupplier<>(
-                () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)));
+                () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)
+                        .fromRef(parentSchema, evaluationPath)));
     }
 
     private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
@@ -279,6 +280,22 @@ public class RefValidator extends BaseJsonValidator {
         } catch (RuntimeException e) {
             throw new JsonSchemaException(e);
         }
-        jsonSchema.initializeValidators();
+        // Check for circular dependency
+        // Only one cycle is pre-loaded
+        // The rest of the cycles will load at execution time depending on the input
+        // data
+        SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
+        JsonSchema check = jsonSchema;
+        boolean circularDependency = false;
+        while(check.getEvaluationParentSchema() != null) {
+            check = check.getEvaluationParentSchema();
+            if (check.getSchemaLocation().equals(schemaLocation)) {
+                circularDependency = true;
+                break;
+            }
+        }
+        if(!circularDependency) {
+            jsonSchema.initializeValidators();
+        }
     }
 }
