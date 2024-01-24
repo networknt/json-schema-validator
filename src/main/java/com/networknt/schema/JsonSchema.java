@@ -19,12 +19,14 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
+import com.networknt.schema.SchemaLocation.Fragment;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -54,17 +56,37 @@ public class JsonSchema extends BaseJsonValidator {
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
     }
-
+    
+    private boolean hasNoFragment(SchemaLocation schemaLocation) {
+        return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
+    }
+    
     private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
         this.metaSchema = this.validationContext.getMetaSchema();
         initializeConfig();
-        this.id = this.validationContext.resolveSchemaId(this.schemaNode);
-        if (this.id != null) {
+        String id = this.validationContext.resolveSchemaId(this.schemaNode);
+        if (id != null) {
+            // In earlier drafts $id may contain an anchor fragment
+            // Note that json pointer fragments in $id are not allowed
+            if (hasNoFragment(schemaLocation)) {
+                this.id = id;
+            } else {
+                this.id = id;
+            }
             this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
+                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : id, this);
+        } else {
+            if (hasNoFragment(schemaLocation)) {
+                // No $id but there is no fragment and is thus a schema resource
+                this.id = this.schemaLocation.getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
+                this.validationContext.getSchemaResources()
+                        .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
+            } else {
+                this.id = null;
+            }
         }
         String anchor = this.validationContext.getMetaSchema().readAnchor(this.schemaNode);
         if (anchor != null) {
@@ -236,8 +258,18 @@ public class JsonSchema extends BaseJsonValidator {
                         parent);
                 parent = subSchema;
             } else {
-                throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
-                        + document.getSchemaLocation().toString());
+                // In earlier drafts this can be because the parent is incorrect draft4\extra\classpath\schema.json
+                // This follows the old logic for handleNullNode
+                JsonSchema found = parent.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
+                if (found != null) {
+                    found = found.getSubSchema(fragment);
+                }
+                if (found == null) {
+                    throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
+                            + parent.getSchemaLocation().toString() + " at evaluation path "
+                            + parent.getEvaluationPath().toString());
+                }
+                return found;
             }
         }
         return subSchema;
@@ -249,7 +281,21 @@ public class JsonSchema extends BaseJsonValidator {
         if (propertyOrIndex instanceof Number) {
             value = node.get(((Number) propertyOrIndex).intValue());
         } else {
-            value = node.get(propertyOrIndex.toString());
+            // In the case of string this represents an escaped json pointer and thus does not reflect the property directly
+            String unescaped = propertyOrIndex.toString();
+            if (unescaped.contains("~")) {
+                unescaped = unescaped.replace("~1", "/");
+                unescaped = unescaped.replace("~0", "~");
+            }
+            if (unescaped.contains("%")) {
+                try {
+                    unescaped = URLDecoder.decode(unescaped, StandardCharsets.UTF_8.toString());
+                } catch (UnsupportedEncodingException e) {
+                    // Do nothing
+                }
+            }
+            
+            value = node.get(unescaped);
         }
         return value;
     }

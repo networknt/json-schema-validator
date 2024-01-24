@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.uri;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import com.networknt.schema.AbsoluteIri;
@@ -42,6 +43,9 @@ public class ClasspathSchemaLoader implements SchemaLoader {
                 InputStream result = loader.getResourceAsStream(resource);
                 if (result == null) {
                     result = loader.getResourceAsStream(resource.substring(1));
+                }
+                if (result == null) {
+                    throw new FileNotFoundException(absoluteIri.toString());
                 }
                 return result;
             };

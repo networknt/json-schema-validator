@@ -416,12 +416,11 @@ public class JsonSchemaFactory {
 
             final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
-            JsonSchema jsonSchema;
             if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {
                 // Schema without fragment
                 ValidationContext validationContext = new ValidationContext(jsonMetaSchema, this, config);
-                jsonSchema = doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                return doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
                 // Schema with fragment pointing to sub schema
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
@@ -429,10 +428,11 @@ public class JsonSchemaFactory {
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
                 return document.getRefSchema(schemaUri.getFragment());
             }
-            return jsonSchema;
         } catch (IOException e) {
-            logger.error("Failed to load json schema from {}", schemaUri, e);
-            throw new JsonSchemaException(e);
+            logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
+            JsonSchemaException exception = new JsonSchemaException("Failed to load json schema from "+schemaUri.getAbsoluteIri());
+            exception.initCause(e);
+            throw exception;
         }
     }
 

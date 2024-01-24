@@ -144,9 +144,14 @@ public class RefValidator extends BaseJsonValidator {
                                                   String refValueOriginal,
                                                   JsonNodePath evaluationPath) {
         JsonNode node = parent.getRefSchemaNode(refValue);
+        JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
+        if (!refValue.startsWith("#/")) {
+            throw new IllegalArgumentException(refValue);
+        }
         if (node != null) {
-            return validationContext.getSchemaReferences().computeIfAbsent(refValueOriginal, key -> {
-                return getJsonSchema(node, parent, refValue, evaluationPath);
+            String schemaReference = resolve(parent, refValueOriginal);
+            return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
+                return parent.getSubSchema(fragment);
             });
         }
         return null;

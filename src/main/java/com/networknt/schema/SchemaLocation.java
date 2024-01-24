@@ -233,6 +233,10 @@ public class SchemaLocation {
                     fragment = fragment.append(fragmentPart.toString());
                 }
             }
+            if (index == -1 && fragmentString.endsWith("/")) {
+                // Trailing / in fragment
+                fragment = fragment.append("");
+            }
             return fragment;
         }
 
