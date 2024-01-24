@@ -467,7 +467,7 @@ public class JsonSchemaFactory {
                 URI documentUri = "".equals(schemaUri.getSchemeSpecificPart()) ? new URI(schemaUri.getScheme(), schemaUri.getUserInfo(), schemaUri.getHost(), schemaUri.getPort(), schemaUri.getPath(), schemaUri.getQuery(), null) : new URI(schemaUri.getScheme(), schemaUri.getSchemeSpecificPart(), null);
                 SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
                 JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, documentUri, schemaNode, null, false);
-                JsonNode subSchemaNode = document.getRefSchemaNode(schemaLocation.getFragment().toString());
+                JsonNode subSchemaNode = document.getRefSchemaNode("#" + schemaLocation.getFragment().toString());
                 if (subSchemaNode != null) {
                     jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, subSchemaNode, document, false);
                 } else {
