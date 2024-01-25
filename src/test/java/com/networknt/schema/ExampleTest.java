@@ -25,7 +25,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 
 public class ExampleTest {
     @Test
-    public void example() throws Exception {
+    public void exampleSchemaLocation() throws Exception {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> {
             builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"));
@@ -47,6 +47,30 @@ public class ExampleTest {
         
         // The example-ref.json schema defines $schema with Draft 2019-09
         JsonSchema refSchema = schema.getValidationContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
+        assertEquals(SchemaId.V201909, refSchema.getValidationContext().getMetaSchema().getUri());
+    }
+    
+    @Test
+    public void exampleClasspath() throws Exception {
+        // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
+        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"), config);
+        String input = "{\r\n"
+                + "  \"DriverProperties\": {\r\n"
+                + "    \"CommonProperties\": {\r\n"
+                + "      \"field2\": \"abc-def-xyz\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        // The example-main.json schema defines $schema with Draft 07
+        assertEquals(SchemaId.V7, schema.getValidationContext().getMetaSchema().getUri());
+        Set<ValidationMessage> errors = schema.validate(JsonMapperFactory.getInstance().readTree(input));
+        assertEquals(1, errors.size());
+        
+        // The example-ref.json schema defines $schema with Draft 2019-09
+        JsonSchema refSchema = schema.getValidationContext().getSchemaResources().get("classpath:schema/example-ref.json#");
         assertEquals(SchemaId.V201909, refSchema.getValidationContext().getMetaSchema().getUri());
     }
 }
