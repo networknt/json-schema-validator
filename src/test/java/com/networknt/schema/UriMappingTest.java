@@ -68,7 +68,7 @@ public class UriMappingTest {
     @Test
     public void testBuilderExampleMappings() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        SchemaLocation example = SchemaLocation.of("http://example.com/invalid/schema/url");
+        SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
             JsonSchema schema = instance.getSchema(example);
@@ -124,7 +124,7 @@ public class UriMappingTest {
         JsonSchemaFactory instance = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).build();
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        SchemaLocation example = SchemaLocation.of("http://example.com/invalid/schema/url");
+        SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
             JsonSchema schema = instance.getSchema(example, config);
