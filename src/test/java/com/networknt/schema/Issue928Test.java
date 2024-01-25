@@ -10,8 +10,8 @@ public class Issue928Test {
     private JsonSchemaFactory factoryFor(SpecVersion.VersionFlag version) {
         return JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(version))
-                .objectMapper(mapper)
-                .schemaLoaderBuilder(builder -> builder.mapPrefix("https://example.org", "classpath:"))
+                .jsonMapper(mapper)
+                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }
 
