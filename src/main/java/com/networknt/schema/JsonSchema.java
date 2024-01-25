@@ -257,8 +257,8 @@ public class JsonSchema extends BaseJsonValidator {
                         parent);
                 parent = subSchema;
             } else {
-                // In earlier drafts this can be because the parent is incorrect draft4\extra\classpath\schema.json
-                // This follows the old logic for handleNullNode
+                // In Draft 4-7 the $id indicates a base uri change and not a schema resource
+                // See test for draft4\extra\classpath\schema.json
                 JsonSchema found = parent.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
                 if (found != null) {
                     found = found.getSubSchema(fragment);
