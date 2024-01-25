@@ -235,11 +235,25 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
+    /**
+     * Gets the sub schema given the json pointer fragment.
+     * 
+     * @param fragment the json pointer fragment
+     * @return the schema
+     */
     public JsonSchema getSubSchema(JsonNodePath fragment) {
         JsonSchema document = findSchemaResourceRoot(); 
         JsonSchema parent = document; 
         JsonSchema subSchema = null;
         for (int x = 0; x < fragment.getNameCount(); x++) {
+            /*
+             * The sub schema is created by iterating through the parents in order to
+             * maintain the lexical parent schema context.
+             * 
+             * If this is created directly from the schema node pointed to by the json
+             * pointer, the lexical context is lost and this will affect $ref resolution due
+             * to $id changes in the lexical scope.
+             */
             Object segment = fragment.getElement(x);
             JsonNode subSchemaNode = parent.getNode(segment);
             if (subSchemaNode != null) {
@@ -253,13 +267,22 @@ public class JsonSchema extends BaseJsonValidator {
                     schemaLocation = schemaLocation.append(segment.toString());
                     evaluationPath = evaluationPath.append(segment.toString());
                 }
+                /*
+                 * The parent validation context is used to create as there can be changes in
+                 * $schema is later drafts which means the validation context can change.
+                 */
                 subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
                         parent);
                 parent = subSchema;
             } else {
-                // In Draft 4-7 the $id indicates a base uri change and not a schema resource
-                // See test for draft4\extra\classpath\schema.json
-                JsonSchema found = parent.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
+                /*
+                 * This means that the fragment wasn't found in the document.
+                 * 
+                 * In Draft 4-7 the $id indicates a base uri change and not a schema resource so this might not be the right document.
+                 * 
+                 * See test for draft4\extra\classpath\schema.json
+                 */
+                JsonSchema found = document.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
                 if (found != null) {
                     found = found.getSubSchema(fragment);
                 }
@@ -834,10 +857,15 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
-            this.validatorsLoaded = true;
             for (final JsonValidator validator : getValidators()) {
                 validator.preloadJsonSchema();
             }
+            /*
+             * This is only set to true after the preload as it may throw an exception for
+             * instance if the remote host is unavailable and we may want to be able to try
+             * again.
+             */
+            this.validatorsLoaded = true;
         }
     }
 

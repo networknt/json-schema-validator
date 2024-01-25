@@ -144,15 +144,12 @@ public class RefValidator extends BaseJsonValidator {
                                                   String refValue,
                                                   String refValueOriginal,
                                                   JsonNodePath evaluationPath) {
-        JsonNode node = parent.getRefSchemaNode(refValue);
+        // This should be processing json pointer fragments only
         JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
-        if (node != null) {
-            String schemaReference = resolve(parent, refValueOriginal);
-            return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
-                return parent.getSubSchema(fragment);
-            });
-        }
-        return null;
+        String schemaReference = resolve(parent, refValueOriginal);
+        return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
+            return parent.getSubSchema(fragment);
+        });
     }
 
     @Override

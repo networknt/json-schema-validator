@@ -212,10 +212,32 @@ public class JsonSchemaFactory {
         return builder;
     }
 
+    /**
+     * Creates a json schema from initial input.
+     * 
+     * @param schemaUri the schema location
+     * @param schemaNode the schema data node
+     * @param config the config to use
+     * @return the schema
+     */
     protected JsonSchema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
-        return doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
+        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
+        try {
+            /*
+             * Attempt to preload and resolve $refs for performance.
+             */
+            jsonSchema.initializeValidators();
+        } catch (Exception e) {
+            /*
+             * Do nothing here to allow the schema to be cached even if the remote $ref
+             * cannot be resolved at this time. If the developer wants to ensure that all
+             * remote $refs are currently resolvable they need to call initializeValidators
+             * themselves.
+             */
+        }
+        return jsonSchema;
     }
 
     public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
