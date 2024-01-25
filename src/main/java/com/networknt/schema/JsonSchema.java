@@ -764,41 +764,51 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Walk through all the JSONWalker's.
-        getValidators().forEach(jsonWalker -> {
-            JsonNodePath evaluationPathWithKeyword = jsonWalker.getEvaluationPath();
+        for (JsonValidator v : getValidators()) {
+            JsonNodePath evaluationPathWithKeyword = v.getEvaluationPath();
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
                 if (this.keywordWalkListenerRunner.runPreWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1),
-                        node,
-                        rootNode,
-                        instanceLocation,
-                        jsonWalker.getEvaluationPath(),
-                        jsonWalker.getSchemaLocation(),
-                        this.schemaNode,
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
-                    validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
+                    Set<ValidationMessage> results = null;
+                    Scope parentScope = collectorContext.enterDynamicScope(this);
+                    try {
+                        results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                    } finally {
+                        Scope scope = collectorContext.exitDynamicScope();
+                        if (results == null || results.isEmpty()) {
+                            parentScope.mergeWith(scope);
+                        } else {
+                            errors.addAll(results);
+                            if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
+                                    || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                                collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                            }
+                            if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
+                                    || v instanceof PatternPropertiesValidator) {
+                                collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                            }
+                        }
+                    }
                 }
             } finally {
                 // Call all the post-walk listeners.
                 this.keywordWalkListenerRunner.runPostWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1),
-                        node,
-                        rootNode,
-                        instanceLocation,
-                        jsonWalker.getEvaluationPath(),
-                        jsonWalker.getSchemaLocation(),
-                        this.schemaNode,
-                        this.parentSchema,
-                        this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
+                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory(),
+                        errors);
             }
-        });
-
-        return validationMessages;
+        }
+        return errors;
     }
 
     /************************ END OF WALK METHODS **********************************/
