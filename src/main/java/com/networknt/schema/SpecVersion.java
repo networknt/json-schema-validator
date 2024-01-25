@@ -21,11 +21,11 @@ public class SpecVersion {
 
     public enum VersionFlag {
 
-        V4(1 << 0, "https://json-schema.org/draft-04/schema"),
-        V6(1 << 1, "https://json-schema.org/draft-06/schema"),
-        V7(1 << 2, "https://json-schema.org/draft-07/schema"),
-        V201909(1 << 3, "https://json-schema.org/draft/2019-09/schema"),
-        V202012(1 << 4, "https://json-schema.org/draft/2020-12/schema");
+        V4(1 << 0, SchemaId.V4),
+        V6(1 << 1, SchemaId.V6),
+        V7(1 << 2, SchemaId.V7),
+        V201909(1 << 3, SchemaId.V201909),
+        V202012(1 << 4, SchemaId.V202012);
 
 
         private final long versionFlagValue;

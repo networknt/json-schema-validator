@@ -549,14 +549,38 @@ public class JsonSchemaFactory {
         return (".yml".equals(extension) || ".yaml".equals(extension));
     }
 
-    static protected String normalizeMetaSchemaUri(String u) {
-        try {
-            URI uri = new URI(u);
-            URI newUri = new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
-
-            return newUri.toString();
-        } catch (URISyntaxException e) {
-            throw new JsonSchemaException("Wrong MetaSchema URI: " + u);
+    /**
+     * Normalizes the standard JSON schema dialects.
+     * <p>
+     * This should not normalize any other unrecognized dialects.
+     * 
+     * @param id the $schema identifier
+     * @return the normalized uri
+     */
+    static protected String normalizeMetaSchemaUri(String id) {
+        boolean found = false;
+        for (VersionFlag flag : SpecVersion.VersionFlag.values()) {
+            if(flag.getId().equals(id)) {
+                found = true;
+                break;
+            }
         }
+        if (!found) {
+            if (id.contains("://json-schema.org/draft")) {
+                // unnormalized $schema
+                if (id.contains("/draft-07/")) {
+                    id = SchemaId.V7;
+                } else if (id.contains("/draft/2019-09/")) {
+                    id = SchemaId.V201909;
+                } else if (id.contains("/draft/2020-12/")) {
+                    id = SchemaId.V202012;
+                } else if (id.contains("/draft-04/")) {
+                    id = SchemaId.V4;
+                } else if (id.contains("/draft-06/")) {
+                    id = SchemaId.V6;
+                } 
+            }
+        }
+        return id;
     }
 }

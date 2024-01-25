@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Version201909 extends JsonSchemaVersion{
-    private static final String URI = "https://json-schema.org/draft/2019-09/schema";
+    private static final String URI = SchemaId.V201909;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 

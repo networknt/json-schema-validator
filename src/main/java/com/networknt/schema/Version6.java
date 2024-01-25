@@ -3,7 +3,7 @@ package com.networknt.schema;
 import java.util.Arrays;
 
 public class Version6 extends JsonSchemaVersion{
-    private static final String URI = "https://json-schema.org/draft-06/schema";
+    private static final String URI = SchemaId.V6;
     // Draft 6 uses "$id"
     private static final String ID = "$id";
 

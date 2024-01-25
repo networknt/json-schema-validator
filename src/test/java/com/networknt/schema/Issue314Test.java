@@ -9,7 +9,7 @@ public class Issue314Test {
             JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
                     .addMetaSchema(
                             JsonMetaSchema.builder(
-                                    "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0",
+                                    "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
                                     JsonMetaSchema.getV7())
                                     .build())
                     .build();

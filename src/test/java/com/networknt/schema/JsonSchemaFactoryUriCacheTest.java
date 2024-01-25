@@ -33,11 +33,11 @@ public class JsonSchemaFactoryUriCacheTest {
         CustomURIFetcher fetcher = new CustomURIFetcher();
         JsonSchemaFactory factory = buildJsonSchemaFactory(fetcher, enableCache);
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
-        String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
+        String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
         assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
 
-        String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
+        String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), modifiedSchema);
 
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
