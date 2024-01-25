@@ -12,9 +12,19 @@
 [![Javadocs](http://www.javadoc.io/badge/com.networknt/json-schema-validator.svg)](https://www.javadoc.io/doc/com.networknt/json-schema-validator)
 
 
-This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. Information on the compatibility support for each version can be found [here](doc/compatibility.md).
+This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation.
 
-In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design. 
+In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design.
+
+## JSON Schema Draft Specification Compatibility
+
+Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
+
+## Upgrading to new versions
+
+Information on notable or breaking changes when upgrading the library can be found in the [Upgrading to new versions](doc/upgrading.md) document. This library can contain breaking changes in minor version releases.
+
+For the latest version, please check the [Releases](https://github.com/networknt/json-schema-validator/releases) page.
 
 ## Why this library
 
@@ -60,8 +70,6 @@ Here are the dependencies:
 </dependency>
 ```
 
-**Note**: Up to version [1.0.81](https://github.com/networknt/json-schema-validator/blob/1.0.81/pom.xml#L99), the dependency `org.apache.commons:commons-lang3` was included as a runtime dependency. Starting with [1.0.82](https://github.com/networknt/json-schema-validator/releases/tag/1.0.82) it is not required anymore.
-
 #### Community
 
 This library is very active with a lot of contributors. New features and bug fixes are handled quickly by the team members. Because it is an essential dependency of the [light-4j](https://github.com/networknt/light-4j) framework in the same GitHub organization, it will be evolved and maintained along with the framework. 
@@ -70,37 +78,70 @@ This library is very active with a lot of contributors. New features and bug fix
 
 The library supports Java 8 and up. If you want to build from the source code, you need to install JDK 8 locally. To support multiple version of JDK, you can use [SDKMAN](https://www.networknt.com/tool/sdk/)
 
-## Dependency
+## Usage
+
+### Adding the dependency
 
 This package is available on Maven central. 
 
-Maven: 
+#### Maven: 
 
 ```xml
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.0.87</version>
-
-    <!-- Only required for versions < 1.0.82. See README.md -->
-    <exclusions>
-        <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </exclusion>
-    </exclusions>
+    <version>1.2.0</version>
 </dependency>
 ```
 
-Gradle:
+#### Gradle:
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.0.87');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.2.0');
 }
 ```
 
-For the latest version, please check the [release](https://github.com/networknt/json-schema-validator/releases) page. 
+### Validating inputs against a schema
+
+The following example demonstrates how inputs is validated against a schema. It comprises the following steps.
+
+* Creating a schema factory with the default schema dialect and how the schemas can be retrieved. 
+  * Configuring mapping the `$id` to a retrieval URI using `schemaMappers`.
+  * Configuring how the schemas are loaded using the retrieval URI using `schemaLoaders`.
+    For instance a `Map<String, String> schemas` containing a mapping of retrieval URI to schema data as a `String` can by configured using `builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas))`. This also accepts a `Function<String, String> schemaRetrievalFunction`.
+* Creating a configuration for controlling validator behavior.
+* Loading a schema from a schema location along with the validator configuration.
+* Using the schema to validate the data along with setting any execution specific configuration like for instance the locale or whether format assertions are enabled.
+
+```java
+// This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the schema data. If $schema is specified in the schema data then that schema dialect will be used instead and this version is ignored.
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> {
+    // This creates a mapping from $id which starts with https://www.example.org/ to the retrieval URI classpath:schema/
+    builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"));
+});
+
+SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+// By default JSON Path is used for reporting the instance path and evaluation path
+config.setPathType(PathType.JSON_POINTER);
+// By default the JDK regular expression implementation which is not ECMA 262 compliant is used
+config.setEcma262Validator(true);
+
+// Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json. If the schema data does not specify an $id the absolute IRI of the schema location will be used as the $id.
+JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
+String input = "{\r\n"
+    + "  \"DriverProperties\": {\r\n"
+    + "    \"CommonProperties\": {\r\n"
+    + "      \"field2\": \"abc-def-xyz\"\r\n"
+    + "    }\r\n"
+    + "  }\r\n"
+    + "}";
+
+Set<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(input), executionContext -> {
+    // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
+    executionContext.getConfig().setFormatAssertionsEnabled(true);
+});
+```
 
 ## [Quick Start](doc/quickstart.md)
 
@@ -129,15 +170,6 @@ For the latest version, please check the [release](https://github.com/networknt/
 ## [MetaSchema Validation](doc/metaschema-validation.md)
 
 ## [Validating RFC 3339 durations](doc/duration.md)
-
-
-## Known issues
-
-I have just updated the test suites from the [official website](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as the old ones were copied from another Java validator. Now there are several issues that need to be addressed. All of them are edge cases, in my opinion, but need to be investigated. As my old test suites were inherited from another Java JSON Schema Validator, I guess other Java Validator would have the same issues as these issues are in the Java language itself.
-
-[#7](https://github.com/networknt/json-schema-validator/issues/7)
-
-[#5](https://github.com/networknt/json-schema-validator/issues/5)
 
 ## Projects
 
