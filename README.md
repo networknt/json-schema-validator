@@ -168,7 +168,7 @@ JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.
 );
 
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-// By default JSON Path is used for reporting the instance path and evaluation path
+// By default JSON Path is used for reporting the instance location and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
 // Note that setting this to true requires including the optional joni dependency
@@ -177,9 +177,9 @@ config.setPathType(PathType.JSON_POINTER);
 // Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json. If the schema data does not specify an $id the absolute IRI of the schema location will be used as the $id.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
 String input = "{\r\n"
-    + "  \"DriverProperties\": {\r\n"
-    + "    \"CommonProperties\": {\r\n"
-    + "      \"field2\": \"abc-def-xyz\"\r\n"
+    + "  \"main\": {\r\n"
+    + "    \"common\": {\r\n"
+    + "      \"field\": \"invalidfield\"\r\n"
     + "    }\r\n"
     + "  }\r\n"
     + "}";
@@ -206,7 +206,7 @@ JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.
 );
 
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-// By default JSON Path is used for reporting the instance path and evaluation path
+// By default JSON Path is used for reporting the instance location and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
 // Note that setting this to true requires including the optional joni dependency
@@ -219,7 +219,7 @@ String input = "{  \n"
     + "  \"properties\": {    \n"
     + "    \"key\": { \n"
     + "      \"title\" : \"My key\", \n"
-    + "      \"type\": \"blabla\" \n"
+    + "      \"type\": \"invalidtype\" \n"
     + "    } \n"
     + "  }\n"
     + "}";
