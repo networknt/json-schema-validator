@@ -97,6 +97,17 @@ This is not ECMA-262 compliant and is thus not compliant with the JSON Schema sp
 
 The library can be configured to use a ECMA-262 compliant regular expression validator which is implemented using [joni](https://github.com/jruby/joni). This can be configured by setting `setEcma262Validator` to `true`.
 
+This also requires adding the `joni` dependency.
+
+```xml
+<dependency>
+    <!-- Used to validate ECMA 262 regular expressions -->
+    <groupId>org.jruby.joni</groupId>
+    <artifactId>joni</artifactId>
+    <version>${version.joni}</version>
+</dependency>
+```
+
 ### Format
 
 Since Draft 2019-09 the `format` keyword only generates annotations by default and does not generate assertions.
