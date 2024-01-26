@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * <p>Perform email validations.</p>
  * <p>
  * Based on a script by <a href="mailto:stamhankar@hotmail.com">Sandeep V. Tamhankar</a>
- * http://javascript.internet.com
+ * https://javascript.internet.com
  * </p>
  * <p>
  * This implementation is not guaranteed to catch all possible errors in an email address.
@@ -51,8 +51,6 @@ public class EmailValidator implements Serializable {
 
     private static final int MAX_USERNAME_LEN = 64;
 
-    private final boolean allowTld;
-
     /**
      * Singleton instance of this class, which
      *  doesn't consider local addresses as valid.
@@ -71,14 +69,11 @@ public class EmailValidator implements Serializable {
      */
     private static final EmailValidator EMAIL_VALIDATOR_WITH_LOCAL = new EmailValidator(true, false);
 
-
     /**
      * Singleton instance of this class, which does
      *  consider local addresses valid.
      */
     private static final EmailValidator EMAIL_VALIDATOR_WITH_LOCAL_WITH_TLD = new EmailValidator(true, true);
-
-    private final DomainValidator domainValidator;
 
     /**
      * Returns the Singleton instance of this validator.
@@ -87,6 +82,17 @@ public class EmailValidator implements Serializable {
      */
     public static EmailValidator getInstance() {
         return EMAIL_VALIDATOR;
+    }
+
+    /**
+     * Returns the Singleton instance of this validator,
+     *  with local validation as required.
+     *
+     * @param allowLocal Should local addresses be considered valid?
+     * @return singleton instance of this validator
+     */
+    public static EmailValidator getInstance(final boolean allowLocal) {
+        return getInstance(allowLocal, false);
     }
 
     /**
@@ -110,15 +116,28 @@ public class EmailValidator implements Serializable {
         return EMAIL_VALIDATOR;
     }
 
+    private final boolean allowTld;
+
+    private final DomainValidator domainValidator;
+
     /**
-     * Returns the Singleton instance of this validator,
-     *  with local validation as required.
+     * Protected constructor for subclasses to use.
      *
      * @param allowLocal Should local addresses be considered valid?
-     * @return singleton instance of this validator
      */
-    public static EmailValidator getInstance(final boolean allowLocal) {
-        return getInstance(allowLocal, false);
+    protected EmailValidator(final boolean allowLocal) {
+        this(allowLocal, false);
+    }
+
+    /**
+     * Protected constructor for subclasses to use.
+     *
+     * @param allowLocal Should local addresses be considered valid?
+     * @param allowTld Should TLDs be allowed?
+     */
+    protected EmailValidator(final boolean allowLocal, final boolean allowTld) {
+        this.allowTld = allowTld;
+        this.domainValidator = DomainValidator.getInstance(allowLocal);
     }
 
     /**
@@ -142,29 +161,9 @@ public class EmailValidator implements Serializable {
     }
 
     /**
-     * Protected constructor for subclasses to use.
-     *
-     * @param allowLocal Should local addresses be considered valid?
-     * @param allowTld Should TLDs be allowed?
-     */
-    protected EmailValidator(final boolean allowLocal, final boolean allowTld) {
-        this.allowTld = allowTld;
-        this.domainValidator = DomainValidator.getInstance(allowLocal);
-    }
-
-    /**
-     * Protected constructor for subclasses to use.
-     *
-     * @param allowLocal Should local addresses be considered valid?
-     */
-    protected EmailValidator(final boolean allowLocal) {
-        this(allowLocal, false);
-    }
-
-    /**
      * <p>Checks if a field has a valid e-mail address.</p>
      *
-     * @param email The value validation is being performed on.  A <code>null</code>
+     * @param email The value validation is being performed on.  A {@code null}
      *              value is considered invalid.
      * @return true if the email address is valid.
      */
@@ -211,7 +210,7 @@ public class EmailValidator implements Serializable {
         }
         // Domain is symbolic name
         if (allowTld) {
-            return domainValidator.isValid(domain) || (!domain.startsWith(".") && domainValidator.isValidTld(domain));
+            return domainValidator.isValid(domain) || !domain.startsWith(".") && domainValidator.isValidTld(domain);
         }
         return domainValidator.isValid(domain);
     }

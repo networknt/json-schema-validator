@@ -35,7 +35,7 @@
             },
             {
                 "description": "a valid idn e-mail (example@example.test in Hangul)",
-                "data": "실례@실례.닷컴",
+                "data": "실례@실례.테스트",
                 "valid": true
             },
             {

@@ -123,6 +123,10 @@ public class RFC5892 {
                 case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
                     rules = IDNA_RULES.and(RTL);
                     break;
+                case DIRECTIONALITY_EUROPEAN_NUMBER:
+                case DIRECTIONALITY_OTHER_NEUTRALS:
+                    rules = IDNA_RULES;
+                    break;
                 default: return false;
             }
 
@@ -269,7 +273,7 @@ public class RFC5892 {
             // There must be a Katakana, Hiragana or Han character after this symbol
             if (s.length() == 1 + i) return false;
             int following = s.codePointAt(i + 1);
-            if (!isKatakana(following)) return false;
+            if (!(isKatakana(following))) return false;
         }
         return true;
     }
