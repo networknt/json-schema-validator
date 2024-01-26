@@ -61,9 +61,7 @@
             {
                 "description": "an invalid IRI based on IPv6",
                 "data": "http://2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                "valid": false,
-                "disabled": true,
-                "reason": "URI syntax cannot always distinguish a malformed server-based authority from a legitimate registry-based authority"
+                "valid": false
             },
             {
                 "description": "an invalid relative IRI Reference",

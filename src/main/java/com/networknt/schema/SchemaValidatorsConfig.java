@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
-import com.networknt.schema.uri.URITranslator;
-import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 
 import java.util.ArrayList;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 public class SchemaValidatorsConfig {
 
@@ -90,16 +87,6 @@ public class SchemaValidatorsConfig {
     private final Map<String, Boolean> strictness = new HashMap<>(0);
 
     /**
-     * Map of public, normally internet accessible schema URLs to alternate
-     * locations; this allows for offline validation of schemas that refer to public
-     * URLs. This is merged with any mappings the {@link JsonSchemaFactory} may have
-     * been built with.
-     */
-    private Map<String, String> uriMappings = new HashMap<>();
-
-    private CompositeURITranslator uriTranslators = new CompositeURITranslator();
-
-    /**
      * When a field is set as nullable in the OpenAPI specification, the schema
      * validator validates that it is nullable however continues with validation
      * against the nullable field
@@ -135,7 +122,7 @@ public class SchemaValidatorsConfig {
 
     private final List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
 
-    private Supplier<ExecutionContext> executionContextSupplier;
+    private ExecutionContextCustomizer executionContextCustomizer;
 
     private boolean loadCollectors = true;
 
@@ -149,12 +136,17 @@ public class SchemaValidatorsConfig {
      */
     private MessageSource messageSource;
 
+    /**
+     * Since Draft 2019-09 format assertions are not enabled by default.
+     */
+    private Boolean formatAssertionsEnabled = null;
+
     /************************ START OF UNEVALUATED CHECKS **********************************/
 
     // These are costly in terms of performance so we provide a way to disable them.
     private boolean disableUnevaluatedItems = false;
     private boolean disableUnevaluatedProperties = false;
-
+    
     public SchemaValidatorsConfig disableUnevaluatedAnalysis() {
         disableUnevaluatedItems();
         disableUnevaluatedProperties();
@@ -240,36 +232,6 @@ public class SchemaValidatorsConfig {
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
         return this.applyDefaultsStrategy;
-    }
-
-    public CompositeURITranslator getUriTranslator() {
-        return this.uriTranslators
-            .with(URITranslator.map(this.uriMappings));
-    }
-
-    public void addUriTranslator(URITranslator uriTranslator) {
-        if (null != uriTranslator) {
-            this.uriTranslators.add(uriTranslator);
-        }
-    }
-
-    /**
-     * @deprecated Use {@code getUriTranslator()} instead
-     * @return Map of public, normally internet accessible schema URLs
-     */
-    @Deprecated
-    public Map<String, String> getUriMappings() {
-        // return a copy of the mappings
-        return new HashMap<>(this.uriMappings);
-    }
-
-    /**
-     * @deprecated Use {@code addUriTranslator()} instead
-     * @param uriMappings Map of public, normally internet accessible schema URLs
-     */
-    @Deprecated
-    public void setUriMappings(Map<String, String> uriMappings) {
-        this.uriMappings = uriMappings;
     }
 
     public boolean isHandleNullableField() {
@@ -367,12 +329,12 @@ public class SchemaValidatorsConfig {
     public SchemaValidatorsConfig() {
     }
 
-    public Supplier<ExecutionContext> getExecutionContextSupplier() {
-        return this.executionContextSupplier;
+    public ExecutionContextCustomizer getExecutionContextCustomizer() {
+        return this.executionContextCustomizer;
     }
 
-    public void setExecutionContextSupplier(Supplier<ExecutionContext> executionContextSupplier) {
-        this.executionContextSupplier = executionContextSupplier;
+    public void setExecutionContextCustomizer(ExecutionContextCustomizer executionContextCustomizer) {
+        this.executionContextCustomizer = executionContextCustomizer;
     }
 
     public boolean isLosslessNarrowing() {
@@ -461,22 +423,6 @@ public class SchemaValidatorsConfig {
     @Deprecated
     public boolean isWriteMode() {
         return null == this.writeOnly || this.writeOnly;
-    }
-
-    /**
-     * 
-     * When set to true considers that schema is used to write data then ReadOnlyValidator is activated. Default true.
-     * 
-     * @param writeMode true if schema is used to write data
-     * @deprecated Use {@code setReadOnly} or {@code setWriteOnly}
-     */
-    @Deprecated
-    public void setWriteMode(boolean writeMode) {
-        if (writeMode) {
-            setWriteOnly(true);
-        } else {
-            setReadOnly(true);
-        }
     }
 
     /**
@@ -574,4 +520,29 @@ public class SchemaValidatorsConfig {
     public void setMessageSource(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
+    
+    /**
+     * Gets the format assertion enabled flag.
+     * <p>
+     * This defaults to null meaning that it will follow the defaults of the
+     * specification.
+     * <p>
+     * Since draft 2019-09 this will default to false unless enabled by using the
+     * $vocabulary keyword.
+     * 
+     * @return the format assertions enabled flag
+     */
+    public Boolean getFormatAssertionsEnabled() {
+        return formatAssertionsEnabled;
+    }
+
+    /**
+     * Sets the format assertion enabled flag.
+     * 
+     * @param formatAssertionsEnabled the format assertions enabled flag
+     */
+    public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
+        this.formatAssertionsEnabled = formatAssertionsEnabled;
+    }
+
 }

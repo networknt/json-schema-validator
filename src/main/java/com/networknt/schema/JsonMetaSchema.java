@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.format.DateFormat;
 import com.networknt.schema.format.EmailFormat;
 import com.networknt.schema.format.IdnEmailFormat;
@@ -49,12 +50,14 @@ public class JsonMetaSchema {
     }
 
     public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<>();
+    
+    public static final String IPV6_PATTERN = "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$";
 
     // this section contains formats common to all dialects.
     static {
         COMMON_BUILTIN_FORMATS.add(pattern("hostname", "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$", "must be a valid RFC 1123 host name"));
         COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "must be a valid RFC 2673 IP address"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ipv6", "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$", "must be a valid RFC 4291 IP address"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv6", IPV6_PATTERN, "must be a valid RFC 4291 IP address"));
         COMMON_BUILTIN_FORMATS.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "must be a valid RFC 6901 JSON Pointer"));
         COMMON_BUILTIN_FORMATS.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "must be a valid IETF Relative JSON Pointer"));
         COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$", "must be a valid RFC 6570 URI Template"));
@@ -81,8 +84,10 @@ public class JsonMetaSchema {
     }
 
     public static class Builder {
+        private VersionFlag specification = null;
         private Map<String, Keyword> keywords = new HashMap<>();
         private Map<String, Format> formats = new HashMap<>();
+        private Map<String, Boolean> vocabularies = new HashMap<>();
         private String uri;
         private String idKeyword = "id";
 
@@ -133,6 +138,24 @@ public class JsonMetaSchema {
             return this;
         }
 
+        public Builder vocabulary(String vocabulary) {
+            return vocabulary(vocabulary, true);
+        }
+
+        public Builder vocabulary(String vocabulary, boolean enabled) {
+            this.vocabularies.put(vocabulary, enabled);
+            return this;
+        }
+
+        public Builder vocabularies(Map<String, Boolean> vocabularies) {
+            this.vocabularies = vocabularies;
+            return this;
+        }
+
+        public Builder specification(VersionFlag specification) {
+            this.specification = specification;
+            return this;
+        }
 
         public Builder idKeyword(String idKeyword) {
             this.idKeyword = idKeyword;
@@ -142,15 +165,29 @@ public class JsonMetaSchema {
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> kwords = createKeywordsMap(this.keywords, this.formats);
-            return new JsonMetaSchema(this.uri, this.idKeyword, kwords);
+            if (this.specification != null) {
+                if (this.specification.getVersionFlagValue() >= SpecVersion.VersionFlag.V201909.getVersionFlagValue()) {
+                    if (!this.uri.equals(this.specification.getId())) {
+                        String validation = Vocabularies.getVocabulary(specification, "validation");
+                        if (!this.vocabularies.getOrDefault(validation, false)) {
+                            for (String keywordToRemove : Vocabularies.getKeywords("validation")) {
+                                kwords.remove(keywordToRemove);
+                            }
+                        }
+                    }
+                }
+            }
+            return new JsonMetaSchema(this.uri, this.idKeyword, kwords, this.vocabularies, this.specification);
         }
     }
 
     private final String uri;
     private final String idKeyword;
     private Map<String, Keyword> keywords;
+    private Map<String, Boolean> vocabularies;
+    private final VersionFlag specification;
 
-    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords) {
+    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, VersionFlag specification) {
         if (StringUtils.isBlank(uri)) {
             throw new IllegalArgumentException("uri must not be null or blank");
         }
@@ -164,6 +201,8 @@ public class JsonMetaSchema {
         this.uri = uri;
         this.idKeyword = idKeyword;
         this.keywords = keywords;
+        this.specification = specification;
+        this.vocabularies = vocabularies;
     }
 
     public static JsonMetaSchema getV4() {
@@ -212,10 +251,14 @@ public class JsonMetaSchema {
         if (formatKeyword == null) {
             throw new IllegalArgumentException("The formatKeyword did not exist - blueprint is invalid.");
         }
+        Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
         return builder(uri)
                 .idKeyword(blueprint.idKeyword)
                 .addKeywords(blueprint.keywords.values())
-                .addFormats(formatKeyword.getFormats());
+                .addFormats(formatKeyword.getFormats())
+                .specification(blueprint.getSpecification())
+                .vocabularies(vocabularies)
+                ;
     }
 
     public String getIdKeyword() {
@@ -234,24 +277,11 @@ public class JsonMetaSchema {
         return null;
     }
 
-    public JsonNode getNodeByFragmentRef(String ref, JsonNode node) {
-        boolean supportsAnchor = this.keywords.containsKey("$anchor");
-        String refName = supportsAnchor ? ref.substring(1) : ref;
-        String fieldToRead = supportsAnchor ? "$anchor" : this.idKeyword;
-
-        boolean nodeContainsRef = refName.equals(readText(node, fieldToRead));
-        if (nodeContainsRef) {
-            return node;
+    public String readDynamicAnchor(JsonNode schemaNode) {
+        boolean supportsDynamicAnchor = this.keywords.containsKey("$dynamicAnchor");
+        if (supportsDynamicAnchor) {
+            return readText(schemaNode, "$dynamicAnchor");
         }
-
-        Iterator<JsonNode> children = node.elements();
-        while (children.hasNext()) {
-            JsonNode refNode = getNodeByFragmentRef(ref, children.next());
-            if (refNode != null) {
-                return refNode;
-            }
-        }
-
         return null;
     }
 
@@ -269,6 +299,14 @@ public class JsonMetaSchema {
 
     public Map<String, Keyword> getKeywords() {
         return this.keywords;
+    }
+
+    public Map<String, Boolean> getVocabularies() {
+        return this.vocabularies;
+    }
+    
+    public VersionFlag getSpecification() {
+        return this.specification;
     }
 
     public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
@@ -298,5 +336,8 @@ public class JsonMetaSchema {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return this.uri;
+    }
 }

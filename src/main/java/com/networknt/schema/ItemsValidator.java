@@ -66,8 +66,6 @@ public class ItemsValidator extends BaseJsonValidator {
         }
         this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
 
-        this.validationContext = validationContext;
-
         this.schema = foundSchema;
         this.additionalSchema = foundAdditionalSchema;
     }

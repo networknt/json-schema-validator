@@ -38,7 +38,6 @@ public class ExclusiveMinimumValidator extends BaseJsonValidator {
 
     public ExclusiveMinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MINIMUM, validationContext);
-        this.validationContext = validationContext;
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMinimum value is not a number");
         }

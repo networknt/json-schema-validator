@@ -121,7 +121,9 @@ public class Issue575Test {
     @ParameterizedTest
     @MethodSource("invalidTimeRepresentations")
     void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
-        Set<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
+        Set<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        });
         Assertions.assertFalse(errors.isEmpty());
     }
 }

@@ -38,7 +38,8 @@ enum VersionCode {
     MaxV201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V4, SpecVersion.VersionFlag.V6, SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909 }),
     MinV201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
     MinV202012(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V202012 }),
-    V201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909 });
+    V201909(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V201909 }),
+    V7(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V7 });
 
     private final EnumSet<VersionFlag> versions;
 
@@ -60,11 +61,14 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     ANY_OF("anyOf", "1003", AnyOfValidator::new, VersionCode.AllVersions),
     CONST("const", "1042", ConstValidator::new, VersionCode.MinV6),
     CONTAINS("contains", "1043", ContainsValidator::new, VersionCode.MinV6),
+    CONTENT_ENCODING("contentEncoding", "1052", ContentEncodingValidator::new, VersionCode.V7),
+    CONTENT_MEDIA_TYPE("contentMediaType", "1053", ContentMediaTypeValidator::new, VersionCode.V7),
     CROSS_EDITS("crossEdits", "1004", null, VersionCode.AllVersions),
     DATETIME("dateTime", "1034", null, VersionCode.AllVersions),
     DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
     DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.MinV201909),
+    DYNAMIC_REF("$dynamicRef", "1051", DynamicRefValidator::new, VersionCode.MinV202012),
     EDITS("edits", "1005", null, VersionCode.AllVersions),
     ENUM("enum", "1008", EnumValidator::new, VersionCode.AllVersions),
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", ExclusiveMaximumValidator::new, VersionCode.MinV6),

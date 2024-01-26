@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-
 import static com.networknt.schema.BaseJsonSchemaValidatorTest.getJsonNodeFromStringContent;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,7 +52,7 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void bundledSchemaLoadsAndValidatesCorrectly_Uri() throws Exception {
-        JsonSchema rootSchema = factory.getSchema(new URI("resource:schema/issue619.json"));
+        JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
         assertTrue(rootSchema.validate(two).isEmpty());
@@ -72,7 +70,7 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriWithEmptyFragment_Uri() throws Exception {
-        JsonSchema rootSchema = factory.getSchema(new URI("resource:schema/issue619.json#"));
+        JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
         assertTrue(rootSchema.validate(two).isEmpty());
@@ -90,7 +88,7 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriThatPointsToOneShouldOnlyValidateOne_Uri() throws Exception {
-        JsonSchema oneSchema = factory.getSchema(new URI("resource:schema/issue619.json#/definitions/one"));
+        JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/one"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
         assertFalse(oneSchema.validate(two).isEmpty());
@@ -108,7 +106,7 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Uri() throws Exception {
-        JsonSchema oneSchema = factory.getSchema(new URI("resource:schema/issue619.json#/definitions/refToOne"));
+        JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/refToOne"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
         assertFalse(oneSchema.validate(two).isEmpty());
@@ -130,7 +128,7 @@ public class Issue619Test extends HTTPServiceSupport {
         JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
         JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-        JsonSchema schemaWithIdFromUri = factory.getSchema(new URI("resource:tests/draft4/refRemote.json#/3/schema"));
+        JsonSchema schemaWithIdFromUri = factory.getSchema(SchemaLocation.of("resource:tests/draft4/refRemote.json#/3/schema"));
         assertTrue(schemaWithIdFromUri.validate(oneArray).isEmpty());
         assertFalse(schemaWithIdFromUri.validate(textArray).isEmpty());
     }
@@ -144,7 +142,7 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriThatPointsToSchemaThatDoesNotExistShouldFail_Uri() {
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(new URI("resource:data/schema-that-does-not-exist.json#/definitions/something")));
+        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
     }
 
     @Test
@@ -156,6 +154,6 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriThatPointsToNodeThatDoesNotExistShouldFail_Uri() {
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(new URI("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
+        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
     }
 }

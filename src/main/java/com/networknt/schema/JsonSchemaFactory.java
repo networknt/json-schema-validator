@@ -18,23 +18,25 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.networknt.schema.uri.*;
-import com.networknt.schema.uri.URITranslator.CompositeURITranslator;
-import com.networknt.schema.urn.URNFactory;
+import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.resource.*;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.YamlMapperFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
@@ -42,89 +44,26 @@ public class JsonSchemaFactory {
 
 
     public static class Builder {
-        private ObjectMapper objectMapper = null;
-        private YAMLMapper yamlMapper = null;
+        private ObjectMapper jsonMapper = null;
+        private ObjectMapper yamlMapper = null;
         private String defaultMetaSchemaURI;
-        private final Map<String, URIFactory> uriFactoryMap = new HashMap<String, URIFactory>();
-        private final Map<String, URIFetcher> uriFetcherMap = new HashMap<String, URIFetcher>();
-        private URNFactory urnFactory;
         private final ConcurrentMap<String, JsonMetaSchema> jsonMetaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
-        private final Map<String, String> uriMap = new HashMap<String, String>();
+        private SchemaLoaders.Builder schemaLoadersBuilder = null;
+        private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableUriSchemaCache = true;
-        private final CompositeURITranslator uriTranslators = new CompositeURITranslator();
 
-        public Builder() {
-            // Adds support for creating {@link URL}s.
-            final URIFactory urlFactory = new URLFactory();
-            for (final String scheme : URLFactory.SUPPORTED_SCHEMES) {
-                this.uriFactoryMap.put(scheme, urlFactory);
-            }
-            // Adds support for creating URNs.
-            this.uriFactoryMap.put(URNURIFactory.SCHEME, new URNURIFactory());
-
-            // Adds support for fetching with {@link URL}s.
-            final URIFetcher urlFetcher = new URLFetcher();
-            for (final String scheme : URLFetcher.SUPPORTED_SCHEMES) {
-                this.uriFetcherMap.put(scheme, urlFetcher);
-            }
-
-            // Adds support for creating and fetching with classpath {@link URL}s.
-            final URIFactory classpathURLFactory = new ClasspathURLFactory();
-            final URIFetcher classpathURLFetcher = new ClasspathURLFetcher();
-            for (final String scheme : ClasspathURLFactory.SUPPORTED_SCHEMES) {
-                this.uriFactoryMap.put(scheme, classpathURLFactory);
-                this.uriFetcherMap.put(scheme, classpathURLFetcher);
-            }
-        }
-
-        public Builder objectMapper(final ObjectMapper objectMapper) {
-            this.objectMapper = objectMapper;
+        public Builder jsonMapper(final ObjectMapper jsonMapper) {
+            this.jsonMapper = jsonMapper;
             return this;
         }
 
-        public Builder yamlMapper(final YAMLMapper yamlMapper) {
+        public Builder yamlMapper(final ObjectMapper yamlMapper) {
             this.yamlMapper = yamlMapper;
             return this;
         }
 
         public Builder defaultMetaSchemaURI(final String defaultMetaSchemaURI) {
             this.defaultMetaSchemaURI = defaultMetaSchemaURI;
-            return this;
-        }
-
-        /**
-         * Maps a number of schemes to a {@link URIFactory}.
-         *
-         * @param uriFactory the uri factory that will be used for the given schemes.
-         * @param schemes    the scheme that the uri factory will be assocaited with.
-         * @return this builder.
-         */
-        public Builder uriFactory(final URIFactory uriFactory, final String... schemes) {
-            return uriFactory(uriFactory, Arrays.asList(schemes));
-        }
-
-        public Builder uriFactory(final URIFactory uriFactory, final Iterable<String> schemes) {
-            for (final String scheme : schemes) {
-                this.uriFactoryMap.put(scheme, uriFactory);
-            }
-            return this;
-        }
-
-        /**
-         * Maps a number of schemes to a {@link URIFetcher}.
-         *
-         * @param uriFetcher the uri fetcher that will be used for the given schemes.
-         * @param schemes    the scheme that the uri fetcher will be assocaited with.
-         * @return this builder.
-         */
-        public Builder uriFetcher(final URIFetcher uriFetcher, final String... schemes) {
-            return uriFetcher(uriFetcher, Arrays.asList(schemes));
-        }
-
-        public Builder uriFetcher(final URIFetcher uriFetcher, final Iterable<String> schemes) {
-            for (final String scheme : schemes) {
-                this.uriFetcherMap.put(scheme, uriFetcher);
-            }
             return this;
         }
 
@@ -140,130 +79,89 @@ public class JsonSchemaFactory {
             return this;
         }
 
-        /**
-         * @deprecated Use {@code addUriTranslator} instead.
-         * @param map the map of uri mappings.
-         * @return this builder.
-         */
-        @Deprecated
-        public Builder addUriMappings(final Map<String, String> map) {
-            this.uriMap.putAll(map);
-            return this;
-        }
-
-        public Builder addUriTranslator(URITranslator translator) {
-            if (null != translator) {
-                this.uriTranslators.add(translator);
-            }
-            return this;
-        }
-
-        public Builder addUrnFactory(URNFactory urnFactory) {
-            this.urnFactory = urnFactory;
-            return this;
-        }
-
-        /**
-         * @deprecated No longer necessary.
-         * @param forceHttps ignored.
-         * @return this builder.
-         */
-        public Builder forceHttps(boolean forceHttps) {
-            return this;
-        }
-
-        /**
-         * @deprecated No longer necessary.
-         * @param removeEmptyFragmentSuffix ignored.
-         * @return this builder.
-         */
-        public Builder removeEmptyFragmentSuffix(boolean removeEmptyFragmentSuffix) {
-            return this;
-        }
-
         public Builder enableUriSchemaCache(boolean enableUriSchemaCache) {
             this.enableUriSchemaCache = enableUriSchemaCache;
+            return this;
+        }
+        
+        public Builder schemaLoaders(Consumer<SchemaLoaders.Builder> schemaLoadersBuilderCustomizer) {
+            if (this.schemaLoadersBuilder == null) {
+                this.schemaLoadersBuilder = SchemaLoaders.builder();
+            }
+            schemaLoadersBuilderCustomizer.accept(this.schemaLoadersBuilder);
+            return this;
+        }
+        
+        public Builder schemaMappers(Consumer<SchemaMappers.Builder> schemaMappersBuilderCustomizer) {
+            if (this.schemaMappersBuilder == null) {
+                this.schemaMappersBuilder = SchemaMappers.builder();
+            }
+            schemaMappersBuilderCustomizer.accept(this.schemaMappersBuilder);
             return this;
         }
 
         public JsonSchemaFactory build() {
             // create builtin keywords with (custom) formats.
             return new JsonSchemaFactory(
-                    objectMapper == null ? new ObjectMapper() : objectMapper,
-                    yamlMapper == null ? new YAMLMapper(): yamlMapper,
+                    jsonMapper,
+                    yamlMapper,
                     defaultMetaSchemaURI,
-                    new URISchemeFactory(uriFactoryMap),
-                    new URISchemeFetcher(uriFetcherMap),
-                    urnFactory,
+                    schemaLoadersBuilder,
+                    schemaMappersBuilder,
                     jsonMetaSchemas,
-                    uriMap,
-                    enableUriSchemaCache,
-                    uriTranslators
+                    enableUriSchemaCache
             );
         }
     }
 
     private final ObjectMapper jsonMapper;
-    private final YAMLMapper yamlMapper;
+    private final ObjectMapper yamlMapper;
     private final String defaultMetaSchemaURI;
-    private final URISchemeFactory uriFactory;
-    private final URISchemeFetcher uriFetcher;
-    private final CompositeURITranslator uriTranslators;
-    private final URNFactory urnFactory;
+    private final SchemaLoaders.Builder schemaLoadersBuilder;
+    private final SchemaMappers.Builder schemaMappersBuilder;
+    private final SchemaLoader schemaLoader;
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
-    private final Map<String, String> uriMap;
-    private final ConcurrentMap<URI, JsonSchema> uriSchemaCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SchemaLocation, JsonSchema> uriSchemaCache = new ConcurrentHashMap<>();
     private final boolean enableUriSchemaCache;
-
+    
+    private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
+    private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
 
     private JsonSchemaFactory(
             final ObjectMapper jsonMapper,
-            final YAMLMapper yamlMapper,
+            final ObjectMapper yamlMapper,
             final String defaultMetaSchemaURI,
-            final URISchemeFactory uriFactory,
-            final URISchemeFetcher uriFetcher,
-            final URNFactory urnFactory,
+            SchemaLoaders.Builder schemaLoadersBuilder,
+            SchemaMappers.Builder schemaMappersBuilder,
             final Map<String, JsonMetaSchema> jsonMetaSchemas,
-            final Map<String, String> uriMap,
-            final boolean enableUriSchemaCache,
-            final CompositeURITranslator uriTranslators) {
-        if (jsonMapper == null) {
-            throw new IllegalArgumentException("ObjectMapper must not be null");
-        } else if (yamlMapper == null) {
-            throw new IllegalArgumentException("YAMLMapper must not be null");
-        } else if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
+            final boolean enableUriSchemaCache) {
+        if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
-        } else if (uriFactory == null) {
-            throw new IllegalArgumentException("URIFactory must not be null");
-        } else if (uriFetcher == null) {
-            throw new IllegalArgumentException("URIFetcher must not be null");
         } else if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
             throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
         } else if (jsonMetaSchemas.get(normalizeMetaSchemaUri(defaultMetaSchemaURI)) == null) {
             throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
-        } else if (uriMap == null) {
-            throw new IllegalArgumentException("URL Mappings must not be null");
-        } else if (uriTranslators == null) {
-            throw new IllegalArgumentException("URI Translators must not be null");
         }
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
-        this.uriFactory = uriFactory;
-        this.uriFetcher = uriFetcher;
-        this.urnFactory = urnFactory;
+        this.schemaLoadersBuilder = schemaLoadersBuilder;
+        this.schemaMappersBuilder = schemaMappersBuilder;
+        this.schemaLoader = new DefaultSchemaLoader(
+                schemaLoadersBuilder != null ? schemaLoadersBuilder.build() : DEFAULT_SCHEMA_LOADERS,
+                schemaMappersBuilder != null ? schemaMappersBuilder.build() : DEFAULT_SCHEMA_MAPPERS);
         this.jsonMetaSchemas = jsonMetaSchemas;
-        this.uriMap = uriMap;
         this.enableUriSchemaCache = enableUriSchemaCache;
-        this.uriTranslators = uriTranslators;
+    }
+    
+    public SchemaLoader getSchemaLoader() {
+        return this.schemaLoader;
     }
 
     /**
      * Builder without keywords or formats.
      *
-     * <code>
-     * JsonSchemaFactory.builder(JsonSchemaFactory.getDraftV4()).build();
-     * </code>
+     * Typically {@link #builder(JsonSchemaFactory)} is what is required.
      *
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
@@ -272,26 +170,44 @@ public class JsonSchemaFactory {
     }
 
     /**
-     * @deprecated
-     * This is a method that is kept to ensure backward compatible. You shouldn't use it anymore.
-     * Please specify the draft version when get an instance.
-     *
-     * @return JsonSchemaFactory
+     * Creates a factory with a default schema dialect. The schema dialect will only
+     * be used if the input does not specify a $schema.
+     * 
+     * @param versionFlag the default dialect
+     * @return the factory
      */
-    @Deprecated
-    public static JsonSchemaFactory getInstance() {
-        return getInstance(SpecVersion.VersionFlag.V4);
+    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
+        return getInstance(versionFlag, null);
     }
 
-    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
+    /**
+     * Creates a factory with a default schema dialect. The schema dialect will only
+     * be used if the input does not specify a $schema.
+     * 
+     * @param versionFlag the default dialect
+     * @param customizer to customze the factory
+     * @return the factory
+     */
+    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag,
+            Consumer<JsonSchemaFactory.Builder> customizer) {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
         JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
-        return builder()
-                .defaultMetaSchemaURI(metaSchema.getUri())
-                .addMetaSchema(metaSchema)
-                .build();
+        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaURI(metaSchema.getUri())
+                .addMetaSchema(metaSchema);
+        if (customizer != null) {
+            customizer.accept(builder);
+        }
+        return builder.build();
     }
 
+    /**
+     * Gets the json schema version to get the meta schema.
+     * <p>
+     * This throws an {@link IllegalArgumentException} for an unsupported value.
+     * 
+     * @param versionFlag the schema dialect
+     * @return the version
+     */
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
         if (null == versionFlag) return null;
         switch (versionFlag) {
@@ -304,44 +220,89 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Builder from an existing {@link JsonSchemaFactory}.
+     * <p>
+     * <code>
+     * JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909));
+     * </code>
+     * 
+     * @param blueprint the existing factory
+     * @return the builder
+     */
     public static Builder builder(final JsonSchemaFactory blueprint) {
         Builder builder = builder()
                 .addMetaSchemas(blueprint.jsonMetaSchemas.values())
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
-                .objectMapper(blueprint.jsonMapper)
-                .yamlMapper(blueprint.yamlMapper)
-                .addUriMappings(blueprint.uriMap);
-
-        for (URITranslator translator: blueprint.uriTranslators) {
-            builder = builder.addUriTranslator(translator);
+                .jsonMapper(blueprint.jsonMapper)
+                .yamlMapper(blueprint.yamlMapper);
+        if (blueprint.schemaLoadersBuilder != null) {
+            builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
         }
-        for (Map.Entry<String, URIFactory> entry : blueprint.uriFactory.getURIFactories().entrySet()) {
-            builder = builder.uriFactory(entry.getValue(), entry.getKey());
-        }
-        for (Map.Entry<String, URIFetcher> entry : blueprint.uriFetcher.getURIFetchers().entrySet()) {
-            builder = builder.uriFetcher(entry.getValue(), entry.getKey());
+        if (blueprint.schemaMappersBuilder != null) {
+            builder.schemaMappersBuilder = SchemaMappers.builder().with(blueprint.schemaMappersBuilder);
         }
         return builder;
     }
 
-    protected JsonSchema newJsonSchema(final URI schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
+    /**
+     * Creates a json schema from initial input.
+     * 
+     * @param schemaUri the schema location
+     * @param schemaNode the schema data node
+     * @param config the config to use
+     * @return the schema
+     */
+    protected JsonSchema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
-        return doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
-                new JsonNodePath(validationContext.getConfig().getPathType()), schemaUri, schemaNode, null, false);
-    }
-
-    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema) {
-        return doCreate(validationContext,
-                null == schemaLocation ? getSchemaLocation(currentUri, schemaNode, validationContext) : schemaLocation,
-                evaluationPath, currentUri, schemaNode, parentSchema, false);
+        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
+                new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
+        try {
+            /*
+             * Attempt to preload and resolve $refs for performance.
+             */
+            jsonSchema.initializeValidators();
+        } catch (Exception e) {
+            /*
+             * Do nothing here to allow the schema to be cached even if the remote $ref
+             * cannot be resolved at this time. If the developer wants to ensure that all
+             * remote $refs are currently resolvable they need to call initializeValidators
+             * themselves.
+             */
+        }
+        return jsonSchema;
     }
 
     public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
-        return create(validationContext, schemaLocation, evaluationPath, parentSchema.getCurrentUri(), schemaNode, parentSchema);
+        return doCreate(validationContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
     }
 
-    private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return JsonSchema.from(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parentSchema, suppressSubSchemaRetrieval);
+    private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return JsonSchema.from(withMetaSchema(validationContext, schemaNode), schemaLocation, evaluationPath,
+                schemaNode, parentSchema, suppressSubSchemaRetrieval);
+    }
+    
+    /**
+     * Determines the validation context to use for the schema given the parent
+     * validation context.
+     * <p>
+     * This is typically the same validation context unless the schema has a
+     * different $schema from the parent.
+     * <p>
+     * If the schema does not define a $schema, the parent should be used.
+     * 
+     * @param validationContext the parent validation context
+     * @param schemaNode        the schema node
+     * @return the validation context to use
+     */
+    private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
+        JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
+        if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
+            return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
+                    validationContext.getConfig(), validationContext.getSchemaReferences(),
+                    validationContext.getSchemaResources(), validationContext.getDynamicAnchors());
+        }
+        return validationContext;
     }
 
     /**
@@ -352,7 +313,7 @@ public class JsonSchemaFactory {
      * @param validationContext the validationContext
      * @return the schema location
      */
-    protected SchemaLocation getSchemaLocation(URI schemaRetrievalUri, JsonNode schemaNode,
+    protected SchemaLocation getSchemaLocation(SchemaLocation schemaRetrievalUri, JsonNode schemaNode,
             ValidationContext validationContext) {
         String schemaLocation = validationContext.resolveSchemaId(schemaNode);
         if (schemaLocation == null && schemaRetrievalUri != null) {
@@ -362,42 +323,71 @@ public class JsonSchemaFactory {
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
-        final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
-        return new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
+        final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
+        return new ValidationContext(jsonMetaSchema, this, config);
+    }
+    
+    private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+        final JsonNode uriNode = schemaNode.get("$schema");
+        if (uriNode != null && uriNode.isTextual()) {
+            return jsonMetaSchemas.computeIfAbsent(normalizeMetaSchemaUri(uriNode.textValue()), id -> getMetaSchema(id, config));
+        }
+        return null;
     }
 
-    private JsonMetaSchema findMetaSchemaForSchema(final JsonNode schemaNode) {
+    private JsonMetaSchema getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode uriNode = schemaNode.get("$schema");
         if (uriNode != null && !uriNode.isNull() && !uriNode.isTextual()) {
             throw new JsonSchemaException("Unknown MetaSchema: " + uriNode.toString());
         }
         final String uri = uriNode == null || uriNode.isNull() ? defaultMetaSchemaURI : normalizeMetaSchemaUri(uriNode.textValue());
-        final JsonMetaSchema jsonMetaSchema = jsonMetaSchemas.computeIfAbsent(uri, this::fromId);
-        return jsonMetaSchema;
+        return jsonMetaSchemas.computeIfAbsent(uri, id -> getMetaSchema(id, config));
     }
 
-    private JsonMetaSchema fromId(String id) {
+    public JsonMetaSchema getMetaSchema(String id, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
         return SpecVersionDetector.detectOptionalVersion(id)
             .map(JsonSchemaFactory::checkVersion)
             .map(JsonSchemaVersion::getInstance)
-            .orElseThrow(() -> new JsonSchemaException("Unknown MetaSchema: " + id));
+            .orElseGet(() -> {
+                // Custom meta schema
+                return loadMetaSchema(id, config);
+            });
+    }
+
+    protected JsonMetaSchema loadMetaSchema(String id, SchemaValidatorsConfig config) {
+        JsonSchema schema = getSchema(SchemaLocation.of(id), config);
+        JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
+        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+        if (specification != null) {
+            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                // Process vocabularies
+                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                if (vocabulary != null) {
+                    builder.vocabularies(new HashMap<>());
+                    for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+                    }
+                }
+                
+            }
+        }
+        return builder.build();
     }
 
     /**
-     * @return A shared {@link URI} factory that is used for creating the URI references in schemas.
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schema the schema data as a string
+     * @param config the config
+     * @return the schema
      */
-    public URIFactory getUriFactory() {
-        return this.uriFactory;
-    }
-
-    public URITranslator getUriTranslator() {
-        return this.uriTranslators.with(URITranslator.map(uriMap));
-    }
-
     public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = jsonMapper.readTree(schema);
+            final JsonNode schemaNode = getJsonMapper().readTree(schema);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -405,13 +395,32 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schema the schema data as a string
+     * @return the schema
+     */
     public JsonSchema getSchema(final String schema) {
-        return getSchema(schema, null);
+        return getSchema(schema, createSchemaValidatorsConfig());
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schemaStream the input stream with the schema data
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         try {
-            final JsonNode schemaNode = jsonMapper.readTree(schemaStream);
+            final JsonNode schemaNode = getJsonMapper().readTree(schemaStream);
             return newJsonSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
@@ -419,101 +428,188 @@ public class JsonSchemaFactory {
         }
     }
 
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * 
+     * @param schemaStream the input stream with the schema data
+     * @return the schema
+     */
     public JsonSchema getSchema(final InputStream schemaStream) {
-        return getSchema(schemaStream, null);
+        return getSchema(schemaStream, createSchemaValidatorsConfig());
     }
 
-    public JsonSchema getSchema(final URI schemaUri, final SchemaValidatorsConfig config) {
-        final URITranslator uriTranslator = null == config ? getUriTranslator()
-                : config.getUriTranslator().with(getUriTranslator());
-
-        final URI mappedUri;
-        try {
-            mappedUri = this.uriFactory.create(uriTranslator.translate(schemaUri).toString());
-        } catch (IllegalArgumentException e) {
-            logger.error("Failed to create URI.", e);
-            throw new JsonSchemaException(e);
-        }
-
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param config the config
+     * @return the schema
+     */
+    public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableUriSchemaCache) {
-            JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(mappedUri, key -> {
-                return getMappedSchema(schemaUri, config, mappedUri);
+            JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(schemaUri, key -> {
+                return getMappedSchema(schemaUri, config);
             });
             return cachedUriSchema.withConfig(config);
         }
-        return getMappedSchema(schemaUri, config, mappedUri);
+        return getMappedSchema(schemaUri, config);
     }
     
-    protected JsonSchema getMappedSchema(final URI schemaUri, SchemaValidatorsConfig config, final URI mappedUri) {
-        try (InputStream inputStream = this.uriFetcher.fetch(mappedUri)) {
+    protected ObjectMapper getYamlMapper() {
+        return this.yamlMapper != null ? this.yamlMapper : YamlMapperFactory.getInstance();
+    }
+    
+    protected ObjectMapper getJsonMapper() {
+        return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
+    }
+
+    /**
+     * Creates a schema validators config.
+     * 
+     * @return the schema validators config
+     */
+    protected SchemaValidatorsConfig createSchemaValidatorsConfig() {
+        return new SchemaValidatorsConfig();
+    }
+
+    protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
+        try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
+            if (inputStream == null) {
+                throw new IOException("Cannot load schema at " + schemaUri.toString());
+            }
             final JsonNode schemaNode;
-            if (isYaml(mappedUri)) {
-                schemaNode = yamlMapper.readTree(inputStream);
+            if (isYaml(schemaUri)) {
+                schemaNode = getYamlMapper().readTree(inputStream);
             } else {
-                schemaNode = jsonMapper.readTree(inputStream);
+                schemaNode = getJsonMapper().readTree(inputStream);
             }
 
-            final JsonMetaSchema jsonMetaSchema = findMetaSchemaForSchema(schemaNode);
+            final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
-            JsonSchema jsonSchema;
-            SchemaLocation schemaLocation = SchemaLocation.of(schemaUri.toString());
-            if (idMatchesSourceUri(jsonMetaSchema, schemaNode, schemaUri) || schemaUri.getFragment() == null
-                    || "".equals(schemaUri.getFragment())) {
-                ValidationContext validationContext = new ValidationContext(this.uriFactory, this.urnFactory, jsonMetaSchema, this, config);
-                jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+            if (schemaUri.getFragment() == null
+                    || schemaUri.getFragment().getNameCount() == 0) {
+                // Schema without fragment
+                ValidationContext validationContext = new ValidationContext(jsonMetaSchema, this, config);
+                return doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
-                // Subschema
+                // Schema with fragment pointing to sub schema
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
-                URI documentUri = "".equals(schemaUri.getSchemeSpecificPart()) ? new URI(schemaUri.getScheme(), schemaUri.getUserInfo(), schemaUri.getHost(), schemaUri.getPort(), schemaUri.getPath(), schemaUri.getQuery(), null) : new URI(schemaUri.getScheme(), schemaUri.getSchemeSpecificPart(), null);
-                SchemaLocation documentLocation = new SchemaLocation(schemaLocation.getAbsoluteIri());
-                JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, documentUri, schemaNode, null, false);
-                JsonNode subSchemaNode = document.getRefSchemaNode("#" + schemaLocation.getFragment().toString());
-                if (subSchemaNode != null) {
-                    jsonSchema = doCreate(validationContext, schemaLocation, evaluationPath, mappedUri, subSchemaNode, document, false);
-                } else {
-                    throw new JsonSchemaException("Unable to find subschema");
-                }
+                SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
+                JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
+                return document.getRefSchema(schemaUri.getFragment());
             }
-            return jsonSchema;
-        } catch (IOException | URISyntaxException e) {
-            logger.error("Failed to load json schema from {}", schemaUri, e);
-            throw new JsonSchemaException(e);
+        } catch (IOException e) {
+            logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
+            JsonSchemaException exception = new JsonSchemaException("Failed to load json schema from "+schemaUri.getAbsoluteIri());
+            exception.initCause(e);
+            throw exception;
         }
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @return the schema
+     */
     public JsonSchema getSchema(final URI schemaUri) {
-        return getSchema(schemaUri, new SchemaValidatorsConfig());
+        return getSchema(SchemaLocation.of(schemaUri.toString()), createSchemaValidatorsConfig());
     }
 
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param jsonNode the node
+     * @param config the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
+    }
+
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param jsonNode the node
+     * @return the schema
+     */
+    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
+        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, createSchemaValidatorsConfig());
+    }
+
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @return the schema
+     */
+    public JsonSchema getSchema(final SchemaLocation schemaUri) {
+        return getSchema(schemaUri, createSchemaValidatorsConfig());
+    }
+
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the base absolute IRI
+     * @param jsonNode the node
+     * @param config the config
+     * @return the schema
+     */
+    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(schemaUri, jsonNode, config);
     }
+    
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the base absolute IRI
+     * @param jsonNode  the node
+     * @return the schema
+     */
+    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
+        return newJsonSchema(schemaUri, jsonNode, null);
+    }
 
-
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * <p>
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode, SchemaValidatorsConfig)}
+     * instead to ensure the base IRI if no id is present.
+     * 
+     * @param jsonNode the node
+     * @param config   the config
+     * @return the schema
+     */
     public JsonSchema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
     }
 
-    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(schemaUri, jsonNode, null);
-    }
-
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * <p>
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode)} instead to ensure the
+     * base IRI if no id is present.
+     * 
+     * @param jsonNode the node
+     * @return the schema
+     */
     public JsonSchema getSchema(final JsonNode jsonNode) {
         return newJsonSchema(null, jsonNode, null);
     }
 
-    private boolean idMatchesSourceUri(final JsonMetaSchema metaSchema, final JsonNode schema, final URI schemaUri) {
-        String id = metaSchema.readId(schema);
-        if (id == null || id.isEmpty()) {
-            return false;
-        }
-        boolean result = id.equals(schemaUri.toString());
-        logger.debug("Matching {} to {}: {}", id, schemaUri, result);
-        return result;
-    }
-
-    private boolean isYaml(final URI schemaUri) {
-        final String schemeSpecificPart = schemaUri.getSchemeSpecificPart();
+    private boolean isYaml(final SchemaLocation schemaUri) {
+        final String schemeSpecificPart = schemaUri.getAbsoluteIri().toString();
         final int idx = schemeSpecificPart.lastIndexOf('.');
 
         if (idx == -1) {
@@ -525,14 +621,38 @@ public class JsonSchemaFactory {
         return (".yml".equals(extension) || ".yaml".equals(extension));
     }
 
-    static protected String normalizeMetaSchemaUri(String u) {
-        try {
-            URI uri = new URI(u);
-            URI newUri = new URI("https", uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null);
-
-            return newUri.toString();
-        } catch (URISyntaxException e) {
-            throw new JsonSchemaException("Wrong MetaSchema URI: " + u);
+    /**
+     * Normalizes the standard JSON schema dialects.
+     * <p>
+     * This should not normalize any other unrecognized dialects.
+     * 
+     * @param id the $schema identifier
+     * @return the normalized uri
+     */
+    static protected String normalizeMetaSchemaUri(String id) {
+        boolean found = false;
+        for (VersionFlag flag : SpecVersion.VersionFlag.values()) {
+            if(flag.getId().equals(id)) {
+                found = true;
+                break;
+            }
         }
+        if (!found) {
+            if (id.contains("://json-schema.org/draft")) {
+                // unnormalized $schema
+                if (id.contains("/draft-07/")) {
+                    id = SchemaId.V7;
+                } else if (id.contains("/draft/2019-09/")) {
+                    id = SchemaId.V201909;
+                } else if (id.contains("/draft/2020-12/")) {
+                    id = SchemaId.V202012;
+                } else if (id.contains("/draft-04/")) {
+                    id = SchemaId.V4;
+                } else if (id.contains("/draft-06/")) {
+                    id = SchemaId.V6;
+                } 
+            }
+        }
+        return id;
     }
 }

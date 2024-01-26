@@ -32,7 +32,6 @@ public class AllOfValidator extends BaseJsonValidator {
 
     public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
-        this.validationContext = validationContext;
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),

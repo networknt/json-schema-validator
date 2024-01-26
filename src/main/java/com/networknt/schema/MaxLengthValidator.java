@@ -34,7 +34,6 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             maxLength = schemaNode.intValue();
         }
-        this.validationContext = validationContext;
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

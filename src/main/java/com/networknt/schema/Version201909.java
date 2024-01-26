@@ -1,10 +1,24 @@
 package com.networknt.schema;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Version201909 extends JsonSchemaVersion{
-    private static final String URI = "https://json-schema.org/draft/2019-09/schema";
+    private static final String URI = SchemaId.V201909;
     private static final String ID = "$id";
+    private static final Map<String, Boolean> VOCABULARY;
+
+    static {
+        Map<String, Boolean> vocabulary = new HashMap<>();
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/core", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/applicator", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/validation", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/meta-data", true);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/format", false);
+        vocabulary.put("https://json-schema.org/draft/2019-09/vocab/content", true);
+        VOCABULARY = vocabulary;
+    }
 
     static {
         // add version specific formats here.
@@ -13,6 +27,7 @@ public class Version201909 extends JsonSchemaVersion{
     @Override
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V201909)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
@@ -33,10 +48,12 @@ public class Version201909 extends JsonSchemaVersion{
                         new NonValidationKeyword("deprecated"),
                         new NonValidationKeyword("contentMediaType"),
                         new NonValidationKeyword("contentEncoding"),
+                        new NonValidationKeyword("contentSchema"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else")
                 ))
+                .vocabularies(VOCABULARY)
                 .build();
     }
 }

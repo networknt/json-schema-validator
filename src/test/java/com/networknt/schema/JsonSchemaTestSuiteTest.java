@@ -1,7 +1,6 @@
 package com.networknt.schema;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -69,22 +68,15 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     }
 
     private void disableV202012Tests() {
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/anchor.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/defs.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/dynamicRef.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/id.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/optional/format-assertion.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2020-12/vocabulary.json"), "Unsupported behavior");
+        // nothing here
     }
 
     private void disableV201909Tests() {
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/anchor.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/id.json"), "Unsupported behavior");
-        this.disabled.put(Paths.get("src/test/suite/tests/draft2019-09/vocabulary.json"), "Unsupported behavior");
+        // nothing here
     }
 
     private void disableV7Tests() {
-        this.disabled.put(Paths.get("src/test/suite/tests/draft7/optional/content.json"), "Unsupported behavior");
+        // nothing here
     }
 
     private void disableV6Tests() {

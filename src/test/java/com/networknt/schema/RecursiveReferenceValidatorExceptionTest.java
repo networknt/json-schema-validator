@@ -22,7 +22,8 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
         JsonSchema jsonSchema = jsonSchemaFactory.getSchema(invalidSchemaJson);
         JsonNode schemaNode = jsonSchema.getSchemaNode();
-        ValidationContext validationContext = new ValidationContext(jsonSchemaFactory.getUriFactory(), null, jsonSchema.getValidationContext().getMetaSchema(), jsonSchemaFactory, null);
+        ValidationContext validationContext = new ValidationContext(jsonSchema.getValidationContext().getMetaSchema(),
+                jsonSchemaFactory, null);
 
         // Act and Assert
         assertThrows(JsonSchemaException.class, () -> {

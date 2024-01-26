@@ -3,7 +3,7 @@ package com.networknt.schema;
 import java.util.Arrays;
 
 public class Version7 extends JsonSchemaVersion{
-    private static final String URI = "https://json-schema.org/draft-07/schema";
+    private static final String URI = SchemaId.V7;
     private static final String ID = "$id";
 
     static {
@@ -13,6 +13,7 @@ public class Version7 extends JsonSchemaVersion{
     @Override
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V7)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
@@ -25,8 +26,6 @@ public class Version7 extends JsonSchemaVersion{
                         new NonValidationKeyword("default"),
                         new NonValidationKeyword("definitions"),
                         new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("contentMediaType"),
-                        new NonValidationKeyword("contentEncoding"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else"),

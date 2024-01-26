@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +53,7 @@ public abstract class AbstractJsonSchemaTest {
 
     private JsonNode getJsonNodeFromPath(String dataPath) {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = JsonMapperFactory.getInstance();
         try {
             return mapper.readTree(dataInputStream);
         } catch(IOException e) {
@@ -62,7 +63,7 @@ public abstract class AbstractJsonSchemaTest {
 
     private JsonSchema getJsonSchema(JsonNode schemaNode) {
         return JsonSchemaFactory
-                .getInstance(SpecVersionDetector.detectOptionalVersion(schemaNode).orElse(DEFAULT_VERSION_FLAG))
+                .getInstance(SpecVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
                 .getSchema(schemaNode);
     }
 

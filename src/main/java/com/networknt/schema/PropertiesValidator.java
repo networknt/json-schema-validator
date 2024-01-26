@@ -33,7 +33,6 @@ public class PropertiesValidator extends BaseJsonValidator {
 
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
-        this.validationContext = validationContext;
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             this.schemas.put(pname, validationContext.newSchema(schemaLocation.append(pname),

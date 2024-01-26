@@ -109,7 +109,6 @@ public class MinimumValidator extends BaseJsonValidator {
                 }
             };
         }
-        this.validationContext = validationContext;
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

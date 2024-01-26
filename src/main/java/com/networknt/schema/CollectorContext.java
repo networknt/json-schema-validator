@@ -100,12 +100,12 @@ public class CollectorContext {
         }
 
         JsonSchema lexicalRoot = context.findLexicalRoot();
-        if (lexicalRoot.isDynamicAnchor()) {
+        if (lexicalRoot.isRecursiveAnchor()) {
             Iterator<Scope> it = this.dynamicScopes.descendingIterator();
             while (it.hasNext()) {
                 Scope scope = it.next();
                 JsonSchema containingSchema = scope.getContainingSchema();
-                if (null != containingSchema && containingSchema.isDynamicAnchor()) {
+                if (null != containingSchema && containingSchema.isRecursiveAnchor()) {
                     return containingSchema;
                 }
             }

@@ -3,8 +3,8 @@ package com.networknt.schema;
 import java.util.Arrays;
 
 public class Version4 extends JsonSchemaVersion{
-    String URI = "https://json-schema.org/draft-04/schema";
-    String ID = "id";
+    private static final String URI = SchemaId.V4;
+    private static final String ID = "id";
 
     static {
         // add version specific formats here.
@@ -13,6 +13,7 @@ public class Version4 extends JsonSchemaVersion{
 
     public JsonMetaSchema getInstance() {
         return new JsonMetaSchema.Builder(URI)
+                .specification(SpecVersion.VersionFlag.V4)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4))

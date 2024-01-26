@@ -9,8 +9,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationContext;
 
-import java.net.URI;
-
 /**
  * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
  */
@@ -64,11 +62,11 @@ public class WalkEvent {
         return instanceLocation;
     }
 
-    public JsonSchema getRefSchema(URI schemaUri) {
+    public JsonSchema getRefSchema(SchemaLocation schemaUri) {
         return currentJsonSchemaFactory.getSchema(schemaUri, validationContext.getConfig());
     }
 
-    public JsonSchema getRefSchema(URI schemaUri, SchemaValidatorsConfig schemaValidatorsConfig) {
+    public JsonSchema getRefSchema(SchemaLocation schemaUri, SchemaValidatorsConfig schemaValidatorsConfig) {
         if (schemaValidatorsConfig != null) {
             return currentJsonSchemaFactory.getSchema(schemaUri, schemaValidatorsConfig);
         } else {

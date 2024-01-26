@@ -18,17 +18,17 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
-import com.networknt.schema.uri.URITranslator;
+
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,15 +47,18 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
 
-    protected ObjectMapper mapper = new ObjectMapper();
+    protected ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');
     }
 
     private static void executeTest(JsonSchema schema, TestSpec testSpec) {
-
-        Set<ValidationMessage> errors = schema.validate(testSpec.getData());
+        Set<ValidationMessage> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+            if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
+                executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            }
+        });
 
         if (testSpec.isValid()) {
             if (!errors.isEmpty()) {
@@ -179,15 +182,14 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
         if (testCase.isDisabled()) return null;
 
-        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion);
+        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
                 .builder(base)
-                .objectMapper(this.mapper)
-                .addUriTranslator(URITranslator.combine(
-                        URITranslator.prefix("https://", "http://"),
-                        URITranslator.prefix("http://json-schema.org", "resource:")
-                ))
+                .jsonMapper(this.mapper)
+                .schemaMappers(schemaMappers -> schemaMappers
+                        .mapPrefix("https://", "http://")
+                        .mapPrefix("http://json-schema.org", "resource:"))
                 .build();
     }
 
@@ -217,7 +219,7 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
             }
         }
 
-        URI testCaseFileUri = URI.create("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
+        SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
         JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));

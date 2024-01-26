@@ -18,15 +18,10 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.CollectorContext.Scope;
-import com.networknt.schema.uri.URIFactory;
-import com.networknt.schema.urn.URNFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 public class RefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
@@ -58,34 +53,15 @@ public class RefValidator extends BaseJsonValidator {
 
             // This will determine the correct absolute uri for the refUri. This decision will take into
             // account the current uri of the parent schema.
-            URI schemaUri = determineSchemaUri(validationContext.getURIFactory(), parentSchema, refUri);
-            if (schemaUri == null) {
-                // the URNFactory is optional
-                if (validationContext.getURNFactory() == null) {
-                    return null;
-                }
-                // If the uri dose't determinate try to determinate with urn factory
-                schemaUri = determineSchemaUrn(validationContext.getURNFactory(), refUri);
-                if (schemaUri == null) {
-                    return null;
-                }
-            }
-
-            URI schemaUriFinal = schemaUri;
+            String schemaUriFinal = resolve(parentSchema, refUri);
+            SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
             // This should retrieve schemas regardless of the protocol that is in the uri.
             return new JsonSchemaRef(new CachedSupplier<>(() -> {
-                JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal.toString());
+                JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
-                    schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaUriFinal, validationContext.getConfig());
+                    schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig()); 
                     if (schemaResource != null) {
-                        if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
-                            validationContext.getSchemaResources()
-                                    .putAll(schemaResource.getValidationContext().getSchemaResources());
-                        }
-                        if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
-                            validationContext.getSchemaReferences()
-                                    .putAll(schemaResource.getValidationContext().getSchemaReferences());
-                        }
+                        copySchemaResources(validationContext, schemaResource);
                     }
                 }
                 if (index < 0) {
@@ -95,8 +71,17 @@ public class RefValidator extends BaseJsonValidator {
                     return schemaResource.fromRef(parentSchema, evaluationPath);
                 } else {
                     String newRefValue = refValue.substring(index);
-                    schemaResource = getJsonSchema(schemaResource, validationContext, newRefValue, refValueOriginal,
-                            evaluationPath);
+                    String find = schemaLocation.getAbsoluteIri() + newRefValue;
+                    JsonSchema findSchemaResource = validationContext.getSchemaResources().get(find);
+                    if (findSchemaResource == null) {
+                        findSchemaResource = validationContext.getDynamicAnchors().get(find); 
+                    }
+                    if (findSchemaResource != null) {
+                       schemaResource = findSchemaResource;   
+                    } else {
+                        schemaResource = getJsonSchema(schemaResource, validationContext, newRefValue, refValueOriginal,
+                                evaluationPath);
+                    }
                     if (schemaResource == null) {
                         return null;
                     }
@@ -105,32 +90,53 @@ public class RefValidator extends BaseJsonValidator {
             }));
             
         } else if (SchemaLocation.Fragment.isAnchorFragment(refValue)) {
-            // $ref prevents a sibling $id from changing the base uri
-            JsonSchema base = parentSchema;
-            if (parentSchema.getId() != null && parentSchema.parentSchema != null) {
-                base = parentSchema.parentSchema;
-            }
-            if (base.getCurrentUri() != null) {
-                String absoluteIri = SchemaLocation.resolve(base.getSchemaLocation(), refValue);
-               // Schema resource needs to update the parent and evaluation path
-               return new JsonSchemaRef(new CachedSupplier<>(() -> {
-                   JsonSchema schemaResource = validationContext.getSchemaResources().get(absoluteIri);
-                   if (schemaResource == null) {
-                       schemaResource = getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath);
-                   }
-                   if (schemaResource == null) {
-                       return null;
-                   }
-                   return schemaResource.fromRef(parentSchema, evaluationPath);
-               }));
-            }
+            String absoluteIri = resolve(parentSchema, refValue);
+            // Schema resource needs to update the parent and evaluation path
+            return new JsonSchemaRef(new CachedSupplier<>(() -> {
+                JsonSchema schemaResource = validationContext.getSchemaResources().get(absoluteIri);
+                if (schemaResource == null) {
+                    schemaResource = validationContext.getDynamicAnchors().get(absoluteIri);
+                }
+                if (schemaResource == null) {
+                    schemaResource = getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath);
+                }
+                if (schemaResource == null) {
+                    return null;
+                }
+                return schemaResource.fromRef(parentSchema, evaluationPath);
+            }));
         }
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(new CachedSupplier<>(
                     () -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath)));
         }
         return new JsonSchemaRef(new CachedSupplier<>(
-                () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)));
+                () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)
+                        .fromRef(parentSchema, evaluationPath)));
+    }
+
+    private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
+        if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
+            validationContext.getSchemaResources()
+                    .putAll(schemaResource.getValidationContext().getSchemaResources());
+        }
+        if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
+            validationContext.getSchemaReferences()
+                    .putAll(schemaResource.getValidationContext().getSchemaReferences());
+        }
+        if (!schemaResource.getValidationContext().getDynamicAnchors().isEmpty()) {
+            validationContext.getDynamicAnchors()
+                    .putAll(schemaResource.getValidationContext().getDynamicAnchors());
+        }
+    }
+    
+    private static String resolve(JsonSchema parentSchema, String refValue) {
+        // $ref prevents a sibling $id from changing the base uri
+        JsonSchema base = parentSchema;
+        if (parentSchema.getId() != null && parentSchema.parentSchema != null) {
+            base = parentSchema.parentSchema;
+        }
+        return SchemaLocation.resolve(base.getSchemaLocation(), refValue);
     }
 
     private static JsonSchema getJsonSchema(JsonSchema parent,
@@ -138,92 +144,12 @@ public class RefValidator extends BaseJsonValidator {
                                                   String refValue,
                                                   String refValueOriginal,
                                                   JsonNodePath evaluationPath) {
-        JsonNode node = parent.getRefSchemaNode(refValue);
-        if (node != null) {
-            return validationContext.getSchemaReferences().computeIfAbsent(refValueOriginal, key -> {
-                return getJsonSchema(node, parent, validationContext, refValue, evaluationPath);
-            });
-        }
-        return null;
-    }
-    
-    private static JsonSchema getJsonSchema(JsonNode node, JsonSchema parent,
-                                                  ValidationContext validationContext,
-                                                  String refValue,
-                                                  JsonNodePath evaluationPath) {
-        if (node != null) {
-            SchemaLocation path = null;
-            JsonSchema currentParent = parent;
-            URI currentUri = parent.getCurrentUri();
-            if (refValue.startsWith(REF_CURRENT)) {
-                // relative to document
-                path = new SchemaLocation(parent.schemaLocation.getAbsoluteIri(),
-                        new JsonNodePath(PathType.JSON_POINTER));
-                // Attempt to get subschema node
-                String[] refParts = refValue.split("/");
-                if (refParts.length > 3) {
-                    String[] subschemaParts = Arrays.copyOf(refParts, refParts.length - 2);
-                    JsonNode subschemaNode = parent.getRefSchemaNode(String.join("/", subschemaParts));
-                    String id = validationContext.resolveSchemaId(subschemaNode);
-                    if (id != null) {
-                        if (id.contains(":")) {
-                            // absolute
-                            currentUri = URI.create(id);
-                            path = SchemaLocation.of(id);
-                        } else {
-                            // relative
-                            String absoluteUri = path.getAbsoluteIri().resolve(id).toString();
-                            currentUri = URI.create(absoluteUri);
-                            path = SchemaLocation.of(absoluteUri);
-                        }
-                    }
-                }
-                String[] parts = refValue.split("/");
-                for (int x = 1; x < parts.length; x++) {
-                    path = path.append(parts[x]);
-                }
-            } else if(refValue.contains(":")) {
-                // absolute
-                path = SchemaLocation.of(refValue); 
-            } else {
-                // relative to lexical root
-                String id = parent.findSchemaResourceRoot().getId();
-                path = SchemaLocation.of(id);
-                String[] parts = refValue.split("/");
-                for (int x = 1; x < parts.length; x++) {
-                    path = path.append(parts[x]);
-                }
-            }
-            return validationContext.newSchema(path, evaluationPath, currentUri, node, currentParent);
-        }
-        throw null;
-    }
-
-    private static URI determineSchemaUri(final URIFactory uriFactory, final JsonSchema parentSchema, final String refUri) {
-        URI schemaUri;
-        // $ref prevents a sibling $id from changing the base uri
-        JsonSchema parent = parentSchema.getParentSchema(); // just the parentSchema is the sibling $id with this $ref
-        final URI currentUri = parent != null ? parent.getCurrentUri() : parentSchema.getCurrentUri();
-        try {
-            if (currentUri == null) {
-                schemaUri = uriFactory.create(refUri);
-            } else {
-                schemaUri = uriFactory.create(currentUri, refUri);
-            }
-        } catch (IllegalArgumentException e) {
-            schemaUri = null;
-        }
-        return schemaUri;
-    }
-
-    private static URI determineSchemaUrn(final URNFactory urnFactory, final String refUri) {
-        URI schemaUrn;
-        try {
-            schemaUrn = urnFactory.create(refUri);
-        } catch (IllegalArgumentException e) {
-            schemaUrn = null;
-        }
-        return schemaUrn;
+        // This should be processing json pointer fragments only
+        JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
+        String schemaReference = resolve(parent, refValueOriginal);
+        return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
+            return parent.getSubSchema(fragment);
+        });
     }
 
     @Override
@@ -300,6 +226,22 @@ public class RefValidator extends BaseJsonValidator {
         } catch (RuntimeException e) {
             throw new JsonSchemaException(e);
         }
-        jsonSchema.initializeValidators();
+        // Check for circular dependency
+        // Only one cycle is pre-loaded
+        // The rest of the cycles will load at execution time depending on the input
+        // data
+        SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
+        JsonSchema check = jsonSchema;
+        boolean circularDependency = false;
+        while(check.getEvaluationParentSchema() != null) {
+            check = check.getEvaluationParentSchema();
+            if (check.getSchemaLocation().equals(schemaLocation)) {
+                circularDependency = true;
+                break;
+            }
+        }
+        if(!circularDependency) {
+            jsonSchema.initializeValidators();
+        }
     }
 }

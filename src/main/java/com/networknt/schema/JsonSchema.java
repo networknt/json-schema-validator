@@ -16,17 +16,21 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.YamlMapperFactory;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * This is the core of json constraint implementation. It parses json constraint
@@ -42,46 +46,65 @@ public class JsonSchema extends BaseJsonValidator {
     private List<JsonValidator> validators;
     private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
-    private boolean dynamicAnchor = false;
+    private boolean recursiveAnchor = false;
 
-    /**
-     * This is the current uri of this schema. This uri could refer to the uri of this schema's file
-     * or it could potentially be a uri that has been altered by an id. An 'id' is able to completely overwrite
-     * the current uri or add onto it. This is necessary so that '$ref's are able to be relative to a
-     * combination of the current schema file's uri and 'id' uris visible to this schema.
-     * <p>
-     * This can be null. If it is null, then the creation of relative uris will fail. However, an absolute
-     * 'id' would still be able to specify an absolute uri.
-     */
-    private URI currentUri;
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
 
     WalkListenerRunner keywordWalkListenerRunner = null;
 
     private final String id;
-    private final String anchor;
 
-    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        return new JsonSchema(validationContext, schemaLocation, evaluationPath, currentUri, schemaNode, parent, suppressSubSchemaRetrieval);
+    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
+    }
+    
+    private boolean hasNoFragment(SchemaLocation schemaLocation) {
+        return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
     }
 
-    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, URI currentUri,
-                       JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation, evaluationPath, schemaNode, parent, null, null, validationContext,
-                suppressSubSchemaRetrieval);
-        this.validationContext = validationContext;
-        this.metaSchema = validationContext.getMetaSchema();
-        this.currentUri = combineCurrentUriWithIds(currentUri, schemaNode);
+    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+            JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
+                null, null, validationContext, suppressSubSchemaRetrieval);
+        this.metaSchema = this.validationContext.getMetaSchema();
         initializeConfig();
-        this.id = validationContext.resolveSchemaId(this.schemaNode);
-        this.anchor = validationContext.getMetaSchema().readAnchor(this.schemaNode);
-        if (this.id != null) {
+        String id = this.validationContext.resolveSchemaId(this.schemaNode);
+        if (id != null) {
+            // In earlier drafts $id may contain an anchor fragment
+            // Note that json pointer fragments in $id are not allowed
+            if (hasNoFragment(schemaLocation)) {
+                this.id = id;
+            } else {
+                this.id = id;
+            }
             this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.currentUri != null ? this.currentUri.toString() : this.id, this);
+                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : id, this);
+        } else {
+            if (hasNoFragment(schemaLocation)) {
+                // No $id but there is no fragment and is thus a schema resource
+                this.id = this.schemaLocation.getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
+                this.validationContext.getSchemaResources()
+                        .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
+            } else {
+                this.id = null;
+            }
         }
-        if (this.anchor != null) {
-            this.validationContext.getSchemaResources().putIfAbsent(this.currentUri.toString() + "#" + anchor, this);
+        String anchor = this.validationContext.getMetaSchema().readAnchor(this.schemaNode);
+        if (anchor != null) {
+            String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
+                    ? this.schemaLocation.getAbsoluteIri().toString()
+                    : "";
+            this.validationContext.getSchemaResources()
+                    .putIfAbsent(absoluteIri + "#" + anchor, this);
+        }
+        String dynamicAnchor = this.validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
+        if (dynamicAnchor != null) {
+            String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
+                    ? this.schemaLocation.getAbsoluteIri().toString()
+                    : "";
+            this.validationContext.getDynamicAnchors()
+                    .putIfAbsent(absoluteIri + "#" + dynamicAnchor, this);
         }
         getValidators();
     }
@@ -103,13 +126,11 @@ public class JsonSchema extends BaseJsonValidator {
         this.validators = copy.validators;
         this.metaSchema = copy.metaSchema;
         this.validatorsLoaded = copy.validatorsLoaded;
-        this.dynamicAnchor = copy.dynamicAnchor;
-        this.currentUri = copy.currentUri;
+        this.recursiveAnchor = copy.recursiveAnchor;
         this.requiredValidator = copy.requiredValidator;
         this.typeValidator = copy.typeValidator;
         this.keywordWalkListenerRunner = copy.keywordWalkListenerRunner;
         this.id = copy.id;
-        this.anchor = copy.anchor;
     }
 
     /**
@@ -125,11 +146,12 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
         JsonSchema copy = new JsonSchema(this);
-        copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
-                copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+        copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
                 copy.getValidationContext().getJsonSchemaFactory(),
                 refEvaluationParentSchema.validationContext.getConfig(),
-                copy.getValidationContext().getSchemaReferences(), copy.getValidationContext().getSchemaResources());
+                refEvaluationParentSchema.getValidationContext().getSchemaReferences(),
+                refEvaluationParentSchema.getValidationContext().getSchemaResources(),
+                refEvaluationParentSchema.getValidationContext().getDynamicAnchors());
         copy.evaluationPath = refEvaluationPath;
         copy.evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
@@ -144,11 +166,11 @@ public class JsonSchema extends BaseJsonValidator {
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
         if (!this.getValidationContext().getConfig().equals(config)) {
             JsonSchema copy = new JsonSchema(this);
-            copy.validationContext = new ValidationContext(copy.validationContext.getURIFactory(),
-                    copy.getValidationContext().getURNFactory(), copy.getValidationContext().getMetaSchema(),
+            copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
                     copy.getValidationContext().getJsonSchemaFactory(), config,
                     copy.getValidationContext().getSchemaReferences(),
-                    copy.getValidationContext().getSchemaResources());
+                    copy.getValidationContext().getSchemaResources(),
+                    copy.getValidationContext().getDynamicAnchors());
             copy.validatorsLoaded = false;
             copy.requiredValidator = null;
             copy.typeValidator = null;
@@ -161,37 +183,6 @@ public class JsonSchema extends BaseJsonValidator {
 
     ValidationContext getValidationContext() {
         return this.validationContext;
-    }
-
-    private URI combineCurrentUriWithIds(URI currentUri, JsonNode schemaNode) {
-        final String id = this.validationContext.resolveSchemaId(schemaNode);
-        if (id == null) {
-            return currentUri;
-        } else if (isUriFragmentWithNoContext(currentUri, id)) {
-            return null;
-        } else {
-            try {
-                return this.validationContext.getURIFactory().create(currentUri, id);
-            } catch (IllegalArgumentException e) {
-                SchemaLocation path = schemaLocation.append(this.metaSchema.getIdKeyword());
-                ValidationMessage validationMessage = ValidationMessage.builder().code(ValidatorTypeCode.ID.getValue())
-                        .type(ValidatorTypeCode.ID.getValue()).instanceLocation(path.getFragment())
-                        .evaluationPath(path.getFragment())
-                        .arguments(currentUri == null ? "null" : currentUri.toString(), id)
-                        .messageFormatter(args -> this.validationContext.getConfig().getMessageSource().getMessage(
-                                ValidatorTypeCode.ID.getValue(), this.validationContext.getConfig().getLocale(), args))
-                        .build();
-                throw new JsonSchemaException(validationMessage);
-            }
-        }
-    }
-
-    private static boolean isUriFragmentWithNoContext(URI currentUri, String id) {
-        return id.startsWith("#") && (currentUri == null || currentUri.toString().startsWith("#"));
-    }
-
-    public URI getCurrentUri() {
-        return this.currentUri;
     }
 
     /**
@@ -224,14 +215,114 @@ public class JsonSchema extends BaseJsonValidator {
             if (node.isMissingNode()) {
                 node = handleNullNode(ref, schema);
             }
-        } else if ((ref.startsWith("#") && ref.length() > 1) || (ref.startsWith("urn:") && ref.length() > 4)) {
-            node = this.metaSchema.getNodeByFragmentRef(ref, node);
-            if (node == null) {
-                node = handleNullNode(ref, schema);
+        }
+        return node;
+    }
+
+    public JsonSchema getRefSchema(JsonNodePath fragment) {
+        if (PathType.JSON_POINTER.equals(fragment.getPathType())) {
+            // Json Pointer
+            return getSubSchema(fragment);
+        } else {
+            // Anchor
+            String base = this.getSchemaLocation().getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
+            String anchor = base + "#" + fragment.toString();
+            JsonSchema result = this.validationContext.getSchemaResources().get(anchor);
+            if (result == null) {
+                result  = this.validationContext.getDynamicAnchors().get(anchor);
+            }
+            if (result == null) {
+                throw new JsonSchemaException("Unable to find anchor "+anchor);
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Gets the sub schema given the json pointer fragment.
+     * 
+     * @param fragment the json pointer fragment
+     * @return the schema
+     */
+    public JsonSchema getSubSchema(JsonNodePath fragment) {
+        JsonSchema document = findSchemaResourceRoot(); 
+        JsonSchema parent = document; 
+        JsonSchema subSchema = null;
+        for (int x = 0; x < fragment.getNameCount(); x++) {
+            /*
+             * The sub schema is created by iterating through the parents in order to
+             * maintain the lexical parent schema context.
+             * 
+             * If this is created directly from the schema node pointed to by the json
+             * pointer, the lexical context is lost and this will affect $ref resolution due
+             * to $id changes in the lexical scope.
+             */
+            Object segment = fragment.getElement(x);
+            JsonNode subSchemaNode = parent.getNode(segment);
+            if (subSchemaNode != null) {
+                SchemaLocation schemaLocation = parent.getSchemaLocation();
+                JsonNodePath evaluationPath = parent.getEvaluationPath();
+                if (segment instanceof Number) {
+                    int index = ((Number) segment).intValue();
+                    schemaLocation = schemaLocation.append(index);
+                    evaluationPath = evaluationPath.append(index);
+                } else {
+                    schemaLocation = schemaLocation.append(segment.toString());
+                    evaluationPath = evaluationPath.append(segment.toString());
+                }
+                /*
+                 * The parent validation context is used to create as there can be changes in
+                 * $schema is later drafts which means the validation context can change.
+                 */
+                subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
+                        parent);
+                parent = subSchema;
+            } else {
+                /*
+                 * This means that the fragment wasn't found in the document.
+                 * 
+                 * In Draft 4-7 the $id indicates a base uri change and not a schema resource so this might not be the right document.
+                 * 
+                 * See test for draft4\extra\classpath\schema.json
+                 */
+                JsonSchema found = document.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
+                if (found != null) {
+                    found = found.getSubSchema(fragment);
+                }
+                if (found == null) {
+                    throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
+                            + parent.getSchemaLocation().toString() + " at evaluation path "
+                            + parent.getEvaluationPath().toString());
+                }
+                return found;
             }
         }
+        return subSchema;
+    }
 
-        return node;
+    protected JsonNode getNode(Object propertyOrIndex) {
+        JsonNode node = getSchemaNode();
+        JsonNode value = null;
+        if (propertyOrIndex instanceof Number) {
+            value = node.get(((Number) propertyOrIndex).intValue());
+        } else {
+            // In the case of string this represents an escaped json pointer and thus does not reflect the property directly
+            String unescaped = propertyOrIndex.toString();
+            if (unescaped.contains("~")) {
+                unescaped = unescaped.replace("~1", "/");
+                unescaped = unescaped.replace("~0", "~");
+            }
+            if (unescaped.contains("%")) {
+                try {
+                    unescaped = URLDecoder.decode(unescaped, StandardCharsets.UTF_8.toString());
+                } catch (UnsupportedEncodingException e) {
+                    // Do nothing
+                }
+            }
+            
+            value = node.get(unescaped);
+        }
+        return value;
     }
 
     public JsonSchema findLexicalRoot() {
@@ -273,22 +364,9 @@ public class JsonSchema extends BaseJsonValidator {
             return true;
         }
         // The schema should not cross
-        if (getCurrentUri() != null && getParentSchema().getCurrentUri() == null) {
+        if (!Objects.equals(getSchemaLocation().getAbsoluteIri(),
+                getParentSchema().getSchemaLocation().getAbsoluteIri())) {
             return true;
-        }
-        if (getCurrentUri() == null && getParentSchema().getCurrentUri() != null) {
-            return true;
-        }
-        if (getCurrentUri() != null && getParentSchema().getCurrentUri() != null) {
-            if (!Objects.equals(getCurrentUri().getScheme(), getParentSchema().getCurrentUri().getScheme())) {
-                return true;
-            }
-            if (!Objects.equals(getCurrentUri().getHost(), getParentSchema().getCurrentUri().getHost())) {
-                return true;
-            }
-            if (!Objects.equals(getCurrentUri().getPath(), getParentSchema().getCurrentUri().getPath())) {
-                return true;
-            }
         }
         return false;
     }
@@ -354,7 +432,7 @@ public class JsonSchema extends BaseJsonValidator {
                                 .build();
                         throw new JsonSchemaException(validationMessage);
                     }
-                    this.dynamicAnchor = nodeToUse.booleanValue();
+                    this.recursiveAnchor = nodeToUse.booleanValue();
                 }
 
                 JsonValidator validator = this.validationContext.newValidator(schemaPath, path,
@@ -495,40 +573,255 @@ public class JsonSchema extends BaseJsonValidator {
 
     /**
      * Validate the given root JsonNode, starting at the root of the data path.
-     * @param rootNode JsonNode
-     *
-     * @return A list of ValidationMessage if there is any validation error, or an empty
-     * list if there is no error.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param rootNode the root node
+     * @return A list of ValidationMessage if there is any validation error, or an
+     *         empty list if there is no error.
      */
     public Set<ValidationMessage> validate(JsonNode rootNode) {
         return validate(rootNode, OutputFormat.DEFAULT);
     }
 
     /**
-     * Validates the given root JsonNode, starting at the root of the data path. The
-     * output will be formatted using the formatter specified.
-     * 
-     * @param <T>      the result type
-     * @param rootNode the root note
-     * @param format   the formatter
-     * @return the result
+     * Validate the given root JsonNode, starting at the root of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     *
+     * @param rootNode            the root node
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
      */
-    public <T> T validate(JsonNode rootNode, OutputFormat<T> format) {
-        return validate(rootNode, format, null);
+    public Set<ValidationMessage> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
+        return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given root JsonNode, starting at the root of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param rootNode            the root node
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public Set<ValidationMessage> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
     /**
      * Validates the given root JsonNode, starting at the root of the data path. The
      * output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>      the result type
+     * @param rootNode the root node
+     * @param format   the formatter
+     * @return the result
+     */
+    public <T> T validate(JsonNode rootNode, OutputFormat<T> format) {
+        return validate(rootNode, format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given root JsonNode, starting at the root of the data path. The
+     * output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
      * 
      * @param <T>                 the result type
-     * @param rootNode            the root note
+     * @param rootNode            the root node
      * @param format              the formatter
      * @param executionCustomizer the execution customizer
      * @return the result
      */
-    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, ExecutionCustomizer executionCustomizer) {
+    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
         return validate(createExecutionContext(), rootNode, format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given root JsonNode, starting at the root of the data path. The
+     * output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param rootNode            the root node
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(JsonNode rootNode, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(createExecutionContext(), rootNode, format, (executionContext, validationContext) -> {
+            executionCustomizer.accept(executionContext);
+        });
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @return A list of ValidationMessage if there is any validation error, or an
+     *         empty list if there is no error.
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     *
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>         the result type
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @param format      the formatter
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format) {
+        return validate(deserialize(input, inputFormat), format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, (executionContext, validationContext) -> {
+            executionCustomizer.accept(executionContext);
+        });
+    }
+
+    /**
+     * Deserialize string to JsonNode.
+     * 
+     * @param input the input
+     * @param inputFormat the format
+     * @return the JsonNode.
+     */
+    private JsonNode deserialize(String input, InputFormat inputFormat) {
+        try {
+            if (InputFormat.JSON.equals(inputFormat)) {
+                return JsonMapperFactory.getInstance().readTree(input);
+            } else if (InputFormat.YAML.equals(inputFormat)) {
+                return YamlMapperFactory.getInstance().readTree(input);
+            }
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid input", e);
+        }
+        throw new IllegalArgumentException("Unsupported input format "+inputFormat);
     }
 
     public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
@@ -574,24 +867,69 @@ public class JsonSchema extends BaseJsonValidator {
     /*********************** START OF WALK METHODS **********************************/
 
     /**
-     * Walk the JSON node
-     * @param executionContext     ExecutionContext
-     * @param node                 JsonNode
-     * @param shouldValidateSchema indicator on validation
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param validate         true to validate the input against the schema
      *
-     * @return result of ValidationResult
+     * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(executionContext, node, node, atRoot(), shouldValidateSchema);
-    }
-    
-    public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        return walk(createExecutionContext(), node, shouldValidateSchema);
+    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
     }
 
+    /**
+     * Walk the input.
+     * 
+     * @param executionContext the execution context
+     * @param input            the input
+     * @param inputFormat      the input format
+     * @param validate         true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+            boolean validate) {
+        JsonNode node = deserialize(input, inputFormat);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param node     the input
+     * @param validate true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(JsonNode node, boolean validate) {
+        return walk(createExecutionContext(), node, validate);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate);
+    }
+
+    /**
+     * Walk at the node.
+     * 
+     * @param executionContext the execution content
+     * @param node             the current node
+     * @param rootNode         the root node
+     * @param instanceLocation the instance location
+     * @param validate         true to validate the input against the schema
+     * @return the validation result
+     */
     public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            JsonNodePath instanceLocation, boolean validate) {
+        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate);
     }
 
     private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
@@ -615,41 +953,51 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Walk through all the JSONWalker's.
-        getValidators().forEach(jsonWalker -> {
-            JsonNodePath evaluationPathWithKeyword = jsonWalker.getEvaluationPath();
+        for (JsonValidator v : getValidators()) {
+            JsonNodePath evaluationPathWithKeyword = v.getEvaluationPath();
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
                 if (this.keywordWalkListenerRunner.runPreWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1),
-                        node,
-                        rootNode,
-                        instanceLocation,
-                        jsonWalker.getEvaluationPath(),
-                        jsonWalker.getSchemaLocation(),
-                        this.schemaNode,
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
-                    validationMessages.addAll(jsonWalker.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
+                    Set<ValidationMessage> results = null;
+                    Scope parentScope = collectorContext.enterDynamicScope(this);
+                    try {
+                        results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                    } finally {
+                        Scope scope = collectorContext.exitDynamicScope();
+                        if (results == null || results.isEmpty()) {
+                            parentScope.mergeWith(scope);
+                        } else {
+                            errors.addAll(results);
+                            if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
+                                    || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
+                                collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
+                            }
+                            if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
+                                    || v instanceof PatternPropertiesValidator) {
+                                collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
+                            }
+                        }
+                    }
                 }
             } finally {
                 // Call all the post-walk listeners.
                 this.keywordWalkListenerRunner.runPostWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1),
-                        node,
-                        rootNode,
-                        instanceLocation,
-                        jsonWalker.getEvaluationPath(),
-                        jsonWalker.getSchemaLocation(),
-                        this.schemaNode,
-                        this.parentSchema,
-                        this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
+                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory(),
+                        errors);
             }
-        });
-
-        return validationMessages;
+        }
+        return errors;
     }
 
     /************************ END OF WALK METHODS **********************************/
@@ -708,15 +1056,20 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
-            this.validatorsLoaded = true;
             for (final JsonValidator validator : getValidators()) {
                 validator.preloadJsonSchema();
             }
+            /*
+             * This is only set to true after the preload as it may throw an exception for
+             * instance if the remote host is unavailable and we may want to be able to try
+             * again.
+             */
+            this.validatorsLoaded = true;
         }
     }
 
-    public boolean isDynamicAnchor() {
-        return this.dynamicAnchor;
+    public boolean isRecursiveAnchor() {
+        return this.recursiveAnchor;
     }
 
     /**
@@ -726,13 +1079,18 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ExecutionContext createExecutionContext() {
         SchemaValidatorsConfig config = validationContext.getConfig();
-        if(config.getExecutionContextSupplier() != null) {
-            return config.getExecutionContextSupplier().get();
-        }
         CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
                 config.isUnevaluatedPropertiesAnalysisDisabled());
+
+        // Copy execution config defaults from validation config
         ExecutionConfig executionConfig = new ExecutionConfig();
         executionConfig.setLocale(config.getLocale());
-        return new ExecutionContext(executionConfig, collectorContext);
+        executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
+
+        ExecutionContext executionContext = new ExecutionContext(executionConfig, collectorContext);
+        if(config.getExecutionContextCustomizer() != null) {
+            config.getExecutionContextCustomizer().customize(executionContext, validationContext);
+        }
+        return executionContext;
     }
 }

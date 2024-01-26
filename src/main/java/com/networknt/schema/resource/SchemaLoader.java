@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 the original author or authors.
+ * Copyright (c) 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.networknt.schema.resource;
 
-package com.networknt.schema;
+import com.networknt.schema.AbsoluteIri;
 
 /**
- * Customize the execution context before validation.
+ * Schema Loader used to load a schema given the retrieval IRI.
  */
 @FunctionalInterface
-interface ExecutionCustomizer {
+public interface SchemaLoader {
     /**
-     * Customize the execution context before validation.
-     * <p>
-     * The validation context should only be used for reference as it is shared.
+     * Loads a schema given the retrieval IRI.
      * 
-     * @param executionContext  the execution context
-     * @param validationContext the validation context for reference
+     * @param absoluteIri the retrieval IRI
+     * @return the input stream source
      */
-    void customize(ExecutionContext executionContext, ValidationContext validationContext);
+    InputStreamSource getSchema(AbsoluteIri absoluteIri);
 }

@@ -163,18 +163,16 @@ public class JsonNodeUtil {
         // 3. The parent schema if refer from components, which means the corresponding enum object class would be generated
         JsonNode typeNode = null;
         JsonNode enumNode = null;
-        JsonNode refNode = null;
+        boolean refNode = false;
 
         if (jsonSchema != null) {
             if (jsonSchema.getSchemaNode() != null) {
                 typeNode = jsonSchema.getSchemaNode().get(TYPE);
                 enumNode = jsonSchema.getSchemaNode().get(ENUM);
             }
-            if (jsonSchema.getParentSchema() != null && jsonSchema.getParentSchema().getSchemaNode() != null) {
-                refNode = jsonSchema.getParentSchema().getSchemaNode().get(REF);
-            }
+            refNode = REF.equals(jsonSchema.getEvaluationPath().getElement(-1));
         }
-        if (typeNode != null && enumNode != null && refNode != null) {
+        if (typeNode != null && enumNode != null && refNode) {
             return TypeFactory.getSchemaNodeType(typeNode) == JsonType.OBJECT && enumNode.isArray();
         }
         return false;

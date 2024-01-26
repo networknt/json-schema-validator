@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "DriverProperties": {
+            "type": "object",
+            "properties": {
+                "field1": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                },
+                "field2": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                }
+            },
+            "required": ["field1"],
+            "additionalProperties": false
+        }
+    }
+}

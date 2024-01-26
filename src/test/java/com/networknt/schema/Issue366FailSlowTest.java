@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +26,12 @@ public class Issue366FailSlowTest {
     SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
     JsonSchemaFactory schemaFactory = JsonSchemaFactory
         .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-        .objectMapper(objectMapper)
+        .jsonMapper(objectMapper)
         .build();
 
     schemaValidatorsConfig.setTypeLoose(false);
 
-    URI uri = getSchema();
+    SchemaLocation uri = getSchema();
 
     InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
     JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
@@ -99,7 +98,7 @@ public class Issue366FailSlowTest {
     assertEquals(errors.size(),3);
   }
 
-  private URI getSchema() {
-   return URI.create("classpath:" + "/draft7/issue366_schema.json");
+  private SchemaLocation getSchema() {
+   return SchemaLocation.of("classpath:" + "/draft7/issue366_schema.json");
   }
 }

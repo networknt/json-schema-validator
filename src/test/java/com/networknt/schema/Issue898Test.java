@@ -2,14 +2,10 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import static java.util.stream.Collectors.toList;
 

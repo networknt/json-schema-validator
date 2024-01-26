@@ -6,5 +6,10 @@
   {
     "publicURL": "http://example.com/invalid/schema/url",
     "localURL": "resource:/draft4/extra/uri_mapping/example-schema.json"
+  },
+  {
+    "publicURL": "https://example.com/invalid/schema/url",
+    "localURL": "resource:/draft4/extra/uri_mapping/example-schema.json"
   }
+
 ]

@@ -22,7 +22,6 @@ import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +32,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected final ApplyDefaultsStrategy applyDefaultsStrategy;
     private final PathType pathType;
 
-    protected JsonNode schemaNode;
+    protected final JsonNode schemaNode;
 
     protected ValidationContext validationContext;
 
@@ -98,14 +97,9 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             return null;
         }
 
-        final URI uri;
-        try {
-            uri = validationContext.getURIFactory().create(node.textValue());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        final SchemaLocation schemaLocation = SchemaLocation.of(node.textValue());
 
-        return validationContext.getJsonSchemaFactory().getSchema(uri, validationContext.getConfig());
+        return validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig());
     }
 
     protected static boolean equals(double n1, double n2) {
@@ -258,10 +252,25 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return this.schemaNode;
     }
 
+    /**
+     * Gets the parent schema.
+     * <p>
+     * This is the lexical parent schema.
+     * 
+     * @return the parent schema
+     */
     public JsonSchema getParentSchema() {
         return this.parentSchema;
     }
 
+    /**
+     * Gets the evaluation parent schema.
+     * <p>
+     * This is the dynamic parent schema when following references.
+     * 
+     * @see JsonSchema#fromRef(JsonSchema, JsonNodePath)
+     * @return the evaluation parent schema
+     */
     public JsonSchema getEvaluationParentSchema() {
         if (this.evaluationParentSchema != null) {
             return this.evaluationParentSchema;
@@ -301,7 +310,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @return the result
      */
     public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
-            ExecutionCustomizer executionCustomizer) {
+            ExecutionContextCustomizer executionCustomizer) {
         format.customize(executionContext, this.validationContext);
         if (executionCustomizer != null) {
             executionCustomizer.customize(executionContext, validationContext);

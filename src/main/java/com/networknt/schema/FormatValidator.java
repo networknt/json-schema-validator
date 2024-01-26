@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.format.BaseFormatJsonValidator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-public class FormatValidator extends BaseJsonValidator implements JsonValidator {
+public class FormatValidator extends BaseFormatJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;
@@ -33,7 +35,6 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
     public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
         this.format = format;
-        this.validationContext = validationContext;
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
@@ -44,26 +45,33 @@ public class FormatValidator extends BaseJsonValidator implements JsonValidator 
             return Collections.emptySet();
         }
 
+        boolean assertionsEnabled = isAssertionsEnabled(executionContext);
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         if (format != null) {
             if(format.getName().equals("ipv6")) {
                 if(!node.textValue().trim().equals(node.textValue())) {
-                    // leading and trailing spaces
-                    errors.add(message().instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
+                    if (assertionsEnabled) {
+                        // leading and trailing spaces
+                        errors.add(message().instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
+                    }
                 } else if(node.textValue().contains("%")) {
-                    // zone id is not part of the ipv6
-                    errors.add(message().instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
+                    if (assertionsEnabled) {
+                        // zone id is not part of the ipv6
+                        errors.add(message().instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
+                    }
                 }
             }
             try {
                 if (!format.matches(executionContext, node.textValue())) {
-                    errors.add(message().instanceLocation(instanceLocation)
+                    if (assertionsEnabled) {
+                        errors.add(message().instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(format.getName(), format.getErrorMessageDescription()).build());
+                    }
                 }
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid

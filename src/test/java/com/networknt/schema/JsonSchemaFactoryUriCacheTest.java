@@ -2,15 +2,13 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.uri.ClasspathURLFactory;
-import com.networknt.schema.uri.URIFetcher;
-import com.networknt.schema.uri.URLFactory;
+import com.networknt.schema.resource.InputStreamSource;
+import com.networknt.schema.resource.SchemaLoader;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JsonSchemaFactoryUriCacheTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ClasspathURLFactory classpathURLFactory = new ClasspathURLFactory();
 
     @Test
     public void cacheEnabled() throws JsonProcessingException {
@@ -35,13 +32,13 @@ public class JsonSchemaFactoryUriCacheTest {
     private void runCacheTest(boolean enableCache) throws JsonProcessingException {
         CustomURIFetcher fetcher = new CustomURIFetcher();
         JsonSchemaFactory factory = buildJsonSchemaFactory(fetcher, enableCache);
-        URI schemaUri = classpathURLFactory.create("cache:uri_mapping/schema1.json");
-        String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
-        fetcher.addResource(schemaUri, schema);
+        SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
+        String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
+        fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
         assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
 
-        String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema#\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
-        fetcher.addResource(schemaUri, modifiedSchema);
+        String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
+        fetcher.addResource(schemaUri.getAbsoluteIri(), modifiedSchema);
 
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
     }
@@ -49,27 +46,26 @@ public class JsonSchemaFactoryUriCacheTest {
     private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableUriSchemaCache) {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
                 .enableUriSchemaCache(enableUriSchemaCache)
-                .uriFetcher(uriFetcher, "cache")
-                .uriFactory(new URLFactory(), "cache")
+                .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
                 .addMetaSchema(JsonMetaSchema.getV202012())
                 .build();
     }
 
-    private class CustomURIFetcher implements URIFetcher {
+    private class CustomURIFetcher implements SchemaLoader {
 
-        private Map<URI, InputStream> uriToResource = new HashMap<>();
+        private Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
 
-        void addResource(URI uri, String schema) {
+        void addResource(AbsoluteIri uri, String schema) {
             addResource(uri, new ByteArrayInputStream(schema.getBytes(StandardCharsets.UTF_8)));
         }
 
-        void addResource(URI uri, InputStream is) {
+        void addResource(AbsoluteIri uri, InputStream is) {
             uriToResource.put(uri, is);
         }
 
         @Override
-        public InputStream fetch(URI uri) throws IOException {
-            return uriToResource.get(uri);
+        public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            return () -> uriToResource.get(absoluteIri);
         }
     }
 }

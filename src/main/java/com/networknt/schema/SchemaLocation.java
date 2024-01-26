@@ -130,6 +130,9 @@ public class SchemaLocation {
      * @return the resolved schema location
      */
     public SchemaLocation resolve(String absoluteIriReferenceOrFragment) {
+        if (absoluteIriReferenceOrFragment == null) {
+            return this;
+        }
         if ("#".equals(absoluteIriReferenceOrFragment)) {
             return new SchemaLocation(this.getAbsoluteIri(), JSON_POINTER);
         }
@@ -229,6 +232,10 @@ public class SchemaLocation {
                 } else {
                     fragment = fragment.append(fragmentPart.toString());
                 }
+            }
+            if (index == -1 && fragmentString.endsWith("/")) {
+                // Trailing / in fragment
+                fragment = fragment.append("");
             }
             return fragment;
         }

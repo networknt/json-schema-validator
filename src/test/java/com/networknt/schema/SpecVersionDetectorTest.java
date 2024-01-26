@@ -50,7 +50,7 @@ class SpecVersionDetectorTest {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "data/schemaTagMissing.json");
         JsonNode node = mapper.readTree(in);
-        Optional<SpecVersion.VersionFlag> flag = SpecVersionDetector.detectOptionalVersion(node);
+        Optional<SpecVersion.VersionFlag> flag = SpecVersionDetector.detectOptionalVersion(node, true);
         assertEquals(Optional.empty(), flag);
     }
 }

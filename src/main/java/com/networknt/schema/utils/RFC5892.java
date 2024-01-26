@@ -123,6 +123,10 @@ public class RFC5892 {
                 case DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC:
                     rules = IDNA_RULES.and(RTL);
                     break;
+                case DIRECTIONALITY_EUROPEAN_NUMBER:
+                case DIRECTIONALITY_OTHER_NEUTRALS:
+                    rules = IDNA_RULES;
+                    break;
                 default: return false;
             }
 

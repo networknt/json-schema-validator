@@ -63,34 +63,70 @@ import java.util.Locale;
  */
 public class DomainValidator implements Serializable {
 
-    /** Maximum allowable length ({@value}) of a domain name */
-    private static final int MAX_DOMAIN_LENGTH = 253;
+    /**
+     * enum used by {@link DomainValidator#updateTLDOverride(ArrayType, String[])}
+     * to determine which override array to update / fetch
+     * @since 1.5.0
+     * @since 1.5.1 made public and added read-only array references
+     */
+    public enum ArrayType {
+        /** Update (or get a copy of) the GENERIC_TLDS_PLUS table containing additonal generic TLDs */
+        GENERIC_PLUS,
+        /** Update (or get a copy of) the GENERIC_TLDS_MINUS table containing deleted generic TLDs */
+        GENERIC_MINUS,
+        /** Update (or get a copy of) the COUNTRY_CODE_TLDS_PLUS table containing additonal country code TLDs */
+        COUNTRY_CODE_PLUS,
+        /** Update (or get a copy of) the COUNTRY_CODE_TLDS_MINUS table containing deleted country code TLDs */
+        COUNTRY_CODE_MINUS,
+        /** Gets a copy of the generic TLDS table */
+        GENERIC_RO,
+        /** Gets a copy of the country code table */
+        COUNTRY_CODE_RO,
+        /** Gets a copy of the infrastructure table */
+        INFRASTRUCTURE_RO,
+        /** Gets a copy of the local table */
+        LOCAL_RO,
+        /**
+         * Update (or get a copy of) the LOCAL_TLDS_PLUS table containing additional local TLDs
+         * @since 1.7
+         */
+        LOCAL_PLUS,
+        /**
+         * Update (or get a copy of) the LOCAL_TLDS_MINUS table containing deleted local TLDs
+         * @since 1.7
+         */
+        LOCAL_MINUS
+        ;
+    }
 
-    private static final String[] EMPTY_STRING_ARRAY = {};
+    private static class IDNBUGHOLDER {
+        private static final boolean IDN_TOASCII_PRESERVES_TRAILING_DOTS = keepsTrailingDot();
+        private static boolean keepsTrailingDot() {
+            final String input = "a."; // must be a valid name
+            return input.equals(IDN.toASCII(input));
+        }
+    }
 
-    private static final long serialVersionUID = -4407125112880174009L;
+    /**
+     * Used to specify overrides when creating a new class.
+     * @since 1.7
+     */
+    public static class Item {
+        final ArrayType type;
+        final String[] values;
+
+        /**
+         * Constructs a new instance.
+         * @param type ArrayType, e.g. GENERIC_PLUS, LOCAL_PLUS
+         * @param values array of TLDs. Will be lower-cased and sorted
+         */
+        public Item(final ArrayType type, final String... values) {
+            this.type = type;
+            this.values = values; // no need to copy here
+        }
+    }
 
     // Regular expression strings for hostnames (derived from RFC2396 and RFC 1123)
-
-    // RFC2396: domainlabel   = alphanum | alphanum *( alphanum | "-" ) alphanum
-    // Max 63 characters
-    private static final String DOMAIN_LABEL_REGEX = "\\p{Alnum}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
-
-    // RFC2396 toplabel = alpha | alpha *( alphanum | "-" ) alphanum
-    // Max 63 characters
-    private static final String TOP_LABEL_REGEX = "\\p{Alpha}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
-
-    // RFC2396 hostname = *( domainlabel "." ) toplabel [ "." ]
-    // Note that the regex currently requires both a domain label and a top level label, whereas
-    // the RFC does not. This is because the regex is used to detect if a TLD is present.
-    // If the match fails, input is checked against DOMAIN_LABEL_REGEX (hostnameRegex)
-    // RFC1123 sec 2.1 allows hostnames to start with a digit
-    private static final String DOMAIN_NAME_REGEX =
-            "^(?:" + DOMAIN_LABEL_REGEX + "\\.)+" + "(" + TOP_LABEL_REGEX + ")\\.?$";
-
-    private static final String UNEXPECTED_ENUM_VALUE = "Unexpected enum value: ";
-
-    private final boolean allowLocal;
 
     private static class LazyHolder { // IODH
 
@@ -108,306 +144,34 @@ public class DomainValidator implements Serializable {
 
     }
 
+    /** Maximum allowable length ({@value}) of a domain name */
+    private static final int MAX_DOMAIN_LENGTH = 253;
+
+    private static final String[] EMPTY_STRING_ARRAY = {};
+
+    private static final long serialVersionUID = -4407125112880174009L;
+
+    // RFC2396: domainlabel   = alphanum | alphanum *( alphanum | "-" ) alphanum
+    // Max 63 characters
+    private static final String DOMAIN_LABEL_REGEX = "\\p{Alnum}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
+
+    // RFC2396 toplabel = alpha | alpha *( alphanum | "-" ) alphanum
+    // Max 63 characters
+    private static final String TOP_LABEL_REGEX = "\\p{Alpha}(?>[\\p{Alnum}-]{0,61}\\p{Alnum})?";
+
     /**
      * The above instances must only be returned via the getInstance() methods.
      * This is to ensure that the override data arrays are properly protected.
      */
 
-    /**
-     * RegexValidator for matching domains.
-     */
-    private final RegexValidator domainRegex =
-            new RegexValidator(DOMAIN_NAME_REGEX);
-    /**
-     * RegexValidator for matching a local hostname
-     */
+    // RFC2396 hostname = *( domainlabel "." ) toplabel [ "." ]
+    // Note that the regex currently requires both a domain label and a top level label, whereas
+    // the RFC does not. This is because the regex is used to detect if a TLD is present.
+    // If the match fails, input is checked against DOMAIN_LABEL_REGEX (hostnameRegex)
     // RFC1123 sec 2.1 allows hostnames to start with a digit
-    private final RegexValidator hostnameRegex =
-            new RegexValidator(DOMAIN_LABEL_REGEX);
-
-    /**
-     * Returns the singleton instance of this validator. It
-     *  will not consider local addresses as valid.
-     * @return the singleton instance of this validator
-     */
-    public static synchronized DomainValidator getInstance() {
-        inUse = true;
-        return LazyHolder.DOMAIN_VALIDATOR;
-    }
-
-    /**
-     * Returns the singleton instance of this validator,
-     *  with local validation as required.
-     * @param allowLocal Should local addresses be considered valid?
-     * @return the singleton instance of this validator
-     */
-    public static synchronized DomainValidator getInstance(final boolean allowLocal) {
-        inUse = true;
-        if(allowLocal) {
-            return LazyHolder.DOMAIN_VALIDATOR_WITH_LOCAL;
-        }
-        return LazyHolder.DOMAIN_VALIDATOR;
-    }
-
-    /**
-     * Returns a new instance of this validator.
-     * The user can provide a list of {@link Item} entries which can
-     * be used to override the generic and country code lists.
-     * Note that any such entries override values provided by the
-     * {@link #updateTLDOverride(ArrayType, String[])} method
-     * If an entry for a particular type is not provided, then
-     * the class override (if any) is retained.
-     *
-     * @param allowLocal Should local addresses be considered valid?
-     * @param items - array of {@link Item} entries
-     * @return an instance of this validator
-     * @since 1.7
-     */
-    public static synchronized DomainValidator getInstance(final boolean allowLocal, final List<Item> items) {
-        inUse = true;
-        return new DomainValidator(allowLocal, items);
-    }
-
-    // instance variables allowing local overrides
-    final String[] myCountryCodeTLDsMinus;
-    final String[] myCountryCodeTLDsPlus;
-    final String[] myGenericTLDsPlus;
-    final String[] myGenericTLDsMinus;
-    final String[] myLocalTLDsPlus;
-    final String[] myLocalTLDsMinus;
-    /*
-     * N.B. It is vital that instances are immutable.
-     * This is because the default instances are shared.
-    */
-
-    // N.B. The constructors are deliberately private to avoid possible problems with unsafe publication.
-    // It is vital that the static override arrays are not mutable once they have been used in an instance
-    // The arrays could be copied into the instance variables, however if the static array were changed it could
-    // result in different settings for the shared default instances
-
-    /**
-     * Private constructor.
-    */
-    private DomainValidator(final boolean allowLocal) {
-        this.allowLocal = allowLocal;
-        // link to class overrides
-        myCountryCodeTLDsMinus = countryCodeTLDsMinus;
-        myCountryCodeTLDsPlus = countryCodeTLDsPlus;
-        myGenericTLDsPlus = genericTLDsPlus;
-        myGenericTLDsMinus = genericTLDsMinus;
-        myLocalTLDsPlus = localTLDsPlus;
-        myLocalTLDsMinus = localTLDsMinus;
-    }
-
-    /**
-     * Private constructor, allowing local overrides
-     * @since 1.7
-    */
-    private DomainValidator(final boolean allowLocal,  final List<Item> items) {
-        this.allowLocal = allowLocal;
-
-        // default to class overrides
-        String[] ccMinus = countryCodeTLDsMinus;
-        String[] ccPlus = countryCodeTLDsPlus;
-        String[] genMinus = genericTLDsMinus;
-        String[] genPlus = genericTLDsPlus;
-        String[] localMinus = localTLDsMinus;
-        String[] localPlus = localTLDsPlus;
-
-        // apply the instance overrides
-        for(final Item item: items) {
-            final String [] copy = new String[item.values.length];
-            // Comparisons are always done with lower-case entries
-            for (int i = 0; i < item.values.length; i++) {
-                copy[i] = item.values[i].toLowerCase(Locale.ENGLISH);
-            }
-            Arrays.sort(copy);
-            switch(item.type) {
-            case COUNTRY_CODE_MINUS: {
-                ccMinus = copy;
-                break;
-            }
-            case COUNTRY_CODE_PLUS: {
-                ccPlus = copy;
-                break;
-            }
-            case GENERIC_MINUS: {
-                genMinus = copy;
-                break;
-            }
-            case GENERIC_PLUS: {
-                genPlus = copy;
-                break;
-            }
-            case LOCAL_MINUS: {
-                localMinus = copy;
-                break;
-            }
-            case LOCAL_PLUS: {
-                localPlus = copy;
-                break;
-            }
-            default:
-                break;
-            }
-        }
-
-        // init the instance overrides
-        myCountryCodeTLDsMinus = ccMinus;
-        myCountryCodeTLDsPlus = ccPlus;
-        myGenericTLDsMinus = genMinus;
-        myGenericTLDsPlus = genPlus;
-        myLocalTLDsMinus = localMinus;
-        myLocalTLDsPlus = localPlus;
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> parses
-     * as a valid domain name with a recognized top-level domain.
-     * The parsing is case-insensitive.
-     * @param domain the parameter to check for domain name syntax
-     * @return true if the parameter is a valid domain name
-     */
-    public boolean isValid(String domain) {
-        if (domain == null) {
-            return false;
-        }
-        domain = unicodeToASCII(domain);
-        // hosts must be equally reachable via punycode and Unicode
-        // Unicode is never shorter than punycode, so check punycode
-        // if domain did not convert, then it will be caught by ASCII
-        // checks in the regexes below
-        if (domain.length() > MAX_DOMAIN_LENGTH) {
-            return false;
-        }
-        final String[] groups = domainRegex.match(domain);
-        if (groups != null && groups.length > 0) {
-            return isValidTld(groups[0]);
-        }
-        return allowLocal && hostnameRegex.isValid(domain);
-    }
-
-    // package protected for unit test access
-    // must agree with isValid() above
-    final boolean isValidDomainSyntax(String domain) {
-        if (domain == null) {
-            return false;
-        }
-        domain = unicodeToASCII(domain);
-        // hosts must be equally reachable via punycode and Unicode
-        // Unicode is never shorter than punycode, so check punycode
-        // if domain did not convert, then it will be caught by ASCII
-        // checks in the regexes below
-        if (domain.length() > MAX_DOMAIN_LENGTH) {
-            return false;
-        }
-        final String[] groups = domainRegex.match(domain);
-        return (groups != null && groups.length > 0)
-                || hostnameRegex.isValid(domain);
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> matches any
-     * IANA-defined top-level domain. Leading dots are ignored if present.
-     * The search is case-insensitive.
-     * <p>
-     * If allowLocal is true, the TLD is checked using {@link #isValidLocalTld(String)}.
-     * The TLD is then checked against {@link #isValidInfrastructureTld(String)},
-     * {@link #isValidGenericTld(String)} and {@link #isValidCountryCodeTld(String)}
-     * @param tld the parameter to check for TLD status, not null
-     * @return true if the parameter is a TLD
-     */
-    public boolean isValidTld(final String tld) {
-        if(allowLocal && isValidLocalTld(tld)) {
-            return true;
-        }
-        return isValidInfrastructureTld(tld)
-                || isValidGenericTld(tld)
-                || isValidCountryCodeTld(tld);
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> matches any
-     * IANA-defined infrastructure top-level domain. Leading dots are
-     * ignored if present. The search is case-insensitive.
-     * @param iTld the parameter to check for infrastructure TLD status, not null
-     * @return true if the parameter is an infrastructure TLD
-     */
-    public boolean isValidInfrastructureTld(final String iTld) {
-        final String key = chompLeadingDot(unicodeToASCII(iTld).toLowerCase(Locale.ENGLISH));
-        return arrayContains(INFRASTRUCTURE_TLDS, key);
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> matches any
-     * IANA-defined generic top-level domain. Leading dots are ignored
-     * if present. The search is case-insensitive.
-     * @param gTld the parameter to check for generic TLD status, not null
-     * @return true if the parameter is a generic TLD
-     */
-    public boolean isValidGenericTld(final String gTld) {
-        final String key = chompLeadingDot(unicodeToASCII(gTld).toLowerCase(Locale.ENGLISH));
-        return (arrayContains(GENERIC_TLDS, key) || arrayContains(myGenericTLDsPlus, key))
-                && !arrayContains(myGenericTLDsMinus, key);
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> matches any
-     * IANA-defined country code top-level domain. Leading dots are
-     * ignored if present. The search is case-insensitive.
-     * @param ccTld the parameter to check for country code TLD status, not null
-     * @return true if the parameter is a country code TLD
-     */
-    public boolean isValidCountryCodeTld(final String ccTld) {
-        final String key = chompLeadingDot(unicodeToASCII(ccTld).toLowerCase(Locale.ENGLISH));
-        return (arrayContains(COUNTRY_CODE_TLDS, key) || arrayContains(myCountryCodeTLDsPlus, key))
-                && !arrayContains(myCountryCodeTLDsMinus, key);
-    }
-
-    /**
-     * Returns true if the specified <code>String</code> matches any
-     * widely used "local" domains (localhost or localdomain). Leading dots are
-     * ignored if present. The search is case-insensitive.
-     * @param lTld the parameter to check for local TLD status, not null
-     * @return true if the parameter is an local TLD
-     */
-    public boolean isValidLocalTld(final String lTld) {
-        final String key = chompLeadingDot(unicodeToASCII(lTld).toLowerCase(Locale.ENGLISH));
-        return (arrayContains(LOCAL_TLDS, key) || arrayContains(myLocalTLDsPlus, key))
-                && !arrayContains(myLocalTLDsMinus, key);
-    }
-
-    /**
-     * Does this instance allow local addresses?
-     *
-     * @return true if local addresses are allowed.
-     * @since 1.7
-     */
-    public boolean isAllowLocal() {
-        return this.allowLocal;
-    }
-
-    private String chompLeadingDot(final String str) {
-        if (str.startsWith(".")) {
-            return str.substring(1);
-        }
-        return str;
-    }
-
-    // ---------------------------------------------
-    // ----- TLDs defined by IANA
-    // ----- Authoritative and comprehensive list at:
-    // ----- http://data.iana.org/TLD/tlds-alpha-by-domain.txt
-
-    // Note that the above list is in UPPER case.
-    // The code currently converts strings to lower case (as per the tables below)
-
-    // IANA also provide an HTML list at http://www.iana.org/domains/root/db
-    // Note that this contains several country code entries which are NOT in
-    // the text file. These all have the "Not assigned" in the "Sponsoring Organisation" column
-    // For example (as of 2015-01-02):
-    // .bl  country-code    Not assigned
-    // .um  country-code    Not assigned
+    private static final String DOMAIN_NAME_REGEX =
+            "^(?:" + DOMAIN_LABEL_REGEX + "\\.)+" + "(" + TOP_LABEL_REGEX + ")\\.?$";
+    private static final String UNEXPECTED_ENUM_VALUE = "Unexpected enum value: ";
 
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static final String[] INFRASTRUCTURE_TLDS = {
@@ -1589,6 +1353,7 @@ public class DomainValidator implements Serializable {
         "xn--9dbq2a", // קום VeriSign Sarl
         "xn--9et52u", // 时尚 RISE VICTORY LIMITED
         "xn--9krt00a", // 微博 Sina Corporation
+        "xn--9t4b11yi5a", // 테스트 Test
         "xn--b4w605ferd", // 淡马锡 Temasek Holdings (Private) Limited
         "xn--bck1b9a5dre4c", // ファッション Amazon Registry Services, Inc.
         "xn--c1avg", // орг Public Interest Registry
@@ -2003,10 +1768,6 @@ public class DomainValidator implements Serializable {
        "localdomain",         // Also widely used as localhost.localdomain
        "localhost",           // RFC2606 defined
     };
-
-    // Additional arrays to supplement or override the built in ones.
-    // The PLUS arrays are valid keys, the MINUS arrays are invalid keys
-
     /*
      * This field is used to detect whether the getInstance has been called.
      * After this, the method updateTLDOverride is not allowed to be called.
@@ -2014,24 +1775,25 @@ public class DomainValidator implements Serializable {
      * synchronized methods.
      */
     private static boolean inUse;
-
     /*
      * These arrays are mutable.
      * They can only be updated by the updateTLDOverride method, and readers must first get an instance
-     * using the getInstance methods which are all (now) synchronised.
-     * The only other access is via getTLDEntries which is now synchronised.
+     * using the getInstance methods which are all (now) synchronized.
+     * The only other access is via getTLDEntries which is now synchronized.
      */
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static String[] countryCodeTLDsPlus = EMPTY_STRING_ARRAY;
-
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static String[] genericTLDsPlus = EMPTY_STRING_ARRAY;
-
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static String[] countryCodeTLDsMinus = EMPTY_STRING_ARRAY;
-
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static String[] genericTLDsMinus = EMPTY_STRING_ARRAY;
+
+    // N.B. The constructors are deliberately private to avoid possible problems with unsafe publication.
+    // It is vital that the static override arrays are not mutable once they have been used in an instance
+    // The arrays could be copied into the instance variables, however if the static array were changed it could
+    // result in different settings for the shared default instances
 
     // WARNING: this array MUST be sorted, otherwise it cannot be searched reliably using binary search
     private static String[] localTLDsMinus = EMPTY_STRING_ARRAY;
@@ -2040,133 +1802,69 @@ public class DomainValidator implements Serializable {
     private static String[] localTLDsPlus = EMPTY_STRING_ARRAY;
 
     /**
-     * enum used by {@link DomainValidator#updateTLDOverride(ArrayType, String[])}
-     * to determine which override array to update / fetch
-     * @since 1.5.0
-     * @since 1.5.1 made public and added read-only array references
+     * Check if a sorted array contains the specified key
+     *
+     * @param sortedArray the array to search
+     * @param key the key to find
+     * @return {@code true} if the array contains the key
      */
-    public enum ArrayType {
-        /** Update (or get a copy of) the GENERIC_TLDS_PLUS table containing additonal generic TLDs */
-        GENERIC_PLUS,
-        /** Update (or get a copy of) the GENERIC_TLDS_MINUS table containing deleted generic TLDs */
-        GENERIC_MINUS,
-        /** Update (or get a copy of) the COUNTRY_CODE_TLDS_PLUS table containing additonal country code TLDs */
-        COUNTRY_CODE_PLUS,
-        /** Update (or get a copy of) the COUNTRY_CODE_TLDS_MINUS table containing deleted country code TLDs */
-        COUNTRY_CODE_MINUS,
-        /** Get a copy of the generic TLDS table */
-        GENERIC_RO,
-        /** Get a copy of the country code table */
-        COUNTRY_CODE_RO,
-        /** Get a copy of the infrastructure table */
-        INFRASTRUCTURE_RO,
-        /** Get a copy of the local table */
-        LOCAL_RO,
-        /**
-         * Update (or get a copy of) the LOCAL_TLDS_PLUS table containing additional local TLDs
-         * @since 1.7
-         */
-        LOCAL_PLUS,
-        /**
-         * Update (or get a copy of) the LOCAL_TLDS_MINUS table containing deleted local TLDs
-         * @since 1.7
-         */
-        LOCAL_MINUS
-        ;
+    private static boolean arrayContains(final String[] sortedArray, final String key) {
+        return Arrays.binarySearch(sortedArray, key) >= 0;
     }
 
     /**
-     * Used to specify overrides when creating a new class.
+     * Returns the singleton instance of this validator. It
+     *  will not consider local addresses as valid.
+     * @return the singleton instance of this validator
+     */
+    public static synchronized DomainValidator getInstance() {
+        inUse = true;
+        return LazyHolder.DOMAIN_VALIDATOR;
+    }
+
+    /**
+     * Returns the singleton instance of this validator,
+     *  with local validation as required.
+     * @param allowLocal Should local addresses be considered valid?
+     * @return the singleton instance of this validator
+     */
+    public static synchronized DomainValidator getInstance(final boolean allowLocal) {
+        inUse = true;
+        if (allowLocal) {
+            return LazyHolder.DOMAIN_VALIDATOR_WITH_LOCAL;
+        }
+        return LazyHolder.DOMAIN_VALIDATOR;
+    }
+
+    /**
+     * Returns a new instance of this validator.
+     * The user can provide a list of {@link Item} entries which can
+     * be used to override the generic and country code lists.
+     * Note that any such entries override values provided by the
+     * {@link #updateTLDOverride(ArrayType, String[])} method
+     * If an entry for a particular type is not provided, then
+     * the class override (if any) is retained.
+     *
+     * @param allowLocal Should local addresses be considered valid?
+     * @param items - array of {@link Item} entries
+     * @return an instance of this validator
      * @since 1.7
      */
-    public static class Item {
-        final ArrayType type;
-        final String[] values;
-        /**
-         *
-         * @param type ArrayType, e.g. GENERIC_PLUS, LOCAL_PLUS
-         * @param values array of TLDs. Will be lower-cased and sorted
-         */
-        public Item(final ArrayType type, final String... values) {
-            this.type = type;
-            this.values = values; // no need to copy here
-        }
+    public static synchronized DomainValidator getInstance(final boolean allowLocal, final List<Item> items) {
+        inUse = true;
+        return new DomainValidator(allowLocal, items);
     }
 
     /**
-     * Update one of the TLD override arrays.
-     * This must only be done at program startup, before any instances are accessed using getInstance.
-     * <p>
-     * For example:
-     * <p>
-     * {@code DomainValidator.updateTLDOverride(ArrayType.GENERIC_PLUS, "apache")}
-     * <p>
-     * To clear an override array, provide an empty array.
-     *
-     * @param table the table to update, see {@link DomainValidator.ArrayType}
-     * Must be one of the following
-     * <ul>
-     * <li>COUNTRY_CODE_MINUS</li>
-     * <li>COUNTRY_CODE_PLUS</li>
-     * <li>GENERIC_MINUS</li>
-     * <li>GENERIC_PLUS</li>
-     * <li>LOCAL_MINUS</li>
-     * <li>LOCAL_PLUS</li>
-     * </ul>
-     * @param tlds the array of TLDs, must not be null
-     * @throws IllegalStateException if the method is called after getInstance
-     * @throws IllegalArgumentException if one of the read-only tables is requested
-     * @since 1.5.0
-     */
-    public static synchronized void updateTLDOverride(final ArrayType table, final String... tlds) {
-        if (inUse) {
-            throw new IllegalStateException("Can only invoke this method before calling getInstance");
-        }
-        final String [] copy = new String[tlds.length];
-        // Comparisons are always done with lower-case entries
-        for (int i = 0; i < tlds.length; i++) {
-            copy[i] = tlds[i].toLowerCase(Locale.ENGLISH);
-        }
-        Arrays.sort(copy);
-        switch(table) {
-        case COUNTRY_CODE_MINUS:
-            countryCodeTLDsMinus = copy;
-            break;
-        case COUNTRY_CODE_PLUS:
-            countryCodeTLDsPlus = copy;
-            break;
-        case GENERIC_MINUS:
-            genericTLDsMinus = copy;
-            break;
-        case GENERIC_PLUS:
-            genericTLDsPlus = copy;
-            break;
-        case LOCAL_MINUS:
-            localTLDsMinus = copy;
-            break;
-        case LOCAL_PLUS:
-            localTLDsPlus = copy;
-            break;
-        case COUNTRY_CODE_RO:
-        case GENERIC_RO:
-        case INFRASTRUCTURE_RO:
-        case LOCAL_RO:
-            throw new IllegalArgumentException("Cannot update the table: " + table);
-        default:
-            throw new IllegalArgumentException(UNEXPECTED_ENUM_VALUE + table);
-        }
-    }
-
-    /**
-     * Get a copy of a class level internal array.
+     * Gets a copy of a class level internal array.
      * @param table the array type (any of the enum values)
      * @return a copy of the array
      * @throws IllegalArgumentException if the table type is unexpected (should not happen)
      * @since 1.5.1
      */
-    public static synchronized String [] getTLDEntries(final ArrayType table) {
+    public static synchronized String[] getTLDEntries(final ArrayType table) {
         final String[] array;
-        switch(table) {
+        switch (table) {
         case COUNTRY_CODE_MINUS:
             array = countryCodeTLDsMinus;
             break;
@@ -2203,16 +1901,276 @@ public class DomainValidator implements Serializable {
         return Arrays.copyOf(array, array.length); // clone the array
     }
 
+    /*
+     * Check if input contains only ASCII
+     * Treats null as all ASCII
+     */
+    private static boolean isOnlyASCII(final String input) {
+        if (input == null) {
+            return true;
+        }
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) > 0x7F) { // CHECKSTYLE IGNORE MagicNumber
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
-     * Get a copy of an instance level internal array.
+     * Converts potentially Unicode input to punycode.
+     * If conversion fails, returns the original input.
+     *
+     * @param input the string to convert, not null
+     * @return converted input, or original input if conversion fails
+     */
+    // Needed by UrlValidator
+    static String unicodeToASCII(final String input) {
+        if (isOnlyASCII(input)) { // skip possibly expensive processing
+            return input;
+        }
+        try {
+            final String ascii = IDN.toASCII(input);
+            if (IDNBUGHOLDER.IDN_TOASCII_PRESERVES_TRAILING_DOTS) {
+                return ascii;
+            }
+            final int length = input.length();
+            if (length == 0) { // check there is a last character
+                return input;
+            }
+            // RFC3490 3.1. 1)
+            // Whenever dots are used as label separators, the following
+            // characters MUST be recognized as dots: U+002E (full stop), U+3002
+            // (ideographic full stop), U+FF0E (fullwidth full stop), U+FF61
+            // (halfwidth ideographic full stop).
+            final char lastChar = input.charAt(length - 1);// fetch original last char
+            switch (lastChar) {
+            case '\u002E': // "." full stop
+            case '\u3002': // ideographic full stop
+            case '\uFF0E': // fullwidth full stop
+            case '\uFF61': // halfwidth ideographic full stop
+                return ascii + "."; // restore the missing stop
+            default:
+                return ascii;
+            }
+        } catch (final IllegalArgumentException e) { // input is not valid
+            return input;
+        }
+    }
+
+    /**
+     * Update one of the TLD override arrays.
+     * This must only be done at program startup, before any instances are accessed using getInstance.
+     * <p>
+     * For example:
+     * <p>
+     * {@code DomainValidator.updateTLDOverride(ArrayType.GENERIC_PLUS, "apache")}
+     * <p>
+     * To clear an override array, provide an empty array.
+     *
+     * @param table the table to update, see {@link DomainValidator.ArrayType}
+     * Must be one of the following
+     * <ul>
+     * <li>COUNTRY_CODE_MINUS</li>
+     * <li>COUNTRY_CODE_PLUS</li>
+     * <li>GENERIC_MINUS</li>
+     * <li>GENERIC_PLUS</li>
+     * <li>LOCAL_MINUS</li>
+     * <li>LOCAL_PLUS</li>
+     * </ul>
+     * @param tlds the array of TLDs, must not be null
+     * @throws IllegalStateException if the method is called after getInstance
+     * @throws IllegalArgumentException if one of the read-only tables is requested
+     * @since 1.5.0
+     */
+    public static synchronized void updateTLDOverride(final ArrayType table, final String... tlds) {
+        if (inUse) {
+            throw new IllegalStateException("Can only invoke this method before calling getInstance");
+        }
+        final String[] copy = new String[tlds.length];
+        // Comparisons are always done with lower-case entries
+        for (int i = 0; i < tlds.length; i++) {
+            copy[i] = tlds[i].toLowerCase(Locale.ENGLISH);
+        }
+        Arrays.sort(copy);
+        switch (table) {
+        case COUNTRY_CODE_MINUS:
+            countryCodeTLDsMinus = copy;
+            break;
+        case COUNTRY_CODE_PLUS:
+            countryCodeTLDsPlus = copy;
+            break;
+        case GENERIC_MINUS:
+            genericTLDsMinus = copy;
+            break;
+        case GENERIC_PLUS:
+            genericTLDsPlus = copy;
+            break;
+        case LOCAL_MINUS:
+            localTLDsMinus = copy;
+            break;
+        case LOCAL_PLUS:
+            localTLDsPlus = copy;
+            break;
+        case COUNTRY_CODE_RO:
+        case GENERIC_RO:
+        case INFRASTRUCTURE_RO:
+        case LOCAL_RO:
+            throw new IllegalArgumentException("Cannot update the table: " + table);
+        default:
+            throw new IllegalArgumentException(UNEXPECTED_ENUM_VALUE + table);
+        }
+    }
+
+    /** Whether to allow local overrides. */
+    private final boolean allowLocal;
+
+    // ---------------------------------------------
+    // ----- TLDs defined by IANA
+    // ----- Authoritative and comprehensive list at:
+    // ----- https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+
+    // Note that the above list is in UPPER case.
+    // The code currently converts strings to lower case (as per the tables below)
+
+    // IANA also provide an HTML list at http://www.iana.org/domains/root/db
+    // Note that this contains several country code entries which are NOT in
+    // the text file. These all have the "Not assigned" in the "Sponsoring Organisation" column
+    // For example (as of 2015-01-02):
+    // .bl  country-code    Not assigned
+    // .um  country-code    Not assigned
+
+    /**
+     * RegexValidator for matching domains.
+     */
+    private final RegexValidator domainRegex =
+            new RegexValidator(DOMAIN_NAME_REGEX);
+
+    /**
+     * RegexValidator for matching a local hostname
+     */
+    // RFC1123 sec 2.1 allows hostnames to start with a digit
+    private final RegexValidator hostnameRegex =
+            new RegexValidator(DOMAIN_LABEL_REGEX);
+
+    /** Local override. */
+    final String[] myCountryCodeTLDsMinus;
+
+    /** Local override. */
+    final String[] myCountryCodeTLDsPlus;
+
+    // Additional arrays to supplement or override the built in ones.
+    // The PLUS arrays are valid keys, the MINUS arrays are invalid keys
+
+    /** Local override. */
+    final String[] myGenericTLDsPlus;
+
+    /** Local override. */
+    final String[] myGenericTLDsMinus;
+
+    /** Local override. */
+    final String[] myLocalTLDsPlus;
+
+    /** Local override. */
+    final String[] myLocalTLDsMinus;
+    
+    /*
+     * It is vital that instances are immutable. This is because the default instances are shared.
+     */
+
+    /**
+     * Private constructor.
+     */
+    private DomainValidator(final boolean allowLocal) {
+        this.allowLocal = allowLocal;
+        // link to class overrides
+        myCountryCodeTLDsMinus = countryCodeTLDsMinus;
+        myCountryCodeTLDsPlus = countryCodeTLDsPlus;
+        myGenericTLDsPlus = genericTLDsPlus;
+        myGenericTLDsMinus = genericTLDsMinus;
+        myLocalTLDsPlus = localTLDsPlus;
+        myLocalTLDsMinus = localTLDsMinus;
+    }
+
+    /**
+     * Private constructor, allowing local overrides
+     * @since 1.7
+    */
+    private DomainValidator(final boolean allowLocal, final List<Item> items) {
+        this.allowLocal = allowLocal;
+
+        // default to class overrides
+        String[] ccMinus = countryCodeTLDsMinus;
+        String[] ccPlus = countryCodeTLDsPlus;
+        String[] genMinus = genericTLDsMinus;
+        String[] genPlus = genericTLDsPlus;
+        String[] localMinus = localTLDsMinus;
+        String[] localPlus = localTLDsPlus;
+
+        // apply the instance overrides
+        for (final Item item : items) {
+            final String[] copy = new String[item.values.length];
+            // Comparisons are always done with lower-case entries
+            for (int i = 0; i < item.values.length; i++) {
+                copy[i] = item.values[i].toLowerCase(Locale.ENGLISH);
+            }
+            Arrays.sort(copy);
+            switch (item.type) {
+            case COUNTRY_CODE_MINUS: {
+                ccMinus = copy;
+                break;
+            }
+            case COUNTRY_CODE_PLUS: {
+                ccPlus = copy;
+                break;
+            }
+            case GENERIC_MINUS: {
+                genMinus = copy;
+                break;
+            }
+            case GENERIC_PLUS: {
+                genPlus = copy;
+                break;
+            }
+            case LOCAL_MINUS: {
+                localMinus = copy;
+                break;
+            }
+            case LOCAL_PLUS: {
+                localPlus = copy;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        // init the instance overrides
+        myCountryCodeTLDsMinus = ccMinus;
+        myCountryCodeTLDsPlus = ccPlus;
+        myGenericTLDsMinus = genMinus;
+        myGenericTLDsPlus = genPlus;
+        myLocalTLDsMinus = localMinus;
+        myLocalTLDsPlus = localPlus;
+    }
+
+    private String chompLeadingDot(final String str) {
+        if (str.startsWith(".")) {
+            return str.substring(1);
+        }
+        return str;
+    }
+
+    /**
+     * Gets a copy of an instance level internal array.
      * @param table the array type (any of the enum values)
      * @return a copy of the array
      * @throws IllegalArgumentException if the table type is unexpected, e.g. GENERIC_RO
      * @since 1.7
      */
-    public String [] getOverrides(final ArrayType table) {
+    public String[] getOverrides(final ArrayType table) {
         final String[] array;
-        switch(table) {
+        switch (table) {
         case COUNTRY_CODE_MINUS:
             array = myCountryCodeTLDsMinus;
             break;
@@ -2236,79 +2194,126 @@ public class DomainValidator implements Serializable {
         }
         return Arrays.copyOf(array, array.length); // clone the array
     }
+
     /**
-     * Converts potentially Unicode input to punycode.
-     * If conversion fails, returns the original input.
+     * Does this instance allow local addresses?
      *
-     * @param input the string to convert, not null
-     * @return converted input, or original input if conversion fails
+     * @return true if local addresses are allowed.
+     * @since 1.7
      */
-    // Needed by UrlValidator
-    static String unicodeToASCII(final String input) {
-        if (isOnlyASCII(input)) { // skip possibly expensive processing
-            return input;
-        }
-        try {
-            final String ascii = IDN.toASCII(input);
-            if (IDNBUGHOLDER.IDN_TOASCII_PRESERVES_TRAILING_DOTS) {
-                return ascii;
-            }
-            final int length = input.length();
-            if (length == 0) {// check there is a last character
-                return input;
-            }
-            // RFC3490 3.1. 1)
-            //            Whenever dots are used as label separators, the following
-            //            characters MUST be recognized as dots: U+002E (full stop), U+3002
-            //            (ideographic full stop), U+FF0E (fullwidth full stop), U+FF61
-            //            (halfwidth ideographic full stop).
-            final char lastChar = input.charAt(length-1);// fetch original last char
-            switch(lastChar) {
-                case '\u002E': // "." full stop
-                case '\u3002': // ideographic full stop
-                case '\uFF0E': // fullwidth full stop
-                case '\uFF61': // halfwidth ideographic full stop
-                    return ascii + "."; // restore the missing stop
-                default:
-                    return ascii;
-            }
-        } catch (final IllegalArgumentException e) { // input is not valid
-            return input;
-        }
+    public boolean isAllowLocal() {
+        return this.allowLocal;
     }
 
-    private static class IDNBUGHOLDER {
-        private static boolean keepsTrailingDot() {
-            final String input = "a."; // must be a valid name
-            return input.equals(IDN.toASCII(input));
+    /**
+     * Returns true if the specified <code>String</code> parses
+     * as a valid domain name with a recognized top-level domain.
+     * The parsing is case-insensitive.
+     * @param domain the parameter to check for domain name syntax
+     * @return true if the parameter is a valid domain name
+     */
+    public boolean isValid(String domain) {
+        if (domain == null) {
+            return false;
         }
-        private static final boolean IDN_TOASCII_PRESERVES_TRAILING_DOTS = keepsTrailingDot();
+        domain = unicodeToASCII(domain);
+        // hosts must be equally reachable via punycode and Unicode
+        // Unicode is never shorter than punycode, so check punycode
+        // if domain did not convert, then it will be caught by ASCII
+        // checks in the regexes below
+        if (domain.length() > MAX_DOMAIN_LENGTH) {
+            return false;
+        }
+        final String[] groups = domainRegex.match(domain);
+        if (groups != null && groups.length > 0) {
+            return isValidTld(groups[0]);
+        }
+        return allowLocal && hostnameRegex.isValid(domain);
     }
 
-    /*
-     * Check if input contains only ASCII
-     * Treats null as all ASCII
+    /**
+     * Returns true if the specified <code>String</code> matches any
+     * IANA-defined country code top-level domain. Leading dots are
+     * ignored if present. The search is case-insensitive.
+     * @param ccTld the parameter to check for country code TLD status, not null
+     * @return true if the parameter is a country code TLD
      */
-    private static boolean isOnlyASCII(final String input) {
-        if (input == null) {
+    public boolean isValidCountryCodeTld(final String ccTld) {
+        final String key = chompLeadingDot(unicodeToASCII(ccTld).toLowerCase(Locale.ENGLISH));
+        return (arrayContains(COUNTRY_CODE_TLDS, key) || arrayContains(myCountryCodeTLDsPlus, key)) && !arrayContains(myCountryCodeTLDsMinus, key);
+    }
+
+    // package protected for unit test access
+    // must agree with isValid() above
+    final boolean isValidDomainSyntax(String domain) {
+        if (domain == null) {
+            return false;
+        }
+        domain = unicodeToASCII(domain);
+        // hosts must be equally reachable via punycode and Unicode
+        // Unicode is never shorter than punycode, so check punycode
+        // if domain did not convert, then it will be caught by ASCII
+        // checks in the regexes below
+        if (domain.length() > MAX_DOMAIN_LENGTH) {
+            return false;
+        }
+        final String[] groups = domainRegex.match(domain);
+        return groups != null && groups.length > 0 || hostnameRegex.isValid(domain);
+    }
+    /**
+     * Returns true if the specified <code>String</code> matches any
+     * IANA-defined generic top-level domain. Leading dots are ignored
+     * if present. The search is case-insensitive.
+     * @param gTld the parameter to check for generic TLD status, not null
+     * @return true if the parameter is a generic TLD
+     */
+    public boolean isValidGenericTld(final String gTld) {
+        final String key = chompLeadingDot(unicodeToASCII(gTld).toLowerCase(Locale.ENGLISH));
+        return (arrayContains(GENERIC_TLDS, key) || arrayContains(myGenericTLDsPlus, key)) && !arrayContains(myGenericTLDsMinus, key);
+    }
+
+    /**
+     * Returns true if the specified <code>String</code> matches any
+     * IANA-defined infrastructure top-level domain. Leading dots are
+     * ignored if present. The search is case-insensitive.
+     * @param iTld the parameter to check for infrastructure TLD status, not null
+     * @return true if the parameter is an infrastructure TLD
+     */
+    public boolean isValidInfrastructureTld(final String iTld) {
+        final String key = chompLeadingDot(unicodeToASCII(iTld).toLowerCase(Locale.ENGLISH));
+        return arrayContains(INFRASTRUCTURE_TLDS, key);
+    }
+
+    /**
+     * Returns true if the specified <code>String</code> matches any
+     * widely used "local" domains (localhost or localdomain). Leading dots are
+     * ignored if present. The search is case-insensitive.
+     * @param lTld the parameter to check for local TLD status, not null
+     * @return true if the parameter is an local TLD
+     */
+    public boolean isValidLocalTld(final String lTld) {
+        final String key = chompLeadingDot(unicodeToASCII(lTld).toLowerCase(Locale.ENGLISH));
+        return (arrayContains(LOCAL_TLDS, key) || arrayContains(myLocalTLDsPlus, key))
+                && !arrayContains(myLocalTLDsMinus, key);
+    }
+
+    /**
+     * Returns true if the specified <code>String</code> matches any
+     * IANA-defined top-level domain. Leading dots are ignored if present.
+     * The search is case-insensitive.
+     * <p>
+     * If allowLocal is true, the TLD is checked using {@link #isValidLocalTld(String)}.
+     * The TLD is then checked against {@link #isValidInfrastructureTld(String)},
+     * {@link #isValidGenericTld(String)} and {@link #isValidCountryCodeTld(String)}
+     * @param tld the parameter to check for TLD status, not null
+     * @return true if the parameter is a TLD
+     */
+    public boolean isValidTld(final String tld) {
+        if (allowLocal && isValidLocalTld(tld)) {
             return true;
         }
-        for(int i=0; i < input.length(); i++) {
-            if (input.charAt(i) > 0x7F) { // CHECKSTYLE IGNORE MagicNumber
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Check if a sorted array contains the specified key
-     *
-     * @param sortedArray the array to search
-     * @param key the key to find
-     * @return {@code true} if the array contains the key
-     */
-    private static boolean arrayContains(final String[] sortedArray, final String key) {
-        return Arrays.binarySearch(sortedArray, key) >= 0;
+        return isValidInfrastructureTld(tld)
+                || isValidGenericTld(tld)
+                || isValidCountryCodeTld(tld);
     }
 }
