@@ -14,7 +14,7 @@ public class IriFormat extends AbstractRFC3986Format {
 
     @Override
     protected boolean validate(URI uri) {
-        boolean result =  uri.isAbsolute();
+        boolean result = uri.isAbsolute();
         if (result) {
             String authority = uri.getAuthority();
             if (authority != null) {

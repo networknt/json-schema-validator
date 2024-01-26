@@ -273,7 +273,7 @@ public class RFC5892 {
             // There must be a Katakana, Hiragana or Han character after this symbol
             if (s.length() == 1 + i) return false;
             int following = s.codePointAt(i + 1);
-            if (!(isKatakana(following))) return false;
+            if (!isKatakana(following)) return false;
         }
         return true;
     }
