@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,8 +48,8 @@ public class JsonSchemaFactory {
         private ObjectMapper yamlMapper = null;
         private String defaultMetaSchemaURI;
         private final ConcurrentMap<String, JsonMetaSchema> jsonMetaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
-        private SchemaLoaders.Builder schemaLoadersBuilder = SchemaLoaders.builder();
-        private SchemaMappers.Builder schemaMappersBuilder = SchemaMappers.builder();
+        private SchemaLoaders.Builder schemaLoadersBuilder = null;
+        private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableUriSchemaCache = true;
 
         public Builder jsonMapper(final ObjectMapper jsonMapper) {
@@ -84,11 +85,17 @@ public class JsonSchemaFactory {
         }
         
         public Builder schemaLoaders(Consumer<SchemaLoaders.Builder> schemaLoadersBuilderCustomizer) {
+            if (this.schemaLoadersBuilder == null) {
+                this.schemaLoadersBuilder = SchemaLoaders.builder();
+            }
             schemaLoadersBuilderCustomizer.accept(this.schemaLoadersBuilder);
             return this;
         }
         
         public Builder schemaMappers(Consumer<SchemaMappers.Builder> schemaMappersBuilderCustomizer) {
+            if (this.schemaMappersBuilder == null) {
+                this.schemaMappersBuilder = SchemaMappers.builder();
+            }
             schemaMappersBuilderCustomizer.accept(this.schemaMappersBuilder);
             return this;
         }
@@ -116,7 +123,9 @@ public class JsonSchemaFactory {
     private final Map<String, JsonMetaSchema> jsonMetaSchemas;
     private final ConcurrentMap<SchemaLocation, JsonSchema> uriSchemaCache = new ConcurrentHashMap<>();
     private final boolean enableUriSchemaCache;
-
+    
+    private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
+    private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
 
     private JsonSchemaFactory(
             final ObjectMapper jsonMapper,
@@ -128,10 +137,6 @@ public class JsonSchemaFactory {
             final boolean enableUriSchemaCache) {
         if (defaultMetaSchemaURI == null || defaultMetaSchemaURI.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
-        } else if (schemaLoadersBuilder == null) {
-            throw new IllegalArgumentException("SchemaLoaders must not be null");
-        } else if (schemaMappersBuilder == null) {
-            throw new IllegalArgumentException("SchemaMappers must not be null");
         } else if (jsonMetaSchemas == null || jsonMetaSchemas.isEmpty()) {
             throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
         } else if (jsonMetaSchemas.get(normalizeMetaSchemaUri(defaultMetaSchemaURI)) == null) {
@@ -142,7 +147,9 @@ public class JsonSchemaFactory {
         this.defaultMetaSchemaURI = defaultMetaSchemaURI;
         this.schemaLoadersBuilder = schemaLoadersBuilder;
         this.schemaMappersBuilder = schemaMappersBuilder;
-        this.schemaLoader = new DefaultSchemaLoader(schemaLoadersBuilder.build(), schemaMappersBuilder.build());
+        this.schemaLoader = new DefaultSchemaLoader(
+                schemaLoadersBuilder != null ? schemaLoadersBuilder.build() : DEFAULT_SCHEMA_LOADERS,
+                schemaMappersBuilder != null ? schemaMappersBuilder.build() : DEFAULT_SCHEMA_MAPPERS);
         this.jsonMetaSchemas = jsonMetaSchemas;
         this.enableUriSchemaCache = enableUriSchemaCache;
     }
@@ -162,25 +169,45 @@ public class JsonSchemaFactory {
         return new Builder();
     }
 
+    /**
+     * Creates a factory with a default schema dialect. The schema dialect will only
+     * be used if the input does not specify a $schema.
+     * 
+     * @param versionFlag the default dialect
+     * @return the factory
+     */
     public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
-        JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
-        JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
-        return builder()
-                .defaultMetaSchemaURI(metaSchema.getUri())
-                .addMetaSchema(metaSchema)
-                .build();
+        return getInstance(versionFlag, null);
     }
 
+    /**
+     * Creates a factory with a default schema dialect. The schema dialect will only
+     * be used if the input does not specify a $schema.
+     * 
+     * @param versionFlag the default dialect
+     * @param customizer to customze the factory
+     * @return the factory
+     */
     public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag,
             Consumer<JsonSchemaFactory.Builder> customizer) {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
         JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
         JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaURI(metaSchema.getUri())
                 .addMetaSchema(metaSchema);
-        customizer.accept(builder);
+        if (customizer != null) {
+            customizer.accept(builder);
+        }
         return builder.build();
     }
 
+    /**
+     * Gets the json schema version to get the meta schema.
+     * <p>
+     * This throws an {@link IllegalArgumentException} for an unsupported value.
+     * 
+     * @param versionFlag the schema dialect
+     * @return the version
+     */
     public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
         if (null == versionFlag) return null;
         switch (versionFlag) {
@@ -209,8 +236,12 @@ public class JsonSchemaFactory {
                 .defaultMetaSchemaURI(blueprint.defaultMetaSchemaURI)
                 .jsonMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper);
-        builder.schemaLoadersBuilder.with(blueprint.schemaLoadersBuilder);
-        builder.schemaMappersBuilder.with(blueprint.schemaMappersBuilder);
+        if (blueprint.schemaLoadersBuilder != null) {
+            builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
+        }
+        if (blueprint.schemaMappersBuilder != null) {
+            builder.schemaMappersBuilder = SchemaMappers.builder().with(blueprint.schemaMappersBuilder);
+        }
         return builder;
     }
 
@@ -251,6 +282,19 @@ public class JsonSchemaFactory {
                 schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
     
+    /**
+     * Determines the validation context to use for the schema given the parent
+     * validation context.
+     * <p>
+     * This is typically the same validation context unless the schema has a
+     * different $schema from the parent.
+     * <p>
+     * If the schema does not define a $schema, the parent should be used.
+     * 
+     * @param validationContext the parent validation context
+     * @param schemaNode        the schema node
+     * @return the validation context to use
+     */
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
         JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
         if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
@@ -422,6 +466,11 @@ public class JsonSchemaFactory {
         return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
     }
 
+    /**
+     * Creates a schema validators config.
+     * 
+     * @return the schema validators config
+     */
     protected SchemaValidatorsConfig createSchemaValidatorsConfig() {
         return new SchemaValidatorsConfig();
     }
