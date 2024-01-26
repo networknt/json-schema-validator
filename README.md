@@ -58,16 +58,41 @@ Here are the dependencies:
 
 ```xml
 <dependency>
+    <!-- Used for logging -->
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>${version.slf4j}</version>
+</dependency>
+
+<dependency>
+    <!-- Used to process JSON -->
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
     <version>${version.jackson}</version>
 </dependency>
 
 <dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-api</artifactId>
-    <version>${version.slf4j}</version>
+    <!-- Used to process YAML -->
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-yaml</artifactId>
+    <version>${version.jackson}</version>
 </dependency>
+
+<dependency>
+    <!-- Used to validate RFC 3339 date and date-time -->
+    <groupId>com.ethlo.time</groupId>
+    <artifactId>itu</artifactId>
+    <version>${version.itu}</version>
+</dependency>
+
+<dependency>
+    <!-- Used to validate ECMA 262 regular expressions -->
+    <groupId>org.jruby.joni</groupId>
+    <artifactId>joni</artifactId>
+    <version>${version.joni}</version>
+    <optional>true</optional>
+</dependency>
+
 ```
 
 #### Community
@@ -116,10 +141,10 @@ The following example demonstrates how inputs is validated against a schema. It 
 
 ```java
 // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the schema data. If $schema is specified in the schema data then that schema dialect will be used instead and this version is ignored.
-JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> {
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
     // This creates a mapping from $id which starts with https://www.example.org/ to the retrieval URI classpath:schema/
-    builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"));
-});
+    builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
+);
 
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance path and evaluation path
@@ -137,11 +162,49 @@ String input = "{\r\n"
     + "  }\r\n"
     + "}";
 
-Set<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(input), executionContext -> {
+Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
     executionContext.getConfig().setFormatAssertionsEnabled(true);
 });
 ```
+
+### Validating a schema against a meta schema
+
+The following example demonstrates how a schema is validated against a meta schema.
+
+This is actually the same as validating inputs against a schema except in this case the input is the schema and the schema used is the meta schema.
+
+```java
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
+    // This creates a mapping to load the meta schema from the library classpath instead of remotely
+    // This is better for performance and the remote may choose not to service the request
+    // For instance Cloudflare will block requests that have older Java User-Agent strings eg. Java/1.
+    builder.schemaMappers(schemaMappers -> 
+        schemaMappers.mapPrefix("https://json-schema.org", "classpath:").mapPrefix("http://json-schema.org", "classpath:"))
+);
+
+SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+// By default JSON Path is used for reporting the instance path and evaluation path
+config.setPathType(PathType.JSON_POINTER);
+// By default the JDK regular expression implementation which is not ECMA 262 compliant is used
+config.setEcma262Validator(true);
+
+// Due to the mapping the meta schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
+JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
+String input = "{  \n"
+    + "  \"type\": \"object\",  \n"
+    + "  \"properties\": {    \n"
+    + "    \"key\": { \n"
+    + "      \"title\" : \"My key\", \n"
+    + "      \"type\": \"blabla\" \n"
+    + "    } \n"
+    + "  }\n"
+    + "}";
+Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
+    // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
+    executionContext.getConfig().setFormatAssertionsEnabled(true);
+});
+```        
 
 ## [Quick Start](doc/quickstart.md)
 
