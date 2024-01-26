@@ -54,7 +54,7 @@ The OpenAPI 3.0 specification is using JSON schema to validate the request/respo
 
 Following the design principle of the Light Platform, this library has minimum dependencies to ensure there are no dependency conflicts when using it. 
 
-Here are the dependencies:
+The following are the dependencies that will automatically be included when this library is included.
 
 ```xml
 <dependency>
@@ -84,7 +84,14 @@ Here are the dependencies:
     <artifactId>itu</artifactId>
     <version>${version.itu}</version>
 </dependency>
+```
 
+The following are the optional dependencies that may be required for certain options.
+
+These are not automatically included and setting the relevant option without adding the library will result in a `ClassNotFoundException`.
+
+```xml
+<!-- This is required when setting setEcma262Validator(true)  -->
 <dependency>
     <!-- Used to validate ECMA 262 regular expressions -->
     <groupId>org.jruby.joni</groupId>
@@ -92,7 +99,21 @@ Here are the dependencies:
     <version>${version.joni}</version>
     <optional>true</optional>
 </dependency>
+```
 
+The YAML dependency can be excluded if this is not required. Attempting to process schemas or input that are YAML will result in a `ClassNotFoundException`.
+
+```xml
+<dependency>
+    <groupId>com.networknt</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
 ```
 
 #### Community
@@ -150,7 +171,8 @@ SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance path and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-config.setEcma262Validator(true);
+// Note that setting this to true requires including the optional joni dependency
+// config.setEcma262Validator(true);
 
 // Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json. If the schema data does not specify an $id the absolute IRI of the schema location will be used as the $id.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
@@ -187,7 +209,8 @@ SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance path and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-config.setEcma262Validator(true);
+// Note that setting this to true requires including the optional joni dependency
+// config.setEcma262Validator(true);
 
 // Due to the mapping the meta schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
