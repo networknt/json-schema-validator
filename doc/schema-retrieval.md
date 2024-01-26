@@ -59,20 +59,24 @@ public class CustomUriSchemaLoader implements SchemaLoader {
 
     @Override
     public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
-        URI uri = URI.create(absoluteIri.toString());
-        return () -> {
-            HttpRequest request = HttpRequest.newBuilder().uri(uri).header("Authorization", authorizationToken).build();
-            try {
-                HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-                if ((200 > response.statusCode()) || (response.statusCode() > 299)) {
-                    String errorMessage = String.format("Could not get data from schema endpoint. The following status %d was returned.", response.statusCode());
-                    LOGGER.error(errorMessage);
+        String scheme = absoluteIri.getScheme();
+        if ("https".equals(scheme) || "http".equals(scheme)) {
+            URI uri = URI.create(absoluteIri.toString());
+            return () -> {
+                HttpRequest request = HttpRequest.newBuilder().uri(uri).header("Authorization", authorizationToken).build();
+                try {
+                    HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if ((200 > response.statusCode()) || (response.statusCode() > 299)) {
+                        String errorMessage = String.format("Could not get data from schema endpoint. The following status %d was returned.", response.statusCode());
+                        LOGGER.error(errorMessage);
+                    }
+                    return new ByteArrayInputStream(response.body().getBytes(StandardCharsets.UTF_8));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                return new ByteArrayInputStream(response.body().getBytes(StandardCharsets.UTF_8));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }
+        return null;
     }
 }
 ```
