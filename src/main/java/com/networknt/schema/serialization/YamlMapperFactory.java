@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema;
+package com.networknt.schema.serialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /**
- * Json Mapper Factory.
+ * YAML Mapper Factory.
  */
-public class JsonMapperFactory {
+public class YamlMapperFactory {
 
     /**
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = JsonMapper.builder().build();
+        private static final ObjectMapper INSTANCE = YAMLMapper.builder().build();
     }
 
+    /**
+     * Gets the singleton instance of the YAMLMapper.
+     * 
+     * @return the YAMLMapper
+     */
     public static ObjectMapper getInstance() {
         return Holder.INSTANCE;
     }

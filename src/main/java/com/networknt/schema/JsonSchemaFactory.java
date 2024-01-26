@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.resource.*;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.YamlMapperFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

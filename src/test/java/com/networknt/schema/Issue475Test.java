@@ -22,6 +22,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
  * Tests for validation of schema against meta schema.

@@ -12,7 +12,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.networknt.schema.JsonMapperFactory;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 public class TestSource {
     protected static final TypeReference<List<TestCase>> testCaseType = new TypeReference<List<TestCase>>() { /* intentionally empty */};

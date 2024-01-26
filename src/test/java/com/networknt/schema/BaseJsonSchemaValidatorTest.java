@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
