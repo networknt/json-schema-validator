@@ -64,6 +64,7 @@ public class Annotations {
      * Gets the default annotation allow list.
      * 
      * @param metaSchema the meta schema
+     * @return the default annotation allow set
      */
     public static Set<String> getDefaultAnnotationAllowList(JsonMetaSchema metaSchema) {
         boolean unevaluatedProperties = metaSchema.getKeywords().get("unevaluatedProperties") != null;
@@ -82,6 +83,7 @@ public class Annotations {
      * Gets the default annotation allow list predicate.
      * 
      * @param metaSchema the meta schema
+     * @return the default annotation allow list predicate
      */
     public static Predicate<String> getDefaultAnnotationAllowListPredicate(JsonMetaSchema metaSchema) {
         boolean unevaluatedProperties = metaSchema.getKeywords().get("unevaluatedProperties") != null;

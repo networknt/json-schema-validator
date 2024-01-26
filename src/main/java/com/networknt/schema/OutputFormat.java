@@ -37,8 +37,9 @@ public interface OutputFormat<T> {
     /**
      * Formats the validation results.
      * 
-     * @param validationMessages
-     * @param executionContext
+     * @param validationMessages the validation messages
+     * @param executionContext  the execution context
+     * @param validationContext the validation context
      * @return the result
      */
     T format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
