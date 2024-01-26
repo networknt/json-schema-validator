@@ -27,14 +27,19 @@ public class ClasspathSchemaLoader implements SchemaLoader {
 
     @Override
     public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
-        String scheme = absoluteIri.getScheme();
-        if (scheme.startsWith("classpath") || scheme.startsWith("resource")) {
+        String iri = absoluteIri != null ? absoluteIri.toString() : "";
+        String name = null;
+        if (iri.startsWith("classpath:")) {
+            name = iri.substring(10);
+        } else if (iri.startsWith("resource:")) {
+            name = iri.substring(9);
+        }
+        if (name != null) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             if (classLoader == null) {
                 classLoader = SchemaLoader.class.getClassLoader();
             }
             ClassLoader loader = classLoader;
-            String name = absoluteIri.toString().substring(scheme.length() + 1);
             if (name.startsWith("//")) {
                 name = name.substring(2);
             }
@@ -45,7 +50,7 @@ public class ClasspathSchemaLoader implements SchemaLoader {
                     result = loader.getResourceAsStream(resource.substring(1));
                 }
                 if (result == null) {
-                    throw new FileNotFoundException(absoluteIri.toString());
+                    throw new FileNotFoundException(iri);
                 }
                 return result;
             };

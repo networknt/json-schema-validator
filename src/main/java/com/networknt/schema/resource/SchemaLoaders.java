@@ -28,17 +28,6 @@ import java.util.function.Function;
 public class SchemaLoaders extends ArrayList<SchemaLoader> {
     private static final long serialVersionUID = 1L;
 
-    private static final ClasspathSchemaLoader CLASSPATH_SCHEMA_LOADER = new ClasspathSchemaLoader();
-    private static final UriSchemaLoader URI_SCHEMA_LOADER = new UriSchemaLoader();
-    private static final SchemaLoaders DEFAULT;
-    
-    static {
-        SchemaLoaders schemaLoaders = new SchemaLoaders();
-        schemaLoaders.add(CLASSPATH_SCHEMA_LOADER);
-        schemaLoaders.add(URI_SCHEMA_LOADER);
-        DEFAULT = schemaLoaders;
-    }
-
     public SchemaLoaders() {
         super();
     }
@@ -122,14 +111,7 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
          * @return the schema loaders
          */
         public SchemaLoaders build() {
-            if (this.values.isEmpty()) {
-                return DEFAULT;
-            }
-            SchemaLoaders result = new SchemaLoaders();
-            result.add(CLASSPATH_SCHEMA_LOADER);
-            result.addAll(this.values);
-            result.add(URI_SCHEMA_LOADER);
-            return result;
+            return values;
         }
     }
 }

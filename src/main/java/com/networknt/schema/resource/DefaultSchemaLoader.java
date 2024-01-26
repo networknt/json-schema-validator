@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.networknt.schema.AbsoluteIri;
@@ -23,6 +24,15 @@ import com.networknt.schema.AbsoluteIri;
  * Default {@link SchemaLoader}.
  */
 public class DefaultSchemaLoader implements SchemaLoader {
+    private static final List<SchemaLoader> DEFAULT;
+
+    static {
+        List<SchemaLoader> result = new ArrayList<>();
+        result.add(new ClasspathSchemaLoader());
+        result.add(new UriSchemaLoader());
+        DEFAULT = result;
+    }
+
     private final List<SchemaLoader> schemaLoaders;
     private final List<SchemaMapper> schemaMappers;
 
@@ -41,6 +51,12 @@ public class DefaultSchemaLoader implements SchemaLoader {
             }
         }
         for (SchemaLoader loader : schemaLoaders) {
+            InputStreamSource result = loader.getSchema(mappedResult);
+            if (result != null) {
+                return result;
+            }
+        }
+        for (SchemaLoader loader : DEFAULT) {
             InputStreamSource result = loader.getSchema(mappedResult);
             if (result != null) {
                 return result;
