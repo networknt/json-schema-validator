@@ -16,10 +16,13 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.YamlMapperFactory;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -59,7 +62,7 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
         return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
     }
-    
+
     private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
@@ -296,7 +299,7 @@ public class JsonSchema extends BaseJsonValidator {
         }
         return subSchema;
     }
-    
+
     protected JsonNode getNode(Object propertyOrIndex) {
         JsonNode node = getSchemaNode();
         JsonNode value = null;
@@ -630,7 +633,7 @@ public class JsonSchema extends BaseJsonValidator {
      * the default.
      * 
      * @param <T>      the result type
-     * @param rootNode the root note
+     * @param rootNode the root node
      * @param format   the formatter
      * @return the result
      */
@@ -680,6 +683,147 @@ public class JsonSchema extends BaseJsonValidator {
         });
     }
 
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @return A list of ValidationMessage if there is any validation error, or an
+     *         empty list if there is no error.
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     *
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>         the result type
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @param format      the formatter
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format) {
+        return validate(deserialize(input, inputFormat), format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, (executionContext, validationContext) -> {
+            executionCustomizer.accept(executionContext);
+        });
+    }
+
+    /**
+     * Deserialize string to JsonNode.
+     * 
+     * @param input the input
+     * @param inputFormat the format
+     * @return the JsonNode.
+     */
+    private JsonNode deserialize(String input, InputFormat inputFormat) {
+        try {
+            if (InputFormat.JSON.equals(inputFormat)) {
+                return JsonMapperFactory.getInstance().readTree(input);
+            } else if (InputFormat.YAML.equals(inputFormat)) {
+                return YamlMapperFactory.getInstance().readTree(input);
+            }
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid input", e);
+        }
+        throw new IllegalArgumentException("Unsupported input format "+inputFormat);
+    }
+
     public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
         return validateAndCollect(executionContext, node, node, atRoot());
     }
@@ -723,24 +867,69 @@ public class JsonSchema extends BaseJsonValidator {
     /*********************** START OF WALK METHODS **********************************/
 
     /**
-     * Walk the JSON node
-     * @param executionContext     ExecutionContext
-     * @param node                 JsonNode
-     * @param shouldValidateSchema indicator on validation
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param validate         true to validate the input against the schema
      *
-     * @return result of ValidationResult
+     * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(executionContext, node, node, atRoot(), shouldValidateSchema);
-    }
-    
-    public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        return walk(createExecutionContext(), node, shouldValidateSchema);
+    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
     }
 
+    /**
+     * Walk the input.
+     * 
+     * @param executionContext the execution context
+     * @param input            the input
+     * @param inputFormat      the input format
+     * @param validate         true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+            boolean validate) {
+        JsonNode node = deserialize(input, inputFormat);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param node     the input
+     * @param validate true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(JsonNode node, boolean validate) {
+        return walk(createExecutionContext(), node, validate);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @return the validation result
+     */
+    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate);
+    }
+
+    /**
+     * Walk at the node.
+     * 
+     * @param executionContext the execution content
+     * @param node             the current node
+     * @param rootNode         the root node
+     * @param instanceLocation the instance location
+     * @param validate         true to validate the input against the schema
+     * @return the validation result
+     */
     public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            JsonNodePath instanceLocation, boolean validate) {
+        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate);
     }
 
     private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
