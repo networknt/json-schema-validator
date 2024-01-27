@@ -46,9 +46,6 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         if (!node.isObject()) return Collections.emptySet();
 
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
-        collectorContext.exitDynamicScope();
         try {
             // Get all the valid adjacent annotations
             Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> {
@@ -144,63 +141,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                             .keyword(getKeyword()).value(evaluatedProperties).build());
 
             return messages == null || messages.isEmpty() ? Collections.emptySet() : messages;
-            
-            /**
-            Set<JsonNodePath> allPaths = allPaths(node, instanceLocation);
-
-            // Short-circuit since schema is 'true'
-            if (super.schemaNode.isBoolean() && super.schemaNode.asBoolean()) {
-                collectorContext.getEvaluatedProperties().addAll(allPaths);
-                return Collections.emptySet();
-            }
-
-            Set<JsonNodePath> unevaluatedPaths = unevaluatedPaths(collectorContext, allPaths);
-
-            // Short-circuit since schema is 'false'
-            if (super.schemaNode.isBoolean() && !super.schemaNode.asBoolean() && !unevaluatedPaths.isEmpty()) {
-                return reportUnevaluatedPaths(unevaluatedPaths, executionContext);
-            }
-
-            Set<JsonNodePath> failingPaths = new LinkedHashSet<>();
-            unevaluatedPaths.forEach(path -> {
-                String pointer = path.getPathType().convertToJsonPointer(path.toString());
-                JsonNode property = rootNode.at(pointer);
-                if (!this.schema.validate(executionContext, property, rootNode, path).isEmpty()) {
-                    failingPaths.add(path);
-                }
-            });
-
-            if (failingPaths.isEmpty()) {
-                collectorContext.getEvaluatedProperties().addAll(allPaths);
-            } else {
-                return reportUnevaluatedPaths(failingPaths, executionContext);
-            }
-
-            return Collections.emptySet();
-            **/
         } finally {
-            collectorContext.enterDynamicScope();
         }
     }
-
-//    private Set<JsonNodePath> allPaths(JsonNode node, JsonNodePath instanceLocation) {
-//        Set<JsonNodePath> collector = new LinkedHashSet<>();
-//        node.fields().forEachRemaining(entry -> {
-//            collector.add(instanceLocation.resolve(entry.getKey()));
-//        });
-//        return collector;
-//    }
-//
-//    private Set<ValidationMessage> reportUnevaluatedPaths(Set<JsonNodePath> unevaluatedPaths, ExecutionContext executionContext) {
-//        return unevaluatedPaths
-//                .stream().map(path -> message().instanceLocation(path)
-//                        .locale(executionContext.getExecutionConfig().getLocale()).build())
-//                .collect(Collectors.toCollection(LinkedHashSet::new));
-//    }
-//
-//    private static Set<JsonNodePath> unevaluatedPaths(CollectorContext collectorContext, Set<JsonNodePath> allPaths) {
-//        Set<JsonNodePath> unevaluatedProperties = new LinkedHashSet<>(allPaths);
-//        unevaluatedProperties.removeAll(collectorContext.getEvaluatedProperties());
-//        return unevaluatedProperties;
-//    }
 }

@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,6 @@ public class IfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
-        Scope parentScope = collectorContext.enterDynamicScope();
         boolean ifConditionPassed = false;
         try {
             try {
@@ -82,18 +80,10 @@ public class IfValidator extends BaseJsonValidator {
             if (ifConditionPassed && this.thenSchema != null) {
                 errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
             } else if (!ifConditionPassed && this.elseSchema != null) {
-                // discard ifCondition results
-                collectorContext.exitDynamicScope();
-                collectorContext.enterDynamicScope();
-
                 errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
             }
 
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
         }
 
         return Collections.unmodifiableSet(errors);

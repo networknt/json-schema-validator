@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,12 +62,10 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
-        Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
             int numberOfValidSubSchemas = 0;
             for (JsonSchema schema: this.schemas) {
                 Set<ValidationMessage> errors = Collections.emptySet();
-                Scope parentScope = collectorContext.enterDynamicScope();
                 try {
                     state.setMatchedNode(initialHasMatchedNode);
 
@@ -119,10 +116,6 @@ public class AnyOfValidator extends BaseJsonValidator {
                     }
                     allErrors.addAll(errors);
                 } finally {
-                    Scope scope = collectorContext.exitDynamicScope();
-                    if (errors.isEmpty()) {
-                        parentScope.mergeWith(scope);
-                    }
                 }
             }
 
@@ -149,11 +142,8 @@ public class AnyOfValidator extends BaseJsonValidator {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
-
-            Scope parentScope = collectorContext.exitDynamicScope();
             if (allErrors.isEmpty()) {
                 state.setMatchedNode(true);
-                grandParentScope.mergeWith(parentScope);
             }
         }
         return Collections.unmodifiableSet(allErrors);

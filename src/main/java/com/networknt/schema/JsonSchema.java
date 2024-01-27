@@ -19,7 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
@@ -506,38 +505,24 @@ public class JsonSchema extends BaseJsonValidator {
 
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = null;
-        // Get the collector context.
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
         for (JsonValidator v : getValidators()) {
             Set<ValidationMessage> results = null;
 
-            Scope parentScope = collectorContext.enterDynamicScope(this);
             try {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
-                Scope scope = collectorContext.exitDynamicScope();
                 if (results == null || results.isEmpty()) {
                     executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), true);
-                    parentScope.mergeWith(scope);
                 } else {
                     executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), false);
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
                     errors.addAll(results);
-//                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
-//                            || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-//                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-//                    }
-//                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
-//                            || v instanceof PatternPropertiesValidator) {
-//                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-//                    }
                 }
-
             }
         }
 
@@ -958,7 +943,6 @@ public class JsonSchema extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Walk through all the JSONWalker's.
         for (JsonValidator v : getValidators()) {
             JsonNodePath evaluationPathWithKeyword = v.getEvaluationPath();
@@ -970,23 +954,12 @@ public class JsonSchema extends BaseJsonValidator {
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
                     Set<ValidationMessage> results = null;
-                    Scope parentScope = collectorContext.enterDynamicScope(this);
                     try {
                         results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
                     } finally {
-                        Scope scope = collectorContext.exitDynamicScope();
                         if (results == null || results.isEmpty()) {
-                            parentScope.mergeWith(scope);
                         } else {
                             errors.addAll(results);
-//                            if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
-//                                    || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-//                                collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-//                            }
-//                            if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
-//                                    || v instanceof PatternPropertiesValidator) {
-//                                collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-//                            }
                         }
                     }
                 }
@@ -1081,8 +1054,7 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ExecutionContext createExecutionContext() {
         SchemaValidatorsConfig config = validationContext.getConfig();
-        CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
-                config.isUnevaluatedPropertiesAnalysisDisabled());
+        CollectorContext collectorContext = new CollectorContext();
 
         // Copy execution config defaults from validation config
         ExecutionConfig executionConfig = new ExecutionConfig();

@@ -15,14 +15,7 @@
  */
 package com.networknt.schema;
 
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -42,73 +35,9 @@ public class CollectorContext {
      */
     private Map<String, Object> collectorLoadMap = new HashMap<>();
 
-    private final Deque<Scope> dynamicScopes = new LinkedList<>();
-
     public CollectorContext() {
-        this(false, false);
     }
 
-    public CollectorContext(boolean disableUnevaluatedItems, boolean disableUnevaluatedProperties) {
-        this.dynamicScopes.push(newTopScope());
-    }
-
-    /**
-     * Creates a new scope
-     * @return the previous, parent scope
-     */
-    public Scope enterDynamicScope() {
-        return enterDynamicScope(null);
-    }
-
-    /**
-     * Creates a new scope
-     * 
-     * @param containingSchema the containing schema
-     * @return the previous, parent scope
-     */
-    public Scope enterDynamicScope(JsonSchema containingSchema) {
-        Scope parent = this.dynamicScopes.peek();
-        this.dynamicScopes.push(newScope(null != containingSchema ? containingSchema : parent.getContainingSchema()));
-        return parent;
-    }
-
-    /**
-     * Restores the previous, parent scope
-     * @return the exited scope
-     */
-    public Scope exitDynamicScope() {
-        return this.dynamicScopes.pop();
-    }
-
-    /**
-     * Provides the currently active scope
-     * @return the active scope
-     */
-    public Scope getDynamicScope() {
-        return this.dynamicScopes.peek();
-    }
-
-    public JsonSchema getOutermostSchema() {
-
-        JsonSchema context = getDynamicScope().getContainingSchema();
-        if (null == context) {
-            throw new IllegalStateException("Missing a root schema in the dynamic scope.");
-        }
-
-        JsonSchema lexicalRoot = context.findLexicalRoot();
-        if (lexicalRoot.isRecursiveAnchor()) {
-            Iterator<Scope> it = this.dynamicScopes.descendingIterator();
-            while (it.hasNext()) {
-                Scope scope = it.next();
-                JsonSchema containingSchema = scope.getContainingSchema();
-                if (null != containingSchema && containingSchema.isRecursiveAnchor()) {
-                    return containingSchema;
-                }
-            }
-        }
-
-        return context.findLexicalRoot();
-    }
 
     /**
      * Adds a collector with give name. Preserving this method for backward
@@ -200,85 +129,5 @@ public class CollectorContext {
                 this.collectorLoadMap.put(entry.getKey(), collector.collect());
             }
         }
-
-    }
-
-    private Scope newScope(JsonSchema containingSchema) {
-        return new Scope(containingSchema);
-    }
-
-    private Scope newTopScope() {
-        return new Scope(true, null);
-    }
-
-    public static class Scope {
-
-        private final JsonSchema containingSchema;
-
-        private final boolean top;
-
-        Scope(JsonSchema containingSchema) {
-            this(false, containingSchema);
-        }
-
-        Scope(boolean top, JsonSchema containingSchema) {
-            this.top = top;
-            this.containingSchema = containingSchema;
-        }
-
-        private static Collection<JsonNodePath> newCollection(boolean disabled) {
-            return !disabled ? new ArrayList<>() : new AbstractCollection<JsonNodePath>() {
-
-                @Override
-                public boolean add(JsonNodePath e) {
-                    return false;
-                }
-
-                @Override
-                public Iterator<JsonNodePath> iterator() {
-                    return Collections.emptyIterator();
-                }
-
-                @Override
-                public boolean remove(Object o) {
-                    return false;
-                }
-
-                @Override
-                public int size() {
-                    return 0;
-                }
-
-            };
-        }
-
-        public boolean isTop() {
-            return this.top;
-        }
-
-        public JsonSchema getContainingSchema() {
-            return this.containingSchema;
-        }
-
-        /**
-         * Merges the provided scope into this scope.
-         * @param scope the scope to merge
-         * @return this scope
-         */
-        public Scope mergeWith(Scope scope) {
-//            getEvaluatedItems().addAll(scope.getEvaluatedItems());
-//            getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-            return this;
-        }
-
-//        @Override
-//        public String toString() {
-//            return new StringBuilder("{ ")
-//                .append("\"evaluatedItems\": ").append(this.evaluatedItems)
-//                .append(", ")
-//                .append("\"evaluatedProperties\": ").append(this.evaluatedProperties)
-//                .append(" }").toString();
-//        }
-
     }
 }

@@ -20,7 +20,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,6 @@ public class AllOfValidator extends BaseJsonValidator {
         for (JsonSchema schema : this.schemas) {
             Set<ValidationMessage> localErrors = new HashSet<>();
 
-            Scope parentScope = collectorContext.enterDynamicScope();
             try {
                 if (!state.isWalkEnabled()) {
                     localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
@@ -94,10 +92,6 @@ public class AllOfValidator extends BaseJsonValidator {
                     }
                 }
             } finally {
-                Scope scope = collectorContext.exitDynamicScope();
-                if (localErrors.isEmpty()) {
-                    parentScope.mergeWith(scope);
-                }
             }
         }
 

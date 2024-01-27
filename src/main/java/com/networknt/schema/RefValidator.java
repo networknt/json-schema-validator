@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,11 +166,7 @@ public class RefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = Collections.emptySet();
-
-        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
             JsonSchema refSchema = this.schema.getSchema();
@@ -184,21 +179,13 @@ public class RefValidator extends BaseJsonValidator {
             }
             errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
         }
         return errors;
     }
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = Collections.emptySet();
-
-        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
@@ -215,12 +202,6 @@ public class RefValidator extends BaseJsonValidator {
             errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             return errors;
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (shouldValidateSchema) {
-                if (errors.isEmpty()) {
-                    parentScope.mergeWith(scope);
-                }
-            }
         }
     }
 

@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,6 @@ public class OneOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
-        Scope grandParentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
 
@@ -58,7 +56,6 @@ public class OneOfValidator extends BaseJsonValidator {
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
 
-                Scope parentScope = collectorContext.enterDynamicScope();
                 try {
                     // Reset state in case the previous validator did not match
                     state.setMatchedNode(true);
@@ -85,10 +82,6 @@ public class OneOfValidator extends BaseJsonValidator {
 
                     childErrors.addAll(schemaErrors);
                 } finally {
-                    Scope scope = collectorContext.exitDynamicScope();
-                    if (schemaErrors.isEmpty()) {
-                        parentScope.mergeWith(scope);
-                    }
                 }
             }
 
@@ -102,8 +95,6 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
                 errors.add(message);
                 errors.addAll(childErrors);
-//                collectorContext.getEvaluatedItems().clear();
-//                collectorContext.getEvaluatedProperties().clear();
             }
 
             // Make sure to signal parent handlers we matched
@@ -115,10 +106,6 @@ public class OneOfValidator extends BaseJsonValidator {
 
             return Collections.unmodifiableSet(errors);
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                grandParentScope.mergeWith(scope);
-            }
         }
     }
 

@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +84,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = Collections.emptySet();
 
-        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
             JsonSchema refSchema = this.schema.getSchema();
@@ -98,10 +96,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
             }
             errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
         }
         return errors;
     }
@@ -112,7 +106,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = Collections.emptySet();
 
-        Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
             // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
@@ -129,12 +122,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
             errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             return errors;
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (shouldValidateSchema) {
-                if (errors.isEmpty()) {
-                    parentScope.mergeWith(scope);
-                }
-            }
         }
     }
 
