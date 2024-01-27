@@ -28,41 +28,4 @@ import com.networknt.schema.annotation.JsonNodeAnnotations;
 
 class JsonNodeAnnotationsTest {
 
-    @Test
-    void filter() {
-        JsonNodePath instanceRoot = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath instance = instanceRoot.append("foo");
-
-        JsonNodePath evaluationRoot = new JsonNodePath(PathType.JSON_POINTER).append("properties").append("foo");
-
-        JsonNodeAnnotations annotations = new JsonNodeAnnotations();
-
-        annotations.put(JsonNodeAnnotation.builder().keyword("title").instanceLocation(instance)
-                .evaluationPath(evaluationRoot.append("$ref").append("title")).value("Title in reference target")
-                .build());
-        annotations.put(JsonNodeAnnotation.builder().keyword("title").instanceLocation(instance)
-                .evaluationPath(evaluationRoot.append("title")).value("Title adjacent to reference").build());
-        annotations.put(JsonNodeAnnotation.builder().keyword("description").instanceLocation(instance)
-                .evaluationPath(evaluationRoot.append("$ref").append("description")).value("Even more text").build());
-        annotations.put(JsonNodeAnnotation.builder().keyword("description").instanceLocation(instance)
-                .evaluationPath(evaluationRoot.append("description")).value("Lots of text").build());
-        // 1 instance
-        assertEquals(1, annotations.asMap().size());
-
-        // 2 keywords
-        assertEquals(2, annotations.asMap().get(instance).size());
-
-        List<JsonNodeAnnotation> all = annotations.stream().toList();
-        assertEquals(4, all.size());
-
-        List<JsonNodeAnnotation> titles = annotations.stream()
-                .filter(filter -> filter.keyword(keyword -> "title".equals(keyword))).toList();
-        assertEquals(2, titles.size());
-        
-        List<JsonNodeAnnotation> allTitlesResult = all.stream()
-                .filter(JsonNodeAnnotationPredicate.builder().keyword(keyword -> "title".equals(keyword)).build())
-                .collect(Collectors.toList());
-        assertEquals(2, allTitlesResult.size());
-
-    }
 }

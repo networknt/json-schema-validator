@@ -59,17 +59,13 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
         collectorContext.exitDynamicScope();
         try {
-            String itemsKeyword = "items";
-            String additionalItemsKeyword = "additionalItems";
-            if (isMinV202012) {
-                /*
-                 * Keywords renamed in 2020-12
-                 * 
-                 * items -> prefixItems additionalItems -> items
-                 */
-                itemsKeyword = "prefixItems";
-                additionalItemsKeyword = "items";
-            }
+            /*
+             * Keywords renamed in 2020-12
+             * 
+             * items -> prefixItems additionalItems -> items
+             */
+            String itemsKeyword = isMinV202012 ? "prefixItems" : "items";
+            String additionalItemsKeyword = isMinV202012 ? "items" : "additionalItems";
 
             boolean valid = false;
             int validCount = 0;
@@ -86,8 +82,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             Predicate<JsonNodeAnnotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
                     .startsWith(this.evaluationPath.getParent());
 
-            Map<String, Map<JsonNodePath, JsonNodeAnnotation>> instanceLocationAnnotations = executionContext
-                    .getAnnotations().asMap().getOrDefault(instanceLocation, Collections.emptyMap());
+            List<JsonNodeAnnotation> instanceLocationAnnotations = executionContext
+                    .getAnnotations().getValues().getOrDefault(instanceLocation, Collections.emptyList());
 
             // If schema is "unevaluatedItems: true" this is valid
             if (getSchemaNode().isBoolean() && getSchemaNode().booleanValue()) {
@@ -100,7 +96,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             } else {
                 // Get all the "items" for the instanceLocation
                 List<JsonNodeAnnotation> items = instanceLocationAnnotations
-                        .getOrDefault(itemsKeyword, Collections.emptyMap()).values().stream()
+                        .stream()
+                        .filter(a -> itemsKeyword.equals(a.getKeyword()))
                         .filter(adjacentEvaluationPathFilter)
                         .filter(validEvaluationPathFilter)
                         .collect(Collectors.toList());
@@ -134,7 +131,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     // annotation value of true, then the combined result from these keywords is
                     // also true.
                     List<JsonNodeAnnotation> additionalItems = instanceLocationAnnotations
-                            .getOrDefault(additionalItemsKeyword, Collections.emptyMap()).values().stream()
+                            .stream()
+                            .filter(a -> additionalItemsKeyword.equals(a.getKeyword()))
                             .filter(adjacentEvaluationPathFilter)
                             .filter(validEvaluationPathFilter)
                             .collect(Collectors.toList());
@@ -150,7 +148,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     // Unevaluated
                     // Check if there are any "unevaluatedItems" annotations
                     List<JsonNodeAnnotation> unevaluatedItems = instanceLocationAnnotations
-                            .getOrDefault("unevaluatedItems", Collections.emptyMap()).values().stream()
+                            .stream()
+                            .filter(a -> "unevaluatedItems".equals(a.getKeyword()))
                             .filter(adjacentEvaluationPathFilter)
                             .filter(validEvaluationPathFilter)
                             .collect(Collectors.toList());
@@ -166,7 +165,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             if (!valid) {
                 // Get all the "contains" for the instanceLocation
                 List<JsonNodeAnnotation> contains = instanceLocationAnnotations
-                        .getOrDefault("contains", Collections.emptyMap()).values().stream()
+                        .stream()
+                        .filter(a -> "contains".equals(a.getKeyword()))
                         .filter(adjacentEvaluationPathFilter)
                         .collect(Collectors.toList());
                 
