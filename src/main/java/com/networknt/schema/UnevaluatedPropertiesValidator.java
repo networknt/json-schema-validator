@@ -52,10 +52,13 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         try {
             // Get all the valid adjacent annotations
             Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> {
-                for (JsonNodePath e : executionContext.getAssertions().asMap().keySet()) {
+                for (ValidationMessage assertion : executionContext.getAssertions().values()) {
+                    JsonNodePath e = assertion.getEvaluationPath();
                     if (e.getParent().startsWith(a.getEvaluationPath())
                             || a.getEvaluationPath().startsWith(e.getParent())) {
                         // Invalid
+                        System.out.println(e.toString());
+                        System.out.println(a.getEvaluationPath().toString());
                         return false;
                     }
                 }

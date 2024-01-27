@@ -15,12 +15,13 @@
  */
 package com.networknt.schema.assertion;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.ValidationMessage;
 
 /**
@@ -34,17 +35,13 @@ public class JsonNodeAssertions {
 
     /**
      * Stores the assertions.
-     * <p>
-     * evaluationPath -> keyword -> instancePath -> assertion
      */
-    private final Map<JsonNodePath, Map<String, Map<JsonNodePath, ValidationMessage>>> values = new LinkedHashMap<>();
+    private Set<ValidationMessage> values = Collections.emptySet();
 
     /**
-     * Stores the assertions.
-     * <p>
-     * evaluationPath -> keyword -> instancePath -> assertion
+     * Gets the assertions
      */
-    public Map<JsonNodePath, Map<String, Map<JsonNodePath, ValidationMessage>>> asMap() {
+    public Set<ValidationMessage> values() {
         return this.values;
     }
 
@@ -53,13 +50,12 @@ public class JsonNodeAssertions {
      * 
      * @param assertion the assertion
      */
-    public void put(ValidationMessage assertion) {
-        Map<String, Map<JsonNodePath, ValidationMessage>> instance = this.values
-                .computeIfAbsent(assertion.getEvaluationPath(), (key) -> new LinkedHashMap<>());
-        Map<JsonNodePath, ValidationMessage> keyword = instance.computeIfAbsent(assertion.getType(),
-                (key) -> new LinkedHashMap<>());
-        keyword.put(assertion.getInstanceLocation(), assertion);
-
+    public void setValues(Set<ValidationMessage> assertions) {
+        if (assertions != null) {
+            this.values = assertions;
+        } else {
+            this.values = Collections.emptySet();
+        }
     }
 
     @Override
@@ -79,21 +75,16 @@ public class JsonNodeAssertions {
          * @param assertions the assertions
          * @return the formatted JSON
          */
-        public static String format(Map<JsonNodePath, Map<String, Map<JsonNodePath, ValidationMessage>>> assertions) {
+        public static String format(Set<ValidationMessage> assertions) {
             Map<String, Map<String, Map<String, Object>>> results = new LinkedHashMap<>();
-            assertions.entrySet().stream().forEach(instances -> {
-                String instancePath = instances.getKey().toString();
-                instances.getValue().entrySet().stream().forEach(keywords -> {
-                    String keyword = keywords.getKey();
-                    keywords.getValue().entrySet().stream().forEach(evaluations -> {
-                        String evaluationPath = evaluations.getKey().toString();
-                        Object assertion = evaluations.getValue().getMessage();
-                        Map<String, Object> values = results
-                                .computeIfAbsent(instancePath, (key) -> new LinkedHashMap<>())
-                                .computeIfAbsent(keyword, (key) -> new LinkedHashMap<>());
-                        values.put(evaluationPath, assertion);
-                    });
-                });
+            assertions.stream().forEach(assertion -> {
+                String instanceLocation = assertion.getInstanceLocation().toString();
+                String keyword = assertion.getType();
+                String evaluationPath = assertion.getEvaluationPath().toString();
+                Object value = assertion.getMessage();
+                Map<String, Object> values = results.computeIfAbsent(instanceLocation, (key) -> new LinkedHashMap<>())
+                        .computeIfAbsent(keyword, (key) -> new LinkedHashMap<>());
+                values.put(evaluationPath, value);
             });
 
             try {
