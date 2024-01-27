@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+## 1.3.0 - 2024-01-26
+
+### Added
+
+### Changed
+
+- fixes #934 update javadoc and a test case.
+- fixes #931 Support Draft 2020-12 and refactor schema retrieval. Thanks @justin-tay
+- fixes #930 Fix getSchema() anchor fragment lookup. Thanks @justin-tay
+- fixes #929 Upgrade ITU library to version 1.8. Thanks @ethlo
+
+### Upgrade Guide
+
+With #931 implemented, it breaks the API. Users code might need to change in order to move to this version.
+
 ## 1.2.0 - 2024-01-19
 
 ### Added
