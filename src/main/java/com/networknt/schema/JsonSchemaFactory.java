@@ -450,9 +450,21 @@ public class JsonSchemaFactory {
      */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableUriSchemaCache) {
-            JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(schemaUri, key -> {
-                return getMappedSchema(schemaUri, config);
-            });
+            // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
+            // recursive update to the map.
+            // The getMapperSchema potentially recurses to call back to getSchema again
+            JsonSchema cachedUriSchema = uriSchemaCache.get(schemaUri);
+            if (cachedUriSchema == null) {
+                synchronized (this) { // acquire lock on shared factory object to prevent deadlock
+                    cachedUriSchema = uriSchemaCache.get(schemaUri);
+                    if (cachedUriSchema == null) {
+                        cachedUriSchema = getMappedSchema(schemaUri, config);
+                        if (cachedUriSchema != null) {
+                            uriSchemaCache.put(schemaUri, cachedUriSchema);
+                        }
+                    }
+                }
+            }
             return cachedUriSchema.withConfig(config);
         }
         return getMappedSchema(schemaUri, config);

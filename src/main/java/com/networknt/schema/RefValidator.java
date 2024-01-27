@@ -147,9 +147,22 @@ public class RefValidator extends BaseJsonValidator {
         // This should be processing json pointer fragments only
         JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
         String schemaReference = resolve(parent, refValueOriginal);
-        return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
-            return parent.getSubSchema(fragment);
-        });
+        // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
+        // recursive update to the map.
+        // The getSubSchema potentially recurses to call back to getJsonSchema again
+        JsonSchema result = validationContext.getSchemaReferences().get(schemaReference);
+        if (result == null) {
+            synchronized (validationContext.getJsonSchemaFactory()) { // acquire lock on shared factory object to prevent deadlock
+                result = validationContext.getSchemaReferences().get(schemaReference);
+                if (result == null) {
+                    result = parent.getSubSchema(fragment);
+                    if (result != null) {
+                        validationContext.getSchemaReferences().put(schemaReference, result);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     @Override
