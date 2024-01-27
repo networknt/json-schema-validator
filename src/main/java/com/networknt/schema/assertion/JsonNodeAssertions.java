@@ -48,7 +48,7 @@ public class JsonNodeAssertions {
     /**
      * Puts the assertion.
      * 
-     * @param assertion the assertion
+     * @param assertions the assertion
      */
     public void setValues(Set<ValidationMessage> assertions) {
         if (assertions != null) {

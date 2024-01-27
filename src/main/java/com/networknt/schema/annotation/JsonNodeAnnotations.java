@@ -78,10 +78,10 @@ public class JsonNodeAnnotations {
          * @param annotations the annotations
          * @return the formatted JSON
          */
-        public static String format(Map<JsonNodePath, List<JsonNodeAnnotation>> v) {
+        public static String format(Map<JsonNodePath, List<JsonNodeAnnotation>> annotations) {
             Map<String, Map<String, Map<String, Object>>> results = new LinkedHashMap<>();
-            for (List<JsonNodeAnnotation> annotations : v.values()) {
-                for (JsonNodeAnnotation annotation : annotations) {
+            for (List<JsonNodeAnnotation> list : annotations.values()) {
+                for (JsonNodeAnnotation annotation : list) {
                     String keyword = annotation.getKeyword();
                     String instancePath = annotation.getInstanceLocation().toString();
                     String evaluationPath = annotation.getEvaluationPath().toString();
