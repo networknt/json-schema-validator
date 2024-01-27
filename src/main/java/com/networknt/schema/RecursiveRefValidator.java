@@ -26,7 +26,7 @@ import java.util.*;
 public class RecursiveRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
 
-    private Map<SchemaLocation, JsonSchema> schemas = new HashMap<>();
+    protected JsonSchemaRef schema;
 
     public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
@@ -39,32 +39,70 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                     .evaluationPath(schemaLocation.getFragment()).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
         }
+        this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }
 
+    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+            JsonNodePath evaluationPath) {
+        return new JsonSchemaRef(new CachedSupplier<>(() -> {
+            return getSchema(parentSchema, validationContext, refValue, evaluationPath);
+        }));
+    }
+    
+    static JsonSchema getSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+            JsonNodePath evaluationPath) {
+        JsonSchema refSchema = parentSchema.findSchemaResourceRoot(); // Get the document
+        JsonSchema current = refSchema;
+        JsonSchema check = null;
+        String base = null;
+        String baseCheck = null;
+        if (refSchema != null)
+            base = current.getSchemaLocation().getAbsoluteIri() != null ? current.getSchemaLocation().getAbsoluteIri().toString() : "";
+            if (current.isRecursiveAnchor()) {
+                // Check dynamic scope
+                while (current.getEvaluationParentSchema() != null) {
+                    current = current.getEvaluationParentSchema();
+                    baseCheck = current.getSchemaLocation().getAbsoluteIri() != null ? current.getSchemaLocation().getAbsoluteIri().toString() : "";
+                    if (!base.equals(baseCheck)) {
+                        base = baseCheck;
+                        // Check if it has a dynamic anchor
+                        check = current.findSchemaResourceRoot();
+                        if (check.isRecursiveAnchor()) {
+                            refSchema = check;
+                        }
+                    }
+                }
+            }
+        if (refSchema != null) {
+            refSchema = refSchema.fromRef(parentSchema, evaluationPath);
+        }
+        return refSchema;
+    }
+    
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
-        Set<ValidationMessage> errors = new HashSet<>();
+        Set<ValidationMessage> errors = Collections.emptySet();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
-
-            JsonSchema schema = collectorContext.getOutermostSchema();
-            if (null != schema) {
-                JsonSchema refSchema = schemas.computeIfAbsent(schema.getSchemaLocation(), key -> {
-                   return schema.fromRef(getParentSchema(), getEvaluationPath());
-                });
-                errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
+            JsonSchema refSchema = this.schema.getSchema();
+            if (refSchema == null) {
+                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.RECURSIVE_REF.getValue())
+                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                        .arguments(schemaNode.asText()).build();
+                throw new JsonSchemaException(validationMessage);
             }
+            errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
         } finally {
             Scope scope = collectorContext.exitDynamicScope();
             if (errors.isEmpty()) {
                 parentScope.mergeWith(scope);
             }
         }
-
         return errors;
     }
 
@@ -72,19 +110,24 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         CollectorContext collectorContext = executionContext.getCollectorContext();
 
-        Set<ValidationMessage> errors = new HashSet<>();
+        Set<ValidationMessage> errors = Collections.emptySet();
 
         Scope parentScope = collectorContext.enterDynamicScope();
         try {
             debug(logger, node, rootNode, instanceLocation);
-
-            JsonSchema schema = collectorContext.getOutermostSchema();
-            if (null != schema) {
-                JsonSchema refSchema = schemas.computeIfAbsent(schema.getSchemaLocation(), key -> {
-                    return schema.fromRef(getParentSchema(), getEvaluationPath());
-                 });
-                errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+            // these schemas will be cached along with config. We have to replace the config for cached $ref references
+            // with the latest config. Reset the config.
+            JsonSchema refSchema = this.schema.getSchema();
+            if (refSchema == null) {
+                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.RECURSIVE_REF.getValue())
+                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                        .arguments(schemaNode.asText()).build();
+                throw new JsonSchemaException(validationMessage);
             }
+            errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            return errors;
         } finally {
             Scope scope = collectorContext.exitDynamicScope();
             if (shouldValidateSchema) {
@@ -93,8 +136,39 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                 }
             }
         }
-
-        return errors;
     }
 
+    public JsonSchemaRef getSchemaRef() {
+        return this.schema;
+    }
+
+
+    @Override
+    public void preloadJsonSchema() {
+        JsonSchema jsonSchema = null;
+        try {
+            jsonSchema = this.schema.getSchema();
+        } catch (JsonSchemaException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new JsonSchemaException(e);
+        }
+        // Check for circular dependency
+        // Only one cycle is pre-loaded
+        // The rest of the cycles will load at execution time depending on the input
+        // data
+        SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
+        JsonSchema check = jsonSchema;
+        boolean circularDependency = false;
+        while(check.getEvaluationParentSchema() != null) {
+            check = check.getEvaluationParentSchema();
+            if (check.getSchemaLocation().equals(schemaLocation)) {
+                circularDependency = true;
+                break;
+            }
+        }
+        if(!circularDependency) {
+            jsonSchema.initializeValidators();
+        }
+    }
 }

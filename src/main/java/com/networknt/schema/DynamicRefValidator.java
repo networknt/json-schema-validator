@@ -32,7 +32,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
     protected JsonSchemaRef schema;
 
     public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DYNAMIC_REF, validationContext);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }
@@ -85,7 +85,6 @@ public class DynamicRefValidator extends BaseJsonValidator {
         }
         return SchemaLocation.resolve(base.getSchemaLocation(), refValue);
     }
-    
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
@@ -98,7 +97,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
             debug(logger, node, rootNode, instanceLocation);
             JsonSchema refSchema = this.schema.getSchema();
             if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
+                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
                         .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
                         .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                         .arguments(schemaNode.asText()).build();
@@ -128,7 +127,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
             // with the latest config. Reset the config.
             JsonSchema refSchema = this.schema.getSchema();
             if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
+                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
                         .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
                         .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                         .arguments(schemaNode.asText()).build();
