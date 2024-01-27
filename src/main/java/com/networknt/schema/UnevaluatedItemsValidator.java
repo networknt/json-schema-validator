@@ -80,15 +80,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             
             // Get all the valid adjacent annotations
             Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> {
-                for (ValidationMessage assertion : executionContext.getAssertions().values()) {
-                    JsonNodePath e = assertion.getEvaluationPath();
-                    if (e.getParent().startsWith(a.getEvaluationPath())
-                            || a.getEvaluationPath().startsWith(e.getParent())) {
-                        // Invalid
-                        return false;
-                    }
-                }
-                return true;
+                return executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
             };
 
             Predicate<JsonNodeAnnotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()

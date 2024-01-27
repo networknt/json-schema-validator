@@ -520,13 +520,14 @@ public class JsonSchema extends BaseJsonValidator {
             } finally {
                 Scope scope = collectorContext.exitDynamicScope();
                 if (results == null || results.isEmpty()) {
+                    executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), true);
                     parentScope.mergeWith(scope);
                 } else {
+                    executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), false);
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
                     errors.addAll(results);
-                    executionContext.getAssertions().setValues(errors);
 //                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
 //                            || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
 //                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
