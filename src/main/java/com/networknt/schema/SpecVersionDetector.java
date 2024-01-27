@@ -68,6 +68,7 @@ public final class SpecVersionDetector {
      * Optional} value, otherwise - returns the detected spec version wrapped into {@link Optional}.
      *
      * @param jsonNode JSON Node to read from
+     * @param throwIfUnsupported whether to throw an exception if the version is not supported
      * @return Spec version if present, otherwise empty
      */
     public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode, boolean throwIfUnsupported) {

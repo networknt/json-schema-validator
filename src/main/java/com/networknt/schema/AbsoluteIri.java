@@ -31,7 +31,7 @@ public class AbsoluteIri {
     /**
      * Constructs a new IRI given the value.
      * 
-     * @param value
+     * @param value String
      */
     public AbsoluteIri(String value) {
         this.value = value;

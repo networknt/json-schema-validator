@@ -154,6 +154,13 @@ public class Issue619Test extends HTTPServiceSupport {
 
     @Test
     public void uriThatPointsToNodeThatDoesNotExistShouldFail_Uri() {
+        // This test failed before adding the 10-millisecond sleep. IllegalStateException is returned with recursive update error. This only happens on my faster desktop
+        // computer during 'maven clean install'. It passes within the IDE on the same computer. It passes on my slower laptop. It passes on Travis CI.
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
     }
 }

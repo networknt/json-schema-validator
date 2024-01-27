@@ -188,7 +188,7 @@ public class SchemaLocation {
         /**
          * Parses a string representing a fragment.
          * 
-         * @param fragmentString
+         * @param fragmentString the fragment
          * @return the path
          */
         public static JsonNodePath of(String fragmentString) {

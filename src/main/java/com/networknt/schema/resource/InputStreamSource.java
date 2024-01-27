@@ -27,7 +27,7 @@ public interface InputStreamSource {
      * Opens a new inputstream to the resource.
      * 
      * @return a new inputstream
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     InputStream getInputStream() throws IOException;
 }
