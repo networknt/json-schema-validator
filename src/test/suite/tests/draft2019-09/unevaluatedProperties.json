@@ -1422,9 +1422,7 @@
             {
                 "description": "xx + foo is invalid",
                 "data": { "xx": 1, "foo": 1 },
-                "valid": false,
-                "disabled": true,
-                "reason": "TODO: unevaluatedProperties is not correct"
+                "valid": false
             },
             {
                 "description": "xx + a is invalid",
