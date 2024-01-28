@@ -120,8 +120,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "URI resolution does not account for identifiers that are not at the root schema",
         "tests": [
             {
                 "description": "number is valid",
