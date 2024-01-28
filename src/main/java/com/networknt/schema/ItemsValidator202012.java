@@ -34,6 +34,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
 
+    private Boolean hasUnevaluatedItemsValidator = null;
+
     public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
 
@@ -76,11 +78,13 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                 evaluated = true;
             }
             if (evaluated) {
-                // Applies to all
-                executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                .keyword(getKeyword()).value(true).build());
+                if (collectAnnotations()) {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
         } else {
@@ -153,6 +157,18 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         this.schema.initializeValidators();
+        collectAnnotations();
+    }
+    
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
     }
 
 }

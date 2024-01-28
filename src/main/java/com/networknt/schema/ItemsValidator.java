@@ -37,6 +37,8 @@ public class ItemsValidator extends BaseJsonValidator {
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
 
+    private Boolean hasUnevaluatedItemsValidator = null;
+
     public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
 
@@ -81,28 +83,30 @@ public class ItemsValidator extends BaseJsonValidator {
         }
 
         // Add items annotation
-        if (this.schema != null) {
-            // Applies to all
-            executionContext.getAnnotations()
-                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                            .keyword(getKeyword()).value(true).build());
-        } else if (this.tupleSchema != null) {
-            // Tuples
-            int items = node.isArray() ? node.size() : 1;
-            int schemas = this.tupleSchema.size();
-            if (items > schemas) {
-                // More items than schemas so the keyword only applied to the number of schemas
-                executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                .keyword(getKeyword()).value(schemas).build());
-            } else {
+        if (collectAnnotations()) {
+            if (this.schema != null) {
                 // Applies to all
                 executionContext.getAnnotations()
                         .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                 .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                 .keyword(getKeyword()).value(true).build());
+            } else if (this.tupleSchema != null) {
+                // Tuples
+                int items = node.isArray() ? node.size() : 1;
+                int schemas = this.tupleSchema.size();
+                if (items > schemas) {
+                    // More items than schemas so the keyword only applied to the number of schemas
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(schemas).build());
+                } else {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
             }
         }
 
@@ -123,10 +127,12 @@ public class ItemsValidator extends BaseJsonValidator {
         }
 
         if (hasAdditionalItem) {
-            executionContext.getAnnotations()
-                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                            .keyword("additionalItems").value(true).build());
+            if (collectAnnotations()) {
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword("additionalItems").value(true).build());
+            }
         }
         return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
@@ -178,8 +184,6 @@ public class ItemsValidator extends BaseJsonValidator {
                     }
                 }
             }
-//        } else {
-//            evaluatedItems.add(path);
         }
         return isAdditionalItem;
     }
@@ -251,15 +255,28 @@ public class ItemsValidator extends BaseJsonValidator {
     public JsonSchema getSchema() {
         return this.schema;
     }
+    
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
+    }
 
     @Override
     public void preloadJsonSchema() {
         if (null != this.schema) {
             this.schema.initializeValidators();
+            collectAnnotations();
         }
         preloadJsonSchemas(this.tupleSchema);
         if (null != this.additionalSchema) {
             this.additionalSchema.initializeValidators();
+            collectAnnotations();
         }
     }
 }

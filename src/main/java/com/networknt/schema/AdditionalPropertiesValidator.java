@@ -33,6 +33,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private final Set<String> allowedProperties;
     private final List<RegularExpression> patternProperties = new ArrayList<>();
 
+    private Boolean hasUnevaluatedPropertiesValidator;
+
     public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
@@ -73,14 +75,11 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         }
 
         Set<String> matchedInstancePropertyNames = new LinkedHashSet<>();
-
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
                 String fieldName = it.next();
                 matchedInstancePropertyNames.add(fieldName);
-//                collectorContext.getEvaluatedProperties().add(instanceLocation.resolve(fieldName));
             }
         }
 
@@ -131,10 +130,12 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
-        executionContext.getAnnotations()
-                .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
-                        .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(matchedInstancePropertyNames)
-                        .build());
+        if (collectAnnotations()) {
+            executionContext.getAnnotations()
+                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+        }
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
@@ -178,10 +179,22 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         return Collections.emptySet();
     }
 
+    private boolean collectAnnotations() {
+        return hasUnevaluatedPropertiesValidator();
+    }
+
+    private boolean hasUnevaluatedPropertiesValidator() {
+        if (this.hasUnevaluatedPropertiesValidator == null) {
+            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
+        }
+        return hasUnevaluatedPropertiesValidator;
+    }
+
     @Override
     public void preloadJsonSchema() {
-        if(additionalPropertiesSchema!=null) {
+        if(additionalPropertiesSchema != null) {
             additionalPropertiesSchema.initializeValidators();
+            collectAnnotations();
         }
     }
 }

@@ -63,8 +63,6 @@ public class IfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         boolean ifConditionPassed = false;

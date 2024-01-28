@@ -31,6 +31,8 @@ public class PropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
+    
+    private Boolean hasUnevaluatedPropertiesValidator;
 
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
@@ -118,10 +120,12 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
-        executionContext.getAnnotations()
-                .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
-                        .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(matchedInstancePropertyNames)
-                        .build());
+        if (collectAnnotations()) {
+            executionContext.getAnnotations()
+                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+        }
 
         return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
@@ -141,6 +145,17 @@ public class PropertiesValidator extends BaseJsonValidator {
             }
         }
         return validationMessages;
+    }
+
+    private boolean collectAnnotations() {
+        return hasUnevaluatedPropertiesValidator();
+    }
+
+    private boolean hasUnevaluatedPropertiesValidator() {
+        if (this.hasUnevaluatedPropertiesValidator == null) {
+            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
+        }
+        return hasUnevaluatedPropertiesValidator;
     }
 
     private void applyPropertyDefaults(ObjectNode node) {
@@ -192,5 +207,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.schemas.values());
+        collectAnnotations();
     }
 }

@@ -191,9 +191,7 @@
             {
                 "description": "with invalid additional item",
                 "data": ["yes", false],
-                "valid": false,
-                "disabled": true,
-                "reason": "TODO: Is this a valid test? I don't see how 'true' validates against 'false'."
+                "valid": false
             }
         ]
     },
@@ -289,9 +287,7 @@
             {
                 "description": "when two schemas match and has no unevaluated items",
                 "data": ["foo", "bar", "baz"],
-                "valid": true,
-                "disabled": true,
-                "reason": "TODO: Is this a valid test? I don't see how 'true' validates against a string."
+                "valid": true
             },
             {
                 "description": "when two schemas match and has unevaluated items",
@@ -450,6 +446,86 @@
                       { "type": "string" }
                   ]
               }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "unevaluatedItems": false,
+            "prefixItems": [
+                { "type": "string" }
+            ],
+            "$ref": "#/$defs/bar",
+            "$defs": {
+              "bar": {
+                  "prefixItems": [
+                      true,
+                      { "type": "string" }
+                  ]
+              }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with $dynamicRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://example.com/unevaluated-items-with-dynamic-ref/derived",
+
+            "$ref": "./baseSchema",
+
+            "$defs": {
+                "derived": {
+                    "$dynamicAnchor": "addons",
+                    "prefixItems": [
+                        true,
+                        { "type": "string" }
+                    ]
+                },
+                "baseSchema": {
+                    "$id": "./baseSchema",
+
+                    "$comment": "unevaluatedItems comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
+                    "unevaluatedItems": false,
+                    "type": "array",
+                    "prefixItems": [
+                        { "type": "string" }
+                    ],
+                    "$dynamicRef": "#addons",
+
+                    "$defs": {
+                        "defaultAddons": {
+                            "$comment": "Needed to satisfy the bookending requirement",
+                            "$dynamicAnchor": "addons"
+                        }
+                    }
+                }
             }
         },
         "tests": [

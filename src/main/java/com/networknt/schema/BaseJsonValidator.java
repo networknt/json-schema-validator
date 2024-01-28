@@ -346,4 +346,26 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     public String toString() {
         return getEvaluationPath().getName(-1);
     }
+
+    protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
+        boolean hasValidator = validationContext.getMetaSchema().getKeywords()
+                .get(keyword) != null;
+        if (hasValidator) {
+            JsonSchema schema = getEvaluationParentSchema();
+            while (schema != null) {
+                for (JsonValidator validator : schema.getValidators()) {
+                    if (keyword.equals(validator.getKeyword())) {
+                        hasValidator = true;
+                        break;
+                    }
+                }
+                if (hasValidator) {
+                    break;
+                }
+                schema = schema.getEvaluationParentSchema();
+            }
+        }
+        return hasValidator;
+    }
+
 }

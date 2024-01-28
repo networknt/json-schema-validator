@@ -41,7 +41,6 @@ public class AllOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();

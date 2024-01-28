@@ -35,6 +35,8 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
     private final List<JsonSchema> tupleSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
+    
+    private Boolean hasUnevaluatedItemsValidator = null;
 
     public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
@@ -71,21 +73,23 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             }
 
             // Add annotation
-            // Tuples
-            int items = node.isArray() ? node.size() : 1;
-            int schemas = this.tupleSchema.size();
-            if (items > schemas) {
-                // More items than schemas so the keyword only applied to the number of schemas
-                executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                .keyword(getKeyword()).value(schemas).build());
-            } else {
-                // Applies to all
-                executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                .keyword(getKeyword()).value(true).build());
+            if (collectAnnotations()) {
+                // Tuples
+                int items = node.isArray() ? node.size() : 1;
+                int schemas = this.tupleSchema.size();
+                if (items > schemas) {
+                    // More items than schemas so the keyword only applied to the number of schemas
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(schemas).build());
+                } else {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
         } else {
@@ -156,9 +160,21 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         return this.tupleSchema;
     }
 
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
+    }
+
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.tupleSchema);
+        collectAnnotations();
     }
 
 }
