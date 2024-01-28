@@ -31,6 +31,8 @@ public class AnyOfValidator extends BaseJsonValidator {
     private final List<JsonSchema> schemas = new ArrayList<>();
     private final DiscriminatorContext discriminatorContext;
 
+    private Boolean canShortCircuit = null;
+
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         int size = schemaNode.size();
@@ -49,7 +51,6 @@ public class AnyOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();
@@ -62,8 +63,8 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
+        int numberOfValidSubSchemas = 0;
         try {
-            int numberOfValidSubSchemas = 0;
             for (JsonSchema schema: this.schemas) {
                 Set<ValidationMessage> errors = Collections.emptySet();
                 try {
@@ -95,7 +96,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) && canShortCircuit()) {
                         // Clear all errors.
                         allErrors.clear();
                         // return empty errors.
@@ -146,6 +147,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                 state.setMatchedNode(true);
             }
         }
+        if (numberOfValidSubSchemas >= 1) {
+            return Collections.emptySet();
+        }
         return Collections.unmodifiableSet(allErrors);
     }
 
@@ -158,6 +162,20 @@ public class AnyOfValidator extends BaseJsonValidator {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
         return new LinkedHashSet<>();
+    }
+    
+    protected boolean canShortCircuit() {
+        if (this.canShortCircuit == null) {
+            boolean canShortCircuit = true;
+            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+                if ("unevaluatedProperties".equals(validator.getKeyword())
+                        || "unevaluatedItems".equals(validator.getKeyword())) {
+                    canShortCircuit = false;
+                }
+            }
+            this.canShortCircuit = canShortCircuit;
+        }
+        return this.canShortCircuit;
     }
 
     @Override

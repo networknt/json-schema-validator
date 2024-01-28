@@ -358,9 +358,7 @@
                     "bar": "bar",
                     "baz": "baz"
                 },
-                "valid": true,
-                "disabled": true,
-                "reason": "TODO: AnyOfValidator is short-circuiting"
+                "valid": true
             },
             {
                 "description": "when two match and has unevaluated properties",
@@ -712,6 +710,102 @@
                     "foo": "foo",
                     "bar": "bar",
                     "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "type": "object",
+            "unevaluatedProperties": false,
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "$ref": "#/$defs/bar",
+            "$defs": {
+                "bar": {
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties with $recursiveRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/unevaluated-properties-with-recursive-ref/extended-tree",
+
+            "$recursiveAnchor": true,
+
+            "$ref": "./tree",
+            "properties": {
+                "name": { "type": "string" }
+            },
+
+            "$defs": {
+                "tree": {
+                    "$id": "./tree",
+                    "$recursiveAnchor": true,
+
+                    "type": "object",
+                    "properties": {
+                        "node": true,
+                        "branches": {
+                            "$comment": "unevaluatedProperties comes first so it's more likely to bugs errors with implementations that are sensitive to keyword ordering",
+                            "unevaluatedProperties": false,
+                            "$recursiveRef": "#"
+                        }
+                    },
+                    "required": ["node"]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "name": "a",
+                    "node": 1,
+                    "branches": {
+                      "name": "b",
+                      "node": 2
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "name": "a",
+                    "node": 1,
+                    "branches": {
+                      "foo": "b",
+                      "node": 2
+                    }
                 },
                 "valid": false
             }
@@ -1328,9 +1422,7 @@
             {
                 "description": "xx + foo is invalid",
                 "data": { "xx": 1, "foo": 1 },
-                "valid": false,
-                "disabled": true,
-                "reason": "TODO: unevaluatedProperties is not correct"
+                "valid": false
             },
             {
                 "description": "xx + a is invalid",

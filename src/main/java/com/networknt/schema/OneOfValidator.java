@@ -28,6 +28,8 @@ public class OneOfValidator extends BaseJsonValidator {
 
     private final List<JsonSchema> schemas = new ArrayList<>();
 
+    private Boolean canShortCircuit = null;
+
     public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ONE_OF, validationContext);
         int size = schemaNode.size();
@@ -40,7 +42,6 @@ public class OneOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         try {
             debug(logger, node, rootNode, instanceLocation);
@@ -75,7 +76,7 @@ public class OneOfValidator extends BaseJsonValidator {
                         numberOfValidSchema++;
                     }
 
-                    if (numberOfValidSchema > 1) {
+                    if (numberOfValidSchema > 1 && canShortCircuit()) {
                         // short-circuit
                         break;
                     }
@@ -107,6 +108,20 @@ public class OneOfValidator extends BaseJsonValidator {
             return Collections.unmodifiableSet(errors);
         } finally {
         }
+    }
+    
+    protected boolean canShortCircuit() {
+        if (this.canShortCircuit == null) {
+            boolean canShortCircuit = true;
+            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+                if ("unevaluatedProperties".equals(validator.getKeyword())
+                        || "unevaluatedItems".equals(validator.getKeyword())) {
+                    canShortCircuit = false;
+                }
+            }
+            this.canShortCircuit = canShortCircuit;
+        }
+        return this.canShortCircuit;
     }
 
     private static void resetValidatorState(ExecutionContext executionContext) {

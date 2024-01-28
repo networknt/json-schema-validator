@@ -415,8 +415,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.unevaluated: must not have unevaluated properties",
-          "$.vehicle.wings: must not have unevaluated properties"
+          "$.vehicle.unevaluated: must not have unevaluated properties"
         ]
       }
     ]

@@ -80,8 +80,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
     
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = Collections.emptySet();
 
         try {
@@ -102,8 +100,6 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = Collections.emptySet();
 
         try {
