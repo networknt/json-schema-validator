@@ -52,7 +52,9 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (!executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword()) || !node.isArray()) return Collections.emptySet();
+        if (!node.isArray()) {
+            return Collections.emptySet();
+        }
 
         debug(logger, node, rootNode, instanceLocation);
         try {
@@ -80,7 +82,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     .startsWith(this.evaluationPath.getParent());
 
             List<JsonNodeAnnotation> instanceLocationAnnotations = executionContext
-                    .getAnnotations().getValues().getOrDefault(instanceLocation, Collections.emptyList());
+                    .getAnnotations().asMap().getOrDefault(instanceLocation, Collections.emptyList());
 
             // If schema is "unevaluatedItems: true" this is valid
             if (getSchemaNode().isBoolean() && getSchemaNode().booleanValue()) {
@@ -165,6 +167,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                         .stream()
                         .filter(a -> "contains".equals(a.getKeyword()))
                         .filter(adjacentEvaluationPathFilter)
+                        .filter(validEvaluationPathFilter)
                         .collect(Collectors.toList());
                 
                 Set<Integer> containsEvaluated = new HashSet<>();

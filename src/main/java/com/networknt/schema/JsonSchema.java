@@ -515,7 +515,7 @@ public class JsonSchema extends BaseJsonValidator {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
                 if (results == null || results.isEmpty()) {
-                    executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), true);
+                    // Do nothing if valid
                 } else {
                     executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), false);
                     if (errors == null) {

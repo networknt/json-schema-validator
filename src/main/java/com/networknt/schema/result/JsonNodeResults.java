@@ -29,17 +29,15 @@ import com.networknt.schema.SchemaLocation;
 public class JsonNodeResults {
 
     /**
-     * Stores the results.
+     * Stores the invalid results.
      */
     private Map<JsonNodePath, List<JsonNodeResult>> values = new HashMap<>();
 
     public void setResult(JsonNodePath instanceLocation, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             boolean valid) {
-        if (!valid) {
-            JsonNodeResult result = new JsonNodeResult(instanceLocation, schemaLocation, evaluationPath, valid);
-            List<JsonNodeResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
-            v.add(result);
-        }
+        JsonNodeResult result = new JsonNodeResult(instanceLocation, schemaLocation, evaluationPath, valid);
+        List<JsonNodeResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
+        v.add(result);
     }
 
     public boolean isValid(JsonNodePath instanceLocation, JsonNodePath evaluationPath) {

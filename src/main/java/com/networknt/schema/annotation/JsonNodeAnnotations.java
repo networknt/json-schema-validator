@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
  * The JSON Schema annotations.
@@ -47,7 +47,7 @@ public class JsonNodeAnnotations {
      * 
      * @return the annotations
      */
-    public Map<JsonNodePath, List<JsonNodeAnnotation>> getValues() {
+    public Map<JsonNodePath, List<JsonNodeAnnotation>> asMap() {
         return this.values;
     }
 
@@ -70,8 +70,6 @@ public class JsonNodeAnnotations {
      * Formatter for pretty printing the annotations.
      */
     public static class Formatter {
-        public static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
         /**
          * Formats the annotations.
          * 
@@ -88,12 +86,12 @@ public class JsonNodeAnnotations {
                     Map<String, Object> values = results
                             .computeIfAbsent(instancePath, (key) -> new LinkedHashMap<>())
                             .computeIfAbsent(keyword, (key) -> new LinkedHashMap<>());
-                    values.put(evaluationPath, annotation);
+                    values.put(evaluationPath, annotation.getValue());
                 }
             }
 
             try {
-                return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(results);
+                return JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(results);
             } catch (JsonProcessingException e) {
                 return "";
             }

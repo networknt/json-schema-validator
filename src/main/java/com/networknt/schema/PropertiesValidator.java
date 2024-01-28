@@ -55,14 +55,19 @@ public class PropertiesValidator extends BaseJsonValidator {
         ValidatorState state = executionContext.getValidatorState();
 
         Set<ValidationMessage> requiredErrors = null;
-        Set<String> matchedInstancePropertyNames = new LinkedHashSet<>();
+        Set<String> matchedInstancePropertyNames = null;
+        boolean collectAnnotations = collectAnnotations();
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
                 JsonNodePath path = instanceLocation.append(entry.getKey());
-//                collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
-                matchedInstancePropertyNames.add(entry.getKey());
+                if (collectAnnotations) {
+                    if (matchedInstancePropertyNames == null) {
+                        matchedInstancePropertyNames = new LinkedHashSet<>();
+                    }
+                    matchedInstancePropertyNames.add(entry.getKey());
+                }
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
@@ -120,11 +125,13 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
-        if (collectAnnotations()) {
+        if (collectAnnotations) {
             executionContext.getAnnotations()
                     .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                             .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+                            .keyword(getKeyword()).value(matchedInstancePropertyNames == null ? Collections.emptySet()
+                                    : matchedInstancePropertyNames)
+                            .build());
         }
 
         return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);

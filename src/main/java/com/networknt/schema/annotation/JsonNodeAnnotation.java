@@ -60,7 +60,8 @@ public class JsonNodeAnnotation {
     }
 
     /**
-     * The schema location of the attaching keyword, as a URI.
+     * The schema location of the attaching keyword, as a IRI and JSON Pointer
+     * fragment.
      * 
      * @return the schema location
      */

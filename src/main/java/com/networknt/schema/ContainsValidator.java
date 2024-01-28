@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ public class ContainsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContainsValidator.class);
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
-    private static final VersionFlag DEFAULT_VERSION = VersionFlag.V6;
 
     private final JsonSchema schema;
     private final boolean isMinV201909;
@@ -52,7 +50,7 @@ public class ContainsValidator extends BaseJsonValidator {
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
-        isMinV201909 = MinV201909.getVersions().contains(SpecVersionDetector.detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
+        this.isMinV201909 = MinV201909.getVersions().contains(this.validationContext.getMetaSchema().getSpecification());
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);

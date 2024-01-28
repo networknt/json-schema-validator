@@ -140,25 +140,20 @@ public class ItemsValidator extends BaseJsonValidator {
     private boolean doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation) {
         boolean isAdditionalItem = false;
-//        Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
         JsonNodePath path = instanceLocation.append(i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
             // schema)
             Set<ValidationMessage> results = this.schema.validate(executionContext, node, rootNode, path);
-            if (results.isEmpty()) {
-//                evaluatedItems.add(path);
-            } else {
+            if (!results.isEmpty()) {
                 errors.addAll(results);
             }
         } else if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // validate against tuple schema
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node, rootNode, path);
-                if (results.isEmpty()) {
-//                    evaluatedItems.add(path);
-                } else {
+                if (!results.isEmpty()) {
                     errors.addAll(results);
                 }
             } else {
@@ -169,9 +164,7 @@ public class ItemsValidator extends BaseJsonValidator {
                 if (this.additionalSchema != null) {
                     // validate against additional item schema
                     Set<ValidationMessage> results = this.additionalSchema.validate(executionContext, node, rootNode, path);
-                    if (results.isEmpty()) {
-//                        evaluatedItems.add(path);
-                    } else {
+                    if (!results.isEmpty()) {
                         errors.addAll(results);
                     }
                 } else if (this.additionalItems != null) {

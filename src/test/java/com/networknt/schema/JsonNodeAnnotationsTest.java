@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 the original author or authors.
+ * Copyright (c) 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,24 @@
  */
 package com.networknt.schema;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.annotation.JsonNodeAnnotationPredicate;
 import com.networknt.schema.annotation.JsonNodeAnnotations;
 
+/**
+ * JsonNodeAnnotationsTest.
+ */
 class JsonNodeAnnotationsTest {
-
+    @Test
+    void put() {
+        JsonNodeAnnotations annotations = new JsonNodeAnnotations();
+        JsonNodeAnnotation annotation = new JsonNodeAnnotation("unevaluatedProperties",
+                new JsonNodePath(PathType.JSON_POINTER), SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER),
+                "test");
+        annotations.put(annotation);
+        assertTrue(annotations.asMap().get(annotation.getInstanceLocation()).contains(annotation));
+    }
 }

@@ -43,7 +43,9 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (!node.isObject()) return Collections.emptySet();
+        if (!node.isObject()) {
+            return Collections.emptySet();
+        }
 
         debug(logger, node, rootNode, instanceLocation);
         try {
@@ -56,7 +58,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                     .startsWith(this.evaluationPath.getParent());
 
             List<JsonNodeAnnotation> instanceLocationAnnotations = executionContext
-                    .getAnnotations().getValues().getOrDefault(instanceLocation, Collections.emptyList());
+                    .getAnnotations().asMap().getOrDefault(instanceLocation, Collections.emptyList());
 
             Set<String> evaluatedProperties = new LinkedHashSet<>(); // The properties that unevaluatedProperties schema
             Set<String> existingEvaluatedProperties = new LinkedHashSet<>();
