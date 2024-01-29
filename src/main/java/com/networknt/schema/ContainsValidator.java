@@ -89,18 +89,12 @@ public class ContainsValidator extends BaseJsonValidator {
                 m = this.min;
             }
             if (actual < m) {
-                if(isMinV201909) {
-                    updateValidatorType(ValidatorTypeCode.MIN_CONTAINS);
-                }
-                results = boundsViolated(isMinV201909 ? CONTAINS_MIN : ValidatorTypeCode.CONTAINS.getValue(),
+                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(), instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
-                if(isMinV201909) {
-                    updateValidatorType(ValidatorTypeCode.MAX_CONTAINS);
-                }
-                results = boundsViolated(isMinV201909 ? CONTAINS_MAX : ValidatorTypeCode.CONTAINS.getValue(),
+                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(), instanceLocation, this.max);
             }
         }
@@ -118,12 +112,12 @@ public class ContainsValidator extends BaseJsonValidator {
                     executionContext.getAnnotations()
                             .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                    .keyword(getKeyword()).value(true).build());
+                                    .keyword("contains").value(true).build());
                 } else {
                     executionContext.getAnnotations()
                             .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                    .keyword(getKeyword()).value(indexes).build());
+                                    .keyword("contains").value(indexes).build());
                 }
                 // Add minContains and maxContains annotations
                 if (this.min != null) {
@@ -156,9 +150,18 @@ public class ContainsValidator extends BaseJsonValidator {
         collectAnnotations();
     }
 
-    private Set<ValidationMessage> boundsViolated(String messageKey, Locale locale, JsonNodePath instanceLocation, int bounds) {
-        return Collections.singleton(message().instanceLocation(instanceLocation).messageKey(messageKey).locale(locale)
-                .arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString()).build());
+    private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale,
+            JsonNodePath instanceLocation, int bounds) {
+        String messageKey = "contains";
+        if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
+            messageKey = CONTAINS_MIN;
+        } else if (ValidatorTypeCode.MAX_CONTAINS.equals(validatorTypeCode)) {
+            messageKey = CONTAINS_MAX;
+        }
+        return Collections
+                .singleton(message().instanceLocation(instanceLocation).messageKey(messageKey)
+                        .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
+                        .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }
     
     private boolean collectAnnotations() {
