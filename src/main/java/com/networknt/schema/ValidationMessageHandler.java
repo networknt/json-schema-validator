@@ -56,7 +56,7 @@ public abstract class ValidationMessageHandler {
     protected MessageSourceValidationMessage.Builder message() {
         return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, (message, failFast) -> {
             if (failFast && canFailFast()) {
-                throw new JsonSchemaException(message);
+                throw new FailFastAssertionException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
                 .evaluationPath(this.evaluationPath).type(this.keyword != null ? this.keyword.getValue() : null)
@@ -96,7 +96,7 @@ public abstract class ValidationMessageHandler {
      * @return true if anyOf is in the evaluation path
      */
     private boolean hasAnyOfInEvaluationPath() {
-        return this.evaluationPath.contains(ValidatorTypeCode.ANY_OF.getValue());
+        return hasKeywordInEvaluationPath(ValidatorTypeCode.ANY_OF.getValue());
     }
 
     /**
@@ -105,7 +105,7 @@ public abstract class ValidationMessageHandler {
      * @return true if if is in the evaluation path
      */
     private boolean hasIfInEvaluationPath() {
-        return this.evaluationPath.contains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
+        return hasKeywordInEvaluationPath(ValidatorTypeCode.IF_THEN_ELSE.getValue());
     }
 
     /**
@@ -114,7 +114,7 @@ public abstract class ValidationMessageHandler {
      * @return true if not is in the evaluation path
      */
     private boolean hasNotInEvaluationPath() {
-        return this.evaluationPath.contains(ValidatorTypeCode.NOT.getValue());
+        return hasKeywordInEvaluationPath(ValidatorTypeCode.NOT.getValue());
     }
 
     /**
@@ -123,7 +123,20 @@ public abstract class ValidationMessageHandler {
      * @return true if oneOf is in the evaluation path
      */
     protected boolean hasOneOfInEvaluationPath() {
-        return this.evaluationPath.contains(ValidatorTypeCode.ONE_OF.getValue());
+        return hasKeywordInEvaluationPath(ValidatorTypeCode.ONE_OF.getValue());
+    }
+
+    /**
+     * Determines if keyword is in the evaluation path.
+     * 
+     * @param keyword the keyword
+     * @return true if the keyword is in the evaluation path
+     */
+    private boolean hasKeywordInEvaluationPath(String keyword) {
+        // Parent is used as if the current path is an applicator this should still
+        // throw if there is no other applicators in the rest of the evaluation path
+        JsonNodePath parent = this.evaluationPath.getParent();
+        return parent != null ? parent.contains(keyword) : false;
     }
 
     protected void parseErrorCode(String errorCodeKey) {

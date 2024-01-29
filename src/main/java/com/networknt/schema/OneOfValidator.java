@@ -92,9 +92,6 @@ public class OneOfValidator extends BaseJsonValidator {
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.getExecutionConfig().isFailFast())
                         .arguments(Integer.toString(numberOfValidSchema)).build();
-                if (executionContext.getExecutionConfig().isFailFast()) {
-                    throw new JsonSchemaException(message);
-                }
                 errors.add(message);
                 errors.addAll(childErrors);
             }

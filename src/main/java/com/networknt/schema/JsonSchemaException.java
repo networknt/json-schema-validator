@@ -24,7 +24,6 @@ public class JsonSchemaException extends RuntimeException {
     private ValidationMessage validationMessage;
 
     public JsonSchemaException(ValidationMessage validationMessage) {
-        super(validationMessage.getMessage());
         this.validationMessage = validationMessage;
     }
 
@@ -34,6 +33,15 @@ public class JsonSchemaException extends RuntimeException {
 
     public JsonSchemaException(Throwable throwable) {
         super(throwable);
+    }
+
+    @Override
+    public String getMessage() {
+        return this.validationMessage != null ? this.validationMessage.getMessage() : super.getMessage();
+    }
+
+    public ValidationMessage getValidationMessage() {
+        return this.validationMessage;
     }
 
     public Set<ValidationMessage> getValidationMessages() {
