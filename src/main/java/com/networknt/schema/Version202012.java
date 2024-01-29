@@ -45,6 +45,7 @@ public class Version202012 extends JsonSchemaVersion {
                         new NonValidationKeyword("$defs"),
                         new NonValidationKeyword("$anchor"),
                         new NonValidationKeyword("$dynamicAnchor"),
+                        new NonValidationKeyword("$vocabulary"),
                         new NonValidationKeyword("deprecated"),
                         new NonValidationKeyword("contentMediaType"),
                         new NonValidationKeyword("contentEncoding"),

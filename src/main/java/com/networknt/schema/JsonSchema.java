@@ -247,6 +247,10 @@ public class JsonSchema extends BaseJsonValidator {
         JsonSchema document = findSchemaResourceRoot(); 
         JsonSchema parent = document; 
         JsonSchema subSchema = null;
+        JsonNode parentNode = parent.getSchemaNode();
+        SchemaLocation schemaLocation = document.getSchemaLocation();
+        JsonNodePath evaluationPath = document.getEvaluationPath();
+        int nameCount = fragment.getNameCount();
         for (int x = 0; x < fragment.getNameCount(); x++) {
             /*
              * The sub schema is created by iterating through the parents in order to
@@ -257,10 +261,8 @@ public class JsonSchema extends BaseJsonValidator {
              * to $id changes in the lexical scope.
              */
             Object segment = fragment.getElement(x);
-            JsonNode subSchemaNode = parent.getNode(segment);
+            JsonNode subSchemaNode = getNode(parentNode, segment);
             if (subSchemaNode != null) {
-                SchemaLocation schemaLocation = parent.getSchemaLocation();
-                JsonNodePath evaluationPath = parent.getEvaluationPath();
                 if (segment instanceof Number) {
                     int index = ((Number) segment).intValue();
                     schemaLocation = schemaLocation.append(index);
@@ -273,9 +275,17 @@ public class JsonSchema extends BaseJsonValidator {
                  * The parent validation context is used to create as there can be changes in
                  * $schema is later drafts which means the validation context can change.
                  */
-                subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
-                        parent);
-                parent = subSchema;
+                // This may need a redesign see Issue 939 and 940
+                String id = parent.getValidationContext().resolveSchemaId(subSchemaNode);
+//                if (!("definitions".equals(segment.toString()) || "$defs".equals(segment.toString())
+//                        )) {
+                if (id != null || x == nameCount - 1) {
+                    subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
+                            parent);
+                    parent = subSchema;
+                    schemaLocation = subSchema.getSchemaLocation();
+                }
+                parentNode = subSchemaNode;
             } else {
                 /*
                  * This means that the fragment wasn't found in the document.
@@ -300,7 +310,10 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     protected JsonNode getNode(Object propertyOrIndex) {
-        JsonNode node = getSchemaNode();
+        return getNode(this.schemaNode, propertyOrIndex);
+    }
+    
+    protected JsonNode getNode(JsonNode node, Object propertyOrIndex) {
         JsonNode value = null;
         if (propertyOrIndex instanceof Number) {
             value = node.get(((Number) propertyOrIndex).intValue());
