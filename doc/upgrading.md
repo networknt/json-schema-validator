@@ -2,6 +2,67 @@
 
 This contains information on the notable or breaking changes in each version.
 
+### 1.3.1
+
+This does not contain any breaking changes from 1.3.0
+
+This refactors the following keywords to improve performance and meet the functional requirements.
+
+In particular this converts the `unevaluatedItems` and `unevaluatedProperties` validators to use annotations to perform the evaluation instead of the current mechanism which affects performance. This also refactors `$recursiveRef` not to rely on that same mechanism.
+
+* `unevaluatedProperties`
+* `unevaluatedItems`
+* `properties`
+* `patternProperties`
+* `items` / `additionalItems`
+* `prefixItems` / `items`
+* `contains`
+* `$recursiveRef`
+
+This also fixes the issue where the `unevaluatedItems` keyword does not take into account the `contains` keyword when performing the evaluation.
+
+This also fixes cases where `anyOf` short-circuits to not short-circuit the evaluation if a adjacent `unevaluatedProperties` or `unevaluatedItems` keyword exists.
+
+This should fix most of the remaining functional and performance issues.
+
+#### Functional
+
+| Implementations | Overall                                                                 | DRAFT_03                                                          | DRAFT_04                                                            | DRAFT_06                                                           | DRAFT_07                                                               | DRAFT_2019_09                                                        | DRAFT_2020_12                                                          |
+|-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| NetworkNt       | pass: r:4703 (100.0%) o:2369 (100.0%)<br>fail: r:0 (0.0%) o:1 (0.0%)    |                                                                   | pass: r:600 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:796 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:880 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)     | pass: r:1201 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:1226 (100.0%) o:634 (99.8%)<br>fail: r:0 (0.0%) o:1 (0.2%)     |
+
+#### Performance
+
+##### NetworkNT 1.3.1
+
+```
+Benchmark                                                          Mode  Cnt       Score      Error   Units
+NetworkntBenchmark.testValidate                                   thrpt   10    6776.693 ±  115.309   ops/s
+NetworkntBenchmark.testValidate:·gc.alloc.rate                    thrpt   10     971.191 ±   16.420  MB/sec
+NetworkntBenchmark.testValidate:·gc.alloc.rate.norm               thrpt   10  165318.816 ±    0.459    B/op
+NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space           thrpt   10     968.894 ±   51.234  MB/sec
+NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm      thrpt   10  164933.962 ± 8636.203    B/op
+NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space       thrpt   10       0.002 ±    0.001  MB/sec
+NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm  thrpt   10       0.274 ±    0.218    B/op
+NetworkntBenchmark.testValidate:·gc.count                         thrpt   10      89.000             counts
+NetworkntBenchmark.testValidate:·gc.time                          thrpt   10      99.000                 ms
+```
+
+###### Everit 1.14.1
+
+```
+Benchmark                                                          Mode  Cnt       Score       Error   Units
+EveritBenchmark.testValidate                                      thrpt   10    3719.192 ±   125.592   ops/s
+EveritBenchmark.testValidate:·gc.alloc.rate                       thrpt   10    1448.208 ±    74.746  MB/sec
+EveritBenchmark.testValidate:·gc.alloc.rate.norm                  thrpt   10  449621.927 ±  7400.825    B/op
+EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space              thrpt   10    1446.397 ±    79.919  MB/sec
+EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm         thrpt   10  449159.799 ± 18614.931    B/op
+EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space          thrpt   10       0.001 ±     0.001  MB/sec
+EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm     thrpt   10       0.364 ±     0.391    B/op
+EveritBenchmark.testValidate:·gc.count                            thrpt   10     133.000              counts
+EveritBenchmark.testValidate:·gc.time                             thrpt   10     148.000                  ms
+```
+
 ### 1.3.0
 
 This adds support for Draft 2020-12

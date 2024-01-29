@@ -14,33 +14,77 @@
 
 This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation.
 
-In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The default JSON parser is the [Jackson](https://github.com/FasterXML/jackson) that is the most popular one. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design.
+In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The JSON parser used is the [Jackson](https://github.com/FasterXML/jackson) parser. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design.
 
-## JSON Schema Draft Specification Compatibility
+## JSON Schema Draft Specification compatibility
 
 Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
 
 ## Upgrading to new versions
 
-Information on notable or breaking changes when upgrading the library can be found in the [Upgrading to new versions](doc/upgrading.md) document. This library can contain breaking changes in minor version releases.
+This library can contain breaking changes in minor version releases.
 
-For the latest version, please check the [Releases](https://github.com/networknt/json-schema-validator/releases) page.
+Information on notable or breaking changes when upgrading the library can be found in the [Upgrading to new versions](doc/upgrading.md) document.
+
+Information on the latest version can be found on the [Releases](https://github.com/networknt/json-schema-validator/releases) page.
+
+## Comparing against other implementations
+
+The [JSON Schema Validation Comparison
+](https://github.com/creek-service/json-schema-validation-comparison) project from Creek has an informative [Comparison of JVM based Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/) which compares both the functional and performance characteristics of a number of different Java implementations. 
+* [Functional comparison](https://www.creekservice.org/json-schema-validation-comparison/functional)
+* [Performance comparison](https://www.creekservice.org/json-schema-validation-comparison/performance)
+
+The [Bowtie](https://github.com/bowtie-json-schema/bowtie) project has a [report](https://bowtie.report/) that compares functional characteristics of different implementations, including non-Java implementations, but does not do any performance benchmarking.
 
 ## Why this library
 
 #### Performance
 
-It is the fastest Java JSON Schema Validator as far as I know. Here is the testing result compare with the other two open-source implementations. It is about 32 times faster than the Fge and five times faster than the Everit.
+This should be the fastest Java JSON Schema Validator implementation.
 
-- fge: 7130ms
-- everit-org: 1168ms
-- networknt: 223ms
+The following is the benchmark results from [JSON Schema Validator Perftest](https://github.com/networknt/json-schema-validator-perftest) project that uses the [Java Microbenchmark Harness](https://github.com/openjdk/jmh).
 
-You can run the performance tests for three libraries from [https://github.com/networknt/json-schema-validator-perftest](https://github.com/networknt/json-schema-validator-perftest)
+Note that the benchmark results are highly dependent on the input data workloads used for the validation.
 
-#### Parser
+In this case this workload is using the Draft 4 specification and largely tests the performance of the evaluating the `properties` keyword. You may refer to [Results of performance comparison of JVM based JSON Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/performance) for benchmark results for more typical workloads
 
-It uses Jackson that is the most popular JSON parser in Java. If you are using Jackson parser already in your project, it is natural to choose this library over others for schema validation. 
+If performance is an important consideration, the specific sample workloads should be benchmarked, as there are different performance characteristics when certain keywords are used. For instance the use of the `unevaluatedProperties` or `unevaluatedItems` keyword will trigger annotation collection in the related validators, such as the `properties` or `items` validators, and annotation collection will adversely affect performance.
+
+##### NetworkNT 1.3.1
+
+```
+Benchmark                                                          Mode  Cnt       Score      Error   Units
+NetworkntBenchmark.testValidate                                   thrpt   10    6776.693 ±  115.309   ops/s
+NetworkntBenchmark.testValidate:·gc.alloc.rate                    thrpt   10     971.191 ±   16.420  MB/sec
+NetworkntBenchmark.testValidate:·gc.alloc.rate.norm               thrpt   10  165318.816 ±    0.459    B/op
+NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space           thrpt   10     968.894 ±   51.234  MB/sec
+NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm      thrpt   10  164933.962 ± 8636.203    B/op
+NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space       thrpt   10       0.002 ±    0.001  MB/sec
+NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm  thrpt   10       0.274 ±    0.218    B/op
+NetworkntBenchmark.testValidate:·gc.count                         thrpt   10      89.000             counts
+NetworkntBenchmark.testValidate:·gc.time                          thrpt   10      99.000                 ms
+```
+
+###### Everit 1.14.1
+
+```
+Benchmark                                                          Mode  Cnt       Score       Error   Units
+EveritBenchmark.testValidate                                      thrpt   10    3719.192 ±   125.592   ops/s
+EveritBenchmark.testValidate:·gc.alloc.rate                       thrpt   10    1448.208 ±    74.746  MB/sec
+EveritBenchmark.testValidate:·gc.alloc.rate.norm                  thrpt   10  449621.927 ±  7400.825    B/op
+EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space              thrpt   10    1446.397 ±    79.919  MB/sec
+EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm         thrpt   10  449159.799 ± 18614.931    B/op
+EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space          thrpt   10       0.001 ±     0.001  MB/sec
+EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm     thrpt   10       0.364 ±     0.391    B/op
+EveritBenchmark.testValidate:·gc.count                            thrpt   10     133.000              counts
+EveritBenchmark.testValidate:·gc.time                             thrpt   10     148.000                  ms
+```
+
+
+#### Jackson Parser
+
+This library uses [Jackson](https://github.com/FasterXML/jackson) which is a Java JSON parser that is widely used in other projects. If you are already using the Jackson parser in your project, it is natural to choose this library over others for schema validation. 
 
 #### YAML Support
 
@@ -50,9 +94,11 @@ The library works with JSON and YAML on both schema definitions and input data.
 
 The OpenAPI 3.0 specification is using JSON schema to validate the request/response, but there are some differences. With a configuration file, you can enable the library to work with OpenAPI 3.0 validation. 
 
-#### Dependency
+#### Minimal Dependencies
 
-Following the design principle of the Light Platform, this library has minimum dependencies to ensure there are no dependency conflicts when using it. 
+Following the design principle of the Light Platform, this library has minimal dependencies to ensure there are no dependency conflicts when using it. 
+
+##### Required Dependencies
 
 The following are the dependencies that will automatically be included when this library is included.
 
@@ -86,6 +132,8 @@ The following are the dependencies that will automatically be included when this
 </dependency>
 ```
 
+##### Optional Dependencies
+
 The following are the optional dependencies that may be required for certain options.
 
 These are not automatically included and setting the relevant option without adding the library will result in a `ClassNotFoundException`.
@@ -100,6 +148,10 @@ These are not automatically included and setting the relevant option without add
     <optional>true</optional>
 </dependency>
 ```
+
+##### Excludable Dependencies
+
+The following are required dependencies that are automatically included, but can be explicitly excluded if they are not required.
 
 The YAML dependency can be excluded if this is not required. Attempting to process schemas or input that are YAML will result in a `ClassNotFoundException`.
 
@@ -136,7 +188,7 @@ This package is available on Maven central.
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
@@ -144,13 +196,13 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.2.0');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.3.1');
 }
 ```
 
 ### Validating inputs against a schema
 
-The following example demonstrates how inputs is validated against a schema. It comprises the following steps.
+The following example demonstrates how inputs are validated against a schema. It comprises the following steps.
 
 * Creating a schema factory with the default schema dialect and how the schemas can be retrieved. 
   * Configuring mapping the `$id` to a retrieval URI using `schemaMappers`.
@@ -228,6 +280,21 @@ Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, exe
     executionContext.getConfig().setFormatAssertionsEnabled(true);
 });
 ```        
+
+## Performance Considerations
+
+When the library creates a schema from the schema factory, it creates a distinct validator instance for each location on the evaluation path. This means if there are different `$ref` that reference the same schema location, different validator instances are created for each evaluation path.
+
+When the schema is created, the library will automatically preload all the validators needed and resolve references. At this point, no exceptions will be thrown if a reference cannot be resolved. If there are references that are cyclic, only the first cycle will be preloaded. If you wish to ensure that remote references can all be resolved, the `initializeValidators` method needs to be called on the `JsonSchema` which will throw an exception if there are references that cannot be resolved.
+
+The `JsonSchema` created from the factory should be cached and reused. Not reusing the `JsonSchema` means that the schema data needs to be repeated parsed with validator instances created and references resolved.
+
+Collecting annotations will adversely affect validation performance.
+
+The earlier draft specifications contain less keywords that can potentially impact performance. For instance the use of the `unevaluatedProperties` or `unevaluatedItems` keyword will trigger annotation collection in the related validators, such as the `properties` or `items` validators.
+
+This does not mean that using a schema with a later draft specification will automatically cause a performance impact. For instance, the `properties` validator will perform checks to determine if annotations need to be collected, and checks if the meta schema contains the `unevaluatedProperties` keyword and whether the `unevaluatedProperties` keyword exists adjacent the evaluation path.
+
 
 ## [Quick Start](doc/quickstart.md)
 

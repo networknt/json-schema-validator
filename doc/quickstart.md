@@ -1,83 +1,65 @@
 ## Quick Start
 
-To use the validator, we need to have both the `JsonSchema` object and `JsonNode` object constructed. 
-There are many ways to do that. 
-Here is base test class, that shows several ways to construct these from `String`, `Stream`, `Url`, and `JsonNode`. 
-Please pay attention to the `JsonSchemaFactory` class as it is the way to construct the `JsonSchema` object.
+To use the validator, we need to have the `JsonSchema` loaded and cached.
+
+For simplicity the following test loads a schema from a `String` or `JsonNode`. Note that loading a schema in this manner is not recommended as a relative `$ref` will not be properly resolved as there is no base IRI.
+
+The preferred method of loading a schema is by using a `SchemaLocation` and by configuring the appropriate `SchemaMapper` and `SchemaLoader` on the `JsonSchemaFactory`.
 
 ```java
-public class BaseJsonSchemaValidatorTest {
+package com.example;
 
-    private ObjectMapper mapper = new ObjectMapper();
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    protected JsonNode getJsonNodeFromClasspath(String name) throws IOException {
-        InputStream is1 = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream(name);
-        return mapper.readTree(is1);
-    }
+import java.util.Set;
 
-    protected JsonNode getJsonNodeFromStringContent(String content) throws IOException {
-        return mapper.readTree(content);
-    }
+import org.junit.jupiter.api.Test;
 
-    protected JsonNode getJsonNodeFromUrl(String url) throws IOException {
-        return mapper.readTree(new URL(url));
-    }
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.*;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
-    protected JsonSchema getJsonSchemaFromClasspath(String name) {
+public class SampleTest {
+    @Test
+    void schemaFromString() throws JsonMappingException, JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream(name);
-        return factory.getSchema(is);
+        /*
+         * This should be cached for performance.
+         * 
+         * Loading from a String is not recommended as there is no base IRI to use for
+         * resolving relative $ref.
+         */
+        JsonSchema schemaFromString = factory
+                .getSchema("{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}");
+        Set<ValidationMessage> errors = schemaFromString.validate("7", InputFormat.JSON);
+        assertEquals(1, errors.size());
     }
 
-    protected JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
+    @Test
+    void schemaFromJsonNode() throws JsonMappingException, JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        return factory.getSchema(schemaContent);
+        JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(
+                "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
+        /*
+         * This should be cached for performance.
+         * 
+         * Loading from a JsonNode is not recommended as there is no base IRI to use for
+         * resolving relative $ref.
+         *
+         * Note that the V4 from the factory is the default version if $schema is not
+         * specified. As $schema is specified in the data, V6 is used.
+         */
+        JsonSchema schemaFromNode = factory.getSchema(schemaNode);
+        /*
+         * By default all schemas are preloaded eagerly but ref resolve failures are not
+         * thrown. You check if there are issues with ref resolving using
+         * initializeValidators()
+         */
+        schemaFromNode.initializeValidators();
+        Set<ValidationMessage> errors = schemaFromNode.validate("{\"id\": \"2\"}", InputFormat.JSON);
+        assertEquals(1, errors.size());
     }
-
-    protected JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        return factory.getSchema(SchemaLocation.of(uri));
-    }
-
-    protected JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        return factory.getSchema(jsonNode);
-    }
-
-    // Automatically detect version for given JsonNode
-    protected JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
-        return factory.getSchema(jsonNode);
-    }
-
 }
-```
-And the following is one of the test cases in one of the test classes that extend from the above base class. As you can see, it constructs `JsonSchema` and `JsonNode` from `String`.
-
-```java
-class Sample extends BaseJsonSchemaValidatorTest {
-
-    void test() {    
-        JsonSchema schema = getJsonSchemaFromStringContent("{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}");
-        JsonNode node = getJsonNodeFromStringContent("7");
-        Set<ValidationMessage> errors = schema.validate(node);
-        assertThat(errors.size(), is(1));
-    
-        // With automatic version detection
-        JsonNode schemaNode = getJsonNodeFromStringContent(
-            "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
-        JsonSchema schema = getJsonSchemaFromJsonNodeAutomaticVersion(schemaNode);
-        
-        schema.initializeValidators(); // by default all schemas are loaded lazily. You can load them eagerly via
-                                       // initializeValidators() 
-        
-        JsonNode node = getJsonNodeFromStringContent("{\"id\": \"2\"}");
-        Set<ValidationMessage> errors = schema.validate(node);
-        assertThat(errors.size(), is(1));
-    }
-
-}
-
 ```
