@@ -16,7 +16,7 @@ This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-0
 
 In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The JSON parser used is the [Jackson](https://github.com/FasterXML/jackson) parser. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design.
 
-## JSON Schema Draft Specification compatibility
+## JSON Schema Specification compatibility
 
 Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
 
