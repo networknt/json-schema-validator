@@ -58,7 +58,7 @@ public abstract class ValidationMessageHandler {
 
     protected MessageSourceValidationMessage.Builder message() {
         return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, message -> {
-            if (this.failFast && isApplicator()) {
+            if (canFastFail()) {
                 throw new JsonSchemaException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
@@ -70,40 +70,63 @@ public abstract class ValidationMessageHandler {
         return this.errorMessageType;
     }
 
-    private boolean isApplicator() {
-        return !isPartOfAnyOfMultipleType()
-                && !isPartOfIfMultipleType()
-                && !isPartOfNotMultipleType()
-                && !isPartOfOneOfMultipleType();
+    /**
+     * Determines if the evaluation can fast fail.
+     *
+     * @return true if it can fast fail
+     */
+    protected boolean canFastFail() {
+        return this.failFast && !hasApplicatorInEvaluationPath();
     }
 
-    private boolean isPartOfAnyOfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.ANY_OF.getValue());
+    /**
+     * Determines if there is an applicator in the evaluation path for determining
+     * if it is possible to fast fail.
+     * <p>
+     * For instance if there is a not keyword in the evaluation path this can change
+     * the overall result.
+     * 
+     * @return true if there is an applicator in the evaluation path
+     */
+    private boolean hasApplicatorInEvaluationPath() {
+        return hasAnyOfInEvaluationPath() || hasIfInEvaluationPath() || hasNotInEvaluationPath()
+                || hasOneOfInEvaluationPath();
     }
 
-    private boolean isPartOfIfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
+    /**
+     * Determines if anyOf is in the evaluation path.
+     * 
+     * @return true if anyOf is in the evaluation path
+     */
+    private boolean hasAnyOfInEvaluationPath() {
+        return this.evaluationPath.contains(ValidatorTypeCode.ANY_OF.getValue());
     }
 
-    private boolean isPartOfNotMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.NOT.getValue());
-    }
-    
-    protected boolean schemaLocationContains(String match) {
-        int count = this.parentSchema.schemaLocation.getFragment().getNameCount();
-        for (int x = 0; x < count; x++) {
-            String name = this.parentSchema.schemaLocation.getFragment().getName(x);
-            if (match.equals(name)) {
-                return true;
-            }
-        }
-        return false;
+    /**
+     * Determines if if is in the evaluation path.
+     * 
+     * @return true if if is in the evaluation path
+     */
+    private boolean hasIfInEvaluationPath() {
+        return this.evaluationPath.contains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
     }
 
-    /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
+    /**
+     * Determines if not is in the evaluation path.
+     * 
+     * @return true if not is in the evaluation path
+     */
+    private boolean hasNotInEvaluationPath() {
+        return this.evaluationPath.contains(ValidatorTypeCode.NOT.getValue());
+    }
 
-    protected boolean isPartOfOneOfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.ONE_OF.getValue());
+    /**
+     * Determines if oneOf is in the evaluation path.
+     * 
+     * @return true if oneOf is in the evaluation path
+     */
+    protected boolean hasOneOfInEvaluationPath() {
+        return this.evaluationPath.contains(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     protected void parseErrorCode(String errorCodeKey) {
