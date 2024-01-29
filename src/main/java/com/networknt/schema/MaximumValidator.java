@@ -113,7 +113,7 @@ public class MaximumValidator extends BaseJsonValidator {
         }
 
         if (typedMaximum.crossesThreshold(node)) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(typedMaximum.thresholdValue())
                     .build());
         }

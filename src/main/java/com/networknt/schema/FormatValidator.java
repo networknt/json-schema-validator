@@ -52,14 +52,14 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                 if(!node.textValue().trim().equals(node.textValue())) {
                     if (assertionsEnabled) {
                         // leading and trailing spaces
-                        errors.add(message().instanceLocation(instanceLocation)
+                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(format.getName(), format.getErrorMessageDescription()).build());
                     }
                 } else if(node.textValue().contains("%")) {
                     if (assertionsEnabled) {
                         // zone id is not part of the ipv6
-                        errors.add(message().instanceLocation(instanceLocation)
+                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(format.getName(), format.getErrorMessageDescription()).build());
                     }
@@ -68,7 +68,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
             try {
                 if (!format.matches(executionContext, node.textValue())) {
                     if (assertionsEnabled) {
-                        errors.add(message().instanceLocation(instanceLocation)
+                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(format.getName(), format.getErrorMessageDescription()).build());
                     }

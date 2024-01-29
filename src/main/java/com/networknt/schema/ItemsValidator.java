@@ -172,7 +172,7 @@ public class ItemsValidator extends BaseJsonValidator {
 //                        evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(message().instanceLocation(path)
+                        errors.add(message().instanceNode(node).instanceLocation(path)
                                 .locale(executionContext.getExecutionConfig().getLocale()).arguments(i).build());
                     }
                 }
@@ -264,12 +264,11 @@ public class ItemsValidator extends BaseJsonValidator {
     public void preloadJsonSchema() {
         if (null != this.schema) {
             this.schema.initializeValidators();
-            collectAnnotations();
         }
         preloadJsonSchemas(this.tupleSchema);
         if (null != this.additionalSchema) {
             this.additionalSchema.initializeValidators();
-            collectAnnotations();
         }
+        collectAnnotations(); // cache the flag
     }
 }

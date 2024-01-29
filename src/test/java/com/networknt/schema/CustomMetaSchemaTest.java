@@ -69,6 +69,8 @@ public class CustomMetaSchemaTest {
                 String valueName = enumNames.get(idx);
                 Set<ValidationMessage> messages = new HashSet<>();
                 ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
+                        .schemaNode(node)
+                        .instanceNode(node)
                         .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
                 messages.add(validationMessage);

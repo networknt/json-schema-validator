@@ -105,7 +105,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                         if (this.discriminatorContext.isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
                                 allErrors.addAll(errors);
-                                allErrors.add(message().instanceLocation(instanceLocation)
+                                allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
                                         .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
@@ -132,7 +132,7 @@ public class AnyOfValidator extends BaseJsonValidator {
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
                 final Set<ValidationMessage> errors = new LinkedHashSet<>();
-                errors.add(message().instanceLocation(instanceLocation)
+                errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")

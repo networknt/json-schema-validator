@@ -60,14 +60,11 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
-//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
-                if (results.isEmpty()) {
-//                    evaluatedItems.add(path);
-                } else {
+                if (!results.isEmpty()) {
                     errors.addAll(results);
                 }
             }
@@ -174,7 +171,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.tupleSchema);
-        collectAnnotations();
+        collectAnnotations(); // cache the flag
     }
 
 }

@@ -157,7 +157,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         this.schema.initializeValidators();
-        collectAnnotations();
+        collectAnnotations(); // cache the flag
     }
     
     private boolean collectAnnotations() {

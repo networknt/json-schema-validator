@@ -40,7 +40,7 @@ public class ReadOnlyValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
         if (this.readOnly) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).build());
         }
         return Collections.emptySet();

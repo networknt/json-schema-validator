@@ -90,7 +90,7 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
         }
 
         if (!matches(node.asText())) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.contentMediaType).build());
         }
         return Collections.emptySet();

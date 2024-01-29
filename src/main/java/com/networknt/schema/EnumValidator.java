@@ -87,7 +87,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             node = processArrayNode((ArrayNode) node);
         }
         if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(error).build());
         }
 

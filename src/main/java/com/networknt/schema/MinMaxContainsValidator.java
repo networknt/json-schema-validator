@@ -62,7 +62,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         return this.analysis != null ? this.analysis.stream()
-                .map(analysis -> message().instanceLocation(analysis.getSchemaLocation().getFragment())
+                .map(analysis -> message().instanceNode(node).instanceLocation(analysis.getSchemaLocation().getFragment())
                         .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(parentSchema.getSchemaNode().toString()).build())
                 .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();

@@ -90,12 +90,12 @@ public class ContainsValidator extends BaseJsonValidator {
             }
             if (actual < m) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(), instanceLocation, m);
+                        executionContext.getExecutionConfig().getLocale(), node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(), instanceLocation, this.max);
+                        executionContext.getExecutionConfig().getLocale(), node, instanceLocation, this.max);
             }
         }
 
@@ -147,11 +147,11 @@ public class ContainsValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
-        collectAnnotations();
+        collectAnnotations(); // cache the flag
     }
 
     private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale,
-            JsonNodePath instanceLocation, int bounds) {
+            JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MIN;
@@ -159,7 +159,7 @@ public class ContainsValidator extends BaseJsonValidator {
             messageKey = CONTAINS_MAX;
         }
         return Collections
-                .singleton(message().instanceLocation(instanceLocation).messageKey(messageKey)
+                .singleton(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
                         .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }

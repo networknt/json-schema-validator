@@ -104,7 +104,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
-                    errors.add(message().property(pname).instanceLocation(instanceLocation.append(pname))
+                    errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation.append(pname))
                             .locale(executionContext.getExecutionConfig().getLocale()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
@@ -194,7 +194,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     public void preloadJsonSchema() {
         if(additionalPropertiesSchema != null) {
             additionalPropertiesSchema.initializeValidators();
-            collectAnnotations();
         }
+        collectAnnotations(); // cache the flag
     }
 }

@@ -16,6 +16,13 @@
 
 package com.networknt.schema;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.networknt.schema.i18n.MessageFormatter;
 import com.networknt.schema.utils.CachingSupplier;
 import com.networknt.schema.utils.StringUtils;
@@ -32,21 +39,30 @@ import java.util.function.Supplier;
  *      "https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
+@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
+@JsonPropertyOrder({ "type", "code", "message", "instanceLocation", "property", "evaluationPath", "schemaLocation",
+        "messageKey", "arguments", "details" })
+@JsonInclude(Include.NON_NULL)
 public class ValidationMessage {
     private final String type;
     private final String code;
+    @JsonSerialize(using = ToStringSerializer.class)
     private final JsonNodePath evaluationPath;
+    @JsonSerialize(using = ToStringSerializer.class)
     private final SchemaLocation schemaLocation;
+    @JsonSerialize(using = ToStringSerializer.class)
     private final JsonNodePath instanceLocation;
     private final String property;
     private final Object[] arguments;
-    private final Map<String, Object> details;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
+    private final Map<String, Object> details;
+    private final JsonNode instanceNode;
+    private final JsonNode schemaNode;
 
     ValidationMessage(String type, String code, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
             JsonNodePath instanceLocation, String property, Object[] arguments, Map<String, Object> details,
-            String messageKey, Supplier<String> messageSupplier) {
+            String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
         super();
         this.type = type;
         this.code = code;
@@ -58,6 +74,8 @@ public class ValidationMessage {
         this.details = details;
         this.messageKey = messageKey;
         this.messageSupplier = messageSupplier;
+        this.instanceNode = instanceNode;
+        this.schemaNode = schemaNode;
     }
 
     public String getCode() {
@@ -97,6 +115,37 @@ public class ValidationMessage {
         return schemaLocation;
     }
     
+    /**
+     * Returns the instance node which was evaluated.
+     * <p>
+     * This corresponds with the instance location.
+     * 
+     * @return the instance node
+     */
+    public JsonNode getInstanceNode() {
+        return instanceNode;
+    }
+    
+    /**
+     * Returns the schema node which was evaluated.
+     * <p>
+     * This corresponds with the schema location.
+     * 
+     * @return the schema node
+     */
+    public JsonNode getSchemaNode() {
+        return schemaNode;
+    }
+    
+    /**
+     * Returns the property with the error.
+     * <p>
+     * For instance, for the required validator the instance location does not
+     * contain the missing property name as the instance must refer to the input
+     * data.
+     * 
+     * @return the property name
+     */
     public String getProperty() {
         return property;
     }
@@ -186,6 +235,8 @@ public class ValidationMessage {
         protected Supplier<String> messageSupplier;
         protected MessageFormatter messageFormatter;
         protected String messageKey;
+        protected JsonNode instanceNode;
+        protected JsonNode schemaNode;
 
         public S type(String type) {
             this.type = type;
@@ -288,6 +339,16 @@ public class ValidationMessage {
             this.messageKey = messageKey;
             return self();
         }
+        
+        public S instanceNode(JsonNode instanceNode) {
+            this.instanceNode = instanceNode;
+            return self();
+        }
+        
+        public S schemaNode(JsonNode schemaNode) {
+            this.schemaNode = schemaNode;
+            return self();
+        }
 
         public ValidationMessage build() {
             Supplier<String> messageSupplier = this.messageSupplier;
@@ -308,7 +369,7 @@ public class ValidationMessage {
                 messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
             }
             return new ValidationMessage(type, code, evaluationPath, schemaLocation, instanceLocation,
-                    property, arguments, details, messageKey, messageSupplier);
+                    property, arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
         }
         
         protected Object[] getMessageArguments() {

@@ -214,6 +214,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.schemas.values());
-        collectAnnotations();
+        collectAnnotations(); // cache the flag
     }
 }

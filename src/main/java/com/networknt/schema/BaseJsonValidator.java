@@ -367,5 +367,11 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         }
         return hasValidator;
     }
+    
+    @Override
+    protected MessageSourceValidationMessage.Builder message() {
+        return super.message().schemaNode(this.schemaNode);
+    }
+
 
 }
