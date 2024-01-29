@@ -255,7 +255,7 @@ public class JsonSchemaFactory {
      */
     protected JsonSchema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
-        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
+        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
         try {
             /*
@@ -306,20 +306,17 @@ public class JsonSchemaFactory {
     }
 
     /**
-     * Gets the schema location from the $id or retrieval uri.
+     * Gets the base IRI from the schema retrieval IRI if present otherwise return
+     * one with a null base IRI.
+     * <p>
+     * Note that the resolving of the $id or id in the schema node will take place
+     * in the JsonSchema constructor.
      *
-     * @param schemaRetrievalUri the schema retrieval uri
-     * @param schemaNode the schema json
-     * @param validationContext the validationContext
+     * @param schemaLocation the schema retrieval uri
      * @return the schema location
      */
-    protected SchemaLocation getSchemaLocation(SchemaLocation schemaRetrievalUri, JsonNode schemaNode,
-            ValidationContext validationContext) {
-        String schemaLocation = validationContext.resolveSchemaId(schemaNode);
-        if (schemaLocation == null && schemaRetrievalUri != null) {
-            schemaLocation = schemaRetrievalUri.toString();
-        }
-        return schemaLocation != null ? SchemaLocation.of(schemaLocation) : SchemaLocation.DOCUMENT;
+    protected SchemaLocation getSchemaLocation(SchemaLocation schemaLocation) {
+        return schemaLocation != null ? schemaLocation : SchemaLocation.DOCUMENT;
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {

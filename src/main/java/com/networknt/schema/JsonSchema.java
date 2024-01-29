@@ -61,10 +61,38 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
         return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
     }
+    
+    private static SchemaLocation resolve(SchemaLocation schemaLocation, JsonNode schemaNode, boolean rootSchema,
+            ValidationContext validationContext) {
+        String id = validationContext.resolveSchemaId(schemaNode);
+        if (id != null) {
+            String resolve = id;
+            SchemaLocation result = schemaLocation.resolve(resolve);
+            JsonSchemaIdValidator validator = validationContext.getConfig().getSchemaIdValidator();
+            if (validator != null) {
+                if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
+                    SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getMetaSchema().getIdKeyword());
+                    ValidationMessage validationMessage = ValidationMessage.builder()
+                            .code(ValidatorTypeCode.ID.getValue()).type(ValidatorTypeCode.ID.getValue())
+                            .instanceLocation(idSchemaLocation.getFragment())
+                            .arguments(schemaLocation.toString(), id)
+                            .schemaLocation(idSchemaLocation)
+                            .schemaNode(schemaNode)
+                            .messageFormatter(args -> validationContext.getConfig().getMessageSource().getMessage(
+                                    ValidatorTypeCode.ID.getValue(), validationContext.getConfig().getLocale(), args))
+                            .build();
+                    throw new InvalidSchemaException(validationMessage);
+                }
+            }
+            return result;
+        } else {
+            return schemaLocation;
+        }
+    }
 
     private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
+        super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
         this.metaSchema = this.validationContext.getMetaSchema();
         initializeConfig();
