@@ -58,7 +58,8 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                  * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
                  */
                 errors.add(message().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(fieldName).build());
             }
         }
 

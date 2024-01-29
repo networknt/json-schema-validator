@@ -41,7 +41,8 @@ public class ReadOnlyValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, instanceLocation);
         if (this.readOnly) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).build());
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).build());
         }
         return Collections.emptySet();
     }

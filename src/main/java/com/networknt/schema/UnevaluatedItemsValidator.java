@@ -199,7 +199,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     // Report these as unevaluated paths or not matching the unevalutedItems schema
                     messages = messages.stream()
                             .map(m -> message().instanceNode(node).instanceLocation(m.getInstanceLocation())
-                                    .locale(executionContext.getExecutionConfig().getLocale()).build())
+                                    .locale(executionContext.getExecutionConfig().getLocale())
+                                    .failFast(executionContext.getExecutionConfig().isFailFast()).build())
                             .collect(Collectors.toCollection(LinkedHashSet::new));
                 }
             }

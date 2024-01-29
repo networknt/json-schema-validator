@@ -44,7 +44,8 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
             for (JsonNode n : node) {
                 if (!set.add(n)) {
                     return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale()).build());
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .failFast(executionContext.getExecutionConfig().isFailFast()).build());
                 }
             }
         }

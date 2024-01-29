@@ -54,6 +54,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                         // leading and trailing spaces
                         errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast())
                                 .arguments(format.getName(), format.getErrorMessageDescription()).build());
                     }
                 } else if(node.textValue().contains("%")) {

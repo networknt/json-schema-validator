@@ -47,7 +47,8 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
                 BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
                 if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale()).arguments(divisor).build());
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(divisor).build());
                 }
             }
         }

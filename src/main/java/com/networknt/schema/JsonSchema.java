@@ -1060,6 +1060,7 @@ public class JsonSchema extends BaseJsonValidator {
         ExecutionConfig executionConfig = new ExecutionConfig();
         executionConfig.setLocale(config.getLocale());
         executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
+        executionConfig.setFailFast(config.isFailFast());
 
         ExecutionContext executionContext = new ExecutionContext(executionConfig, collectorContext);
         if(config.getExecutionContextCustomizer() != null) {

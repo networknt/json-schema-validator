@@ -25,12 +25,20 @@ import java.util.function.Predicate;
  */
 public class ExecutionConfig {
     private Locale locale = Locale.ROOT;
+    
+    private boolean annotationsCollectionEnabled = false;
+    
     private Predicate<String> annotationAllowedPredicate = (keyword) -> true;
 
     /**
      * Since Draft 2019-09 format assertions are not enabled by default.
      */
     private Boolean formatAssertionsEnabled = null;
+
+    /**
+     * Determine if the validation execution can fail fast.
+     */
+    private boolean failFast = false;
 
     public Locale getLocale() {
         return locale;
@@ -112,5 +120,41 @@ public class ExecutionConfig {
      */
     public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
         this.formatAssertionsEnabled = formatAssertionsEnabled;
+    }
+
+    /**
+     * Return if fast fail is enabled.
+     * 
+     * @return if fast fail is enabled
+     */
+    public boolean isFailFast() {
+        return failFast;
+    }
+
+    /**
+     * Sets whether fast fail is enabled.
+     * 
+     * @param failFast true to fast fail
+     */
+    public void setFailFast(boolean failFast) {
+        this.failFast = failFast;
+    }
+
+    /**
+     * Return if annotations collection is enabled.
+     * 
+     * @return if annotations collection is enabled
+     */
+    protected boolean isAnnotationsCollectionEnabled() {
+        return annotationsCollectionEnabled;
+    }
+
+    /**
+     * Sets whether to annotation collection is enabled.
+     * 
+     * @param annotationsCollectionEnabled true to enable annotation collection
+     */
+    protected void setAnnotationsCollectionEnabled(boolean annotationsCollectionEnabled) {
+        this.annotationsCollectionEnabled = annotationsCollectionEnabled;
     }
 }

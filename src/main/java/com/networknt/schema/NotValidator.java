@@ -42,7 +42,8 @@ public class NotValidator extends BaseJsonValidator {
             errors = this.schema.validate(executionContext, node, rootNode, instanceLocation);
             if (errors.isEmpty()) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.schema.toString())
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
                         .build());
             }
             return Collections.emptySet();
@@ -59,7 +60,8 @@ public class NotValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         if (errors.isEmpty()) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.schema.toString())
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
                     .build());
         }
         return Collections.emptySet();

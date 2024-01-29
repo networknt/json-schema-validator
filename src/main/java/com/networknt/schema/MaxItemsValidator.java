@@ -42,11 +42,15 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
 
         if (node.isArray()) {
             if (node.size() > max) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(max).build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 > max) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(max).build());
             }
         }
 

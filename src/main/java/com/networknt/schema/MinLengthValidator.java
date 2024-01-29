@@ -47,7 +47,8 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(minLength).build());
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(minLength).build());
         }
         return Collections.emptySet();
     }

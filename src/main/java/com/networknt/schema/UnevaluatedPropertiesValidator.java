@@ -122,7 +122,8 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                     if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                         // All fails as "unevaluatedProperties: false"
                         messages.add(message().instanceNode(node).instanceLocation(instanceLocation.append(fieldName))
-                                .locale(executionContext.getExecutionConfig().getLocale()).build());
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).build());
                     } else {
                         messages.addAll(this.schema.validate(executionContext, node.get(fieldName), node,
                                 instanceLocation.append(fieldName)));
@@ -134,7 +135,8 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                 // schema
                 messages = messages.stream()
                         .map(m -> message().instanceNode(node).instanceLocation(m.getInstanceLocation())
-                                .locale(executionContext.getExecutionConfig().getLocale()).build())
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).build())
                         .collect(Collectors.toCollection(LinkedHashSet::new));
             }
             executionContext.getAnnotations()

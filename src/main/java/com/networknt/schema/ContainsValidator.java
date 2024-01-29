@@ -90,12 +90,14 @@ public class ContainsValidator extends BaseJsonValidator {
             }
             if (actual < m) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(), node, instanceLocation, m);
+                        executionContext.getExecutionConfig().getLocale(),
+                        executionContext.getExecutionConfig().isFailFast(), node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(), node, instanceLocation, this.max);
+                        executionContext.getExecutionConfig().getLocale(),
+                        executionContext.getExecutionConfig().isFailFast(), node, instanceLocation, this.max);
             }
         }
 
@@ -150,7 +152,7 @@ public class ContainsValidator extends BaseJsonValidator {
         collectAnnotations(); // cache the flag
     }
 
-    private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale,
+    private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale, boolean failFast,
             JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
@@ -160,7 +162,7 @@ public class ContainsValidator extends BaseJsonValidator {
         }
         return Collections
                 .singleton(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
-                        .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
+                        .locale(locale).failFast(failFast).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }
     

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class ValidationMessageHandler {
-    protected boolean failFast;
     protected final MessageSource messageSource;
     protected ErrorMessageType errorMessageType;
 
@@ -25,10 +24,9 @@ public abstract class ValidationMessageHandler {
 
     protected Keyword keyword;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
-            boolean customErrorMessagesEnabled, MessageSource messageSource, Keyword keyword, JsonSchema parentSchema,
-            SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
-        this.failFast = failFast;
+    protected ValidationMessageHandler(ErrorMessageType errorMessageType, boolean customErrorMessagesEnabled,
+            MessageSource messageSource, Keyword keyword, JsonSchema parentSchema, SchemaLocation schemaLocation,
+            JsonNodePath evaluationPath) {
         this.errorMessageType = errorMessageType;
         this.messageSource = messageSource;
         this.schemaLocation = Objects.requireNonNull(schemaLocation);
@@ -44,7 +42,6 @@ public abstract class ValidationMessageHandler {
      * @param copy to copy from
      */
     protected ValidationMessageHandler(ValidationMessageHandler copy) {
-        this.failFast = copy.failFast;
         this.messageSource = copy.messageSource;
         this.errorMessageType = copy.errorMessageType;
         this.schemaLocation = copy.schemaLocation;
@@ -57,8 +54,8 @@ public abstract class ValidationMessageHandler {
     }
 
     protected MessageSourceValidationMessage.Builder message() {
-        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, message -> {
-            if (canFastFail()) {
+        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, (message, failFast) -> {
+            if (failFast && canFailFast()) {
                 throw new JsonSchemaException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
@@ -75,8 +72,8 @@ public abstract class ValidationMessageHandler {
      *
      * @return true if it can fast fail
      */
-    protected boolean canFastFail() {
-        return this.failFast && !hasApplicatorInEvaluationPath();
+    protected boolean canFailFast() {
+        return !hasApplicatorInEvaluationPath();
     }
 
     /**

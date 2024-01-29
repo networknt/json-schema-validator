@@ -173,7 +173,8 @@ public class ItemsValidator extends BaseJsonValidator {
                     } else {
                         // no additional item allowed, return error
                         errors.add(message().instanceNode(node).instanceLocation(path)
-                                .locale(executionContext.getExecutionConfig().getLocale()).arguments(i).build());
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(i).build());
                     }
                 }
             }

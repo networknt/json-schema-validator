@@ -90,8 +90,9 @@ public class OneOfValidator extends BaseJsonValidator {
             if (numberOfValidSchema != 1) {
                 ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast())
                         .arguments(Integer.toString(numberOfValidSchema)).build();
-                if (this.failFast) {
+                if (executionContext.getExecutionConfig().isFailFast()) {
                     throw new JsonSchemaException(message);
                 }
                 errors.add(message);
