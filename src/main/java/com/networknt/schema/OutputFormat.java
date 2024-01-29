@@ -66,7 +66,7 @@ public interface OutputFormat<T> {
     public static class Default implements OutputFormat<Set<ValidationMessage>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
+            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
                     Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
         }
 
@@ -83,7 +83,7 @@ public interface OutputFormat<T> {
     public static class Flag implements OutputFormat<FlagOutput> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
+            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
                     Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
         }
 
@@ -100,7 +100,7 @@ public interface OutputFormat<T> {
     public static class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
+            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
                     Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
         }
 
