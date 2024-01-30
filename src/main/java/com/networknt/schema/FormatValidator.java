@@ -40,6 +40,13 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
+        if (format != null) {
+            if (collectAnnotations(executionContext)) {
+                putAnnotation(executionContext,
+                        annotation -> annotation.instanceLocation(instanceLocation).value(this.format.getName()));
+            }
+        }
+
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();

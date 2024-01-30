@@ -47,10 +47,16 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
+        if (collectAnnotations(executionContext, "format")) {
+            putAnnotation(executionContext,
+                    annotation -> annotation.instanceLocation(instanceLocation).keyword("format").value(DATETIME));
+        }
+
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
+
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
 
         if (!isLegalDateTime(node.textValue())) {
