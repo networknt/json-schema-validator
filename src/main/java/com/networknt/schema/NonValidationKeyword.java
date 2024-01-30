@@ -27,11 +27,15 @@ import java.util.Set;
  * Used for Keywords that have no validation aspect, but are part of the metaschema.
  */
 public class NonValidationKeyword extends AbstractKeyword {
+    private final boolean collectAnnotations;
 
     private static final class Validator extends AbstractJsonValidator {
+        private final boolean collectAnnotations;
+        
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
+                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword, boolean collectAnnotations) {
             super(schemaLocation, evaluationPath, keyword, schemaNode);
+            this.collectAnnotations = collectAnnotations;
             String id = validationContext.resolveSchemaId(schemaNode);
             String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
             String dynamicAnchor = validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
@@ -50,13 +54,11 @@ public class NonValidationKeyword extends AbstractKeyword {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-            if (!("$defs".equals(getKeyword()) || "definitions".equals(getKeyword()) || getKeyword().startsWith("$"))) {
-                if (collectAnnotations(executionContext)) {
-                    Object value = getAnnotationValue(getSchemaNode());
-                    if (value != null) {
-                        putAnnotation(executionContext,
-                                annotation -> annotation.instanceLocation(instanceLocation).value(value));
-                    }
+            if (collectAnnotations && collectAnnotations(executionContext)) {
+                Object value = getAnnotationValue(getSchemaNode());
+                if (value != null) {
+                    putAnnotation(executionContext,
+                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
                 }
             }
             return Collections.emptySet();
@@ -75,12 +77,17 @@ public class NonValidationKeyword extends AbstractKeyword {
     }
 
     public NonValidationKeyword(String keyword) {
+        this(keyword, true);
+    }
+
+    public NonValidationKeyword(String keyword, boolean collectAnnotations) {
         super(keyword);
+        this.collectAnnotations = collectAnnotations;
     }
 
     @Override
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                       JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
-        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
+        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this, collectAnnotations);
     }
 }

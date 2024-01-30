@@ -16,16 +16,27 @@
 
 package com.networknt.schema;
 
-
+/**
+ * Abstract keyword.
+ */
 public abstract class AbstractKeyword implements Keyword {
     private final String value;
 
+    /**
+     * Create abstract keyword.
+     * 
+     * @param value the keyword
+     */
     public AbstractKeyword(String value) {
         this.value = value;
     }
 
+    /**
+     * Gets the keyword.
+     * 
+     * @return the keyword
+     */
     public String getValue() {
         return value;
     }
-
 }
