@@ -353,23 +353,29 @@ public class JsonSchemaFactory {
     }
 
     protected JsonMetaSchema loadMetaSchema(String id, SchemaValidatorsConfig config) {
-        JsonSchema schema = getSchema(SchemaLocation.of(id), config);
-        JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
-        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
-        if (specification != null) {
-            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
-                // Process vocabularies
-                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
-                if (vocabulary != null) {
-                    builder.vocabularies(new HashMap<>());
-                    for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
-                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+        try {
+            JsonSchema schema = getSchema(SchemaLocation.of(id), config);
+            JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
+            VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+            if (specification != null) {
+                if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                    // Process vocabularies
+                    JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                    if (vocabulary != null) {
+                        builder.vocabularies(new HashMap<>());
+                        for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                            builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+                        }
                     }
+                    
                 }
-                
             }
+            return builder.build();
+        } catch (Exception e) {
+            ValidationMessage validationMessage = ValidationMessage.builder().message("Unknown MetaSchema: {1}")
+                    .arguments(id).build();
+            throw new InvalidSchemaException(validationMessage, e);
         }
-        return builder.build();
     }
 
     /**
