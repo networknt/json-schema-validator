@@ -16,15 +16,22 @@
 
 package com.networknt.schema;
 
+import java.util.function.Consumer;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
+
 public abstract class AbstractJsonValidator implements JsonValidator {
     private final SchemaLocation schemaLocation;
+    private final JsonNode schemaNode;
     private final JsonNodePath evaluationPath;
     private final Keyword keyword;
 
-    public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword) {
+    public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword, JsonNode schemaNode) {
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
         this.keyword = keyword;
+        this.schemaNode = schemaNode;
     }
 
     @Override
@@ -42,8 +49,47 @@ public abstract class AbstractJsonValidator implements JsonValidator {
         return keyword.getValue();
     }
 
+    public JsonNode getSchemaNode() {
+        return this.schemaNode;
+    }
+
     @Override
     public String toString() {
         return getEvaluationPath().getName(-1);
+    }
+
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext) {
+        return collectAnnotations(executionContext, getKeyword());
+    }
+
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @param keyword          the keyword
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
+        return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
+                && executionContext.getExecutionConfig().getAnnotationCollectionPredicate().test(keyword);
+    }
+
+    /**
+     * Puts an annotation.
+     * 
+     * @param executionContext the execution context
+     * @param customizer to customize the annotation
+     */
+    protected void putAnnotation(ExecutionContext executionContext, Consumer<JsonNodeAnnotation.Builder> customizer) {
+        JsonNodeAnnotation.Builder builder = JsonNodeAnnotation.builder().evaluationPath(this.evaluationPath)
+                .schemaLocation(this.schemaLocation).keyword(getKeyword());
+        customizer.accept(builder);
+        executionContext.getAnnotations().put(builder.build());
     }
 }

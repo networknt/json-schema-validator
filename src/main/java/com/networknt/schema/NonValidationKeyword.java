@@ -31,7 +31,7 @@ public class NonValidationKeyword extends AbstractKeyword {
     private static final class Validator extends AbstractJsonValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
-            super(schemaLocation, evaluationPath, keyword);
+            super(schemaLocation, evaluationPath, keyword, schemaNode);
             String id = validationContext.resolveSchemaId(schemaNode);
             String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
             String dynamicAnchor = validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
@@ -50,6 +50,13 @@ public class NonValidationKeyword extends AbstractKeyword {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            if (collectAnnotations(executionContext)) {
+                if (getSchemaNode().isTextual()) {
+                    String value = getSchemaNode().textValue();
+                    putAnnotation(executionContext,
+                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
+                }
+            }
             return Collections.emptySet();
         }
     }

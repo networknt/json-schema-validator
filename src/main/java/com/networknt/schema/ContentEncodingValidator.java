@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,11 @@ public class ContentEncodingValidator extends BaseJsonValidator {
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
+        }
+        
+        if (collectAnnotations(executionContext)) {
+            putAnnotation(executionContext,
+                    annotation -> annotation.instanceLocation(instanceLocation).value(this.contentEncoding));
         }
 
         if (!matches(node.asText())) {

@@ -70,7 +70,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             }
 
             // Add annotation
-            if (collectAnnotations()) {
+            if (collectAnnotations() || collectAnnotations(executionContext)) {
                 // Tuples
                 int items = node.isArray() ? node.size() : 1;
                 int schemas = this.tupleSchema.size();

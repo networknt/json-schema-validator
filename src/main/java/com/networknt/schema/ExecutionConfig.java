@@ -43,7 +43,7 @@ public class ExecutionConfig {
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
      */
-    private Predicate<String> annotationCollectionPredicate = (keyword) -> true;
+    private Predicate<String> annotationCollectionPredicate = keyword -> false;
 
     /**
      * Since Draft 2019-09 format assertions are not enabled by default.
@@ -150,7 +150,7 @@ public class ExecutionConfig {
      * particular keyword. This only has an effect if annotation collection is
      * enabled.
      * <p>
-     * The default value is to collect all annotation keywords if annotation
+     * The default value is to not collect any annotation keywords if annotation
      * collection is enabled.
      * <p>
      * This does not affect annotation collection required for evaluating keywords
@@ -167,7 +167,7 @@ public class ExecutionConfig {
      * Predicate to determine if annotation collection is allowed for a particular
      * keyword. This only has an effect if annotation collection is enabled.
      * <p>
-     * The default value is to collect all annotation keywords if annotation
+     * The default value is to not collect any annotation keywords if annotation
      * collection is enabled.
      * <p>
      * This does not affect annotation collection required for evaluating keywords

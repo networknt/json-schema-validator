@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class BaseJsonValidator extends ValidationMessageHandler implements JsonValidator {
     protected final boolean suppressSubSchemaRetrieval;
@@ -372,5 +374,38 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return super.message().schemaNode(this.schemaNode);
     }
 
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext) {
+        return collectAnnotations(executionContext, getKeyword());
+    }
 
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @param keyword          the keyword
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
+        return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
+                && executionContext.getExecutionConfig().getAnnotationCollectionPredicate().test(keyword);
+    }
+
+    /**
+     * Puts an annotation.
+     * 
+     * @param executionContext the execution context
+     * @param customizer to customize the annotation
+     */
+    protected void putAnnotation(ExecutionContext executionContext, Consumer<JsonNodeAnnotation.Builder> customizer) {
+        JsonNodeAnnotation.Builder builder = JsonNodeAnnotation.builder().evaluationPath(this.evaluationPath)
+                .schemaLocation(this.schemaLocation).keyword(getKeyword());
+        customizer.accept(builder);
+        executionContext.getAnnotations().put(builder.build());
+    }
 }

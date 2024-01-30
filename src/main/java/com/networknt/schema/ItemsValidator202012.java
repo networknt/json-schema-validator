@@ -78,7 +78,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                 evaluated = true;
             }
             if (evaluated) {
-                if (collectAnnotations()) {
+                if (collectAnnotations() || collectAnnotations(executionContext)) {
                     // Applies to all
                     executionContext.getAnnotations()
                             .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)

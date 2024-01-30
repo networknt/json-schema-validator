@@ -100,15 +100,17 @@ public class ContainsValidator extends BaseJsonValidator {
                         executionContext.getExecutionConfig().isFailFast(), node, instanceLocation, this.max);
             }
         }
-
-        if (collectAnnotations()) {
-            if (this.schema != null) {
-                // This keyword produces an annotation value which is an array of the indexes to
-                // which this keyword validates successfully when applying its subschema, in
-                // ascending order. The value MAY be a boolean "true" if the subschema validates
-                // successfully when applied to every index of the instance. The annotation MUST
-                // be present if the instance array to which this keyword's schema applies is
-                // empty.
+        
+        boolean collectAnnotations = collectAnnotations();
+        if (this.schema != null) {
+            // This keyword produces an annotation value which is an array of the indexes to
+            // which this keyword validates successfully when applying its subschema, in
+            // ascending order. The value MAY be a boolean "true" if the subschema validates
+            // successfully when applied to every index of the instance. The annotation MUST
+            // be present if the instance array to which this keyword's schema applies is
+            // empty.
+            
+            if (collectAnnotations || collectAnnotations(executionContext, "contains")) {
                 if (actual == i) {
                     // evaluated all
                     executionContext.getAnnotations()
@@ -121,20 +123,26 @@ public class ContainsValidator extends BaseJsonValidator {
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword("contains").value(indexes).build());
                 }
-                // Add minContains and maxContains annotations
-                if (this.min != null) {
+            }
+            
+            // Add minContains and maxContains annotations
+            if (this.min != null) {
+                String minContainsKeyword = "minContains";
+                if (collectAnnotations || collectAnnotations(executionContext, minContainsKeyword)) {
                     // Omitted keywords MUST NOT produce annotation results. However, as described
                     // in the section for contains, the absence of this keyword's annotation causes
                     // contains to assume a minimum value of 1.
-                    String minContainsKeyword = "minContains";
                     executionContext.getAnnotations()
                             .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath.append(minContainsKeyword))
                                     .schemaLocation(this.schemaLocation.append(minContainsKeyword))
                                     .keyword(minContainsKeyword).value(this.min).build());
                 }
-                if (this.max != null) {
-                    String maxContainsKeyword = "maxContains";
+            }
+            
+            if (this.max != null) {
+                String maxContainsKeyword = "maxContains";
+                if (collectAnnotations || collectAnnotations(executionContext, maxContainsKeyword)) {
                     executionContext.getAnnotations()
                             .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
@@ -166,6 +174,13 @@ public class ContainsValidator extends BaseJsonValidator {
                         .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }
     
+    /**
+     * Determine if annotations must be collected for evaluation.
+     * <p>
+     * This will be collected regardless of whether it is needed for reporting.
+     * 
+     * @return true if annotations must be collected for evaluation.
+     */
     private boolean collectAnnotations() {
         return hasUnevaluatedItemsValidator();
     }

@@ -56,7 +56,7 @@ public class PropertiesValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> requiredErrors = null;
         Set<String> matchedInstancePropertyNames = null;
-        boolean collectAnnotations = collectAnnotations();
+        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());

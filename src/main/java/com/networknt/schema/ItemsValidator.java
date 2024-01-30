@@ -81,9 +81,10 @@ public class ItemsValidator extends BaseJsonValidator {
             // ignores non-arrays
             return Collections.emptySet();
         }
+        boolean collectAnnotations = collectAnnotations();
 
         // Add items annotation
-        if (collectAnnotations()) {
+        if (collectAnnotations || collectAnnotations(executionContext)) {
             if (this.schema != null) {
                 // Applies to all
                 executionContext.getAnnotations()
@@ -127,7 +128,7 @@ public class ItemsValidator extends BaseJsonValidator {
         }
 
         if (hasAdditionalItem) {
-            if (collectAnnotations()) {
+            if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
                 executionContext.getAnnotations()
                         .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                                 .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)

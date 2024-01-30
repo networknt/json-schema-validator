@@ -74,10 +74,15 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
 
-        Set<String> matchedInstancePropertyNames = new LinkedHashSet<>();
+        Set<String> matchedInstancePropertyNames = null;
+        
+        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
         // if allowAdditionalProperties is true, add all the properties as evaluated.
-        if (allowAdditionalProperties) {
+        if (allowAdditionalProperties && collectAnnotations) {
             for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+                if (matchedInstancePropertyNames == null) {
+                    matchedInstancePropertyNames = new LinkedHashSet<>();
+                }
                 String fieldName = it.next();
                 matchedInstancePropertyNames.add(fieldName);
             }
@@ -132,11 +137,11 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
-        if (collectAnnotations()) {
-            executionContext.getAnnotations()
-                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+        if (collectAnnotations) {
+            executionContext.getAnnotations().put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation).keyword(getKeyword())
+                    .value(matchedInstancePropertyNames != null ? matchedInstancePropertyNames : Collections.emptySet())
+                    .build());
         }
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
