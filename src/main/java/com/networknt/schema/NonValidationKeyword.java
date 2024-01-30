@@ -50,14 +50,27 @@ public class NonValidationKeyword extends AbstractKeyword {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-            if (collectAnnotations(executionContext)) {
-                if (getSchemaNode().isTextual()) {
-                    String value = getSchemaNode().textValue();
-                    putAnnotation(executionContext,
-                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
+            if (!("$defs".equals(getKeyword()) || "definitions".equals(getKeyword()) || getKeyword().startsWith("$"))) {
+                if (collectAnnotations(executionContext)) {
+                    Object value = getAnnotationValue(getSchemaNode());
+                    if (value != null) {
+                        putAnnotation(executionContext,
+                                annotation -> annotation.instanceLocation(instanceLocation).value(value));
+                    }
                 }
             }
             return Collections.emptySet();
+        }
+        
+        protected Object getAnnotationValue(JsonNode schemaNode) {
+            if (schemaNode.isTextual()) {
+                return schemaNode.textValue(); 
+            } else if (schemaNode.isNumber()) {
+                return schemaNode.numberValue();
+            } else if (schemaNode.isObject()) {
+                return schemaNode;
+            }
+            return null;
         }
     }
 

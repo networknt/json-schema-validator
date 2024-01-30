@@ -17,6 +17,10 @@ package com.networknt.schema;
 
 import java.util.Set;
 
+import com.networknt.schema.output.HierarchicalOutputUnitFormatter;
+import com.networknt.schema.output.ListOutputUnitFormatter;
+import com.networknt.schema.output.OutputUnit;
+
 /**
  * Formats the validation results.
  * 
@@ -59,6 +63,17 @@ public interface OutputFormat<T> {
      * The Flag output format.
      */
     public static final Flag FLAG = new Flag();
+    
+    /**
+     * The List output format.
+     */
+    public static final List LIST = new List();
+
+    
+    /**
+     * The Hierarchical output format.
+     */
+    public static final Hierarchical HIERARCHICAL = new Hierarchical();
 
     /**
      * The Default output format.
@@ -66,8 +81,7 @@ public interface OutputFormat<T> {
     public static class Default implements OutputFormat<Set<ValidationMessage>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
@@ -83,8 +97,7 @@ public interface OutputFormat<T> {
     public static class Flag implements OutputFormat<FlagOutput> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
@@ -100,14 +113,43 @@ public interface OutputFormat<T> {
     public static class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
         public java.lang.Boolean format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
                 ValidationContext validationContext) {
             return validationMessages.isEmpty();
+        }
+    }
+    
+    /**
+     * The List output format.
+     */
+    public static class List implements OutputFormat<OutputUnit> {
+        @Override
+        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        }
+
+        @Override
+        public OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
+                ValidationContext validationContext) {
+            return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
+        }
+    }
+
+    /**
+     * The Hierarchical output format.
+     */
+    public static class Hierarchical implements OutputFormat<OutputUnit> {
+        @Override
+        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        }
+
+        @Override
+        public OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
+                ValidationContext validationContext) {
+            return HierarchicalOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
         }
     }
 

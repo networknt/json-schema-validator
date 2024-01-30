@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Represents an output unit.
@@ -30,6 +31,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  *      Annotation</a>
  */
 @JsonInclude(Include.NON_NULL)
+@JsonPropertyOrder({ "valid", "evaluationPath", "schemaLocation", "instanceLocation", "errors", "annotations",
+        "droppedAnnotations", "details" })
 public class OutputUnit {
     private boolean valid;
 
@@ -45,67 +48,67 @@ public class OutputUnit {
 
     private List<OutputUnit> details = null;
 
-    protected boolean isValid() {
+    public boolean isValid() {
         return valid;
     }
 
-    protected void setValid(boolean valid) {
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 
-    protected String getEvaluationPath() {
+    public String getEvaluationPath() {
         return evaluationPath;
     }
 
-    protected void setEvaluationPath(String evaluationPath) {
+    public void setEvaluationPath(String evaluationPath) {
         this.evaluationPath = evaluationPath;
     }
 
-    protected String getSchemaLocation() {
+    public String getSchemaLocation() {
         return schemaLocation;
     }
 
-    protected void setSchemaLocation(String schemaLocation) {
+    public void setSchemaLocation(String schemaLocation) {
         this.schemaLocation = schemaLocation;
     }
 
-    protected String getInstanceLocation() {
+    public String getInstanceLocation() {
         return instanceLocation;
     }
 
-    protected void setInstanceLocation(String instanceLocation) {
+    public void setInstanceLocation(String instanceLocation) {
         this.instanceLocation = instanceLocation;
     }
 
-    protected Map<String, String> getErrors() {
+    public Map<String, String> getErrors() {
         return errors;
     }
 
-    protected void setErrors(Map<String, String> errors) {
+    public void setErrors(Map<String, String> errors) {
         this.errors = errors;
     }
 
-    protected Map<String, Object> getAnnotations() {
+    public Map<String, Object> getAnnotations() {
         return annotations;
     }
 
-    protected void setAnnotations(Map<String, Object> annotations) {
+    public void setAnnotations(Map<String, Object> annotations) {
         this.annotations = annotations;
     }
 
-    protected Map<String, Object> getDroppedAnnotations() {
+    public Map<String, Object> getDroppedAnnotations() {
         return droppedAnnotations;
     }
 
-    protected void setDroppedAnnotations(Map<String, Object> droppedAnnotations) {
+    public void setDroppedAnnotations(Map<String, Object> droppedAnnotations) {
         this.droppedAnnotations = droppedAnnotations;
     }
 
-    protected List<OutputUnit> getDetails() {
+    public List<OutputUnit> getDetails() {
         return details;
     }
 
-    protected void setDetails(List<OutputUnit> details) {
+    public void setDetails(List<OutputUnit> details) {
         this.details = details;
     }
 
