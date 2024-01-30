@@ -16,15 +16,47 @@
 
 package com.networknt.schema;
 
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Thrown when an assertion happens and the evaluation can fail fast.
+ * <p>
+ * This doesn't extend off JsonSchemaException as it is used for flow control
+ * and is intended to be caught in a specific place.
+ * <p>
+ * This will be caught in the JsonSchema validate method to be passed to the
+ * output formatter.
  */
-public class FailFastAssertionException extends JsonSchemaException {
+public class FailFastAssertionException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
+    private final ValidationMessage validationMessage;
+
     public FailFastAssertionException(ValidationMessage validationMessage) {
-        super(Objects.requireNonNull(validationMessage));
+        this.validationMessage = Objects.requireNonNull(validationMessage);
+    }
+
+    public ValidationMessage getValidationMessage() {
+        return this.validationMessage;
+    }
+
+    public Set<ValidationMessage> getValidationMessages() {
+        return Collections.singleton(this.validationMessage);
+    }
+
+    @Override
+    public String getMessage() {
+        return this.validationMessage != null ? this.validationMessage.getMessage() : super.getMessage();
+    }
+
+    @Override
+    public Throwable fillInStackTrace() {
+        /*
+         * This is overridden for performance as filling in the stack trace is expensive
+         * and this is used for flow control.
+         */
+        return this;
     }
 }

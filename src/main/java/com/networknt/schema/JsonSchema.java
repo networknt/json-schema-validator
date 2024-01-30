@@ -859,7 +859,7 @@ public class JsonSchema extends BaseJsonValidator {
             ExecutionContextCustomizer executionCustomizer) {
         format.customize(executionContext, this.validationContext);
         if (executionCustomizer != null) {
-            executionCustomizer.customize(executionContext, validationContext);
+            executionCustomizer.customize(executionContext, this.validationContext);
         }
         Set<ValidationMessage> validationMessages = null;
         try {
