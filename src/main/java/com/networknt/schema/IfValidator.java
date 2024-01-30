@@ -66,24 +66,22 @@ public class IfValidator extends BaseJsonValidator {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         boolean ifConditionPassed = false;
+
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            try {
-                ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
-            } catch (JsonSchemaException ex) {
-                // When failFast is enabled, validations are thrown as exceptions.
-                // An exception means the condition failed
-                ifConditionPassed = false;
-            }
-
-            if (ifConditionPassed && this.thenSchema != null) {
-                errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
-            } else if (!ifConditionPassed && this.elseSchema != null) {
-                errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
-            }
-
+            executionContext.getExecutionConfig().setFailFast(false);
+            ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
         } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
 
+        if (ifConditionPassed && this.thenSchema != null) {
+            errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
+        } else if (!ifConditionPassed && this.elseSchema != null) {
+            errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
+        }
         return Collections.unmodifiableSet(errors);
     }
 

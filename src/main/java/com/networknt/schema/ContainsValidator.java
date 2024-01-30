@@ -76,13 +76,21 @@ public class ContainsValidator extends BaseJsonValidator {
         int actual = 0, i = 0;
         List<Integer> indexes = new ArrayList<>(); // for the annotation
         if (null != this.schema && node.isArray()) {
-            for (JsonNode n : node) {
-                JsonNodePath path = instanceLocation.append(i);
-                if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
-                    ++actual;
-                    indexes.add(i);
+            // Save flag as nested schema evaluation shouldn't trigger fail fast
+            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            try {
+                executionContext.getExecutionConfig().setFailFast(false);
+                for (JsonNode n : node) {
+                    JsonNodePath path = instanceLocation.append(i);
+                    if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
+                        ++actual;
+                        indexes.add(i);
+                    }
+                    ++i;
                 }
-                ++i;
+            } finally {
+                // Restore flag
+                executionContext.getExecutionConfig().setFailFast(failFast);
             }
             int m = 1; // default to 1 if "min" not specified
             if (this.min != null) {

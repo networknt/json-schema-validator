@@ -43,69 +43,75 @@ public class OneOfValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
+        debug(logger, node, rootNode, instanceLocation);
+
+        ValidatorState state = executionContext.getValidatorState();
+
+        // this is a complex validator, we set the flag to true
+        state.setComplexValidator(true);
+
+        int numberOfValidSchema = 0;
+        Set<ValidationMessage> childErrors = new LinkedHashSet<>();
+
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            debug(logger, node, rootNode, instanceLocation);
-
-            ValidatorState state = executionContext.getValidatorState();
-
-            // this is a complex validator, we set the flag to true
-            state.setComplexValidator(true);
-
-            int numberOfValidSchema = 0;
-            Set<ValidationMessage> childErrors = new LinkedHashSet<>();
-
+            executionContext.getExecutionConfig().setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
 
-                try {
-                    // Reset state in case the previous validator did not match
-                    state.setMatchedNode(true);
-
-                    if (!state.isWalkEnabled()) {
-                        schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
-                    } else {
-                        schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation, state.isValidationEnabled());
-                    }
-
-                    // check if any validation errors have occurred
-                    if (schemaErrors.isEmpty()) {
-                        // check whether there are no errors HOWEVER we have validated the exact validator
-                        if (!state.hasMatchedNode())
-                            continue;
-
-                        numberOfValidSchema++;
-                    }
-
-                    if (numberOfValidSchema > 1 && canShortCircuit()) {
-                        // short-circuit
-                        break;
-                    }
-
-                    childErrors.addAll(schemaErrors);
-                } finally {
-                }
-            }
-
-            // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-            if (numberOfValidSchema != 1) {
-                ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.getExecutionConfig().isFailFast())
-                        .arguments(Integer.toString(numberOfValidSchema)).build();
-                errors.add(message);
-                errors.addAll(childErrors);
-            }
-
-            // Make sure to signal parent handlers we matched
-            if (errors.isEmpty())
+                // Reset state in case the previous validator did not match
                 state.setMatchedNode(true);
 
-            // reset the ValidatorState object
-            resetValidatorState(executionContext);
+                if (!state.isWalkEnabled()) {
+                    schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                } else {
+                    schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation,
+                            state.isValidationEnabled());
+                }
 
-            return Collections.unmodifiableSet(errors);
+                // check if any validation errors have occurred
+                if (schemaErrors.isEmpty()) {
+                    // check whether there are no errors HOWEVER we have validated the exact
+                    // validator
+                    if (!state.hasMatchedNode()) {
+                        continue;
+                    }
+                    numberOfValidSchema++;
+                }
+
+                if (numberOfValidSchema > 1 && canShortCircuit()) {
+                    // short-circuit
+                    break;
+                }
+
+                childErrors.addAll(schemaErrors);
+            }
         } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
+
+        // ensure there is always an "OneOf" error reported if number of valid schemas
+        // is not equal to 1.
+        if (numberOfValidSchema != 1) {
+            ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast())
+                    .arguments(Integer.toString(numberOfValidSchema)).build();
+            errors.add(message);
+            errors.addAll(childErrors);
+        }
+
+        // Make sure to signal parent handlers we matched
+        if (errors.isEmpty()) {
+            state.setMatchedNode(true);
+        }
+
+        // reset the ValidatorState object
+        resetValidatorState(executionContext);
+
+        return Collections.unmodifiableSet(errors);
     }
     
     protected boolean canShortCircuit() {
@@ -146,5 +152,6 @@ public class OneOfValidator extends BaseJsonValidator {
         for (JsonSchema schema: this.schemas) {
             schema.initializeValidators();
         }
+        canShortCircuit(); // cache the flag
     }
 }

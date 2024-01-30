@@ -5,9 +5,11 @@ import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class ValidationMessageHandler {
     protected final MessageSource messageSource;
@@ -55,7 +57,7 @@ public abstract class ValidationMessageHandler {
 
     protected MessageSourceValidationMessage.Builder message() {
         return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, (message, failFast) -> {
-            if (failFast && canFailFast()) {
+            if (failFast) {
                 throw new FailFastAssertionException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
@@ -65,78 +67,6 @@ public abstract class ValidationMessageHandler {
 
     protected ErrorMessageType getErrorMessageType() {
         return this.errorMessageType;
-    }
-
-    /**
-     * Determines if the evaluation can fast fail.
-     *
-     * @return true if it can fast fail
-     */
-    protected boolean canFailFast() {
-        return !hasApplicatorInEvaluationPath();
-    }
-
-    /**
-     * Determines if there is an applicator in the evaluation path for determining
-     * if it is possible to fast fail.
-     * <p>
-     * For instance if there is a not keyword in the evaluation path this can change
-     * the overall result.
-     * 
-     * @return true if there is an applicator in the evaluation path
-     */
-    private boolean hasApplicatorInEvaluationPath() {
-        return hasAnyOfInEvaluationPath() || hasIfInEvaluationPath() || hasNotInEvaluationPath()
-                || hasOneOfInEvaluationPath();
-    }
-
-    /**
-     * Determines if anyOf is in the evaluation path.
-     * 
-     * @return true if anyOf is in the evaluation path
-     */
-    private boolean hasAnyOfInEvaluationPath() {
-        return hasKeywordInEvaluationPath(ValidatorTypeCode.ANY_OF.getValue());
-    }
-
-    /**
-     * Determines if if is in the evaluation path.
-     * 
-     * @return true if if is in the evaluation path
-     */
-    private boolean hasIfInEvaluationPath() {
-        return hasKeywordInEvaluationPath(ValidatorTypeCode.IF_THEN_ELSE.getValue());
-    }
-
-    /**
-     * Determines if not is in the evaluation path.
-     * 
-     * @return true if not is in the evaluation path
-     */
-    private boolean hasNotInEvaluationPath() {
-        return hasKeywordInEvaluationPath(ValidatorTypeCode.NOT.getValue());
-    }
-
-    /**
-     * Determines if oneOf is in the evaluation path.
-     * 
-     * @return true if oneOf is in the evaluation path
-     */
-    protected boolean hasOneOfInEvaluationPath() {
-        return hasKeywordInEvaluationPath(ValidatorTypeCode.ONE_OF.getValue());
-    }
-
-    /**
-     * Determines if keyword is in the evaluation path.
-     * 
-     * @param keyword the keyword
-     * @return true if the keyword is in the evaluation path
-     */
-    private boolean hasKeywordInEvaluationPath(String keyword) {
-        // Parent is used as if the current path is an applicator this should still
-        // throw if there is no other applicators in the rest of the evaluation path
-        JsonNodePath parent = this.evaluationPath.getParent();
-        return parent != null ? parent.contains(keyword) : false;
     }
 
     protected void parseErrorCode(String errorCodeKey) {
@@ -213,7 +143,7 @@ public abstract class ValidationMessageHandler {
         }
         return messageNode;
     }
-    
+
     protected String getErrorCodeKey(String keyword) {
         if (keyword != null) {
             return keyword + "ErrorCode";

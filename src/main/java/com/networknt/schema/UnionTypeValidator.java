@@ -69,12 +69,20 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
         boolean valid = false;
 
-        for (JsonValidator schema : schemas) {
-            Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
-            if (errors == null || errors.isEmpty()) {
-                valid = true;
-                break;
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
+        try {
+            executionContext.getExecutionConfig().setFailFast(false);
+            for (JsonValidator schema : schemas) {
+                Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                if (errors == null || errors.isEmpty()) {
+                    valid = true;
+                    break;
+                }
             }
+        } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
 
         if (!valid) {

@@ -65,18 +65,21 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         int numberOfValidSubSchemas = 0;
         try {
-            for (JsonSchema schema: this.schemas) {
-                Set<ValidationMessage> errors = Collections.emptySet();
-                try {
+            // Save flag as nested schema evaluation shouldn't trigger fail fast
+            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            try {
+                executionContext.getExecutionConfig().setFailFast(false);
+                for (JsonSchema schema : this.schemas) {
+                    Set<ValidationMessage> errors = Collections.emptySet();
                     state.setMatchedNode(initialHasMatchedNode);
 
                     TypeValidator typeValidator = schema.getTypeValidator();
                     if (typeValidator != null) {
-                        //If schema has type validator and node type doesn't match with schemaType then ignore it
-                        //For union type, it is a must to call TypeValidator
+                        // If schema has type validator and node type doesn't match with schemaType then
+                        // ignore it
+                        // For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors
-                                    .addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
+                            allErrors.addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
                             continue;
                         }
                     }
@@ -88,7 +91,8 @@ public class AnyOfValidator extends BaseJsonValidator {
 
                     // check if any validation errors have occurred
                     if (errors.isEmpty()) {
-                        // check whether there are no errors HOWEVER we have validated the exact validator
+                        // check whether there are no errors HOWEVER we have validated the exact
+                        // validator
                         if (!state.hasMatchedNode()) {
                             continue;
                         }
@@ -96,7 +100,8 @@ public class AnyOfValidator extends BaseJsonValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) && canShortCircuit()) {
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
+                            && canShortCircuit()) {
                         // Clear all errors.
                         allErrors.clear();
                         // return empty errors.
@@ -117,8 +122,10 @@ public class AnyOfValidator extends BaseJsonValidator {
                         }
                     }
                     allErrors.addAll(errors);
-                } finally {
                 }
+            } finally {
+                // Restore flag
+                executionContext.getExecutionConfig().setFailFast(failFast);
             }
 
             // determine only those errors which are NOT of type "required" property missing
@@ -182,5 +189,6 @@ public class AnyOfValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.schemas);
+        canShortCircuit(); // cache flag
     }
 }

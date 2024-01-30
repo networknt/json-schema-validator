@@ -35,20 +35,25 @@ public class NotValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        Set<ValidationMessage> errors = new HashSet<>();
+        Set<ValidationMessage> errors = null;
+        debug(logger, node, rootNode, instanceLocation);
 
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            debug(logger, node, rootNode, instanceLocation);
+            executionContext.getExecutionConfig().setFailFast(false);
             errors = this.schema.validate(executionContext, node, rootNode, instanceLocation);
-            if (errors.isEmpty()) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
-                        .build());
-            }
-            return Collections.emptySet();
         } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
+        if (errors.isEmpty()) {
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
+                    .build());
+        }
+        return Collections.emptySet();
     }
     
     @Override
