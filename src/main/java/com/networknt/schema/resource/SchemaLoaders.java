@@ -106,6 +106,24 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
         }
 
         /**
+         * Sets the schema data by using two mapping functions.
+         * <p>
+         * Firstly to map the IRI to an object. If the object is null no mapping is
+         * performed.
+         * <p>
+         * Next to map the object to the schema data.
+         * 
+         * @param <T>             the type of the object
+         * @param mapIriToObject  the mapping of IRI to object
+         * @param mapObjectToData the mappingof object to schema data
+         * @return the builder
+         */
+        public <T> Builder schemas(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
+            this.values.add(new MapSchemaLoader(mapIriToObject, mapObjectToData));
+            return this;
+        }
+
+        /**
          * Builds a {@link SchemaLoaders}.
          * 
          * @return the schema loaders
