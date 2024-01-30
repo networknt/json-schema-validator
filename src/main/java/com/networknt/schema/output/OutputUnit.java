@@ -17,10 +17,13 @@ package com.networknt.schema.output;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.networknt.schema.serialization.JsonMapperFactory;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * Represents an output unit.
@@ -111,5 +114,38 @@ public class OutputUnit {
     public void setDetails(List<OutputUnit> details) {
         this.details = details;
     }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(annotations, details, droppedAnnotations, errors, evaluationPath, instanceLocation,
+                schemaLocation, valid);
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        OutputUnit other = (OutputUnit) obj;
+        return Objects.equals(annotations, other.annotations) && Objects.equals(details, other.details)
+                && Objects.equals(droppedAnnotations, other.droppedAnnotations) && Objects.equals(errors, other.errors)
+                && Objects.equals(evaluationPath, other.evaluationPath)
+                && Objects.equals(instanceLocation, other.instanceLocation)
+                && Objects.equals(schemaLocation, other.schemaLocation) && valid == other.valid;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "OutputUnit [valid=" + valid + ", evaluationPath=" + evaluationPath + ", schemaLocation="
+                    + schemaLocation + ", instanceLocation=" + instanceLocation + ", errors=" + errors
+                    + ", annotations=" + annotations + ", droppedAnnotations=" + droppedAnnotations + ", details="
+                    + details + "]";
+        }
+    }
 }

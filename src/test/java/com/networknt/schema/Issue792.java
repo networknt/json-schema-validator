@@ -3,7 +3,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,6 @@ public class Issue792 {
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaDef, config);
         JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\"}");
 
-        //this works with 1.0.81, but not with 1.0.82+
-        assertThrows(JsonSchemaException.class, () -> jsonSchema.validate(jsonNode));
+        assertEquals(1, jsonSchema.validate(jsonNode).size());
     }
 }

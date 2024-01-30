@@ -45,13 +45,9 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      */
     @Test
     public void testFailFast_AllErrors() throws IOException {
-        try {
-            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-all-errors-data.json");
-            fail("Exception must be thrown");
-        } catch (JsonSchemaException e) {
-            final Set<ValidationMessage> messages = e.getValidationMessages();
-            assertEquals(1, messages.size());
-        }
+        Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+                "extra/product/product-all-errors-data.json");
+        assertEquals(1, messages.size());
     }
 
     /**
@@ -59,13 +55,9 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      */
     @Test
     public void testFailFast_OneErrors() throws IOException {
-        try {
-            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-one-error-data.json");
-            fail("Exception must be thrown");
-        } catch (JsonSchemaException e) {
-            final Set<ValidationMessage> messages = e.getValidationMessages();
-            assertEquals(1, messages.size());
-        }
+        Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+                "extra/product/product-one-error-data.json");
+        assertEquals(1, messages.size());
     }
 
     /**
@@ -73,13 +65,9 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      */
     @Test
     public void testFailFast_TwoErrors() throws IOException {
-        try {
-            validateFailingFastSchemaFor("extra/product/product.schema.json", "extra/product/product-two-errors-data.json");
-            fail("Exception must be thrown");
-        } catch (JsonSchemaException e) {
-            final Set<ValidationMessage> messages = e.getValidationMessages();
-            assertEquals(1, messages.size());
-        }
+        Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+                "extra/product/product-two-errors-data.json");
+        assertEquals(1, messages.size());
     }
 
     /**
@@ -88,13 +76,9 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      */
     @Test
     public void testFailFast_NoErrors() throws IOException {
-        try {
-            final Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+        final Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-no-errors-data.json");
-            assertTrue(messages.isEmpty());
-        } catch (JsonSchemaException e) {
-            fail("Must not get an errors");
-        }
+        assertTrue(messages.isEmpty());
     }
 
     private Set<ValidationMessage> validateFailingFastSchemaFor(final String schemaFileName, final String dataFileName) throws IOException {

@@ -833,6 +833,44 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * Validates to a format.
+     * 
+     * @param <T>              the result type
+     * @param executionContext the execution context
+     * @param node             the node
+     * @param format           the format
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
+        return validate(executionContext, node, format, null);
+    }
+
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param node                the node
+     * @param format              the format
+     * @param executionCustomizer the customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
+            ExecutionContextCustomizer executionCustomizer) {
+        format.customize(executionContext, this.validationContext);
+        if (executionCustomizer != null) {
+            executionCustomizer.customize(executionContext, validationContext);
+        }
+        Set<ValidationMessage> validationMessages = null;
+        try {
+            validationMessages = validate(executionContext, node);
+        } catch (FailFastAssertionException e) {
+            validationMessages = e.getValidationMessages();
+        }
+        return format.format(this, validationMessages, executionContext, this.validationContext);
+    }
+
+    /**
      * Deserialize string to JsonNode.
      * 
      * @param input the input

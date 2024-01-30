@@ -19,6 +19,7 @@ import java.util.Set;
 
 import com.networknt.schema.output.HierarchicalOutputUnitFormatter;
 import com.networknt.schema.output.ListOutputUnitFormatter;
+import com.networknt.schema.output.OutputFlag;
 import com.networknt.schema.output.OutputUnit;
 
 /**
@@ -41,13 +42,15 @@ public interface OutputFormat<T> {
     /**
      * Formats the validation results.
      * 
+     * @param jsonSchema         the schema
      * @param validationMessages the validation messages
-     * @param executionContext  the execution context
-     * @param validationContext the validation context
+     * @param executionContext   the execution context
+     * @param validationContext  the validation context
+     * 
      * @return the result
      */
-    T format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-            ValidationContext validationContext);
+    T format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+            ExecutionContext executionContext, ValidationContext validationContext);
 
     /**
      * The Default output format.
@@ -85,8 +88,8 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public Set<ValidationMessage> format(Set<ValidationMessage> validationMessages,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public Set<ValidationMessage> format(JsonSchema jsonSchema,
+                Set<ValidationMessage> validationMessages, ExecutionContext executionContext, ValidationContext validationContext) {
             return validationMessages;
         }
     }
@@ -94,16 +97,17 @@ public interface OutputFormat<T> {
     /**
      * The Flag output format.
      */
-    public static class Flag implements OutputFormat<FlagOutput> {
+    public static class Flag implements OutputFormat<OutputFlag> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
+            executionContext.getExecutionConfig().setFailFast(true);
         }
 
         @Override
-        public FlagOutput format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
-            return new FlagOutput(validationMessages.isEmpty());
+        public OutputFlag format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
+            return new OutputFlag(validationMessages.isEmpty());
         }
     }
 
@@ -114,11 +118,12 @@ public interface OutputFormat<T> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
+            executionContext.getExecutionConfig().setFailFast(true);
         }
 
         @Override
-        public java.lang.Boolean format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
+        public java.lang.Boolean format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
             return validationMessages.isEmpty();
         }
     }
@@ -132,8 +137,8 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
+        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
             return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
         }
     }
@@ -147,24 +152,9 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
+        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
             return HierarchicalOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
-        }
-    }
-
-    /**
-     * The Flag output results.
-     */
-    public static class FlagOutput {
-        private final boolean valid;
-
-        public FlagOutput(boolean valid) {
-            this.valid = valid;
-        }
-
-        public boolean isValid() {
-            return this.valid;
         }
     }
 }
