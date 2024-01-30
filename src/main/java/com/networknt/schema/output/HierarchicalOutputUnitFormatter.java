@@ -15,9 +15,15 @@
  */
 package com.networknt.schema.output;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.ValidationMessage;
 
@@ -27,6 +33,38 @@ import com.networknt.schema.ValidationMessage;
 public class HierarchicalOutputUnitFormatter {
     public static OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
             ValidationContext validationContext) {
+        
+        OutputUnit root = new OutputUnit();
+        root.setValid(validationMessages.isEmpty());
+        
+        root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
+        root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
+        // Determine the root schema later
+
+        OutputUnitData data = OutputUnitData.from(validationMessages, executionContext);
+
+        Map<OutputUnitKey, Boolean> valid = data.getValid();
+        Map<OutputUnitKey, Map<String, String>> errors = data.getErrors();
+        Map<OutputUnitKey, Map<String, Object>> annotations = data.getAnnotations();
+        Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.getDroppedAnnotations();
+        
+        // Evaluation path to output unit
+        Map<JsonNodePath, OutputUnit> index = new LinkedHashMap<>();
+        index.put(new JsonNodePath(validationContext.getConfig().getPathType()), root);
+        
         return null;
+    }
+    
+    protected static void process(OutputUnitKey key,  Map<JsonNodePath, OutputUnit> index) {
+        if(index.containsKey(key.getEvaluationPath())) {
+            return;
+        }
+        // Ensure the path is created
+        JsonNodePath path = key.getEvaluationPath();
+        Deque<JsonNodePath> stack = new ArrayDeque<>();
+        while(!index.containsKey(path)) {
+            stack.push(path);
+        }
+
     }
 }

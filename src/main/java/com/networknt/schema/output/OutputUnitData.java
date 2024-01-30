@@ -52,9 +52,17 @@ public class OutputUnitData {
     }
 
     public static String formatMessage(String message) {
-        int index = message.indexOf(": ");
+        int index = message.indexOf(":");
         if (index != -1) {
-            return message.substring(index + 2);
+            int length = message.length();
+            while (index + 1 < length) {
+                if (message.charAt(index + 1) == ' ') {
+                    index++;
+                } else {
+                    break;
+                }
+            }
+            return message.substring(index + 1);
         }
         return message;
     }
@@ -70,8 +78,8 @@ public class OutputUnitData {
         for (ValidationMessage assertion : validationMessages) {
             SchemaLocation assertionSchemaLocation = new SchemaLocation(assertion.getSchemaLocation().getAbsoluteIri(),
                     assertion.getSchemaLocation().getFragment().getParent());
-            OutputUnitKey key = new OutputUnitKey(assertion.getEvaluationPath().getParent().toString(),
-                    assertionSchemaLocation.toString(), assertion.getInstanceLocation().toString());
+            OutputUnitKey key = new OutputUnitKey(assertion.getEvaluationPath().getParent(),
+                    assertionSchemaLocation, assertion.getInstanceLocation());
             valid.put(key, false);
             Map<String, String> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
             errorMap.put(assertion.getType(), formatMessage(assertion.getMessage()));
@@ -87,8 +95,8 @@ public class OutputUnitData {
                             annotation.getSchemaLocation().getAbsoluteIri(),
                             annotation.getSchemaLocation().getFragment().getParent());
 
-                    OutputUnitKey key = new OutputUnitKey(annotation.getEvaluationPath().getParent().toString(),
-                            annotationSchemaLocation.toString(), annotation.getInstanceLocation().toString());
+                    OutputUnitKey key = new OutputUnitKey(annotation.getEvaluationPath().getParent(),
+                            annotationSchemaLocation, annotation.getInstanceLocation());
                     boolean validResult = executionContext.getResults().isValid(annotation.getInstanceLocation(),
                             annotation.getEvaluationPath());
                     valid.put(key, validResult);

@@ -17,30 +17,33 @@ package com.networknt.schema.output;
 
 import java.util.Objects;
 
+import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.SchemaLocation;
+
 /**
  * Output Unit Key.
  */
 public class OutputUnitKey {
-    final String evaluationPath;
-    final String schemaLocation;
-    final String instanceLocation;
+    final JsonNodePath evaluationPath;
+    final SchemaLocation schemaLocation;
+    final JsonNodePath instanceLocation;
 
-    public OutputUnitKey(String evaluationPath, String schemaLocation, String instanceLocation) {
+    public OutputUnitKey(JsonNodePath evaluationPath, SchemaLocation schemaLocation, JsonNodePath instanceLocation) {
         super();
         this.evaluationPath = evaluationPath;
         this.schemaLocation = schemaLocation;
         this.instanceLocation = instanceLocation;
     }
 
-    public String getEvaluationPath() {
+    public JsonNodePath getEvaluationPath() {
         return evaluationPath;
     }
 
-    public String getSchemaLocation() {
+    public SchemaLocation getSchemaLocation() {
         return schemaLocation;
     }
 
-    public String getInstanceLocation() {
+    public JsonNodePath getInstanceLocation() {
         return instanceLocation;
     }
 

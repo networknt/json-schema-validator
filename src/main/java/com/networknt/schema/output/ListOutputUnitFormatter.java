@@ -47,9 +47,9 @@ public class ListOutputUnitFormatter {
             OutputUnit output = new OutputUnit();
             OutputUnitKey key = entry.getKey();
             output.setValid(entry.getValue());
-            output.setEvaluationPath(key.getEvaluationPath());
-            output.setSchemaLocation(key.getSchemaLocation());
-            output.setInstanceLocation(key.getInstanceLocation());
+            output.setEvaluationPath(key.getEvaluationPath().toString());
+            output.setSchemaLocation(key.getSchemaLocation().toString());
+            output.setInstanceLocation(key.getInstanceLocation().toString());
 
             // Errors
             Map<String, String> errorMap = errors.get(key);
