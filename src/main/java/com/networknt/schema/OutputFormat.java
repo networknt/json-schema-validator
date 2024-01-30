@@ -154,7 +154,7 @@ public interface OutputFormat<T> {
         @Override
         public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return HierarchicalOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
+            return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext, validationContext);
         }
     }
 }

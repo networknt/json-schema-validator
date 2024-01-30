@@ -24,6 +24,7 @@ import java.util.Stack;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.JsonSchema;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.ValidationMessage;
 
@@ -31,15 +32,15 @@ import com.networknt.schema.ValidationMessage;
  * HierarchicalOutputUnitFormatter.
  */
 public class HierarchicalOutputUnitFormatter {
-    public static OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-            ValidationContext validationContext) {
+    public static OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+            ExecutionContext executionContext, ValidationContext validationContext) {
         
         OutputUnit root = new OutputUnit();
         root.setValid(validationMessages.isEmpty());
         
         root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
         root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
-        // Determine the root schema later
+        root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
 
         OutputUnitData data = OutputUnitData.from(validationMessages, executionContext);
 
