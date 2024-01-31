@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Resolves $dynamicRef.
+ * {@link JsonValidator} that resolves $dynamicRef.
  */
 public class DynamicRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DynamicRefValidator.class);
@@ -87,52 +87,38 @@ public class DynamicRefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-
-        Set<ValidationMessage> errors = Collections.emptySet();
-
-        try {
-            debug(logger, node, rootNode, instanceLocation);
-            JsonSchema refSchema = this.schema.getSchema();
-            if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
-                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
-                        .arguments(schemaNode.asText()).build();
-                throw new JsonSchemaException(validationMessage);
-            }
-            errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
-        } finally {
+        debug(logger, node, rootNode, instanceLocation);
+        JsonSchema refSchema = this.schema.getSchema();
+        if (refSchema == null) {
+            ValidationMessage validationMessage = message().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
+                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                    .arguments(schemaNode.asText()).build();
+            throw new InvalidSchemaRefException(validationMessage);
         }
-        return errors;
+        return refSchema.validate(executionContext, node, rootNode, instanceLocation);
     }
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> errors = Collections.emptySet();
-
-        try {
-            debug(logger, node, rootNode, instanceLocation);
-            // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-            // these schemas will be cached along with config. We have to replace the config for cached $ref references
-            // with the latest config. Reset the config.
-            JsonSchema refSchema = this.schema.getSchema();
-            if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
-                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
-                        .arguments(schemaNode.asText()).build();
-                throw new JsonSchemaException(validationMessage);
-            }
-            errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-            return errors;
-        } finally {
+        debug(logger, node, rootNode, instanceLocation);
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        JsonSchema refSchema = this.schema.getSchema();
+        if (refSchema == null) {
+            ValidationMessage validationMessage = message().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
+                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                    .arguments(schemaNode.asText()).build();
+            throw new InvalidSchemaRefException(validationMessage);
         }
+        return refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 
 	public JsonSchemaRef getSchemaRef() {
 		return this.schema;
 	}
-
 
     @Override
     public void preloadJsonSchema() {
@@ -151,14 +137,14 @@ public class DynamicRefValidator extends BaseJsonValidator {
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
         JsonSchema check = jsonSchema;
         boolean circularDependency = false;
-        while(check.getEvaluationParentSchema() != null) {
+        while (check.getEvaluationParentSchema() != null) {
             check = check.getEvaluationParentSchema();
             if (check.getSchemaLocation().equals(schemaLocation)) {
                 circularDependency = true;
                 break;
             }
         }
-        if(!circularDependency) {
+        if (!circularDependency) {
             jsonSchema.initializeValidators();
         }
     }

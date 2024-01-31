@@ -327,9 +327,14 @@ public class JsonSchema extends BaseJsonValidator {
                     found = found.getSubSchema(fragment);
                 }
                 if (found == null) {
-                    throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
-                            + parent.getSchemaLocation().toString() + " at evaluation path "
-                            + parent.getEvaluationPath().toString());
+                    ValidationMessage validationMessage = ValidationMessage.builder()
+                            .type(ValidatorTypeCode.REF.getValue()).code("internal.unresolvedRef")
+                            .message("{0}: Reference {1} cannot be resolved")
+                            .instanceLocation(schemaLocation.getFragment())
+                            .schemaLocation(schemaLocation)
+                            .evaluationPath(evaluationPath)
+                            .arguments(fragment).build();
+                    throw new InvalidSchemaRefException(validationMessage);
                 }
                 return found;
             }
