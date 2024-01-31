@@ -1,14 +1,22 @@
 ## Upgrading to new versions
 
+This library can contain breaking changes in minor version releases.
+
 This contains information on the notable or breaking changes in each version.
 
 ### 1.3.1
 
 This does not contain any breaking changes from 1.3.0
 
-This refactors the following keywords to improve performance and meet the functional requirements.
+* Annotation collection and reporting has been implemented
+* Keywords have been refactored to use annotations for evaluation to improve performance and meet functional requirements
+* The list and hierarchical output formats have been implemented as per the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md).
+* The fail fast evaluation processing has been redesigned and fixed. This currently passes the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) with fail fast enabled. Previously contains and union type may cause incorrect results.
+* This also contains fixes for regressions introduced in 1.3.0
 
-In particular this converts the `unevaluatedItems` and `unevaluatedProperties` validators to use annotations to perform the evaluation instead of the current mechanism which affects performance. This also refactors `$recursiveRef` not to rely on that same mechanism.
+The following keywords were refactored to improve performance and meet the functional requirements.
+
+In particular this converts the `unevaluatedItems` and `unevaluatedProperties` validators to use annotations to perform the evaluation instead of the current mechanism which affects performance. This also refactors `$recursiveRef` to not rely on that same mechanism.
 
 * `unevaluatedProperties`
 * `unevaluatedItems`

@@ -1,8 +1,10 @@
 ## Compatibility with JSON Schema versions
 
-This implementation does not currently generate annotations.
-
 The `pattern` validator by default uses the JDK regular expression implementation which is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. The library can however be configured to use a ECMA-262 compliant regular expression implementation.
+
+Annotation processing and reporting are implemented. Note that the collection of annotations will have an adverse performance impact.
+
+This implements the Flag, List and Hierarchical output formats defined in the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/8270653a9f59fadd2df0d789f22d486254505bbe/jsonschema-validation-output-machines.md).
 
 ### Known Issues
 
@@ -13,7 +15,6 @@ The following are the tests results after running the [JSON Schema Test Suite](h
 | Implementations | Overall                                                                 | DRAFT_03                                                          | DRAFT_04                                                            | DRAFT_06                                                           | DRAFT_07                                                               | DRAFT_2019_09                                                        | DRAFT_2020_12                                                          |
 |-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
 | NetworkNt       | pass: r:4703 (100.0%) o:2369 (100.0%)<br>fail: r:0 (0.0%) o:1 (0.0%)    |                                                                   | pass: r:600 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:796 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:880 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)     | pass: r:1201 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:1226 (100.0%) o:634 (99.8%)<br>fail: r:0 (0.0%) o:1 (0.2%)     |
-
 
 ### Legend
 
@@ -85,15 +86,15 @@ The following are the tests results after running the [JSON Schema Test Suite](h
 
 #### Content Encoding
 
-Since Draft 2019-09, the `contentEncoding` keyword does not generate assertions. As the implementation currently does not collect annotations this only generates assertions in Draft 7.
+Since Draft 2019-09, the `contentEncoding` keyword does not generate assertions.
 
 #### Content Media Type
 
-Since Draft 2019-09, the `contentMediaType` keyword does not generate assertions. As the implementation currently does not collect annotations this only generates assertions in Draft 7.
+Since Draft 2019-09, the `contentMediaType` keyword does not generate assertions.
 
 #### Content Schema
 
-The `contentSchema` keyword does not generate assertions. As the implementation currently does not collect annotations this doesn't do anything.
+The `contentSchema` keyword does not generate assertions.
 
 #### Pattern
 
