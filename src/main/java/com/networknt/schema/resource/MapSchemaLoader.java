@@ -16,7 +16,7 @@ public class MapSchemaLoader implements SchemaLoader {
     /**
      * Sets the schema data by absolute IRI.
      * 
-     * @param mappings
+     * @param mappings the mappings
      */
     public MapSchemaLoader(Map<String, String> mappings) {
         this(mappings::get);

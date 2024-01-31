@@ -82,6 +82,7 @@ public class JsonNodeAnnotation {
     /**
      * The attached value(s).
      * 
+     * @param <T> the value type
      * @return the value
      */
     @SuppressWarnings("unchecked")

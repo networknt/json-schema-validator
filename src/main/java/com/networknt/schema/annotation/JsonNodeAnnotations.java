@@ -36,14 +36,14 @@ public class JsonNodeAnnotations {
     /**
      * Stores the annotations.
      * <p>
-     * instancePath -> annotation
+     * instancePath to annotation
      */
     private final Map<JsonNodePath, List<JsonNodeAnnotation>> values = new LinkedHashMap<>();
 
     /**
      * Gets the annotations.
      * <p>
-     * instancePath -> annotation
+     * instancePath to annotation
      * 
      * @return the annotations
      */
