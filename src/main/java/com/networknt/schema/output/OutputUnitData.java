@@ -15,7 +15,6 @@
  */
 package com.networknt.schema.output;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +30,9 @@ import com.networknt.schema.annotation.JsonNodeAnnotation;
  */
 public class OutputUnitData {
     private final Map<OutputUnitKey, Boolean> valid = new LinkedHashMap<>();
-    private final Map<OutputUnitKey, Map<String, String>> errors = new HashMap<>();
-    private final Map<OutputUnitKey, Map<String, Object>> annotations = new HashMap<>();
-    private final Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = new HashMap<>();
+    private final Map<OutputUnitKey, Map<String, String>> errors = new LinkedHashMap<>();
+    private final Map<OutputUnitKey, Map<String, Object>> annotations = new LinkedHashMap<>();
+    private final Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = new LinkedHashMap<>();
 
     public Map<OutputUnitKey, Boolean> getValid() {
         return valid;

@@ -161,6 +161,149 @@ public class OutputUnitTest {
                 + "  } ]\r\n"
                 + "}";
         assertEquals(expected, output);
+    }
+
+    @Test
+    void annotationCollectionHierarchical() throws JsonProcessingException {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+
+        String inputData = inputData1;
         
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+        });
+        String output = JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(outputUnit);
+        String expected = "{\r\n"
+                + "  \"valid\" : false,\r\n"
+                + "  \"evaluationPath\" : \"\",\r\n"
+                + "  \"schemaLocation\" : \"https://json-schema.org/schemas/example#\",\r\n"
+                + "  \"instanceLocation\" : \"\",\r\n"
+                + "  \"droppedAnnotations\" : {\r\n"
+                + "    \"properties\" : [ \"foo\", \"bar\" ],\r\n"
+                + "    \"title\" : \"root\"\r\n"
+                + "  },\r\n"
+                + "  \"details\" : [ {\r\n"
+                + "    \"valid\" : false,\r\n"
+                + "    \"evaluationPath\" : \"/properties/foo/allOf/0\",\r\n"
+                + "    \"schemaLocation\" : \"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\r\n"
+                + "    \"instanceLocation\" : \"/foo\",\r\n"
+                + "    \"errors\" : {\r\n"
+                + "      \"required\" : \"required property 'unspecified-prop' not found\"\r\n"
+                + "    }\r\n"
+                + "  }, {\r\n"
+                + "    \"valid\" : false,\r\n"
+                + "    \"evaluationPath\" : \"/properties/foo/allOf/1\",\r\n"
+                + "    \"schemaLocation\" : \"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\r\n"
+                + "    \"instanceLocation\" : \"/foo\",\r\n"
+                + "    \"droppedAnnotations\" : {\r\n"
+                + "      \"properties\" : [ \"foo-prop\" ],\r\n"
+                + "      \"title\" : \"foo-title\",\r\n"
+                + "      \"additionalProperties\" : [ \"foo-prop\", \"other-prop\" ]\r\n"
+                + "    },\r\n"
+                + "    \"details\" : [ {\r\n"
+                + "      \"valid\" : false,\r\n"
+                + "      \"evaluationPath\" : \"/properties/foo/allOf/1/properties/foo-prop\",\r\n"
+                + "      \"schemaLocation\" : \"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\r\n"
+                + "      \"instanceLocation\" : \"/foo/foo-prop\",\r\n"
+                + "      \"errors\" : {\r\n"
+                + "        \"const\" : \"must be a constant value 1\"\r\n"
+                + "      },\r\n"
+                + "      \"droppedAnnotations\" : {\r\n"
+                + "        \"title\" : \"foo-prop-title\"\r\n"
+                + "      }\r\n"
+                + "    } ]\r\n"
+                + "  }, {\r\n"
+                + "    \"valid\" : false,\r\n"
+                + "    \"evaluationPath\" : \"/properties/bar/$ref\",\r\n"
+                + "    \"schemaLocation\" : \"https://json-schema.org/schemas/example#/$defs/bar\",\r\n"
+                + "    \"instanceLocation\" : \"/bar\",\r\n"
+                + "    \"droppedAnnotations\" : {\r\n"
+                + "      \"properties\" : [ \"bar-prop\" ],\r\n"
+                + "      \"title\" : \"bar-title\"\r\n"
+                + "    },\r\n"
+                + "    \"details\" : [ {\r\n"
+                + "      \"valid\" : false,\r\n"
+                + "      \"evaluationPath\" : \"/properties/bar/$ref/properties/bar-prop\",\r\n"
+                + "      \"schemaLocation\" : \"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\r\n"
+                + "      \"instanceLocation\" : \"/bar/bar-prop\",\r\n"
+                + "      \"errors\" : {\r\n"
+                + "        \"minimum\" : \"must have a minimum value of 10\"\r\n"
+                + "      },\r\n"
+                + "      \"droppedAnnotations\" : {\r\n"
+                + "        \"title\" : \"bar-prop-title\"\r\n"
+                + "      }\r\n"
+                + "    } ]\r\n"
+                + "  } ]\r\n"
+                + "}";
+        assertEquals(expected, output);
+    }
+
+    @Test
+    void annotationCollectionHierarchical2() throws JsonProcessingException {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+
+        String inputData = inputData2;
+        
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+        });
+        String output = JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(outputUnit);
+        String expected = "{\r\n"
+                + "  \"valid\" : true,\r\n"
+                + "  \"evaluationPath\" : \"\",\r\n"
+                + "  \"schemaLocation\" : \"https://json-schema.org/schemas/example#\",\r\n"
+                + "  \"instanceLocation\" : \"\",\r\n"
+                + "  \"annotations\" : {\r\n"
+                + "    \"properties\" : [ \"foo\", \"bar\" ],\r\n"
+                + "    \"title\" : \"root\"\r\n"
+                + "  },\r\n"
+                + "  \"details\" : [ {\r\n"
+                + "    \"valid\" : true,\r\n"
+                + "    \"evaluationPath\" : \"/properties/foo/allOf/1\",\r\n"
+                + "    \"schemaLocation\" : \"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\r\n"
+                + "    \"instanceLocation\" : \"/foo\",\r\n"
+                + "    \"annotations\" : {\r\n"
+                + "      \"properties\" : [ \"foo-prop\" ],\r\n"
+                + "      \"title\" : \"foo-title\",\r\n"
+                + "      \"additionalProperties\" : [ \"foo-prop\", \"unspecified-prop\" ]\r\n"
+                + "    },\r\n"
+                + "    \"details\" : [ {\r\n"
+                + "      \"valid\" : true,\r\n"
+                + "      \"evaluationPath\" : \"/properties/foo/allOf/1/properties/foo-prop\",\r\n"
+                + "      \"schemaLocation\" : \"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\r\n"
+                + "      \"instanceLocation\" : \"/foo/foo-prop\",\r\n"
+                + "      \"annotations\" : {\r\n"
+                + "        \"title\" : \"foo-prop-title\"\r\n"
+                + "      }\r\n"
+                + "    } ]\r\n"
+                + "  }, {\r\n"
+                + "    \"valid\" : true,\r\n"
+                + "    \"evaluationPath\" : \"/properties/bar/$ref\",\r\n"
+                + "    \"schemaLocation\" : \"https://json-schema.org/schemas/example#/$defs/bar\",\r\n"
+                + "    \"instanceLocation\" : \"/bar\",\r\n"
+                + "    \"annotations\" : {\r\n"
+                + "      \"properties\" : [ \"bar-prop\" ],\r\n"
+                + "      \"title\" : \"bar-title\"\r\n"
+                + "    },\r\n"
+                + "    \"details\" : [ {\r\n"
+                + "      \"valid\" : true,\r\n"
+                + "      \"evaluationPath\" : \"/properties/bar/$ref/properties/bar-prop\",\r\n"
+                + "      \"schemaLocation\" : \"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\r\n"
+                + "      \"instanceLocation\" : \"/bar/bar-prop\",\r\n"
+                + "      \"annotations\" : {\r\n"
+                + "        \"title\" : \"bar-prop-title\"\r\n"
+                + "      }\r\n"
+                + "    } ]\r\n"
+                + "  } ]\r\n"
+                + "}";
+        assertEquals(expected, output);
     }
 }
