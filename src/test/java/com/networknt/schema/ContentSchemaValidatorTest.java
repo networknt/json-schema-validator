@@ -65,40 +65,8 @@ public class ContentSchemaValidatorTest {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
         });
-        String output = JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(outputUnit);
-        String expected = "{\r\n"
-                + "  \"valid\" : true,\r\n"
-                + "  \"details\" : [ {\r\n"
-                + "    \"valid\" : true,\r\n"
-                + "    \"evaluationPath\" : \"\",\r\n"
-                + "    \"schemaLocation\" : \"#\",\r\n"
-                + "    \"instanceLocation\" : \"\",\r\n"
-                + "    \"annotations\" : {\r\n"
-                + "      \"contentMediaType\" : \"application/jwt\",\r\n"
-                + "      \"contentSchema\" : {\r\n"
-                + "        \"type\" : \"array\",\r\n"
-                + "        \"minItems\" : 2,\r\n"
-                + "        \"prefixItems\" : [ {\r\n"
-                + "          \"const\" : {\r\n"
-                + "            \"typ\" : \"JWT\",\r\n"
-                + "            \"alg\" : \"HS256\"\r\n"
-                + "          }\r\n"
-                + "        }, {\r\n"
-                + "          \"type\" : \"object\",\r\n"
-                + "          \"required\" : [ \"iss\", \"exp\" ],\r\n"
-                + "          \"properties\" : {\r\n"
-                + "            \"iss\" : {\r\n"
-                + "              \"type\" : \"string\"\r\n"
-                + "            },\r\n"
-                + "            \"exp\" : {\r\n"
-                + "              \"type\" : \"integer\"\r\n"
-                + "            }\r\n"
-                + "          }\r\n"
-                + "        } ]\r\n"
-                + "      }\r\n"
-                + "    }\r\n"
-                + "  } ]\r\n"
-                + "}";
+        String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
+        String expected = "{\"valid\":true,\"details\":[{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"annotations\":{\"contentMediaType\":\"application/jwt\",\"contentSchema\":{\"type\":\"array\",\"minItems\":2,\"prefixItems\":[{\"const\":{\"typ\":\"JWT\",\"alg\":\"HS256\"}},{\"type\":\"object\",\"required\":[\"iss\",\"exp\"],\"properties\":{\"iss\":{\"type\":\"string\"},\"exp\":{\"type\":\"integer\"}}}]}}}]}";
         assertEquals(expected, output);
     }
 }
