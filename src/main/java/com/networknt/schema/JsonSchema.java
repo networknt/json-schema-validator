@@ -103,7 +103,9 @@ public class JsonSchema extends BaseJsonValidator {
             if (hasNoFragment(schemaLocation)) {
                 this.id = id;
             } else {
-                this.id = id;
+                // This is an anchor fragment and is not a document
+                // This will be added to schema resources later
+                this.id = null;
             }
             this.validationContext.getSchemaResources()
                     .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : id, this);
