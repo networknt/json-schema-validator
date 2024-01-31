@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * {@link JsonValidator} for allOf.
+ */
 public class AllOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
@@ -48,49 +51,43 @@ public class AllOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<>();
 
         for (JsonSchema schema : this.schemas) {
-            Set<ValidationMessage> localErrors = new HashSet<>();
+            Set<ValidationMessage> localErrors = null;
 
-            try {
-                if (!state.isWalkEnabled()) {
-                    localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
-                } else {
-                    localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
-                }
+            if (!state.isWalkEnabled()) {
+                localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+            } else {
+                localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
+            }
 
-                childSchemaErrors.addAll(localErrors);
+            childSchemaErrors.addAll(localErrors);
 
-                if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                    final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
-                    while (arrayElements.hasNext()) {
-                        final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();
-                        final JsonNode $ref = allOfEntry.get("$ref");
-                        if (null != $ref) {
-                            final DiscriminatorContext currentDiscriminatorContext = executionContext
-                                    .getCurrentDiscriminatorContext();
-                            if (null != currentDiscriminatorContext) {
-                                final ObjectNode discriminator = currentDiscriminatorContext
-                                        .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
-                                if (null != discriminator) {
-                                    registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator, this.parentSchema, instanceLocation);
-                                    // now we have to check whether we have hit the right target
-                                    final String discriminatorPropertyName = discriminator.get("propertyName").asText();
-                                    final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
-                                    final String discriminatorPropertyValue = discriminatorNode == null
-                                            ? null
-                                            : discriminatorNode.textValue();
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
+                while (arrayElements.hasNext()) {
+                    final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();
+                    final JsonNode $ref = allOfEntry.get("$ref");
+                    if (null != $ref) {
+                        final DiscriminatorContext currentDiscriminatorContext = executionContext
+                                .getCurrentDiscriminatorContext();
+                        if (null != currentDiscriminatorContext) {
+                            final ObjectNode discriminator = currentDiscriminatorContext
+                                    .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
+                            if (null != discriminator) {
+                                registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator,
+                                        this.parentSchema, instanceLocation);
+                                // now we have to check whether we have hit the right target
+                                final String discriminatorPropertyName = discriminator.get("propertyName").asText();
+                                final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
+                                final String discriminatorPropertyValue = discriminatorNode == null ? null
+                                        : discriminatorNode.textValue();
 
-                                    final JsonSchema jsonSchema = this.parentSchema;
-                                    checkDiscriminatorMatch(
-                                            currentDiscriminatorContext,
-                                            discriminator,
-                                            discriminatorPropertyValue,
-                                            jsonSchema);
-                                }
+                                final JsonSchema jsonSchema = this.parentSchema;
+                                checkDiscriminatorMatch(currentDiscriminatorContext, discriminator,
+                                        discriminatorPropertyValue, jsonSchema);
                             }
                         }
                     }
                 }
-            } finally {
             }
         }
 

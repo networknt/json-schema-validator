@@ -5,11 +5,9 @@ import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.StringUtils;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public abstract class ValidationMessageHandler {
     protected final MessageSource messageSource;

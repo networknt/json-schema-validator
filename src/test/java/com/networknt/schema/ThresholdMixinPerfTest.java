@@ -330,7 +330,7 @@ public class ThresholdMixinPerfTest {
     };
 
     private double getAvgTimeViaMixin(ThresholdMixin mixin, JsonNode value, int iterations) {
-        boolean excludeEqual = false;
+//        boolean excludeEqual = false;
         long totalTime = 0;
         for (int i = 0; i < iterations; i++) {
             long start = System.nanoTime();

@@ -34,14 +34,29 @@ public class FailFastAssertionException extends RuntimeException {
 
     private final ValidationMessage validationMessage;
 
+    /**
+     * Constructor.
+     *
+     * @param validationMessage the validation message
+     */
     public FailFastAssertionException(ValidationMessage validationMessage) {
         this.validationMessage = Objects.requireNonNull(validationMessage);
     }
 
+    /**
+     * Gets the validation message.
+     * 
+     * @return the validation message
+     */
     public ValidationMessage getValidationMessage() {
         return this.validationMessage;
     }
 
+    /**
+     * Gets the validation message.
+     * 
+     * @return the validation message
+     */
     public Set<ValidationMessage> getValidationMessages() {
         return Collections.singleton(this.validationMessage);
     }

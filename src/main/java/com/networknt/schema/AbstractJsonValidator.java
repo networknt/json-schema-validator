@@ -21,12 +21,23 @@ import java.util.function.Consumer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
+/**
+ * Base {@link JsonValidator}.
+ */
 public abstract class AbstractJsonValidator implements JsonValidator {
     private final SchemaLocation schemaLocation;
     private final JsonNode schemaNode;
     private final JsonNodePath evaluationPath;
     private final Keyword keyword;
 
+    /**
+     * Constructor.
+     * 
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
+     * @param keyword        the keyword
+     * @param schemaNode     the schema node
+     */
     public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword, JsonNode schemaNode) {
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
@@ -49,6 +60,11 @@ public abstract class AbstractJsonValidator implements JsonValidator {
         return keyword.getValue();
     }
 
+    /**
+     * The schema node used to create the validator.
+     * 
+     * @return the schema node
+     */
     public JsonNode getSchemaNode() {
         return this.schemaNode;
     }

@@ -31,6 +31,9 @@ import java.util.Set;
 
 import static com.networknt.schema.VersionCode.MinV201909;
 
+/**
+ * {@link JsonValidator} for contains.
+ */
 public class ContainsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContainsValidator.class);
     private static final String CONTAINS_MAX = "contains.max";

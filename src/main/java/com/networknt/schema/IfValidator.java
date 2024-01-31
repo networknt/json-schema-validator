@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for if.
+ */
 public class IfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 

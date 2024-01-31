@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for properties.
+ */
 public class PropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);

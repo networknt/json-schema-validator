@@ -23,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for maxItems.
+ */
 public class MaxItemsValidator extends BaseJsonValidator implements JsonValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
-
 
     private int max = 0;
 

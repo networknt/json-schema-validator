@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for patternProperties.
+ */
 public class PatternPropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);

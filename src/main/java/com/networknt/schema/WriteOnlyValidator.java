@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * {@link JsonValidator} for writeOnly.
+ */
 public class WriteOnlyValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(WriteOnlyValidator.class);
 

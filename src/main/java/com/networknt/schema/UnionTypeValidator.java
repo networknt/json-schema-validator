@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for type union.
+ */
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 

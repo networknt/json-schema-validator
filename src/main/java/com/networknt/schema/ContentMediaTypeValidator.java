@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
- * Validation for contentMediaType keyword.
+ * {@link JsonValidator} for contentMediaType.
  * <p>
  * Note that since 2019-09 this keyword only generates annotations and not assertions.
  */
@@ -40,6 +40,15 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STRING);
     private final String contentMediaType;
 
+    /**
+     * Constructor.
+     * 
+     * @param schemaLocation    the schema location
+     * @param evaluationPath    the evaluation path
+     * @param schemaNode        the schema node
+     * @param parentSchema      the parent schema
+     * @param validationContext the validation context
+     */
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTENT_MEDIA_TYPE, validationContext);

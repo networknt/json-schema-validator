@@ -30,6 +30,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for prefixItems.
+ */
 public class PrefixItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
 

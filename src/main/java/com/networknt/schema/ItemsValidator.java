@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for items V4 to V2019-09.
+ */
 public class ItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator.class);
     private static final String PROPERTY_ADDITIONAL_ITEMS = "additionalItems";

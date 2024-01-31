@@ -27,6 +27,9 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for minimum.
+ */
 public class MinimumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinimumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MINIMUM = "exclusiveMinimum";

@@ -35,6 +35,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link BaseFormatJsonValidator} for format for date-time.
+ */
 public class DateTimeValidator extends BaseFormatJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Tests the validity of {@literal maxContains} and {@literal minContains} in a schema.
+ * {@link JsonValidator} for {@literal maxContains} and {@literal minContains} in a schema.
  * <p>
  * This validator only checks that the schema is valid. The functionality for
  * testing whether an instance array conforms to the {@literal maxContains}

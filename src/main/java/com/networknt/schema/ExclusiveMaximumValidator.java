@@ -27,6 +27,9 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for exclusiveMaximum.
+ */
 public class ExclusiveMaximumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ExclusiveMaximumValidator.class);
 

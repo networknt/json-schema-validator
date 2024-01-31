@@ -24,6 +24,9 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for multipleOf.
+ */
 public class MultipleOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MultipleOfValidator.class);
 

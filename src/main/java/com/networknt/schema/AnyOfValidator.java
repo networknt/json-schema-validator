@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * {@link JsonValidator} for anyOf.
+ */
 public class AnyOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";

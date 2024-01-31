@@ -16,12 +16,22 @@
 
 package com.networknt.schema;
 
+/**
+ * Used to implement the various formats for the format keyword.
+ */
 public interface Format {
     /**
      * @return the format name as referred to in a json schema format node.
      */
     String getName();
 
+    /**
+     * Determines if the value matches the format.
+     * 
+     * @param executionContext the execution context
+     * @param value            to match
+     * @return true if matches
+     */
     boolean matches(ExecutionContext executionContext, String value);
 
     String getErrorMessageDescription();

@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for not.
+ */
 public class NotValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotValidator.class);
 
