@@ -19,18 +19,21 @@ In addition, it also works for OpenAPI 3.0 request/response validation with some
 
 Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
 
+Since [Draft 2019-09](https://json-schema.org/draft/2019-09/json-schema-validation#rfc.section.7) the `format` keyword only generates annotations by default and does not generate assertions.
+
+This behavior can be overridden to generate assertions by setting the `setFormatAssertionsEnabled` to `true` in `SchemaValidatorsConfig` or `ExecutionConfig`.
+
 ## Upgrading to new versions
 
-This library can contain breaking changes in minor version releases that may require code changes.
+This library can contain breaking changes in `minor` version releases that may require code changes.
 
 Information on notable or breaking changes when upgrading the library can be found in the [Upgrading to new versions](doc/upgrading.md) document.
 
-Information on the latest version can be found on the [Releases](https://github.com/networknt/json-schema-validator/releases) page.
+The [Releases](https://github.com/networknt/json-schema-validator/releases) page will contain information on the latest versions.
 
 ## Comparing against other implementations
 
-The [JSON Schema Validation Comparison
-](https://github.com/creek-service/json-schema-validation-comparison) project from Creek has an informative [Comparison of JVM based Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/) which compares both the functional and performance characteristics of a number of different Java implementations. 
+The [JSON Schema Validation Comparison](https://github.com/creek-service/json-schema-validation-comparison) project from Creek has an informative [Comparison of JVM based Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/) which compares both the functional and performance characteristics of a number of different Java implementations. 
 * [Functional comparison](https://www.creekservice.org/json-schema-validation-comparison/functional#summary-results-table)
 * [Performance comparison](https://www.creekservice.org/json-schema-validation-comparison/performance#json-schema-test-suite-benchmark)
 
@@ -434,12 +437,24 @@ The following is sample output from the Hierarchical format.
 
 | Name                           | Description                                                                                                                                                                                                                       | Default Value
 |--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------
-| `locale`                       | The locale to use for generating messages in the `ValidationMessage`. Note that this value is copied from `SchemaValidatorsConfig` for each execution.                                                                            | `Locale.getDefault()`
 | `annotationCollectionEnabled`  | Controls whether annotations are collected during processing. Note that collecting annotations will adversely affect performance.                                                                                                 | `false`
 | `annotationCollectionPredicate`| The predicate used to control which keyword to collect and report annotations for. This requires `annotationCollectionEnabled` to be `true`.                                                                                      | `keyword -> false`
-| `formatAssertionsEnabled`      | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`
+| `locale`                       | The locale to use for generating messages in the `ValidationMessage`. Note that this value is copied from `SchemaValidatorsConfig` for each execution.                                                                            | `Locale.getDefault()`
 | `failFast`                     | Whether to return failure immediately when an assertion is generated. Note that this value is copied from `SchemaValidatorsConfig` for each execution but is automatically set to `true` for the Boolean and Flag output formats. | `false`
+| `formatAssertionsEnabled`      | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`
 
+### Schema Validators Configuration
+
+| Name                           | Description                                                                                                                                                                                                                       | Default Value
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------
+| `pathType`                     | The path type to use for reporting the instance location and evaluation path. Set to `PathType.JSON_POINTER` to use JSON Pointer.                                                                                                 | `PathType.DEFAULT`
+| `ecma262Validator`             | Whether to use the ECMA 262 `joni` library to validate the `pattern` keyword. This requires the dependency to be manually added to the project or a `ClassNotFoundException` will be thrown.                                      | `false`
+| `executionContextCustomizer`   | This can be used to customize the `ExecutionContext` generated by the `JsonSchema` for each validation run.                                                                                                                       | `null`
+| `schemaIdValidator`            | This is used to customize how the `$id` values are validated. Note that the default implementation allows non-empty fragments where no base IRI is specified and also allows non-absolute IRI `$id` values in the root schema.    | `JsonSchemaIdValidator.DEFAULT`
+| `messageSource`                | This is used to retrieve the locale specific messages.                                                                                                                                                                            | `DefaultMessageSource.getInstance()`
+| `locale`                       | The locale to use for generating messages in the `ValidationMessage`.                                                                                                                                                             | `Locale.getDefault()`
+| `failFast`                     | Whether to return failure immediately when an assertion is generated.                                                                                                                                                             | `false`
+| `formatAssertionsEnabled`      | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`
 
 ## Performance Considerations
 

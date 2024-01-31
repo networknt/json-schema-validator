@@ -1,6 +1,6 @@
 ## Upgrading to new versions
 
-This library can contain breaking changes in minor version releases.
+This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 

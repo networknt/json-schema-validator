@@ -115,7 +115,7 @@ This also requires adding the `joni` dependency.
 </dependency>
 ```
 
-### Format
+#### Format
 
 Since Draft 2019-09 the `format` keyword only generates annotations by default and does not generate assertions.
 
@@ -126,7 +126,7 @@ This can be configured on a schema basis by using a meta schema with the appropr
 | Draft 2019-09         | `https://json-schema.org/draft/2019-09/vocab/format`          | `true`            |
 | Draft 2020-12         | `https://json-schema.org/draft/2020-12/vocab/format-assertion`| `true`/`false`    | 
 
-This behavior can be overridden to generate assertions on a per-execution basis by setting the `setFormatAssertionsEnabled` to `true`.
+This behavior can be overridden to generate assertions by setting the `setFormatAssertionsEnabled` option to `true`.
 
 | Format                | Draft 4 | Draft 6 | Draft 7 | Draft 2019-09 | Draft 2020-12 |
 |:----------------------|:-------:|:-------:|:-------:|:-------------:|:-------------:|
@@ -150,7 +150,7 @@ This behavior can be overridden to generate assertions on a per-execution basis 
 | uri-template          | 🚫 | 🟢 | 🟢 | 🟢 | 🟢 |
 | uuid                  | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 
-### Footnotes
+##### Footnotes
 1. Note that the validation are only optional for some of the keywords/formats.
 2. Refer to the corresponding JSON schema for more information on whether the keyword/format is optional or not.
 
