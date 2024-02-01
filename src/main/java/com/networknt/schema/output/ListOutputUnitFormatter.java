@@ -38,7 +38,7 @@ public class ListOutputUnitFormatter {
         OutputUnitData data = OutputUnitData.from(validationMessages, executionContext);
 
         Map<OutputUnitKey, Boolean> valid = data.getValid();
-        Map<OutputUnitKey, Map<String, String>> errors = data.getErrors();
+        Map<OutputUnitKey, Map<String, Object>> errors = data.getErrors();
         Map<OutputUnitKey, Map<String, Object>> annotations = data.getAnnotations();
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.getDroppedAnnotations();
 
@@ -52,12 +52,12 @@ public class ListOutputUnitFormatter {
             output.setInstanceLocation(key.getInstanceLocation().toString());
 
             // Errors
-            Map<String, String> errorMap = errors.get(key);
+            Map<String, Object> errorMap = errors.get(key);
             if (errorMap != null && !errorMap.isEmpty()) {
                 if (output.getErrors() == null) {
                     output.setErrors(new LinkedHashMap<>());
                 }
-                for (Entry<String, String> errorEntry : errorMap.entrySet()) {
+                for (Entry<String, Object> errorEntry : errorMap.entrySet()) {
                     output.getErrors().put(errorEntry.getKey(), errorEntry.getValue());
                 }
             }

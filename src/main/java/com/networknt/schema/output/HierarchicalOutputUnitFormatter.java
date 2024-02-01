@@ -47,7 +47,7 @@ public class HierarchicalOutputUnitFormatter {
         OutputUnitData data = OutputUnitData.from(validationMessages, executionContext);
 
         Map<OutputUnitKey, Boolean> valid = data.getValid();
-        Map<OutputUnitKey, Map<String, String>> errors = data.getErrors();
+        Map<OutputUnitKey, Map<String, Object>> errors = data.getErrors();
         Map<OutputUnitKey, Map<String, Object>> annotations = data.getAnnotations();
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.getDroppedAnnotations();
         
@@ -66,7 +66,7 @@ public class HierarchicalOutputUnitFormatter {
         droppedAnnotations.keySet().stream().forEach(k -> buildIndex(k, index, keys, root));
         
         // Process all the data
-        for (Entry<OutputUnitKey, Map<String, String>> error : errors.entrySet()) {
+        for (Entry<OutputUnitKey, Map<String, Object>> error : errors.entrySet()) {
             OutputUnitKey key = error.getKey();
             OutputUnit unit = index.get(key.getEvaluationPath());
             unit.setInstanceLocation(key.getInstanceLocation().toString());

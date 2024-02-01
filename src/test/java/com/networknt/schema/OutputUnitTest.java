@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -228,6 +231,64 @@ public class OutputUnitTest {
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         assertNotNull(details.getErrors().get("type"));
+    }
+    
+    @Test
+    void unevaluatedProperties() throws JsonProcessingException {
+        Map<String, String> external = new HashMap<>();
+
+        String externalSchemaData = "{\r\n"
+                + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "  \"$id\": \"https://www.example.org/point.json\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"required\": [\r\n"
+                + "    \"type\",\r\n"
+                + "    \"coordinates\"\r\n"
+                + "  ],\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"type\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"enum\": [\r\n"
+                + "        \"Point\"\r\n"
+                + "      ]\r\n"
+                + "    },\r\n"
+                + "    \"coordinates\": {\r\n"
+                + "      \"type\": \"array\",\r\n"
+                + "      \"minItems\": 2,\r\n"
+                + "      \"items\": {\r\n"
+                + "        \"type\": \"number\"\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        external.put("https://www.example.org/point.json", externalSchemaData);
+
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"$ref\": \"https://www.example.org/point.json\",\r\n"
+                + "  \"unevaluatedProperties\": false\r\n"
+                + "}";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        
+     // The following checks if the heirarchical output format is correct with multiple unevaluated properties
+        String inputData = "{\r\n"
+                + "  \"type\": \"Point\",\r\n"
+                + "  \"hello\": \"Point\",\r\n"
+                + "  \"world\": \"Point\",\r\n"
+                + "  \"coordinates\": [1, 1]\r\n"
+                + "}";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,
+                executionContext -> executionContext.getExecutionConfig()
+                        .setAnnotationCollectionFilter(keyword -> true));
+        String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
+        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' must not be unevaluated\",\"property 'world' must not be unevaluated\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
+        assertEquals(expected, output);
     }
 
 }

@@ -43,7 +43,7 @@ public class OutputUnit {
     private String schemaLocation = null;
     private String instanceLocation = null;
 
-    private Map<String, String> errors = null;
+    private Map<String, Object> errors = null;
 
     private Map<String, Object> annotations = null;
 
@@ -83,11 +83,11 @@ public class OutputUnit {
         this.instanceLocation = instanceLocation;
     }
 
-    public Map<String, String> getErrors() {
+    public Map<String, Object> getErrors() {
         return errors;
     }
 
-    public void setErrors(Map<String, String> errors) {
+    public void setErrors(Map<String, Object> errors) {
         this.errors = errors;
     }
 
