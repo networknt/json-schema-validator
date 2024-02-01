@@ -16,8 +16,13 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.networknt.schema.SpecVersion.VersionFlag;
@@ -137,4 +142,74 @@ public class OutputUnitTest {
         String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"annotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"unspecified-prop\"]},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"annotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"annotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"annotations\":{\"title\":\"bar-prop-title\"}}]}]}";
         assertEquals(expected, output);
     }
+
+    enum FormatInput {
+        DATE_TIME("date-time"),
+        DATE("date"),
+        TIME("time"),
+        DURATION("duration"),
+        EMAIL("email"),
+        IDN_EMAIL("idn-email"),
+        HOSTNAME("hostname"),
+        IDN_HOSTNAME("idn-hostname"),
+        IPV4("ipv4"),
+        IPV6("ipv6"),
+        URI("uri"),
+        URI_REFERENCE("uri-reference"),
+        IRI("iri"),
+        IRI_REFERENCE("iri-reference"),
+        UUID("uuid"),
+        JSON_POINTER("json-pointer"),
+        RELATIVE_JSON_POINTER("relative-json-pointer"),
+        REGEX("regex");
+
+        String format;
+
+        FormatInput(String format) {
+            this.format = format;
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(FormatInput.class)
+    void formatAnnotation(FormatInput formatInput) {
+        String formatSchema = "{\r\n"
+                + "  \"type\": \"string\",\r\n"
+                + "  \"format\": \""+formatInput.format+"\"\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(formatSchema, config);
+        OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+        });
+        assertTrue(outputUnit.isValid());
+        OutputUnit details = outputUnit.getDetails().get(0);
+        assertEquals(formatInput.format, details.getAnnotations().get("format"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(FormatInput.class)
+    void formatAssertion(FormatInput formatInput) {
+        String formatSchema = "{\r\n"
+                + "  \"type\": \"string\",\r\n"
+                + "  \"format\": \""+formatInput.format+"\"\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(formatSchema, config);
+        OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
+        });
+        assertFalse(outputUnit.isValid());
+        OutputUnit details = outputUnit.getDetails().get(0);
+        assertEquals(formatInput.format, details.getDroppedAnnotations().get("format"));
+        assertNotNull(details.getErrors().get("format"));
+    }
+
 }

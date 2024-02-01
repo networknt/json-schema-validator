@@ -65,6 +65,7 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
         if (!isLegalDateTime(node.textValue())) {
             if (assertionsEnabled) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .type("format")
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.getExecutionConfig().isFailFast())
                         .arguments(node.textValue(), DATETIME).build());
