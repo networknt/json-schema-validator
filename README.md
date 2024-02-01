@@ -361,7 +361,7 @@ JsonSchema schema = factory.getSchema(SchemaLocation.of("https://json-schema.org
         
 OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
     executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
-    executionContext.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+    executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
 });
 ```
 The following is sample output from the Hierarchical format.
@@ -438,7 +438,7 @@ The following is sample output from the Hierarchical format.
 | Name                           | Description                                                                                                                                                                                                                       | Default Value
 |--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------
 | `annotationCollectionEnabled`  | Controls whether annotations are collected during processing. Note that collecting annotations will adversely affect performance.                                                                                                 | `false`
-| `annotationCollectionPredicate`| The predicate used to control which keyword to collect and report annotations for. This requires `annotationCollectionEnabled` to be `true`.                                                                                      | `keyword -> false`
+| `annotationCollectionFilter`   | The predicate used to control which keyword to collect and report annotations for. This requires `annotationCollectionEnabled` to be `true`.                                                                                      | `keyword -> false`
 | `locale`                       | The locale to use for generating messages in the `ValidationMessage`. Note that this value is copied from `SchemaValidatorsConfig` for each execution.                                                                            | `Locale.getDefault()`
 | `failFast`                     | Whether to return failure immediately when an assertion is generated. Note that this value is copied from `SchemaValidatorsConfig` for each execution but is automatically set to `true` for the Boolean and Flag output formats. | `false`
 | `formatAssertionsEnabled`      | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`

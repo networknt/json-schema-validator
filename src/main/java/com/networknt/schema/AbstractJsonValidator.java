@@ -93,7 +93,7 @@ public abstract class AbstractJsonValidator implements JsonValidator {
      */
     protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
         return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
-                && executionContext.getExecutionConfig().getAnnotationCollectionPredicate().test(keyword);
+                && executionContext.getExecutionConfig().getAnnotationCollectionFilter().test(keyword);
     }
 
     /**

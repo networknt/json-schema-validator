@@ -370,7 +370,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      */
     protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
         return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
-                && executionContext.getExecutionConfig().getAnnotationCollectionPredicate().test(keyword);
+                && executionContext.getExecutionConfig().getAnnotationCollectionFilter().test(keyword);
     }
 
     /**

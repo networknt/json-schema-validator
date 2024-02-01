@@ -88,7 +88,7 @@ public class OutputUnitData {
             for (JsonNodeAnnotation annotation : annotationsResult) {
                 // As some annotations are required for computation, filter those that are not
                 // required for reporting
-                if (executionContext.getExecutionConfig().getAnnotationCollectionPredicate()
+                if (executionContext.getExecutionConfig().getAnnotationCollectionFilter()
                         .test(annotation.getKeyword())) {
                     SchemaLocation annotationSchemaLocation = new SchemaLocation(
                             annotation.getSchemaLocation().getAbsoluteIri(),
