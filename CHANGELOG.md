@@ -11,6 +11,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.3.1 - 2024-01-31
+
+### Added
+
+### Changed
+
+- fixes #942 Add annotation support refactor keywords to use annotations implement output formats. Thanks @justin-tay
+
 ## 1.3.0 - 2024-01-26
 
 ### Added
