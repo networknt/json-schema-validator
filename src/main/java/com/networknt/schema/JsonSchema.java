@@ -30,6 +30,10 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
+ * Used for creating a schema with validators for validating inputs. This is
+ * created using {@link JsonSchemaFactory#getInstance(VersionFlag, Consumer)}
+ * and should be cached for performance.
+ * <p>
  * This is the core of json constraint implementation. It parses json constraint
  * file and generates JsonValidators. The class is thread safe, once it is
  * constructed, it can be used to validate multiple json data concurrently.

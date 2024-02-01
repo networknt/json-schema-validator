@@ -15,69 +15,43 @@
  */
 package com.networknt.schema;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Vocabularies.
  */
 public class Vocabularies {
-    private static final Map<String, List<String>> KEYWORDS_MAPPING;
+    private static final Map<String, Vocabulary> VALUES;
 
     static {
-        Map<String, List<String>> mapping = new HashMap<>();
-        List<String> validation = new ArrayList<>();
-        validation.add("type");
-        validation.add("enum");
-        validation.add("const");
+        Map<String, Vocabulary> mapping = new HashMap<>();
+        mapping.put(Vocabulary.V201909_CORE.getId(), Vocabulary.V201909_CORE);
+        mapping.put(Vocabulary.V201909_APPLICATOR.getId(), Vocabulary.V201909_APPLICATOR);
+        mapping.put(Vocabulary.V201909_VALIDATION.getId(), Vocabulary.V201909_VALIDATION);
+        mapping.put(Vocabulary.V201909_META_DATA.getId(), Vocabulary.V201909_META_DATA);
+        mapping.put(Vocabulary.V201909_FORMAT.getId(), Vocabulary.V201909_FORMAT);
+        mapping.put(Vocabulary.V201909_CONTENT.getId(), Vocabulary.V201909_CONTENT);
 
-        validation.add("multipleOf");
-        validation.add("maximum");
-        validation.add("exclusiveMaximum");
-        validation.add("minimum");
-        validation.add("exclusiveMinimum");
-        
-        validation.add("maxLength");
-        validation.add("minLength");
-        validation.add("pattern");
+        mapping.put(Vocabulary.V202012_CORE.getId(), Vocabulary.V202012_CORE);
+        mapping.put(Vocabulary.V202012_APPLICATOR.getId(), Vocabulary.V202012_APPLICATOR);
+        mapping.put(Vocabulary.V202012_UNEVALUATED.getId(), Vocabulary.V202012_UNEVALUATED);
+        mapping.put(Vocabulary.V202012_VALIDATION.getId(), Vocabulary.V202012_VALIDATION);
+        mapping.put(Vocabulary.V202012_META_DATA.getId(), Vocabulary.V202012_META_DATA);
+        mapping.put(Vocabulary.V202012_FORMAT_ANNOTATION.getId(), Vocabulary.V202012_FORMAT_ANNOTATION);
+        mapping.put(Vocabulary.V202012_FORMAT_ASSERTION.getId(), Vocabulary.V202012_FORMAT_ASSERTION);
+        mapping.put(Vocabulary.V202012_CONTENT.getId(), Vocabulary.V202012_CONTENT);
 
-        validation.add("maxItems");
-        validation.add("minItems");
-        validation.add("uniqueItems");
-        validation.add("maxContains");
-        validation.add("minContains");
-        
-        validation.add("maxProperties");
-        validation.add("minProperties");
-        validation.add("required");
-        validation.add("dependentRequired");
-        
-        mapping.put("validation", validation);
-        
-        KEYWORDS_MAPPING = mapping;
+        VALUES = mapping;
     }
 
     /**
-     * Gets the keywords associated with a vocabulary.
+     * Gets the vocabulary given its id.
      * 
      * @param vocabulary the vocabulary
-     * @return the keywords
+     * @return the vocabulary
      */
-    public static List<String> getKeywords(String vocabulary) {
-        return KEYWORDS_MAPPING.get(vocabulary);
-    }
-
-    /**
-     * Gets the vocabulary IRI.
-     * 
-     * @param specification the specification
-     * @param vocabulary the vocabulary
-     * @return the vocabulary IRI
-     */
-    public static String getVocabulary(SpecVersion.VersionFlag specification, String vocabulary) {
-        String base = specification.getId().substring(0, specification.getId().lastIndexOf('/'));
-        return base + "/vocab/" + vocabulary;
+    public static Vocabulary getVocabulary(String vocabulary) {
+        return VALUES.get(vocabulary);
     }
 }

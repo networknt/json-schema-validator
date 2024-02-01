@@ -52,8 +52,7 @@ public class Version202012 extends JsonSchemaVersion {
                         new NonValidationKeyword("contentSchema"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
-                        new NonValidationKeyword("else"),
-                        new NonValidationKeyword("additionalItems")
+                        new NonValidationKeyword("else")
                 ))
                 .vocabularies(VOCABULARY)
                 .build();

@@ -168,10 +168,27 @@ public class JsonMetaSchema {
             if (this.specification != null) {
                 if (this.specification.getVersionFlagValue() >= SpecVersion.VersionFlag.V201909.getVersionFlagValue()) {
                     if (!this.uri.equals(this.specification.getId())) {
-                        String validation = Vocabularies.getVocabulary(specification, "validation");
-                        if (!this.vocabularies.getOrDefault(validation, false)) {
-                            for (String keywordToRemove : Vocabularies.getKeywords("validation")) {
-                                kwords.remove(keywordToRemove);
+                        // The current design is such that the keyword map can contain things that aren't actually keywords
+                        // This means need to remove what can't be found instead of creating from scratch
+                        Map<String, Boolean> vocabularies = JsonSchemaFactory.checkVersion(this.specification)
+                                .getInstance().getVocabularies();
+                        Set<String> current = this.vocabularies.keySet();
+                        Map<String, String> format = new HashMap<>();
+                        format.put(Vocabulary.V202012_FORMAT_ANNOTATION.getId(), Vocabulary.V202012_FORMAT_ASSERTION.getId());
+                        format.put(Vocabulary.V202012_FORMAT_ASSERTION.getId(), Vocabulary.V202012_FORMAT_ANNOTATION.getId());
+                        for (String vocabularyId : vocabularies.keySet()) {
+                            if (!current.contains(vocabularyId)) {
+                                String formatVocab = format.get(vocabularyId);
+                                if (formatVocab != null) {
+                                    if (current.contains(formatVocab)) {
+                                        // Skip as the assertion and annotation keywords are the same
+                                        continue;
+                                    }
+                                }
+                                Vocabulary vocabulary = Vocabularies.getVocabulary(vocabularyId);
+                                for (String keywordToRemove : vocabulary.getKeywords()) {
+                                    kwords.remove(keywordToRemove);
+                                }
                             }
                         }
                     }
