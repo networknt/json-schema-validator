@@ -67,7 +67,13 @@ public class JsonSchema extends BaseJsonValidator {
         String id = validationContext.resolveSchemaId(schemaNode);
         if (id != null) {
             String resolve = id;
-            SchemaLocation result = schemaLocation.resolve(resolve);
+            int fragment = id.indexOf('#');
+            // Check if there is a non-empty fragment
+            if (fragment != -1 && !(fragment + 1 >= id.length())) {
+                // strip the fragment when resolving
+                resolve = id.substring(0, fragment);
+            }
+            SchemaLocation result = !"".equals(resolve) ? schemaLocation.resolve(resolve) : schemaLocation;
             JsonSchemaIdValidator validator = validationContext.getConfig().getSchemaIdValidator();
             if (validator != null) {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
@@ -98,23 +104,23 @@ public class JsonSchema extends BaseJsonValidator {
         initializeConfig();
         String id = this.validationContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
-            // In earlier drafts $id may contain an anchor fragment
+            // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
             // Note that json pointer fragments in $id are not allowed
-            if (hasNoFragment(schemaLocation)) {
+            SchemaLocation result = id.contains("#") ? schemaLocation.resolve(id) : this.schemaLocation;
+            if (hasNoFragment(result)) {
                 this.id = id;
             } else {
                 // This is an anchor fragment and is not a document
                 // This will be added to schema resources later
                 this.id = null;
             }
-            this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : id, this);
+            this.validationContext.getSchemaResources().putIfAbsent(result != null ? result.toString() : id, this);
         } else {
             if (hasNoFragment(schemaLocation)) {
                 // No $id but there is no fragment and is thus a schema resource
-                this.id = this.schemaLocation.getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
+                this.id = schemaLocation.getAbsoluteIri() != null ? schemaLocation.getAbsoluteIri().toString() : "";
                 this.validationContext.getSchemaResources()
-                        .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
+                        .putIfAbsent(schemaLocation != null ? schemaLocation.toString() : this.id, this);
             } else {
                 this.id = null;
             }
