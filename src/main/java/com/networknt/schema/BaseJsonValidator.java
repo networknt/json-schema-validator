@@ -315,27 +315,37 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return getEvaluationPath().getName(-1);
     }
 
+    /**
+     * Determines if the keyword exists adjacent in the evaluation path.
+     * <p>
+     * This does not check if the keyword exists in the current meta schema as this
+     * can be a cross-draft case where the properties keyword is in a Draft 7 schema
+     * and the unevaluatedProperties keyword is in an outer Draft 2020-12 schema.
+     * <p>
+     * The fact that the validator exists in the evaluation path implies that the
+     * keyword was valid in whatever meta schema for that schema it was created for.
+     * 
+     * @param keyword the keyword to check
+     * @return true if found
+     */
     protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
-        boolean hasValidator = validationContext.getMetaSchema().getKeywords()
-                .get(keyword) != null;
-        if (hasValidator) {
-            JsonSchema schema = getEvaluationParentSchema();
-            while (schema != null) {
-                for (JsonValidator validator : schema.getValidators()) {
-                    if (keyword.equals(validator.getKeyword())) {
-                        hasValidator = true;
-                        break;
-                    }
-                }
-                if (hasValidator) {
+        boolean hasValidator = false;
+        JsonSchema schema = getEvaluationParentSchema();
+        while (schema != null) {
+            for (JsonValidator validator : schema.getValidators()) {
+                if (keyword.equals(validator.getKeyword())) {
+                    hasValidator = true;
                     break;
                 }
-                schema = schema.getEvaluationParentSchema();
             }
+            if (hasValidator) {
+                break;
+            }
+            schema = schema.getEvaluationParentSchema();
         }
         return hasValidator;
     }
-    
+
     @Override
     protected MessageSourceValidationMessage.Builder message() {
         return super.message().schemaNode(this.schemaNode);
