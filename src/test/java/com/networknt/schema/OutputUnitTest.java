@@ -212,4 +212,22 @@ public class OutputUnitTest {
         assertNotNull(details.getErrors().get("format"));
     }
 
+    @Test
+    void typeUnion() {
+        String typeSchema = "{\r\n"
+                + "  \"type\": [\"string\",\"array\"]\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(typeSchema, config);
+        OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+        });
+        assertFalse(outputUnit.isValid());
+        OutputUnit details = outputUnit.getDetails().get(0);
+        assertNotNull(details.getErrors().get("type"));
+    }
+
 }
