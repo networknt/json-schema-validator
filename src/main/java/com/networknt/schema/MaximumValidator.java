@@ -27,6 +27,9 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for maxmimum.
+ */
 public class MaximumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaximumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MAXIMUM = "exclusiveMaximum";
@@ -113,9 +116,10 @@ public class MaximumValidator extends BaseJsonValidator {
         }
 
         if (typedMaximum.crossesThreshold(node)) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(typedMaximum.thresholdValue())
-                    .build());
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast())
+                    .arguments(typedMaximum.thresholdValue()).build());
         }
         return Collections.emptySet();
     }

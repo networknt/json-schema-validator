@@ -27,14 +27,19 @@ import java.util.Set;
  * Used for Keywords that have no validation aspect, but are part of the metaschema.
  */
 public class NonValidationKeyword extends AbstractKeyword {
+    private final boolean collectAnnotations;
 
     private static final class Validator extends AbstractJsonValidator {
+        private final boolean collectAnnotations;
+        
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
-            super(schemaLocation, evaluationPath, keyword);
+                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword, boolean collectAnnotations) {
+            super(schemaLocation, evaluationPath, keyword, schemaNode);
+            this.collectAnnotations = collectAnnotations;
             String id = validationContext.resolveSchemaId(schemaNode);
             String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
-            if (id != null || anchor != null) {
+            String dynamicAnchor = validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
+            if (id != null || anchor != null || dynamicAnchor != null) {
                 // Used to register schema resources with $id
                 validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             }
@@ -49,17 +54,40 @@ public class NonValidationKeyword extends AbstractKeyword {
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            if (collectAnnotations && collectAnnotations(executionContext)) {
+                Object value = getAnnotationValue(getSchemaNode());
+                if (value != null) {
+                    putAnnotation(executionContext,
+                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
+                }
+            }
             return Collections.emptySet();
+        }
+        
+        protected Object getAnnotationValue(JsonNode schemaNode) {
+            if (schemaNode.isTextual()) {
+                return schemaNode.textValue(); 
+            } else if (schemaNode.isNumber()) {
+                return schemaNode.numberValue();
+            } else if (schemaNode.isObject()) {
+                return schemaNode;
+            }
+            return null;
         }
     }
 
     public NonValidationKeyword(String keyword) {
+        this(keyword, true);
+    }
+
+    public NonValidationKeyword(String keyword, boolean collectAnnotations) {
         super(keyword);
+        this.collectAnnotations = collectAnnotations;
     }
 
     @Override
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                       JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
-        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
+        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this, collectAnnotations);
     }
 }

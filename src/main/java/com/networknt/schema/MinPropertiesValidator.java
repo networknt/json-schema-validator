@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for minProperties.
+ */
 public class MinPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinPropertiesValidator.class);
 
@@ -41,8 +44,9 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
 
         if (node.isObject()) {
             if (node.size() < min) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(min).build());
             }
         }
 

@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,92 +14,87 @@ import org.junit.jupiter.api.Test;
 
 public class Issue366FailFastTest {
 
-  @BeforeEach
-  public void setup() throws IOException {
-    setupSchema();
-  }
+    @BeforeEach
+    public void setup() throws IOException {
+        setupSchema();
+    }
 
-  JsonSchema jsonSchema;
-  ObjectMapper objectMapper = new ObjectMapper();
-  private void setupSchema() throws IOException {
+    JsonSchema jsonSchema;
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-    schemaValidatorsConfig.setFailFast(true);
-    JsonSchemaFactory schemaFactory = JsonSchemaFactory
-        .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-        .jsonMapper(objectMapper)
-        .build();
+    private void setupSchema() throws IOException {
 
-    schemaValidatorsConfig.setTypeLoose(false);
+        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+        schemaValidatorsConfig.setFailFast(true);
+        JsonSchemaFactory schemaFactory = JsonSchemaFactory
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).jsonMapper(objectMapper).build();
 
-    SchemaLocation uri = getSchema();
+        schemaValidatorsConfig.setTypeLoose(false);
 
-    InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
-    JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
-    this.jsonSchema = schemaFactory.getSchema(uri, testCases,schemaValidatorsConfig);
-  }
+        SchemaLocation uri = getSchema();
 
-  protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(content);
-    return node;
-  }
+        InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
+        JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
+        this.jsonSchema = schemaFactory.getSchema(uri, testCases, schemaValidatorsConfig);
+    }
 
-  @Test
-  public void firstOneValid() throws Exception {
-    String dataPath = "/data/issue366.json";
+    protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(content);
+        return node;
+    }
 
-    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-    List<JsonNode> testNodes = node.findValues("tests");
-    JsonNode testNode = testNodes.get(0).get(0);
-    JsonNode dataNode = testNode.get("data");
-    Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-    assertTrue(errors.isEmpty());
-  }
+    @Test
+    public void firstOneValid() throws Exception {
+        String dataPath = "/data/issue366.json";
 
-  @Test
-  public void secondOneValid() throws Exception {
-    String dataPath = "/data/issue366.json";
+        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+        List<JsonNode> testNodes = node.findValues("tests");
+        JsonNode testNode = testNodes.get(0).get(0);
+        JsonNode dataNode = testNode.get("data");
+        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        assertTrue(errors.isEmpty());
+    }
 
-    InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
-    JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-    List<JsonNode> testNodes = node.findValues("tests");
-    JsonNode testNode = testNodes.get(0).get(1);
-    JsonNode dataNode = testNode.get("data");
-    Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-    assertTrue(errors.isEmpty());
-  }
+    @Test
+    public void secondOneValid() throws Exception {
+        String dataPath = "/data/issue366.json";
 
-  @Test
-  public void bothValid() throws Exception {
-    String dataPath = "/data/issue366.json";
+        InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
+        JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
+        List<JsonNode> testNodes = node.findValues("tests");
+        JsonNode testNode = testNodes.get(0).get(1);
+        JsonNode dataNode = testNode.get("data");
+        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        assertTrue(errors.isEmpty());
+    }
 
-    assertThrows(JsonSchemaException.class, () -> {
+    @Test
+    public void bothValid() throws Exception {
+        String dataPath = "/data/issue366.json";
+
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
-        jsonSchema.validate(dataNode);
-    });
-  }
+        assertEquals(1, jsonSchema.validate(dataNode).size());
+    }
 
-  @Test
-  public void neitherValid() throws Exception {
-    String dataPath = "/data/issue366.json";
+    @Test
+    public void neitherValid() throws Exception {
+        String dataPath = "/data/issue366.json";
 
-    assertThrows(JsonSchemaException.class, () -> {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(3);
         JsonNode dataNode = testNode.get("data");
-        jsonSchema.validate(dataNode);
-    });
-  }
+        assertEquals(1, jsonSchema.validate(dataNode).size());
+    }
 
-  private SchemaLocation getSchema() {
-   return SchemaLocation.of("classpath:" + "/draft7/issue366_schema.json");
-  }
+    private SchemaLocation getSchema() {
+        return SchemaLocation.of("classpath:" + "/draft7/issue366_schema.json");
+    }
 }

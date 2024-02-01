@@ -17,12 +17,14 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} that resolves $ref.
+ */
 public class RefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
@@ -77,7 +79,7 @@ public class RefValidator extends BaseJsonValidator {
                         findSchemaResource = validationContext.getDynamicAnchors().get(find); 
                     }
                     if (findSchemaResource != null) {
-                       schemaResource = findSchemaResource;   
+                        schemaResource = findSchemaResource;   
                     } else {
                         schemaResource = getJsonSchema(schemaResource, validationContext, newRefValue, refValueOriginal,
                                 evaluationPath);
@@ -147,74 +149,58 @@ public class RefValidator extends BaseJsonValidator {
         // This should be processing json pointer fragments only
         JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
         String schemaReference = resolve(parent, refValueOriginal);
-        return validationContext.getSchemaReferences().computeIfAbsent(schemaReference, key -> {
-            return parent.getSubSchema(fragment);
-        });
+        // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
+        // recursive update to the map.
+        // The getSubSchema potentially recurses to call back to getJsonSchema again
+        JsonSchema result = validationContext.getSchemaReferences().get(schemaReference);
+        if (result == null) {
+            synchronized (validationContext.getJsonSchemaFactory()) { // acquire lock on shared factory object to prevent deadlock
+                result = validationContext.getSchemaReferences().get(schemaReference);
+                if (result == null) {
+                    result = parent.getSubSchema(fragment);
+                    if (result != null) {
+                        validationContext.getSchemaReferences().put(schemaReference, result);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
-        Set<ValidationMessage> errors = Collections.emptySet();
-
-        Scope parentScope = collectorContext.enterDynamicScope();
-        try {
-            debug(logger, node, rootNode, instanceLocation);
-            JsonSchema refSchema = this.schema.getSchema();
-            if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
-                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
-                        .arguments(schemaNode.asText()).build();
-                throw new JsonSchemaException(validationMessage);
-            }
-            errors = refSchema.validate(executionContext, node, rootNode, instanceLocation);
-        } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
+        debug(logger, node, rootNode, instanceLocation);
+        JsonSchema refSchema = this.schema.getSchema();
+        if (refSchema == null) {
+            ValidationMessage validationMessage = message().type(ValidatorTypeCode.REF.getValue())
+                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                    .arguments(schemaNode.asText()).build();
+            throw new InvalidSchemaRefException(validationMessage);
         }
-        return errors;
+        return refSchema.validate(executionContext, node, rootNode, instanceLocation);
     }
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
-        Set<ValidationMessage> errors = Collections.emptySet();
-
-        Scope parentScope = collectorContext.enterDynamicScope();
-        try {
-            debug(logger, node, rootNode, instanceLocation);
-            // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
-            // these schemas will be cached along with config. We have to replace the config for cached $ref references
-            // with the latest config. Reset the config.
-            JsonSchema refSchema = this.schema.getSchema();
-            if (refSchema == null) {
-                ValidationMessage validationMessage = ValidationMessage.builder().type(ValidatorTypeCode.REF.getValue())
-                        .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
-                        .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
-                        .arguments(schemaNode.asText()).build();
-                throw new JsonSchemaException(validationMessage);
-            }
-            errors = refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-            return errors;
-        } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (shouldValidateSchema) {
-                if (errors.isEmpty()) {
-                    parentScope.mergeWith(scope);
-                }
-            }
+        debug(logger, node, rootNode, instanceLocation);
+        // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
+        // these schemas will be cached along with config. We have to replace the config for cached $ref references
+        // with the latest config. Reset the config.
+        JsonSchema refSchema = this.schema.getSchema();
+        if (refSchema == null) {
+            ValidationMessage validationMessage = message().type(ValidatorTypeCode.REF.getValue())
+                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
+                    .arguments(schemaNode.asText()).build();
+            throw new InvalidSchemaRefException(validationMessage);
         }
+        return refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 
 	public JsonSchemaRef getSchemaRef() {
 		return this.schema;
 	}
-
 
     @Override
     public void preloadJsonSchema() {
@@ -233,14 +219,14 @@ public class RefValidator extends BaseJsonValidator {
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
         JsonSchema check = jsonSchema;
         boolean circularDependency = false;
-        while(check.getEvaluationParentSchema() != null) {
+        while (check.getEvaluationParentSchema() != null) {
             check = check.getEvaluationParentSchema();
             if (check.getSchemaLocation().equals(schemaLocation)) {
                 circularDependency = true;
                 break;
             }
         }
-        if(!circularDependency) {
+        if (!circularDependency) {
             jsonSchema.initializeValidators();
         }
     }

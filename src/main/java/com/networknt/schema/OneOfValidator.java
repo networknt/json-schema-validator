@@ -17,17 +17,21 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for oneOf.
+ */
 public class OneOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
     private final List<JsonSchema> schemas = new ArrayList<>();
+
+    private Boolean canShortCircuit = null;
 
     public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ONE_OF, validationContext);
@@ -41,85 +45,90 @@ public class OneOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
-        Scope grandParentScope = collectorContext.enterDynamicScope();
+        debug(logger, node, rootNode, instanceLocation);
+
+        ValidatorState state = executionContext.getValidatorState();
+
+        // this is a complex validator, we set the flag to true
+        state.setComplexValidator(true);
+
+        int numberOfValidSchema = 0;
+        Set<ValidationMessage> childErrors = new LinkedHashSet<>();
+
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            debug(logger, node, rootNode, instanceLocation);
-
-            ValidatorState state = executionContext.getValidatorState();
-
-            // this is a complex validator, we set the flag to true
-            state.setComplexValidator(true);
-
-            int numberOfValidSchema = 0;
-            Set<ValidationMessage> childErrors = new LinkedHashSet<>();
-
+            executionContext.getExecutionConfig().setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
 
-                Scope parentScope = collectorContext.enterDynamicScope();
-                try {
-                    // Reset state in case the previous validator did not match
-                    state.setMatchedNode(true);
-
-                    if (!state.isWalkEnabled()) {
-                        schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
-                    } else {
-                        schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation, state.isValidationEnabled());
-                    }
-
-                    // check if any validation errors have occurred
-                    if (schemaErrors.isEmpty()) {
-                        // check whether there are no errors HOWEVER we have validated the exact validator
-                        if (!state.hasMatchedNode())
-                            continue;
-
-                        numberOfValidSchema++;
-                    }
-
-                    if (numberOfValidSchema > 1) {
-                        // short-circuit
-                        break;
-                    }
-
-                    childErrors.addAll(schemaErrors);
-                } finally {
-                    Scope scope = collectorContext.exitDynamicScope();
-                    if (schemaErrors.isEmpty()) {
-                        parentScope.mergeWith(scope);
-                    }
-                }
-            }
-
-            // ensure there is always an "OneOf" error reported if number of valid schemas is not equal to 1.
-            if (numberOfValidSchema != 1) {
-                ValidationMessage message = message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(Integer.toString(numberOfValidSchema)).build();
-                if (this.failFast) {
-                    throw new JsonSchemaException(message);
-                }
-                errors.add(message);
-                errors.addAll(childErrors);
-                collectorContext.getEvaluatedItems().clear();
-                collectorContext.getEvaluatedProperties().clear();
-            }
-
-            // Make sure to signal parent handlers we matched
-            if (errors.isEmpty())
+                // Reset state in case the previous validator did not match
                 state.setMatchedNode(true);
 
-            // reset the ValidatorState object
-            resetValidatorState(executionContext);
+                if (!state.isWalkEnabled()) {
+                    schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                } else {
+                    schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation,
+                            state.isValidationEnabled());
+                }
 
-            return Collections.unmodifiableSet(errors);
-        } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                grandParentScope.mergeWith(scope);
+                // check if any validation errors have occurred
+                if (schemaErrors.isEmpty()) {
+                    // check whether there are no errors HOWEVER we have validated the exact
+                    // validator
+                    if (!state.hasMatchedNode()) {
+                        continue;
+                    }
+                    numberOfValidSchema++;
+                }
+
+                if (numberOfValidSchema > 1 && canShortCircuit()) {
+                    // short-circuit
+                    break;
+                }
+
+                childErrors.addAll(schemaErrors);
             }
+        } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
+
+        // ensure there is always an "OneOf" error reported if number of valid schemas
+        // is not equal to 1.
+        if (numberOfValidSchema != 1) {
+            ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast())
+                    .arguments(Integer.toString(numberOfValidSchema)).build();
+            errors.add(message);
+            errors.addAll(childErrors);
+        }
+
+        // Make sure to signal parent handlers we matched
+        if (errors.isEmpty()) {
+            state.setMatchedNode(true);
+        }
+
+        // reset the ValidatorState object
+        resetValidatorState(executionContext);
+
+        return Collections.unmodifiableSet(errors);
+    }
+    
+    protected boolean canShortCircuit() {
+        if (this.canShortCircuit == null) {
+            boolean canShortCircuit = true;
+            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+                if ("unevaluatedProperties".equals(validator.getKeyword())
+                        || "unevaluatedItems".equals(validator.getKeyword())) {
+                    canShortCircuit = false;
+                }
+            }
+            this.canShortCircuit = canShortCircuit;
+        }
+        return this.canShortCircuit;
     }
 
     private static void resetValidatorState(ExecutionContext executionContext) {
@@ -146,5 +155,6 @@ public class OneOfValidator extends BaseJsonValidator {
         for (JsonSchema schema: this.schemas) {
             schema.initializeValidators();
         }
+        canShortCircuit(); // cache the flag
     }
 }

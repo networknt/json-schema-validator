@@ -212,9 +212,7 @@
             {
                 "description": "with invalid additional item",
                 "data": ["yes", false],
-                "valid": false,
-                "disabled": true,
-                "reason": "TODO: Is this a valid test? I don't see how 'true' validates against 'false'."
+                "valid": false
             }
         ]
     },
@@ -310,9 +308,7 @@
             {
                 "description": "when two schemas match and has no unevaluated items",
                 "data": ["foo", "bar", "baz"],
-                "valid": true,
-                "disabled": true,
-                "reason": "TODO: Is this a valid test? I don't see how 'true' validates against a string."
+                "valid": true
             },
             {
                 "description": "when two schemas match and has unevaluated items",
@@ -480,6 +476,82 @@
             {
                 "description": "with unevaluated items",
                 "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": false,
+            "items": [
+                { "type": "string" }
+            ],
+            "$ref": "#/$defs/bar",
+            "$defs": {
+              "bar": {
+                  "items": [
+                      true,
+                      { "type": "string" }
+                  ]
+              }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with $recursiveRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/unevaluated-items-with-recursive-ref/extended-tree",
+
+            "$recursiveAnchor": true,
+
+            "$ref": "./tree",
+            "items": [
+                true,
+                true,
+                { "type": "string" }
+            ],
+
+            "$defs": {
+                "tree": {
+                    "$id": "./tree",
+                    "$recursiveAnchor": true,
+
+                    "type": "array",
+                    "items": [
+                        { "type": "number" },
+                        {
+                            "$comment": "unevaluatedItems comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
+                            "unevaluatedItems": false,
+                            "$recursiveRef": "#"
+                        }
+                    ]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": [1, [2, [], "b"], "a"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": [1, [2, [], "b", "too many"], "a"],
                 "valid": false
             }
         ]

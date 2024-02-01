@@ -17,13 +17,15 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for not.
+ */
 public class NotValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotValidator.class);
 
@@ -36,25 +38,25 @@ public class NotValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-        Set<ValidationMessage> errors = new HashSet<>();
+        Set<ValidationMessage> errors = null;
+        debug(logger, node, rootNode, instanceLocation);
 
-        Scope parentScope = collectorContext.enterDynamicScope();
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            debug(logger, node, rootNode, instanceLocation);
+            executionContext.getExecutionConfig().setFailFast(false);
             errors = this.schema.validate(executionContext, node, rootNode, instanceLocation);
-            if (errors.isEmpty()) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.schema.toString())
-                        .build());
-            }
-            return Collections.emptySet();
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
+        if (errors.isEmpty()) {
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
+                    .build());
+        }
+        return Collections.emptySet();
     }
     
     @Override
@@ -65,8 +67,9 @@ public class NotValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         if (errors.isEmpty()) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.schema.toString())
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.schema.toString())
                     .build());
         }
         return Collections.emptySet();

@@ -17,16 +17,22 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for patternProperties.
+ */
 public class PatternPropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
+
+    private Boolean hasUnevaluatedPropertiesValidator = null;
 
     public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
@@ -50,7 +56,9 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
         Set<ValidationMessage> errors = null;
+        Set<String> matchedInstancePropertyNames = null;
         Iterator<String> names = node.fieldNames();
+        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
@@ -59,8 +67,11 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
                     JsonNodePath path = instanceLocation.append(name);
                     Set<ValidationMessage> results = entry.getValue().validate(executionContext, n, rootNode, path);
                     if (results.isEmpty()) {
-                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                            executionContext.getCollectorContext().getEvaluatedProperties().add(path);
+                        if (collectAnnotations) {
+                            if (matchedInstancePropertyNames == null) {
+                                matchedInstancePropertyNames = new LinkedHashSet<>();
+                            }
+                            matchedInstancePropertyNames.add(name);
                         }
                     } else {
                         if (errors == null) {
@@ -71,11 +82,29 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
+        if (collectAnnotations) {
+            executionContext.getAnnotations()
+                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+        }
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+    }
+    
+    private boolean collectAnnotations() {
+        return hasUnevaluatedPropertiesValidator();
+    }
+
+    private boolean hasUnevaluatedPropertiesValidator() {
+        if (this.hasUnevaluatedPropertiesValidator == null) {
+            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
+        }
+        return hasUnevaluatedPropertiesValidator;
     }
 
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(schemas.values());
+        collectAnnotations(); // cache the flag
     }
 }

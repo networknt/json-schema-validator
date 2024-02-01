@@ -255,7 +255,7 @@ public class JsonSchemaFactory {
      */
     protected JsonSchema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
-        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri, schemaNode, validationContext),
+        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
         try {
             /*
@@ -306,20 +306,17 @@ public class JsonSchemaFactory {
     }
 
     /**
-     * Gets the schema location from the $id or retrieval uri.
+     * Gets the base IRI from the schema retrieval IRI if present otherwise return
+     * one with a null base IRI.
+     * <p>
+     * Note that the resolving of the $id or id in the schema node will take place
+     * in the JsonSchema constructor.
      *
-     * @param schemaRetrievalUri the schema retrieval uri
-     * @param schemaNode the schema json
-     * @param validationContext the validationContext
+     * @param schemaLocation the schema retrieval uri
      * @return the schema location
      */
-    protected SchemaLocation getSchemaLocation(SchemaLocation schemaRetrievalUri, JsonNode schemaNode,
-            ValidationContext validationContext) {
-        String schemaLocation = validationContext.resolveSchemaId(schemaNode);
-        if (schemaLocation == null && schemaRetrievalUri != null) {
-            schemaLocation = schemaRetrievalUri.toString();
-        }
-        return schemaLocation != null ? SchemaLocation.of(schemaLocation) : SchemaLocation.DOCUMENT;
+    protected SchemaLocation getSchemaLocation(SchemaLocation schemaLocation) {
+        return schemaLocation != null ? schemaLocation : SchemaLocation.DOCUMENT;
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
@@ -356,23 +353,29 @@ public class JsonSchemaFactory {
     }
 
     protected JsonMetaSchema loadMetaSchema(String id, SchemaValidatorsConfig config) {
-        JsonSchema schema = getSchema(SchemaLocation.of(id), config);
-        JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
-        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
-        if (specification != null) {
-            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
-                // Process vocabularies
-                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
-                if (vocabulary != null) {
-                    builder.vocabularies(new HashMap<>());
-                    for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
-                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+        try {
+            JsonSchema schema = getSchema(SchemaLocation.of(id), config);
+            JsonMetaSchema.Builder builder = JsonMetaSchema.builder(id, schema.getValidationContext().getMetaSchema());
+            VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+            if (specification != null) {
+                if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                    // Process vocabularies
+                    JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                    if (vocabulary != null) {
+                        builder.vocabularies(new HashMap<>());
+                        for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                            builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+                        }
                     }
+                    
                 }
-                
             }
+            return builder.build();
+        } catch (Exception e) {
+            ValidationMessage validationMessage = ValidationMessage.builder().message("Unknown MetaSchema: {1}")
+                    .arguments(id).build();
+            throw new InvalidSchemaException(validationMessage, e);
         }
-        return builder.build();
     }
 
     /**
@@ -450,9 +453,21 @@ public class JsonSchemaFactory {
      */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableUriSchemaCache) {
-            JsonSchema cachedUriSchema = uriSchemaCache.computeIfAbsent(schemaUri, key -> {
-                return getMappedSchema(schemaUri, config);
-            });
+            // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
+            // recursive update to the map.
+            // The getMapperSchema potentially recurses to call back to getSchema again
+            JsonSchema cachedUriSchema = uriSchemaCache.get(schemaUri);
+            if (cachedUriSchema == null) {
+                synchronized (this) { // acquire lock on shared factory object to prevent deadlock
+                    cachedUriSchema = uriSchemaCache.get(schemaUri);
+                    if (cachedUriSchema == null) {
+                        cachedUriSchema = getMappedSchema(schemaUri, config);
+                        if (cachedUriSchema != null) {
+                            uriSchemaCache.put(schemaUri, cachedUriSchema);
+                        }
+                    }
+                }
+            }
             return cachedUriSchema.withConfig(config);
         }
         return getMappedSchema(schemaUri, config);

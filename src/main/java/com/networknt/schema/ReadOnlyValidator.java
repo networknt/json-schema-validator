@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * {@link JsonValidator} for readOnly.
+ */
 public class ReadOnlyValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
@@ -40,8 +43,9 @@ public class ReadOnlyValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
         if (this.readOnly) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).build());
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).build());
         }
         return Collections.emptySet();
     }

@@ -18,23 +18,28 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for prefixItems.
+ */
 public class PrefixItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
 
     private final List<JsonSchema> tupleSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
+    
+    private Boolean hasUnevaluatedItemsValidator = null;
 
     public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
@@ -58,17 +63,32 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
-            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
-                if (results.isEmpty()) {
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
-                } else {
+                if (!results.isEmpty()) {
                     errors.addAll(results);
+                }
+            }
+
+            // Add annotation
+            if (collectAnnotations() || collectAnnotations(executionContext)) {
+                // Tuples
+                int items = node.isArray() ? node.size() : 1;
+                int schemas = this.tupleSchema.size();
+                if (items > schemas) {
+                    // More items than schemas so the keyword only applied to the number of schemas
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(schemas).build());
+                } else {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
                 }
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
@@ -140,9 +160,21 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         return this.tupleSchema;
     }
 
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
+    }
+
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.tupleSchema);
+        collectAnnotations(); // cache the flag
     }
 
 }

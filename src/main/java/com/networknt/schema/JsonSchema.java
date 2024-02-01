@@ -19,7 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.CollectorContext.Scope;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
@@ -62,30 +61,66 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
         return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
     }
+    
+    private static SchemaLocation resolve(SchemaLocation schemaLocation, JsonNode schemaNode, boolean rootSchema,
+            ValidationContext validationContext) {
+        String id = validationContext.resolveSchemaId(schemaNode);
+        if (id != null) {
+            String resolve = id;
+            int fragment = id.indexOf('#');
+            // Check if there is a non-empty fragment
+            if (fragment != -1 && !(fragment + 1 >= id.length())) {
+                // strip the fragment when resolving
+                resolve = id.substring(0, fragment);
+            }
+            SchemaLocation result = !"".equals(resolve) ? schemaLocation.resolve(resolve) : schemaLocation;
+            JsonSchemaIdValidator validator = validationContext.getConfig().getSchemaIdValidator();
+            if (validator != null) {
+                if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
+                    SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getMetaSchema().getIdKeyword());
+                    ValidationMessage validationMessage = ValidationMessage.builder()
+                            .code(ValidatorTypeCode.ID.getValue()).type(ValidatorTypeCode.ID.getValue())
+                            .instanceLocation(idSchemaLocation.getFragment())
+                            .arguments(schemaLocation.toString(), id)
+                            .schemaLocation(idSchemaLocation)
+                            .schemaNode(schemaNode)
+                            .messageFormatter(args -> validationContext.getConfig().getMessageSource().getMessage(
+                                    ValidatorTypeCode.ID.getValue(), validationContext.getConfig().getLocale(), args))
+                            .build();
+                    throw new InvalidSchemaException(validationMessage);
+                }
+            }
+            return result;
+        } else {
+            return schemaLocation;
+        }
+    }
 
     private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        super(schemaLocation.resolve(validationContext.resolveSchemaId(schemaNode)), evaluationPath, schemaNode, parent,
+        super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
         this.metaSchema = this.validationContext.getMetaSchema();
         initializeConfig();
         String id = this.validationContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
-            // In earlier drafts $id may contain an anchor fragment
+            // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
             // Note that json pointer fragments in $id are not allowed
-            if (hasNoFragment(schemaLocation)) {
+            SchemaLocation result = id.contains("#") ? schemaLocation.resolve(id) : this.schemaLocation;
+            if (hasNoFragment(result)) {
                 this.id = id;
             } else {
-                this.id = id;
+                // This is an anchor fragment and is not a document
+                // This will be added to schema resources later
+                this.id = null;
             }
-            this.validationContext.getSchemaResources()
-                    .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : id, this);
+            this.validationContext.getSchemaResources().putIfAbsent(result != null ? result.toString() : id, this);
         } else {
             if (hasNoFragment(schemaLocation)) {
                 // No $id but there is no fragment and is thus a schema resource
-                this.id = this.schemaLocation.getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
+                this.id = schemaLocation.getAbsoluteIri() != null ? schemaLocation.getAbsoluteIri().toString() : "";
                 this.validationContext.getSchemaResources()
-                        .putIfAbsent(this.schemaLocation != null ? this.schemaLocation.toString() : this.id, this);
+                        .putIfAbsent(schemaLocation != null ? schemaLocation.toString() : this.id, this);
             } else {
                 this.id = null;
             }
@@ -248,6 +283,10 @@ public class JsonSchema extends BaseJsonValidator {
         JsonSchema document = findSchemaResourceRoot(); 
         JsonSchema parent = document; 
         JsonSchema subSchema = null;
+        JsonNode parentNode = parent.getSchemaNode();
+        SchemaLocation schemaLocation = document.getSchemaLocation();
+        JsonNodePath evaluationPath = document.getEvaluationPath();
+        int nameCount = fragment.getNameCount();
         for (int x = 0; x < fragment.getNameCount(); x++) {
             /*
              * The sub schema is created by iterating through the parents in order to
@@ -258,10 +297,8 @@ public class JsonSchema extends BaseJsonValidator {
              * to $id changes in the lexical scope.
              */
             Object segment = fragment.getElement(x);
-            JsonNode subSchemaNode = parent.getNode(segment);
+            JsonNode subSchemaNode = getNode(parentNode, segment);
             if (subSchemaNode != null) {
-                SchemaLocation schemaLocation = parent.getSchemaLocation();
-                JsonNodePath evaluationPath = parent.getEvaluationPath();
                 if (segment instanceof Number) {
                     int index = ((Number) segment).intValue();
                     schemaLocation = schemaLocation.append(index);
@@ -274,9 +311,17 @@ public class JsonSchema extends BaseJsonValidator {
                  * The parent validation context is used to create as there can be changes in
                  * $schema is later drafts which means the validation context can change.
                  */
-                subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
-                        parent);
-                parent = subSchema;
+                // This may need a redesign see Issue 939 and 940
+                String id = parent.getValidationContext().resolveSchemaId(subSchemaNode);
+//                if (!("definitions".equals(segment.toString()) || "$defs".equals(segment.toString())
+//                        )) {
+                if (id != null || x == nameCount - 1) {
+                    subSchema = parent.getValidationContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
+                            parent);
+                    parent = subSchema;
+                    schemaLocation = subSchema.getSchemaLocation();
+                }
+                parentNode = subSchemaNode;
             } else {
                 /*
                  * This means that the fragment wasn't found in the document.
@@ -290,9 +335,14 @@ public class JsonSchema extends BaseJsonValidator {
                     found = found.getSubSchema(fragment);
                 }
                 if (found == null) {
-                    throw new JsonSchemaException("Unable to find subschema " + fragment.toString() + " in "
-                            + parent.getSchemaLocation().toString() + " at evaluation path "
-                            + parent.getEvaluationPath().toString());
+                    ValidationMessage validationMessage = ValidationMessage.builder()
+                            .type(ValidatorTypeCode.REF.getValue()).code("internal.unresolvedRef")
+                            .message("{0}: Reference {1} cannot be resolved")
+                            .instanceLocation(schemaLocation.getFragment())
+                            .schemaLocation(schemaLocation)
+                            .evaluationPath(evaluationPath)
+                            .arguments(fragment).build();
+                    throw new InvalidSchemaRefException(validationMessage);
                 }
                 return found;
             }
@@ -301,7 +351,10 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     protected JsonNode getNode(Object propertyOrIndex) {
-        JsonNode node = getSchemaNode();
+        return getNode(this.schemaNode, propertyOrIndex);
+    }
+    
+    protected JsonNode getNode(JsonNode node, Object propertyOrIndex) {
         JsonNode value = null;
         if (propertyOrIndex instanceof Number) {
             value = node.get(((Number) propertyOrIndex).intValue());
@@ -506,36 +559,24 @@ public class JsonSchema extends BaseJsonValidator {
 
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         Set<ValidationMessage> errors = null;
-        // Get the collector context.
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
         for (JsonValidator v : getValidators()) {
             Set<ValidationMessage> results = null;
 
-            Scope parentScope = collectorContext.enterDynamicScope(this);
             try {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
-                Scope scope = collectorContext.exitDynamicScope();
                 if (results == null || results.isEmpty()) {
-                    parentScope.mergeWith(scope);
+                    // Do nothing if valid
                 } else {
+                    executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), false);
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
                     errors.addAll(results);
-                    if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
-                            || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-                        collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-                    }
-                    if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
-                            || v instanceof PatternPropertiesValidator) {
-                        collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-                    }
                 }
-
             }
         }
 
@@ -805,6 +846,44 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * Validates to a format.
+     * 
+     * @param <T>              the result type
+     * @param executionContext the execution context
+     * @param node             the node
+     * @param format           the format
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
+        return validate(executionContext, node, format, null);
+    }
+
+    /**
+     * Validates to a format.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param node                the node
+     * @param format              the format
+     * @param executionCustomizer the customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
+            ExecutionContextCustomizer executionCustomizer) {
+        format.customize(executionContext, this.validationContext);
+        if (executionCustomizer != null) {
+            executionCustomizer.customize(executionContext, this.validationContext);
+        }
+        Set<ValidationMessage> validationMessages = null;
+        try {
+            validationMessages = validate(executionContext, node);
+        } catch (FailFastAssertionException e) {
+            validationMessages = e.getValidationMessages();
+        }
+        return format.format(this, validationMessages, executionContext, this.validationContext);
+    }
+
+    /**
      * Deserialize string to JsonNode.
      * 
      * @param input the input
@@ -956,7 +1035,6 @@ public class JsonSchema extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Walk through all the JSONWalker's.
         for (JsonValidator v : getValidators()) {
             JsonNodePath evaluationPathWithKeyword = v.getEvaluationPath();
@@ -968,23 +1046,12 @@ public class JsonSchema extends BaseJsonValidator {
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
                     Set<ValidationMessage> results = null;
-                    Scope parentScope = collectorContext.enterDynamicScope(this);
                     try {
                         results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
                     } finally {
-                        Scope scope = collectorContext.exitDynamicScope();
                         if (results == null || results.isEmpty()) {
-                            parentScope.mergeWith(scope);
                         } else {
                             errors.addAll(results);
-                            if (v instanceof PrefixItemsValidator || v instanceof ItemsValidator
-                                    || v instanceof ItemsValidator202012 || v instanceof ContainsValidator) {
-                                collectorContext.getEvaluatedItems().addAll(scope.getEvaluatedItems());
-                            }
-                            if (v instanceof PropertiesValidator || v instanceof AdditionalPropertiesValidator
-                                    || v instanceof PatternPropertiesValidator) {
-                                collectorContext.getEvaluatedProperties().addAll(scope.getEvaluatedProperties());
-                            }
                         }
                     }
                 }
@@ -1079,13 +1146,13 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ExecutionContext createExecutionContext() {
         SchemaValidatorsConfig config = validationContext.getConfig();
-        CollectorContext collectorContext = new CollectorContext(config.isUnevaluatedItemsAnalysisDisabled(),
-                config.isUnevaluatedPropertiesAnalysisDisabled());
+        CollectorContext collectorContext = new CollectorContext();
 
         // Copy execution config defaults from validation config
         ExecutionConfig executionConfig = new ExecutionConfig();
         executionConfig.setLocale(config.getLocale());
         executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
+        executionConfig.setFailFast(config.isFailFast());
 
         ExecutionContext executionContext = new ExecutionContext(executionConfig, collectorContext);
         if(config.getExecutionContextCustomizer() != null) {

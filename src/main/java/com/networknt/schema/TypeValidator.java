@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for type.
+ */
 public class TypeValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
 
@@ -57,20 +60,10 @@ public class TypeValidator extends BaseJsonValidator {
 
         if (!equalsToSchemaType(node)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());
-        }
-
-        // TODO: Is this really necessary?
-        // Hack to catch evaluated properties if additionalProperties is given as "additionalProperties":{"type":"string"}
-        // Hack to catch patternProperties like "^foo":"value"
-        if (this.schemaLocation.getFragment().getName(-1).equals("type")) {
-            if (rootNode.isArray()) {
-                executionContext.getCollectorContext().getEvaluatedItems().add(instanceLocation);
-            } else if (rootNode.isObject()) {
-                executionContext.getCollectorContext().getEvaluatedProperties().add(instanceLocation);
-            }
         }
         return Collections.emptySet();
     }

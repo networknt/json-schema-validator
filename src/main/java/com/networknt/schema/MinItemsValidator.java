@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for minItems.
+ */
 public class MinItemsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinItemsValidator.class);
 
@@ -40,13 +43,16 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
 
         if (node.isArray()) {
             if (node.size() < min) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min, node.size()).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(min, node.size())
+                        .build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 < min) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(min, 1).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(min, 1).build());
             }
         }
 

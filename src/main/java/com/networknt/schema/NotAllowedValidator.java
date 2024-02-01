@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for notAllowed.
+ */
 public class NotAllowedValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotAllowedValidator.class);
 
@@ -49,8 +52,10 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
-                errors.add(message().property(fieldName).instanceLocation(instanceLocation.append(fieldName))
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
+                errors.add(message().property(fieldName).instanceNode(node)
+                        .instanceLocation(instanceLocation.append(fieldName))
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(fieldName).build());
             }
         }
 

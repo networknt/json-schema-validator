@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Tests the validity of {@literal maxContains} and {@literal minContains} in a schema.
+ * {@link JsonValidator} for {@literal maxContains} and {@literal minContains} in a schema.
  * <p>
  * This validator only checks that the schema is valid. The functionality for
  * testing whether an instance array conforms to the {@literal maxContains}
@@ -62,8 +62,10 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         return this.analysis != null ? this.analysis.stream()
-                .map(analysis -> message().instanceLocation(analysis.getSchemaLocation().getFragment())
+                .map(analysis -> message().instanceNode(node)
+                        .instanceLocation(analysis.getSchemaLocation().getFragment())
                         .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast())
                         .arguments(parentSchema.getSchemaNode().toString()).build())
                 .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
     }

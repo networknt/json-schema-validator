@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for required.
+ */
 public class RequiredValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
@@ -57,8 +60,9 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                  * <p>
                  * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
                  */
-                errors.add(message().property(fieldName).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(fieldName).build());
+                errors.add(message().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(fieldName).build());
             }
         }
 

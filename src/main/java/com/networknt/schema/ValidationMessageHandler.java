@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class ValidationMessageHandler {
-    protected boolean failFast;
     protected final MessageSource messageSource;
     protected ErrorMessageType errorMessageType;
 
@@ -25,10 +24,9 @@ public abstract class ValidationMessageHandler {
 
     protected Keyword keyword;
 
-    protected ValidationMessageHandler(boolean failFast, ErrorMessageType errorMessageType,
-            boolean customErrorMessagesEnabled, MessageSource messageSource, Keyword keyword, JsonSchema parentSchema,
-            SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
-        this.failFast = failFast;
+    protected ValidationMessageHandler(ErrorMessageType errorMessageType, boolean customErrorMessagesEnabled,
+            MessageSource messageSource, Keyword keyword, JsonSchema parentSchema, SchemaLocation schemaLocation,
+            JsonNodePath evaluationPath) {
         this.errorMessageType = errorMessageType;
         this.messageSource = messageSource;
         this.schemaLocation = Objects.requireNonNull(schemaLocation);
@@ -44,7 +42,6 @@ public abstract class ValidationMessageHandler {
      * @param copy to copy from
      */
     protected ValidationMessageHandler(ValidationMessageHandler copy) {
-        this.failFast = copy.failFast;
         this.messageSource = copy.messageSource;
         this.errorMessageType = copy.errorMessageType;
         this.schemaLocation = copy.schemaLocation;
@@ -57,9 +54,9 @@ public abstract class ValidationMessageHandler {
     }
 
     protected MessageSourceValidationMessage.Builder message() {
-        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, message -> {
-            if (this.failFast && isApplicator()) {
-                throw new JsonSchemaException(message);
+        return MessageSourceValidationMessage.builder(this.messageSource, this.errorMessage, (message, failFast) -> {
+            if (failFast) {
+                throw new FailFastAssertionException(message);
             }
         }).code(getErrorMessageType().getErrorCode()).schemaLocation(this.schemaLocation)
                 .evaluationPath(this.evaluationPath).type(this.keyword != null ? this.keyword.getValue() : null)
@@ -68,42 +65,6 @@ public abstract class ValidationMessageHandler {
 
     protected ErrorMessageType getErrorMessageType() {
         return this.errorMessageType;
-    }
-
-    private boolean isApplicator() {
-        return !isPartOfAnyOfMultipleType()
-                && !isPartOfIfMultipleType()
-                && !isPartOfNotMultipleType()
-                && !isPartOfOneOfMultipleType();
-    }
-
-    private boolean isPartOfAnyOfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.ANY_OF.getValue());
-    }
-
-    private boolean isPartOfIfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.IF_THEN_ELSE.getValue());
-    }
-
-    private boolean isPartOfNotMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.NOT.getValue());
-    }
-    
-    protected boolean schemaLocationContains(String match) {
-        int count = this.parentSchema.schemaLocation.getFragment().getNameCount();
-        for (int x = 0; x < count; x++) {
-            String name = this.parentSchema.schemaLocation.getFragment().getName(x);
-            if (match.equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /* ********************** START OF OpenAPI 3.0.x DISCRIMINATOR METHODS ********************************* */
-
-    protected boolean isPartOfOneOfMultipleType() {
-        return schemaLocationContains(ValidatorTypeCode.ONE_OF.getValue());
     }
 
     protected void parseErrorCode(String errorCodeKey) {
@@ -180,7 +141,7 @@ public abstract class ValidationMessageHandler {
         }
         return messageNode;
     }
-    
+
     protected String getErrorCodeKey(String keyword) {
         if (keyword != null) {
             return keyword + "ErrorCode";

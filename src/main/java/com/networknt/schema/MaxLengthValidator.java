@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for maxLength.
+ */
 public class MaxLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxLengthValidator.class);
 
@@ -45,8 +48,9 @@ public class MaxLengthValidator extends BaseJsonValidator implements JsonValidat
             return Collections.emptySet();
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > maxLength) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(maxLength).build());
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(maxLength).build());
         }
         return Collections.emptySet();
     }

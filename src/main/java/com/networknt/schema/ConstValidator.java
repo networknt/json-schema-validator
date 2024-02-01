@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for const.
+ */
 public class ConstValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ConstValidator.class);
     JsonNode schemaNode;
@@ -36,12 +39,13 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText())
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(schemaNode.asText())
                         .build());
             }
         } else if (!schemaNode.equals(node)) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText()).build());
         }
         return Collections.emptySet();

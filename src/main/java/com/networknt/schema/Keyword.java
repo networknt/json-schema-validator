@@ -18,9 +18,29 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * Represents a keyword.
+ */
 public interface Keyword {
+    /**
+     * Gets the keyword value.
+     * 
+     * @return the keyword value
+     */
     String getValue();
 
+    /**
+     * Creates a new validator for the keyword.
+     * 
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
+     * @param schemaNode the schema node
+     * @param parentSchema the parent schema
+     * @param validationContext the validation context
+     * @return the validation
+     * @throws JsonSchemaException the exception
+     * @throws Exception the exception
+     */
     JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
 }

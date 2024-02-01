@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for minLength.
+ */
 public class MinLengthValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinLengthValidator.class);
 
@@ -46,8 +49,9 @@ public class MinLengthValidator extends BaseJsonValidator implements JsonValidat
         }
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(minLength).build());
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(minLength).build());
         }
         return Collections.emptySet();
     }

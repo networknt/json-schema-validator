@@ -17,13 +17,15 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for if.
+ */
 public class IfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 
@@ -64,38 +66,25 @@ public class IfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
-
         Set<ValidationMessage> errors = new LinkedHashSet<>();
 
-        Scope parentScope = collectorContext.enterDynamicScope();
         boolean ifConditionPassed = false;
+
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
         try {
-            try {
-                ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
-            } catch (JsonSchemaException ex) {
-                // When failFast is enabled, validations are thrown as exceptions.
-                // An exception means the condition failed
-                ifConditionPassed = false;
-            }
-
-            if (ifConditionPassed && this.thenSchema != null) {
-                errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
-            } else if (!ifConditionPassed && this.elseSchema != null) {
-                // discard ifCondition results
-                collectorContext.exitDynamicScope();
-                collectorContext.enterDynamicScope();
-
-                errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
-            }
-
+            executionContext.getExecutionConfig().setFailFast(false);
+            ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
         } finally {
-            Scope scope = collectorContext.exitDynamicScope();
-            if (errors.isEmpty()) {
-                parentScope.mergeWith(scope);
-            }
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
 
+        if (ifConditionPassed && this.thenSchema != null) {
+            errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
+        } else if (!ifConditionPassed && this.elseSchema != null) {
+            errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
+        }
         return Collections.unmodifiableSet(errors);
     }
 

@@ -198,8 +198,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "$ref resolves to /definitions/base_foo, data does not validate",
@@ -301,8 +299,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "valid tree",
@@ -436,8 +432,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "data": 1,
@@ -497,8 +491,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "number is valid",

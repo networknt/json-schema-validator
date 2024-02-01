@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -26,12 +27,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for items from V2012-12.
+ */
 public class ItemsValidator202012 extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
 
     private final JsonSchema schema;
     private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
+
+    private Boolean hasUnevaluatedItemsValidator = null;
 
     public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
@@ -61,17 +67,26 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         // ignores non-arrays
         if (node.isArray()) {
             Set<ValidationMessage> errors = new LinkedHashSet<>();
-            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+            boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 // validate with item schema (the whole array has the same item schema)
                 Set<ValidationMessage> results = this.schema.validate(executionContext, node.get(i), rootNode, path);
                 if (results.isEmpty()) {
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
+//                    evaluatedItems.add(path);
                 } else {
                     errors.addAll(results);
+                }
+                evaluated = true;
+            }
+            if (evaluated) {
+                if (collectAnnotations() || collectAnnotations(executionContext)) {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
                 }
             }
             return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
@@ -145,6 +160,18 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         this.schema.initializeValidators();
+        collectAnnotations(); // cache the flag
+    }
+    
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
     }
 
 }

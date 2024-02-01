@@ -255,7 +255,7 @@ public class CollectorContextTest {
         public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator(schemaLocation, evaluationPath);
+                return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
             }
             return null;
         }
@@ -268,8 +268,8 @@ public class CollectorContextTest {
      * document again just for gathering this kind of information.
      */
     private class CustomValidator extends AbstractJsonValidator {
-        public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
-            super(schemaLocation, evaluationPath,null);
+        public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+            super(schemaLocation, evaluationPath, new CustomKeyword(), schemaNode);
         }
 
         @Override
@@ -326,7 +326,7 @@ public class CollectorContextTest {
         public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator1(schemaLocation, evaluationPath);
+                return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
             }
             return null;
         }
@@ -341,8 +341,8 @@ public class CollectorContextTest {
      * keyword has been used multiple times in JSON Schema.
      */
     private class CustomValidator1 extends AbstractJsonValidator {
-        public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
-            super(schemaLocation, evaluationPath,null);
+        public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+            super(schemaLocation, evaluationPath,new CustomKeyword(), schemaNode);
         }
 
         @SuppressWarnings("unchecked")

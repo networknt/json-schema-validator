@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CollectorContext.Scope;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +24,17 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * {@link JsonValidator} for anyOf.
+ */
 public class AnyOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<JsonSchema> schemas = new ArrayList<>();
     private final DiscriminatorContext discriminatorContext;
+
+    private Boolean canShortCircuit = null;
 
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
@@ -50,7 +54,6 @@ public class AnyOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();
@@ -63,22 +66,23 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> allErrors = new LinkedHashSet<>();
 
-        Scope grandParentScope = collectorContext.enterDynamicScope();
+        int numberOfValidSubSchemas = 0;
         try {
-            int numberOfValidSubSchemas = 0;
-            for (JsonSchema schema: this.schemas) {
-                Set<ValidationMessage> errors = Collections.emptySet();
-                Scope parentScope = collectorContext.enterDynamicScope();
-                try {
+            // Save flag as nested schema evaluation shouldn't trigger fail fast
+            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            try {
+                executionContext.getExecutionConfig().setFailFast(false);
+                for (JsonSchema schema : this.schemas) {
+                    Set<ValidationMessage> errors = Collections.emptySet();
                     state.setMatchedNode(initialHasMatchedNode);
 
                     TypeValidator typeValidator = schema.getTypeValidator();
                     if (typeValidator != null) {
-                        //If schema has type validator and node type doesn't match with schemaType then ignore it
-                        //For union type, it is a must to call TypeValidator
+                        // If schema has type validator and node type doesn't match with schemaType then
+                        // ignore it
+                        // For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors
-                                    .addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
+                            allErrors.addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
                             continue;
                         }
                     }
@@ -90,7 +94,8 @@ public class AnyOfValidator extends BaseJsonValidator {
 
                     // check if any validation errors have occurred
                     if (errors.isEmpty()) {
-                        // check whether there are no errors HOWEVER we have validated the exact validator
+                        // check whether there are no errors HOWEVER we have validated the exact
+                        // validator
                         if (!state.hasMatchedNode()) {
                             continue;
                         }
@@ -98,7 +103,8 @@ public class AnyOfValidator extends BaseJsonValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())) {
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
+                            && canShortCircuit()) {
                         // Clear all errors.
                         allErrors.clear();
                         // return empty errors.
@@ -107,8 +113,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         if (this.discriminatorContext.isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
                                 allErrors.addAll(errors);
-                                allErrors.add(message().instanceLocation(instanceLocation)
+                                allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
+                                        .failFast(executionContext.getExecutionConfig().isFailFast())
                                         .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
                                 // Clear all errors.
@@ -118,12 +125,10 @@ public class AnyOfValidator extends BaseJsonValidator {
                         }
                     }
                     allErrors.addAll(errors);
-                } finally {
-                    Scope scope = collectorContext.exitDynamicScope();
-                    if (errors.isEmpty()) {
-                        parentScope.mergeWith(scope);
-                    }
                 }
+            } finally {
+                // Restore flag
+                executionContext.getExecutionConfig().setFailFast(failFast);
             }
 
             // determine only those errors which are NOT of type "required" property missing
@@ -138,7 +143,7 @@ public class AnyOfValidator extends BaseJsonValidator {
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
                 final Set<ValidationMessage> errors = new LinkedHashSet<>();
-                errors.add(message().instanceLocation(instanceLocation)
+                errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
@@ -149,12 +154,12 @@ public class AnyOfValidator extends BaseJsonValidator {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
-
-            Scope parentScope = collectorContext.exitDynamicScope();
             if (allErrors.isEmpty()) {
                 state.setMatchedNode(true);
-                grandParentScope.mergeWith(parentScope);
             }
+        }
+        if (numberOfValidSubSchemas >= 1) {
+            return Collections.emptySet();
         }
         return Collections.unmodifiableSet(allErrors);
     }
@@ -169,9 +174,24 @@ public class AnyOfValidator extends BaseJsonValidator {
         }
         return new LinkedHashSet<>();
     }
+    
+    protected boolean canShortCircuit() {
+        if (this.canShortCircuit == null) {
+            boolean canShortCircuit = true;
+            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+                if ("unevaluatedProperties".equals(validator.getKeyword())
+                        || "unevaluatedItems".equals(validator.getKeyword())) {
+                    canShortCircuit = false;
+                }
+            }
+            this.canShortCircuit = canShortCircuit;
+        }
+        return this.canShortCircuit;
+    }
 
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.schemas);
+        canShortCircuit(); // cache flag
     }
 }

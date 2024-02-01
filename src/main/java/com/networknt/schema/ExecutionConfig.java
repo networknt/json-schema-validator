@@ -24,70 +24,53 @@ import java.util.function.Predicate;
  * Configuration per execution.
  */
 public class ExecutionConfig {
+    /**
+     * The locale to use for formatting messages.
+     */
     private Locale locale = Locale.ROOT;
-    private Predicate<String> annotationAllowedPredicate = (keyword) -> true;
+
+    /**
+     * Determines if annotation collection is enabled.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     */
+    private boolean annotationCollectionEnabled = false;
+
+    /**
+     * If annotation collection is enabled, determine which annotations to collect.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     */
+    private Predicate<String> annotationCollectionPredicate = keyword -> false;
 
     /**
      * Since Draft 2019-09 format assertions are not enabled by default.
      */
     private Boolean formatAssertionsEnabled = null;
 
+    /**
+     * Determine if the validation execution can fail fast.
+     */
+    private boolean failFast = false;
+
+    /**
+     * Gets the locale to use for formatting messages.
+     * 
+     * @return the locale
+     */
     public Locale getLocale() {
         return locale;
     }
 
+    /**
+     * Sets the locale to use for formatting messages.
+     * 
+     * @param locale the locale
+     */
     public void setLocale(Locale locale) {
         this.locale = Objects.requireNonNull(locale, "Locale must not be null");
-    }
-
-    /**
-     * Gets the predicate to determine if annotation collection is allowed for a
-     * particular keyword.
-     * <p>
-     * The default value is to allow annotation collection.
-     * <p>
-     * Setting this to return false improves performance but keywords such as
-     * unevaluatedItems and unevaluatedProperties will fail to evaluate properly.
-     * <p>
-     * This will also affect reporting if annotations need to be in the output
-     * format.
-     * <p>
-     * unevaluatedProperties depends on properties, patternProperties and
-     * additionalProperties.
-     * <p>
-     * unevaluatedItems depends on items/prefixItems, additionalItems/items and
-     * contains.
-     * 
-     * @return the predicate to determine if annotation collection is allowed for
-     *         the keyword
-     */
-    public Predicate<String> getAnnotationAllowedPredicate() {
-        return annotationAllowedPredicate;
-    }
-
-    /**
-     * Predicate to determine if annotation collection is allowed for a particular
-     * keyword.
-     * <p>
-     * The default value is to allow annotation collection.
-     * <p>
-     * Setting this to return false improves performance but keywords such as
-     * unevaluatedItems and unevaluatedProperties will fail to evaluate properly.
-     * <p>
-     * This will also affect reporting if annotations need to be in the output
-     * format.
-     * <p>
-     * unevaluatedProperties depends on properties, patternProperties and
-     * additionalProperties.
-     * <p>
-     * unevaluatedItems depends on items/prefixItems, additionalItems/items and
-     * contains.
-     * 
-     * @param annotationAllowedPredicate the predicate accepting the keyword
-     */
-    public void setAnnotationAllowedPredicate(Predicate<String> annotationAllowedPredicate) {
-        this.annotationAllowedPredicate = Objects.requireNonNull(annotationAllowedPredicate,
-                "annotationAllowedPredicate must not be null");
     }
 
     /**
@@ -113,4 +96,88 @@ public class ExecutionConfig {
     public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
         this.formatAssertionsEnabled = formatAssertionsEnabled;
     }
+
+    /**
+     * Return if fast fail is enabled.
+     * 
+     * @return if fast fail is enabled
+     */
+    public boolean isFailFast() {
+        return failFast;
+    }
+
+    /**
+     * Sets whether fast fail is enabled.
+     * 
+     * @param failFast true to fast fail
+     */
+    public void setFailFast(boolean failFast) {
+        this.failFast = failFast;
+    }
+
+    /**
+     * Return if annotation collection is enabled.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     * <p>
+     * The annotations to collect can be customized using the annotation collection
+     * predicate.
+     * 
+     * @return if annotation collection is enabled
+     */
+    protected boolean isAnnotationCollectionEnabled() {
+        return annotationCollectionEnabled;
+    }
+
+    /**
+     * Sets whether to annotation collection is enabled.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     * <p>
+     * The annotations to collect can be customized using the annotation collection
+     * predicate.
+     * 
+     * @param annotationCollectionEnabled true to enable annotation collection
+     */
+    protected void setAnnotationCollectionEnabled(boolean annotationCollectionEnabled) {
+        this.annotationCollectionEnabled = annotationCollectionEnabled;
+    }
+
+    /**
+     * Gets the predicate to determine if annotation collection is allowed for a
+     * particular keyword. This only has an effect if annotation collection is
+     * enabled.
+     * <p>
+     * The default value is to not collect any annotation keywords if annotation
+     * collection is enabled.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     * 
+     * @return the predicate to determine if annotation collection is allowed for
+     *         the keyword
+     */
+    public Predicate<String> getAnnotationCollectionPredicate() {
+        return annotationCollectionPredicate;
+    }
+
+    /**
+     * Predicate to determine if annotation collection is allowed for a particular
+     * keyword. This only has an effect if annotation collection is enabled.
+     * <p>
+     * The default value is to not collect any annotation keywords if annotation
+     * collection is enabled.
+     * <p>
+     * This does not affect annotation collection required for evaluating keywords
+     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     *
+     * @param annotationCollectionPredicate the predicate accepting the keyword
+     */
+    public void setAnnotationCollectionPredicate(Predicate<String> annotationCollectionPredicate) {
+        this.annotationCollectionPredicate = Objects.requireNonNull(annotationCollectionPredicate,
+                "annotationCollectionPredicate must not be null");
+    }
+
 }

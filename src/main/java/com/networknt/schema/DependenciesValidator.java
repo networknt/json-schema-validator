@@ -22,11 +22,23 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for dependencies.
+ */
 public class DependenciesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
     private final Map<String, List<String>> propertyDeps = new HashMap<String, List<String>>();
     private final Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
 
+    /**
+     * Constructor.
+     * 
+     * @param schemaLocation    the schema location
+     * @param evaluationPath    the evaluation path
+     * @param schemaNode        the schema node
+     * @param parentSchema      the parent schema
+     * @param validationContext the validation context
+     */
     public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENCIES, validationContext);
@@ -61,8 +73,9 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (deps != null && !deps.isEmpty()) {
                 for (String field : deps) {
                     if (node.get(field) == null) {
-                        errors.add(message().property(pname).instanceLocation(instanceLocation)
+                        errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast())
                                 .arguments(propertyDeps.toString()).build());
                     }
                 }

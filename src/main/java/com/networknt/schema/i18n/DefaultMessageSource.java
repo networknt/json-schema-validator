@@ -19,8 +19,14 @@ package com.networknt.schema.i18n;
  * The default {@link MessageSource} singleton.
  */
 public class DefaultMessageSource {
+    /**
+     * The bundle base name.
+     */
     public static final String BUNDLE_BASE_NAME = "jsv-messages";
 
+    /**
+     * The holder.
+     */
     public static class Holder {
         private static final MessageSource INSTANCE = new ResourceBundleMessageSource(BUNDLE_BASE_NAME);
     }

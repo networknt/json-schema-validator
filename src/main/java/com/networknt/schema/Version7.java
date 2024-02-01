@@ -19,18 +19,18 @@ public class Version7 extends JsonSchemaVersion{
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
                 // keywords that may validly exist, but have no validation aspect to them
                 .addKeywords(Arrays.asList(
-                        new NonValidationKeyword("$schema"),
-                        new NonValidationKeyword("$id"),
+                        new NonValidationKeyword("$schema", false),
+                        new NonValidationKeyword("$id", false),
                         new NonValidationKeyword("title"),
                         new NonValidationKeyword("description"),
                         new NonValidationKeyword("default"),
-                        new NonValidationKeyword("definitions"),
+                        new NonValidationKeyword("definitions", false),
                         new NonValidationKeyword("$comment"),
                         new NonValidationKeyword("examples"),
                         new NonValidationKeyword("then"),
                         new NonValidationKeyword("else"),
                         new NonValidationKeyword("additionalItems"),
-                        new NonValidationKeyword("message")
+                        new NonValidationKeyword("message", false)
                 ))
                 .build();
     }

@@ -22,6 +22,12 @@ import com.networknt.schema.ExecutionContext;
  * Used for Formats that do not need to use the {@link ExecutionContext}.
  */
 public abstract class AbstractFormat extends BaseFormat {
+    /**
+     * Constructor.
+     *
+     * @param name the name
+     * @param errorMessageDescription the error message description
+     */
     public AbstractFormat(String name, String errorMessageDescription) {
         super(name, errorMessageDescription);
     }

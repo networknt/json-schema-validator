@@ -29,6 +29,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public class SchemaValidatorsConfig {
+    /**
+     * Used to validate the acceptable $id values.
+     */
+    private JsonSchemaIdValidator schemaIdValidator = JsonSchemaIdValidator.DEFAULT;
 
     /**
      * when validate type, if TYPE_LOOSE = true, will try to convert string to
@@ -545,4 +549,21 @@ public class SchemaValidatorsConfig {
         this.formatAssertionsEnabled = formatAssertionsEnabled;
     }
 
+    /**
+     * Gets the schema id validator to validate $id.
+     * 
+     * @return the validator
+     */
+    public JsonSchemaIdValidator getSchemaIdValidator() {
+        return schemaIdValidator;
+    }
+
+    /**
+     * Sets the schema id validator to validate $id.
+     * 
+     * @param schemaIdValidator the validator
+     */
+    public void setSchemaIdValidator(JsonSchemaIdValidator schemaIdValidator) {
+        this.schemaIdValidator = schemaIdValidator;
+    }
 }

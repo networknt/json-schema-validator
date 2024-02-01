@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator}for maxProperties.
+ */
 public class MaxPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxPropertiesValidator.class);
 
@@ -41,8 +44,9 @@ public class MaxPropertiesValidator extends BaseJsonValidator implements JsonVal
 
         if (node.isObject()) {
             if (node.size() > max) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(max).build());
             }
         }
 

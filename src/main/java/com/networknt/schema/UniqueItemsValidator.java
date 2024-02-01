@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for uniqueItems.
+ */
 public class UniqueItemsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UniqueItemsValidator.class);
 
@@ -43,8 +46,9 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
             Set<JsonNode> set = new HashSet<JsonNode>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
-                    return Collections.singleton(message().instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale()).build());
+                    return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .failFast(executionContext.getExecutionConfig().isFailFast()).build());
                 }
             }
         }

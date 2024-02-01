@@ -175,6 +175,29 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
         }
     }
 
+    /**
+     * Tests if this path contains a string segment that is an exact match.
+     * <p>
+     * This will not match if the segment is a number.
+     * 
+     * @param segment the segment to test
+     * @return true if the string segment is found
+     */
+    public boolean contains(String segment) {
+        boolean result = segment.equals(this.pathSegment);
+        if (result) {
+            return true;
+        }
+        JsonNodePath path = this.getParent();
+        while (path != null) {
+            if (segment.equals(path.pathSegment)) {
+                return true;
+            }
+            path = path.getParent();
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         if (this.value == null) {

@@ -17,20 +17,20 @@ package com.networknt.schema;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import com.networknt.schema.i18n.MessageSource;
 
 public class MessageSourceValidationMessage {
 
     public static Builder builder(MessageSource messageSource, Map<String, String> errorMessage,
-            Consumer<ValidationMessage> observer) {
+            BiConsumer<ValidationMessage, Boolean> observer) {
         return new Builder(messageSource, errorMessage, observer);
     }
 
     public static class Builder extends BuilderSupport<Builder> {
         public Builder(MessageSource messageSource, Map<String, String> errorMessage,
-                Consumer<ValidationMessage> observer) {
+                BiConsumer<ValidationMessage, Boolean> observer) {
             super(messageSource, errorMessage, observer);
         }
 
@@ -41,13 +41,14 @@ public class MessageSourceValidationMessage {
     }
 
     public abstract static class BuilderSupport<S> extends ValidationMessage.BuilderSupport<S> {
-        private final Consumer<ValidationMessage> observer;
+        private final BiConsumer<ValidationMessage, Boolean> observer;
         private final MessageSource messageSource;
         private final Map<String, String> errorMessage;
+        private boolean failFast;
         private Locale locale;
 
         public BuilderSupport(MessageSource messageSource, Map<String, String> errorMessage,
-                Consumer<ValidationMessage> observer) {
+                BiConsumer<ValidationMessage, Boolean> observer) {
             this.messageSource = messageSource;
             this.observer = observer;
             this.errorMessage = errorMessage;
@@ -75,13 +76,18 @@ public class MessageSourceValidationMessage {
             }
             ValidationMessage validationMessage = super.build();
             if (this.observer != null) {
-                this.observer.accept(validationMessage);
+                this.observer.accept(validationMessage, this.failFast);
             }
             return validationMessage;
         }
 
         public S locale(Locale locale) {
             this.locale = locale;
+            return self();
+        }
+        
+        public S failFast(boolean failFast) {
+            this.failFast = failFast;
             return self();
         }
     }

@@ -33,17 +33,17 @@ public class Version201909 extends JsonSchemaVersion{
                 .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
                 // keywords that may validly exist, but have no validation aspect to them
                 .addKeywords(Arrays.asList(
-                        new NonValidationKeyword("$recursiveAnchor"),
-                        new NonValidationKeyword("$schema"),
-                        new NonValidationKeyword("$vocabulary"),
-                        new NonValidationKeyword("$id"),
+                        new NonValidationKeyword("$recursiveAnchor", false),
+                        new NonValidationKeyword("$schema", false),
+                        new NonValidationKeyword("$vocabulary", false),
+                        new NonValidationKeyword("$id", false),
                         new NonValidationKeyword("title"),
                         new NonValidationKeyword("description"),
                         new NonValidationKeyword("default"),
-                        new NonValidationKeyword("definitions"),
+                        new NonValidationKeyword("definitions", false),
                         new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
-                        new NonValidationKeyword("$anchor"),
+                        new NonValidationKeyword("$defs", false),  // newly added in 2019-09 release.
+                        new NonValidationKeyword("$anchor", false),
                         new NonValidationKeyword("additionalItems"),
                         new NonValidationKeyword("deprecated"),
                         new NonValidationKeyword("contentMediaType"),

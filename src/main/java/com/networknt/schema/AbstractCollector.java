@@ -15,6 +15,11 @@
  */
 package com.networknt.schema;
 
+/**
+ * Base collector.
+ * 
+ * @param <E> the type
+ */
 public abstract class AbstractCollector<E> implements Collector<E> {
 
     @Override

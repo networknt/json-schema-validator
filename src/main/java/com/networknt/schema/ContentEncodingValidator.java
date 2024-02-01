@@ -17,15 +17,15 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Set;
-
 /**
- * Validation for contentEncoding keyword.
+ * {@link JsonValidator} for contentEncoding.
  * <p>
  * Note that since 2019-09 this keyword only generates annotations and not
  * assertions.
@@ -34,6 +34,15 @@ public class ContentEncodingValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentEncodingValidator.class);
     private String contentEncoding;
 
+    /**
+     * Constructor.
+     * 
+     * @param schemaLocation    the schema location
+     * @param evaluationPath    the evaluation path
+     * @param schemaNode        the schema node
+     * @param parentSchema      the parent schema
+     * @param validationContext the validation context
+     */
     public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTENT_ENCODING,
@@ -64,10 +73,17 @@ public class ContentEncodingValidator extends BaseJsonValidator {
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
+        
+        if (collectAnnotations(executionContext)) {
+            putAnnotation(executionContext,
+                    annotation -> annotation.instanceLocation(instanceLocation).value(this.contentEncoding));
+        }
 
         if (!matches(node.asText())) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(this.contentEncoding).build());
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.contentEncoding)
+                    .build());
         }
         return Collections.emptySet();
     }

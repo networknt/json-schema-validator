@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for type union.
+ */
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
@@ -69,17 +72,27 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
         boolean valid = false;
 
-        for (JsonValidator schema : schemas) {
-            Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
-            if (errors == null || errors.isEmpty()) {
-                valid = true;
-                break;
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.getExecutionConfig().isFailFast();
+        try {
+            executionContext.getExecutionConfig().setFailFast(false);
+            for (JsonValidator schema : schemas) {
+                Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                if (errors == null || errors.isEmpty()) {
+                    valid = true;
+                    break;
+                }
             }
+        } finally {
+            // Restore flag
+            executionContext.getExecutionConfig().setFailFast(failFast);
         }
 
         if (!valid) {
-            return Collections.singleton(message().instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(nodeType.toString(), error)
+            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    .type("type")
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(nodeType.toString(), error)
                     .build());
         }
 

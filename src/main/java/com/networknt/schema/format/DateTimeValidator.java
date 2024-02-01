@@ -35,6 +35,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link BaseFormatJsonValidator} for format for date-time.
+ */
 public class DateTimeValidator extends BaseFormatJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";
@@ -47,17 +50,25 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
+        if (collectAnnotations(executionContext, "format")) {
+            putAnnotation(executionContext,
+                    annotation -> annotation.instanceLocation(instanceLocation).keyword("format").value(DATETIME));
+        }
+
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
             return Collections.emptySet();
         }
+
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
 
         if (!isLegalDateTime(node.textValue())) {
             if (assertionsEnabled) {
-                return Collections.singleton(message().instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale()).arguments(node.textValue(), DATETIME)
-                        .build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .type("format")
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast())
+                        .arguments(node.textValue(), DATETIME).build());
             }
         }
         return Collections.emptySet();

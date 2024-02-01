@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -26,10 +27,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for properties.
+ */
 public class PropertiesValidator extends BaseJsonValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
+    
+    private Boolean hasUnevaluatedPropertiesValidator;
 
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
@@ -43,7 +49,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        CollectorContext collectorContext = executionContext.getCollectorContext();
 
         WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
@@ -52,15 +57,19 @@ public class PropertiesValidator extends BaseJsonValidator {
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();
 
-        Set<ValidationMessage> requiredErrors = null; 
-
+        Set<ValidationMessage> requiredErrors = null;
+        Set<String> matchedInstancePropertyNames = null;
+        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonSchema propertySchema = entry.getValue();
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
                 JsonNodePath path = instanceLocation.append(entry.getKey());
-                if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                    collectorContext.getEvaluatedProperties().add(path); // TODO: This should happen after validation
+                if (collectAnnotations) {
+                    if (matchedInstancePropertyNames == null) {
+                        matchedInstancePropertyNames = new LinkedHashSet<>();
+                    }
+                    matchedInstancePropertyNames.add(entry.getKey());
                 }
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
@@ -70,7 +79,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
                  // reset the complex validator for child element validation, and reset it after the return from the recursive call
                 state.setComplexValidator(false);
-                
+
                 if (!state.isWalkEnabled()) {
                     //validate the child element(s)
                     Set<ValidationMessage> result = propertySchema.validate(executionContext, propertyNode, rootNode, path);
@@ -119,6 +128,15 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
             }
         }
+        if (collectAnnotations) {
+            executionContext.getAnnotations()
+                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .keyword(getKeyword()).value(matchedInstancePropertyNames == null ? Collections.emptySet()
+                                    : matchedInstancePropertyNames)
+                            .build());
+        }
+
         return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
@@ -137,6 +155,17 @@ public class PropertiesValidator extends BaseJsonValidator {
             }
         }
         return validationMessages;
+    }
+
+    private boolean collectAnnotations() {
+        return hasUnevaluatedPropertiesValidator();
+    }
+
+    private boolean hasUnevaluatedPropertiesValidator() {
+        if (this.hasUnevaluatedPropertiesValidator == null) {
+            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
+        }
+        return hasUnevaluatedPropertiesValidator;
     }
 
     private void applyPropertyDefaults(ObjectNode node) {
@@ -188,5 +217,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public void preloadJsonSchema() {
         preloadJsonSchemas(this.schemas.values());
+        collectAnnotations(); // cache the flag
     }
 }

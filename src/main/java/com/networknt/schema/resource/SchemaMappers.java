@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Schema Mappers used to map an ID indicated by an absolute IRI to a retrieval
@@ -115,6 +116,18 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
          */
         public Builder mappings(Function<String, String> mappings) {
             this.values.add(new MapSchemaMapper(mappings));
+            return this;
+        }
+
+        /**
+         * Sets the function that maps the IRI to another IRI if the predicate is true.
+         * 
+         * @param test     the predicate
+         * @param mappings the mappings
+         * @return the builder
+         */
+        public Builder mappings(Predicate<String> test, Function<String, String> mappings) {
+            this.values.add(new MapSchemaMapper(test, mappings));
             return this;
         }
 

@@ -49,8 +49,8 @@ public class CustomMetaSchemaTest {
             private final String keyword;
 
             private Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword,
-                    List<String> enumValues, List<String> enumNames) {
-                super(schemaLocation, evaluationPath,null);
+                    List<String> enumValues, List<String> enumNames, JsonNode schemaNode) {
+                super(schemaLocation, evaluationPath, new EnumNamesKeyword(), schemaNode);
                 if (enumNames.size() != enumValues.size()) {
                     throw new IllegalArgumentException("enum and enumNames need to be of same length");
                 }
@@ -69,6 +69,8 @@ public class CustomMetaSchemaTest {
                 String valueName = enumNames.get(idx);
                 Set<ValidationMessage> messages = new HashSet<>();
                 ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
+                        .schemaNode(node)
+                        .instanceNode(node)
                         .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
                 messages.add(validationMessage);
@@ -96,7 +98,8 @@ public class CustomMetaSchemaTest {
             }
             JsonNode enumSchemaNode = parentSchemaNode.get("enum");
 
-            return new Validator(schemaLocation, evaluationPath, getValue(), readStringList(enumSchemaNode), readStringList(schemaNode));
+            return new Validator(schemaLocation, evaluationPath, getValue(), readStringList(enumSchemaNode),
+                    readStringList(schemaNode), schemaNode);
         }
 
         private List<String> readStringList(JsonNode node) {

@@ -198,8 +198,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "$ref resolves to /definitions/base_foo, data does not validate",
@@ -333,8 +331,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "valid tree",
@@ -450,6 +446,33 @@
         ]
     },
     {
+        "description": "Reference an anchor with a non-relative URI",
+        "schema": {
+            "$id": "https://example.com/schema-with-anchor",
+            "allOf": [{
+                "$ref": "https://example.com/schema-with-anchor#foo"
+            }],
+            "definitions": {
+                "A": {
+                    "$id": "#foo",
+                    "type": "integer"
+                }
+            }
+        },
+        "tests": [
+            {
+                "data": 1,
+                "description": "match",
+                "valid": true
+            },
+            {
+                "data": "a",
+                "description": "mismatch",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "Location-independent identifier with base URI change in subschema",
         "schema": {
             "$id": "http://localhost:1234/root",
@@ -468,8 +491,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "data": 1,
@@ -530,8 +551,6 @@
             },
             "allOf": [ { "$ref": "schema-relative-uri-defs2.json" } ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "invalid on inner field",
@@ -584,8 +603,6 @@
             },
             "allOf": [ { "$ref": "schema-refs-absolute-uris-defs2.json" } ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "invalid on inner field",
@@ -642,8 +659,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "number is valid",
@@ -667,8 +682,6 @@
                 "foo": {"$ref": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed"}
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "valid under the URN IDed schema",
@@ -793,8 +806,6 @@
                 "bar": {"type": "string"}
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",
@@ -822,8 +833,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",
@@ -850,8 +859,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -878,8 +885,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -906,8 +911,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -939,8 +942,6 @@
                 { "$ref": "/absref/foobar.json" }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",

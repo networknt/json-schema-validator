@@ -24,6 +24,9 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for multipleOf.
+ */
 public class MultipleOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MultipleOfValidator.class);
 
@@ -46,8 +49,9 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
                 BigDecimal accurateDividend = node.isBigDecimal() ? node.decimalValue() : new BigDecimal(String.valueOf(nodeValue));
                 BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
                 if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
-                    return Collections.singleton(message().instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale()).arguments(divisor).build());
+                    return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(divisor).build());
                 }
             }
         }

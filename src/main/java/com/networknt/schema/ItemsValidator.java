@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 
@@ -26,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for items V4 to V2019-09.
+ */
 public class ItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator.class);
     private static final String PROPERTY_ADDITIONAL_ITEMS = "additionalItems";
@@ -35,6 +39,8 @@ public class ItemsValidator extends BaseJsonValidator {
     private Boolean additionalItems;
     private final JsonSchema additionalSchema;
     private WalkListenerRunner arrayItemWalkListenerRunner;
+
+    private Boolean hasUnevaluatedItemsValidator = null;
 
     public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
@@ -78,72 +84,106 @@ public class ItemsValidator extends BaseJsonValidator {
             // ignores non-arrays
             return Collections.emptySet();
         }
+        boolean collectAnnotations = collectAnnotations();
+
+        // Add items annotation
+        if (collectAnnotations || collectAnnotations(executionContext)) {
+            if (this.schema != null) {
+                // Applies to all
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword(getKeyword()).value(true).build());
+            } else if (this.tupleSchema != null) {
+                // Tuples
+                int items = node.isArray() ? node.size() : 1;
+                int schemas = this.tupleSchema.size();
+                if (items > schemas) {
+                    // More items than schemas so the keyword only applied to the number of schemas
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(schemas).build());
+                } else {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
+            }
+        }
+
+        boolean hasAdditionalItem = false;
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {
-                doValidate(executionContext, errors, i, n, rootNode, instanceLocation);
+                if (doValidate(executionContext, errors, i, n, rootNode, instanceLocation)) {
+                    hasAdditionalItem = true;
+                }
                 i++;
             }
         } else {
-            doValidate(executionContext, errors, 0, node, rootNode, instanceLocation);
+            if (doValidate(executionContext, errors, 0, node, rootNode, instanceLocation)) {
+                hasAdditionalItem = true;
+            }
+        }
+
+        if (hasAdditionalItem) {
+            if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
+                executionContext.getAnnotations()
+                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .keyword("additionalItems").value(true).build());
+            }
         }
         return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
-    private void doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node,
+    private boolean doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation) {
-        Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+        boolean isAdditionalItem = false;
         JsonNodePath path = instanceLocation.append(i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
             // schema)
             Set<ValidationMessage> results = this.schema.validate(executionContext, node, rootNode, path);
-            if (results.isEmpty()) {
-                if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                    evaluatedItems.add(path);
-                }
-            } else {
+            if (!results.isEmpty()) {
                 errors.addAll(results);
             }
         } else if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // validate against tuple schema
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node, rootNode, path);
-                if (results.isEmpty()) {
-                    if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                        evaluatedItems.add(path);
-                    }
-                } else {
+                if (!results.isEmpty()) {
                     errors.addAll(results);
                 }
             } else {
+                if ((this.additionalItems != null && this.additionalItems) || this.additionalSchema != null) {
+                    isAdditionalItem = true;
+                }
+
                 if (this.additionalSchema != null) {
                     // validate against additional item schema
                     Set<ValidationMessage> results = this.additionalSchema.validate(executionContext, node, rootNode, path);
-                    if (results.isEmpty()) {
-                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                            evaluatedItems.add(path);
-                        }
-                    } else {
+                    if (!results.isEmpty()) {
                         errors.addAll(results);
                     }
                 } else if (this.additionalItems != null) {
                     if (this.additionalItems) {
-                        if (executionContext.getExecutionConfig().getAnnotationAllowedPredicate().test(getKeyword())) {
-                            evaluatedItems.add(path);
-                        }
+//                        evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(message().instanceLocation(path)
-                                .locale(executionContext.getExecutionConfig().getLocale()).arguments(i).build());
+                        errors.add(message().instanceNode(node).instanceLocation(path)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(i).build());
                     }
                 }
             }
-//        } else {
-//            evaluatedItems.add(path);
         }
+        return isAdditionalItem;
     }
 
     @Override
@@ -213,6 +253,17 @@ public class ItemsValidator extends BaseJsonValidator {
     public JsonSchema getSchema() {
         return this.schema;
     }
+    
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
+    }
 
     @Override
     public void preloadJsonSchema() {
@@ -223,5 +274,6 @@ public class ItemsValidator extends BaseJsonValidator {
         if (null != this.additionalSchema) {
             this.additionalSchema.initializeValidators();
         }
+        collectAnnotations(); // cache the flag
     }
 }

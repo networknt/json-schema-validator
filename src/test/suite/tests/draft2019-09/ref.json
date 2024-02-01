@@ -309,8 +309,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "valid tree",
@@ -475,8 +473,6 @@
             },
             "$ref": "schema-relative-uri-defs2.json"
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "invalid on inner field",
@@ -530,8 +526,6 @@
             },
             "$ref": "schema-refs-absolute-uris-defs2.json"
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "invalid on inner field",
@@ -589,8 +583,6 @@
                 }
             ]
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "number is valid",
@@ -624,8 +616,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "data is valid against first definition",
@@ -684,8 +674,6 @@
                 "foo": {"$ref": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed"}
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "valid under the URN IDed schema",
@@ -830,8 +818,6 @@
                 "bar": {"type": "string"}
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",
@@ -860,8 +846,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",
@@ -878,6 +862,7 @@
     {
         "description": "URN ref with nested pointer ref",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$ref": "urn:uuid:deadbeef-4321-ffff-ffff-1234feebdaed",
             "$defs": {
                 "foo": {
@@ -887,8 +872,6 @@
                 }
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a string is valid",
@@ -905,14 +888,13 @@
     {
         "description": "ref to if",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$ref": "http://example.com/ref/if",
             "if": {
                 "$id": "http://example.com/ref/if",
                 "type": "integer"
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -929,14 +911,13 @@
     {
         "description": "ref to then",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$ref": "http://example.com/ref/then",
             "then": {
                 "$id": "http://example.com/ref/then",
                 "type": "integer"
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -953,14 +934,13 @@
     {
         "description": "ref to else",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$ref": "http://example.com/ref/else",
             "else": {
                 "$id": "http://example.com/ref/else",
                 "type": "integer"
             }
         },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
         "tests": [
             {
                 "description": "a non-integer is invalid due to the $ref",
@@ -975,111 +955,113 @@
         ]
     },
     {
-        "description": "ref with absolute-path-reference",
-        "schema": {
-            "$id": "http://example.com/ref/absref.json",
-            "$defs": {
-                "a": {
-                    "$id": "http://example.com/ref/absref/foobar.json",
-                    "type": "number"
-                },
-                "b": {
-                    "$id": "http://example.com/absref/foobar.json",
-                    "type": "string"
-                }
-            },
-            "$ref": "/absref/foobar.json"
-        },
-        "disabled": false,
-        "reason": "Schema resources are currently unsupported. See #503",
-        "tests": [
-            {
-                "description": "a string is valid",
-                "data": "foo",
-                "valid": true
-            },
-            {
-                "description": "an integer is invalid",
-                "data": 12,
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "$id with file URI still resolves pointers - *nix",
-        "schema": {
-            "$id": "file:///folder/file.json",
-            "$defs": {
-                "foo": {
-                    "type": "number"
-                }
-            },
-            "$ref": "#/$defs/foo"
-        },
-        "tests": [
-            {
-                "description": "number is valid",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "non-number is invalid",
-                "data": "a",
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "$id with file URI still resolves pointers - windows",
-        "schema": {
-            "$id": "file:///c:/folder/file.json",
-            "$defs": {
-                "foo": {
-                    "type": "number"
-                }
-            },
-            "$ref": "#/$defs/foo"
-        },
-        "tests": [
-            {
-                "description": "number is valid",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "non-number is invalid",
-                "data": "a",
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "empty tokens in $ref json-pointer",
-        "schema": {
-            "$defs": {
-                "": {
-                    "$defs": {
-                        "": { "type": "number" }
-                    }
-                } 
-            },
-            "allOf": [
-                {
-                    "$ref": "#/$defs//$defs/"
-                }
-            ]
-        },
-        "tests": [
-            {
-                "description": "number is valid",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "non-number is invalid",
-                "data": "a",
-                "valid": false
-            }
-        ]
-    }
+         "description": "ref with absolute-path-reference",
+         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+             "$id": "http://example.com/ref/absref.json",
+             "$defs": {
+                 "a": {
+                     "$id": "http://example.com/ref/absref/foobar.json",
+                     "type": "number"
+                 },
+                 "b": {
+                     "$id": "http://example.com/absref/foobar.json",
+                     "type": "string"
+                 }
+             },
+             "$ref": "/absref/foobar.json"
+         },
+         "tests": [
+             {
+                 "description": "a string is valid",
+                 "data": "foo",
+                 "valid": true
+             },
+             {
+                 "description": "an integer is invalid",
+                 "data": 12,
+                 "valid": false
+             }
+         ]
+     },
+     {
+         "description": "$id with file URI still resolves pointers - *nix",
+         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+             "$id": "file:///folder/file.json",
+             "$defs": {
+                 "foo": {
+                     "type": "number"
+                 }
+             },
+             "$ref": "#/$defs/foo"
+         },
+         "tests": [
+             {
+                 "description": "number is valid",
+                 "data": 1,
+                 "valid": true
+             },
+             {
+                 "description": "non-number is invalid",
+                 "data": "a",
+                 "valid": false
+             }
+         ]
+     },
+     {
+         "description": "$id with file URI still resolves pointers - windows",
+         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+             "$id": "file:///c:/folder/file.json",
+             "$defs": {
+                 "foo": {
+                     "type": "number"
+                 }
+             },
+             "$ref": "#/$defs/foo"
+         },
+         "tests": [
+             {
+                 "description": "number is valid",
+                 "data": 1,
+                 "valid": true
+             },
+             {
+                 "description": "non-number is invalid",
+                 "data": "a",
+                 "valid": false
+             }
+         ]
+     },
+     {
+         "description": "empty tokens in $ref json-pointer",
+         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+             "$defs": {
+                 "": {
+                     "$defs": {
+                         "": { "type": "number" }
+                     }
+                 } 
+             },
+             "allOf": [
+                 {
+                     "$ref": "#/$defs//$defs/"
+                 }
+             ]
+         },
+         "tests": [
+             {
+                 "description": "number is valid",
+                 "data": 1,
+                 "valid": true
+             },
+             {
+                 "description": "non-number is invalid",
+                 "data": "a",
+                 "valid": false
+             }
+         ]
+     }
 ]

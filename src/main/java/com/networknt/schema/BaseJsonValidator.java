@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.i18n.DefaultMessageSource;
 
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public abstract class BaseJsonValidator extends ValidationMessageHandler implements JsonValidator {
     protected final boolean suppressSubSchemaRetrieval;
@@ -45,16 +47,15 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
             ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
-        super(validationContext != null
-                && validationContext.getConfig() != null && validationContext.getConfig().isFailFast(),
-                errorMessageType,
+        super(errorMessageType,
                 (validationContext != null && validationContext.getConfig() != null)
                         ? validationContext.getConfig().isCustomMessageSupported()
                         : true,
                 (validationContext != null && validationContext.getConfig() != null)
                         ? validationContext.getConfig().getMessageSource()
                         : DefaultMessageSource.getInstance(),
-                keyword, parentSchema, schemaLocation, evaluationPath);
+                keyword,
+                parentSchema, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
@@ -286,39 +287,6 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return validate(executionContext, node, node, atRoot());
     }
 
-    /**
-     * Validates to a format.
-     * 
-     * @param <T>              the result type
-     * @param executionContext the execution context
-     * @param node             the node
-     * @param format           the format
-     * @return the result
-     */
-    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
-        return validate(executionContext, node, format, null);
-    }
-
-    /**
-     * Validates to a format.
-     * 
-     * @param <T>                 the result type
-     * @param executionContext    the execution context
-     * @param node                the node
-     * @param format              the format
-     * @param executionCustomizer the customizer
-     * @return the result
-     */
-    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format,
-            ExecutionContextCustomizer executionCustomizer) {
-        format.customize(executionContext, this.validationContext);
-        if (executionCustomizer != null) {
-            executionCustomizer.customize(executionContext, validationContext);
-        }
-        Set<ValidationMessage> validationMessages = validate(executionContext, node);
-        return format.format(validationMessages, executionContext, this.validationContext);
-    }
-
     protected String getNodeFieldType() {
         JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
         if (typeField != null) {
@@ -345,5 +313,66 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     @Override
     public String toString() {
         return getEvaluationPath().getName(-1);
+    }
+
+    protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
+        boolean hasValidator = validationContext.getMetaSchema().getKeywords()
+                .get(keyword) != null;
+        if (hasValidator) {
+            JsonSchema schema = getEvaluationParentSchema();
+            while (schema != null) {
+                for (JsonValidator validator : schema.getValidators()) {
+                    if (keyword.equals(validator.getKeyword())) {
+                        hasValidator = true;
+                        break;
+                    }
+                }
+                if (hasValidator) {
+                    break;
+                }
+                schema = schema.getEvaluationParentSchema();
+            }
+        }
+        return hasValidator;
+    }
+    
+    @Override
+    protected MessageSourceValidationMessage.Builder message() {
+        return super.message().schemaNode(this.schemaNode);
+    }
+
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext) {
+        return collectAnnotations(executionContext, getKeyword());
+    }
+
+    /**
+     * Determine if annotations should be reported.
+     * 
+     * @param executionContext the execution context
+     * @param keyword          the keyword
+     * @return true if annotations should be reported
+     */
+    protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
+        return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
+                && executionContext.getExecutionConfig().getAnnotationCollectionPredicate().test(keyword);
+    }
+
+    /**
+     * Puts an annotation.
+     * 
+     * @param executionContext the execution context
+     * @param customizer to customize the annotation
+     */
+    protected void putAnnotation(ExecutionContext executionContext, Consumer<JsonNodeAnnotation.Builder> customizer) {
+        JsonNodeAnnotation.Builder builder = JsonNodeAnnotation.builder().evaluationPath(this.evaluationPath)
+                .schemaLocation(this.schemaLocation).keyword(getKeyword());
+        customizer.accept(builder);
+        executionContext.getAnnotations().put(builder.build());
     }
 }

@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * {@link JsonValidator} for dependentRequired.
+ */
 public class DependentRequired extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependentRequired.class);
     private final Map<String, List<String>> propertyDependencies = new HashMap<String, List<String>>();
@@ -54,8 +57,9 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
             if (dependencies != null && !dependencies.isEmpty()) {
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
-                        errors.add(message().property(pname).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale()).arguments(field, pname)
+                        errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(field, pname)
                                 .build());
                     }
                 }

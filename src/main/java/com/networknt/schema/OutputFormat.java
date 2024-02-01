@@ -17,6 +17,11 @@ package com.networknt.schema;
 
 import java.util.Set;
 
+import com.networknt.schema.output.HierarchicalOutputUnitFormatter;
+import com.networknt.schema.output.ListOutputUnitFormatter;
+import com.networknt.schema.output.OutputFlag;
+import com.networknt.schema.output.OutputUnit;
+
 /**
  * Formats the validation results.
  * 
@@ -37,13 +42,15 @@ public interface OutputFormat<T> {
     /**
      * Formats the validation results.
      * 
+     * @param jsonSchema         the schema
      * @param validationMessages the validation messages
-     * @param executionContext  the execution context
-     * @param validationContext the validation context
+     * @param executionContext   the execution context
+     * @param validationContext  the validation context
+     * 
      * @return the result
      */
-    T format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-            ValidationContext validationContext);
+    T format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+            ExecutionContext executionContext, ValidationContext validationContext);
 
     /**
      * The Default output format.
@@ -59,6 +66,17 @@ public interface OutputFormat<T> {
      * The Flag output format.
      */
     public static final Flag FLAG = new Flag();
+    
+    /**
+     * The List output format.
+     */
+    public static final List LIST = new List();
+
+    
+    /**
+     * The Hierarchical output format.
+     */
+    public static final Hierarchical HIERARCHICAL = new Hierarchical();
 
     /**
      * The Default output format.
@@ -66,13 +84,12 @@ public interface OutputFormat<T> {
     public static class Default implements OutputFormat<Set<ValidationMessage>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
-        public Set<ValidationMessage> format(Set<ValidationMessage> validationMessages,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public Set<ValidationMessage> format(JsonSchema jsonSchema,
+                Set<ValidationMessage> validationMessages, ExecutionContext executionContext, ValidationContext validationContext) {
             return validationMessages;
         }
     }
@@ -80,17 +97,17 @@ public interface OutputFormat<T> {
     /**
      * The Flag output format.
      */
-    public static class Flag implements OutputFormat<FlagOutput> {
+    public static class Flag implements OutputFormat<OutputFlag> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
+            executionContext.getExecutionConfig().setFailFast(true);
         }
 
         @Override
-        public FlagOutput format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
-            return new FlagOutput(validationMessages.isEmpty());
+        public OutputFlag format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
+            return new OutputFlag(validationMessages.isEmpty());
         }
     }
 
@@ -100,29 +117,44 @@ public interface OutputFormat<T> {
     public static class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationAllowedPredicate(
-                    Annotations.getDefaultAnnotationAllowListPredicate(validationContext.getMetaSchema()));
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
+            executionContext.getExecutionConfig().setFailFast(true);
         }
 
         @Override
-        public java.lang.Boolean format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
-                ValidationContext validationContext) {
+        public java.lang.Boolean format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
             return validationMessages.isEmpty();
+        }
+    }
+    
+    /**
+     * The List output format.
+     */
+    public static class List implements OutputFormat<OutputUnit> {
+        @Override
+        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        }
+
+        @Override
+        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
+            return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
         }
     }
 
     /**
-     * The Flag output results.
+     * The Hierarchical output format.
      */
-    public static class FlagOutput {
-        private final boolean valid;
-
-        public FlagOutput(boolean valid) {
-            this.valid = valid;
+    public static class Hierarchical implements OutputFormat<OutputUnit> {
+        @Override
+        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
         }
 
-        public boolean isValid() {
-            return this.valid;
+        @Override
+        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+                ExecutionContext executionContext, ValidationContext validationContext) {
+            return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext, validationContext);
         }
     }
 }

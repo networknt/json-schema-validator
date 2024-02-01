@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for false.
+ */
 public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
 
@@ -32,7 +35,8 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
         // For the false validator, it is always not valid
-        return Collections.singleton(message().instanceLocation(instanceLocation)
-                .locale(executionContext.getExecutionConfig().getLocale()).build());
+        return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                .locale(executionContext.getExecutionConfig().getLocale())
+                .failFast(executionContext.getExecutionConfig().isFailFast()).build());
     }
 }

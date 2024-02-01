@@ -23,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * {@link JsonValidator} for maxItems.
+ */
 public class MaxItemsValidator extends BaseJsonValidator implements JsonValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
-
 
     private int max = 0;
 
@@ -42,11 +44,15 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
 
         if (node.isArray()) {
             if (node.size() > max) {
-                return Collections.singleton(message().instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(max).build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 > max) {
-                return Collections.singleton(message().instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale()).arguments(max).build());
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(max).build());
             }
         }
 
