@@ -185,10 +185,11 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             if (messages.isEmpty()) {
                 valid = true;
             } else {
-                // Report these as unevaluated paths or not matching the unevalutedItems schema
+                // Report these as unevaluated paths or not matching the unevaluatedItems schema
                 messages = messages.stream()
-                        .map(m -> message().instanceNode(node).instanceLocation(m.getInstanceLocation())
+                        .map(m -> message().instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(m.getInstanceLocation().getName(-1))
                                 .failFast(executionContext.getExecutionConfig().isFailFast()).build())
                         .collect(Collectors.toCollection(LinkedHashSet::new));
             }

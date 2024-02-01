@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -100,7 +103,7 @@ public class OutputUnitTest {
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be a constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"}},{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"}}]}";
@@ -118,7 +121,7 @@ public class OutputUnitTest {
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be a constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}}]}]}";
@@ -136,7 +139,7 @@ public class OutputUnitTest {
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"annotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"unspecified-prop\"]},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"annotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"annotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"annotations\":{\"title\":\"bar-prop-title\"}}]}]}";
@@ -183,7 +186,7 @@ public class OutputUnitTest {
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         assertTrue(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
@@ -203,7 +206,7 @@ public class OutputUnitTest {
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(outputUnit.isValid());
@@ -223,11 +226,69 @@ public class OutputUnitTest {
         JsonSchema schema = factory.getSchema(typeSchema, config);
         OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         assertNotNull(details.getErrors().get("type"));
+    }
+    
+    @Test
+    void unevaluatedProperties() throws JsonProcessingException {
+        Map<String, String> external = new HashMap<>();
+
+        String externalSchemaData = "{\r\n"
+                + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "  \"$id\": \"https://www.example.org/point.json\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"required\": [\r\n"
+                + "    \"type\",\r\n"
+                + "    \"coordinates\"\r\n"
+                + "  ],\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"type\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"enum\": [\r\n"
+                + "        \"Point\"\r\n"
+                + "      ]\r\n"
+                + "    },\r\n"
+                + "    \"coordinates\": {\r\n"
+                + "      \"type\": \"array\",\r\n"
+                + "      \"minItems\": 2,\r\n"
+                + "      \"items\": {\r\n"
+                + "        \"type\": \"number\"\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        external.put("https://www.example.org/point.json", externalSchemaData);
+
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"$ref\": \"https://www.example.org/point.json\",\r\n"
+                + "  \"unevaluatedProperties\": false\r\n"
+                + "}";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        
+     // The following checks if the heirarchical output format is correct with multiple unevaluated properties
+        String inputData = "{\r\n"
+                + "  \"type\": \"Point\",\r\n"
+                + "  \"hello\": \"Point\",\r\n"
+                + "  \"world\": \"Point\",\r\n"
+                + "  \"coordinates\": [1, 1]\r\n"
+                + "}";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,
+                executionContext -> executionContext.getExecutionConfig()
+                        .setAnnotationCollectionFilter(keyword -> true));
+        String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
+        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' must not be unevaluated\",\"property 'world' must not be unevaluated\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
+        assertEquals(expected, output);
     }
 
 }

@@ -43,7 +43,7 @@ public class ExecutionConfig {
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
      */
-    private Predicate<String> annotationCollectionPredicate = keyword -> false;
+    private Predicate<String> annotationCollectionFilter = keyword -> false;
 
     /**
      * Since Draft 2019-09 format assertions are not enabled by default.
@@ -126,12 +126,12 @@ public class ExecutionConfig {
      * 
      * @return if annotation collection is enabled
      */
-    protected boolean isAnnotationCollectionEnabled() {
+    public boolean isAnnotationCollectionEnabled() {
         return annotationCollectionEnabled;
     }
 
     /**
-     * Sets whether to annotation collection is enabled.
+     * Sets whether the annotation collection is enabled.
      * <p>
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
@@ -141,7 +141,7 @@ public class ExecutionConfig {
      * 
      * @param annotationCollectionEnabled true to enable annotation collection
      */
-    protected void setAnnotationCollectionEnabled(boolean annotationCollectionEnabled) {
+    public void setAnnotationCollectionEnabled(boolean annotationCollectionEnabled) {
         this.annotationCollectionEnabled = annotationCollectionEnabled;
     }
 
@@ -159,8 +159,8 @@ public class ExecutionConfig {
      * @return the predicate to determine if annotation collection is allowed for
      *         the keyword
      */
-    public Predicate<String> getAnnotationCollectionPredicate() {
-        return annotationCollectionPredicate;
+    public Predicate<String> getAnnotationCollectionFilter() {
+        return annotationCollectionFilter;
     }
 
     /**
@@ -173,11 +173,11 @@ public class ExecutionConfig {
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
      *
-     * @param annotationCollectionPredicate the predicate accepting the keyword
+     * @param annotationCollectionFilter the predicate accepting the keyword
      */
-    public void setAnnotationCollectionPredicate(Predicate<String> annotationCollectionPredicate) {
-        this.annotationCollectionPredicate = Objects.requireNonNull(annotationCollectionPredicate,
-                "annotationCollectionPredicate must not be null");
+    public void setAnnotationCollectionFilter(Predicate<String> annotationCollectionFilter) {
+        this.annotationCollectionFilter = Objects.requireNonNull(annotationCollectionFilter,
+                "annotationCollectionFilter must not be null");
     }
 
 }

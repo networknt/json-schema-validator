@@ -89,7 +89,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.invalid: must not have unevaluated properties"
+          "$: property 'invalid' must not be unevaluated"
         ]
       },
       {
@@ -106,7 +106,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address.invalid: must not have unevaluated properties"
+          "$.address: property 'invalid' must not be unevaluated"
         ]
       },
       {
@@ -123,7 +123,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address.invalid2: must not have unevaluated properties"
+          "$.address: property 'invalid2' must not be unevaluated"
         ]
       },
       {
@@ -142,7 +142,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address.residence.invalid: must not have unevaluated properties"
+          "$.address.residence: property 'invalid' must not be unevaluated"
         ]
       }
     ]
@@ -237,7 +237,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.wheels: must not have unevaluated properties"
+          "$.vehicle: property 'wheels' must not be unevaluated"
         ]
       },
       {
@@ -253,8 +253,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.pontoons: must not have unevaluated properties",
-          "$.vehicle.wings: must not have unevaluated properties"
+          "$.vehicle: property 'pontoons' must not be unevaluated",
+          "$.vehicle: property 'wings' must not be unevaluated"
         ]
       },
       {
@@ -271,9 +271,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.invalid: must not have unevaluated properties",
-          "$.vehicle.pontoons: must not have unevaluated properties",
-          "$.vehicle.wings: must not have unevaluated properties"
+          "$.vehicle: property 'invalid' must not be unevaluated",
+          "$.vehicle: property 'pontoons' must not be unevaluated",
+          "$.vehicle: property 'wings' must not be unevaluated"
         ]
       },
       {
@@ -288,7 +288,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.invalid: must not have unevaluated properties"
+          "$.vehicle: property 'invalid' must not be unevaluated"
         ]
       }
     ]
@@ -383,7 +383,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.unevaluated: must not have unevaluated properties"
+          "$.vehicle: property 'unevaluated' must not be unevaluated"
         ]
       },
       {
@@ -398,7 +398,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.unevaluated: must not have unevaluated properties"
+          "$.vehicle: property 'unevaluated' must not be unevaluated"
         ]
       },
       {
@@ -415,7 +415,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle.unevaluated: must not have unevaluated properties"
+          "$.vehicle: property 'unevaluated' must not be unevaluated"
         ]
       }
     ]
@@ -513,7 +513,7 @@
         "valid": false,
         "validationMessages": [
           "$.vehicle: required property 'wings' not found",
-          "$.vehicle.unevaluated: must not have unevaluated properties"
+          "$.vehicle: property 'unevaluated' must not be unevaluated"
         ]
       }
     ]
@@ -575,8 +575,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.age: must not have unevaluated properties",
-          "$.unevaluated: must not have unevaluated properties"
+          "$: property 'age' must not be unevaluated",
+          "$: property 'unevaluated' must not be unevaluated"
         ]
       }
     ]

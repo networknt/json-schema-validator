@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.output;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import com.networknt.schema.annotation.JsonNodeAnnotation;
  */
 public class OutputUnitData {
     private final Map<OutputUnitKey, Boolean> valid = new LinkedHashMap<>();
-    private final Map<OutputUnitKey, Map<String, String>> errors = new LinkedHashMap<>();
+    private final Map<OutputUnitKey, Map<String, Object>> errors = new LinkedHashMap<>();
     private final Map<OutputUnitKey, Map<String, Object>> annotations = new LinkedHashMap<>();
     private final Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = new LinkedHashMap<>();
 
@@ -38,7 +39,7 @@ public class OutputUnitData {
         return valid;
     }
 
-    public Map<OutputUnitKey, Map<String, String>> getErrors() {
+    public Map<OutputUnitKey, Map<String, Object>> getErrors() {
         return errors;
     }
 
@@ -66,11 +67,12 @@ public class OutputUnitData {
         return message;
     }
 
+    @SuppressWarnings("unchecked")
     public static OutputUnitData from(Set<ValidationMessage> validationMessages, ExecutionContext executionContext) {
         OutputUnitData data = new OutputUnitData();
 
         Map<OutputUnitKey, Boolean> valid = data.valid;
-        Map<OutputUnitKey, Map<String, String>> errors = data.errors;
+        Map<OutputUnitKey, Map<String, Object>> errors = data.errors;
         Map<OutputUnitKey, Map<String, Object>> annotations = data.annotations;
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.droppedAnnotations;
 
@@ -80,15 +82,28 @@ public class OutputUnitData {
             OutputUnitKey key = new OutputUnitKey(assertion.getEvaluationPath().getParent(),
                     assertionSchemaLocation, assertion.getInstanceLocation());
             valid.put(key, false);
-            Map<String, String> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
-            errorMap.put(assertion.getType(), formatMessage(assertion.getMessage()));
+            Map<String, Object> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
+            Object value = errorMap.get(assertion.getType());
+            if (value == null) {
+                errorMap.put(assertion.getType(), formatMessage(assertion.getMessage()));
+            } else {
+                // Existing error, make it into a list
+                if (value instanceof List) {
+                    ((List<String>) value).add(formatMessage(assertion.getMessage()));
+                } else {
+                    List<String> values = new ArrayList<>();
+                    values.add(value.toString());
+                    values.add(formatMessage(assertion.getMessage()));
+                    errorMap.put(assertion.getType(), values);
+                }
+            }
         }
 
         for (List<JsonNodeAnnotation> annotationsResult : executionContext.getAnnotations().asMap().values()) {
             for (JsonNodeAnnotation annotation : annotationsResult) {
                 // As some annotations are required for computation, filter those that are not
                 // required for reporting
-                if (executionContext.getExecutionConfig().getAnnotationCollectionPredicate()
+                if (executionContext.getExecutionConfig().getAnnotationCollectionFilter()
                         .test(annotation.getKeyword())) {
                     SchemaLocation annotationSchemaLocation = new SchemaLocation(
                             annotation.getSchemaLocation().getAbsoluteIri(),

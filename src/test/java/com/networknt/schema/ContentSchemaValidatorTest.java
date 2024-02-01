@@ -58,12 +58,12 @@ public class ContentSchemaValidatorTest {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         JsonSchema schema = factory.getSchema(schemaData, config);
-        
+
         String inputData = "\"helloworld\"";
-        
+
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionPredicate(keyword -> true);
+            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"details\":[{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"annotations\":{\"contentMediaType\":\"application/jwt\",\"contentSchema\":{\"type\":\"array\",\"minItems\":2,\"prefixItems\":[{\"const\":{\"typ\":\"JWT\",\"alg\":\"HS256\"}},{\"type\":\"object\",\"required\":[\"iss\",\"exp\"],\"properties\":{\"iss\":{\"type\":\"string\"},\"exp\":{\"type\":\"integer\"}}}]}}}]}";
