@@ -85,7 +85,7 @@
         "valid": false,
         "validationMessages": [
           "$.search: should be valid to one and only one schema, but 0 are valid",
-          "$.search.byName: is not defined in the schema and the schema does not allow additional properties",
+          "$.search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
           "$.search.byName.name: integer found, string expected"
         ]
       },
@@ -101,7 +101,7 @@
         "valid": false,
         "validationMessages": [
           "$.search: should be valid to one and only one schema, but 0 are valid",
-          "$.search.byName: is not defined in the schema and the schema does not allow additional properties",
+          "$.search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
           "$.search.byName.name: may only be 20 characters long"
         ]
       },
@@ -118,7 +118,7 @@
         "validationMessages": [
           "$.search: should be valid to one and only one schema, but 0 are valid",
           "$.search.byAge.age: string found, integer expected",
-          "$.search.byAge: is not defined in the schema and the schema does not allow additional properties"
+          "$.search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
         ]
       },
       {
@@ -134,7 +134,7 @@
         "validationMessages": [
           "$.search: should be valid to one and only one schema, but 0 are valid",
           "$.search.byAge.age: must have a maximum value of 150",
-          "$.search.byAge: is not defined in the schema and the schema does not allow additional properties"
+          "$.search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
         ]
       }
     ]

@@ -42,12 +42,17 @@ public class ItemsValidator extends BaseJsonValidator {
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
+    private final JsonNodePath additionalItemsEvaluationPath;
+    private final SchemaLocation additionalItemsSchemaLocation;
+    private final JsonNode additionalItemsSchemaNode;
+
     public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
 
         this.tupleSchema = new ArrayList<>();
         JsonSchema foundSchema = null;
         JsonSchema foundAdditionalSchema = null;
+        JsonNode additionalItemsSchemaNode = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             foundSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
@@ -61,6 +66,7 @@ public class ItemsValidator extends BaseJsonValidator {
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
             if (addItemNode != null) {
+                additionalItemsSchemaNode = addItemNode;
                 if (addItemNode.isBoolean()) {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
@@ -74,6 +80,9 @@ public class ItemsValidator extends BaseJsonValidator {
 
         this.schema = foundSchema;
         this.additionalSchema = foundAdditionalSchema;
+        this.additionalItemsEvaluationPath = parentSchema.evaluationPath.append(PROPERTY_ADDITIONAL_ITEMS);
+        this.additionalItemsSchemaLocation = parentSchema.schemaLocation.append(PROPERTY_ADDITIONAL_ITEMS);
+        this.additionalItemsSchemaNode = additionalItemsSchemaNode;
     }
 
     @Override
@@ -134,7 +143,8 @@ public class ItemsValidator extends BaseJsonValidator {
             if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
                 executionContext.getAnnotations()
                         .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .evaluationPath(this.additionalItemsEvaluationPath)
+                                .schemaLocation(this.additionalItemsSchemaLocation)
                                 .keyword("additionalItems").value(true).build());
             }
         }
@@ -176,7 +186,11 @@ public class ItemsValidator extends BaseJsonValidator {
 //                        evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(message().instanceNode(node).instanceLocation(path)
+                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
+                                .type("additionalItems")
+                                .evaluationPath(this.additionalItemsEvaluationPath)
+                                .schemaLocation(this.additionalItemsSchemaLocation)
+                                .schemaNode(this.additionalItemsSchemaNode)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(i).build());
                     }

@@ -113,7 +113,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                         errors = new LinkedHashSet<>();
                     }
                     errors.add(message().instanceNode(node).property(pname)
-                            .instanceLocation(instanceLocation.append(pname))
+                            .instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(pname).build());
                 } else {
