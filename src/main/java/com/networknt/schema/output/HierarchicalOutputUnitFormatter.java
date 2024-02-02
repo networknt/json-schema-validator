@@ -56,10 +56,14 @@ public class HierarchicalOutputUnitFormatter {
         index.put(new JsonNodePath(validationContext.getConfig().getPathType()), root);
         
         // Get all the evaluation paths with data
-        Set<JsonNodePath> keys = new LinkedHashSet<>();
-        errors.keySet().stream().forEach(k -> keys.add(k.getEvaluationPath()));
-        annotations.keySet().stream().forEach(k -> keys.add(k.getEvaluationPath()));
-        droppedAnnotations.keySet().stream().forEach(k -> keys.add(k.getEvaluationPath()));
+        // This is a map of evaluation path to instance location
+        Map<JsonNodePath, Set<JsonNodePath>> keys = new LinkedHashMap<>();
+        errors.keySet().stream().forEach(k -> keys.computeIfAbsent(k.getEvaluationPath(), a -> new LinkedHashSet<>())
+                .add(k.getInstanceLocation()));
+        annotations.keySet().stream().forEach(k -> keys
+                .computeIfAbsent(k.getEvaluationPath(), a -> new LinkedHashSet<>()).add(k.getInstanceLocation()));
+        droppedAnnotations.keySet().stream().forEach(k -> keys
+                .computeIfAbsent(k.getEvaluationPath(), a -> new LinkedHashSet<>()).add(k.getInstanceLocation()));
         
         errors.keySet().stream().forEach(k -> buildIndex(k, index, keys, root));
         annotations.keySet().stream().forEach(k -> buildIndex(k, index, keys, root));
@@ -117,11 +121,11 @@ public class HierarchicalOutputUnitFormatter {
      * 
      * @param key   the current key to process
      * @param index contains all the mappings from evaluation path to output units
-     * @param keys  that contain all the evaluation paths with data
+     * @param keys  that contain all the evaluation paths with instance data
      * @param root  the root output unit
      */
-    protected static void buildIndex(OutputUnitKey key, Map<JsonNodePath, OutputUnit> index, Set<JsonNodePath> keys,
-            OutputUnit root) {
+    protected static void buildIndex(OutputUnitKey key, Map<JsonNodePath, OutputUnit> index,
+            Map<JsonNodePath, Set<JsonNodePath>> keys, OutputUnit root) {
         if (index.containsKey(key.getEvaluationPath())) {
             return;
         }
@@ -136,7 +140,7 @@ public class HierarchicalOutputUnitFormatter {
         OutputUnit parent = root;
         while (!stack.isEmpty()) {
             JsonNodePath current = stack.pop();
-            if (!index.containsKey(current) && keys.contains(current)) {
+            if (!index.containsKey(current) && keys.containsKey(current)) {
                 // the index doesn't contain this path but this is a path with data
                 OutputUnit child = new OutputUnit();
                 child.setValid(true);
