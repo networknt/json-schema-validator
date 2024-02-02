@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.JsonNodeUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,33 +32,66 @@ import java.util.Set;
 public class MultipleOfValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MultipleOfValidator.class);
 
-    private double divisor = 0;
+    private final BigDecimal divisor;
 
-    public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MULTIPLE_OF, validationContext);
-        if (schemaNode.isNumber()) {
-            divisor = schemaNode.doubleValue();
-        }
+        this.divisor = getDivisor(schemaNode);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-
-        if (node.isNumber()) {
-            double nodeValue = node.doubleValue();
-            if (divisor != 0) {
-                // convert to BigDecimal since double type is not accurate enough to do the division and multiple
-                BigDecimal accurateDividend = node.isBigDecimal() ? node.decimalValue() : new BigDecimal(String.valueOf(nodeValue));
-                BigDecimal accurateDivisor = new BigDecimal(String.valueOf(divisor));
-                if (accurateDividend.divideAndRemainder(accurateDivisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
+        if (this.divisor != null) {
+            BigDecimal dividend = getDividend(node);
+            if (dividend != null) {
+                if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(divisor).build());
+                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.divisor)
+                            .build());
                 }
             }
         }
-
         return Collections.emptySet();
+    }
+
+    /**
+     * Gets the divisor to use.
+     * 
+     * @param schemaNode the schema node
+     * @return the divisor or null if the input is not correct
+     */
+    protected BigDecimal getDivisor(JsonNode schemaNode) {
+        if (schemaNode.isNumber()) {
+            double divisor = schemaNode.doubleValue();
+            if (divisor != 0) {
+                // convert to BigDecimal since double type is not accurate enough to do the
+                // division and multiple
+                return schemaNode.isBigDecimal() ? schemaNode.decimalValue() : BigDecimal.valueOf(divisor);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the dividend to use.
+     * 
+     * @param node the node
+     * @return the dividend or null if the type is incorrect
+     */
+    protected BigDecimal getDividend(JsonNode node) {
+        if (node.isNumber()) {
+            // convert to BigDecimal since double type is not accurate enough to do the
+            // division and multiple
+            return node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
+        } else if (this.validationContext.getConfig().isTypeLoose()
+                && JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
+            // handling for type loose
+            return new BigDecimal(node.textValue());
+        }
+        return null;
     }
 
 }
