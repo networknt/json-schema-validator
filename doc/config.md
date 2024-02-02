@@ -22,7 +22,7 @@ JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config
 
 * typeLoose
 
-When typeLoose is true, the validator will convert strings to different types to match the type defined in the schema. This is mostly used to validate the JSON request or response for headers, query parameters, path parameters, and cookies. For the HTTP protocol, these are all strings and might be defined as other types in the schema. For example, the page number might be an integer in the schema but passed as a query parameter in string. 
+When typeLoose is true, the validator will convert strings to different types to match the type defined in the schema. This is mostly used to validate the JSON request or response for headers, query parameters, path parameters, and cookies. For the HTTP protocol, these are all strings and might be defined as other types in the schema. For example, the page number might be an integer in the schema but passed as a query parameter in string. When it comes to validating arrays note that any item can also be interpreted as a size 1 array of that item so the item will be validated against the type defined for the array.
 
 * strictness
 This is a map of keywords to whether the keyword's validators should perform a strict or permissive analysis. When strict is true, validators will perform strict checking against the schema.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Network New Technologies Inc.
+ * Copyright (c) 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.networknt.schema;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import static com.networknt.schema.utils.StringChecker.isNumeric;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.networknt.schema.SpecVersion.VersionFlag;
 
+/**
+ * Test TypeValidator validator.
+ */
 public class TypeValidatorTest {
-
-    private static final String[] validNumericValues = {
-            "1", "-1", "1.1", "-1.1", "0E+1", "0E-1", "0E1", "-0E+1", "-0E-1", "-0E1", "0.1E+1", "0.1E-1", "0.1E1",
-            "-0.1E+1", "-0.1E-1", "-0.1E1", "10.1", "-10.1", "10E+1", "10E-1", "10E1", "-10E+1", "-10E-1", "-10E1",
-            "10.1E+1", "10.1E-1", "10.1E1", "-10.1E+1", "-10.1E-1", "-10.1E1", "1E+0", "1E-0", "1E0",
-            "1E00000000000000000000"
-    };
-    private static final String[] invalidNumericValues = {
-            "01.1", "1.", ".1", "0.1.1", "E1", "E+1", "E-1", ".E1", ".E+1", ".E-1", ".1E1", ".1E+1", ".1E-1", "1E-",
-            "1E+", "1E", "+", "-", "1a", "0.1a", "0E1a", "0E-1a", "1.0a", "1.0aE1"
-            //, "+0", "+1" // for backward compatibility, in violation of JSON spec
-    };
+    String schemaData = "{\r\n" // Issue 415
+            + "  \"$schema\": \"http://json-schema.org/draft-07/schema\",\r\n"
+            + "  \"$id\": \"http://example.com/example.json\",\r\n"
+            + "  \"type\": \"object\",\r\n"
+            + "  \"properties\": {\r\n"
+            + "    \"array_of_integers\": {\r\n"
+            + "      \"$id\": \"#/properties/array_of_integers\",\r\n"
+            + "      \"type\": \"array\",\r\n"
+            + "      \"items\": {\r\n"
+            + "        \"type\": \"integer\"\r\n"
+            + "      }\r\n"
+            + "    },\r\n"
+            + "    \"array_of_objects\": {\r\n"
+            + "      \"$id\": \"#/properties/array_of_objects\",\r\n"
+            + "      \"type\": \"array\",\r\n"
+            + "      \"items\": {\r\n"
+            + "        \"type\": \"object\"\r\n"
+            + "      }\r\n"
+            + "    }\r\n"
+            + "  }\r\n"
+            + "}";
 
     @Test
-    public void testNumeicValues() {
-        for (String validValue : validNumericValues) {
-            assertTrue(isNumeric(validValue), validValue);
-        }
-    }
+    void testTypeLoose() {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchema schema = factory.getSchema(schemaData);
 
-    @Test
-    public void testNonNumeicValues() {
-        for (String invalidValue : invalidNumericValues) {
-            assertFalse(isNumeric(invalidValue), invalidValue);
-        }
+        String inputData = "{\r\n"
+                + "  \"array_of_integers\": 1,\r\n"
+                + "  \"array_of_objects\": {}\r\n"
+                + "}";
+        String validTypeLooseInputData = "{\r\n"
+                + "  \"array_of_integers\": [\"1\"],\r\n"
+                + "  \"array_of_objects\": [{}]\r\n"
+                + "}";
+        String invalidTypeLooseData = "{\r\n"
+                + "  \"array_of_integers\": \"a\",\r\n"
+                + "  \"array_of_objects\": {}\r\n"
+                + "}";        
+        // Without type loose this has 2 type errors
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(2, messages.size());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
+
+        // 1 type error in array_of_integers
+        messages = schema.validate(validTypeLooseInputData, InputFormat.JSON);
+        assertEquals(1, messages.size());
+        assertEquals(1, messages.stream().filter(m -> "type".equals(m.getType())).count());
+
+        // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setTypeLoose(true);
+        JsonSchema typeLoose = factory.getSchema(schemaData, config);
+        messages = typeLoose.validate(inputData, InputFormat.JSON);
+        assertEquals(0, messages.size());
+
+        // No errors
+        messages = typeLoose.validate(validTypeLooseInputData, InputFormat.JSON);
+        assertEquals(0, messages.size());
+
+        // Error because a string cannot be interpreted as an array of integer
+        messages = typeLoose.validate(invalidTypeLooseData, InputFormat.JSON);
+        assertEquals(1, messages.size());
+
     }
 }
