@@ -104,7 +104,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                     }
 
                     if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
-                            && canShortCircuit()) {
+                            && canShortCircuit() && canShortCircuit(executionContext)) {
                         // Clear all errors.
                         allErrors.clear();
                         // return empty errors.
@@ -174,7 +174,24 @@ public class AnyOfValidator extends BaseJsonValidator {
         }
         return new LinkedHashSet<>();
     }
-    
+
+    /**
+     * If annotation collection is enabled cannot short circuit.
+     * 
+     * @see <a href=
+     *      "https://github.com/json-schema-org/json-schema-spec/blob/f8967bcbc6cee27753046f63024b55336a9b1b54/jsonschema-core.md?plain=1#L1717-L1720">anyOf</a>
+     * @param executionContext the execution context
+     * @return true if can short circuit
+     */
+    protected boolean canShortCircuit(ExecutionContext executionContext) {
+        return !executionContext.getExecutionConfig().isAnnotationCollectionEnabled();
+    }
+
+    /**
+     * If annotations are require for evaluation cannot short circuit.
+     * 
+     * @return true if can short circuit
+     */
     protected boolean canShortCircuit() {
         if (this.canShortCircuit == null) {
             boolean canShortCircuit = true;

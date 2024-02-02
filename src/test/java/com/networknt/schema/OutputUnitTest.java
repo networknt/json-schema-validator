@@ -291,4 +291,52 @@ public class OutputUnitTest {
         assertEquals(expected, output);
     }
 
+    /**
+     * Test that anyOf doesn't short circuit if annotations are turned on.
+     * 
+     * @see <a href=
+     *      "https://github.com/json-schema-org/json-schema-spec/blob/f8967bcbc6cee27753046f63024b55336a9b1b54/jsonschema-core.md?plain=1#L1717-L1720">anyOf</a>
+     * @throws JsonProcessingException the exception
+     */
+    @Test
+    void anyOf() throws JsonProcessingException {
+        // Test that any of doesn't short circuit if annotations need to be collected
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"anyOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"foo\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"bar\": {\r\n"
+                + "          \"type\": \"integer\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        
+        String inputData = "{\r\n"
+                + "    \"foo\": \"hello\",\r\n"
+                + "    \"bar\": 1\r\n"
+                + "}";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+        });
+        String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
+        String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"details\":[{\"valid\":true,\"evaluationPath\":\"/anyOf/0\",\"schemaLocation\":\"#/anyOf/0\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\"]}},{\"valid\":true,\"evaluationPath\":\"/anyOf/1\",\"schemaLocation\":\"#/anyOf/1\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"bar\"]}}]}";
+        assertEquals(expected, output);
+    }
+
 }
