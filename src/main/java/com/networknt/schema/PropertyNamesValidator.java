@@ -49,9 +49,9 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
 
                 errors.add(
-                        message().property(pname).instanceNode(node).instanceLocation(schemaError.getInstanceLocation())
+                        message().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(msg).build());
+                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(pname, msg).build());
             }
         }
         return Collections.unmodifiableSet(errors);

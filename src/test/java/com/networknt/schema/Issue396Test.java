@@ -35,11 +35,11 @@ public class Issue396Test {
         final Set<String> expected = new HashSet<>();
         node.fields().forEachRemaining(entry -> {
             if (!entry.getValue().asBoolean())
-                expected.add("$." + entry.getKey());
+                expected.add(entry.getKey());
         });
 
         Set<ValidationMessage> errors = schema.validate(node);
-        final Set<String> actual = errors.stream().map(ValidationMessage::getInstanceLocation).map(Object::toString).collect(Collectors.toSet());
+        final Set<String> actual = errors.stream().map(ValidationMessage::getProperty).map(Object::toString).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }
 }
