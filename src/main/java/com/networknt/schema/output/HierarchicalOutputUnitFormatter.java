@@ -52,8 +52,10 @@ public class HierarchicalOutputUnitFormatter {
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.getDroppedAnnotations();
         
         // Evaluation path to output unit
-        Map<JsonNodePath, OutputUnit> index = new LinkedHashMap<>();
-        index.put(new JsonNodePath(validationContext.getConfig().getPathType()), root);
+        Map<JsonNodePath, Map<JsonNodePath, OutputUnit>> index = new LinkedHashMap<>();
+        Map<JsonNodePath, OutputUnit> r = new LinkedHashMap<>();
+        r.put(new JsonNodePath(validationContext.getConfig().getPathType()), root);
+        index.put(new JsonNodePath(validationContext.getConfig().getPathType()), r);
         
         // Get all the evaluation paths with data
         // This is a map of evaluation path to instance location
@@ -72,7 +74,7 @@ public class HierarchicalOutputUnitFormatter {
         // Process all the data
         for (Entry<OutputUnitKey, Map<String, Object>> error : errors.entrySet()) {
             OutputUnitKey key = error.getKey();
-            OutputUnit unit = index.get(key.getEvaluationPath());
+            OutputUnit unit = index.get(key.getEvaluationPath()).get(key.getInstanceLocation());
             unit.setInstanceLocation(key.getInstanceLocation().toString());
             unit.setSchemaLocation(key.getSchemaLocation().toString());
             unit.setValid(false);
@@ -81,7 +83,7 @@ public class HierarchicalOutputUnitFormatter {
 
         for (Entry<OutputUnitKey, Map<String, Object>> annotation : annotations.entrySet()) {
             OutputUnitKey key = annotation.getKey();
-            OutputUnit unit = index.get(key.getEvaluationPath());
+            OutputUnit unit = index.get(key.getEvaluationPath()).get(key.getInstanceLocation());
             String instanceLocation = key.getInstanceLocation().toString();
             String schemaLocation = key.getSchemaLocation().toString();
             if (unit.getInstanceLocation() != null && !unit.getInstanceLocation().equals(instanceLocation)) {
@@ -98,7 +100,7 @@ public class HierarchicalOutputUnitFormatter {
         
         for (Entry<OutputUnitKey, Map<String, Object>> droppedAnnotation : droppedAnnotations.entrySet()) {
             OutputUnitKey key = droppedAnnotation.getKey();
-            OutputUnit unit = index.get(key.getEvaluationPath());
+            OutputUnit unit = index.get(key.getEvaluationPath()).get(key.getInstanceLocation());
             String instanceLocation = key.getInstanceLocation().toString();
             String schemaLocation = key.getSchemaLocation().toString();
             if (unit.getInstanceLocation() != null && !unit.getInstanceLocation().equals(instanceLocation)) {
@@ -124,7 +126,7 @@ public class HierarchicalOutputUnitFormatter {
      * @param keys  that contain all the evaluation paths with instance data
      * @param root  the root output unit
      */
-    protected static void buildIndex(OutputUnitKey key, Map<JsonNodePath, OutputUnit> index,
+    protected static void buildIndex(OutputUnitKey key, Map<JsonNodePath, Map<JsonNodePath, OutputUnit>> index,
             Map<JsonNodePath, Set<JsonNodePath>> keys, OutputUnit root) {
         if (index.containsKey(key.getEvaluationPath())) {
             return;
@@ -142,21 +144,30 @@ public class HierarchicalOutputUnitFormatter {
             JsonNodePath current = stack.pop();
             if (!index.containsKey(current) && keys.containsKey(current)) {
                 // the index doesn't contain this path but this is a path with data
-                OutputUnit child = new OutputUnit();
-                child.setValid(true);
-                child.setEvaluationPath(current.toString());
-                index.put(current, child);
-                if (parent.getDetails() == null) {
-                    parent.setDetails(new ArrayList<>());
+                for (JsonNodePath instanceLocation : keys.get(current)) {
+                    OutputUnit child = new OutputUnit();
+                    child.setValid(true);
+                    child.setEvaluationPath(current.toString());
+                    child.setInstanceLocation(instanceLocation.toString());
+                    index.computeIfAbsent(current, n -> new LinkedHashMap<>()).put(instanceLocation, child);
+                    if (parent.getDetails() == null) {
+                        parent.setDetails(new ArrayList<>());
+                    }
+                    parent.getDetails().add(child);
                 }
-                parent.getDetails().add(child);
             }
 
             // If exists in the index this is the new parent
             // Otherwise this is an evaluation path with no data and hence should be skipped
-            OutputUnit child = index.get(current);
-            if (child != null) {
-                parent = child;
+            // InstanceLocation to OutputUnit
+            Map<JsonNodePath, OutputUnit> result = index.get(current);
+            if (result != null) {
+                for (Entry<JsonNodePath, OutputUnit> entry : result.entrySet()) {
+                    if (key.getInstanceLocation().startsWith(entry.getKey())) {
+                        parent = entry.getValue();
+                        break;
+                    }
+                }
             }
         }
     }
