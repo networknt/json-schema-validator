@@ -4,8 +4,14 @@ import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.SpecVersion.VersionFlag;
+
+import java.util.Set;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -29,5 +35,30 @@ public class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         );
     }
 
-
+    /**
+     * Tests that the message contains the correct values when there are invalid
+     * items.
+     */
+    @Test
+    void messageInvalid() {
+        String schemaData = "{\r\n"
+                + "  \"$id\": \"https://www.example.org/schema\",\r\n"
+                + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        String inputData = "[1, \"x\"]";
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertFalse(messages.isEmpty());
+        ValidationMessage message = messages.iterator().next();
+        assertEquals("/prefixItems/type", message.getEvaluationPath().toString());
+        assertEquals("https://www.example.org/schema#/prefixItems/type", message.getSchemaLocation().toString());
+        assertEquals("/0", message.getInstanceLocation().toString());
+        assertEquals("\"string\"", message.getSchemaNode().toString());
+        assertEquals("1", message.getInstanceNode().toString());
+        assertEquals("/0: integer found, string expected", message.getMessage());
+        assertNull(message.getProperty());
+    }
 }
