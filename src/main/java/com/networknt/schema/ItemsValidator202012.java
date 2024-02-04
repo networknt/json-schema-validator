@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,6 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
 
     private final JsonSchema schema;
-    private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
     private final boolean additionalItems;
     
@@ -61,9 +58,6 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         }
 
         this.additionalItems = schemaNode.isBoolean() ? schemaNode.booleanValue() : true;
-
-        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(
-                validationContext.getConfig().getArrayItemWalkListeners());
     }
 
     @Override
@@ -120,7 +114,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
-            if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && this.schema != null) {
+            if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+                    && this.schema != null) {
                 defaultNode = this.schema.getSchemaNode().get("default");
             }
             for (int i = this.prefixCount; i < node.size(); ++i) {
@@ -144,7 +139,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
+        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
@@ -158,7 +153,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(
+        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,

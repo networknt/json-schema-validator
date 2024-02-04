@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,6 @@ public class ItemsValidator extends BaseJsonValidator {
     private final List<JsonSchema> tupleSchema;
     private Boolean additionalItems;
     private final JsonSchema additionalSchema;
-    private WalkListenerRunner arrayItemWalkListenerRunner;
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
@@ -76,8 +73,6 @@ public class ItemsValidator extends BaseJsonValidator {
                 }
             }
         }
-        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
-
         this.schema = foundSchema;
         this.additionalSchema = foundAdditionalSchema;
         this.additionalItemsEvaluationPath = parentSchema.evaluationPath.append(PROPERTY_ADDITIONAL_ITEMS);
@@ -207,7 +202,8 @@ public class ItemsValidator extends BaseJsonValidator {
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
-            if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && this.schema != null) {
+            if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+                    && this.schema != null) {
                 defaultNode = this.schema.getSchemaNode().get("default");
             }
             int i = 0;
@@ -249,13 +245,13 @@ public class ItemsValidator extends BaseJsonValidator {
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
+        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
                 node, rootNode, instanceLocation, walkSchema.getEvaluationPath(), walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
+        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
                 instanceLocation, this.evaluationPath, walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 

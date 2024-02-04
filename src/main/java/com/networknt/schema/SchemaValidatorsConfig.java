@@ -19,7 +19,11 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
+import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
+import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
+import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -235,7 +239,8 @@ public class SchemaValidatorsConfig {
     }
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
-        return this.applyDefaultsStrategy;
+        return this.applyDefaultsStrategy == null ? ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY
+                : applyDefaultsStrategy;
     }
 
     public boolean isHandleNullableField() {
@@ -328,6 +333,33 @@ public class SchemaValidatorsConfig {
 
     public List<JsonSchemaWalkListener> getArrayItemWalkListeners() {
         return this.itemWalkListeners;
+    }
+
+    private WalkListenerRunner itemWalkListenerRunner = null;
+
+    WalkListenerRunner getItemWalkListenerRunner() {
+        if (this.itemWalkListenerRunner == null) {
+            this.itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
+        }
+        return this.itemWalkListenerRunner;
+    }
+    
+    private WalkListenerRunner keywordWalkListenerRunner = null;
+
+    WalkListenerRunner getKeywordWalkListenerRunner() {
+        if (this.keywordWalkListenerRunner == null) {
+            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+        }
+        return this.keywordWalkListenerRunner;
+    }
+
+    private WalkListenerRunner propertyWalkListenerRunner = null;
+
+    WalkListenerRunner getPropertyWalkListenerRunner() {
+        if (this.propertyWalkListenerRunner == null) {
+            this.propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
+        }
+        return this.propertyWalkListenerRunner;
     }
 
     public SchemaValidatorsConfig() {
