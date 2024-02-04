@@ -88,7 +88,11 @@ public class OneOfValidator extends BaseJsonValidator {
                     break;
                 }
 
-                childErrors.addAll(schemaErrors);
+                if (!failFast) {
+                    // check the original flag if it's going to fail fast anyway
+                    // no point aggregating all the errors
+                    childErrors.addAll(schemaErrors);
+                }
             }
         } finally {
             // Restore flag
