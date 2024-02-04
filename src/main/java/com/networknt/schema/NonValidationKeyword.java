@@ -46,8 +46,10 @@ public class NonValidationKeyword extends AbstractKeyword {
             if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
                 for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
                     Entry<String, JsonNode> property = field.next();
-                    validationContext.newSchema(schemaLocation.append(property.getKey()),
-                            evaluationPath.append(property.getKey()), property.getValue(), parentSchema);
+                    SchemaLocation location = schemaLocation.append(property.getKey());
+                    JsonSchema schema = validationContext.newSchema(location, evaluationPath.append(property.getKey()),
+                            property.getValue(), parentSchema);
+                    validationContext.getSchemaReferences().put(location.toString(), schema);
                 }
             }
         }
