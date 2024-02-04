@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 
 public abstract class BaseJsonValidator extends ValidationMessageHandler implements JsonValidator {
     protected final boolean suppressSubSchemaRetrieval;
-    private final PathType pathType;
 
     protected final JsonNode schemaNode;
 
@@ -58,9 +57,6 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.pathType = (validationContext != null && validationContext.getConfig() != null
-                && validationContext.getConfig().getPathType() != null) ? validationContext.getConfig().getPathType()
-                        : PathType.DEFAULT;
     }
 
     /**
@@ -71,7 +67,6 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     protected BaseJsonValidator(BaseJsonValidator copy) {
         super(copy);
         this.suppressSubSchemaRetrieval = copy.suppressSubSchemaRetrieval;
-        this.pathType = copy.pathType;
         this.schemaNode = copy.schemaNode;
         this.validationContext = copy.validationContext;
     }
@@ -301,7 +296,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @return The path.
      */
     protected JsonNodePath atRoot() {
-        return new JsonNodePath(this.pathType);
+        return new JsonNodePath(this.validationContext.getConfig().getPathType());
     }
 
     @Override

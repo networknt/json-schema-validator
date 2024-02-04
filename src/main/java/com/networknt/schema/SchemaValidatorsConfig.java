@@ -476,7 +476,7 @@ public class SchemaValidatorsConfig {
      * @return The path generation approach.
      */
     public PathType getPathType() {
-        return this.pathType;
+        return this.pathType != null ? this.pathType : PathType.DEFAULT;
     }
 
     /**
