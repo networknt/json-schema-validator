@@ -53,7 +53,7 @@ public class Issue375Test {
         }
 
         List<String> expectedMessages = Arrays.asList(
-            "$.fields: property 'longName123' name is not valid: may only be 5 characters long",
+            "$.fields: property 'longName123' name is not valid: must be at most 5 characters long",
             "$.fields: property 'longName123' name is not valid: does not match the regex pattern ^[a-zA-Z]+$",
             "$.fields: property 'a' name is not valid: must be at least 3 characters long");
         MatcherAssert.assertThat(errorMessages, Matchers.containsInAnyOrder(expectedMessages.toArray()));

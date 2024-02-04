@@ -64,7 +64,7 @@ class ResourceBundleMessageSourceTest {
     @Test
     void messageMaxItems() {
         String message = messageSource.getMessage("maxItems", Locale.getDefault(), "item", 5);
-        assertEquals("item: there must be a maximum of 5 items in the array", message);
+        assertEquals("item: must have a maximum of 5 items in the array", message);
     }
 
     @Test
@@ -78,6 +78,6 @@ class ResourceBundleMessageSourceTest {
         MessageSource messageSource = new ResourceBundleMessageSource("jsv-messages-override", "jsv-messages");
         assertEquals("path: overridden message value", messageSource.getMessage("allOf", Locale.ROOT, "path", "value"));
         assertEquals("path: overridden message value", messageSource.getMessage("allOf", Locale.FRENCH, "path", "value"));
-        assertEquals("path: should be valid to any of the schemas value", messageSource.getMessage("anyOf", Locale.ROOT, "path", "value"));
+        assertEquals("path: must be valid to any of the schemas value", messageSource.getMessage("anyOf", Locale.ROOT, "path", "value"));
     }
 }

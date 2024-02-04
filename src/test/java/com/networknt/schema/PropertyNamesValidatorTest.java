@@ -54,7 +54,7 @@ public class PropertyNamesValidatorTest {
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("{\"maxLength\":3}", message.getSchemaNode().toString());
         assertEquals("{\"foo\":{},\"foobar\":{}}", message.getInstanceNode().toString());
-        assertEquals(": property 'foobar' name is not valid: may only be 3 characters long", message.getMessage());
+        assertEquals(": property 'foobar' name is not valid: must be at most 3 characters long", message.getMessage());
         assertEquals("foobar", message.getProperty());
     }
 }
