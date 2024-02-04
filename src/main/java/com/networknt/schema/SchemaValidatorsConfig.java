@@ -54,7 +54,7 @@ public class SchemaValidatorsConfig {
      * When set to true, walker sets nodes that are missing or NullNode to the
      * default value, if any, and mutate the input json.
      */
-    private ApplyDefaultsStrategy applyDefaultsStrategy;
+    private ApplyDefaultsStrategy applyDefaultsStrategy = ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
 
     /**
      * When set to true, use ECMA-262 compatible validator
@@ -244,8 +244,7 @@ public class SchemaValidatorsConfig {
     }
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
-        return this.applyDefaultsStrategy == null ? ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY
-                : applyDefaultsStrategy;
+        return this.applyDefaultsStrategy;
     }
 
     public boolean isHandleNullableField() {
@@ -340,30 +339,21 @@ public class SchemaValidatorsConfig {
         return this.itemWalkListeners;
     }
 
-    private WalkListenerRunner itemWalkListenerRunner = null;
+    private final WalkListenerRunner itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
 
     WalkListenerRunner getItemWalkListenerRunner() {
-        if (this.itemWalkListenerRunner == null) {
-            this.itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
-        }
         return this.itemWalkListenerRunner;
     }
     
-    private WalkListenerRunner keywordWalkListenerRunner = null;
+    private WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
 
     WalkListenerRunner getKeywordWalkListenerRunner() {
-        if (this.keywordWalkListenerRunner == null) {
-            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
-        }
         return this.keywordWalkListenerRunner;
     }
 
-    private WalkListenerRunner propertyWalkListenerRunner = null;
+    private WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
 
     WalkListenerRunner getPropertyWalkListenerRunner() {
-        if (this.propertyWalkListenerRunner == null) {
-            this.propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
-        }
         return this.propertyWalkListenerRunner;
     }
 
@@ -481,7 +471,7 @@ public class SchemaValidatorsConfig {
      * @return The path generation approach.
      */
     public PathType getPathType() {
-        return this.pathType != null ? this.pathType : PathType.DEFAULT;
+        return this.pathType;
     }
 
     /**
