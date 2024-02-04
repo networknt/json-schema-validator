@@ -41,7 +41,6 @@ public class JsonSchema extends BaseJsonValidator {
      * The validators sorted and indexed by evaluation path.
      */
     private List<JsonValidator> validators;
-    private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
 
@@ -96,7 +95,6 @@ public class JsonSchema extends BaseJsonValidator {
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
-        this.metaSchema = this.validationContext.getMetaSchema();
         String id = this.validationContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
             // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
@@ -147,7 +145,6 @@ public class JsonSchema extends BaseJsonValidator {
     protected JsonSchema(JsonSchema copy) {
         super(copy);
         this.validators = copy.validators;
-        this.metaSchema = copy.metaSchema;
         this.validatorsLoaded = copy.validatorsLoaded;
         this.recursiveAnchor = copy.recursiveAnchor;
         this.requiredValidator = copy.requiredValidator;
