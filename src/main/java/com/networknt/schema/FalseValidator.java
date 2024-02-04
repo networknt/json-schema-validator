@@ -28,8 +28,11 @@ import java.util.Set;
 public class FalseValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
 
+    private final String reason;
+
     public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
+        this.reason = this.evaluationPath.getParent().getName(-1);
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
@@ -37,6 +40,6 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
         // For the false validator, it is always not valid
         return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                 .locale(executionContext.getExecutionConfig().getLocale())
-                .failFast(executionContext.getExecutionConfig().isFailFast()).build());
+                .failFast(executionContext.isFailFast()).arguments(reason).build());
     }
 }

@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,6 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
 
     private final List<JsonSchema> tupleSchema;
-    private WalkListenerRunner arrayItemWalkListenerRunner;
     
     private Boolean hasUnevaluatedItemsValidator = null;
 
@@ -53,8 +50,6 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
         }
-
-        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
     }
 
     @Override
@@ -101,7 +96,8 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
-        if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && node.isArray()) {
+        if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+                && node.isArray()) {
             ArrayNode array = (ArrayNode) node;
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
@@ -127,7 +123,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
+        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
@@ -141,7 +137,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(
+        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,

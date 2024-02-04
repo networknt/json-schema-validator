@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +36,12 @@ public class ItemsValidator extends BaseJsonValidator {
     private final List<JsonSchema> tupleSchema;
     private Boolean additionalItems;
     private final JsonSchema additionalSchema;
-    private WalkListenerRunner arrayItemWalkListenerRunner;
 
     private Boolean hasUnevaluatedItemsValidator = null;
+
+    private final JsonNodePath additionalItemsEvaluationPath;
+    private final SchemaLocation additionalItemsSchemaLocation;
+    private final JsonNode additionalItemsSchemaNode;
 
     public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
@@ -48,6 +49,7 @@ public class ItemsValidator extends BaseJsonValidator {
         this.tupleSchema = new ArrayList<>();
         JsonSchema foundSchema = null;
         JsonSchema foundAdditionalSchema = null;
+        JsonNode additionalItemsSchemaNode = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             foundSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
@@ -61,6 +63,7 @@ public class ItemsValidator extends BaseJsonValidator {
 
             JsonNode addItemNode = getParentSchema().getSchemaNode().get(PROPERTY_ADDITIONAL_ITEMS);
             if (addItemNode != null) {
+                additionalItemsSchemaNode = addItemNode;
                 if (addItemNode.isBoolean()) {
                     this.additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
@@ -70,10 +73,11 @@ public class ItemsValidator extends BaseJsonValidator {
                 }
             }
         }
-        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
-
         this.schema = foundSchema;
         this.additionalSchema = foundAdditionalSchema;
+        this.additionalItemsEvaluationPath = parentSchema.evaluationPath.append(PROPERTY_ADDITIONAL_ITEMS);
+        this.additionalItemsSchemaLocation = parentSchema.schemaLocation.append(PROPERTY_ADDITIONAL_ITEMS);
+        this.additionalItemsSchemaNode = additionalItemsSchemaNode;
     }
 
     @Override
@@ -134,7 +138,8 @@ public class ItemsValidator extends BaseJsonValidator {
             if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
                 executionContext.getAnnotations()
                         .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                .evaluationPath(this.additionalItemsEvaluationPath)
+                                .schemaLocation(this.additionalItemsSchemaLocation)
                                 .keyword("additionalItems").value(true).build());
             }
         }
@@ -176,9 +181,14 @@ public class ItemsValidator extends BaseJsonValidator {
 //                        evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(message().instanceNode(node).instanceLocation(path)
+                        errors.add(message().instanceNode(rootNode).instanceLocation(instanceLocation)
+                                .type("additionalItems")
+                                .messageKey("additionalItems")
+                                .evaluationPath(this.additionalItemsEvaluationPath)
+                                .schemaLocation(this.additionalItemsSchemaLocation)
+                                .schemaNode(this.additionalItemsSchemaNode)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(i).build());
+                                .failFast(executionContext.isFailFast()).arguments(i).build());
                     }
                 }
             }
@@ -192,7 +202,8 @@ public class ItemsValidator extends BaseJsonValidator {
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
-            if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && this.schema != null) {
+            if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+                    && this.schema != null) {
                 defaultNode = this.schema.getSchemaNode().get("default");
             }
             int i = 0;
@@ -234,13 +245,13 @@ public class ItemsValidator extends BaseJsonValidator {
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
+        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(),
                 node, rootNode, instanceLocation, walkSchema.getEvaluationPath(), walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory());
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
+        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(executionContext, ValidatorTypeCode.ITEMS.getValue(), node, rootNode,
                 instanceLocation, this.evaluationPath, walkSchema.getSchemaLocation(),
                 walkSchema.getSchemaNode(), walkSchema.getParentSchema(), this.validationContext, this.validationContext.getJsonSchemaFactory(), validationMessages);
 

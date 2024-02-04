@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
-import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -43,14 +41,11 @@ public class JsonSchema extends BaseJsonValidator {
      * The validators sorted and indexed by evaluation path.
      */
     private List<JsonValidator> validators;
-    private final JsonMetaSchema metaSchema;
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
 
     private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
-
-    WalkListenerRunner keywordWalkListenerRunner = null;
 
     private final String id;
 
@@ -100,8 +95,6 @@ public class JsonSchema extends BaseJsonValidator {
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
-        this.metaSchema = this.validationContext.getMetaSchema();
-        initializeConfig();
         String id = this.validationContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
             // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
@@ -144,13 +137,6 @@ public class JsonSchema extends BaseJsonValidator {
         getValidators();
     }
     
-    private void initializeConfig() {
-        if (validationContext.getConfig() != null) {
-            this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(
-                    this.validationContext.getConfig().getKeywordWalkListenersMap());
-        }
-    }
-
     /**
      * Copy constructor.
      * 
@@ -159,12 +145,10 @@ public class JsonSchema extends BaseJsonValidator {
     protected JsonSchema(JsonSchema copy) {
         super(copy);
         this.validators = copy.validators;
-        this.metaSchema = copy.metaSchema;
         this.validatorsLoaded = copy.validatorsLoaded;
         this.recursiveAnchor = copy.recursiveAnchor;
         this.requiredValidator = copy.requiredValidator;
         this.typeValidator = copy.typeValidator;
-        this.keywordWalkListenerRunner = copy.keywordWalkListenerRunner;
         this.id = copy.id;
     }
 
@@ -194,7 +178,6 @@ public class JsonSchema extends BaseJsonValidator {
         copy.requiredValidator = null;
         copy.typeValidator = null;
         copy.validators = null;
-        copy.initializeConfig();
         return copy;
     }
 
@@ -210,7 +193,6 @@ public class JsonSchema extends BaseJsonValidator {
             copy.requiredValidator = null;
             copy.typeValidator = null;
             copy.validators = null;
-            copy.initializeConfig();
             return copy;
         }
         return this;
@@ -1041,7 +1023,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
-                if (this.keywordWalkListenerRunner.runPreWalkListeners(executionContext,
+                if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
@@ -1057,7 +1039,7 @@ public class JsonSchema extends BaseJsonValidator {
                 }
             } finally {
                 // Call all the post-walk listeners.
-                this.keywordWalkListenerRunner.runPostWalkListeners(executionContext,
+                this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
                         this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory(),

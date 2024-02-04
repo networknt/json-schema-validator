@@ -71,13 +71,13 @@ public class IfValidator extends BaseJsonValidator {
         boolean ifConditionPassed = false;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
-        boolean failFast = executionContext.getExecutionConfig().isFailFast();
+        boolean failFast = executionContext.isFailFast();
         try {
-            executionContext.getExecutionConfig().setFailFast(false);
+            executionContext.setFailFast(false);
             ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
         } finally {
             // Restore flag
-            executionContext.getExecutionConfig().setFailFast(failFast);
+            executionContext.setFailFast(failFast);
         }
 
         if (ifConditionPassed && this.thenSchema != null) {

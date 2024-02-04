@@ -17,15 +17,22 @@ package com.networknt.schema.output;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
  * Output Unit Key.
  */
 public class OutputUnitKey {
+    @JsonSerialize(using = ToStringSerializer.class)
     final JsonNodePath evaluationPath;
+    @JsonSerialize(using = ToStringSerializer.class)
     final SchemaLocation schemaLocation;
+    @JsonSerialize(using = ToStringSerializer.class)
     final JsonNodePath instanceLocation;
 
     public OutputUnitKey(JsonNodePath evaluationPath, SchemaLocation schemaLocation, JsonNodePath instanceLocation) {
@@ -65,4 +72,16 @@ public class OutputUnitKey {
                 && Objects.equals(instanceLocation, other.instanceLocation)
                 && Objects.equals(schemaLocation, other.schemaLocation);
     }
+
+    @Override
+    public String toString() {
+        try {
+            return JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "OutputUnitKey [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
+                    + ", instanceLocation=" + instanceLocation + "]";
+        }
+    }
+    
+    
 }

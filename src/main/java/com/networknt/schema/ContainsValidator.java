@@ -80,9 +80,9 @@ public class ContainsValidator extends BaseJsonValidator {
         List<Integer> indexes = new ArrayList<>(); // for the annotation
         if (null != this.schema && node.isArray()) {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
-            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            boolean failFast = executionContext.isFailFast();
             try {
-                executionContext.getExecutionConfig().setFailFast(false);
+                executionContext.setFailFast(false);
                 for (JsonNode n : node) {
                     JsonNodePath path = instanceLocation.append(i);
                     if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
@@ -93,7 +93,7 @@ public class ContainsValidator extends BaseJsonValidator {
                 }
             } finally {
                 // Restore flag
-                executionContext.getExecutionConfig().setFailFast(failFast);
+                executionContext.setFailFast(failFast);
             }
             int m = 1; // default to 1 if "min" not specified
             if (this.min != null) {
@@ -102,13 +102,13 @@ public class ContainsValidator extends BaseJsonValidator {
             if (actual < m) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
-                        executionContext.getExecutionConfig().isFailFast(), node, instanceLocation, m);
+                        executionContext.isFailFast(), node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
                 results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
-                        executionContext.getExecutionConfig().isFailFast(), node, instanceLocation, this.max);
+                        executionContext.isFailFast(), node, instanceLocation, this.max);
             }
         }
         

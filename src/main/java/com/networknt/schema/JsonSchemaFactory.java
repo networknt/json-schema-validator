@@ -257,18 +257,20 @@ public class JsonSchemaFactory {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
         JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
-        try {
-            /*
-             * Attempt to preload and resolve $refs for performance.
-             */
-            jsonSchema.initializeValidators();
-        } catch (Exception e) {
-            /*
-             * Do nothing here to allow the schema to be cached even if the remote $ref
-             * cannot be resolved at this time. If the developer wants to ensure that all
-             * remote $refs are currently resolvable they need to call initializeValidators
-             * themselves.
-             */
+        if (config.isPreloadJsonSchema()) {
+            try {
+                /*
+                 * Attempt to preload and resolve $refs for performance.
+                 */
+                jsonSchema.initializeValidators();
+            } catch (Exception e) {
+                /*
+                 * Do nothing here to allow the schema to be cached even if the remote $ref
+                 * cannot be resolved at this time. If the developer wants to ensure that all
+                 * remote $refs are currently resolvable they need to call initializeValidators
+                 * themselves.
+                 */
+            }
         }
         return jsonSchema;
     }
@@ -587,7 +589,7 @@ public class JsonSchemaFactory {
      * @return the schema
      */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(schemaUri, jsonNode, null);
+        return newJsonSchema(schemaUri, jsonNode, createSchemaValidatorsConfig());
     }
 
     /**
@@ -620,7 +622,7 @@ public class JsonSchemaFactory {
      * @return the schema
      */
     public JsonSchema getSchema(final JsonNode jsonNode) {
-        return newJsonSchema(null, jsonNode, null);
+        return newJsonSchema(null, jsonNode, createSchemaValidatorsConfig());
     }
 
     private boolean isYaml(final SchemaLocation schemaUri) {

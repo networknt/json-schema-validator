@@ -19,7 +19,11 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
+import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
+import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
+import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkListenerRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +54,7 @@ public class SchemaValidatorsConfig {
      * When set to true, walker sets nodes that are missing or NullNode to the
      * default value, if any, and mutate the input json.
      */
-    private ApplyDefaultsStrategy applyDefaultsStrategy;
+    private ApplyDefaultsStrategy applyDefaultsStrategy = ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
 
     /**
      * When set to true, use ECMA-262 compatible validator
@@ -116,6 +120,11 @@ public class SchemaValidatorsConfig {
      * The approach used to generate paths in reported messages, logs and errors. Default is the legacy "JSONPath-like" approach.
      */
     private PathType pathType = PathType.DEFAULT;
+
+    /**
+     * Controls if the schema will automatically be preloaded.
+     */
+    private boolean preloadJsonSchema = true;
 
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
@@ -231,7 +240,8 @@ public class SchemaValidatorsConfig {
     }
 
     public void setApplyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
-        this.applyDefaultsStrategy = applyDefaultsStrategy;
+        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy
+                : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
     }
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {
@@ -328,6 +338,24 @@ public class SchemaValidatorsConfig {
 
     public List<JsonSchemaWalkListener> getArrayItemWalkListeners() {
         return this.itemWalkListeners;
+    }
+
+    private final WalkListenerRunner itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
+
+    WalkListenerRunner getItemWalkListenerRunner() {
+        return this.itemWalkListenerRunner;
+    }
+    
+    private WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+
+    WalkListenerRunner getKeywordWalkListenerRunner() {
+        return this.keywordWalkListenerRunner;
+    }
+
+    private WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
+
+    WalkListenerRunner getPropertyWalkListenerRunner() {
+        return this.propertyWalkListenerRunner;
     }
 
     public SchemaValidatorsConfig() {
@@ -565,5 +593,23 @@ public class SchemaValidatorsConfig {
      */
     public void setSchemaIdValidator(JsonSchemaIdValidator schemaIdValidator) {
         this.schemaIdValidator = schemaIdValidator;
+    }
+
+    /**
+     * Gets if the schema should be preloaded.
+     * 
+     * @return true if it should be preloaded
+     */
+    public boolean isPreloadJsonSchema() {
+        return preloadJsonSchema;
+    }
+
+    /**
+     * Sets if the schema should be preloaded.
+     * 
+     * @param preloadJsonSchema true to preload
+     */
+    public void setPreloadJsonSchema(boolean preloadJsonSchema) {
+        this.preloadJsonSchema = preloadJsonSchema;
     }
 }

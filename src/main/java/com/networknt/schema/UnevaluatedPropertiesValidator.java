@@ -109,20 +109,27 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
         }
 
         Set<ValidationMessage> messages = new LinkedHashSet<>();
-        for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
-            String fieldName = it.next();
-            if (!existingEvaluatedProperties.contains(fieldName)) {
-                evaluatedProperties.add(fieldName);
-                if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
-                    // All fails as "unevaluatedProperties: false"
-                    messages.add(message().instanceNode(node).instanceLocation(instanceLocation.append(fieldName))
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).build());
-                } else {
-                    messages.addAll(this.schema.validate(executionContext, node.get(fieldName), node,
-                            instanceLocation.append(fieldName)));
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.isFailFast();
+        try {
+            executionContext.setFailFast(false);
+            for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+                String fieldName = it.next();
+                if (!existingEvaluatedProperties.contains(fieldName)) {
+                    evaluatedProperties.add(fieldName);
+                    if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
+                        // All fails as "unevaluatedProperties: false"
+                        messages.add(message().instanceNode(node).instanceLocation(instanceLocation.append(fieldName))
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.isFailFast()).build());
+                    } else {
+                        messages.addAll(this.schema.validate(executionContext, node.get(fieldName), node,
+                                instanceLocation.append(fieldName)));
+                    }
                 }
             }
+        } finally {
+            executionContext.setFailFast(failFast); // restore flag
         }
         if (!messages.isEmpty()) {
             // Report these as unevaluated paths or not matching the unevaluatedProperties
@@ -132,7 +139,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(m.getInstanceLocation().getName(-1))
                             .property(m.getInstanceLocation().getName(-1))
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).build())
+                            .failFast(executionContext.isFailFast()).build())
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         }
         executionContext.getAnnotations()

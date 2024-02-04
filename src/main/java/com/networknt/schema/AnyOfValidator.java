@@ -69,9 +69,9 @@ public class AnyOfValidator extends BaseJsonValidator {
         int numberOfValidSubSchemas = 0;
         try {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
-            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            boolean failFast = executionContext.isFailFast();
             try {
-                executionContext.getExecutionConfig().setFailFast(false);
+                executionContext.setFailFast(false);
                 for (JsonSchema schema : this.schemas) {
                     Set<ValidationMessage> errors = Collections.emptySet();
                     state.setMatchedNode(initialHasMatchedNode);
@@ -104,7 +104,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                     }
 
                     if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
-                            && canShortCircuit()) {
+                            && canShortCircuit() && canShortCircuit(executionContext)) {
                         // Clear all errors.
                         allErrors.clear();
                         // return empty errors.
@@ -115,7 +115,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                                 allErrors.addAll(errors);
                                 allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
-                                        .failFast(executionContext.getExecutionConfig().isFailFast())
+                                        .failFast(executionContext.isFailFast())
                                         .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
                                 // Clear all errors.
@@ -128,7 +128,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                 }
             } finally {
                 // Restore flag
-                executionContext.getExecutionConfig().setFailFast(failFast);
+                executionContext.setFailFast(failFast);
             }
 
             // determine only those errors which are NOT of type "required" property missing
@@ -174,7 +174,24 @@ public class AnyOfValidator extends BaseJsonValidator {
         }
         return new LinkedHashSet<>();
     }
-    
+
+    /**
+     * If annotation collection is enabled cannot short circuit.
+     * 
+     * @see <a href=
+     *      "https://github.com/json-schema-org/json-schema-spec/blob/f8967bcbc6cee27753046f63024b55336a9b1b54/jsonschema-core.md?plain=1#L1717-L1720">anyOf</a>
+     * @param executionContext the execution context
+     * @return true if can short circuit
+     */
+    protected boolean canShortCircuit(ExecutionContext executionContext) {
+        return !executionContext.getExecutionConfig().isAnnotationCollectionEnabled();
+    }
+
+    /**
+     * If annotations are require for evaluation cannot short circuit.
+     * 
+     * @return true if can short circuit
+     */
     protected boolean canShortCircuit() {
         if (this.canShortCircuit == null) {
             boolean canShortCircuit = true;

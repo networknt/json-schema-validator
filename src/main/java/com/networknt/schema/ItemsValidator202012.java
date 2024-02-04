@@ -19,8 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
-import com.networknt.schema.walk.WalkListenerRunner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +32,15 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
 
     private final JsonSchema schema;
-    private final WalkListenerRunner arrayItemWalkListenerRunner;
     private final int prefixCount;
-
+    private final boolean additionalItems;
+    
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012, validationContext);
+    public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012,
+                validationContext);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
         if (prefixItems instanceof ArrayNode) {
@@ -50,18 +50,19 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' must be an array of JSON Schema.");
         }
-    
+
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'items' MUST be a valid JSON Schema.");
         }
 
-        this.arrayItemWalkListenerRunner = new DefaultItemWalkListenerRunner(validationContext.getConfig().getArrayItemWalkListeners());
+        this.additionalItems = schemaNode.isBoolean() ? schemaNode.booleanValue() : true;
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
         // ignores non-arrays
@@ -72,7 +73,17 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 // validate with item schema (the whole array has the same item schema)
-                Set<ValidationMessage> results = this.schema.validate(executionContext, node.get(i), rootNode, path);
+                Set<ValidationMessage> results = null;
+                if (additionalItems) {
+                    results = this.schema.validate(executionContext, node.get(i), rootNode, path);
+                } else {
+                    // This handles the case where "items": false as the boolean false schema doesn't
+                    // generate a helpful message
+                    int x = i;
+                    results = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .failFast(executionContext.isFailFast()).arguments(x).build());
+                }
                 if (results.isEmpty()) {
 //                    evaluatedItems.add(path);
                 } else {
@@ -96,13 +107,15 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
 
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
-            if (this.applyDefaultsStrategy.shouldApplyArrayDefaults() && this.schema != null) {
+            if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+                    && this.schema != null) {
                 defaultNode = this.schema.getSchemaNode().get("default");
             }
             for (int i = this.prefixCount; i < node.size(); ++i) {
@@ -112,10 +125,12 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     n = defaultNode;
                 }
                 // Walk the schema.
-                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema, validationMessages);
+                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema,
+                        validationMessages);
             }
         } else {
-            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages);
+            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation, shouldValidateSchema,
+                    validationMessages);
         }
 
         return validationMessages;
@@ -124,7 +139,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off
-        boolean executeWalk = this.arrayItemWalkListenerRunner.runPreWalkListeners(
+        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
@@ -138,7 +153,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
         }
-        this.arrayItemWalkListenerRunner.runPostWalkListeners(
+        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
@@ -162,7 +177,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         this.schema.initializeValidators();
         collectAnnotations(); // cache the flag
     }
-    
+
     private boolean collectAnnotations() {
         return hasUnevaluatedItemsValidator();
     }

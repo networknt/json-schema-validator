@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,6 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-
-        WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
 
         Set<ValidationMessage> errors = null;
 
@@ -94,7 +91,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, propertyWalkListenerRunner);
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
 
                 // reset the complex flag to the original value before the recursive call
@@ -143,13 +140,14 @@ public class PropertiesValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
-        if (this.applyDefaultsStrategy.shouldApplyPropertyDefaults() && null != node && node.getNodeType() == JsonNodeType.OBJECT) {
+        if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyPropertyDefaults() && null != node
+                && node.getNodeType() == JsonNodeType.OBJECT) {
             applyPropertyDefaults((ObjectNode) node);
         }
         if (shouldValidateSchema) {
             validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation));
         } else {
-            WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(this.validationContext.getConfig().getPropertyWalkListeners());
+            WalkListenerRunner propertyWalkListenerRunner = this.validationContext.getConfig().getPropertyWalkListenerRunner();
             for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
                 walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages, propertyWalkListenerRunner);
             }
@@ -176,8 +174,8 @@ public class PropertiesValidator extends BaseJsonValidator {
             if (defaultNode == null) {
                 continue;
             }
-            boolean applyDefault = propertyNode == null
-                    || (propertyNode.isNull() && this.applyDefaultsStrategy.shouldApplyPropertyDefaultsIfNull());
+            boolean applyDefault = propertyNode == null || (propertyNode.isNull() && this.validationContext.getConfig()
+                    .getApplyDefaultsStrategy().shouldApplyPropertyDefaultsIfNull());
             if (applyDefault) {
                 node.set(entry.getKey(), defaultNode);
             }

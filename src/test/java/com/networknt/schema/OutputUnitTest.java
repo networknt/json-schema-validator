@@ -106,7 +106,7 @@ public class OutputUnitTest {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
-        String expected = "{\"valid\":false,\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be a constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"}},{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"}}]}";
+        String expected = "{\"valid\":false,\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be the constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"}},{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"}}]}";
         assertEquals(expected, output);
     }
 
@@ -124,7 +124,7 @@ public class OutputUnitTest {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
-        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be a constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}}]}]}";
+        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be the constant value 1\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}}]}]}";
         assertEquals(expected, output);
     }
 
@@ -288,6 +288,54 @@ public class OutputUnitTest {
                         .setAnnotationCollectionFilter(keyword -> true));
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' must not be unevaluated\",\"property 'world' must not be unevaluated\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
+        assertEquals(expected, output);
+    }
+
+    /**
+     * Test that anyOf doesn't short circuit if annotations are turned on.
+     * 
+     * @see <a href=
+     *      "https://github.com/json-schema-org/json-schema-spec/blob/f8967bcbc6cee27753046f63024b55336a9b1b54/jsonschema-core.md?plain=1#L1717-L1720">anyOf</a>
+     * @throws JsonProcessingException the exception
+     */
+    @Test
+    void anyOf() throws JsonProcessingException {
+        // Test that any of doesn't short circuit if annotations need to be collected
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"anyOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"foo\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"bar\": {\r\n"
+                + "          \"type\": \"integer\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        
+        String inputData = "{\r\n"
+                + "    \"foo\": \"hello\",\r\n"
+                + "    \"bar\": 1\r\n"
+                + "}";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+        });
+        String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
+        String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"details\":[{\"valid\":true,\"evaluationPath\":\"/anyOf/0\",\"schemaLocation\":\"#/anyOf/0\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\"]}},{\"valid\":true,\"evaluationPath\":\"/anyOf/1\",\"schemaLocation\":\"#/anyOf/1\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"bar\"]}}]}";
         assertEquals(expected, output);
     }
 

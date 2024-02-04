@@ -59,7 +59,7 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
                     if (node.get(field) == null) {
                         errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(field, pname)
+                                .failFast(executionContext.isFailFast()).arguments(field, pname)
                                 .build());
                     }
                 }

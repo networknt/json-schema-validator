@@ -90,7 +90,7 @@ class Issue493Test
         assertThat(allErrorMessages, Matchers.containsInAnyOrder(
             "$.parameters[1].value: string found, integer expected",
             "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
-            "$.parameters[1]: should be valid to one and only one schema, but 0 are valid"
+            "$.parameters[1]: must be valid to one and only one schema, but 0 are valid"
         ));
     }
 }

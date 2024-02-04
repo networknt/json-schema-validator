@@ -190,7 +190,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                         .map(m -> message().instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(m.getInstanceLocation().getName(-1))
-                                .failFast(executionContext.getExecutionConfig().isFailFast()).build())
+                                .failFast(executionContext.isFailFast()).build())
                         .collect(Collectors.toCollection(LinkedHashSet::new));
             }
         }
