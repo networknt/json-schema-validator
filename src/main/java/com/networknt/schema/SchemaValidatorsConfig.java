@@ -121,6 +121,11 @@ public class SchemaValidatorsConfig {
      */
     private PathType pathType = PathType.DEFAULT;
 
+    /**
+     * Controls if the schema will automatically be preloaded.
+     */
+    private boolean preloadJsonSchema = true;
+
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
 
@@ -597,5 +602,23 @@ public class SchemaValidatorsConfig {
      */
     public void setSchemaIdValidator(JsonSchemaIdValidator schemaIdValidator) {
         this.schemaIdValidator = schemaIdValidator;
+    }
+
+    /**
+     * Gets if the schema should be preloaded.
+     * 
+     * @return true if it should be preloaded
+     */
+    public boolean isPreloadJsonSchema() {
+        return preloadJsonSchema;
+    }
+
+    /**
+     * Sets if the schema should be preloaded.
+     * 
+     * @param preloadJsonSchema true to preload
+     */
+    public void setPreloadJsonSchema(boolean preloadJsonSchema) {
+        this.preloadJsonSchema = preloadJsonSchema;
     }
 }

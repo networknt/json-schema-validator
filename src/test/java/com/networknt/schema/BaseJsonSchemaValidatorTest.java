@@ -58,6 +58,9 @@ public class BaseJsonSchemaValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
+        if (config == null) {
+            return factory.getSchema(is);
+        }
         return factory.getSchema(is, config);
     }
 
