@@ -67,7 +67,7 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .type("format")
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.getExecutionConfig().isFailFast())
+                        .failFast(executionContext.isFailFast())
                         .arguments(node.textValue(), DATETIME).build());
             }
         }

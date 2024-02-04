@@ -240,7 +240,8 @@ public class SchemaValidatorsConfig {
     }
 
     public void setApplyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
-        this.applyDefaultsStrategy = applyDefaultsStrategy;
+        this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy
+                : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
     }
 
     public ApplyDefaultsStrategy getApplyDefaultsStrategy() {

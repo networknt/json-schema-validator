@@ -40,6 +40,6 @@ public class FalseValidator extends BaseJsonValidator implements JsonValidator {
         // For the false validator, it is always not valid
         return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                 .locale(executionContext.getExecutionConfig().getLocale())
-                .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(reason).build());
+                .failFast(executionContext.isFailFast()).arguments(reason).build());
     }
 }

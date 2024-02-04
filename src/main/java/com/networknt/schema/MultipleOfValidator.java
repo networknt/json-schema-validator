@@ -49,7 +49,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(this.divisor)
+                            .failFast(executionContext.isFailFast()).arguments(this.divisor)
                             .build());
                 }
             }

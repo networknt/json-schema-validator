@@ -69,9 +69,9 @@ public class AnyOfValidator extends BaseJsonValidator {
         int numberOfValidSubSchemas = 0;
         try {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
-            boolean failFast = executionContext.getExecutionConfig().isFailFast();
+            boolean failFast = executionContext.isFailFast();
             try {
-                executionContext.getExecutionConfig().setFailFast(false);
+                executionContext.setFailFast(false);
                 for (JsonSchema schema : this.schemas) {
                     Set<ValidationMessage> errors = Collections.emptySet();
                     state.setMatchedNode(initialHasMatchedNode);
@@ -115,7 +115,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                                 allErrors.addAll(errors);
                                 allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
-                                        .failFast(executionContext.getExecutionConfig().isFailFast())
+                                        .failFast(executionContext.isFailFast())
                                         .arguments(DISCRIMINATOR_REMARK).build());
                             } else {
                                 // Clear all errors.
@@ -128,7 +128,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                 }
             } finally {
                 // Restore flag
-                executionContext.getExecutionConfig().setFailFast(failFast);
+                executionContext.setFailFast(failFast);
             }
 
             // determine only those errors which are NOT of type "required" property missing

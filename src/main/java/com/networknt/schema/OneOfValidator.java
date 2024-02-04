@@ -57,9 +57,9 @@ public class OneOfValidator extends BaseJsonValidator {
         Set<ValidationMessage> childErrors = new LinkedHashSet<>();
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
-        boolean failFast = executionContext.getExecutionConfig().isFailFast();
+        boolean failFast = executionContext.isFailFast();
         try {
-            executionContext.getExecutionConfig().setFailFast(false);
+            executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
 
@@ -88,15 +88,13 @@ public class OneOfValidator extends BaseJsonValidator {
                     break;
                 }
 
-                if (!failFast) {
-                    // check the original flag if it's going to fail fast anyway
-                    // no point aggregating all the errors
+                if (reportChildErrors(executionContext)) {
                     childErrors.addAll(schemaErrors);
                 }
             }
         } finally {
             // Restore flag
-            executionContext.getExecutionConfig().setFailFast(failFast);
+            executionContext.setFailFast(failFast);
         }
 
         // ensure there is always an "OneOf" error reported if number of valid schemas
@@ -104,7 +102,7 @@ public class OneOfValidator extends BaseJsonValidator {
         if (numberOfValidSchema != 1) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.getExecutionConfig().isFailFast())
+                    .failFast(executionContext.isFailFast())
                     .arguments(Integer.toString(numberOfValidSchema)).build();
             errors.add(message);
             errors.addAll(childErrors);
@@ -119,6 +117,18 @@ public class OneOfValidator extends BaseJsonValidator {
         resetValidatorState(executionContext);
 
         return Collections.unmodifiableSet(errors);
+    }
+
+    /**
+     * Determines if child errors should be reported.
+     * 
+     * @param executionContext the execution context
+     * @return true if child errors should be reported
+     */
+    protected boolean reportChildErrors(ExecutionContext executionContext) {
+        // check the original flag if it's going to fail fast anyway
+        // no point aggregating all the errors
+        return !executionContext.getExecutionConfig().isFailFast();
     }
     
     protected boolean canShortCircuit() {

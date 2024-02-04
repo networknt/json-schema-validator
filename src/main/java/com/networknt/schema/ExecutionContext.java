@@ -31,6 +31,13 @@ public class ExecutionContext {
     private Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
     private JsonNodeAnnotations annotations = new JsonNodeAnnotations();
     private JsonNodeResults results = new JsonNodeResults();
+    
+    /**
+     * This is used during the execution to determine if the validator should fail fast.
+     * <p>
+     * This valid is determined by the previous validator.
+     */
+    private Boolean failFast = null;
 
     /**
      * Creates an execution context.
@@ -111,7 +118,32 @@ public class ExecutionContext {
     public JsonNodeResults getResults() {
         return results;
     }
-    
+
+    /**
+     * Determines if the validator should immediately throw a fail fast exception if
+     * an error has occurred.
+     * <p>
+     * This defaults to the execution config fail fast at the start of the execution.
+     * 
+     * @return true if fail fast
+     */
+    public boolean isFailFast() {
+        if (this.failFast == null) {
+            this.failFast = getExecutionConfig().isFailFast();
+        }
+        return failFast;
+    }
+
+    /**
+     * Sets if the validator should immediately throw a fail fast exception if an
+     * error has occurred.
+     * 
+     * @param failFast true to fail fast
+     */
+    public void setFailFast(boolean failFast) {
+        this.failFast = failFast;
+    }
+
     /**
      * Gets the validator state.
      * 

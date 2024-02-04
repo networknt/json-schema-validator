@@ -115,7 +115,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     errors.add(message().instanceNode(node).property(pname)
                             .instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(pname).build());
+                            .failFast(executionContext.isFailFast()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = executionContext.getValidatorState();

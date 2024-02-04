@@ -54,7 +54,7 @@ public class ExecutionConfig {
      * Determine if the validation execution can fail fast.
      */
     private boolean failFast = false;
-
+    
     /**
      * Gets the locale to use for formatting messages.
      * 

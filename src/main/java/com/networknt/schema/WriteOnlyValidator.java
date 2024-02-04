@@ -29,7 +29,7 @@ public class WriteOnlyValidator extends BaseJsonValidator {
         if (this.writeOnly) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.getExecutionConfig().isFailFast()).build());
+                    .failFast(executionContext.isFailFast()).build());
         } 
         return Collections.emptySet();
     }

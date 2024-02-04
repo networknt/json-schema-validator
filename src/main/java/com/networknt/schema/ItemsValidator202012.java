@@ -82,7 +82,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     int x = i;
                     results = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.getExecutionConfig().isFailFast()).arguments(x).build());
+                            .failFast(executionContext.isFailFast()).arguments(x).build());
                 }
                 if (results.isEmpty()) {
 //                    evaluatedItems.add(path);
