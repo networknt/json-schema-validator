@@ -26,7 +26,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.i18n.Locales;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
 public class LocaleTest {
     private JsonSchema getSchema(SchemaValidatorsConfig config) {
@@ -64,5 +66,42 @@ public class LocaleTest {
         messages = jsonSchema.validate(executionContext, rootNode);
         assertEquals(1, messages.size());
         assertEquals("$.foo: integer trovato, string atteso", messages.iterator().next().getMessage());
+    }
+
+    /**
+     * Issue 949.
+     * <p>
+     * Locale.ENGLISH should work despite Locale.getDefault setting.
+     * 
+     * @throws JsonMappingException the exception
+     * @throws JsonProcessingException the exception
+     */
+    @Test
+    void englishLocale() throws JsonMappingException, JsonProcessingException {
+        Locale locale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.GERMAN);
+            String schema = "{\r\n"
+                    + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                    + "  \"$id\": \"https://www.example.com\",\r\n"
+                    + "  \"type\": \"object\"\r\n"
+                    + "}";
+            JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
+                    .getSchema(JsonMapperFactory.getInstance().readTree(schema));
+            String input = "1";
+            Set<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
+            assertEquals(1, messages.size());
+            assertEquals("$: integer wurde gefunden, aber object erwartet", messages.iterator().next().toString());
+            
+            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+            config.setLocale(Locale.ENGLISH);
+            jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
+                    .getSchema(JsonMapperFactory.getInstance().readTree(schema), config);
+            messages = jsonSchema.validate(input, InputFormat.JSON);
+            assertEquals(1, messages.size());
+            assertEquals("$: integer found, object expected", messages.iterator().next().toString());
+        } finally {
+            Locale.setDefault(locale);
+        }
     }
 }
