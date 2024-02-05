@@ -106,11 +106,21 @@ public class AbsoluteIri {
                     scheme = scheme + 3;
                 }
                 base = parent(base, scheme);
-                while (iri.startsWith("../")) {
-                    base = parent(base, scheme);
-                    iri = iri.substring(3);
+
+                String[] iriParts = iri.split("/");
+                for (int x = 0; x < iriParts.length; x++) {
+                    if ("..".equals(iriParts[x])) {
+                        base = parent(base, scheme);
+                    } else if (".".equals(iriParts[x])) {
+                        // skip
+                    } else {
+                        base = base + "/" + iriParts[x];
+                    }
                 }
-                return base + "/" + iri;
+                if (iri.endsWith("/")) {
+                    base = base + "/";
+                }
+                return base;
             }
         }
     }
