@@ -74,13 +74,8 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                 }
             }
             try {
-                if (!format.matches(executionContext, node.textValue())) {
-                    if (assertionsEnabled) {
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                }
+                errors.addAll(format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
+                        assertionsEnabled, this));
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
                 logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);

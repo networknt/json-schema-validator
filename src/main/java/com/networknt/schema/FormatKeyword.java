@@ -18,7 +18,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.format.DateTimeValidator;
-import com.networknt.schema.format.DurationFormat;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import java.util.Map;
 
 public class FormatKeyword implements Keyword {
     private static final String DATE_TIME = "date-time";
-    private static final String DURATION = "duration";
 
     private final ValidatorTypeCode type;
     private final Map<String, Format> formats;
@@ -51,10 +49,6 @@ public class FormatKeyword implements Keyword {
             }
 
             switch (formatName) {
-                case DURATION:
-                    format = new DurationFormat(validationContext.getConfig().isStrict(DURATION));
-                    break;
-
                 case DATE_TIME: {
                     ValidatorTypeCode typeCode = ValidatorTypeCode.DATETIME;
                     return new DateTimeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, typeCode);

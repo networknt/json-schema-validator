@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.format.DateFormat;
+import com.networknt.schema.format.DurationFormat;
 import com.networknt.schema.format.EmailFormat;
 import com.networknt.schema.format.IdnEmailFormat;
 import com.networknt.schema.format.IdnHostnameFormat;
@@ -72,6 +73,8 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(new TimeFormat());
         COMMON_BUILTIN_FORMATS.add(new UriFormat());
         COMMON_BUILTIN_FORMATS.add(new UriReferenceFormat());
+        COMMON_BUILTIN_FORMATS.add(new DurationFormat());
+        
 
         // The following formats do not appear in any draft
         COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
