@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.output.OutputUnit;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -108,7 +111,49 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
         assertEquals("999", message.getInstanceNode().toString());
         assertEquals("/valid_array/0: integer found, string expected", message.getMessage());
         assertNull(message.getProperty());
+    }
 
-        
+    @SuppressWarnings("unchecked")
+    @Test
+    void annotation() {
+        String schemaData = "{\n"
+                + "  \"$id\": \"https://www.example.org/schema\",\n"
+                + "  \"type\": \"object\",\n"
+                + "  \"patternProperties\": {\n"
+                + "    \"^valid_\": {\n"
+                + "      \"type\": [\"array\", \"string\"],\n"
+                + "      \"items\": {\n"
+                + "        \"type\": \"string\"\n"
+                + "      }\n"
+                + "    }\n"
+                + "  }\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        String inputData = "{\n"
+                + "  \"test\": 5\n"
+                + "}";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+        });
+        Set<String> patternProperties = (Set<String>) outputUnit.getAnnotations().get("patternProperties");
+        assertTrue(patternProperties.isEmpty());
+
+        inputData = "{\n"
+                + "  \"valid_array\": [\"999\", \"2\"],\n"
+                + "  \"valid_string\": \"string_value\""
+                + "}";
+        outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+        });
+        patternProperties = (Set<String>) outputUnit.getAnnotations().get("patternProperties");
+        Set<String> all = new HashSet<>();
+        all.add("valid_array");
+        all.add("valid_string");
+        assertTrue(patternProperties.containsAll(patternProperties));
     }
 }
