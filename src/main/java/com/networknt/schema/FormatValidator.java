@@ -75,7 +75,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
             }
             try {
                 errors.addAll(format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
-                        assertionsEnabled, this));
+                        assertionsEnabled, () -> this.message(), this));
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
                 logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);
