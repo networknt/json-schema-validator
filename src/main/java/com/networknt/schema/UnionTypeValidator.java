@@ -34,7 +34,6 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     private final List<JsonValidator> schemas = new ArrayList<JsonValidator>();
     private final String error;
 
-
     public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNION_TYPE, validationContext);
         StringBuilder errorBuilder = new StringBuilder();
@@ -104,5 +103,10 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         for (final JsonValidator validator : schemas) {
             validator.preloadJsonSchema();
         }
+    }
+
+    @Override
+    public String getKeyword() {
+        return "type";
     }
 }

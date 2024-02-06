@@ -19,7 +19,11 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.resource.*;
+import com.networknt.schema.resource.DefaultSchemaLoader;
+import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.SchemaLoaders;
+import com.networknt.schema.resource.SchemaMapper;
+import com.networknt.schema.resource.SchemaMappers;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
 
@@ -30,7 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +42,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
+/**
+ * Factory for building {@link JsonSchema} instances.
+ * <p>
+ * The factory should be typically be created using
+ * {@link #getInstance(VersionFlag, Consumer)}.
+ */
 public class JsonSchemaFactory {
     private static final Logger logger = LoggerFactory
             .getLogger(JsonSchemaFactory.class);
@@ -185,7 +195,7 @@ public class JsonSchemaFactory {
      * be used if the input does not specify a $schema.
      * 
      * @param versionFlag the default dialect
-     * @param customizer to customze the factory
+     * @param customizer to customize the factory
      * @return the factory
      */
     public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag,
@@ -364,12 +374,11 @@ public class JsonSchemaFactory {
                     // Process vocabularies
                     JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
                     if (vocabulary != null) {
-                        builder.vocabularies(new HashMap<>());
+                        builder.vocabularies(new LinkedHashMap<>());
                         for(Entry<String, JsonNode> vocabs : vocabulary.properties()) {
                             builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
                         }
                     }
-                    
                 }
             }
             return builder.build();
