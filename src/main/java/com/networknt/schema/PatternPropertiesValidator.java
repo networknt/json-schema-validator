@@ -86,7 +86,10 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
             executionContext.getAnnotations()
                     .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
                             .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                            .keyword(getKeyword()).value(matchedInstancePropertyNames).build());
+                            .keyword(getKeyword())
+                            .value(matchedInstancePropertyNames != null ? matchedInstancePropertyNames
+                                    : Collections.emptySet())
+                            .build());
         }
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
