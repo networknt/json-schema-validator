@@ -92,4 +92,51 @@ public class TypeValidatorTest {
         assertEquals(1, messages.size());
 
     }
+
+    /**
+     * Issue 864.
+     */
+    @Test
+    void integer() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"integer\"\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate("1", InputFormat.JSON);
+        assertEquals(0, messages.size());
+        messages = schema.validate("2.0", InputFormat.JSON);
+        assertEquals(0, messages.size());
+        messages = schema.validate("2.000001", InputFormat.JSON);
+        assertEquals(1, messages.size());
+    }
+
+    /**
+     * Issue 864.
+     * <p>
+     * In draft-04, "integer" is listed as a primitive type and defined as "a JSON
+     * number without a fraction or exponent part"; in draft-06, "integer" is not
+     * considered a primitive type and is only defined in the section for keyword
+     * "type" as "any number with a zero fractional part"; 1.0 is thus not a valid
+     * "integer" type in draft-04 and earlier, but is a valid "integer" type in
+     * draft-06 and later; note that both drafts say that integers SHOULD be encoded
+     * in JSON without fractional parts
+     * 
+     * @see <a href=
+     *      "https://json-schema.org/draft-06/json-schema-release-notes">Draft-06
+     *      Release Notes</a>
+     */
+    @Test
+    void integerDraft4() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"integer\"\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate("1", InputFormat.JSON);
+        assertEquals(0, messages.size());
+        // The logic in JsonNodeUtil specifically excludes V4 from this handling
+        messages = schema.validate("2.0", InputFormat.JSON);
+        assertEquals(1, messages.size());
+        messages = schema.validate("2.000001", InputFormat.JSON);
+        assertEquals(1, messages.size());
+    }
 }
