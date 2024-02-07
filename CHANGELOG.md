@@ -11,6 +11,28 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.3.2 - 2024-02-07
+
+### Added
+
+### Changed
+
+
+- Update upgrading doc on fail fast (#961) Thanks @justin-tay
+- Improve schema retrieval docs (#959) Thanks @justin-tay
+- Refactor format validation (#958) Thanks @justin-tay
+- Add test for OpenAPI 3.1 schema validation (#956) Thanks @justin-tay
+- Fix patternProperties annotation (#955) Thanks @justin-tay
+- Add test for type integer (#954) Thanks @justin-tay
+- Improve vocabulary support (#953) Thanks @justin-tay
+- Fix resolve (#952) Thanks @justin-tay
+- Locale.ENGLISH should set. (#951) Thanks @justin-tay
+- Fix issues with hierarchy output report (#947) Thanks @justin-tay
+- Add test for type loose for array and update doc for behavior (#946) Thanks @justin-tay
+- Support type loose for multipleOf validator (#945) Thanks @justin-tay
+- Fix for required annotations for evaluation not collected (#944) Thanks @justin-tay
+
+
 ## 1.3.1 - 2024-01-31
 
 ### Added
