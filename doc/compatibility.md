@@ -150,7 +150,12 @@ This behavior can be overridden to generate assertions by setting the `setFormat
 | uri-template          | 🚫 | 🟢 | 🟢 | 🟢 | 🟢 |
 | uuid                  | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 
+##### Unknown Formats
+
+When the format assertion vocabularies are used in a meta schema, in accordance to the specification, unknown formats will result in assertions. If the format assertion vocabularies are not used, unknown formats will only result in assertions if the assertions are enabled and if `setStrict("format", true)`.
+
 ##### Footnotes
 1. Note that the validation are only optional for some of the keywords/formats.
 2. Refer to the corresponding JSON schema for more information on whether the keyword/format is optional or not.
+
 
