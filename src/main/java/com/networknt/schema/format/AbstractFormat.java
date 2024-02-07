@@ -21,6 +21,7 @@ import com.networknt.schema.ExecutionContext;
 /**
  * Used for Formats that do not need to use the {@link ExecutionContext}.
  */
+@Deprecated
 public abstract class AbstractFormat extends BaseFormat {
     /**
      * Constructor.

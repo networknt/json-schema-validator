@@ -19,13 +19,18 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.TemporalAccessor;
 
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
+
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 import static java.time.temporal.ChronoField.*;
 
 /**
+ * Format for time.
+ * <p>
  * Validates that a value conforms to the time specification in RFC 3339.
  */
-public class TimeFormat extends AbstractFormat {
+public class TimeFormat implements Format {
     // In 2023, time-zone offsets around the world extend from -12:00 to +14:00.
     // However, RFC 3339 accepts -23:59 to +23:59.
     private static final long MAX_OFFSET_MIN = 24 * 60 - 1;
@@ -38,12 +43,8 @@ public class TimeFormat extends AbstractFormat {
             .parseLenient()
             .toFormatter();
 
-    public TimeFormat() {
-        super("time", "must be a valid RFC 3339 time");
-    }
-
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         try {
             if (null == value) return true;
 
@@ -79,4 +80,13 @@ public class TimeFormat extends AbstractFormat {
         }
     }
 
+    @Override
+    public String getName() {
+        return "time";
+    }
+
+    @Override
+    public String getMessageKey() {
+        return "format.time";
+    }
 }

@@ -45,8 +45,8 @@ public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
     private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<>();
 
-    static PatternFormat pattern(String name, String regex, String description) {
-        return new PatternFormat(name, regex, description);
+    static PatternFormat pattern(String name, String regex, String messageKey) {
+        return PatternFormat.of(name, regex, messageKey);
     }
 
     static PatternFormat pattern(String name, String regex) {
@@ -57,13 +57,13 @@ public class JsonMetaSchema {
     
     // this section contains formats common to all dialects.
     static {
-        COMMON_BUILTIN_FORMATS.add(pattern("hostname", "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$", "must be a valid RFC 1123 host name"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "must be a valid RFC 2673 IP address"));
+        COMMON_BUILTIN_FORMATS.add(pattern("hostname", "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$", "format.hostname"));
+        COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "format.ipv4"));
         COMMON_BUILTIN_FORMATS.add(new IPv6Format());
-        COMMON_BUILTIN_FORMATS.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "must be a valid RFC 6901 JSON Pointer"));
-        COMMON_BUILTIN_FORMATS.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "must be a valid IETF Relative JSON Pointer"));
-        COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$", "must be a valid RFC 6570 URI Template"));
-        COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "must be a valid RFC 4122 UUID"));
+        COMMON_BUILTIN_FORMATS.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "format.json-pointer"));
+        COMMON_BUILTIN_FORMATS.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "format.relative-json-pointer"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$", "format.uri-template"));
+        COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "format.uuid"));
         COMMON_BUILTIN_FORMATS.add(new DateFormat());
         COMMON_BUILTIN_FORMATS.add(new DateTimeFormat());
         COMMON_BUILTIN_FORMATS.add(new EmailFormat());
@@ -77,7 +77,6 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(new UriReferenceFormat());
         COMMON_BUILTIN_FORMATS.add(new DurationFormat());
         
-
         // The following formats do not appear in any draft
         COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
         COMMON_BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));

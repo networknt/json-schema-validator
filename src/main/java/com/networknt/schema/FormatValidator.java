@@ -78,6 +78,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                 return format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
                         assertionsEnabled,
                         () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
+                                .messageKey(format.getMessageKey())
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast()),
                         this);

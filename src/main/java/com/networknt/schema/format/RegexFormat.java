@@ -16,17 +16,15 @@ package com.networknt.schema.format;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
+
 /**
- * Validates that a value is a valid regex.
+ * Format for regex.
  */
-public class RegexFormat extends AbstractFormat {
-
-    public RegexFormat() {
-        super("regex", "must be a valid ECMA-262 regular expression");
-    }
-
+public class RegexFormat implements Format {
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         if (null == value) return true;
         try {
             Pattern.compile(value);
@@ -37,4 +35,13 @@ public class RegexFormat extends AbstractFormat {
         }
     }
 
+    @Override
+    public String getName() {
+        return "regex";
+    }
+
+    @Override
+    public String getMessageKey() {
+        return "format.regex";
+    }
 }

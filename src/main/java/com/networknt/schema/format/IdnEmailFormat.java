@@ -1,19 +1,35 @@
 package com.networknt.schema.format;
 
 import com.networknt.org.apache.commons.validator.routines.EmailValidator;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
 
-public class IdnEmailFormat extends AbstractFormat {
-
+/**
+ * Format for idn-email.
+ */
+public class IdnEmailFormat implements Format {
     private final EmailValidator emailValidator;
 
     public IdnEmailFormat() {
-        super("idn-email", "must be a valid RFC 6531 Mailbox");
-        this.emailValidator = new IPv6AwareEmailValidator(true, true);
+        this(new IPv6AwareEmailValidator(true, true));
+    }
+
+    public IdnEmailFormat(EmailValidator emailValidator) {
+        this.emailValidator = emailValidator;
     }
 
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         return this.emailValidator.isValid(value);
     }
 
+    @Override
+    public String getName() {
+        return "idn-email";
+    }
+
+    @Override
+    public String getMessageKey() {
+        return "format.idn-email";
+    }
 }

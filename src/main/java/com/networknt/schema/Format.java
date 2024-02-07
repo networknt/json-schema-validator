@@ -36,11 +36,34 @@ public interface Format {
     String getName();
     
     /**
+     * Gets the message key to use for the message.
+     * <p>
+     * See jsv-messages.properties.
+     * <p>
+     * The following are the arguments.<br>
+     * {0} The instance location<br>
+     * {1} The format name<br>
+     * {2} The error message description<br>
+     * {3} The input value
+     * 
+     * @return the message key
+     */
+    default String getMessageKey() {
+        return "format";
+    }
+    
+    /**
      * Gets the error message description.
+     * <p>
+     * Deprecated. Override getMessageKey() and set the localized message in the
+     * resource bundle or message source.
      *
      * @return the error message description.
      */
-    String getErrorMessageDescription();
+    @Deprecated
+    default String getErrorMessageDescription() {
+        return "";
+    }
 
 
     /**
@@ -126,7 +149,8 @@ public interface Format {
             if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,
                     formatValidator)) {
                 return Collections
-                        .singleton(message.get().arguments(this.getName(), this.getErrorMessageDescription()).build());
+                        .singleton(message.get()
+                                .arguments(this.getName(), this.getErrorMessageDescription(), node.asText()).build());
             }
         }
         return Collections.emptySet();

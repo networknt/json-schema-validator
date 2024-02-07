@@ -3,13 +3,9 @@ package com.networknt.schema.format;
 import java.net.URI;
 
 /**
- * IriFormat.
+ * Format for iri.
  */
 public class IriFormat extends AbstractRFC3986Format {
-    public IriFormat() {
-        super("iri", "must be a valid RFC 3987 IRI");
-    }
-
     @Override
     protected boolean validate(URI uri) {
         boolean result = uri.isAbsolute();
@@ -22,5 +18,15 @@ public class IriFormat extends AbstractRFC3986Format {
             }
         }
         return result;
+    }
+
+    @Override
+    public String getName() {
+        return "iri";
+    }
+    
+    @Override
+    public String getMessageKey() {
+        return "format.iri";
     }
 }
