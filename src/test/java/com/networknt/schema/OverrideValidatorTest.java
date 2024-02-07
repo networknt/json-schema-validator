@@ -56,7 +56,7 @@ public class OverrideValidatorTest {
         // Override EmailValidator
         final JsonMetaSchema overrideValidatorMetaSchema = JsonMetaSchema
                 .builder(URI, JsonMetaSchema.getV201909())
-                .addFormat(new PatternFormat("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", null))
+                .addFormat(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 
         final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(overrideValidatorMetaSchema).build();

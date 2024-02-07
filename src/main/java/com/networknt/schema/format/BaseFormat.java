@@ -21,6 +21,7 @@ import com.networknt.schema.Format;
 /**
  * Base implementation of {@link Format}.
  */
+@Deprecated
 public abstract class BaseFormat implements Format {
     private final String name;
     private final String errorMessageDescription;

@@ -64,7 +64,6 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     CONTENT_ENCODING("contentEncoding", "1052", ContentEncodingValidator::new, VersionCode.V7),
     CONTENT_MEDIA_TYPE("contentMediaType", "1053", ContentMediaTypeValidator::new, VersionCode.V7),
     CROSS_EDITS("crossEdits", "1004", null, VersionCode.AllVersions),
-    DATETIME("dateTime", "1034", null, VersionCode.AllVersions),
     DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
     DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.MinV201909),

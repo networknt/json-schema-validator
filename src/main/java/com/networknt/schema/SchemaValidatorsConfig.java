@@ -487,7 +487,18 @@ public class SchemaValidatorsConfig {
      * @return Whether to perform a strict validation.
      */
     public boolean isStrict(String keyword) {
-        return this.strictness.getOrDefault(Objects.requireNonNull(keyword, "keyword cannot be null"), Boolean.TRUE);
+        return isStrict(keyword, Boolean.TRUE);
+    }
+
+    /**
+     * Determines if the validator should perform strict checking.
+     *
+     * @param keyword the keyword
+     * @param defaultValue the default value
+     * @return whether to perform a strict validation
+     */
+    public boolean isStrict(String keyword, Boolean defaultValue) {
+        return this.strictness.getOrDefault(Objects.requireNonNull(keyword, "keyword cannot be null"), defaultValue);
     }
 
     /**

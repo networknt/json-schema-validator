@@ -3,14 +3,15 @@ package com.networknt.schema.format;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-public class DateFormat extends AbstractFormat {
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
 
-    public DateFormat() {
-        super("date", "must be a valid RFC 3339 full-date");
-    }
-
+/**
+ * Format for date.
+ */
+public class DateFormat implements Format {
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         try {
             LocalDate date = LocalDate.parse(value);
             int year = date.getYear();
@@ -20,4 +21,13 @@ public class DateFormat extends AbstractFormat {
         }
     }
 
+    @Override
+    public String getName() {
+        return "date";
+    }
+
+    @Override
+    public String getMessageKey() {
+        return "format.date";
+    }
 }

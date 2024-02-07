@@ -18,17 +18,71 @@ package com.networknt.schema.format;
 
 import java.util.regex.Pattern;
 
-public class PatternFormat extends AbstractFormat {
-    private final Pattern pattern;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
 
+/**
+ * Format using a regex pattern.
+ */
+public class PatternFormat implements Format {
+    private final String name;
+    private final Pattern pattern;
+    private final String messageKey;
+    private final String errorMessageDescription;
+
+    /**
+     * Constructor.
+     * <p>
+     * Use {@link #of(String, String, String)} instead.
+     * 
+     * @param name the name
+     * @param regex the regex
+     * @param errorMessageDescription the error message description
+     */
+    @Deprecated
     public PatternFormat(String name, String regex, String errorMessageDescription) {
-        super(name, null != errorMessageDescription ? errorMessageDescription : regex);
+        this.name = name;
+        this.errorMessageDescription = errorMessageDescription != null ? errorMessageDescription : regex;
+        this.messageKey = "format";
+        this.pattern = Pattern.compile(regex);
+    }
+    
+    private PatternFormat(String name, String regex, String errorMessageDescription, String messageKey) {
+        this.name = name;
+        this.errorMessageDescription = errorMessageDescription != null ? errorMessageDescription : regex;
+        this.messageKey = messageKey;
         this.pattern = Pattern.compile(regex);
     }
 
+    /**
+     * Creates a pattern format.
+     * 
+     * @param name the name
+     * @param regex the regex pattern
+     * @param messageKey the message key
+     * @return the pattern format
+     */
+    public static PatternFormat of(String name, String regex, String messageKey) {
+        return new PatternFormat(name, regex, null, messageKey != null ? messageKey : "format");
+    }
+
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         return this.pattern.matcher(value).matches();
     }
 
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getMessageKey() {
+        return this.messageKey;
+    }
+
+    @Override
+    public String getErrorMessageDescription() {
+        return this.errorMessageDescription;
+    }
 }

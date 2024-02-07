@@ -99,7 +99,9 @@ public class CollectorContextTest {
     @Test
     public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(objectMapper
+        ExecutionContext executionContext = jsonSchemaForCombine.createExecutionContext();
+        executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(executionContext, objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
         CollectorContext collectorContext = validationResult.getCollectorContext();
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);

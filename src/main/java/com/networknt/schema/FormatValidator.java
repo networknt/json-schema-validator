@@ -23,71 +23,124 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * Validator for Format.
+ */
 public class FormatValidator extends BaseFormatJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;
-
-    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
+    
+    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext, Format format,
+            ErrorMessageType errorMessageType, Keyword keyword) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext);
         this.format = format;
     }
 
+    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
+        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, type, type);
+    }
+
+    /**
+     * Gets the annotation value.
+     * 
+     * @return the annotation value
+     */
+    protected Object getAnnotationValue() {
+        if (this.format != null) {
+            return this.format.getName();
+        }
+        return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
+    }
+    
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-
-        if (format != null) {
-            if (collectAnnotations(executionContext)) {
+        /*
+         * Annotations must be collected even if the format is unknown according to the specification.
+         */
+        if (collectAnnotations(executionContext)) {
+            Object annotationValue = getAnnotationValue();
+            if (annotationValue != null) {
                 putAnnotation(executionContext,
-                        annotation -> annotation.instanceLocation(instanceLocation).value(this.format.getName()));
+                        annotation -> annotation.instanceLocation(instanceLocation).value(annotationValue));
             }
-        }
-
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-        if (nodeType != JsonType.STRING) {
-            return Collections.emptySet();
         }
 
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-        if (format != null) {
-            if(format.getName().equals("ipv6")) {
-                if(!node.textValue().trim().equals(node.textValue())) {
-                    if (assertionsEnabled) {
-                        // leading and trailing spaces
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast())
-                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                } else if(node.textValue().contains("%")) {
-                    if (assertionsEnabled) {
-                        // zone id is not part of the ipv6
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                }
-            }
+        if (this.format != null) {
             try {
-                if (!format.matches(executionContext, node.textValue())) {
-                    if (assertionsEnabled) {
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                }
+                return format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
+                        assertionsEnabled,
+                        () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
+                                .messageKey(format.getMessageKey())
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.isFailFast()),
+                        this);
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation,
+                        format.getName(), pse);
+                return Collections.emptySet();
             }
+        } else {
+            return validateUnknownFormat(executionContext, node, rootNode, instanceLocation);
         }
-
-        return Collections.unmodifiableSet(errors);
     }
 
+    /**
+     * When the Format-Assertion vocabulary is specified, implementations MUST fail upon encountering unknown formats.
+     * 
+     * @param executionContext the execution context
+     * @param node the node
+     * @param rootNode the root node
+     * @param instanceLocation the instance location
+     * @return the messages
+     */
+    protected Set<ValidationMessage> validateUnknownFormat(ExecutionContext executionContext,
+            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        /*
+         * Unknown formats should create an assertion if the vocab is specified
+         * according to the specification.
+         */
+        if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
+            return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
+                    .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
+        }
+        return Collections.emptySet();
+    }
+
+    /**
+     * When the Format-Assertion vocabulary is specified, implementations MUST fail
+     * upon encountering unknown formats.
+     * <p>
+     * Note that this is different from setting the setFormatAssertionsEnabled
+     * configuration option.
+     * <p>
+     * The following logic will return true if the format assertions option is
+     * turned on and strict is enabled (default false) or the format assertion
+     * vocabulary is enabled.
+     * 
+     * @param executionContext the execution context
+     * @return true if format assertions should be generated
+     */
+    protected boolean createUnknownFormatAssertions(ExecutionContext executionContext) {
+        return (isAssertionsEnabled(executionContext) && isStrict(executionContext)) || (isFormatAssertionVocabularyEnabled());
+    }
+
+    /**
+     * Determines if strict handling.
+     * <p>
+     * Note that this defaults to false.
+     * 
+     * @param executionContext the execution context
+     * @return whether to perform strict handling
+     */
+    protected boolean isStrict(ExecutionContext executionContext) {
+        return this.validationContext.getConfig().isStrict(getKeyword(), Boolean.FALSE);
+    }
 }

@@ -2,10 +2,10 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,11 +61,14 @@ public class Issue784Test {
     }
 
     private JsonSchema createSchema(boolean useCustomDateFormat) {
-        JsonMetaSchema overrideDateTimeValidator = new JsonMetaSchema
-                .Builder(JsonMetaSchema.getV7().getUri())
-                .idKeyword("$id")
-                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V7))
-                .addFormats(useCustomDateFormat ? Collections.singletonList(new CustomDateTimeFormat()) : Collections.emptyList())
+        JsonMetaSchema overrideDateTimeValidator =JsonMetaSchema
+                .builder(JsonMetaSchema.getV7().getUri(), JsonMetaSchema.getV7())
+                .formats(formats -> {
+                    if (useCustomDateFormat) {
+                        CustomDateTimeFormat format = new CustomDateTimeFormat();
+                        formats.put(format.getName(), format);
+                    }
+                })
                 .build();
 
         return new JsonSchemaFactory

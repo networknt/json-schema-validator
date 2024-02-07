@@ -2,7 +2,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.format.AbstractFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,14 +12,20 @@ import java.util.List;
 import java.util.Set;
 
 public class Issue832Test {
-    private class NoMatchFormat extends AbstractFormat {
-        public NoMatchFormat() {
-            super("no_match", "always fail match");
+    private class NoMatchFormat implements Format {
+        @Override
+        public boolean matches(ExecutionContext executionContext, String value) {
+            return false;
         }
 
         @Override
-        public boolean matches(String value) {
-            return false;
+        public String getName() {
+            return "no_match";
+        }
+
+        @Override
+        public String getErrorMessageDescription() {
+            return "always fail match";
         }
     }
 

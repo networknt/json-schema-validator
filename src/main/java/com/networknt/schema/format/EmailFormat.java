@@ -17,18 +17,35 @@
 package com.networknt.schema.format;
 
 import com.networknt.org.apache.commons.validator.routines.EmailValidator;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Format;
 
-public class EmailFormat extends AbstractFormat {
-
+/**
+ * Format for email.
+ */
+public class EmailFormat implements Format {
     private final EmailValidator emailValidator;
 
     public EmailFormat() {
-        super("email", "must be a valid RFC 5321 Mailbox");
-        this.emailValidator = new IPv6AwareEmailValidator(true, true);
+        this(new IPv6AwareEmailValidator(true, true));
+    }
+    
+    public EmailFormat(EmailValidator emailValidator) {
+        this.emailValidator = emailValidator;
     }
 
     @Override
-    public boolean matches(String value) {
+    public boolean matches(ExecutionContext executionContext, String value) {
         return this.emailValidator.isValid(value);
+    }
+    
+    @Override
+    public String getName() {
+        return "email";
+    }
+
+    @Override
+    public String getMessageKey() {
+        return "format.email";
     }
 }
