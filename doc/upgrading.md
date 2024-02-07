@@ -93,7 +93,7 @@ The following are removed and replaced by `SchemaLoader` and `SchemaMapper`.
 * `URLFetcher` - Replaced by `UriSchemaLoader`.
 * `URNURIFactory` - No replacement as `URIFactory` isn't required anymore.
 
-The `SchemaLoader` and `SchemaMapper` are configured in the `JsonSchemaFactory.Builder`.
+The `SchemaLoader` and `SchemaMapper` are configured in the `JsonSchemaFactory.Builder`. See [Customizing Schema Retrieval](schema-retrieval.md).
 
 As per the specification. The `format` keyword since Draft 2019-09 no longer generates assertions by default.
 
