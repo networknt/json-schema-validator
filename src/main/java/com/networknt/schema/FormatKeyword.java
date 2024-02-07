@@ -17,15 +17,15 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.format.DateTimeValidator;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Format Keyword.
+ */
 public class FormatKeyword implements Keyword {
-    private static final String DATE_TIME = "date-time";
-
     private final String value;
     private final ErrorMessageType errorMessageType;
     private final Map<String, Format> formats;
@@ -54,19 +54,7 @@ public class FormatKeyword implements Keyword {
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = this.formats.get(formatName);
-            if (format != null) {
-                return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext,
-                        format, errorMessageType, this);
-            }
-
-            switch (formatName) {
-                case DATE_TIME: {
-                    ValidatorTypeCode typeCode = ValidatorTypeCode.DATETIME;
-                    return new DateTimeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, typeCode);
-                }
-            }
         }
-
         return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format,
                 errorMessageType, this);
     }

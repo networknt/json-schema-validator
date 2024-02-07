@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.format.DateFormat;
+import com.networknt.schema.format.DateTimeFormat;
 import com.networknt.schema.format.DurationFormat;
 import com.networknt.schema.format.EmailFormat;
 import com.networknt.schema.format.IPv6Format;
@@ -64,6 +65,7 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$", "must be a valid RFC 6570 URI Template"));
         COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "must be a valid RFC 4122 UUID"));
         COMMON_BUILTIN_FORMATS.add(new DateFormat());
+        COMMON_BUILTIN_FORMATS.add(new DateTimeFormat());
         COMMON_BUILTIN_FORMATS.add(new EmailFormat());
         COMMON_BUILTIN_FORMATS.add(new IdnEmailFormat());
         COMMON_BUILTIN_FORMATS.add(new IdnHostnameFormat());
@@ -128,13 +130,13 @@ public class JsonMetaSchema {
             return this;
         }
 
-        public Builder formats(Consumer<Map<String, Keyword>> customizer) {
-            customizer.accept(this.keywords);
+        public Builder formats(Consumer<Map<String, Format>> customizer) {
+            customizer.accept(this.formats);
             return this;
         }
 
-        public Builder keywords(Consumer<Map<String, Format>> customizer) {
-            customizer.accept(this.formats);
+        public Builder keywords(Consumer<Map<String, Keyword>> customizer) {
+            customizer.accept(this.keywords);
             return this;
         }
 
