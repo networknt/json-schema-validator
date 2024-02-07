@@ -129,8 +129,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
      * @return true if format assertions should be generated
      */
     protected boolean createUnknownFormatAssertions(ExecutionContext executionContext) {
-        return ((executionContext.getExecutionConfig().getFormatAssertionsEnabled() && isStrict(executionContext))
-                || (isFormatAssertionVocabularyEnabled()));
+        return (this.assertionsEnabled && isStrict(executionContext)) || (isFormatAssertionVocabularyEnabled());
     }
 
     /**
