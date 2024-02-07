@@ -32,6 +32,6 @@ public class IPv6Format implements Format {
 
     @Override
     public String getMessageKey() {
-        return "ipv6.format";
+        return "format.ipv6";
     }
 }
