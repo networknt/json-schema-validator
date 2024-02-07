@@ -6,7 +6,7 @@ This contains information on the notable or breaking changes in each version.
 
 ### 1.3.1
 
-This does not contain any breaking changes from 1.3.0
+This contains a breaking change in that the results from `failFast` are no longer thrown as an exception. The single result is instead returned normally in the output. This was partially done to distinguish the fail fast result from true exceptions such as when references could not be resolved.
 
 * Annotation collection and reporting has been implemented
 * Keywords have been refactored to use annotations for evaluation to improve performance and meet functional requirements
