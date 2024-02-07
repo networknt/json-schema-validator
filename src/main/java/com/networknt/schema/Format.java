@@ -110,11 +110,11 @@ public interface Format {
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled,
             Supplier<MessageSourceValidationMessage.Builder> message,
             FormatValidator formatValidator) {
-        if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,
-                formatValidator)) {
-            if (assertionsEnabled) {
-                return Collections.singleton(message.get().instanceNode(node)
-                        .instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale())
+        if (assertionsEnabled) {
+            if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,
+                    formatValidator)) {
+                return Collections.singleton(message.get().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast())
                         .arguments(this.getName(), this.getErrorMessageDescription()).build());
             }

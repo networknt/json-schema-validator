@@ -4,20 +4,22 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonValidator;
+import com.networknt.schema.ErrorMessageType;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Keyword;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
-import com.networknt.schema.ValidatorTypeCode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
 public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
     protected final boolean assertionsEnabled;
     
     public BaseFormatJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validationContext);
+            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
+            ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext, false);
         VersionFlag specification = this.validationContext.getMetaSchema().getSpecification();
         if (specification == null || specification.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
             assertionsEnabled = true;

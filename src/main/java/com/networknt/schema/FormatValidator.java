@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
@@ -31,58 +30,69 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;
-
-    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
+    
+    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext, Format format,
+            ErrorMessageType errorMessageType, Keyword keyword) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext);
         this.format = format;
+    }
+
+    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, type, validationContext);
+        this.format = format;
+    }
+
+    /**
+     * Gets the annotation value.
+     * 
+     * @return the annotation value
+     */
+    protected Object getAnnotationValue() {
+        if (this.format != null) {
+            return this.format.getName();
+        }
+        return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
+    }
+    
+    protected boolean isStrict(ExecutionContext executionContext, ValidationContext validationContext) {
+        return validationContext.getConfig().isStrict(getKeyword());
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
-        if (format != null) {
-            if (collectAnnotations(executionContext)) {
+        /*
+         * Annotations must be collected even if the format is unknown according to the specification.
+         */
+        if (collectAnnotations(executionContext)) {
+            Object annotationValue = getAnnotationValue();
+            if (annotationValue != null) {
                 putAnnotation(executionContext,
-                        annotation -> annotation.instanceLocation(instanceLocation).value(this.format.getName()));
+                        annotation -> annotation.instanceLocation(instanceLocation).value(annotationValue));
             }
-        }
-
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-        if (nodeType != JsonType.STRING) {
-            return Collections.emptySet();
         }
 
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-        if (format != null) {
-            if(format.getName().equals("ipv6")) {
-                if(!node.textValue().trim().equals(node.textValue())) {
-                    if (assertionsEnabled) {
-                        // leading and trailing spaces
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast())
-                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                } else if(node.textValue().contains("%")) {
-                    if (assertionsEnabled) {
-                        // zone id is not part of the ipv6
-                        errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(format.getName(), format.getErrorMessageDescription()).build());
-                    }
-                }
-            }
+        if (this.format != null) {
             try {
-                errors.addAll(format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
-                        assertionsEnabled, () -> this.message(), this));
+                return format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
+                        assertionsEnabled, () -> this.message(), this);
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
-                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation, format.getName(), pse);
+                logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation,
+                        format.getName(), pse);
             }
+        } else {
+            /*
+             * Unknown formats should create an assertion according to the specification.
+             */
+//            if (assertionsEnabled && isStrict(executionContext, validationContext) && this.schemaNode.isTextual()) {
+//                return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
+//                        .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
+//            }
         }
-
-        return Collections.unmodifiableSet(errors);
+        return Collections.emptySet();
     }
-
 }

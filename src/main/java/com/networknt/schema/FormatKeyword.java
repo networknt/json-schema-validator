@@ -26,12 +26,22 @@ import java.util.Map;
 public class FormatKeyword implements Keyword {
     private static final String DATE_TIME = "date-time";
 
-    private final ValidatorTypeCode type;
+    private final String value;
+    private final ErrorMessageType errorMessageType;
     private final Map<String, Format> formats;
+    
+    public FormatKeyword(Map<String, Format> formats) {
+        this(ValidatorTypeCode.FORMAT, formats);
+    }
 
     public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
-        this.type = type;
+        this(type.getValue(), type, formats);
+    }
+
+    public FormatKeyword(String value, ErrorMessageType errorMessageType, Map<String, Format> formats) {
+        this.value = value;
         this.formats = formats;
+        this.errorMessageType = errorMessageType;
     }
 
     Collection<Format> getFormats() {
@@ -45,7 +55,8 @@ public class FormatKeyword implements Keyword {
             String formatName = schemaNode.textValue();
             format = this.formats.get(formatName);
             if (format != null) {
-                return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, type);
+                return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext,
+                        format, errorMessageType, this);
             }
 
             switch (formatName) {
@@ -56,11 +67,12 @@ public class FormatKeyword implements Keyword {
             }
         }
 
-        return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, this.type);
+        return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format,
+                errorMessageType, this);
     }
 
     @Override
     public String getValue() {
-        return this.type.getValue();
+        return this.value;
     }
 }

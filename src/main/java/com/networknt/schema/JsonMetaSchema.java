@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
@@ -84,6 +85,10 @@ public class JsonMetaSchema {
         COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
         COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
     }
+    
+    public interface FormatKeywordFactory {
+        FormatKeyword newInstance(Map<String, Format> formats);
+    }
 
     public static class Builder {
         private VersionFlag specification = null;
@@ -92,29 +97,47 @@ public class JsonMetaSchema {
         private Map<String, Boolean> vocabularies = new HashMap<>();
         private String uri;
         private String idKeyword = "id";
+        private FormatKeywordFactory formatKeywordFactory = null;
 
         public Builder(String uri) {
             this.uri = uri;
         }
 
-        private static Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
+        private Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
             Map<String, Keyword> map = new HashMap<>();
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
                 Keyword keyword = type.getValue();
                 if (ValidatorTypeCode.FORMAT.getValue().equals(keywordName)) {
                     if (!(keyword instanceof FormatKeyword)) {
-                        throw new IllegalArgumentException("Overriding the keyword 'format' is not supported");
+                        throw new IllegalArgumentException("Overriding the keyword 'format' is not supported. Use the formatKeywordFactory and extend the FormatKeyword.");
                     }
                     // ignore - format keyword will be created again below.
                 } else {
                     map.put(keyword.getValue(), keyword);
                 }
             }
-            final FormatKeyword formatKeyword = new FormatKeyword(ValidatorTypeCode.FORMAT, formats);
+            final FormatKeyword formatKeyword = formatKeywordFactory != null ? formatKeywordFactory.newInstance(formats)
+                    : new FormatKeyword(formats);
             map.put(formatKeyword.getValue(), formatKeyword);
             return map;
         }
+
+        public Builder formatKeywordFactory(FormatKeywordFactory formatKeywordFactory) {
+            this.formatKeywordFactory = formatKeywordFactory;
+            return this;
+        }
+
+        public Builder formats(Consumer<Map<String, Keyword>> customizer) {
+            customizer.accept(this.keywords);
+            return this;
+        }
+
+        public Builder keywords(Consumer<Map<String, Format>> customizer) {
+            customizer.accept(this.formats);
+            return this;
+        }
+
 
         public Builder addKeyword(Keyword keyword) {
             this.keywords.put(keyword.getValue(), keyword);

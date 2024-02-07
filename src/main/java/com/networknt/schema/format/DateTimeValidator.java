@@ -42,8 +42,9 @@ public class DateTimeValidator extends BaseFormatJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DateTimeValidator.class);
     private static final String DATETIME = "date-time";
 
-    public DateTimeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, validationContext);
+    public DateTimeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+            JsonSchema parentSchema, ValidationContext validationContext, ValidatorTypeCode type) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, type, type, validationContext);
     }
 
     @Override
