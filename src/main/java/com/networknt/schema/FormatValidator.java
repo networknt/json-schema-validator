@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * Validator for Format.
+ */
 public class FormatValidator extends BaseFormatJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
@@ -58,7 +61,6 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
     
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-
         /*
          * Annotations must be collected even if the format is unknown according to the specification.
          */
@@ -86,23 +88,59 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                 return Collections.emptySet();
             }
         } else {
-            return validateUnknownFormat(executionContext, node, rootNode, instanceLocation, assertionsEnabled);
+            return validateUnknownFormat(executionContext, node, rootNode, instanceLocation);
         }
     }
 
+    /**
+     * When the Format-Assertion vocabulary is specified, implementations MUST fail upon encountering unknown formats.
+     * 
+     * @param executionContext the execution context
+     * @param node the node
+     * @param rootNode the root node
+     * @param instanceLocation the instance location
+     * @return the messages
+     */
     protected Set<ValidationMessage> validateUnknownFormat(ExecutionContext executionContext,
-            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation,
-            boolean assertionsEnabled) {
+            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         /*
-         * Unknown formats should create an assertion according to the specification.
+         * Unknown formats should create an assertion if the vocab is specified
+         * according to the specification.
          */
-        if (assertionsEnabled && isStrict(executionContext) && this.schemaNode.isTextual()) {
+        if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
             return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
                     .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
         }
         return Collections.emptySet();
     }
-    
+
+    /**
+     * When the Format-Assertion vocabulary is specified, implementations MUST fail
+     * upon encountering unknown formats.
+     * <p>
+     * Note that this is different from setting the setFormatAssertionsEnabled
+     * configuration option.
+     * <p>
+     * The following logic will return true if the format assertions option is
+     * turned on and strict is enabled (default false) or the format assertion
+     * vocabulary is enabled.
+     * 
+     * @param executionContext the execution context
+     * @return true if format assertions should be generated
+     */
+    protected boolean createUnknownFormatAssertions(ExecutionContext executionContext) {
+        return ((executionContext.getExecutionConfig().getFormatAssertionsEnabled() && isStrict(executionContext))
+                || (isFormatAssertionVocabularyEnabled()));
+    }
+
+    /**
+     * Determines if strict handling.
+     * <p>
+     * Note that this defaults to false.
+     * 
+     * @param executionContext the execution context
+     * @return whether to perform strict handling
+     */
     protected boolean isStrict(ExecutionContext executionContext) {
         return this.validationContext.getConfig().isStrict(getKeyword(), Boolean.FALSE);
     }

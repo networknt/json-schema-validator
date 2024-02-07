@@ -30,6 +30,11 @@ public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
         }
     }
 
+    protected boolean isFormatAssertionVocabularyEnabled() {
+        return isFormatAssertionVocabularyEnabled(this.validationContext.getMetaSchema().getSpecification(),
+                this.validationContext.getMetaSchema().getVocabularies());
+    }
+
     protected boolean isFormatAssertionVocabularyEnabled(VersionFlag specification, Map<String, Boolean> vocabularies) {
         if (VersionFlag.V202012.equals(specification)) {
             String vocabulary = "https://json-schema.org/draft/2020-12/vocab/format-assertion";
