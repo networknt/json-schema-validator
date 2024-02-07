@@ -58,7 +58,7 @@ public interface Format {
 
     /**
      * Determines if the value matches the format.
-     * 
+     *
      * @param executionContext  the execution context
      * @param validationContext the validation context
      * @param value             to match
@@ -66,6 +66,22 @@ public interface Format {
      */
     default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, String value) {
         return matches(executionContext, value);
+    }
+    
+    /**
+     * Determines if the value matches the format.
+     * 
+     * @param executionContext  the execution context
+     * @param validationContext the validation context
+     * @param value             to match
+     * @return true if matches
+     */
+    default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode value) {
+        JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getConfig());
+        if (nodeType != JsonType.STRING) {
+            return true;
+        }
+        return matches(executionContext, validationContext, value.textValue());
     }
 
     /**
@@ -84,11 +100,7 @@ public interface Format {
      */
     default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled, FormatValidator formatValidator) {
-        JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
-        if (nodeType != JsonType.STRING) {
-            return true;
-        }
-        return matches(executionContext, validationContext, node.asText());
+        return matches(executionContext, validationContext, node);
     }
 
     /**
@@ -113,10 +125,8 @@ public interface Format {
         if (assertionsEnabled) {
             if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,
                     formatValidator)) {
-                return Collections.singleton(message.get().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast())
-                        .arguments(this.getName(), this.getErrorMessageDescription()).build());
+                return Collections
+                        .singleton(message.get().arguments(this.getName(), this.getErrorMessageDescription()).build());
             }
         }
         return Collections.emptySet();

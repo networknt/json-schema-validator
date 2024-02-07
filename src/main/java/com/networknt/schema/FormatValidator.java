@@ -56,10 +56,6 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
         return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
     }
     
-    protected boolean isStrict(ExecutionContext executionContext, ValidationContext validationContext) {
-        return validationContext.getConfig().isStrict(getKeyword());
-    }
-
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
@@ -78,21 +74,36 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
         if (this.format != null) {
             try {
                 return format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
-                        assertionsEnabled, () -> this.message(), this);
+                        assertionsEnabled,
+                        () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .failFast(executionContext.isFailFast()),
+                        this);
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid
                 logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation,
                         format.getName(), pse);
+                return Collections.emptySet();
             }
         } else {
-            /*
-             * Unknown formats should create an assertion according to the specification.
-             */
-//            if (assertionsEnabled && isStrict(executionContext, validationContext) && this.schemaNode.isTextual()) {
-//                return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
-//                        .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
-//            }
+            return validateUnknownFormat(executionContext, node, rootNode, instanceLocation, assertionsEnabled);
+        }
+    }
+
+    protected Set<ValidationMessage> validateUnknownFormat(ExecutionContext executionContext,
+            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation,
+            boolean assertionsEnabled) {
+        /*
+         * Unknown formats should create an assertion according to the specification.
+         */
+        if (assertionsEnabled && isStrict(executionContext) && this.schemaNode.isTextual()) {
+            return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
+                    .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
         }
         return Collections.emptySet();
+    }
+    
+    protected boolean isStrict(ExecutionContext executionContext) {
+        return this.validationContext.getConfig().isStrict(getKeyword(), Boolean.FALSE);
     }
 }
