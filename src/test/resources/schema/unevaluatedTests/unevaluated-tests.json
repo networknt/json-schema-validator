@@ -253,8 +253,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: property 'pontoons' must not be unevaluated",
-          "$.vehicle: property 'wings' must not be unevaluated"
+          "$.vehicle: must be valid to one and only one schema, but 2 are valid",
+          "$.vehicle: required property 'wheels' not found",
+          "$.vehicle: required property 'headlights' not found"
         ]
       },
       {
@@ -271,9 +272,10 @@
         },
         "valid": false,
         "validationMessages": [
+          "$.vehicle: must be valid to one and only one schema, but 2 are valid",
           "$.vehicle: property 'invalid' must not be unevaluated",
-          "$.vehicle: property 'pontoons' must not be unevaluated",
-          "$.vehicle: property 'wings' must not be unevaluated"
+          "$.vehicle: required property 'wheels' not found",
+          "$.vehicle: required property 'headlights' not found"
         ]
       },
       {
@@ -288,6 +290,7 @@
         },
         "valid": false,
         "validationMessages": [
+          "$.vehicle: must be valid to one and only one schema, but 0 are valid",
           "$.vehicle: property 'invalid' must not be unevaluated"
         ]
       }

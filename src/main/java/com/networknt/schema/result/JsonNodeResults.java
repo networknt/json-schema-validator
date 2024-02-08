@@ -44,7 +44,7 @@ public class JsonNodeResults {
         List<JsonNodeResult> instance = values.get(instanceLocation);
         if (instance != null) {
             for (JsonNodeResult result : instance) {
-                if (evaluationPath.startsWith(result.getEvaluationPath().getParent())) {
+                if (evaluationPath.startsWith(result.getEvaluationPath())) {
                     if(!result.isValid()) {
                         return false;
                     }
