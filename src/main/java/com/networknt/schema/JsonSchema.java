@@ -557,7 +557,6 @@ public class JsonSchema extends BaseJsonValidator {
                 if (results == null || results.isEmpty()) {
                     // Do nothing if valid
                 } else {
-                    executionContext.getResults().setResult(instanceLocation, v.getSchemaLocation(), v.getEvaluationPath(), false);
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
                     }
@@ -595,6 +594,11 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
+        if (errors != null && !errors.isEmpty()) {
+            // Failed with assertion set result and drop all annotations from this schema
+            // and all subschemas
+            executionContext.getResults().setResult(instanceLocation, getSchemaLocation(), getEvaluationPath(), false);
+        }
         return errors == null ? Collections.emptySet() : errors;
     }
 
