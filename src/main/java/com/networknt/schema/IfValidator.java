@@ -66,7 +66,6 @@ public class IfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         boolean ifConditionPassed = false;
 
@@ -81,11 +80,11 @@ public class IfValidator extends BaseJsonValidator {
         }
 
         if (ifConditionPassed && this.thenSchema != null) {
-            errors.addAll(this.thenSchema.validate(executionContext, node, rootNode, instanceLocation));
+            return this.thenSchema.validate(executionContext, node, rootNode, instanceLocation);
         } else if (!ifConditionPassed && this.elseSchema != null) {
-            errors.addAll(this.elseSchema.validate(executionContext, node, rootNode, instanceLocation));
+            return this.elseSchema.validate(executionContext, node, rootNode, instanceLocation);
         }
-        return Collections.unmodifiableSet(errors);
+        return Collections.emptySet();
     }
 
     @Override
