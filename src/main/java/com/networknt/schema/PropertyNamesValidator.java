@@ -37,7 +37,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<ValidationMessage>();
+        Set<ValidationMessage> errors = null;
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             final String pname = it.next();
             final TextNode pnameText = TextNode.valueOf(pname);
@@ -45,16 +45,19 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
             for (final ValidationMessage schemaError : schemaErrors) {
                 final String path = schemaError.getInstanceLocation().toString();
                 String msg = schemaError.getMessage();
-                if (msg.startsWith(path))
+                if (msg.startsWith(path)) {
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
-
+                }
+                if (errors == null) {
+                    errors = new LinkedHashSet<>();
+                }
                 errors.add(
                         message().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast()).arguments(pname, msg).build());
             }
         }
-        return Collections.unmodifiableSet(errors);
+        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
 
