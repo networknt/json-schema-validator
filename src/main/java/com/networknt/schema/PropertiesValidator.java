@@ -102,24 +102,24 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
             } else {
                 // check whether the node which has not matched was mandatory or not
-                if (getParentSchema().hasRequiredValidator()) {
 
-                    // The required validator runs for all properties in the node and not just the
-                    // current propertyNode
-                    if (requiredErrors == null) {
-                        requiredErrors = getParentSchema().getRequiredValidator().validate(executionContext, node, rootNode, instanceLocation);
+                // the node was mandatory, decide which behavior to employ when validator has
+                // not matched
+                if (state.isComplexValidator()) {
+                    if (getParentSchema().hasRequiredValidator()) {
 
+                        // The required validator runs for all properties in the node and not just the
+                        // current propertyNode
+                        if (requiredErrors == null) {
+                            // Note that the results of the required validator shouldn't be added to the errors here, the required validator
+                            // will still trigger normally in the schema
+                            requiredErrors = getParentSchema().getRequiredValidator().validate(executionContext, node,
+                                    rootNode, instanceLocation);
+                        }
                         if (!requiredErrors.isEmpty()) {
-                             // the node was mandatory, decide which behavior to employ when validator has not matched
-                            if (state.isComplexValidator()) {
-                                // this was a complex validator (ex oneOf) and the node has not been matched
-                                state.setMatchedNode(false);
-                                return Collections.emptySet();
-                            }
-                            if (errors == null) {
-                                errors = new LinkedHashSet<>();
-                            }
-                            errors.addAll(requiredErrors);
+                            // this was a complex validator (ex oneOf) and the node has not been matched
+                            state.setMatchedNode(false);
+                            return Collections.emptySet();
                         }
                     }
                 }
