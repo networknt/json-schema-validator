@@ -119,7 +119,7 @@ public class ItemsValidator extends BaseJsonValidator {
         }
 
         boolean hasAdditionalItem = false;
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        SetView<ValidationMessage> errors = new SetView<ValidationMessage>();
         if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {
@@ -143,10 +143,10 @@ public class ItemsValidator extends BaseJsonValidator {
                                 .keyword("additionalItems").value(true).build());
             }
         }
-        return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+        return errors.isEmpty() ? Collections.emptySet() : errors;
     }
 
-    private boolean doValidate(ExecutionContext executionContext, Set<ValidationMessage> errors, int i, JsonNode node,
+    private boolean doValidate(ExecutionContext executionContext, SetView<ValidationMessage> errors, int i, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation) {
         boolean isAdditionalItem = false;
         JsonNodePath path = instanceLocation.append(i);
@@ -156,14 +156,14 @@ public class ItemsValidator extends BaseJsonValidator {
             // schema)
             Set<ValidationMessage> results = this.schema.validate(executionContext, node, rootNode, path);
             if (!results.isEmpty()) {
-                errors.addAll(results);
+                errors.union(results);
             }
         } else if (this.tupleSchema != null) {
             if (i < this.tupleSchema.size()) {
                 // validate against tuple schema
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node, rootNode, path);
                 if (!results.isEmpty()) {
-                    errors.addAll(results);
+                    errors.union(results);
                 }
             } else {
                 if ((this.additionalItems != null && this.additionalItems) || this.additionalSchema != null) {
@@ -174,21 +174,21 @@ public class ItemsValidator extends BaseJsonValidator {
                     // validate against additional item schema
                     Set<ValidationMessage> results = this.additionalSchema.validate(executionContext, node, rootNode, path);
                     if (!results.isEmpty()) {
-                        errors.addAll(results);
+                        errors.union(results);
                     }
                 } else if (this.additionalItems != null) {
                     if (this.additionalItems) {
 //                        evaluatedItems.add(path);
                     } else {
                         // no additional item allowed, return error
-                        errors.add(message().instanceNode(rootNode).instanceLocation(instanceLocation)
+                        errors.union(Collections.singleton(message().instanceNode(rootNode).instanceLocation(instanceLocation)
                                 .type("additionalItems")
                                 .messageKey("additionalItems")
                                 .evaluationPath(this.additionalItemsEvaluationPath)
                                 .schemaLocation(this.additionalItemsSchemaLocation)
                                 .schemaNode(this.additionalItemsSchemaNode)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast()).arguments(i).build());
+                                .failFast(executionContext.isFailFast()).arguments(i).build()));
                     }
                 }
             }
