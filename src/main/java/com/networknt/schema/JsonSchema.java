@@ -544,7 +544,7 @@ public class JsonSchema extends BaseJsonValidator {
         }
 
         SchemaValidatorsConfig config = this.validationContext.getConfig();
-        Set<ValidationMessage> errors = null;
+        SetView<ValidationMessage> errors = null;
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
 
@@ -558,9 +558,9 @@ public class JsonSchema extends BaseJsonValidator {
                     // Do nothing if valid
                 } else {
                     if (errors == null) {
-                        errors = new LinkedHashSet<>();
+                        errors = new SetView<>();
                     }
-                    errors.addAll(results);
+                    errors.union(results);
                 }
             }
         }
