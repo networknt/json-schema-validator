@@ -1,5 +1,6 @@
 package com.networknt.schema.utils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -62,18 +63,25 @@ public class SetView<E> implements Set<E> {
 
     @Override
     public Object[] toArray() {
-        return this.stream().toArray();
+        int size = size();
+        Object[] result = new Object[size];
+        Iterator<?> iterator = iterator();
+        for (int x = 0; x < size; x++) {
+            result[x] = iterator.hasNext() ? iterator.next() : null;
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T[] toArray(T[] a) {
-        return (T[]) this.stream().toArray(size -> {
-            if (size <= a.length) {
-                return a;
-            }
-            return (Object[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
-        });
+        int size = size();
+        T[] result = size <= a.length ? a : (T[]) Array.newInstance(a.getClass().getComponentType(), size);
+        Iterator<?> iterator = iterator();
+        for (int x = 0; x < size; x++) {
+            result[x] = iterator.hasNext() ? (T) iterator.next() : null;
+        }
+        return result;
     }
 
     @Override
@@ -171,13 +179,13 @@ public class SetView<E> implements Set<E> {
         }
         try {
             return containsAll(collection);
-        } catch (ClassCastException ignore)   {
+        } catch (ClassCastException ignore) {
             return false;
         } catch (NullPointerException ignore) {
             return false;
         }
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
