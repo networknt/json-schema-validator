@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
+import com.networknt.schema.utils.SetView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

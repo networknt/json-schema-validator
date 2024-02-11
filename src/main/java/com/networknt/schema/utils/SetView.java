@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +68,12 @@ public class SetView<E> implements Set<E> {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T[] toArray(T[] a) {
-        return (T[]) this.stream().toArray();
+        return (T[]) this.stream().toArray(size -> {
+            if (size <= a.length) {
+                return a;
+            }
+            return (Object[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+        });
     }
 
     @Override
@@ -171,5 +176,21 @@ public class SetView<E> implements Set<E> {
         } catch (NullPointerException ignore) {
             return false;
         }
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append('[');
+        Iterator<E> iterator = iterator();
+        if (iterator.hasNext()) {
+            builder.append(iterator.next().toString());
+        }
+        while (iterator.hasNext()) {
+            builder.append(", ");
+            builder.append(iterator.next().toString());
+        }
+        builder.append(']');
+        return builder.toString();
     }
 }
