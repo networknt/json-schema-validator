@@ -28,7 +28,7 @@ import java.util.*;
 public class RequiredValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
-    private List<String> fieldNames = new ArrayList<String>();
+    private final List<String> fieldNames = new ArrayList<>();
 
     public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);

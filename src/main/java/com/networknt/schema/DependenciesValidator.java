@@ -49,7 +49,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (pvalue.isArray()) {
                 List<String> depsProps = propertyDeps.get(pname);
                 if (depsProps == null) {
-                    depsProps = new ArrayList<String>();
+                    depsProps = new ArrayList<>();
                     propertyDeps.put(pname, depsProps);
                 }
                 for (int i = 0; i < pvalue.size(); i++) {
