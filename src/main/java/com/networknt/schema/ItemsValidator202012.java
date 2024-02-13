@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +68,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
 
         // ignores non-arrays
         if (node.isArray()) {
-            Set<ValidationMessage> errors = new LinkedHashSet<>();
-//            Collection<JsonNodePath> evaluatedItems = executionContext.getCollectorContext().getEvaluatedItems();
+            SetView<ValidationMessage> errors = null;
             boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = instanceLocation.append(i);
@@ -87,7 +87,10 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                 if (results.isEmpty()) {
 //                    evaluatedItems.add(path);
                 } else {
-                    errors.addAll(results);
+                    if (errors == null) {
+                        errors = new SetView<>();
+                    }
+                    errors.union(results);
                 }
                 evaluated = true;
             }
@@ -100,7 +103,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
-            return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+            return errors == null || errors.isEmpty() ? Collections.emptySet() : errors;
         } else {
             return Collections.emptySet();
         }

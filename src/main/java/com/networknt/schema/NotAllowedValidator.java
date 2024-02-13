@@ -28,7 +28,7 @@ import java.util.*;
 public class NotAllowedValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotAllowedValidator.class);
 
-    private List<String> fieldNames = new ArrayList<String>();
+    private final List<String> fieldNames = new ArrayList<>();
 
     public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);

@@ -47,17 +47,21 @@ public class DependentSchemas extends BaseJsonValidator {
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, node, rootNode, instanceLocation);
 
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
-
+        Set<ValidationMessage> errors = null;
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             JsonSchema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
-                errors.addAll(schema.validate(executionContext, node, rootNode, instanceLocation));
+                Set<ValidationMessage> schemaDependenciesErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                if (!schemaDependenciesErrors.isEmpty()) {
+                    if (errors == null) {
+                        errors = new LinkedHashSet<>();
+                    }
+                    errors.addAll(schemaDependenciesErrors);
+                }
             }
         }
-
-        return Collections.unmodifiableSet(errors);
+        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override

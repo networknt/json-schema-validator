@@ -31,7 +31,7 @@ import java.util.Set;
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
-    private final List<JsonValidator> schemas = new ArrayList<JsonValidator>();
+    private final List<JsonValidator> schemas = new ArrayList<>();
     private final String error;
 
     public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {

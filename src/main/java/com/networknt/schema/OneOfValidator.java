@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
+        Set<ValidationMessage> errors = null;
 
         debug(logger, node, rootNode, instanceLocation);
 
@@ -54,7 +55,7 @@ public class OneOfValidator extends BaseJsonValidator {
         state.setComplexValidator(true);
 
         int numberOfValidSchema = 0;
-        Set<ValidationMessage> childErrors = new LinkedHashSet<>();
+        SetView<ValidationMessage> childErrors = null;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
@@ -88,8 +89,11 @@ public class OneOfValidator extends BaseJsonValidator {
                     break;
                 }
 
-                if (reportChildErrors(executionContext)) {
-                    childErrors.addAll(schemaErrors);
+                if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                    if (childErrors == null) {
+                        childErrors = new SetView<>();
+                    }
+                    childErrors.union(schemaErrors);
                 }
             }
         } finally {
@@ -104,19 +108,22 @@ public class OneOfValidator extends BaseJsonValidator {
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
                     .arguments(Integer.toString(numberOfValidSchema)).build();
-            errors.add(message);
-            errors.addAll(childErrors);
+            if (childErrors != null) {
+                errors = new SetView<ValidationMessage>().union(Collections.singleton(message)).union(childErrors);
+            } else {
+                errors = Collections.singleton(message);
+            }
         }
 
         // Make sure to signal parent handlers we matched
-        if (errors.isEmpty()) {
+        if (errors == null || errors.isEmpty()) {
             state.setMatchedNode(true);
         }
 
         // reset the ValidatorState object
         resetValidatorState(executionContext);
 
-        return Collections.unmodifiableSet(errors);
+        return errors != null ? errors : Collections.emptySet();
     }
 
     /**

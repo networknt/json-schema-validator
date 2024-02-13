@@ -20,6 +20,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class AllOfValidator extends BaseJsonValidator {
         // get the Validator state object storing validation data
         ValidatorState state = executionContext.getValidatorState();
 
-        Set<ValidationMessage> childSchemaErrors = new LinkedHashSet<>();
+        SetView<ValidationMessage> childSchemaErrors = null;
 
         for (JsonSchema schema : this.schemas) {
             Set<ValidationMessage> localErrors = null;
@@ -58,8 +59,13 @@ public class AllOfValidator extends BaseJsonValidator {
             } else {
                 localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
             }
-
-            childSchemaErrors.addAll(localErrors);
+            
+            if (localErrors != null && !localErrors.isEmpty()) {
+                if (childSchemaErrors == null) {
+                    childSchemaErrors = new SetView<>();
+                }
+                childSchemaErrors.union(localErrors);
+            }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
@@ -91,7 +97,7 @@ public class AllOfValidator extends BaseJsonValidator {
             }
         }
 
-        return Collections.unmodifiableSet(childSchemaErrors);
+        return childSchemaErrors != null ? childSchemaErrors : Collections.emptySet();
     }
 
     @Override

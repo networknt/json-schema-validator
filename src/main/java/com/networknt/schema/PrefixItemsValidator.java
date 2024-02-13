@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.utils.SetView;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,13 +59,16 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, instanceLocation);
         // ignores non-arrays
         if (node.isArray()) {
-            Set<ValidationMessage> errors = new LinkedHashSet<>();
+            SetView<ValidationMessage> errors = null;
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
                 if (!results.isEmpty()) {
-                    errors.addAll(results);
+                    if (errors == null) {
+                        errors = new SetView<>();
+                    }
+                    errors.union(results);
                 }
             }
 
@@ -86,7 +91,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
-            return errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+            return errors == null || errors.isEmpty() ? Collections.emptySet() : errors;
         } else {
             return Collections.emptySet();
         }

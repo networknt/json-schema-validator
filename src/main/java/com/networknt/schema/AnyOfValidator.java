@@ -17,12 +17,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * {@link JsonValidator} for anyOf.
@@ -64,7 +64,7 @@ public class AnyOfValidator extends BaseJsonValidator {
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
 
-        Set<ValidationMessage> allErrors = new LinkedHashSet<>();
+        SetView<ValidationMessage> allErrors = null;
 
         int numberOfValidSubSchemas = 0;
         try {
@@ -82,7 +82,10 @@ public class AnyOfValidator extends BaseJsonValidator {
                         // ignore it
                         // For union type, it is a must to call TypeValidator
                         if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                            allErrors.addAll(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
+                            if (allErrors == null) {
+                                allErrors = new SetView<>();
+                            }
+                            allErrors.union(typeValidator.validate(executionContext, node, rootNode, instanceLocation));
                             continue;
                         }
                     }
@@ -105,63 +108,60 @@ public class AnyOfValidator extends BaseJsonValidator {
 
                     if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
                             && canShortCircuit() && canShortCircuit(executionContext)) {
-                        // Clear all errors.
-                        allErrors.clear();
+                        // Clear all errors. Note that this is checked in finally.
+                        allErrors = null;
                         // return empty errors.
                         return errors;
                     } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                         if (this.discriminatorContext.isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
-                                allErrors.addAll(errors);
-                                allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
-                                        .locale(executionContext.getExecutionConfig().getLocale())
-                                        .failFast(executionContext.isFailFast())
-                                        .arguments(DISCRIMINATOR_REMARK).build());
+                                // The following is to match the previous logic adding to all errors
+                                // which is generally discarded as it returns errors but the allErrors
+                                // is getting processed in finally
+                                if (allErrors == null) {
+                                    allErrors = new SetView<>();
+                                }
+                                allErrors.union(Collections
+                                        .singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                                                .locale(executionContext.getExecutionConfig().getLocale())
+                                                .failFast(executionContext.isFailFast()).arguments(DISCRIMINATOR_REMARK)
+                                                .build()));
                             } else {
-                                // Clear all errors.
-                                allErrors.clear();
+                                // Clear all errors. Note that this is checked in finally.
+                                allErrors = null;
                             }
                             return errors;
                         }
                     }
-                    allErrors.addAll(errors);
+                    if (allErrors == null) {
+                        allErrors = new SetView<>();
+                    }
+                    allErrors.union(errors);
                 }
             } finally {
                 // Restore flag
                 executionContext.setFailFast(failFast);
             }
 
-            // determine only those errors which are NOT of type "required" property missing
-            Set<ValidationMessage> childNotRequiredErrors = allErrors.stream()
-                    .filter(error -> !ValidatorTypeCode.REQUIRED.getValue().equals(error.getType()))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            // in case we had at least one (anyOf, i.e. any number >= 1 of) valid subschemas, we can remove all other errors about "required" properties
-            if (numberOfValidSubSchemas >= 1 && childNotRequiredErrors.isEmpty()) {
-                allErrors = childNotRequiredErrors;
-            }
-
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
-                final Set<ValidationMessage> errors = new LinkedHashSet<>();
-                errors.add(message().instanceNode(node).instanceLocation(instanceLocation)
+                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
                         .build());
-                return Collections.unmodifiableSet(errors);
             }
         } finally {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
-            if (allErrors.isEmpty()) {
+            if (allErrors == null || allErrors.isEmpty()) {
                 state.setMatchedNode(true);
             }
         }
         if (numberOfValidSubSchemas >= 1) {
             return Collections.emptySet();
         }
-        return Collections.unmodifiableSet(allErrors);
+        return allErrors != null ? allErrors : Collections.emptySet();
     }
 
     @Override
