@@ -253,7 +253,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: must be valid to one and only one schema, but 2 are valid",
+          "$.vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
           "$.vehicle: required property 'wheels' not found",
           "$.vehicle: required property 'headlights' not found"
         ]
@@ -272,7 +272,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: must be valid to one and only one schema, but 2 are valid",
+          "$.vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
           "$.vehicle: property 'invalid' is not evaluated and the schema does not allow unevaluated properties",
           "$.vehicle: required property 'wheels' not found",
           "$.vehicle: required property 'headlights' not found"

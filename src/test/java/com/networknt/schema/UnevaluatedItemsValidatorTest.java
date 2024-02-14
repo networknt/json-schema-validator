@@ -54,7 +54,7 @@ public class UnevaluatedItemsValidatorTest {
         assertEquals("unevaluatedItems", assertions.get(1).getType());
         assertEquals("$", assertions.get(1).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
-    }    
+    }
 
     @Test
     void unevaluatedItemsSchema() {
