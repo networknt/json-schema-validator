@@ -67,4 +67,57 @@ public class UnevaluatedPropertiesValidatorTest {
         assertEquals("unevaluatedProperties", assertions.get(1).getType());
         assertEquals("key4", assertions.get(1).getProperty());
     }
+
+    /**
+     * Issue 967.
+     */
+    @Test
+    void subschemaProcessing() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\r\n"
+                + "  \"$defs\" : {\r\n"
+                + "    \"subschema\": {\r\n"
+                + "      \"type\": \"object\",\r\n"
+                + "      \"required\": [\"group\"],\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"group\": {\r\n"
+                + "          \"type\": \"object\",\r\n"
+                + "          \"additionalProperties\": false,\r\n"
+                + "          \"required\": [\"parentprop\"],\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"parentprop\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"unevaluatedProperties\": false,\r\n"
+                + "  \"allOf\": [\r\n"
+                + "    {\"properties\": { \"group\" : {\"type\":\"object\"} } },\r\n"
+                + "    {\"$ref\": \"#/$defs/subschema\"}\r\n"
+                + "  ],\r\n"
+                + "  \"required\": [\"childprop\"],\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"childprop\": {\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        String inputData = "{\r\n"
+                + "  \"childprop\": \"something\",\r\n"
+                + "  \"group\": {\r\n"
+                + "     \"parentprop\":\"something\",\r\n"
+                + "     \"notallowed\": false\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(1, messages.size());
+        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("additionalProperties", assertions.get(0).getType());
+        assertEquals("notallowed", assertions.get(0).getProperty());
+    }
 }
