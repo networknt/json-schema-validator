@@ -17,7 +17,7 @@ public class Issue347Test {
             factory.getSchema(Thread.currentThread().getContextClassLoader().getResourceAsStream("schema/issue347-v7.json"));
         } catch (Throwable e) {
             assertThat(e, instanceOf(JsonSchemaException.class));
-            assertEquals("/$id: # is an invalid segment for URI test", e.getMessage());
+            assertEquals("/$id: 'test' is not a valid $id", e.getMessage());
         }
     }
 }
