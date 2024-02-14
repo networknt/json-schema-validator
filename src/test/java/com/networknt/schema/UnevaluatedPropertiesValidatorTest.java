@@ -120,4 +120,32 @@ public class UnevaluatedPropertiesValidatorTest {
         assertEquals("additionalProperties", assertions.get(0).getType());
         assertEquals("notallowed", assertions.get(0).getProperty());
     }
+
+    @Test
+    void unevaluatedPropertiesSchema() {
+        String schemaData = "{\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    { \r\n"
+                + "      \"type\" : \"object\" ,\r\n"
+                + "      \"properties\" : {\r\n"
+                + "        \"prop\" : { \"type\" : \"integer\" }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"unevaluatedProperties\" : { \"type\" : \"string\" }\r\n"
+                + "}";
+        String inputData = "{\r\n"
+                + "  \"prop\": 1,\r\n"
+                + "  \"group\": {\r\n"
+                + "     \"parentprop\":\"something\",\r\n"
+                + "     \"notallowed\": false\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(1, messages.size());
+        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("type", assertions.get(0).getType());
+        assertEquals("$.unevaluatedProperties.type", assertions.get(0).getEvaluationPath().toString());
+    }
 }

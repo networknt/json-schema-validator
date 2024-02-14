@@ -287,7 +287,7 @@ public class OutputUnitTest {
                 executionContext -> executionContext.getExecutionConfig()
                         .setAnnotationCollectionFilter(keyword -> true));
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
-        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' must not be unevaluated or must match unevaluated properties schema\",\"property 'world' must not be unevaluated or must match unevaluated properties schema\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
+        String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' is not evaluated and the schema does not allow unevaluated properties\",\"property 'world' is not evaluated and the schema does not allow unevaluated properties\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
         assertEquals(expected, output);
     }
 
