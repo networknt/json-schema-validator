@@ -125,7 +125,7 @@ public class LocaleTest {
         expected.put("fi","$: saa olla enintään 5 merkkiä pitkä");
         expected.put("fr_CA","$: ne peut contenir que 5 caractères");
         expected.put("fr","$: doit contenir au plus 5 caractères");
-        expected.put("iw","$: must be at most 5 characters long");
+        expected.put("he","$: חייב להיות באורך של 5 תווים לכל היותר");
         expected.put("hr","$: mora imati najviše 5 znakova");
         expected.put("hu","$: legfeljebb 5 karakter hosszúságú lehet");
         expected.put("it","$: deve contenere al massimo 5 caratteri");
@@ -146,6 +146,11 @@ public class LocaleTest {
         expected.put("zh_CN","$: 长度不得超过 5 个字符");
         expected.put("zh_TW","$: 長度不得超過 5 個字元");
 
+        // In later JDK versions the numbers will be formatted
+        Map<String, String> expectedAlternate = new HashMap<>();
+        expectedAlternate.put("ar","$: يجب أن يكون طوله ٥ حرفًا على الأكثر");
+        expectedAlternate.put("fa","$: باید حداکثر ۵ کاراکتر باشد");
+
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"maxLength\": 5\r\n"
@@ -156,7 +161,13 @@ public class LocaleTest {
             Set<ValidationMessage> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
                 executionContext.getExecutionConfig().setLocale(locale);
             });
-            assertEquals(expected.get(locale.toString()), messages.iterator().next().toString());
+            String msg = messages.iterator().next().toString();
+            String expectedMsg = expected.get(locale.toString());
+            String expectedMsgAlternate = expectedAlternate.get(locale.toString());
+            if (expectedMsg.equals(msg) || expectedMsgAlternate.equals(msg)) {
+                continue;
+            }
+            assertEquals(expectedMsg, msg);
 //            System.out.println(messages.iterator().next().toString());
 //            System.out.println("expected.put(\"" +locale.toString() + "\",\"" + messages.iterator().next().toString() + "\");");
             
