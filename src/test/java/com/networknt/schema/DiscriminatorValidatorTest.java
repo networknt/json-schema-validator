@@ -15,6 +15,7 @@
  */
 package com.networknt.schema;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
@@ -152,6 +153,193 @@ public class DiscriminatorValidatorTest {
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
-        
+    }
+
+    /**
+     * Issue 609.
+     */
+    @Test
+    void discriminatorInArrayInvalidDiscriminatorPropertyAnyOf() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"array\",\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"anyOf\": [\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/Kitchen\"\r\n"
+                + "      },\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/BedRoom\"\r\n"
+                + "      }\r\n"
+                + "    ]\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"Room\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"properties\": {\r\n"
+                + "          \"@type\": {\r\n"
+                + "            \"type\": \"string\"\r\n"
+                + "          }\r\n"
+                + "        },\r\n"
+                + "        \"required\": [\r\n"
+                + "          \"@type\"\r\n"
+                + "        ],\r\n"
+                + "        \"discriminator\": {\r\n"
+                + "          \"propertyName\": \"@type\"\r\n"
+                + "        }\r\n"
+                + "      },\r\n"
+                + "      \"BedRoom\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"numberOfBeds\": {\r\n"
+                + "                \"type\": \"integer\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"numberOfBeds\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      },\r\n"
+                + "      \"Kitchen\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"hasMicrowaveOven\": {\r\n"
+                + "                \"type\": \"boolean\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"hasMicrowaveOven\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        String inputData = "[\r\n"
+                + "  {\r\n"
+                + "    \"@type\": \"Kitchen\",\r\n"
+                + "    \"hasMicrowaveOven\": true\r\n"
+                + "  },\r\n"
+                + "  {\r\n"
+                + "    \"@type\": \"BedRooooom\",\r\n"
+                + "    \"numberOfBeds\": 4\r\n"
+                + "  }\r\n"
+                + "]";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setOpenAPI3StyleDiscriminators(true);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        assertEquals(1, messages.size());
+    }
+
+    /**
+     * Issue 609.
+     */
+    @Test
+    void discriminatorInArrayInvalidDiscriminatorPropertyOneOf() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"array\",\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"oneOf\": [\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/Kitchen\"\r\n"
+                + "      },\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/BedRoom\"\r\n"
+                + "      }\r\n"
+                + "    ]\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"Room\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"properties\": {\r\n"
+                + "          \"@type\": {\r\n"
+                + "            \"type\": \"string\"\r\n"
+                + "          }\r\n"
+                + "        },\r\n"
+                + "        \"required\": [\r\n"
+                + "          \"@type\"\r\n"
+                + "        ],\r\n"
+                + "        \"discriminator\": {\r\n"
+                + "          \"propertyName\": \"@type\"\r\n"
+                + "        }\r\n"
+                + "      },\r\n"
+                + "      \"BedRoom\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"numberOfBeds\": {\r\n"
+                + "                \"type\": \"integer\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"numberOfBeds\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      },\r\n"
+                + "      \"Kitchen\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"hasMicrowaveOven\": {\r\n"
+                + "                \"type\": \"boolean\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"hasMicrowaveOven\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        String inputData = "[\r\n"
+                + "  {\r\n"
+                + "    \"@type\": \"Kitchen\",\r\n"
+                + "    \"hasMicrowaveOven\": true\r\n"
+                + "  },\r\n"
+                + "  {\r\n"
+                + "    \"@type\": \"BedRooooom\",\r\n"
+                + "    \"numberOfBeds\": 4\r\n"
+                + "  }\r\n"
+                + "]";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setOpenAPI3StyleDiscriminators(true);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        assertEquals(1, messages.size());
     }
 }

@@ -62,6 +62,9 @@ public class OneOfValidator extends BaseJsonValidator {
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
+            }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
@@ -104,9 +107,23 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
                 index++;
             }
+
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+                    && executionContext.getCurrentDiscriminatorContext().isActive()
+                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
+                errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(
+                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                        .build());
+            }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
+            }
         }
 
         // ensure there is always an "OneOf" error reported if number of valid schemas
