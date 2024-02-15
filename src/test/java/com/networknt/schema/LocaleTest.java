@@ -60,7 +60,7 @@ public class LocaleTest {
         executionContext.getExecutionConfig().setLocale(locale);
         Set<ValidationMessage> messages = jsonSchema.validate(executionContext, rootNode);
         assertEquals(1, messages.size());
-        assertEquals("$.foo: integer trouvé, string attendu", messages.iterator().next().getMessage());
+        assertEquals("$.foo: integer trouvé, string attendu", messages.iterator().next().getMessage());
 
         locale = Locales.findSupported("it;q=1.0,fr;q=0.9"); // it
         executionContext = jsonSchema.createExecutionContext();
@@ -117,32 +117,32 @@ public class LocaleTest {
     @Test
     void encoding() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("ar_EG","$: يجب أن يكون طوله 5 حرفًا على الأكثر");
-        expected.put("cs_CZ","$: musí mít maximálně 5 znaků");
-        expected.put("da_DK","$: må højst være på 5 tegn");
+        expected.put("ar","$: يجب أن يكون طوله 5 حرفًا على الأكثر");
+        expected.put("cs","$: musí mít maximálně 5 znaků");
+        expected.put("da","$: må højst være på 5 tegn");
         expected.put("de","$: darf höchstens 5 Zeichen lang sein");
-        expected.put("fa_IR","$: باید حداکثر 5 کاراکتر باشد");
-        expected.put("fi_FI","$: saa olla enintään 5 merkkiä pitkä");
+        expected.put("fa","$: باید حداکثر 5 کاراکتر باشد");
+        expected.put("fi","$: saa olla enintään 5 merkkiä pitkä");
         expected.put("fr_CA","$: ne peut contenir que 5 caractères");
-        expected.put("fr","$: doit contenir au plus 5 caractères");
-        expected.put("iw_IL","$: must be at most 5 characters long");
-        expected.put("hr_HR","$: mora imati najviše 5 znakova");
-        expected.put("hu_HU","$: legfeljebb 5 karakter hosszúságú lehet");
+        expected.put("fr","$: doit contenir au plus 5 caractères");
+        expected.put("iw","$: must be at most 5 characters long");
+        expected.put("hr","$: mora imati najviše 5 znakova");
+        expected.put("hu","$: legfeljebb 5 karakter hosszúságú lehet");
         expected.put("it","$: deve contenere al massimo 5 caratteri");
-        expected.put("ja_JP","$: 長さは最大 5 文字でなければなりません");
-        expected.put("ko_KR","$: 길이는 최대 5자여야 합니다.");
-        expected.put("nb_NO","$: må bestå av maksimalt 5 tegn");
-        expected.put("nl_NL","$: mag maximaal 5 tekens lang zijn");
-        expected.put("pl_PL","$: musi mieć maksymalnie 5 znaków");
-        expected.put("pt_BR","$: deve ter no máximo 5 caracteres");
-        expected.put("ro_RO","$: trebuie să aibă cel mult 5 caractere");
-        expected.put("ru_RU","$: длина должна быть не более 5 символов.");
-        expected.put("sk_SK","$: musí mať maximálne 5 znakov");
-        expected.put("sv_SE","$: får vara högst 5 tecken lång");
-        expected.put("th_TH","$: ต้องมีความยาวสูงสุด 5 อักขระ");
-        expected.put("tr_TR","$: en fazla 5 karakter uzunluğunda olmalıdır");
-        expected.put("uk_UA","$: не більше ніж 5 символів");
-        expected.put("vi_VN","$: phải dài tối đa 5 ký tự");
+        expected.put("ja","$: 長さは最大 5 文字でなければなりません");
+        expected.put("ko","$: 길이는 최대 5자여야 합니다.");
+        expected.put("nb","$: må bestå av maksimalt 5 tegn");
+        expected.put("nl","$: mag maximaal 5 tekens lang zijn");
+        expected.put("pl","$: musi mieć maksymalnie 5 znaków");
+        expected.put("pt","$: deve ter no máximo 5 caracteres");
+        expected.put("ro","$: trebuie să aibă cel mult 5 caractere");
+        expected.put("ru","$: длина должна быть не более 5 символов.");
+        expected.put("sk","$: musí mať maximálne 5 znakov");
+        expected.put("sv","$: får vara högst 5 tecken lång");
+        expected.put("th","$: ต้องมีความยาวสูงสุด 5 อักขระ");
+        expected.put("tr","$: en fazla 5 karakter uzunluğunda olmalıdır");
+        expected.put("uk","$: не більше ніж 5 символів");
+        expected.put("vi","$: phải dài tối đa 5 ký tự");
         expected.put("zh_CN","$: 长度不得超过 5 个字符");
         expected.put("zh_TW","$: 長度不得超過 5 個字元");
 
@@ -157,8 +157,8 @@ public class LocaleTest {
                 executionContext.getExecutionConfig().setLocale(locale);
             });
             assertEquals(expected.get(locale.toString()), messages.iterator().next().toString());
-            //System.out.println(messages.iterator().next().toString());
-            //System.out.println("expected.put(\"" +locale.toString() + "\",\"" + messages.iterator().next().toString() + "\");");
+//            System.out.println(messages.iterator().next().toString());
+//            System.out.println("expected.put(\"" +locale.toString() + "\",\"" + messages.iterator().next().toString() + "\");");
             
 //            OutputUnit outputUnit = schema.validate("\"aaaaaa\"", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
 //                executionContext.getExecutionConfig().setLocale(locale);

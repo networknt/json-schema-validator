@@ -51,7 +51,7 @@ public class Issue686Test {
         config.setLocale(Locale.ITALIAN);
         verify(config, "$.foo: integer trovato, string previsto");
         config.setLocale(Locale.FRENCH);
-        verify(config, "$.foo: integer trouvé, string attendu");
+        verify(config, "$.foo: integer trouvé, string attendu");
     }
 
     private JsonSchema getSchema(SchemaValidatorsConfig config) {
