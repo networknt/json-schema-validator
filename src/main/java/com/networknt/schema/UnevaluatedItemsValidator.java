@@ -176,22 +176,22 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                 for (int x = validCount; x < node.size(); x++) {
                     // The schema is either "false" or an object schema
                     if (!containsEvaluated.contains(x)) {
-                        messages.addAll(
-                                this.schema.validate(executionContext, node.get(x), node, instanceLocation.append(x)));
+                        if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
+                            // All fails as "unevaluatedItems: false"
+                            messages.add(message().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
+                                    .locale(executionContext.getExecutionConfig().getLocale())
+                                    .failFast(executionContext.isFailFast()).build());
+                        } else {
+                            // Schema errors will be reported as is
+                            messages.addAll(this.schema.validate(executionContext, node.get(x), node,
+                                    instanceLocation.append(x)));
+                        }
                         evaluated = true;
                     }
                 }
             }
             if (messages.isEmpty()) {
                 valid = true;
-            } else {
-                // Report these as unevaluated paths or not matching the unevaluatedItems schema
-                messages = messages.stream()
-                        .map(m -> message().instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(m.getInstanceLocation().getName(-1))
-                                .failFast(executionContext.isFailFast()).build())
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
             }
         }
         // If the "unevaluatedItems" subschema is applied to any positions within the

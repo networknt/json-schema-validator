@@ -34,7 +34,7 @@ public class Issue686Test {
     void testValidationWithDefaultBundleAndCustomLocale() throws JsonProcessingException {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setLocale(Locale.ITALIAN);
-        verify(config, "$.foo: integer trovato, string atteso");
+        verify(config, "$.foo: integer trovato, string previsto");
     }
 
     @Test
@@ -49,9 +49,9 @@ public class Issue686Test {
     void testLocaleSwitch() throws JsonProcessingException {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setLocale(Locale.ITALIAN);
-        verify(config, "$.foo: integer trovato, string atteso");
+        verify(config, "$.foo: integer trovato, string previsto");
         config.setLocale(Locale.FRENCH);
-        verify(config, "$.foo: integer a été trouvé, mais string est attendu");
+        verify(config, "$.foo: integer trouvé, string attendu");
     }
 
     private JsonSchema getSchema(SchemaValidatorsConfig config) {

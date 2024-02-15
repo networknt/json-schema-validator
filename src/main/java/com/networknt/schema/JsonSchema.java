@@ -81,7 +81,7 @@ public class JsonSchema extends BaseJsonValidator {
                     ValidationMessage validationMessage = ValidationMessage.builder()
                             .code(ValidatorTypeCode.ID.getValue()).type(ValidatorTypeCode.ID.getValue())
                             .instanceLocation(idSchemaLocation.getFragment())
-                            .arguments(schemaLocation.toString(), id)
+                            .arguments(id, validationContext.getMetaSchema().getIdKeyword(), idSchemaLocation)
                             .schemaLocation(idSchemaLocation)
                             .schemaNode(schemaNode)
                             .messageFormatter(args -> validationContext.getConfig().getMessageSource().getMessage(

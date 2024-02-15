@@ -44,9 +44,9 @@ enum VersionCode {
     private final EnumSet<VersionFlag> versions;
 
     VersionCode(SpecVersion.VersionFlag[] versionFlags) {
-    	this.versions = EnumSet.noneOf(VersionFlag.class);
+        this.versions = EnumSet.noneOf(VersionFlag.class);
         for (VersionFlag flag: versionFlags) {
-        	this.versions.add(flag);
+            this.versions.add(flag);
         }
     }
 
@@ -63,12 +63,10 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     CONTAINS("contains", "1043", ContainsValidator::new, VersionCode.MinV6),
     CONTENT_ENCODING("contentEncoding", "1052", ContentEncodingValidator::new, VersionCode.V7),
     CONTENT_MEDIA_TYPE("contentMediaType", "1053", ContentMediaTypeValidator::new, VersionCode.V7),
-    CROSS_EDITS("crossEdits", "1004", null, VersionCode.AllVersions),
     DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
     DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.MinV201909),
     DYNAMIC_REF("$dynamicRef", "1051", DynamicRefValidator::new, VersionCode.MinV202012),
-    EDITS("edits", "1005", null, VersionCode.AllVersions),
     ENUM("enum", "1008", EnumValidator::new, VersionCode.AllVersions),
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", ExclusiveMaximumValidator::new, VersionCode.MinV6),
     EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", ExclusiveMinimumValidator::new, VersionCode.MinV6),
@@ -111,7 +109,6 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",UnevaluatedPropertiesValidator::new,VersionCode.MinV201909),
     UNION_TYPE("unionType", "1030", UnionTypeValidator::new, VersionCode.AllVersions),
     UNIQUE_ITEMS("uniqueItems", "1031", UniqueItemsValidator::new, VersionCode.AllVersions),
-    UUID("uuid", "1035", null, VersionCode.AllVersions),
     WRITE_ONLY("writeOnly", "1027", WriteOnlyValidator::new, VersionCode.MinV7),
     ;
 

@@ -30,9 +30,9 @@ public class Locales {
     /**
      * The list of locale resource bundles.
      */
-    public static final String[] SUPPORTED_LANGUAGE_TAGS = new String[] { "ar-EG", "cs-CZ", "da-DK", "de", "fa-IR",
-            "fi-FI", "fr-CA", "fr", "he-IL", "hr-HR", "hu-HU", "it", "ja-JP", "ko-KR", "nb-NO", "nl-NL", "pl-PL",
-            "pt-BR", "ro-RO", "ru-RU", "sk-SK", "sv-SE", "th-TH", "tr-TR", "uk-UA", "vi-VN", "zh-CN", "zh-TW" };
+    public static final String[] SUPPORTED_LANGUAGE_TAGS = new String[] { "ar", "cs", "da", "de", "fa", "fi", "fr",
+            "iw", "he", "hr", "hu", "it", "ja", "ko", "nb", "nl", "pl", "pt", "ro", "ru", "sk", "sv", "th", "tr", "uk",
+            "vi", "zh-CN", "zh-TW" };
 
     /**
      * The supported locales.

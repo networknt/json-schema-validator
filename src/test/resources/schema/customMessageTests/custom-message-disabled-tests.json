@@ -85,7 +85,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo: must have a maximum of 3 items in the array"
+          "$.foo: must have at most 3 items but found 4"
         ]
       },
       {
@@ -114,7 +114,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo: must have a maximum of 3 items in the array",
+          "$.foo: must have at most 3 items but found 4",
           "$.foo[2]: string found, number expected",
           "$.bar: integer found, string expected"
         ]

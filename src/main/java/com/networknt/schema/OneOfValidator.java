@@ -55,7 +55,9 @@ public class OneOfValidator extends BaseJsonValidator {
         state.setComplexValidator(true);
 
         int numberOfValidSchema = 0;
+        int index = 0;
         SetView<ValidationMessage> childErrors = null;
+        List<String> indexes = null;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
@@ -82,10 +84,15 @@ public class OneOfValidator extends BaseJsonValidator {
                         continue;
                     }
                     numberOfValidSchema++;
+                    if (indexes == null) {
+                        indexes = new ArrayList<>();
+                    }
+                    indexes.add(Integer.toString(index));
                 }
-
+                
                 if (numberOfValidSchema > 1 && canShortCircuit()) {
                     // short-circuit
+                    // note that the short circuit means that only 2 valid schemas are reported even if could be more
                     break;
                 }
 
@@ -95,6 +102,7 @@ public class OneOfValidator extends BaseJsonValidator {
                     }
                     childErrors.union(schemaErrors);
                 }
+                index++;
             }
         } finally {
             // Restore flag
@@ -105,9 +113,10 @@ public class OneOfValidator extends BaseJsonValidator {
         // is not equal to 1.
         if (numberOfValidSchema != 1) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
+                    .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
-                    .arguments(Integer.toString(numberOfValidSchema)).build();
+                    .arguments(Integer.toString(numberOfValidSchema), numberOfValidSchema > 1 ? String.join(", ", indexes) : "").build();
             if (childErrors != null) {
                 errors = new SetView<ValidationMessage>().union(Collections.singleton(message)).union(childErrors);
             } else {

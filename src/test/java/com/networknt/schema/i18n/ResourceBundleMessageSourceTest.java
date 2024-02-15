@@ -63,8 +63,8 @@ class ResourceBundleMessageSourceTest {
 
     @Test
     void messageMaxItems() {
-        String message = messageSource.getMessage("maxItems", Locale.getDefault(), "item", 5);
-        assertEquals("item: must have a maximum of 5 items in the array", message);
+        String message = messageSource.getMessage("maxItems", Locale.getDefault(), "item", 5, 10);
+        assertEquals("item: must have at most 5 items but found 10", message);
     }
 
     @Test
