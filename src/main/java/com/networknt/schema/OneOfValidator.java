@@ -62,6 +62,15 @@ public class OneOfValidator extends BaseJsonValidator {
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
+            DiscriminatorValidator discriminator = null;
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                DiscriminatorContext discriminatorContext = new DiscriminatorContext();
+                executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
+                
+                // check if discriminator present
+                discriminator = (DiscriminatorValidator) this.getParentSchema().getValidators().stream()
+                        .filter(v -> "discriminator".equals(v.getKeyword())).findFirst().orElse(null);
+            }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
@@ -95,8 +104,32 @@ public class OneOfValidator extends BaseJsonValidator {
                     // note that the short circuit means that only 2 valid schemas are reported even if could be more
                     break;
                 }
-
-                if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                
+                if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                    // The discriminator will cause all messages other than the one with the
+                    // matching discriminator to be discarded. Note that the discriminator cannot
+                    // affect the actual validation result.
+                    if (discriminator != null && !discriminator.getPropertyName().isEmpty()) {
+                        String discriminatorPropertyValue = node.get(discriminator.getPropertyName()).asText();
+                        discriminatorPropertyValue = discriminator.getMapping().getOrDefault(discriminatorPropertyValue,
+                                discriminatorPropertyValue);
+                        JsonNode refNode = schema.getSchemaNode().get("$ref");
+                        if (refNode != null) {
+                            String ref = refNode.asText();
+                            if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                                executionContext.getCurrentDiscriminatorContext().markMatch();
+                            }
+                        }
+                    }
+                    boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
+                    if (discriminatorMatchFound && childErrors == null) {
+                        // Note that the match is set if found and not reset so checking if childErrors
+                        // found is null triggers on the correct schema
+                        childErrors = new SetView<>();
+                        childErrors.union(schemaErrors);
+                    }
+                } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                    // This is the normal handling when discriminators aren't enabled
                     if (childErrors == null) {
                         childErrors = new SetView<>();
                     }
@@ -104,14 +137,29 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
                 index++;
             }
+
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+                    && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
+                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
+                errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(
+                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                        .build());
+            }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
+            }
         }
 
         // ensure there is always an "OneOf" error reported if number of valid schemas
         // is not equal to 1.
-        if (numberOfValidSchema != 1) {
+        // errors will only not be null in the discriminator case where no match is found
+        if (numberOfValidSchema != 1 && errors == null) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())

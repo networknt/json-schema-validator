@@ -32,7 +32,6 @@ public class AnyOfValidator extends BaseJsonValidator {
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<JsonSchema> schemas = new ArrayList<>();
-    private final DiscriminatorContext discriminatorContext;
 
     private Boolean canShortCircuit = null;
 
@@ -42,12 +41,6 @@ public class AnyOfValidator extends BaseJsonValidator {
         for (int i = 0; i < size; i++) {
             this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                     schemaNode.get(i), parentSchema));
-        }
-
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            this.discriminatorContext = new DiscriminatorContext();
-        } else {
-            this.discriminatorContext = null;
         }
     }
 
@@ -59,7 +52,7 @@ public class AnyOfValidator extends BaseJsonValidator {
         ValidatorState state = executionContext.getValidatorState();
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-            executionContext.enterDiscriminatorContext(this.discriminatorContext, instanceLocation);
+            executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
 
         boolean initialHasMatchedNode = state.hasMatchedNode();
@@ -113,7 +106,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                         // return empty errors.
                         return errors;
                     } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                        if (this.discriminatorContext.isDiscriminatorMatchFound()) {
+                        if (executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
                             if (!errors.isEmpty()) {
                                 // The following is to match the previous logic adding to all errors
                                 // which is generally discarded as it returns errors but the allErrors
@@ -143,7 +136,8 @@ public class AnyOfValidator extends BaseJsonValidator {
                 executionContext.setFailFast(failFast);
             }
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators() && this.discriminatorContext.isActive()) {
+            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+                    && executionContext.getCurrentDiscriminatorContext().isActive()) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(

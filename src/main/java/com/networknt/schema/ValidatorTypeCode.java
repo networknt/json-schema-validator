@@ -32,6 +32,7 @@ interface ValidatorFactory {
 }
 
 enum VersionCode {
+    None(new SpecVersion.VersionFlag[] { }),
     AllVersions(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V4, SpecVersion.VersionFlag.V6, SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
     MinV6(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V6, SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
     MinV7(new SpecVersion.VersionFlag[] { SpecVersion.VersionFlag.V7, SpecVersion.VersionFlag.V201909, SpecVersion.VersionFlag.V202012 }),
@@ -51,8 +52,8 @@ enum VersionCode {
     }
 
     EnumSet<VersionFlag> getVersions() {
-		return this.versions;
-	}
+        return this.versions;
+    }
 }
 
 public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
@@ -66,6 +67,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
     DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.MinV201909),
     DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.MinV201909),
+    DISCRIMINATOR("discriminator", "2001", DiscriminatorValidator::new, VersionCode.None),
     DYNAMIC_REF("$dynamicRef", "1051", DynamicRefValidator::new, VersionCode.MinV202012),
     ENUM("enum", "1008", EnumValidator::new, VersionCode.AllVersions),
     EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", ExclusiveMaximumValidator::new, VersionCode.MinV6),

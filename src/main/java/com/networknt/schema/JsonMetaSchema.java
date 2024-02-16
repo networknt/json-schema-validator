@@ -358,6 +358,14 @@ public class JsonMetaSchema {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
+                if ("message".equals(keyword) && validationContext.getConfig().isCustomMessageSupported()) {
+                    return null;
+                }
+                if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)
+                        && validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                    return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
+                            parentSchema, validationContext);
+                }
                 if (UNKNOWN_KEYWORDS.put(keyword, keyword) == null) {
                     logger.warn("Unknown keyword {} - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword", keyword);
                 }
