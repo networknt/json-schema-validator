@@ -100,10 +100,23 @@ public class OneOfValidator extends BaseJsonValidator {
                 }
 
                 if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
-                    if (childErrors == null) {
-                        childErrors = new SetView<>();
+                    if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+                            && executionContext.getCurrentDiscriminatorContext().isActive()) {
+                        // The discriminator will cause all messages other than the one with the
+                        // matching discriminator to be discarded. Note that the discriminator cannot
+                        // affect the actual validation result.
+                        if (executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound() && childErrors == null) {
+                            // Note that the match is set if found and not reset so checking if childErrors
+                            // found is null triggers on the correct schema
+                            childErrors = new SetView<>();
+                            childErrors.union(schemaErrors);
+                        }
+                    } else {
+                        if (childErrors == null) {
+                            childErrors = new SetView<>();
+                        }
+                        childErrors.union(schemaErrors);
                     }
-                    childErrors.union(schemaErrors);
                 }
                 index++;
             }
