@@ -107,34 +107,30 @@ public class OneOfValidator extends BaseJsonValidator {
                     // note that the short circuit means that only 2 valid schemas are reported even if could be more
                     break;
                 }
-
-                if (discriminatorProperty != null) {
-                    String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
-                    String ref = schema.getSchemaNode().get("$ref").asText();
-                    if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
-                        executionContext.getCurrentDiscriminatorContext().markMatch();
+                
+                if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                    // The discriminator will cause all messages other than the one with the
+                    // matching discriminator to be discarded. Note that the discriminator cannot
+                    // affect the actual validation result.
+                    if (discriminatorProperty != null) {
+                        String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
+                        String ref = schema.getSchemaNode().get("$ref").asText();
+                        if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                            executionContext.getCurrentDiscriminatorContext().markMatch();
+                        }
                     }
-                }
-
-                if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
-                    if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
-                            && (discriminatorProperty != null || executionContext.getCurrentDiscriminatorContext().isActive())) {
-                        // The discriminator will cause all messages other than the one with the
-                        // matching discriminator to be discarded. Note that the discriminator cannot
-                        // affect the actual validation result.
-                        boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
-                        if (discriminatorMatchFound && childErrors == null) {
-                            // Note that the match is set if found and not reset so checking if childErrors
-                            // found is null triggers on the correct schema
-                            childErrors = new SetView<>();
-                            childErrors.union(schemaErrors);
-                        }
-                    } else {
-                        if (childErrors == null) {
-                            childErrors = new SetView<>();
-                        }
+                    boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
+                    if (discriminatorMatchFound && childErrors == null) {
+                        // Note that the match is set if found and not reset so checking if childErrors
+                        // found is null triggers on the correct schema
+                        childErrors = new SetView<>();
                         childErrors.union(schemaErrors);
                     }
+                } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                    if (childErrors == null) {
+                        childErrors = new SetView<>();
+                    }
+                    childErrors.union(schemaErrors);
                 }
                 index++;
             }
@@ -159,7 +155,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
         // ensure there is always an "OneOf" error reported if number of valid schemas
         // is not equal to 1.
-        if (numberOfValidSchema != 1) {
+        if (numberOfValidSchema != 1 && errors == null) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
