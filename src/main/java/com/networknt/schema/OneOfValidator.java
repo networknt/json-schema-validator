@@ -127,6 +127,7 @@ public class OneOfValidator extends BaseJsonValidator {
                         childErrors.union(schemaErrors);
                     }
                 } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                    // This is the normal handling when discriminators aren't enabled
                     if (childErrors == null) {
                         childErrors = new SetView<>();
                     }
@@ -155,6 +156,7 @@ public class OneOfValidator extends BaseJsonValidator {
 
         // ensure there is always an "OneOf" error reported if number of valid schemas
         // is not equal to 1.
+        // errors will only not be null in the discriminator case where no match is found
         if (numberOfValidSchema != 1 && errors == null) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
