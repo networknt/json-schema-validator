@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -62,8 +63,16 @@ public class OneOfValidator extends BaseJsonValidator {
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
+            String discriminatorProperty = null;
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
+                DiscriminatorContext discriminatorContext = new DiscriminatorContext();
+                executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
+                
+                // check if discriminator present
+                ObjectNode discriminator = (ObjectNode) this.getParentSchema().getSchemaNode().get("discriminator");
+                if (discriminator != null) {
+                    discriminatorProperty = discriminator.get("propertyName").asText();
+                }
             }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
@@ -101,11 +110,19 @@ public class OneOfValidator extends BaseJsonValidator {
 
                 if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
                     if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
-                            && executionContext.getCurrentDiscriminatorContext().isActive()) {
+                            && (discriminatorProperty != null || executionContext.getCurrentDiscriminatorContext().isActive())) {
                         // The discriminator will cause all messages other than the one with the
                         // matching discriminator to be discarded. Note that the discriminator cannot
                         // affect the actual validation result.
-                        if (executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound() && childErrors == null) {
+                        boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
+                        if (discriminatorProperty != null) {
+                            String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
+                            String ref = schema.getSchemaNode().get("$ref").asText();
+                            if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                                discriminatorMatchFound = true;
+                            }
+                        }
+                        if (discriminatorMatchFound && childErrors == null) {
                             // Note that the match is set if found and not reset so checking if childErrors
                             // found is null triggers on the correct schema
                             childErrors = new SetView<>();
