@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * {@link JsonValidator} for oneOf.
@@ -64,6 +65,7 @@ public class OneOfValidator extends BaseJsonValidator {
         boolean failFast = executionContext.isFailFast();
         try {
             String discriminatorProperty = null;
+            Map<String, String> discriminatorMappings = null;
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 DiscriminatorContext discriminatorContext = new DiscriminatorContext();
                 executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
@@ -72,6 +74,14 @@ public class OneOfValidator extends BaseJsonValidator {
                 ObjectNode discriminator = (ObjectNode) this.getParentSchema().getSchemaNode().get("discriminator");
                 if (discriminator != null) {
                     discriminatorProperty = discriminator.get("propertyName").asText();
+                    ObjectNode mapping = (ObjectNode) discriminator.get("mapping");
+                    if (mapping != null) {
+                        discriminatorMappings = new HashMap<>();
+                        for (Iterator<Entry<String, JsonNode>> iter = mapping.fields(); iter.hasNext(); ) {
+                            Entry<String, JsonNode> entry = iter.next();
+                            discriminatorMappings.put(entry.getKey(), entry.getValue().asText());
+                        }
+                    }
                 }
             }
             executionContext.setFailFast(false);
@@ -114,8 +124,12 @@ public class OneOfValidator extends BaseJsonValidator {
                     // affect the actual validation result.
                     if (discriminatorProperty != null) {
                         String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
+                        if (discriminatorMappings != null) {
+                            discriminatorPropertyValue = discriminatorMappings.getOrDefault(discriminatorPropertyValue,
+                                    discriminatorPropertyValue);
+                        }
                         String ref = schema.getSchemaNode().get("$ref").asText();
-                        if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                        if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
                             executionContext.getCurrentDiscriminatorContext().markMatch();
                         }
                     }
