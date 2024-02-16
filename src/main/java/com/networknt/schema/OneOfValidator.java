@@ -17,14 +17,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * {@link JsonValidator} for oneOf.
@@ -64,25 +62,14 @@ public class OneOfValidator extends BaseJsonValidator {
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
-            String discriminatorProperty = null;
-            Map<String, String> discriminatorMappings = null;
+            DiscriminatorValidator discriminator = null;
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 DiscriminatorContext discriminatorContext = new DiscriminatorContext();
                 executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
                 
                 // check if discriminator present
-                ObjectNode discriminator = (ObjectNode) this.getParentSchema().getSchemaNode().get("discriminator");
-                if (discriminator != null) {
-                    discriminatorProperty = discriminator.get("propertyName").asText();
-                    ObjectNode mapping = (ObjectNode) discriminator.get("mapping");
-                    if (mapping != null) {
-                        discriminatorMappings = new HashMap<>();
-                        for (Iterator<Entry<String, JsonNode>> iter = mapping.fields(); iter.hasNext(); ) {
-                            Entry<String, JsonNode> entry = iter.next();
-                            discriminatorMappings.put(entry.getKey(), entry.getValue().asText());
-                        }
-                    }
-                }
+                discriminator = (DiscriminatorValidator) this.getParentSchema().getValidators().stream()
+                        .filter(v -> "discriminator".equals(v.getKeyword())).findFirst().orElse(null);
             }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
@@ -122,15 +109,16 @@ public class OneOfValidator extends BaseJsonValidator {
                     // The discriminator will cause all messages other than the one with the
                     // matching discriminator to be discarded. Note that the discriminator cannot
                     // affect the actual validation result.
-                    if (discriminatorProperty != null) {
-                        String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
-                        if (discriminatorMappings != null) {
-                            discriminatorPropertyValue = discriminatorMappings.getOrDefault(discriminatorPropertyValue,
-                                    discriminatorPropertyValue);
-                        }
-                        String ref = schema.getSchemaNode().get("$ref").asText();
-                        if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
-                            executionContext.getCurrentDiscriminatorContext().markMatch();
+                    if (discriminator != null && !discriminator.getPropertyName().isEmpty()) {
+                        String discriminatorPropertyValue = node.get(discriminator.getPropertyName()).asText();
+                        discriminatorPropertyValue = discriminator.getMapping().getOrDefault(discriminatorPropertyValue,
+                                discriminatorPropertyValue);
+                        JsonNode refNode = schema.getSchemaNode().get("$ref");
+                        if (refNode != null) {
+                            String ref = refNode.asText();
+                            if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                                executionContext.getCurrentDiscriminatorContext().markMatch();
+                            }
                         }
                     }
                     boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
@@ -151,7 +139,7 @@ public class OneOfValidator extends BaseJsonValidator {
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
-                    && (discriminatorProperty != null || executionContext.getCurrentDiscriminatorContext().isActive())
+                    && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
                 errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
