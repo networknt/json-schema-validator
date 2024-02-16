@@ -108,6 +108,14 @@ public class OneOfValidator extends BaseJsonValidator {
                     break;
                 }
 
+                if (discriminatorProperty != null) {
+                    String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
+                    String ref = schema.getSchemaNode().get("$ref").asText();
+                    if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                        executionContext.getCurrentDiscriminatorContext().markMatch();
+                    }
+                }
+
                 if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
                     if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
                             && (discriminatorProperty != null || executionContext.getCurrentDiscriminatorContext().isActive())) {
@@ -115,13 +123,6 @@ public class OneOfValidator extends BaseJsonValidator {
                         // matching discriminator to be discarded. Note that the discriminator cannot
                         // affect the actual validation result.
                         boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
-                        if (discriminatorProperty != null) {
-                            String discriminatorPropertyValue = node.get(discriminatorProperty).asText();
-                            String ref = schema.getSchemaNode().get("$ref").asText();
-                            if (ref.equals(discriminatorProperty) || ref.endsWith("/" + discriminatorPropertyValue)) {
-                                discriminatorMatchFound = true;
-                            }
-                        }
                         if (discriminatorMatchFound && childErrors == null) {
                             // Note that the match is set if found and not reset so checking if childErrors
                             // found is null triggers on the correct schema
@@ -139,7 +140,7 @@ public class OneOfValidator extends BaseJsonValidator {
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
-                    && executionContext.getCurrentDiscriminatorContext().isActive()
+                    && (discriminatorProperty != null || executionContext.getCurrentDiscriminatorContext().isActive())
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
                 errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
