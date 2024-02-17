@@ -1137,15 +1137,13 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ExecutionContext createExecutionContext() {
         SchemaValidatorsConfig config = validationContext.getConfig();
-        CollectorContext collectorContext = new CollectorContext();
-
         // Copy execution config defaults from validation config
         ExecutionConfig executionConfig = new ExecutionConfig();
         executionConfig.setLocale(config.getLocale());
         executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
         executionConfig.setFailFast(config.isFailFast());
 
-        ExecutionContext executionContext = new ExecutionContext(executionConfig, collectorContext);
+        ExecutionContext executionContext = new ExecutionContext(executionConfig);
         if(config.getExecutionContextCustomizer() != null) {
             config.getExecutionContextCustomizer().customize(executionContext, validationContext);
         }
