@@ -34,7 +34,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     private final boolean allowAdditionalProperties;
     private final JsonSchema additionalPropertiesSchema;
     private final Set<String> allowedProperties;
-    private final List<RegularExpression> patternProperties = new ArrayList<>();
+    private final List<RegularExpression> patternProperties;
 
     private Boolean hasUnevaluatedPropertiesValidator;
 
@@ -64,9 +64,12 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
         if (patternPropertiesNode != null) {
+            this.patternProperties = new ArrayList<>();
             for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
                 patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }
+        } else {
+            this.patternProperties = Collections.emptyList();
         }
     }
 

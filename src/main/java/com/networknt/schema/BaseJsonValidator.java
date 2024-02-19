@@ -290,12 +290,40 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         }
     }
 
+    public static class JsonNodePathLegacy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.LEGACY);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    public static class JsonNodePathJsonPointer {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_POINTER);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    public static class JsonNodePathJsonPath {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_PATH);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
     /**
      * Get the root path.
      *
      * @return The path.
      */
     protected JsonNodePath atRoot() {
+        if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_POINTER)) {
+            return JsonNodePathJsonPointer.getInstance();
+        } else if (this.validationContext.getConfig().getPathType().equals(PathType.LEGACY)) {
+            return JsonNodePathLegacy.getInstance();
+        } else if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_PATH)) {
+            return JsonNodePathJsonPath.getInstance();
+        }
         return new JsonNodePath(this.validationContext.getConfig().getPathType());
     }
 

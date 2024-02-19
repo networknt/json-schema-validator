@@ -357,16 +357,18 @@ public class ValidationMessage {
             if (StringUtils.isNotBlank(this.message)) {
                 messageKey = this.message;
                 if (this.message.contains("{")) {
-                    Object[] objs = getMessageArguments();
-                    MessageFormat format = new MessageFormat(this.message);
-                    messageSupplier = new CachingSupplier<>(() -> format.format(objs));
+                    messageSupplier = new CachingSupplier<>(() -> {
+                        MessageFormat format = new MessageFormat(this.message);
+                        return format.format(getMessageArguments());
+                    });
                 } else {
                     messageSupplier = message::toString;
                 }
             } else if (messageSupplier == null) {
-                Object[] objs = getMessageArguments();
-                MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
-                messageSupplier = new CachingSupplier<>(() -> formatter.format(objs));
+                messageSupplier = new CachingSupplier<>(() -> {
+                    MessageFormatter formatter = this.messageFormatter != null ? this.messageFormatter : format::format;
+                    return formatter.format(getMessageArguments());
+                });
             }
             return new ValidationMessage(type, code, evaluationPath, schemaLocation, instanceLocation,
                     property, arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
