@@ -28,7 +28,7 @@ public abstract class AbstractJsonValidator implements JsonValidator {
     private final SchemaLocation schemaLocation;
     private final JsonNode schemaNode;
     private final JsonNodePath evaluationPath;
-    private final Keyword keyword;
+    private final String keyword;
 
     /**
      * Constructor.
@@ -41,7 +41,7 @@ public abstract class AbstractJsonValidator implements JsonValidator {
     public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword, JsonNode schemaNode) {
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
-        this.keyword = keyword;
+        this.keyword = keyword.getValue();
         this.schemaNode = schemaNode;
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractJsonValidator implements JsonValidator {
 
     @Override
     public String getKeyword() {
-        return keyword.getValue();
+        return keyword;
     }
 
     /**

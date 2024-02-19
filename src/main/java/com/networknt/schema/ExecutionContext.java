@@ -26,11 +26,11 @@ import java.util.Stack;
  */
 public class ExecutionContext {
     private ExecutionConfig executionConfig;
-    private CollectorContext collectorContext;
+    private CollectorContext collectorContext = null;
     private ValidatorState validatorState = null;
-    private Stack<DiscriminatorContext> discriminatorContexts = new Stack<>();
-    private JsonNodeAnnotations annotations = new JsonNodeAnnotations();
-    private JsonNodeResults results = new JsonNodeResults();
+    private Stack<DiscriminatorContext> discriminatorContexts = null;
+    private JsonNodeAnnotations annotations = null;
+    private JsonNodeResults results = null;
     
     /**
      * This is used during the execution to determine if the validator should fail fast.
@@ -43,7 +43,7 @@ public class ExecutionContext {
      * Creates an execution context.
      */
     public ExecutionContext() {
-        this(new CollectorContext());
+        this(new ExecutionConfig(), null);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ExecutionContext {
      * @param executionConfig the execution configuration
      */
     public ExecutionContext(ExecutionConfig executionConfig) {
-        this(executionConfig, new CollectorContext());
+        this(executionConfig, null);
     }
 
     /**
@@ -81,7 +81,10 @@ public class ExecutionContext {
      * @return the collector context
      */
     public CollectorContext getCollectorContext() {
-        return collectorContext;
+        if (this.collectorContext == null) {
+            this.collectorContext = new CollectorContext();
+        }
+        return this.collectorContext;
     }
 
     /**
@@ -112,10 +115,16 @@ public class ExecutionContext {
     }
 
     public JsonNodeAnnotations getAnnotations() {
+        if (this.annotations == null) {
+            this.annotations = new JsonNodeAnnotations();
+        }
         return annotations;
     }
 
     public JsonNodeResults getResults() {
+        if (this.results == null) {
+            this.results = new JsonNodeResults();
+        }
         return results;
     }
 
@@ -163,6 +172,10 @@ public class ExecutionContext {
     }
 
     public DiscriminatorContext getCurrentDiscriminatorContext() {
+        if (this.discriminatorContexts == null) {
+            return null;
+        }
+
         if (!this.discriminatorContexts.empty()) {
             return this.discriminatorContexts.peek();
         }
@@ -170,6 +183,9 @@ public class ExecutionContext {
     }
 
     public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
+        if (this.discriminatorContexts == null) {
+            this.discriminatorContexts = new Stack<>();
+        }
         this.discriminatorContexts.push(ctx);
     }
 
