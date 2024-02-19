@@ -25,6 +25,7 @@ import com.networknt.schema.AbsoluteIri;
  */
 public class DefaultSchemaLoader implements SchemaLoader {
     private static final List<SchemaLoader> DEFAULT;
+    private static final MetaSchemaMapper META_SCHEMA_MAPPER = new MetaSchemaMapper();
 
     static {
         List<SchemaLoader> result = new ArrayList<>();
@@ -49,6 +50,10 @@ public class DefaultSchemaLoader implements SchemaLoader {
             if (mapped != null) {
                 mappedResult = mapped;
             }
+        }
+        AbsoluteIri mapped = META_SCHEMA_MAPPER.map(absoluteIri);
+        if (mapped != null) {
+            mappedResult = mapped;
         }
         for (SchemaLoader loader : schemaLoaders) {
             InputStreamSource result = loader.getSchema(mappedResult);
