@@ -19,44 +19,44 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Used for Keywords that have no validation aspect, but are part of the metaschema.
+ * Used for Keywords that have no validation aspect, but are part of the metaschema, where annotations may need to be collected.
  */
-public class NonValidationKeyword extends AbstractKeyword {
+public class AnnotationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractJsonValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
             super(schemaLocation, evaluationPath, keyword, schemaNode);
-            String id = validationContext.resolveSchemaId(schemaNode);
-            String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
-            String dynamicAnchor = validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
-            if (id != null || anchor != null || dynamicAnchor != null) {
-                // Used to register schema resources with $id
-                validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
-            }
-            if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
-                for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
-                    Entry<String, JsonNode> property = field.next();
-                    SchemaLocation location = schemaLocation.append(property.getKey());
-                    JsonSchema schema = validationContext.newSchema(location, evaluationPath.append(property.getKey()),
-                            property.getValue(), parentSchema);
-                    validationContext.getSchemaReferences().put(location.toString(), schema);
-                }
-            }
         }
 
         @Override
         public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            if (collectAnnotations(executionContext)) {
+                Object value = getAnnotationValue(getSchemaNode());
+                if (value != null) {
+                    putAnnotation(executionContext,
+                            annotation -> annotation.instanceLocation(instanceLocation).value(value));
+                }
+            }
             return Collections.emptySet();
+        }
+
+        protected Object getAnnotationValue(JsonNode schemaNode) {
+            if (schemaNode.isTextual()) {
+                return schemaNode.textValue(); 
+            } else if (schemaNode.isNumber()) {
+                return schemaNode.numberValue();
+            } else if (schemaNode.isObject()) {
+                return schemaNode;
+            }
+            return null;
         }
     }
 
-    public NonValidationKeyword(String keyword) {
+    public AnnotationKeyword(String keyword) {
         super(keyword);
     }
 
