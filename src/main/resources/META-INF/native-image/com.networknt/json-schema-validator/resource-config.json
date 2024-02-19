@@ -1,0 +1,24 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "draft/.*"
+      },
+      {
+        "pattern": "draft-04/.*"
+      },
+      {
+        "pattern": "draft-06/.*"
+      },
+      {
+        "pattern": "draft-07/.*"
+      },
+      {
+        "pattern": "ucd/.*"
+      },
+      {
+        "pattern": "jsv-messages.*properties"
+      }
+    ]
+  }
+}
