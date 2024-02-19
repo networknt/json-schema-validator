@@ -25,7 +25,13 @@ import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * {@link JsonValidator} for properties.
@@ -39,10 +45,11 @@ public class PropertiesValidator extends BaseJsonValidator {
 
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
-        for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
-            String pname = it.next();
+        for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
+            Entry<String, JsonNode> entry = it.next();
+            String pname = entry.getKey();
             this.schemas.put(pname, validationContext.newSchema(schemaLocation.append(pname),
-                    evaluationPath.append(pname), schemaNode.get(pname), parentSchema));
+                    evaluationPath.append(pname), entry.getValue(), parentSchema));
         }
     }
 
@@ -58,8 +65,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         Set<ValidationMessage> requiredErrors = null;
         Set<String> matchedInstancePropertyNames = null;
         boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
-        for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
-            JsonSchema propertySchema = entry.getValue();
+        for (Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
                 JsonNodePath path = instanceLocation.append(entry.getKey());
@@ -72,15 +78,15 @@ public class PropertiesValidator extends BaseJsonValidator {
                 // check whether this is a complex validator. save the state
                 boolean isComplex = state.isComplexValidator();
                // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
-                if (state.isComplexValidator()) {
+                if (isComplex) {
                     state.setMatchedNode(true);
+                    // reset the complex validator for child element validation, and reset it after the return from the recursive call
+                    state.setComplexValidator(false);
                 }
-                 // reset the complex validator for child element validation, and reset it after the return from the recursive call
-                state.setComplexValidator(false);
-
                 if (!state.isWalkEnabled()) {
                     //validate the child element(s)
-                    Set<ValidationMessage> result = propertySchema.validate(executionContext, propertyNode, rootNode, path);
+                    Set<ValidationMessage> result = entry.getValue().validate(executionContext, propertyNode, rootNode,
+                            path);
                     if (!result.isEmpty()) {
                         if (errors == null) {
                             errors = new SetView<>();
@@ -96,9 +102,9 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
 
                 // reset the complex flag to the original value before the recursive call
-                state.setComplexValidator(isComplex);
-                // if this was a complex validator, the node has matched and has been validated
-                if (state.isComplexValidator()) {
+                if (isComplex) {
+                    state.setComplexValidator(isComplex);
+                    // if this was a complex validator, the node has matched and has been validated
                     state.setMatchedNode(true);
                 }
             } else {
