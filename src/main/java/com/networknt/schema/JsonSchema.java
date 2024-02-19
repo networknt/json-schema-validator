@@ -27,7 +27,15 @@ import com.networknt.schema.utils.SetView;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -451,10 +459,11 @@ public class JsonSchema extends BaseJsonValidator {
         } else {
             JsonValidator refValidator = null;
 
-            Iterator<String> pnames = schemaNode.fieldNames();
-            while (pnames.hasNext()) {
-                String pname = pnames.next();
-                JsonNode nodeToUse = schemaNode.get(pname);
+            Iterator<Entry<String, JsonNode>> iterator = schemaNode.fields();
+            while (iterator.hasNext()) {
+                Entry<String, JsonNode> entry = iterator.next();
+                String pname = entry.getKey();
+                JsonNode nodeToUse = entry.getValue();
 
                 JsonNodePath path = getEvaluationPath().append(pname);
                 SchemaLocation schemaPath = getSchemaLocation().append(pname);
@@ -536,7 +545,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
                 executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
@@ -544,7 +553,6 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
         SetView<ValidationMessage> errors = null;
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
@@ -566,7 +574,7 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
-        if (config.isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
                 final DiscriminatorContext discriminatorContext = executionContext
