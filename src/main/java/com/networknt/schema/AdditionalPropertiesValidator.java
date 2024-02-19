@@ -23,7 +23,14 @@ import com.networknt.schema.regex.RegularExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * {@link JsonValidator} for additionalProperties.
@@ -96,8 +103,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
         Set<ValidationMessage> errors = null;
 
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-            String pname = it.next();
+        for (Iterator<Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ) {
+            Entry<String, JsonNode> entry = it.next();
+            String pname = entry.getKey();
             // skip the context items
             if (pname.startsWith("#")) {
                 continue;
@@ -123,7 +131,9 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     if (additionalPropertiesSchema != null) {
                         ValidatorState state = executionContext.getValidatorState();
                         if (state != null && state.isWalkEnabled()) {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
+                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext,
+                                    entry.getValue(), rootNode, instanceLocation.append(pname),
+                                    state.isValidationEnabled());
                             if (!results.isEmpty()) {
                                 if (errors == null) {
                                     errors = new LinkedHashSet<>();
@@ -131,7 +141,8 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                                 errors.addAll(results);
                             }
                         } else {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext, node.get(pname), rootNode, instanceLocation.append(pname));
+                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext,
+                                    entry.getValue(), rootNode, instanceLocation.append(pname));
                             if (!results.isEmpty()) {
                                 if (errors == null) {
                                     errors = new LinkedHashSet<>();
