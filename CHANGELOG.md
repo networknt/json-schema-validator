@@ -11,6 +11,21 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.3.3 - 2024-02-19
+
+### Added
+
+- Support GraalVM and refactor (#972) Thanks @justin-tay
+
+### Changed
+
+- Fixes for discriminator (#971) Thanks @justin-tay
+- Fix validation messages (#969) Thanks @justin-tay
+- Add unevaluatedProperties test (#968) Thanks @justin-tay
+- Reduce memory usage and improve performance (#966) Thanks @justin-tay
+- Set result at the end of schema processing (#963) Thanks @justin-tay
+
+
 ## 1.3.2 - 2024-02-07
 
 ### Added
