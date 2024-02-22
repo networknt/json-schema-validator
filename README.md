@@ -179,6 +179,21 @@ The YAML dependency can be excluded if this is not required. Attempting to proce
 </dependency>
 ```
 
+The Ethlo Time dependency can be excluded if accurate validation of the `date-time` format is not required. The `date-time` format will then use `java.time.OffsetDateTime` to determine if the `date-time` is valid .
+
+```xml
+<dependency>
+    <groupId>com.networknt</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>com.ethlo.time</groupId>
+            <artifactId>itu</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
+
 #### Community
 
 This library is very active with a lot of contributors. New features and bug fixes are handled quickly by the team members. Because it is an essential dependency of the [light-4j](https://github.com/networknt/light-4j) framework in the same GitHub organization, it will be evolved and maintained along with the framework. 
@@ -199,7 +214,7 @@ This package is available on Maven central.
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.3</version>
 </dependency>
 ```
 
