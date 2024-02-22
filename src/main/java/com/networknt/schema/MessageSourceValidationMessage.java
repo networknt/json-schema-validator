@@ -21,6 +21,9 @@ import java.util.function.BiConsumer;
 
 import com.networknt.schema.i18n.MessageSource;
 
+/**
+ * MessageSourceValidationMessage.
+ */
 public class MessageSourceValidationMessage {
 
     public static Builder builder(MessageSource messageSource, Map<String, String> errorMessage,
@@ -66,7 +69,9 @@ public class MessageSourceValidationMessage {
                         messagePattern = specificMessagePattern;
                     }
                 }
-                this.message = messagePattern;
+                if (messagePattern != null && !"".equals(messagePattern)) {
+                    this.message = messagePattern;
+                }
             }
 
             // Default to message source formatter
