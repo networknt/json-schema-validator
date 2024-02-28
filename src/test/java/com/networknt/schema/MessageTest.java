@@ -77,7 +77,7 @@ public class MessageTest {
 
     @Test
     void message() {
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012().getUri(), JsonMetaSchema.getV202012())
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012().getIri(), JsonMetaSchema.getV202012())
                 .addKeyword(new EqualsKeyword()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.addMetaSchema(metaSchema));
         String schemaData = "{\r\n"

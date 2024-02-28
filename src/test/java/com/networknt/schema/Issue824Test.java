@@ -18,7 +18,7 @@ public class Issue824Test {
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
-                .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getUri()));
+                .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getIri()));
         v201909SpecSchema.preloadJsonSchema();
         final JsonNode invalidSchema = new ObjectMapper().readTree(
                 "{"+

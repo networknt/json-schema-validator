@@ -17,6 +17,8 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.Set;
@@ -24,6 +26,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.output.OutputUnit;
 
 /**
  * Tests for vocabulary support in meta schemas.
@@ -35,7 +38,7 @@ public class VocabularyTest {
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"$id\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
                 + "  \"$vocabulary\": {\r\n"
-                + "    \"https://www.example.com/vocab/validation\": true,\r\n"
+                + "    \"https://www.example.com/vocab/validation\": false,\r\n"
                 + "    \"https://json-schema.org/draft/2020-12/vocab/applicator\": true,\r\n"
                 + "    \"https://json-schema.org/draft/2020-12/vocab/core\": true\r\n"
                 + "  },\r\n"
@@ -74,7 +77,7 @@ public class VocabularyTest {
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
-                                                Vocabulary.V202012_VALIDATION.getId())))))
+                                                Vocabulary.V202012_VALIDATION.getIri())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -87,7 +90,7 @@ public class VocabularyTest {
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"$id\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
                 + "  \"$vocabulary\": {\r\n"
-                + "    \"https://www.example.com/vocab/format\": true,\r\n"
+                + "    \"https://www.example.com/vocab/format\": false,\r\n"
                 + "    \"https://json-schema.org/draft/2020-12/vocab/applicator\": true,\r\n"
                 + "    \"https://json-schema.org/draft/2020-12/vocab/core\": true\r\n"
                 + "  },\r\n"
@@ -126,10 +129,90 @@ public class VocabularyTest {
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
-                                                Vocabulary.V202012_FORMAT_ASSERTION.getId())))))
+                                                Vocabulary.V202012_FORMAT_ASSERTION.getIri())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("format", messages.iterator().next().getType());
+    }
+    
+    @Test
+    void requiredUnknownVocabulary() {
+        String metaSchemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"$id\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
+                + "  \"$vocabulary\": {\r\n"
+                + "    \"https://www.example.com/vocab/format\": true,\r\n"
+                + "    \"https://json-schema.org/draft/2020-12/vocab/applicator\": true,\r\n"
+                + "    \"https://json-schema.org/draft/2020-12/vocab/core\": true\r\n"
+                + "  },\r\n"
+                + "  \"allOf\": [\r\n"
+                + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/applicator\" },\r\n"
+                + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
+                + "  ]\r\n"
+                + "}";
+        String schemaData = "{\r\n"
+                + "  \"$id\": \"https://schema/using/no/format\",\r\n"
+                + "  \"$schema\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"dateProperty\": {\r\n"
+                + "      \"format\": \"date\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory
+                .getInstance(VersionFlag.V202012,
+                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                                .singletonMap("https://www.example.com/no-validation-no-format/schema",
+                                        metaSchemaData))));
+        assertThrows(InvalidSchemaException.class, () -> factory.getSchema(schemaData));
+    }
+    
+    @Test
+    void customVocabulary() {
+        String metaSchemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"$id\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
+                + "  \"$vocabulary\": {\r\n"
+                + "    \"https://www.example.com/vocab/format\": true,\r\n"
+                + "    \"https://json-schema.org/draft/2020-12/vocab/applicator\": true,\r\n"
+                + "    \"https://json-schema.org/draft/2020-12/vocab/core\": true\r\n"
+                + "  },\r\n"
+                + "  \"allOf\": [\r\n"
+                + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/applicator\" },\r\n"
+                + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
+                + "  ]\r\n"
+                + "}";
+        String schemaData = "{\r\n"
+                + "  \"$id\": \"https://schema/using/no/format\",\r\n"
+                + "  \"$schema\": \"https://www.example.com/no-validation-no-format/schema\",\r\n"
+                + "  \"hello\": {\r\n"
+                + "    \"dateProperty\": {\r\n"
+                + "      \"format\": \"date\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        VocabularyFactory vocabularyFactory = uri -> {
+            if ("https://www.example.com/vocab/format".equals(uri)) {
+                return new Vocabulary("https://www.example.com/vocab/format", new AnnotationKeyword("hello"));
+            }
+            return null;
+        };
+        
+        JsonMetaSchema metaSchema = JsonMetaSchema
+                .builder(JsonMetaSchema.getV202012().getIri(), JsonMetaSchema.getV202012())
+                .vocabularyFactory(vocabularyFactory)
+                .build();
+        JsonSchemaFactory factory = JsonSchemaFactory
+                .getInstance(VersionFlag.V202012,
+                        builder -> builder.addMetaSchema(metaSchema).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                                .singletonMap("https://www.example.com/no-validation-no-format/schema",
+                                        metaSchemaData))));
+        JsonSchema schema = factory.getSchema(schemaData);
+        OutputUnit outputUnit = schema.validate("{}", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
+            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
+            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+        });
+        assertNotNull(outputUnit.getAnnotations().get("hello"));
     }
 }

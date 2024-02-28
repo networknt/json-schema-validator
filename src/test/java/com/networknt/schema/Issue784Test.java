@@ -62,7 +62,7 @@ public class Issue784Test {
 
     private JsonSchema createSchema(boolean useCustomDateFormat) {
         JsonMetaSchema overrideDateTimeValidator =JsonMetaSchema
-                .builder(JsonMetaSchema.getV7().getUri(), JsonMetaSchema.getV7())
+                .builder(JsonMetaSchema.getV7().getIri(), JsonMetaSchema.getV7())
                 .formats(formats -> {
                     if (useCustomDateFormat) {
                         CustomDateTimeFormat format = new CustomDateTimeFormat();
@@ -73,7 +73,7 @@ public class Issue784Test {
 
         return new JsonSchemaFactory
                 .Builder()
-                .defaultMetaSchemaURI(overrideDateTimeValidator.getUri())
+                .defaultMetaSchemaURI(overrideDateTimeValidator.getIri())
                 .addMetaSchema(overrideDateTimeValidator)
                 .build()
                 .getSchema(Issue784Test.class.getResourceAsStream("/issue784/schema.json"));

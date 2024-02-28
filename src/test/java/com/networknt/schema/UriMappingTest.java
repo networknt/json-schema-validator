@@ -48,7 +48,7 @@ public class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/uri-mapping.json");
         JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
         Builder builder = JsonSchemaFactory.builder()
-                .defaultMetaSchemaURI(draftV4.getUri())
+                .defaultMetaSchemaURI(draftV4.getIri())
                 .addMetaSchema(draftV4)
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         JsonSchemaFactory instance = builder.build();
@@ -86,7 +86,7 @@ public class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/invalid-schema-uri.json");
         JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
         Builder builder = JsonSchemaFactory.builder()
-                .defaultMetaSchemaURI(draftV4.getUri())
+                .defaultMetaSchemaURI(draftV4.getIri())
                 .addMetaSchema(draftV4)
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         instance = builder.build();

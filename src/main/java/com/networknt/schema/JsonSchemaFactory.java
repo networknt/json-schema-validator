@@ -78,7 +78,7 @@ public class JsonSchemaFactory {
         }
 
         public Builder addMetaSchema(final JsonMetaSchema jsonMetaSchema) {
-            this.jsonMetaSchemas.put(normalizeMetaSchemaUri(jsonMetaSchema.getUri()) , jsonMetaSchema);
+            this.jsonMetaSchemas.put(normalizeMetaSchemaUri(jsonMetaSchema.getIri()) , jsonMetaSchema);
             return this;
         }
 
@@ -202,7 +202,7 @@ public class JsonSchemaFactory {
             Consumer<JsonSchemaFactory.Builder> customizer) {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
         JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
-        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaURI(metaSchema.getUri())
+        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaURI(metaSchema.getIri())
                 .addMetaSchema(metaSchema);
         if (customizer != null) {
             customizer.accept(builder);
@@ -309,7 +309,7 @@ public class JsonSchemaFactory {
      */
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
         JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
-        if (metaSchema != null && !metaSchema.getUri().equals(validationContext.getMetaSchema().getUri())) {
+        if (metaSchema != null && !metaSchema.getIri().equals(validationContext.getMetaSchema().getIri())) {
             return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
                     validationContext.getConfig(), validationContext.getSchemaReferences(),
                     validationContext.getSchemaResources(), validationContext.getDynamicAnchors());
@@ -382,8 +382,10 @@ public class JsonSchemaFactory {
                 }
             }
             return builder.build();
+        } catch (InvalidSchemaException e) {
+            throw e;
         } catch (Exception e) {
-            ValidationMessage validationMessage = ValidationMessage.builder().message("Unknown MetaSchema: {1}")
+            ValidationMessage validationMessage = ValidationMessage.builder().message("Failed to load meta-schema ''{1}''")
                     .arguments(id).build();
             throw new InvalidSchemaException(validationMessage, e);
         }

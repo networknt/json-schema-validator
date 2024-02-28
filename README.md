@@ -17,6 +17,13 @@ In addition, it also works for OpenAPI 3.0 request/response validation with some
 
 ## JSON Schema Specification compatibility
 
+[![Supported spec](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fsupported_versions.json)](https://bowtie.report/#/implementations/java-json-schema-validator)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2020-12.json)](https://bowtie.report/#/dialects/draft2020-12)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2019-09.json)](https://bowtie.report/#/dialects/draft2019-09)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft7.json)](https://bowtie.report/#/dialects/draft7)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft6.json)](https://bowtie.report/#/dialects/draft6)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft4.json)](https://bowtie.report/#/dialects/draft4)
+
 Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
 
 Since [Draft 2019-09](https://json-schema.org/draft/2019-09/json-schema-validation#rfc.section.7) the `format` keyword only generates annotations by default and does not generate assertions.
@@ -222,7 +229,7 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.3.1');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.3.3');
 }
 ```
 
@@ -278,15 +285,7 @@ The following example demonstrates how a schema is validated against a meta sche
 This is actually the same as validating inputs against a schema except in this case the input is the schema and the schema used is the meta schema.
 
 ```java
-JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
-    // This creates a mapping to load the meta schema from the library classpath instead of remotely
-    // This is better for performance and the remote may choose not to service the request
-    // For instance Cloudflare will block requests that have older Java User-Agent strings eg. Java/1.
-    builder.schemaMappers(schemaMappers -> 
-        schemaMappers
-            .mapPrefix("https://json-schema.org", "classpath:")
-            .mapPrefix("http://json-schema.org", "classpath:"))
-);
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
 
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance location and evaluation path
@@ -297,14 +296,14 @@ config.setPathType(PathType.JSON_POINTER);
 
 // Due to the mapping the meta schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
-String input = "{  \n"
-    + "  \"type\": \"object\",  \n"
-    + "  \"properties\": {    \n"
-    + "    \"key\": { \n"
-    + "      \"title\" : \"My key\", \n"
-    + "      \"type\": \"invalidtype\" \n"
-    + "    } \n"
-    + "  }\n"
+String input = "{\r\n"
+    + "  \"type\": \"object\",\r\n"
+    + "  \"properties\": {\r\n"
+    + "    \"key\": {\r\n"
+    + "      \"title\" : \"My key\",\r\n"
+    + "      \"type\": \"invalidtype\"\r\n"
+    + "    }\r\n"
+    + "  }\r\n"
     + "}";
 Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
@@ -490,6 +489,8 @@ This does not mean that using a schema with a later draft specification will aut
 
 ## [Customizing Schema Retrieval](doc/schema-retrieval.md)
 
+## [Customizing Meta-Schema and Vocabulary](doc/custom-meta-schema.md)
+
 ## [Validators](doc/validators.md)
 
 ## [Configuration](doc/config.md)
@@ -497,8 +498,6 @@ This does not mean that using a schema with a later draft specification will aut
 ## [Specification Version](doc/specversion.md)
 
 ## [YAML Validation](doc/yaml.md)
-
-## [Customized MetaSchema](doc/cust-meta.md)
 
 ## [Collector Context](doc/collector-context.md)
 

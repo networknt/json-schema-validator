@@ -27,7 +27,7 @@ public class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getUri());
+        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
         Set<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         ValidationMessage error = errors.iterator().next();
@@ -51,7 +51,7 @@ public class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getUri());
+        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
         Set<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         ValidationMessage error = errors.iterator().next();
@@ -62,8 +62,8 @@ public class RefTest {
         assertEquals("field1", error.getProperty());
         JsonSchema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
         JsonSchema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
-        assertEquals(SchemaId.V4, driver.getValidationContext().getMetaSchema().getUri());
-        assertEquals(SchemaId.V7, common.getValidationContext().getMetaSchema().getUri());
+        assertEquals(SchemaId.V4, driver.getValidationContext().getMetaSchema().getIri());
+        assertEquals(SchemaId.V7, common.getValidationContext().getMetaSchema().getIri());
 
     }
 }

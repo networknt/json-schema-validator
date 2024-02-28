@@ -27,7 +27,7 @@ public class UrnTest
       is = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/feature/urn-management/src/test/resources/draft7/urn/urn.schema.json").openStream();
       JsonMetaSchema draftV7 = JsonMetaSchema.getV7();
       JsonSchemaFactory.Builder builder = JsonSchemaFactory.builder()
-          .defaultMetaSchemaURI(draftV7.getUri())
+          .defaultMetaSchemaURI(draftV7.getIri())
           .addMetaSchema(draftV7)
           .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );

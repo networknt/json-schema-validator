@@ -17,7 +17,7 @@ public class Version6 extends JsonSchemaVersion{
                 .specification(SpecVersion.VersionFlag.V6)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
-                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V6))
+                .addKeywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V6))
                 // keywords that may validly exist, but have no validation aspect to them
                 .addKeywords(Arrays.asList(
                         new NonValidationKeyword("$schema"),

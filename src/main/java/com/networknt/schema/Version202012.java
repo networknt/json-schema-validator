@@ -32,27 +32,10 @@ public class Version202012 extends JsonSchemaVersion {
                 .specification(SpecVersion.VersionFlag.V202012)
                 .idKeyword(ID)
                 .addFormats(BUILTIN_FORMATS)
-                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V202012))
+                .addKeywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V202012))
                 // keywords that may validly exist, but have no validation aspect to them
                 .addKeywords(Arrays.asList(
-                        new NonValidationKeyword("$schema"),
-                        new NonValidationKeyword("$id"),
-                        new AnnotationKeyword("title"),
-                        new AnnotationKeyword("description"),
-                        new AnnotationKeyword("default"),
-                        new NonValidationKeyword("definitions"),
-                        new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("$defs"),
-                        new NonValidationKeyword("$anchor"),
-                        new NonValidationKeyword("$dynamicAnchor"),
-                        new NonValidationKeyword("$vocabulary"),
-                        new AnnotationKeyword("deprecated"),
-                        new AnnotationKeyword("contentMediaType"),
-                        new AnnotationKeyword("contentEncoding"),
-                        new AnnotationKeyword("contentSchema"),
-                        new AnnotationKeyword("examples"),
-                        new NonValidationKeyword("then"),
-                        new NonValidationKeyword("else")
+                        new NonValidationKeyword("definitions")
                 ))
                 .vocabularies(VOCABULARY)
                 .build();

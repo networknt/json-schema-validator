@@ -37,7 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -96,36 +101,46 @@ public class JsonMetaSchema {
         private Map<String, Keyword> keywords = new HashMap<>();
         private Map<String, Format> formats = new HashMap<>();
         private Map<String, Boolean> vocabularies = new HashMap<>();
-        private String uri;
+        private String iri;
         private String idKeyword = "id";
         private FormatKeywordFactory formatKeywordFactory = null;
+        private VocabularyFactory vocabularyFactory = null;
 
-        public Builder(String uri) {
-            this.uri = uri;
+        public Builder(String iri) {
+            this.iri = iri;
         }
 
         private Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
+            boolean format = false;
             Map<String, Keyword> map = new HashMap<>();
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
                 Keyword keyword = type.getValue();
                 if (ValidatorTypeCode.FORMAT.getValue().equals(keywordName)) {
-                    if (!(keyword instanceof FormatKeyword)) {
+                    if (!(keyword instanceof FormatKeyword) && !ValidatorTypeCode.FORMAT.equals(keyword)) {
                         throw new IllegalArgumentException("Overriding the keyword 'format' is not supported. Use the formatKeywordFactory and extend the FormatKeyword.");
                     }
                     // ignore - format keyword will be created again below.
+                    format = true;
                 } else {
                     map.put(keyword.getValue(), keyword);
                 }
             }
-            final FormatKeyword formatKeyword = formatKeywordFactory != null ? formatKeywordFactory.newInstance(formats)
-                    : new FormatKeyword(formats);
-            map.put(formatKeyword.getValue(), formatKeyword);
+            if (format) {
+                final FormatKeyword formatKeyword = formatKeywordFactory != null ? formatKeywordFactory.newInstance(formats)
+                        : new FormatKeyword(formats);
+                map.put(formatKeyword.getValue(), formatKeyword);
+            }
             return map;
         }
 
         public Builder formatKeywordFactory(FormatKeywordFactory formatKeywordFactory) {
             this.formatKeywordFactory = formatKeywordFactory;
+            return this;
+        }
+
+        public Builder vocabularyFactory(VocabularyFactory vocabularyFactory) {
+            this.vocabularyFactory = vocabularyFactory;
             return this;
         }
 
@@ -168,8 +183,16 @@ public class JsonMetaSchema {
             return vocabulary(vocabulary, true);
         }
 
-        public Builder vocabulary(String vocabulary, boolean enabled) {
-            this.vocabularies.put(vocabulary, enabled);
+        /**
+         * Adds a vocabulary.
+         * 
+         * @param vocabulary the vocabulary uri
+         * @param required   true indicates if the vocabulary is not recognized
+         *                   processing should stop
+         * @return the builder
+         */
+        public Builder vocabulary(String vocabulary, boolean required) {
+            this.vocabularies.put(vocabulary, required);
             return this;
         }
 
@@ -190,49 +213,48 @@ public class JsonMetaSchema {
 
         public JsonMetaSchema build() {
             // create builtin keywords with (custom) formats.
-            Map<String, Keyword> kwords = createKeywordsMap(this.keywords, this.formats);
+            Map<String, Keyword> keywords = this.keywords;
             if (this.specification != null) {
                 if (this.specification.getVersionFlagValue() >= SpecVersion.VersionFlag.V201909.getVersionFlagValue()) {
-                    if (!this.uri.equals(this.specification.getId())) {
-                        // The current design is such that the keyword map can contain things that aren't actually keywords
-                        // This means need to remove what can't be found instead of creating from scratch
-                        Map<String, Boolean> vocabularies = JsonSchemaFactory.checkVersion(this.specification)
-                                .getInstance().getVocabularies();
-                        Set<String> current = this.vocabularies.keySet();
-                        Map<String, String> format = new HashMap<>();
-                        format.put(Vocabulary.V202012_FORMAT_ANNOTATION.getId(), Vocabulary.V202012_FORMAT_ASSERTION.getId());
-                        format.put(Vocabulary.V202012_FORMAT_ASSERTION.getId(), Vocabulary.V202012_FORMAT_ANNOTATION.getId());
-                        for (String vocabularyId : vocabularies.keySet()) {
-                            if (!current.contains(vocabularyId)) {
-                                String formatVocab = format.get(vocabularyId);
-                                if (formatVocab != null) {
-                                    if (current.contains(formatVocab)) {
-                                        // Skip as the assertion and annotation keywords are the same
-                                        continue;
-                                    }
-                                }
-                                Vocabulary vocabulary = Vocabularies.getVocabulary(vocabularyId);
-                                for (String keywordToRemove : vocabulary.getKeywords()) {
-                                    kwords.remove(keywordToRemove);
-                                }
+                    keywords = new HashMap<>(this.keywords);
+                    for(Entry<String, Boolean> entry : this.vocabularies.entrySet()) {
+                        Vocabulary vocabulary = null;
+                        String id = entry.getKey();
+                        if (this.vocabularyFactory != null) {
+                            vocabulary = this.vocabularyFactory.getVocabulary(id);
+                        }
+                        if (vocabulary == null) {
+                            vocabulary = Vocabularies.getVocabulary(id);
+                        }
+                        if (vocabulary != null) {
+                            for (Keyword keyword : vocabulary.getKeywords()) {
+                                keywords.put(keyword.getValue(), keyword);
                             }
+                        } else if (Boolean.TRUE.equals(entry.getValue())) {
+                            ValidationMessage validationMessage = ValidationMessage.builder()
+                                    .message("Meta-schema ''{1}'' has unknown required vocabulary ''{2}''")
+                                    .arguments(this.iri, id).build();
+                            throw new InvalidSchemaException(validationMessage);
                         }
                     }
                 }
             }
-            return new JsonMetaSchema(this.uri, this.idKeyword, kwords, this.vocabularies, this.specification);
+            Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
+            return new JsonMetaSchema(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
         }
     }
 
-    private final String uri;
+    private final String iri;
     private final String idKeyword;
-    private Map<String, Keyword> keywords;
-    private Map<String, Boolean> vocabularies;
+    private final Map<String, Keyword> keywords;
+    private final Map<String, Boolean> vocabularies;
     private final VersionFlag specification;
 
-    JsonMetaSchema(String uri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, VersionFlag specification) {
-        if (StringUtils.isBlank(uri)) {
-            throw new IllegalArgumentException("uri must not be null or blank");
+    private final Builder builder;
+
+    JsonMetaSchema(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, VersionFlag specification, Builder builder) {
+        if (StringUtils.isBlank(iri)) {
+            throw new IllegalArgumentException("iri must not be null or blank");
         }
         if (StringUtils.isBlank(idKeyword)) {
             throw new IllegalArgumentException("idKeyword must not be null or blank");
@@ -241,11 +263,12 @@ public class JsonMetaSchema {
             throw new IllegalArgumentException("keywords must not be null ");
         }
 
-        this.uri = uri;
+        this.iri = iri;
         this.idKeyword = idKeyword;
         this.keywords = keywords;
         this.specification = specification;
         this.vocabularies = vocabularies;
+        this.builder = builder;
     }
 
     public static JsonMetaSchema getV4() {
@@ -285,22 +308,20 @@ public class JsonMetaSchema {
     }
 
     /**
-     * @param uri       the URI of your new JsonMetaSchema that will be defined via this builder.
+     * @param iri       the IRI of your new JsonMetaSchema that will be defined via this builder.
      * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
      * @return a builder instance preconfigured to be the same as blueprint, but with a different uri.
      */
-    public static Builder builder(String uri, JsonMetaSchema blueprint) {
-        FormatKeyword formatKeyword = (FormatKeyword) blueprint.keywords.get(ValidatorTypeCode.FORMAT.getValue());
-        if (formatKeyword == null) {
-            throw new IllegalArgumentException("The formatKeyword did not exist - blueprint is invalid.");
-        }
+    public static Builder builder(String iri, JsonMetaSchema blueprint) {
         Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
-        return builder(uri)
+        return builder(iri)
                 .idKeyword(blueprint.idKeyword)
-                .addKeywords(blueprint.keywords.values())
-                .addFormats(formatKeyword.getFormats())
+                .addKeywords(blueprint.builder.keywords.values())
+                .addFormats(blueprint.builder.formats.values())
                 .specification(blueprint.getSpecification())
                 .vocabularies(vocabularies)
+                .vocabularyFactory(blueprint.builder.vocabularyFactory)
+                .formatKeywordFactory(blueprint.builder.formatKeywordFactory)
                 ;
     }
 
@@ -336,8 +357,13 @@ public class JsonMetaSchema {
         return idNode.textValue();
     }
 
+    public String getIri() {
+        return this.iri;
+    }
+
+    @Deprecated
     public String getUri() {
-        return this.uri;
+        return getIri();
     }
 
     public Map<String, Keyword> getKeywords() {
@@ -389,6 +415,6 @@ public class JsonMetaSchema {
 
     @Override
     public String toString() {
-        return this.uri;
+        return this.iri;
     }
 }
