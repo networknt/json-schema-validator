@@ -39,7 +39,7 @@ public class Issue832Test {
                 JsonMetaSchema.getV7())
                 .addFormats(formats)
                 .build();
-        return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(jsonMetaSchema.getIri()).addMetaSchema(jsonMetaSchema).build();
+        return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(jsonMetaSchema.getIri()).addMetaSchema(jsonMetaSchema).build();
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws IOException {
