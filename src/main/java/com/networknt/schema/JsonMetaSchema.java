@@ -18,29 +18,13 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.format.DateFormat;
-import com.networknt.schema.format.DateTimeFormat;
-import com.networknt.schema.format.DurationFormat;
-import com.networknt.schema.format.EmailFormat;
-import com.networknt.schema.format.IPv6Format;
-import com.networknt.schema.format.IdnEmailFormat;
-import com.networknt.schema.format.IdnHostnameFormat;
-import com.networknt.schema.format.IriFormat;
-import com.networknt.schema.format.IriReferenceFormat;
-import com.networknt.schema.format.PatternFormat;
-import com.networknt.schema.format.RegexFormat;
-import com.networknt.schema.format.TimeFormat;
-import com.networknt.schema.format.UriFormat;
-import com.networknt.schema.format.UriReferenceFormat;
 import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,48 +34,6 @@ public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
     private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<>();
 
-    static PatternFormat pattern(String name, String regex, String messageKey) {
-        return PatternFormat.of(name, regex, messageKey);
-    }
-
-    static PatternFormat pattern(String name, String regex) {
-        return pattern(name, regex, null);
-    }
-
-    public static final List<Format> COMMON_BUILTIN_FORMATS = new ArrayList<>();
-    
-    // this section contains formats common to all dialects.
-    static {
-        COMMON_BUILTIN_FORMATS.add(pattern("hostname", "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$", "format.hostname"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ipv4", "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$", "format.ipv4"));
-        COMMON_BUILTIN_FORMATS.add(new IPv6Format());
-        COMMON_BUILTIN_FORMATS.add(pattern("json-pointer", "^(/([^/#~]|[~](?=[01]))*)*$", "format.json-pointer"));
-        COMMON_BUILTIN_FORMATS.add(pattern("relative-json-pointer", "^(0|([1-9]\\d*))(#|(/([^/#~]|[~](?=[01]))*)*)$", "format.relative-json-pointer"));
-        COMMON_BUILTIN_FORMATS.add(pattern("uri-template", "^([^\\p{Cntrl}\"'%<>\\^`\\{|\\}]|%\\p{XDigit}{2}|\\{[+#./;?&=,!@|]?((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?)(,((\\w|%\\p{XDigit}{2})(\\.?(\\w|%\\p{XDigit}{2}))*(:[1-9]\\d{0,3}|\\*)?))*\\})*$", "format.uri-template"));
-        COMMON_BUILTIN_FORMATS.add(pattern("uuid", "^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}$", "format.uuid"));
-        COMMON_BUILTIN_FORMATS.add(new DateFormat());
-        COMMON_BUILTIN_FORMATS.add(new DateTimeFormat());
-        COMMON_BUILTIN_FORMATS.add(new EmailFormat());
-        COMMON_BUILTIN_FORMATS.add(new IdnEmailFormat());
-        COMMON_BUILTIN_FORMATS.add(new IdnHostnameFormat());
-        COMMON_BUILTIN_FORMATS.add(new IriFormat());
-        COMMON_BUILTIN_FORMATS.add(new IriReferenceFormat());
-        COMMON_BUILTIN_FORMATS.add(new RegexFormat());
-        COMMON_BUILTIN_FORMATS.add(new TimeFormat());
-        COMMON_BUILTIN_FORMATS.add(new UriFormat());
-        COMMON_BUILTIN_FORMATS.add(new UriReferenceFormat());
-        COMMON_BUILTIN_FORMATS.add(new DurationFormat());
-        
-        // The following formats do not appear in any draft
-        COMMON_BUILTIN_FORMATS.add(pattern("alpha", "^[a-zA-Z]+$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("alphanumeric", "^[a-zA-Z0-9]+$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("color", "(#?([0-9A-Fa-f]{3,6})\\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\\(\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*,\\s*\\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\b\\s*\\))|(rgb\\(\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*,\\s*(\\d?\\d%|100%)+\\s*\\))"));
-        COMMON_BUILTIN_FORMATS.add(pattern("ip-address", "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
-        COMMON_BUILTIN_FORMATS.add(pattern("style", "\\s*(.+?):\\s*([^;]+);?"));
-        COMMON_BUILTIN_FORMATS.add(pattern("utc-millisec", "^[0-9]+(\\.?[0-9]+)?$"));
-    }
-    
     public interface FormatKeywordFactory {
         FormatKeyword newInstance(Map<String, Format> formats);
     }

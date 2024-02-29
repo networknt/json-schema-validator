@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Version201909 extends JsonSchemaVersion{
-    private static final String URI = SchemaId.V201909;
+/**
+ * Draft 2019-09 dialect.
+ */
+public class Version201909 extends JsonSchemaVersion {
+    private static final String IRI = SchemaId.V201909;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 
@@ -20,16 +23,12 @@ public class Version201909 extends JsonSchemaVersion{
         VOCABULARY = vocabulary;
     }
 
-    static {
-        // add version specific formats here.
-        //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
-    }
     @Override
     public JsonMetaSchema getInstance() {
-        return new JsonMetaSchema.Builder(URI)
+        return new JsonMetaSchema.Builder(IRI)
                 .specification(SpecVersion.VersionFlag.V201909)
                 .idKeyword(ID)
-                .addFormats(BUILTIN_FORMATS)
+                .addFormats(Formats.DEFAULT)
                 .addKeywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V201909))
                 // keywords that may validly exist, but have no validation aspect to them
                 .addKeywords(Arrays.asList(
