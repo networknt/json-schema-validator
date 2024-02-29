@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+/**
+ * Represents a meta-schema which is uniquely identified by its IRI.
+ */
 public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
 
@@ -37,12 +40,12 @@ public class JsonMetaSchema {
     }
 
     public static class Builder {
+        private String iri;
+        private String idKeyword = "id";
         private VersionFlag specification = null;
         private Map<String, Keyword> keywords = new HashMap<>();
         private Map<String, Format> formats = new HashMap<>();
         private Map<String, Boolean> vocabularies = new HashMap<>();
-        private String iri;
-        private String idKeyword = "id";
         private FormatKeywordFactory formatKeywordFactory = null;
         private VocabularyFactory vocabularyFactory = null;
         private KeywordFactory unknownKeywordFactory = null;
@@ -111,7 +114,6 @@ public class JsonMetaSchema {
             customizer.accept(this.keywords);
             return this;
         }
-
 
         public Builder addKeyword(Keyword keyword) {
             this.keywords.put(keyword.getValue(), keyword);
