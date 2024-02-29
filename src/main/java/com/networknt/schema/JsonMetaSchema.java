@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -373,5 +374,22 @@ public class JsonMetaSchema {
     @Override
     public String toString() {
         return this.iri;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(iri);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        JsonMetaSchema other = (JsonMetaSchema) obj;
+        return Objects.equals(iri, other.iri);
     }
 }
