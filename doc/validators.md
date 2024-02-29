@@ -40,7 +40,7 @@ public JsonSchemaFactory mySchemaFactory() {
             .addKeyword(new GroovyKeyword())
             .build();
 
-    return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(myJsonMetaSchema.getIri())
+    return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(myJsonMetaSchema.getIri())
             .addMetaSchema(myJsonMetaSchema)
             .build();
 }
@@ -99,7 +99,7 @@ public JsonSchemaFactory mySchemaFactory() {
             .addFormat(new PatternFormat("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"))
             .build();
 
-    return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(overrideEmailValidatorMetaSchema.getIri())
+    return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(overrideEmailValidatorMetaSchema.getIri())
             .addMetaSchema(overrideEmailValidatorMetaSchema)
             .build();
 }

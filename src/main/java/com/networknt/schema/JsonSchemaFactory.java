@@ -150,7 +150,7 @@ public class JsonSchemaFactory {
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
             final Map<String, JsonMetaSchema> metaSchemas,
-            final boolean enableUriSchemaCache,
+            final boolean enableSchemaCache,
             JsonMetaSchemaFactory metaSchemaFactory) {
         if (defaultMetaSchemaIri == null || defaultMetaSchemaIri.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaURI must not be null or empty");
@@ -168,7 +168,7 @@ public class JsonSchemaFactory {
                 schemaLoadersBuilder != null ? schemaLoadersBuilder.build() : DEFAULT_SCHEMA_LOADERS,
                 schemaMappersBuilder != null ? schemaMappersBuilder.build() : DEFAULT_SCHEMA_MAPPERS);
         this.metaSchemas = metaSchemas;
-        this.enableSchemaCache = enableUriSchemaCache;
+        this.enableSchemaCache = enableSchemaCache;
         this.metaSchemaFactory = metaSchemaFactory;
     }
 

@@ -322,11 +322,6 @@ public class JsonMetaSchema {
         return this.iri;
     }
 
-    @Deprecated
-    public String getUri() {
-        return getIri();
-    }
-
     public Map<String, Keyword> getKeywords() {
         return this.keywords;
     }
