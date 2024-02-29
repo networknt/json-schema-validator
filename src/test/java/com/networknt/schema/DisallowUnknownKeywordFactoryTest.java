@@ -15,16 +15,15 @@
  */
 package com.networknt.schema;
 
-/**
- * Factory for {@link Vocabulary}.
- */
-@FunctionalInterface
-public interface VocabularyFactory {
-    /**
-     * Gets the vocabulary given the vocabulary iri.
-     * 
-     * @param iri the vocabulary iri
-     * @return the vocabulary
-     */
-    Vocabulary getVocabulary(String iri);
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
+class DisallowUnknownKeywordFactoryTest {
+    @Test
+    void shouldThrowForUnknownKeywords() {
+        DisallowUnknownKeywordFactory factory = DisallowUnknownKeywordFactory.getInstance();
+        assertThrows(JsonSchemaException.class, () -> factory.getKeyword("helloworld", null));
+    }
+
 }

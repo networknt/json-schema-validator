@@ -20,9 +20,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Represents a vocabulary in meta schema.
+ * Represents a vocabulary in meta-schema.
  * <p>
- * This contains the id and the related keywords.
+ * This contains the IRI and the keywords in the vocabulary.
  */
 public class Vocabulary {
 

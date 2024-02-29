@@ -16,15 +16,16 @@
 package com.networknt.schema;
 
 /**
- * Factory for {@link Vocabulary}.
+ * Factory for {@link Keyword}.
  */
 @FunctionalInterface
-public interface VocabularyFactory {
+public interface KeywordFactory {
     /**
-     * Gets the vocabulary given the vocabulary iri.
+     * Gets the keyword given the keyword value.
      * 
-     * @param iri the vocabulary iri
-     * @return the vocabulary
+     * @param value the keyword value
+     * @param validationContext the validationContext
+     * @return the keyword
      */
-    Vocabulary getVocabulary(String iri);
+    Keyword getKeyword(String value, ValidationContext validationContext);
 }

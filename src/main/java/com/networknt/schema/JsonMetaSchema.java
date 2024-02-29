@@ -27,12 +27,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
-    private static Map<String, String> UNKNOWN_KEYWORDS = new ConcurrentHashMap<>();
 
     public interface FormatKeywordFactory {
         FormatKeyword newInstance(Map<String, Format> formats);
@@ -47,6 +45,7 @@ public class JsonMetaSchema {
         private String idKeyword = "id";
         private FormatKeywordFactory formatKeywordFactory = null;
         private VocabularyFactory vocabularyFactory = null;
+        private KeywordFactory unknownKeywordFactory = null;
 
         public Builder(String iri) {
             this.iri = iri;
@@ -81,8 +80,25 @@ public class JsonMetaSchema {
             return this;
         }
 
+        /**
+         * Sets the vocabulary factory for handling custom vocabularies.
+         * 
+         * @param vocabularyFactory the factory
+         * @return the builder
+         */
         public Builder vocabularyFactory(VocabularyFactory vocabularyFactory) {
             this.vocabularyFactory = vocabularyFactory;
+            return this;
+        }
+
+        /**
+         * Sets the keyword factory for handling unknown keywords.
+         * 
+         * @param unknownKeywordFactory the factory
+         * @return the builder
+         */
+        public Builder unknownKeywordFactory(KeywordFactory unknownKeywordFactory) {
+            this.unknownKeywordFactory = unknownKeywordFactory;
             return this;
         }
 
@@ -264,6 +280,7 @@ public class JsonMetaSchema {
                 .vocabularies(vocabularies)
                 .vocabularyFactory(blueprint.builder.vocabularyFactory)
                 .formatKeywordFactory(blueprint.builder.formatKeywordFactory)
+                .unknownKeywordFactory(blueprint.builder.unknownKeywordFactory)
                 ;
     }
 
@@ -322,7 +339,6 @@ public class JsonMetaSchema {
 
     public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
                                       JsonSchema parentSchema) {
-
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
@@ -334,10 +350,12 @@ public class JsonMetaSchema {
                     return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
                             parentSchema, validationContext);
                 }
-                if (UNKNOWN_KEYWORDS.put(keyword, keyword) == null) {
-                    logger.warn("Unknown keyword {} - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword", keyword);
+                kw = this.builder.unknownKeywordFactory != null
+                        ? this.builder.unknownKeywordFactory.getKeyword(keyword, validationContext)
+                        : UnknownKeywordFactory.getInstance().getKeyword(keyword, validationContext);
+                if (kw == null) {
+                    return null;
                 }
-                return null;
             }
             return kw.newValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
         } catch (InvocationTargetException e) {
