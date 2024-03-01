@@ -43,11 +43,11 @@ public class JsonSchemaFactoryUriCacheTest {
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, new SchemaValidatorsConfig()).schemaNode);
     }
 
-    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableUriSchemaCache) {
+    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
         return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
-                .enableUriSchemaCache(enableUriSchemaCache)
+                .enableSchemaCache(enableSchemaCache)
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
-                .addMetaSchema(JsonMetaSchema.getV202012())
+                .metaSchema(JsonMetaSchema.getV202012())
                 .build();
     }
 

@@ -4,6 +4,33 @@ This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 
+### 1.4.0
+
+This contains breaking changes in how custom meta-schemas are created.
+
+`JsonSchemaFactory`
+* The following were renamed on `JsonSchemaFactory` builder
+  * `defaultMetaSchemaURI` -> `defaultMetaSchemaIri`
+  * `enableUriSchemaCache` -> `enableSchemaCache`
+* The builder now accepts a `JsonMetaSchemaFactory` which can be used to restrict the loading of meta-schemas that aren't explicitly defined in the `JsonSchemaFactory`. The `DisallowUnknownJsonMetaSchemaFactory` can be used to only allow explicitly configured meta-schemas.
+
+`JsonMetaSchema`
+* In particular `Version201909` and `Version202012` had most of the keywords moved to their respective vocabularies.
+* The following were renamed
+  * `getUri` -> `getIri`
+* The builder now accepts a `vocabularyFactory` to allow for custom vocabularies.
+* The builder now accepts a `unknownKeywordFactory`. By default this uses the `UnknownKeywordFactory` implementation that logs a warning and returns a `AnnotationKeyword`. The `DisallowUnknownKeywordFactory` can be used to disallow the use of unknown keywords.
+* The implementation of the builder now correctly throws an exception for `$vocabulary` with value of `true` that are not known to the implementation.
+
+`ValidatorTypeCode`
+* `getNonFormatKeywords` has been removed and replaced with `getKeywords`. This now includes the `format` keyword as the `JsonMetaSchema.Builder` now needs to know if the `format` keyword was configured, as it might not be in meta-schemas that don't define the format vocabulary.
+* The applicable `VersionCode` for each of the `ValidatorTypeCode` were modified to remove the keywords that are defined in vocabularies for `Version201909` and `Version202012`.
+
+`Vocabulary`
+* This now contains `Keyword` instances instead of the string keyword value as it needs to know the explicit implementation. For instance the implementation for the `items` keyword in Draft 2019-09 and Draft 2020-12 are different.
+* The following were renamed
+  * `getId` -> `getIri`
+
 ### 1.3.1
 
 This contains a breaking change in that the results from `failFast` are no longer thrown as an exception. The single result is instead returned normally in the output. This was partially done to distinguish the fail fast result from true exceptions such as when references could not be resolved.

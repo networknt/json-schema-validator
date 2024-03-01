@@ -20,12 +20,12 @@ public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
             JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
             ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext, false);
-        VersionFlag specification = this.validationContext.getMetaSchema().getSpecification();
-        if (specification == null || specification.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
+        VersionFlag dialect = this.validationContext.getMetaSchema().getSpecification();
+        if (dialect == null || dialect.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
             assertionsEnabled = true;
         } else {
             // Check vocabulary
-            assertionsEnabled = isFormatAssertionVocabularyEnabled(specification,
+            assertionsEnabled = isFormatAssertionVocabularyEnabled(dialect,
                     this.validationContext.getMetaSchema().getVocabularies());
         }
     }

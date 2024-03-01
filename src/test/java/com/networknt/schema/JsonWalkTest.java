@@ -42,7 +42,7 @@ public class JsonWalkTest {
         schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
         this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
         // Create another Schema.
@@ -56,7 +56,7 @@ public class JsonWalkTest {
     private JsonMetaSchema getJsonMetaSchema() {
         return JsonMetaSchema.builder(
                 "https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV201909())
-                .addKeyword(new CustomKeyword()).build();
+                .keyword(new CustomKeyword()).build();
     }
 
     @Test

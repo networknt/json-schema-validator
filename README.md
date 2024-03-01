@@ -11,11 +11,18 @@
 [![codecov.io](https://codecov.io/github/networknt/json-schema-validator/coverage.svg?branch=master)](https://codecov.io/github/networknt/json-schema-validator?branch=master)
 [![Javadocs](http://www.javadoc.io/badge/com.networknt/json-schema-validator.svg)](https://www.javadoc.io/doc/com.networknt/json-schema-validator)
 
-This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation.
+This is a Java implementation of the [JSON Schema Core Draft v4, v6, v7, v2019-09 and v2020-12](http://json-schema.org/latest/json-schema-core.html) specification for JSON schema validation. This implementation supports [Customizing Meta-Schemas, Vocabularies, Keywords and Formats](doc/custom-meta-schema.md).
 
 In addition, it also works for OpenAPI 3.0 request/response validation with some [configuration flags](doc/config.md). For users who want to collect information from a JSON node based on the schema, the [walkers](doc/walkers.md) can help. The JSON parser used is the [Jackson](https://github.com/FasterXML/jackson) parser. As it is a key component in our [light-4j](https://github.com/networknt/light-4j) microservices framework to validate request/response against OpenAPI specification for [light-rest-4j](http://www.networknt.com/style/light-rest-4j/) and RPC schema for [light-hybrid-4j](http://www.networknt.com/style/light-hybrid-4j/) at runtime, performance is the most important aspect in the design.
 
 ## JSON Schema Specification compatibility
+
+[![Supported spec](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fsupported_versions.json)](https://bowtie.report/#/implementations/java-json-schema-validator)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2020-12.json)](https://bowtie.report/#/dialects/draft2020-12)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2019-09.json)](https://bowtie.report/#/dialects/draft2019-09)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft7.json)](https://bowtie.report/#/dialects/draft7)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft6.json)](https://bowtie.report/#/dialects/draft6)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft4.json)](https://bowtie.report/#/dialects/draft4)
 
 Information on the compatibility support for each version, including known issues, can be found in the [Compatibility with JSON Schema versions](doc/compatibility.md) document.
 
@@ -214,7 +221,7 @@ This package is available on Maven central.
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -222,7 +229,7 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.3.1');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.4.0');
 }
 ```
 
@@ -271,22 +278,16 @@ Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, exe
 });
 ```
 
-### Validating a schema against a meta schema
+### Validating a schema against a meta-schema
 
-The following example demonstrates how a schema is validated against a meta schema.
+The following example demonstrates how a schema is validated against a meta-schema.
 
-This is actually the same as validating inputs against a schema except in this case the input is the schema and the schema used is the meta schema.
+This is actually the same as validating inputs against a schema except in this case the input is the schema and the schema used is the meta-schema.
+
+Note that the meta-schemas for Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft 2020-12 are bundled with the library and these classpath resources will be used by default.
 
 ```java
-JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
-    // This creates a mapping to load the meta schema from the library classpath instead of remotely
-    // This is better for performance and the remote may choose not to service the request
-    // For instance Cloudflare will block requests that have older Java User-Agent strings eg. Java/1.
-    builder.schemaMappers(schemaMappers -> 
-        schemaMappers
-            .mapPrefix("https://json-schema.org", "classpath:")
-            .mapPrefix("http://json-schema.org", "classpath:"))
-);
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
 
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance location and evaluation path
@@ -295,16 +296,16 @@ config.setPathType(PathType.JSON_POINTER);
 // Note that setting this to true requires including the optional joni dependency
 // config.setEcma262Validator(true);
 
-// Due to the mapping the meta schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
+// Due to the mapping the meta-schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
-String input = "{  \n"
-    + "  \"type\": \"object\",  \n"
-    + "  \"properties\": {    \n"
-    + "    \"key\": { \n"
-    + "      \"title\" : \"My key\", \n"
-    + "      \"type\": \"invalidtype\" \n"
-    + "    } \n"
-    + "  }\n"
+String input = "{\r\n"
+    + "  \"type\": \"object\",\r\n"
+    + "  \"properties\": {\r\n"
+    + "    \"key\": {\r\n"
+    + "      \"title\" : \"My key\",\r\n"
+    + "      \"type\": \"invalidtype\"\r\n"
+    + "    }\r\n"
+    + "  }\r\n"
     + "}";
 Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
@@ -319,7 +320,7 @@ The following types of results are generated by the library.
 
 | Type        | Description 
 |-------------|-------------------
-| Assertions  | Validation errors generated by a keyword on a particular input data instance. This is generally described in a `ValidationMessage` or in a `OutputUnit`. Note that since Draft 2019-09 the `format` keyword no longer generates assertions by default and instead generates only annotations unless configured otherwise using a configuration option or by using a meta schema that uses the appropriate vocabulary.
+| Assertions  | Validation errors generated by a keyword on a particular input data instance. This is generally described in a `ValidationMessage` or in a `OutputUnit`. Note that since Draft 2019-09 the `format` keyword no longer generates assertions by default and instead generates only annotations unless configured otherwise using a configuration option or by using a meta-schema that uses the appropriate vocabulary.
 | Annotations | Additional information generated by a keyword for a particular input data instance. This is generally described in a `OutputUnit`. Annotation collection and reporting is turned off by default. Annotations required by keywords such as `unevaluatedProperties` or `unevaluatedItems` are always collected for evaluation purposes and cannot be disabled but will not be reported unless configured to do so.
 
 The following information is used to describe both types of results.
@@ -483,12 +484,14 @@ Collecting annotations will adversely affect validation performance.
 
 The earlier draft specifications contain less keywords that can potentially impact performance. For instance the use of the `unevaluatedProperties` or `unevaluatedItems` keyword will trigger annotation collection in the related validators, such as the `properties` or `items` validators.
 
-This does not mean that using a schema with a later draft specification will automatically cause a performance impact. For instance, the `properties` validator will perform checks to determine if annotations need to be collected, and checks if the meta schema contains the `unevaluatedProperties` keyword and whether the `unevaluatedProperties` keyword exists adjacent the evaluation path.
+This does not mean that using a schema with a later draft specification will automatically cause a performance impact. For instance, the `properties` validator will perform checks to determine if annotations need to be collected, and checks if the meta-schema contains the `unevaluatedProperties` keyword and whether the `unevaluatedProperties` keyword exists adjacent the evaluation path.
 
 
 ## [Quick Start](doc/quickstart.md)
 
 ## [Customizing Schema Retrieval](doc/schema-retrieval.md)
+
+## [Customizing Meta-Schemas, Vocabularies, Keywords and Formats](doc/custom-meta-schema.md)
 
 ## [Validators](doc/validators.md)
 
@@ -497,8 +500,6 @@ This does not mean that using a schema with a later draft specification will aut
 ## [Specification Version](doc/specversion.md)
 
 ## [YAML Validation](doc/yaml.md)
-
-## [Customized MetaSchema](doc/cust-meta.md)
 
 ## [Collector Context](doc/collector-context.md)
 

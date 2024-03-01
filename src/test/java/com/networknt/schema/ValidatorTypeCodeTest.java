@@ -37,13 +37,13 @@ public class ValidatorTypeCodeTest {
 
     @Test
     public void testIfThenElseNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
     }
 
     @Test
     public void testExclusiveMaximumNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V4);
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
     }
 

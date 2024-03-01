@@ -35,11 +35,11 @@ public class Issue832Test {
         formats.add(new NoMatchFormat());
 
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(
-                JsonMetaSchema.getV7().getUri(),
+                JsonMetaSchema.getV7().getIri(),
                 JsonMetaSchema.getV7())
-                .addFormats(formats)
+                .formats(formats)
                 .build();
-        return new JsonSchemaFactory.Builder().defaultMetaSchemaURI(jsonMetaSchema.getUri()).addMetaSchema(jsonMetaSchema).build();
+        return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(jsonMetaSchema.getIri()).metaSchema(jsonMetaSchema).build();
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws IOException {

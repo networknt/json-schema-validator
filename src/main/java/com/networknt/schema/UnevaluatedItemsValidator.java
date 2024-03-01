@@ -45,7 +45,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS,
                 validationContext);
         isMinV202012 = MinV202012.getVersions().contains(SpecVersionDetector
-                .detectOptionalVersion(validationContext.getMetaSchema().getUri()).orElse(DEFAULT_VERSION));
+                .detectOptionalVersion(validationContext.getMetaSchema().getIri()).orElse(DEFAULT_VERSION));
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {

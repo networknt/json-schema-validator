@@ -160,8 +160,8 @@ public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag)
     JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
     JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
     return builder()
-            .defaultMetaSchemaURI(metaSchema.getUri())
-            .addMetaSchema(metaSchema)
+            .defaultMetaSchemaIri(metaSchema.getIri())
+            .metaSchema(metaSchema)
             .build();
 }
 ```
@@ -181,15 +181,15 @@ public static SpecVersion.VersionFlag detect(JsonNode jsonNode) {
     final boolean removeEmptyFragmentSuffix = true;
 
     String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(jsonNode.get(SCHEMA_TAG).asText(), forceHttps, removeEmptyFragmentSuffix);
-    if (schemaUri.equals(JsonMetaSchema.getV4().getUri()))
+    if (schemaUri.equals(JsonMetaSchema.getV4().getIri()))
         return SpecVersion.VersionFlag.V4;
-    else if (schemaUri.equals(JsonMetaSchema.getV6().getUri()))
+    else if (schemaUri.equals(JsonMetaSchema.getV6().getIri()))
         return SpecVersion.VersionFlag.V6;
-    else if (schemaUri.equals(JsonMetaSchema.getV7().getUri()))
+    else if (schemaUri.equals(JsonMetaSchema.getV7().getIri()))
         return SpecVersion.VersionFlag.V7;
-    else if (schemaUri.equals(JsonMetaSchema.getV201909().getUri()))
+    else if (schemaUri.equals(JsonMetaSchema.getV201909().getIri()))
         return SpecVersion.VersionFlag.V201909;
-    else if (schemaUri.equals(JsonMetaSchema.getV202012().getUri()))
+    else if (schemaUri.equals(JsonMetaSchema.getV202012().getIri()))
         return SpecVersion.VersionFlag.V202012;
     else
         throw new JsonSchemaException("Unrecognizable schema");

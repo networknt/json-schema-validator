@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Version201909 extends JsonSchemaVersion{
-    private static final String URI = SchemaId.V201909;
+/**
+ * Draft 2019-09 dialect.
+ */
+public class Version201909 implements JsonSchemaVersion {
+    private static final String IRI = SchemaId.V201909;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 
@@ -19,41 +22,26 @@ public class Version201909 extends JsonSchemaVersion{
         vocabulary.put("https://json-schema.org/draft/2019-09/vocab/content", true);
         VOCABULARY = vocabulary;
     }
-
-    static {
-        // add version specific formats here.
-        //BUILTIN_FORMATS.add(pattern("phone", "^\\+(?:[0-9] ?){6,14}[0-9]$"));
+    
+    private static class Holder {
+        private static final JsonMetaSchema INSTANCE;
+        static {
+            INSTANCE = JsonMetaSchema.builder(IRI)
+                    .specification(SpecVersion.VersionFlag.V201909)
+                    .idKeyword(ID)
+                    .formats(Formats.DEFAULT)
+                    .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V201909))
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .keywords(Arrays.asList(
+                            new NonValidationKeyword("definitions")
+                    ))
+                    .vocabularies(VOCABULARY)
+                    .build(); 
+        }
     }
+
     @Override
     public JsonMetaSchema getInstance() {
-        return new JsonMetaSchema.Builder(URI)
-                .specification(SpecVersion.VersionFlag.V201909)
-                .idKeyword(ID)
-                .addFormats(BUILTIN_FORMATS)
-                .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
-                // keywords that may validly exist, but have no validation aspect to them
-                .addKeywords(Arrays.asList(
-                        new NonValidationKeyword("$recursiveAnchor"),
-                        new NonValidationKeyword("$schema"),
-                        new NonValidationKeyword("$vocabulary"),
-                        new NonValidationKeyword("$id"),
-                        new AnnotationKeyword("title"),
-                        new AnnotationKeyword("description"),
-                        new AnnotationKeyword("default"),
-                        new NonValidationKeyword("definitions"),
-                        new NonValidationKeyword("$comment"),
-                        new NonValidationKeyword("$defs"),  // newly added in 2019-09 release.
-                        new NonValidationKeyword("$anchor"),
-                        new NonValidationKeyword("additionalItems"),
-                        new AnnotationKeyword("deprecated"),
-                        new AnnotationKeyword("contentMediaType"),
-                        new AnnotationKeyword("contentEncoding"),
-                        new AnnotationKeyword("contentSchema"),
-                        new AnnotationKeyword("examples"),
-                        new NonValidationKeyword("then"),
-                        new NonValidationKeyword("else")
-                ))
-                .vocabularies(VOCABULARY)
-                .build();
+        return Holder.INSTANCE;
     }
 }
