@@ -19,7 +19,7 @@ This contains breaking changes in how custom meta-schemas are created.
 * The following were renamed
   * `getUri` -> `getIri`
 * The builder now accepts a `vocabularyFactory` to allow for custom vocabularies.
-* The builder now accepts a `unknownKeywordFactory`. By default this uses the `UnknownKeyFactory` implementation that logs a warning and returns a `AnnotationKeyword`. The `DisallowUnknownKeywordFactory` can be used to disallow the use of unknown keywords.
+* The builder now accepts a `unknownKeywordFactory`. By default this uses the `UnknownKeywordFactory` implementation that logs a warning and returns a `AnnotationKeyword`. The `DisallowUnknownKeywordFactory` can be used to disallow the use of unknown keywords.
 * The implementation of the builder now correctly throws an exception for `$vocabulary` with value of `true` that are not known to the implementation.
 
 `ValidatorTypeCode`
