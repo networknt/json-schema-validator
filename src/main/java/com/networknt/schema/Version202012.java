@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Draft 2020-12 dialect.
  */
-public class Version202012 extends JsonSchemaVersion {
+public class Version202012 implements JsonSchemaVersion {
     private static final String IRI = SchemaId.V202012;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
@@ -24,18 +24,25 @@ public class Version202012 extends JsonSchemaVersion {
         VOCABULARY = vocabulary;
     }
 
+    private static class Holder {
+        private static final JsonMetaSchema INSTANCE;
+        static {
+            INSTANCE = JsonMetaSchema.builder(IRI)
+                    .specification(SpecVersion.VersionFlag.V202012)
+                    .idKeyword(ID)
+                    .formats(Formats.DEFAULT)
+                    .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V202012))
+                    // keywords that may validly exist, but have no validation aspect to them
+                    .keywords(Arrays.asList(
+                            new NonValidationKeyword("definitions")
+                    ))
+                    .vocabularies(VOCABULARY)
+                    .build(); 
+        }
+    }
+
     @Override
     public JsonMetaSchema getInstance() {
-        return new JsonMetaSchema.Builder(IRI)
-                .specification(SpecVersion.VersionFlag.V202012)
-                .idKeyword(ID)
-                .formats(Formats.DEFAULT)
-                .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V202012))
-                // keywords that may validly exist, but have no validation aspect to them
-                .keywords(Arrays.asList(
-                        new NonValidationKeyword("definitions")
-                ))
-                .vocabularies(VOCABULARY)
-                .build();
+        return Holder.INSTANCE;
     }
 }

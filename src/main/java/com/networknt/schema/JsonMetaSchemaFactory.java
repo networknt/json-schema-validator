@@ -20,5 +20,13 @@ package com.networknt.schema;
  */
 @FunctionalInterface
 public interface JsonMetaSchemaFactory {
+    /**
+     * Gets the meta-schema given the IRI.
+     * 
+     * @param iri the meta-schema IRI
+     * @param schemaFactory the schema factory
+     * @param config the config
+     * @return the meta-schema
+     */
     JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config);
 }

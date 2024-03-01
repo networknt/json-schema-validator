@@ -15,7 +15,6 @@
  */
 package com.networknt.schema;
 
-import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,8 +27,10 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     @Override
     public JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
-        return SpecVersionDetector.detectOptionalVersion(iri).map(JsonSchemaFactory::checkVersion)
-                .map(JsonSchemaVersion::getInstance).orElseGet(() -> {
+        return SpecVersionDetector.detectOptionalVersion(iri)
+                .map(JsonSchemaFactory::checkVersion)
+                .map(JsonSchemaVersion::getInstance)
+                .orElseGet(() -> {
                     // Custom meta schema
                     return loadMetaSchema(iri, schemaFactory, config);
                 });
@@ -38,22 +39,7 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     protected JsonMetaSchema loadMetaSchema(String iri, JsonSchemaFactory schemaFactory,
             SchemaValidatorsConfig config) {
         try {
-            JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
-            JsonMetaSchema.Builder builder = JsonMetaSchema.builder(iri, schema.getValidationContext().getMetaSchema());
-            VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
-            if (specification != null) {
-                if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
-                    // Process vocabularies
-                    JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
-                    if (vocabulary != null) {
-                        builder.vocabularies(new LinkedHashMap<>());
-                        for (Entry<String, JsonNode> vocabs : vocabulary.properties()) {
-                            builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
-                        }
-                    }
-                }
-            }
-            return builder.build();
+            return loadMetaSchemaBuilder(iri, schemaFactory, config).build();
         } catch (InvalidSchemaException e) {
             throw e;
         } catch (Exception e) {
@@ -61,6 +47,26 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
                     .message("Failed to load meta-schema ''{1}''").arguments(iri).build();
             throw new InvalidSchemaException(validationMessage, e);
         }
+    }
+
+    protected JsonMetaSchema.Builder loadMetaSchemaBuilder(String iri, JsonSchemaFactory schemaFactory,
+            SchemaValidatorsConfig config) {
+        JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
+        JsonMetaSchema.Builder builder = JsonMetaSchema.builder(iri, schema.getValidationContext().getMetaSchema());
+        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+        if (specification != null) {
+            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+                // Process vocabularies
+                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
+                if (vocabulary != null) {
+                    builder.vocabularies(vocabularies -> vocabularies.clear());
+                    for (Entry<String, JsonNode> vocabs : vocabulary.properties()) {
+                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
+                    }
+                }
+            }
+        }
+        return builder;
     }
 
     private static class Holder {

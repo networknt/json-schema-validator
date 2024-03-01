@@ -116,7 +116,7 @@ The following custom meta-schema `https://www.example.com/schema` will use the c
 
 Note that `"https://www.example.com/vocab/equals": true` means that if the vocabulary is unknown the meta-schema will fail to successfully load while `"https://www.example.com/vocab/equals": false` means that an unknown vocabulary will still successfully load.
 
-## Unknown Keywords
+## Unknown keywords
 
 By default unknown keywords are treated as annotations. This can be customized by configuring a `com.networknt.schema.KeywordFactory` on its meta-schema.
 
@@ -144,4 +144,56 @@ If this is undesirable, for instance to restrict the meta-schemas used only to t
 ```java
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
         builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+```
+
+## Creating a custom format
+
+A custom format can be implemented by implementing the `com.networknt.schema.Format` interface.
+
+```java
+public class MatchNumberFormat implements Format {
+    private final BigDecimal compare;
+    
+    public MatchNumberFormat(BigDecimal compare) {
+        this.compare = compare;
+    }
+    @Override
+    public boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode value) {
+        JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getConfig());
+        if (nodeType != JsonType.NUMBER && nodeType != JsonType.INTEGER) {
+            return true;
+        }
+        BigDecimal number = value.isBigDecimal() ? value.decimalValue() : BigDecimal.valueOf(value.doubleValue());
+        number = new BigDecimal(number.toPlainString());
+        return number.compareTo(compare) == 0;
+    }
+    @Override
+    public String getName() {
+        return "matchnumber";
+    }
+}
+```
+
+## Adding a format to a standard dialect
+
+A custom format can be added to a standard dialect by customizing its meta-schema which is identified by its IRI.
+
+The following adds a custom format to the Draft 2020-12 dialect.
+
+```java
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        .format(new MatchNumberFormat(new BigDecimal("12345")))
+        .build();
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+```
+
+## Customizing the format keyword
+
+The format keyword implementation to use can be customized by supplying a `FormatKeywordFactory` to the meta-schema that creates an instance of the subclass of `FormatKeyword`.
+
+```java
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        .formatKeywordFactory(CustomFormatKeyword::new)
+        .build();
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```

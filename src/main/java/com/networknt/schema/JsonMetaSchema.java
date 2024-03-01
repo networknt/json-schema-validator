@@ -36,13 +36,25 @@ import java.util.function.Consumer;
 public class JsonMetaSchema {
     private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
 
+    /**
+     * Factory for creating a format keyword.
+     */
     public interface FormatKeywordFactory {
+        /**
+         * Creates a format keyword.
+         * 
+         * @param formats the formats
+         * @return the format keyword
+         */
         FormatKeyword newInstance(Map<String, Format> formats);
     }
 
+    /**
+     * Builder for {@link JsonMetaSchema}. 
+     */
     public static class Builder {
         private String iri;
-        private String idKeyword = "id";
+        private String idKeyword = "$id";
         private VersionFlag specification = null;
         private Map<String, Keyword> keywords = new HashMap<>();
         private Map<String, Format> formats = new HashMap<>();
@@ -56,7 +68,7 @@ public class JsonMetaSchema {
         }
 
         private Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
-            boolean format = false;
+            boolean formatKeywordPresent = false;
             Map<String, Keyword> map = new HashMap<>();
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
@@ -65,13 +77,13 @@ public class JsonMetaSchema {
                     if (!(keyword instanceof FormatKeyword) && !ValidatorTypeCode.FORMAT.equals(keyword)) {
                         throw new IllegalArgumentException("Overriding the keyword 'format' is not supported. Use the formatKeywordFactory and extend the FormatKeyword.");
                     }
-                    // ignore - format keyword will be created again below.
-                    format = true;
+                    // Indicate that the format keyword needs to be created
+                    formatKeywordPresent = true;
                 } else {
                     map.put(keyword.getValue(), keyword);
                 }
             }
-            if (format) {
+            if (formatKeywordPresent) {
                 final FormatKeyword formatKeyword = formatKeywordFactory != null ? formatKeywordFactory.newInstance(formats)
                         : new FormatKeyword(formats);
                 map.put(formatKeyword.getValue(), formatKeyword);
@@ -79,6 +91,12 @@ public class JsonMetaSchema {
             return map;
         }
 
+        /**
+         * Sets the format keyword factory.
+         * 
+         * @param formatKeywordFactory the format keyword factory
+         * @return the builder
+         */
         public Builder formatKeywordFactory(FormatKeywordFactory formatKeywordFactory) {
             this.formatKeywordFactory = formatKeywordFactory;
             return this;
@@ -106,21 +124,45 @@ public class JsonMetaSchema {
             return this;
         }
 
+        /**
+         * Customize the formats. 
+         * 
+         * @param customizer the customizer
+         * @return the builder
+         */
         public Builder formats(Consumer<Map<String, Format>> customizer) {
             customizer.accept(this.formats);
             return this;
         }
 
+        /**
+         * Customize the keywords.
+         * 
+         * @param customizer the customizer
+         * @return the builder
+         */
         public Builder keywords(Consumer<Map<String, Keyword>> customizer) {
             customizer.accept(this.keywords);
             return this;
         }
 
+        /**
+         * Adds the keyword.
+         * 
+         * @param keyword the keyword
+         * @return the builder
+         */
         public Builder keyword(Keyword keyword) {
             this.keywords.put(keyword.getValue(), keyword);
             return this;
         }
 
+        /**
+         * Adds the keywords.
+         * 
+         * @param keywords the keywords
+         * @return the builder
+         */
         public Builder keywords(Collection<? extends Keyword> keywords) {
             for (Keyword keyword : keywords) {
                 this.keywords.put(keyword.getValue(), keyword);
@@ -128,11 +170,23 @@ public class JsonMetaSchema {
             return this;
         }
 
+        /**
+         * Adds the format.
+         * 
+         * @param format the format
+         * @return the builder
+         */
         public Builder format(Format format) {
             this.formats.put(format.getName(), format);
             return this;
         }
 
+        /**
+         * Adds the formats.
+         * 
+         * @param formats the formats
+         * @return the builder
+         */
         public Builder formats(Collection<? extends Format> formats) {
             for (Format format : formats) {
                 format(format);
@@ -140,6 +194,14 @@ public class JsonMetaSchema {
             return this;
         }
 
+        /**
+         * Adds a required vocabulary.
+         * <p>
+         * Note that an error will be raised if this vocabulary is unknown.
+         * 
+         * @param vocabulary the vocabulary IRI
+         * @return the builder
+         */
         public Builder vocabulary(String vocabulary) {
             return vocabulary(vocabulary, true);
         }
@@ -147,7 +209,7 @@ public class JsonMetaSchema {
         /**
          * Adds a vocabulary.
          * 
-         * @param vocabulary the vocabulary uri
+         * @param vocabulary the vocabulary IRI
          * @param required   true indicates if the vocabulary is not recognized
          *                   processing should stop
          * @return the builder
@@ -157,16 +219,45 @@ public class JsonMetaSchema {
             return this;
         }
 
+        /**
+         * Adds the vocabularies.
+         * 
+         * @param vocabularies the vocabularies to add
+         * @return the builder
+         */
         public Builder vocabularies(Map<String, Boolean> vocabularies) {
-            this.vocabularies = vocabularies;
+            this.vocabularies.putAll(vocabularies);
             return this;
         }
 
+        /**
+         * Customize the vocabularies.
+         *
+         * @param customizer the customizer
+         * @return the builder
+         */
+        public Builder vocabularies(Consumer<Map<String, Boolean>> customizer) {
+            customizer.accept(this.vocabularies);
+            return this;
+        }
+
+        /**
+         * Sets the specification.
+         * 
+         * @param specification the specification
+         * @return the builder
+         */
         public Builder specification(VersionFlag specification) {
             this.specification = specification;
             return this;
         }
 
+        /**
+         * Sets the id keyword.
+         * 
+         * @param idKeyword the id keyword
+         * @return the builder
+         */
         public Builder idKeyword(String idKeyword) {
             this.idKeyword = idKeyword;
             return this;
@@ -371,8 +462,19 @@ public class JsonMetaSchema {
         return this.specification;
     }
 
-    public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword /* keyword */, JsonNode schemaNode,
-                                      JsonSchema parentSchema) {
+    /**
+     * Creates a new validator of the keyword.
+     *
+     * @param validationContext the validation context
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
+     * @param keyword the keyword
+     * @param schemaNode the schema node
+     * @param parentSchema the parent schema
+     * @return the validator
+     */
+    public JsonValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation,
+            JsonNodePath evaluationPath, String keyword, JsonNode schemaNode, JsonSchema parentSchema) {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
