@@ -489,7 +489,7 @@ This does not mean that using a schema with a later draft specification will aut
 
 ## [Customizing Schema Retrieval](doc/schema-retrieval.md)
 
-## [Customizing Meta-Schema, Vocabulary, Keywords and Formats](doc/custom-meta-schema.md)
+## [Customizing Meta-Schemas, Vocabularies, Keywords and Formats](doc/custom-meta-schema.md)
 
 ## [Validators](doc/validators.md)
 

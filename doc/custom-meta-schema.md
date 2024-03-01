@@ -1,6 +1,6 @@
-# Customizing Meta-Schema, Vocabulary, Keywords and Formats
+# Customizing Meta-Schemas, Vocabularies, Keywords and Formats
 
-The meta-schema and vocabularies can be customized with appropriate configuration of the `JsonSchemaFactory` that is used to create instances of `JsonSchema`.
+The meta-schemas, vocabularies, keywords and formats can be customized with appropriate configuration of the `JsonSchemaFactory` that is used to create instances of `JsonSchema`.
 
 ## Creating a custom keyword
 
@@ -129,23 +129,6 @@ JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```
 
-## Loading meta-schemas
-
-By default meta-schemas that aren't explicitly configured in the `JsonSchemaFactory` will be automatically loaded.
-
-This means that the following `JsonSchemaFactory` will still be able to process `$schema` with other dialects such as Draft 7 or Draft 2019-09 as the meta-schemas for those dialects will be automatically loaded. This will also attempt to load custom meta-schemas with custom vocabularies. Draft 2020-12 will be used by default if `$schema` is not defined.
-
-```java
-JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-```
-
-If this is undesirable, for instance to restrict the meta-schemas used only to those explicitly configured in the `JsonSchemaFactory` a `com.networknt.schema.JsonMetaSchemaFactory` can be configured.
-
-```java
-JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-        builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
-```
-
 ## Creating a custom format
 
 A custom format can be implemented by implementing the `com.networknt.schema.Format` interface.
@@ -196,4 +179,21 @@ JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
         .formatKeywordFactory(CustomFormatKeyword::new)
         .build();
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+```
+
+## Loading meta-schemas
+
+By default meta-schemas that aren't explicitly configured in the `JsonSchemaFactory` will be automatically loaded.
+
+This means that the following `JsonSchemaFactory` will still be able to process `$schema` with other dialects such as Draft 7 or Draft 2019-09 as the meta-schemas for those dialects will be automatically loaded. This will also attempt to load custom meta-schemas with custom vocabularies. Draft 2020-12 will be used by default if `$schema` is not defined.
+
+```java
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+```
+
+If this is undesirable, for instance to restrict the meta-schemas used only to those explicitly configured in the `JsonSchemaFactory` a `com.networknt.schema.JsonMetaSchemaFactory` can be configured.
+
+```java
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
 ```
