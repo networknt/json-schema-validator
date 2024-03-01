@@ -1,4 +1,4 @@
-# Customizing Meta-Schema and Vocabulary
+# Customizing Meta-Schema, Vocabulary, Keywords and Formats
 
 The meta-schema and vocabularies can be customized with appropriate configuration of the `JsonSchemaFactory` that is used to create instances of `JsonSchema`.
 
