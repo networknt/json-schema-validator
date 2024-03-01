@@ -46,6 +46,6 @@ public class FormatKeywordFactoryTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"hello\"\r\n"
                 + "}";
-        assertThrows(IllegalArgumentException.class, () -> factory.getSchema(schemaData));
+        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }
 }
