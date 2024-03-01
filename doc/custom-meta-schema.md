@@ -181,6 +181,13 @@ JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```
 
+## Unknown formats
+
+By default unknown formats are ignored unless the format assertion vocabulary is used for that meta-schema. Note that the format annotation vocabulary with the configuration to enable format assertions is not equivalent to the format assertion vocabulary.
+
+To ensure that errors are raised when unknown formats are used, the `SchemaValidatorsConfig` can be configured to set `format` as strict.
+
+
 ## Loading meta-schemas
 
 By default meta-schemas that aren't explicitly configured in the `JsonSchemaFactory` will be automatically loaded.
