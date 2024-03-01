@@ -28,10 +28,10 @@ public class Version201909 extends JsonSchemaVersion {
         return new JsonMetaSchema.Builder(IRI)
                 .specification(SpecVersion.VersionFlag.V201909)
                 .idKeyword(ID)
-                .addFormats(Formats.DEFAULT)
-                .addKeywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V201909))
+                .formats(Formats.DEFAULT)
+                .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V201909))
                 // keywords that may validly exist, but have no validation aspect to them
-                .addKeywords(Arrays.asList(
+                .keywords(Arrays.asList(
                         new NonValidationKeyword("definitions")
                 ))
                 .vocabularies(VOCABULARY)

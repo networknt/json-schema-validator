@@ -116,26 +116,26 @@ public class JsonMetaSchema {
             return this;
         }
 
-        public Builder addKeyword(Keyword keyword) {
+        public Builder keyword(Keyword keyword) {
             this.keywords.put(keyword.getValue(), keyword);
             return this;
         }
 
-        public Builder addKeywords(Collection<? extends Keyword> keywords) {
+        public Builder keywords(Collection<? extends Keyword> keywords) {
             for (Keyword keyword : keywords) {
                 this.keywords.put(keyword.getValue(), keyword);
             }
             return this;
         }
 
-        public Builder addFormat(Format format) {
+        public Builder format(Format format) {
             this.formats.put(format.getName(), format);
             return this;
         }
 
-        public Builder addFormats(Collection<? extends Format> formats) {
+        public Builder formats(Collection<? extends Format> formats) {
             for (Format format : formats) {
-                addFormat(format);
+                format(format);
             }
             return this;
         }
@@ -203,6 +203,26 @@ public class JsonMetaSchema {
             Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
             return new JsonMetaSchema(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
         }
+
+        @Deprecated
+        public Builder addKeyword(Keyword keyword) {
+            return keyword(keyword);
+        }
+
+        @Deprecated
+        public Builder addKeywords(Collection<? extends Keyword> keywords) {
+            return keywords(keywords);
+        }
+
+        @Deprecated
+        public Builder addFormat(Format format) {
+            return format(format);
+        }
+
+        @Deprecated
+        public Builder addFormats(Collection<? extends Format> formats) {
+            return formats(formats);
+        }
     }
 
     private final String iri;
@@ -253,32 +273,48 @@ public class JsonMetaSchema {
     }
 
     /**
-     * Builder without keywords or formats.
+     * Create a builder without keywords or formats.
      * <p>
      * Use {@link #getV4()} for the Draft 4 Metaschema, or if you need a builder based on Draft4, use
      *
      * <code>
-     * JsonMetaSchema.builder("http://your-metaschema-uri", JsonSchemaFactory.getDraftV4()).build();
+     * JsonMetaSchema.builder("http://your-metaschema-iri", JsonSchemaFactory.getDraftV4()).build();
      * </code>
      *
-     * @param uri the URI of the metaschema that will be defined via this builder.
+     * @param iri the IRI of the metaschema that will be defined via this builder.
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
-    public static Builder builder(String uri) {
-        return new Builder(uri);
+    public static Builder builder(String iri) {
+        return new Builder(iri);
     }
 
     /**
-     * @param iri       the IRI of your new JsonMetaSchema that will be defined via this builder.
+     * Create a builder.
+     * 
+     * @param iri       the IRI of your new JsonMetaSchema that will be defined via
+     *                  this builder.
      * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
-     * @return a builder instance preconfigured to be the same as blueprint, but with a different uri.
+     * @return a builder instance preconfigured to be the same as blueprint, but
+     *         with a different uri.
      */
     public static Builder builder(String iri, JsonMetaSchema blueprint) {
+        Builder builder = builder(blueprint);
+        builder.iri = iri;
+        return builder;
+    }
+
+    /**
+     * Create a builder.
+     * 
+     * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
+     * @return a builder instance preconfigured to be the same as blueprint
+     */
+    public static Builder builder(JsonMetaSchema blueprint) {
         Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
-        return builder(iri)
+        return builder(blueprint.getIri())
                 .idKeyword(blueprint.idKeyword)
-                .addKeywords(blueprint.builder.keywords.values())
-                .addFormats(blueprint.builder.formats.values())
+                .keywords(blueprint.builder.keywords.values())
+                .formats(blueprint.builder.formats.values())
                 .specification(blueprint.getSpecification())
                 .vocabularies(vocabularies)
                 .vocabularyFactory(blueprint.builder.vocabularyFactory)

@@ -161,7 +161,7 @@ public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag)
     JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
     return builder()
             .defaultMetaSchemaIri(metaSchema.getIri())
-            .addMetaSchema(metaSchema)
+            .metaSchema(metaSchema)
             .build();
 }
 ```

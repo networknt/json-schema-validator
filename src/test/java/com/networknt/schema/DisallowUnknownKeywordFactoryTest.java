@@ -19,11 +19,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.SpecVersion.VersionFlag;
+
 class DisallowUnknownKeywordFactoryTest {
     @Test
     void shouldThrowForUnknownKeywords() {
         DisallowUnknownKeywordFactory factory = DisallowUnknownKeywordFactory.getInstance();
-        assertThrows(JsonSchemaException.class, () -> factory.getKeyword("helloworld", null));
+        assertThrows(InvalidSchemaException.class, () -> factory.getKeyword("helloworld", null));
     }
-
+    
+    @Test
+    void getSchemaShouldThrowForUnknownKeywords() {
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+                .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+                builder -> builder.metaSchema(metaSchema));
+        String schemaData = "{\r\n"
+                + "  \"equals\": \"world\"\r\n"
+                + "}";
+        assertThrows(InvalidSchemaException.class, () -> factory.getSchema(schemaData));
+    }
 }

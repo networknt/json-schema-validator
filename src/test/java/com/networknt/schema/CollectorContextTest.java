@@ -110,7 +110,7 @@ public class CollectorContextTest {
     
     private JsonMetaSchema getJsonMetaSchema(String uri) throws Exception {
         JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(uri, JsonMetaSchema.getV201909())
-                .addKeyword(new CustomKeyword()).addKeyword(new CustomKeyword1()).addFormat(new Format() {
+                .keyword(new CustomKeyword()).keyword(new CustomKeyword1()).format(new Format() {
 
                     @SuppressWarnings("unchecked")
                     @Override
@@ -142,7 +142,7 @@ public class CollectorContextTest {
         final JsonMetaSchema metaSchema = getJsonMetaSchema(
                 "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
         SchemaValidatorsConfig schemaValidatorsConfig  = new SchemaValidatorsConfig();
         this.jsonSchema = schemaFactory.getSchema(getSchemaString(), schemaValidatorsConfig);

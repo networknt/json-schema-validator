@@ -168,7 +168,7 @@ public class FormatValidatorTest {
                 .build();
 
         JsonSchemaFactory factory = new JsonSchemaFactory.Builder().defaultMetaSchemaIri(customMetaSchema.getIri())
-                .addMetaSchema(customMetaSchema).build();
+                .metaSchema(customMetaSchema).build();
         String formatSchema = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"format\": \"custom\"\r\n"
@@ -218,7 +218,7 @@ public class FormatValidatorTest {
                 .build();
 
         JsonSchemaFactory factory = new JsonSchemaFactory.Builder().defaultMetaSchemaIri(customMetaSchema.getIri())
-                .addMetaSchema(customMetaSchema).build();
+                .metaSchema(customMetaSchema).build();
         String formatSchema = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
                 + "  \"format\": \"custom-number\"\r\n"

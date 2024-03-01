@@ -205,7 +205,7 @@ public class VocabularyTest {
                 .build();
         JsonSchemaFactory factory = JsonSchemaFactory
                 .getInstance(VersionFlag.V202012,
-                        builder -> builder.addMetaSchema(metaSchema).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.metaSchema(metaSchema).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
         JsonSchema schema = factory.getSchema(schemaData);

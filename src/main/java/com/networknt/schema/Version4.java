@@ -13,10 +13,10 @@ public class Version4 extends JsonSchemaVersion {
         return new JsonMetaSchema.Builder(IRI)
                 .specification(SpecVersion.VersionFlag.V4)
                 .idKeyword(ID)
-                .addFormats(Formats.DEFAULT)
-                .addKeywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4))
+                .formats(Formats.DEFAULT)
+                .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4))
                 // keywords that may validly exist, but have no validation aspect to them
-                .addKeywords(Arrays.asList(
+                .keywords(Arrays.asList(
                         new NonValidationKeyword("$schema"),
                         new NonValidationKeyword("id"),
                         new AnnotationKeyword("title"),

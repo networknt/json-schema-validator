@@ -74,7 +74,7 @@ public class Issue784Test {
         return new JsonSchemaFactory
                 .Builder()
                 .defaultMetaSchemaIri(overrideDateTimeValidator.getIri())
-                .addMetaSchema(overrideDateTimeValidator)
+                .metaSchema(overrideDateTimeValidator)
                 .build()
                 .getSchema(Issue784Test.class.getResourceAsStream("/issue784/schema.json"));
     }

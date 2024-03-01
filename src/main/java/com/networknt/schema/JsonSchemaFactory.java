@@ -34,10 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
@@ -55,7 +53,7 @@ public class JsonSchemaFactory {
         private ObjectMapper jsonMapper = null;
         private ObjectMapper yamlMapper = null;
         private String defaultMetaSchemaIri;
-        private final Set<JsonMetaSchema> metaSchemas = new LinkedHashSet<>();
+        private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
         private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableSchemaCache = true;
@@ -76,24 +74,24 @@ public class JsonSchemaFactory {
             return this;
         }
 
-        public Builder addMetaSchema(final JsonMetaSchema jsonMetaSchema) {
-            this.metaSchemas.add(jsonMetaSchema);
-            return this;
-        }
-
         public Builder metaSchemaFactory(final JsonMetaSchemaFactory jsonMetaSchemaFactory) {
             this.metaSchemaFactory = jsonMetaSchemaFactory;
             return this;
         }
 
-        public Builder addMetaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
+        public Builder metaSchema(final JsonMetaSchema jsonMetaSchema) {
+            this.metaSchemas.put(normalizeMetaSchemaUri(jsonMetaSchema.getIri()), jsonMetaSchema);
+            return this;
+        }
+
+        public Builder metaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
             for (JsonMetaSchema jsonMetaSchema : jsonMetaSchemas) {
-                addMetaSchema(jsonMetaSchema);
+                metaSchema(jsonMetaSchema);
             }
             return this;
         }
 
-        public Builder metaSchemas(Consumer<Set<JsonMetaSchema>> customizer) {
+        public Builder metaSchemas(Consumer<Map<String, JsonMetaSchema>> customizer) {
             customizer.accept(this.metaSchemas);
             return this;
         }
@@ -119,6 +117,16 @@ public class JsonSchemaFactory {
             return this;
         }
 
+        @Deprecated
+        public Builder addMetaSchema(final JsonMetaSchema jsonMetaSchema) {
+            return metaSchema(jsonMetaSchema);
+        }
+
+        @Deprecated
+        public Builder addMetaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
+            return metaSchemas(jsonMetaSchemas);
+        }
+
         public JsonSchemaFactory build() {
             return new JsonSchemaFactory(
                     jsonMapper,
@@ -139,7 +147,7 @@ public class JsonSchemaFactory {
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
     private final SchemaLoader schemaLoader;
-    private final Map<String, JsonMetaSchema> metaSchemas;
+    private final ConcurrentMap<String, JsonMetaSchema> metaSchemas;
     private final ConcurrentMap<SchemaLocation, JsonSchema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
     private final JsonMetaSchemaFactory metaSchemaFactory;
@@ -153,13 +161,10 @@ public class JsonSchemaFactory {
             String defaultMetaSchemaIri,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
-            Set<JsonMetaSchema> metaSchemas,
+            ConcurrentMap<String, JsonMetaSchema> metaSchemas,
             boolean enableSchemaCache,
             JsonMetaSchemaFactory metaSchemaFactory) {
-        this.metaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
-        for (JsonMetaSchema metaSchema : metaSchemas) {
-            this.metaSchemas.put(normalizeMetaSchemaUri(metaSchema.getIri()), metaSchema);
-        }
+        this.metaSchemas = metaSchemas;
         if (defaultMetaSchemaIri == null || defaultMetaSchemaIri.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaIri must not be null or empty");
         } else if (metaSchemas == null || metaSchemas.isEmpty()) {
@@ -218,7 +223,7 @@ public class JsonSchemaFactory {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
         JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
         JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaIri(metaSchema.getIri())
-                .addMetaSchema(metaSchema);
+                .metaSchema(metaSchema);
         if (customizer != null) {
             customizer.accept(builder);
         }
@@ -257,7 +262,7 @@ public class JsonSchemaFactory {
      */
     public static Builder builder(final JsonSchemaFactory blueprint) {
         Builder builder = builder()
-                .addMetaSchemas(blueprint.metaSchemas.values())
+                .metaSchemas(blueprint.metaSchemas.values())
                 .defaultMetaSchemaIri(blueprint.defaultMetaSchemaIri)
                 .jsonMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper);

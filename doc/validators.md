@@ -24,10 +24,10 @@ public JsonSchemaFactory mySchemaFactory() {
 
     JsonMetaSchema myJsonMetaSchema = new JsonMetaSchema.Builder(URI)
             .idKeyword(ID)
-            .addFormats(BUILTIN_FORMATS)
-            .addKeywords(ValidatorTypeCode.getNonFormatKeywords(SpecVersion.VersionFlag.V201909))
+            .formats(BUILTIN_FORMATS)
+            .keywords(ValidatorTypeCode.getFormatKeywords(SpecVersion.VersionFlag.V201909))
             // keywords that may validly exist, but have no validation aspect to them
-            .addKeywords(Arrays.asList(
+            .keywords(Arrays.asList(
                     new NonValidationKeyword("$schema"),
                     new NonValidationKeyword("$id"),
                     new NonValidationKeyword("title"),
@@ -37,11 +37,11 @@ public JsonSchemaFactory mySchemaFactory() {
                     new NonValidationKeyword("$defs")  // newly added in 2018-09 release.
             ))
             // add your custom keyword
-            .addKeyword(new GroovyKeyword())
+            .keyword(new GroovyKeyword())
             .build();
 
     return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(myJsonMetaSchema.getIri())
-            .addMetaSchema(myJsonMetaSchema)
+            .metaSchema(myJsonMetaSchema)
             .build();
 }
 
@@ -96,11 +96,11 @@ public JsonSchemaFactory mySchemaFactory() {
     JsonMetaSchema overrideEmailValidatorMetaSchema = new JsonMetaSchema.Builder(URI)
             .idKeyword(ID)
             // Override EmailValidator
-            .addFormat(new PatternFormat("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"))
+            .format(new PatternFormat("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"))
             .build();
 
     return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(overrideEmailValidatorMetaSchema.getIri())
-            .addMetaSchema(overrideEmailValidatorMetaSchema)
+            .metaSchema(overrideEmailValidatorMetaSchema)
             .build();
 }
 ```

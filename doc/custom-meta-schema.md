@@ -59,11 +59,10 @@ A custom keyword can be added to a standard dialect by customizing its meta-sche
 The following adds a custom keyword to the Draft 2020-12 dialect.
 
 ```java
-JsonMetaSchema dialect = JsonMetaSchema.getV202012();
-JsonMetaSchema metaSchema = JsonMetaSchema.builder(dialect.getIri(), dialect)
-        .addKeyword(new EqualsKeyword())
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        .keyword(new EqualsKeyword())
         .build();
-JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.addMetaSchema(metaSchema));
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```
 
 ## Creating a custom meta-schema
@@ -75,9 +74,9 @@ The following creates a custom meta-schema `https://www.example.com/schema` with
 ```java
 JsonMetaSchema dialect = JsonMetaSchema.getV202012();
 JsonMetaSchema metaSchema = JsonMetaSchema.builder("https://www.example.com/schema", dialect)
-        .addKeyword(new EqualsKeyword())
+        .keyword(new EqualsKeyword())
         .build();
-JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.addMetaSchema(metaSchema));
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```
 
 ## Associating vocabularies to a dialect
@@ -91,11 +90,10 @@ VocabularyFactory vocabularyFactory = iri -> {
     }
     return null;
 };
-JsonMetaSchema dialect = JsonMetaSchema.getV202012();
-JsonMetaSchema metaSchema = JsonMetaSchema.builder(dialect.getIri(), dialect)
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
         .vocabularyFactory(vocabularyFactory)
         .build();
-JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.addMetaSchema(metaSchema));
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
 ```
 
 The following custom meta-schema `https://www.example.com/schema` will use the custom vocabulary `https://www.example.com/vocab/equals`.
@@ -117,3 +115,33 @@ The following custom meta-schema `https://www.example.com/schema` will use the c
 ```
 
 Note that `"https://www.example.com/vocab/equals": true` means that if the vocabulary is unknown the meta-schema will fail to successfully load while `"https://www.example.com/vocab/equals": false` means that an unknown vocabulary will still successfully load.
+
+## Unknown Keywords
+
+By default unknown keywords are treated as annotations. This can be customized by configuring a `com.networknt.schema.KeywordFactory` on its meta-schema.
+
+The following configuration will cause a `InvalidSchemaException` to be thrown if an unknown keyword is used.
+
+```java
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance())
+        .build();
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+```
+
+## Loading meta-schemas
+
+By default meta-schemas that aren't explicitly configured in the `JsonSchemaFactory` will be automatically loaded.
+
+This means that the following `JsonSchemaFactory` will still be able to process `$schema` with other dialects such as Draft 7 or Draft 2019-09 as the meta-schemas for those dialects will be automatically loaded. This will also attempt to load custom meta-schemas with custom vocabularies. Draft 2020-12 will be used by default if `$schema` is not defined.
+
+```java
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+```
+
+If this is undesirable, for instance to restrict the meta-schemas used only to those explicitly configured in the `JsonSchemaFactory` a `com.networknt.schema.JsonMetaSchemaFactory` can be configured.
+
+```java
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+```
