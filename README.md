@@ -221,7 +221,7 @@ This package is available on Maven central.
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -229,7 +229,7 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.3.3');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.4.0');
 }
 ```
 

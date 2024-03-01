@@ -1,10 +1,19 @@
 ## Compatibility with JSON Schema versions
 
+[![Supported spec](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fsupported_versions.json)](https://bowtie.report/#/implementations/java-json-schema-validator)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2020-12.json)](https://bowtie.report/#/dialects/draft2020-12)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft2019-09.json)](https://bowtie.report/#/dialects/draft2019-09)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft7.json)](https://bowtie.report/#/dialects/draft7)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft6.json)](https://bowtie.report/#/dialects/draft6)
+[![Compliance](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-json-schema-validator%2Fcompliance%2Fdraft4.json)](https://bowtie.report/#/dialects/draft4)
+
 The `pattern` validator by default uses the JDK regular expression implementation which is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. The library can however be configured to use a ECMA-262 compliant regular expression implementation.
 
 Annotation processing and reporting are implemented. Note that the collection of annotations will have an adverse performance impact.
 
 This implements the Flag, List and Hierarchical output formats defined in the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/8270653a9f59fadd2df0d789f22d486254505bbe/jsonschema-validation-output-machines.md).
+
+The implementation supports the use of custom keywords, formats, vocabularies and meta-schemas.
 
 ### Known Issues
 
@@ -84,6 +93,8 @@ The following are the tests results after running the [JSON Schema Test Suite](h
 | uniqueItems                | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
 | writeOnly                  | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 
+In accordance with the specification, unknown keywords are treated as annotations. This is customizable by configuring a unknown keyword factory on the respective meta-schema.
+
 #### Content Encoding
 
 Since Draft 2019-09, the `contentEncoding` keyword does not generate assertions.
@@ -157,5 +168,3 @@ When the format assertion vocabularies are used in a meta schema, in accordance 
 ##### Footnotes
 1. Note that the validation are only optional for some of the keywords/formats.
 2. Refer to the corresponding JSON schema for more information on whether the keyword/format is optional or not.
-
-
