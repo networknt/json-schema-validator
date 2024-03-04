@@ -95,6 +95,11 @@ public class Vocabulary {
             "https://json-schema.org/draft/2020-12/vocab/content", new AnnotationKeyword("contentEncoding"),
             new AnnotationKeyword("contentMediaType"), new AnnotationKeyword("contentSchema"));
 
+    // OpenAPI 3.1
+    public static final Vocabulary OPENAPI_3_1_BASE = new Vocabulary("https://spec.openapis.org/oas/3.1/vocab/base",
+            new AnnotationKeyword("example"), ValidatorTypeCode.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
+            new AnnotationKeyword("xml"));
+
     private final String iri;
     private final Set<Keyword> keywords;
 

@@ -43,4 +43,14 @@ public class SchemaId {
      * Draft 2020-12.
      */
     public static final String V202012 = "https://json-schema.org/draft/2020-12/schema";
+
+    /**
+     * OpenAPI 3.0.
+     */
+    public static final String OPENAPI_3_0 = "https://spec.openapis.org/oas/3.0/dialect";
+
+    /**
+     * OpenAPI 3.1
+     */
+    public static final String OPENAPI_3_1 = "https://spec.openapis.org/oas/3.1/dialect/base";
 }

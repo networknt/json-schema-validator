@@ -42,6 +42,8 @@ public class Vocabularies {
         mapping.put(Vocabulary.V202012_FORMAT_ASSERTION.getIri(), Vocabulary.V202012_FORMAT_ASSERTION);
         mapping.put(Vocabulary.V202012_CONTENT.getIri(), Vocabulary.V202012_CONTENT);
 
+        mapping.put(Vocabulary.OPENAPI_3_1_BASE.getIri(), Vocabulary.OPENAPI_3_1_BASE);
+
         VALUES = mapping;
     }
 

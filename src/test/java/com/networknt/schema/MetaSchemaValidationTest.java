@@ -38,15 +38,14 @@ public class MetaSchemaValidationTest {
      */
     @Test
     void oas31() throws IOException {
-        try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/v31/petstore.json")) {
+        try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/3.1/petstore.json")) {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
             SchemaValidatorsConfig config = new SchemaValidatorsConfig();
             config.setPathType(PathType.JSON_POINTER);
             JsonSchema schema = JsonSchemaFactory
                     .getInstance(VersionFlag.V202012,
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
-                                    .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/v31")
-                                    .mapPrefix("https://json-schema.org", "classpath:")))
+                                    .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);
             Set<ValidationMessage> messages = schema.validate(inputData);
             assertEquals(0, messages.size());
