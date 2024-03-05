@@ -18,11 +18,13 @@ package com.networknt.schema.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
 import com.networknt.schema.AbsoluteIri;
+import com.networknt.schema.utils.AbsoluteIris;
 
 /**
  * Loads from uri.
@@ -30,11 +32,41 @@ import com.networknt.schema.AbsoluteIri;
 public class UriSchemaLoader implements SchemaLoader {
     @Override
     public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
-        URI uri = URI.create(absoluteIri.toString());
+        URI uri = toURI(absoluteIri);
+        URL url = toURL(uri);
         return () -> {
-            URLConnection conn = uri.toURL().openConnection();
+            URLConnection conn = url.openConnection();
             return this.openConnectionCheckRedirects(conn);
         };
+    }
+
+    /**
+     * Converts an AbsoluteIRI to a URI.
+     * <p>
+     * Internationalized domain names will be converted using java.net.IDN.toASCII.
+     * 
+     * @param absoluteIri the absolute IRI
+     * @return the URI
+     */
+    protected URI toURI(AbsoluteIri absoluteIri) {
+        return URI.create(AbsoluteIris.toUri(absoluteIri));
+    }
+
+    /**
+     * Converts a URI to a URL.
+     * <p>
+     * This will throw if the URI is not a valid URL. For instance if the URI is not
+     * absolute.
+     * 
+     * @param uri the URL
+     * @return the URL
+     */
+    protected URL toURL(URI uri) {
+        try {
+            return uri.toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     // https://www.cs.mun.ca/java-api-1.5/guide/deployment/deployment-guide/upgrade-guide/article-17.html
