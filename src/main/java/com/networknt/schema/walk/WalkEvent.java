@@ -18,12 +18,12 @@ public class WalkEvent {
     private SchemaLocation schemaLocation;
     private JsonNodePath evaluationPath;
     private JsonNode schemaNode;
+    private JsonSchema schema;
     private JsonSchema parentSchema;
     private String keyword;
-    private JsonNode node;
+    private JsonNode instanceNode;
     private JsonNode rootNode;
     private JsonNodePath instanceLocation;
-    private JsonSchemaFactory currentJsonSchemaFactory;
     private ValidationContext validationContext;
 
     public ExecutionContext getExecutionContext() {
@@ -42,6 +42,15 @@ public class WalkEvent {
         return schemaNode;
     }
 
+    /**
+     * Gets the JsonSchema indicated by the schema node.
+     *
+     * @return the schema
+     */
+    public JsonSchema getSchema() {
+        return schema;
+    }
+
     public JsonSchema getParentSchema() {
         return parentSchema;
     }
@@ -50,8 +59,13 @@ public class WalkEvent {
         return keyword;
     }
 
+    public JsonNode getInstanceNode() {
+        return instanceNode;
+    }
+
+    @Deprecated
     public JsonNode getNode() {
-        return node;
+        return getInstanceNode();
     }
 
     public JsonNode getRootNode() {
@@ -62,21 +76,27 @@ public class WalkEvent {
         return instanceLocation;
     }
 
-    public JsonSchema getRefSchema(SchemaLocation schemaUri) {
-        return currentJsonSchemaFactory.getSchema(schemaUri, validationContext.getConfig());
+    public JsonSchema getRefSchema(SchemaLocation schemaLocation) {
+        return this.validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig());
     }
 
-    public JsonSchema getRefSchema(SchemaLocation schemaUri, SchemaValidatorsConfig schemaValidatorsConfig) {
+    public JsonSchema getRefSchema(SchemaLocation schemaLocation, SchemaValidatorsConfig schemaValidatorsConfig) {
         if (schemaValidatorsConfig != null) {
-            return currentJsonSchemaFactory.getSchema(schemaUri, schemaValidatorsConfig);
+            return this.validationContext.getJsonSchemaFactory().getSchema(schemaLocation, schemaValidatorsConfig);
         } else {
-            return getRefSchema(schemaUri);
+            return getRefSchema(schemaLocation);
         }
     }
 
-    public JsonSchemaFactory getCurrentJsonSchemaFactory() {
-        return currentJsonSchemaFactory;
+    public JsonSchemaFactory getJsonSchemaFactory() {
+        return this.validationContext.getJsonSchemaFactory();
     }
+
+    @Deprecated
+    public JsonSchemaFactory getCurrentJsonSchemaFactory() {
+        return getJsonSchemaFactory();
+    }
+
 
     @Override
     public String toString() {
@@ -112,6 +132,11 @@ public class WalkEvent {
             return this;
         }
 
+        public WalkEventBuilder schema(JsonSchema schema) {
+            walkEvent.schema = schema;
+            return this;
+        }
+
         public WalkEventBuilder parentSchema(JsonSchema parentSchema) {
             walkEvent.parentSchema = parentSchema;
             return this;
@@ -122,9 +147,14 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder node(JsonNode node) {
-            walkEvent.node = node;
+        public WalkEventBuilder instanceNode(JsonNode node) {
+            walkEvent.instanceNode = node;
             return this;
+        }
+
+        @Deprecated
+        public WalkEventBuilder node(JsonNode node) {
+            return instanceNode(node);
         }
 
         public WalkEventBuilder rootNode(JsonNode rootNode) {
@@ -137,8 +167,8 @@ public class WalkEvent {
             return this;
         }
 
+        @Deprecated
         public WalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
-            walkEvent.currentJsonSchemaFactory = currentJsonSchemaFactory;
             return this;
         }
 

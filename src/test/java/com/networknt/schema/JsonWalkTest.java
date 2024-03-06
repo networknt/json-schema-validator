@@ -170,7 +170,7 @@ public class JsonWalkTest {
             if (keyWordName.equals(CUSTOM_KEYWORD) && schemaNode.get(CUSTOM_KEYWORD).isArray()) {
                 ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
                 objectNode.put(keywordWalkEvent.getSchemaNode().get("title").textValue().toUpperCase(),
-                        keywordWalkEvent.getNode().textValue());
+                        keywordWalkEvent.getInstanceNode().textValue());
             }
             return WalkFlow.CONTINUE;
         }
@@ -192,7 +192,7 @@ public class JsonWalkTest {
             }
             ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
             objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(),
-                    keywordWalkEvent.getNode());
+                    keywordWalkEvent.getInstanceNode());
             return WalkFlow.SKIP;
         }
 

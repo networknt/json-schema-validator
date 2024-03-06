@@ -1043,7 +1043,7 @@ public class JsonSchema extends BaseJsonValidator {
                 if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
+                        this, this.parentSchema, this.validationContext)) {
                     Set<ValidationMessage> results = null;
                     try {
                         results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
@@ -1059,8 +1059,7 @@ public class JsonSchema extends BaseJsonValidator {
                 this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory(),
-                        errors);
+                        this, this.parentSchema, this.validationContext, errors);
             }
         }
         return errors;

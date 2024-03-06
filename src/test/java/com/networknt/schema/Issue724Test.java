@@ -72,7 +72,7 @@ class Issue724Test {
                     .orElse(false);
 
             if (isString) {
-                this.strings.add(walkEvent.getNode().asText());
+                this.strings.add(walkEvent.getInstanceNode().asText());
             }
 
             return WalkFlow.CONTINUE;

@@ -16,13 +16,13 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node, JsonNode rootNode,
+    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode,
             JsonNodePath instanceLocation, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
                                        JsonNode schemaNode,
-                                       JsonSchema parentSchema, ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory) {
+                                       JsonSchema schema, JsonSchema parentSchema, ValidationContext validationContext) {
         boolean continueRunningListenersAndWalk = true;
-        WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation, evaluationPath,
-                schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
+        WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, evaluationPath,
+                schemaLocation, schemaNode, schema, parentSchema, validationContext);
         // Run Listeners that are setup only for this keyword.
         List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
         continueRunningListenersAndWalk = runPreWalkListeners(currentKeywordListeners, keywordWalkEvent);
@@ -36,13 +36,13 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation,
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode, JsonNodePath instanceLocation,
             JsonNodePath evaluationPath, SchemaLocation schemaLocation,
                                      JsonNode schemaNode,
-                                     JsonSchema parentSchema,
-                                     ValidationContext validationContext, JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
-        WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation, evaluationPath,
-                schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
+                                     JsonSchema schema,
+                                     JsonSchema parentSchema, ValidationContext validationContext, Set<ValidationMessage> validationMessages) {
+        WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, evaluationPath,
+                schemaLocation, schemaNode, schema, parentSchema, validationContext);
         // Run Listeners that are setup only for this keyword.
         List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
         runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, validationMessages);
