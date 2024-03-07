@@ -82,13 +82,15 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
         
-        List<WalkEvent> propertyKeywords = new ArrayList<>();
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
             
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                        .getCollectorMap().computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
                 propertyKeywords.add(walkEvent);
                 return WalkFlow.CONTINUE;
             }
@@ -112,6 +114,8 @@ class JsonSchemaWalkListenerTest {
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
         assertTrue(result.getValidationMessages().isEmpty());
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> propertyKeywords = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("propertyKeywords"); 
         assertEquals(3, propertyKeywords.size());
         assertEquals("", propertyKeywords.get(0).getInstanceLocation().toString());
         assertEquals("/properties", propertyKeywords.get(0).getSchema().getEvaluationPath()
@@ -125,7 +129,7 @@ class JsonSchemaWalkListenerTest {
                 .append(propertyKeywords.get(2).getKeyword()).toString());
         assertEquals("link", propertyKeywords.get(2).getInstanceNode().get("name").asText());
     }
-    
+
     @Test
     void propertyListener() {
         String schemaData = "{\r\n"
@@ -154,13 +158,15 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
         
-        List<WalkEvent> properties = new ArrayList<>();
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         config.addPropertyWalkListener(new JsonSchemaWalkListener() {
             
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> properties = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                        .getCollectorMap().computeIfAbsent("properties", key -> new ArrayList<>());
                 properties.add(walkEvent);
                 return WalkFlow.CONTINUE;
             }
@@ -184,6 +190,9 @@ class JsonSchemaWalkListenerTest {
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
         assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> properties = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("properties");
         assertEquals(5, properties.size());
         assertEquals("/tags", properties.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags", properties.get(0).getSchema().getEvaluationPath().toString());
@@ -207,13 +216,15 @@ class JsonSchemaWalkListenerTest {
 
     @Test
     void draft201909() {
-        List<WalkEvent> propertyKeywords = new ArrayList<>();
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
             
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                        .getCollectorMap().computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
                 propertyKeywords.add(walkEvent);
                 return WalkFlow.CONTINUE;
             }
@@ -241,9 +252,12 @@ class JsonSchemaWalkListenerTest {
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
         assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> propertyKeywords = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().getCollectorMap().get("propertyKeywords");
         
         assertEquals(28, propertyKeywords.size());
-        
+
         assertEquals("", propertyKeywords.get(0).getInstanceLocation().toString());
         assertEquals("/properties", propertyKeywords.get(0).getSchema().getEvaluationPath().append(propertyKeywords.get(0).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/schema#/properties", propertyKeywords.get(0).getSchema().getSchemaLocation().append(propertyKeywords.get(0).getKeyword()).toString());
@@ -356,7 +370,7 @@ class JsonSchemaWalkListenerTest {
         assertEquals("/allOf/5/$ref/properties", propertyKeywords.get(27).getSchema().getEvaluationPath().append(propertyKeywords.get(27).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/content#/properties", propertyKeywords.get(27).getSchema().getSchemaLocation().append(propertyKeywords.get(27).getKeyword()).toString());
     }
-    
+
     @Test
     void applyDefaults() throws JsonMappingException, JsonProcessingException {
         String schemaData = "{\r\n"
@@ -388,7 +402,7 @@ class JsonSchemaWalkListenerTest {
         assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
         assertTrue(result.getValidationMessages().isEmpty());
     }
-    
+
     @Test
     void applyDefaultsWithWalker() throws JsonMappingException, JsonProcessingException {
         String schemaData = "{\r\n"
@@ -501,6 +515,11 @@ class JsonSchemaWalkListenerTest {
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"s\":1,\"ref\":\"REF\"}", inputNode.toString());
         assertFalse(result.getValidationMessages().isEmpty());
+        
+        inputNode = JsonMapperFactory.getInstance().readTree("{}");
+        result = schema.walk(inputNode, false);
+        assertEquals("{\"s\":1,\"ref\":\"REF\"}", inputNode.toString());
+        assertTrue(result.getValidationMessages().isEmpty());
     }
 
     @Test
