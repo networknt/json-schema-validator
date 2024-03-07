@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
-                JsonNode defaultNode = this.tupleSchema.get(i).getSchemaNode().get("default");
+                JsonNode defaultNode = getDefaultNode(this.tupleSchema.get(i));
                 if (n.isNull() && defaultNode != null) {
                     array.set(i, defaultNode);
                     n = defaultNode;
@@ -117,6 +118,17 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         }
 
         return validationMessages;
+    }
+
+    private static JsonNode getDefaultNode(JsonSchema schema) {
+        JsonNode result = schema.getSchemaNode().get("default");
+        if (result == null) {
+            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+            if (schemaRef != null) {
+                result = getDefaultNode(schemaRef.getSchema());
+            }
+        }
+        return result;
     }
 
     private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
@@ -134,10 +146,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             node,
             rootNode,
             instanceLocation,
-            walkSchema.getEvaluationPath(),
-            walkSchema.getSchemaLocation(),
-            walkSchema.getSchemaNode(),
-            walkSchema, walkSchema.getParentSchema(), this.validationContext
+            walkSchema
         );
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
@@ -148,11 +157,8 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             node,
             rootNode,
             instanceLocation,
-            this.evaluationPath,
-            walkSchema.getSchemaLocation(),
-            walkSchema.getSchemaNode(),
             walkSchema,
-            walkSchema.getParentSchema(), this.validationContext, validationMessages
+            validationMessages
         );
         //@formatter:on
     }

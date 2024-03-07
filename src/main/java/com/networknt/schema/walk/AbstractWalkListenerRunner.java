@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
 import com.networknt.schema.ValidationMessage;
 
 import java.util.List;
@@ -14,12 +12,10 @@ import java.util.Set;
 public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
 
     protected WalkEvent constructWalkEvent(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
-            JsonNode schemaNode, JsonSchema schema, JsonSchema parentSchema, ValidationContext validationContext) {
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema) {
         return WalkEvent.builder().executionContext(executionContext).instanceLocation(instanceLocation)
-                .evaluationPath(evaluationPath).keyword(keyword).instanceNode(instanceNode).parentSchema(parentSchema)
-                .rootNode(rootNode).schemaNode(schemaNode).schema(schema).schemaLocation(schemaLocation)
-                .validationContext(validationContext).build();
+                .keyword(keyword).instanceNode(instanceNode)
+                .rootNode(rootNode).schema(schema).build();
     }
 
     protected boolean runPreWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent) {

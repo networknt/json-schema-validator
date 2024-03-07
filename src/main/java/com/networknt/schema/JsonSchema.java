@@ -22,11 +22,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
+import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SetView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -211,7 +211,7 @@ public class JsonSchema extends BaseJsonValidator {
         return this;
     }
 
-    ValidationContext getValidationContext() {
+    public ValidationContext getValidationContext() {
         return this.validationContext;
     }
 
@@ -282,7 +282,7 @@ public class JsonSchema extends BaseJsonValidator {
         SchemaLocation schemaLocation = document.getSchemaLocation();
         JsonNodePath evaluationPath = document.getEvaluationPath();
         int nameCount = fragment.getNameCount();
-        for (int x = 0; x < fragment.getNameCount(); x++) {
+        for (int x = 0; x < nameCount; x++) {
             /*
              * The sub schema is created by iterating through the parents in order to
              * maintain the lexical parent schema context.
@@ -348,29 +348,9 @@ public class JsonSchema extends BaseJsonValidator {
     protected JsonNode getNode(Object propertyOrIndex) {
         return getNode(this.schemaNode, propertyOrIndex);
     }
-    
+
     protected JsonNode getNode(JsonNode node, Object propertyOrIndex) {
-        JsonNode value = null;
-        if (propertyOrIndex instanceof Number) {
-            value = node.get(((Number) propertyOrIndex).intValue());
-        } else {
-            // In the case of string this represents an escaped json pointer and thus does not reflect the property directly
-            String unescaped = propertyOrIndex.toString();
-            if (unescaped.contains("~")) {
-                unescaped = unescaped.replace("~1", "/");
-                unescaped = unescaped.replace("~0", "~");
-            }
-            if (unescaped.contains("%")) {
-                try {
-                    unescaped = URLDecoder.decode(unescaped, StandardCharsets.UTF_8.toString());
-                } catch (UnsupportedEncodingException e) {
-                    // Do nothing
-                }
-            }
-            
-            value = node.get(unescaped);
-        }
-        return value;
+        return JsonNodes.get(node, propertyOrIndex);
     }
 
     public JsonSchema findLexicalRoot() {
@@ -1042,8 +1022,7 @@ public class JsonSchema extends BaseJsonValidator {
                 // returns SKIP, then skip the walk.
                 if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this, this.parentSchema, this.validationContext)) {
+                        this)) {
                     Set<ValidationMessage> results = null;
                     try {
                         results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
@@ -1058,8 +1037,7 @@ public class JsonSchema extends BaseJsonValidator {
                 // Call all the post-walk listeners.
                 this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this, this.parentSchema, this.validationContext, errors);
+                        this, errors);
             }
         }
         return errors;

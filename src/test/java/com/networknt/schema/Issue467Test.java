@@ -48,7 +48,7 @@ public class Issue467Test {
         config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                properties.add(walkEvent.getEvaluationPath());
+                properties.add(walkEvent.getSchema().getEvaluationPath().append(walkEvent.getKeyword()));
                 return WalkFlow.CONTINUE;
             }
 
@@ -72,7 +72,7 @@ public class Issue467Test {
         config.addPropertyWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                properties.add(walkEvent.getEvaluationPath());
+                properties.add(walkEvent.getSchema().getEvaluationPath());
                 return WalkFlow.CONTINUE;
             }
 
@@ -84,7 +84,7 @@ public class Issue467Test {
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
         assertEquals(
-                new HashSet<>(Arrays.asList("$.properties.tags", "$.properties.tags.items[0].properties.category")),
+                new HashSet<>(Arrays.asList("$.properties.tags", "$.properties.tags.items[0].properties.category", "$.properties.tags.items[0].properties.value")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getValidationMessages().size());
     }
