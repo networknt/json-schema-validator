@@ -17,8 +17,8 @@ public class WalkEvent {
     private ExecutionContext executionContext;
     private JsonSchema schema;
     private String keyword;
-    private JsonNode instanceNode;
     private JsonNode rootNode;
+    private JsonNode instanceNode;
     private JsonNodePath instanceLocation;
 
     /**
@@ -54,15 +54,6 @@ public class WalkEvent {
     }
 
     /**
-     * Gets the instance node.
-     * 
-     * @return the instance node
-     */
-    public JsonNode getInstanceNode() {
-        return instanceNode;
-    }
-
-    /**
      * Gets the root instance node.
      * <p>
      * This makes it possible to get the parent node, for instance by getting the
@@ -72,6 +63,15 @@ public class WalkEvent {
      */
     public JsonNode getRootNode() {
         return rootNode;
+    }
+
+    /**
+     * Gets the instance node.
+     * 
+     * @return the instance node
+     */
+    public JsonNode getInstanceNode() {
+        return instanceNode;
     }
 
     /**

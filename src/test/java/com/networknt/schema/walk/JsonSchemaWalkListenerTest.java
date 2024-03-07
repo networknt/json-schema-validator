@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
@@ -42,6 +43,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.ValidationMessage;
 import com.networknt.schema.ValidationResult;
@@ -385,6 +387,120 @@ class JsonSchemaWalkListenerTest {
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
         assertTrue(result.getValidationMessages().isEmpty());
+    }
+    
+    @Test
+    void applyDefaultsWithWalker() throws JsonMappingException, JsonProcessingException {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"title\": \"\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"s\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"default\": \"S\"\r\n"
+                + "    },\r\n"
+                + "    \"ref\": { \"$ref\": \"#/$defs/r\" }\r\n"
+                + "  },\r\n"
+                + "  \"required\": [ \"s\", \"ref\" ],\r\n"
+                + "\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"r\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"default\": \"REF\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
+                        || walkEvent.getInstanceNode().isNull()) {
+                    JsonSchema schema = walkEvent.getSchema();
+                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                    if (schemaRef != null) {
+                        schema = schemaRef.getSchema();
+                    }
+                    JsonNode defaultNode = schema.getSchemaNode().get("default");
+                    if (defaultNode != null) {
+                        ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
+                                walkEvent.getInstanceLocation().getParent());
+                        parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
+                    }
+                }
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            }
+        });
+        
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
+        ValidationResult result = schema.walk(inputNode, true);
+        assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
+        assertTrue(result.getValidationMessages().isEmpty());
+    }
+
+    @Test
+    void applyInvalidDefaultsWithWalker() throws JsonMappingException, JsonProcessingException {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"title\": \"\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"s\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"default\": 1\r\n"
+                + "    },\r\n"
+                + "    \"ref\": { \"$ref\": \"#/$defs/r\" }\r\n"
+                + "  },\r\n"
+                + "  \"required\": [ \"s\", \"ref\" ],\r\n"
+                + "\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"r\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"default\": \"REF\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
+                        || walkEvent.getInstanceNode().isNull()) {
+                    JsonSchema schema = walkEvent.getSchema();
+                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                    if (schemaRef != null) {
+                        schema = schemaRef.getSchema();
+                    }
+                    JsonNode defaultNode = schema.getSchemaNode().get("default");
+                    if (defaultNode != null) {
+                        ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
+                                walkEvent.getInstanceLocation().getParent());
+                        parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
+                    }
+                }
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            }
+        });
+        
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
+        ValidationResult result = schema.walk(inputNode, true);
+        assertEquals("{\"s\":1,\"ref\":\"REF\"}", inputNode.toString());
+        assertFalse(result.getValidationMessages().isEmpty());
     }
 
     @Test

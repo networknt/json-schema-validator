@@ -222,7 +222,11 @@ public class PropertiesValidator extends BaseJsonValidator {
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
                 ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema);
-        if (executeWalk && !skipWalk) {
+        if (propertyNode == null && node != null) {
+            // Attempt to get the property node again in case the propertyNode was updated
+            propertyNode = node.get(entry.getKey());
+        }
+        if (executeWalk && !(skipWalk && propertyNode == null)) {
             validationMessages.union(
                     propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema));
         }
