@@ -125,6 +125,8 @@ class JsonSchemaWalkListenerTest {
                 .append(propertyKeywords.get(0).getKeyword()).toString());
         assertEquals("/tags/0", propertyKeywords.get(1).getInstanceLocation().toString());
         assertEquals("image", propertyKeywords.get(1).getInstanceNode().get("name").asText());
+        assertEquals("/properties/tags/items/$ref/properties",
+                propertyKeywords.get(1).getValidator().getEvaluationPath().toString());
         assertEquals("/properties/tags/items/$ref/properties", propertyKeywords.get(1).getSchema().getEvaluationPath()
                 .append(propertyKeywords.get(1).getKeyword()).toString());
         assertEquals("/tags/1", propertyKeywords.get(2).getInstanceLocation().toString());
