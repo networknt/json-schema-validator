@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonValidator;
-import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.ValidationContext;
 
 /**
  * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
@@ -95,50 +91,6 @@ public class WalkEvent {
         return (T) this.validator;
     }
 
-    @Deprecated
-    public JsonNode getNode() {
-        return getInstanceNode();
-    }
-    
-    @Deprecated
-    public JsonSchema getParentSchema() {
-        return getSchema().getParentSchema();
-    }
-
-    @Deprecated
-    public SchemaLocation getSchemaLocation() {
-        return getSchema().getSchemaLocation();
-    }
-
-    @Deprecated
-    public JsonNodePath getEvaluationPath() {
-        return getSchema().getEvaluationPath();
-    }
-
-    @Deprecated
-    public JsonNode getSchemaNode() {
-        return getSchema().getSchemaNode();
-    }
-
-    @Deprecated
-    public JsonSchema getRefSchema(SchemaLocation schemaLocation) {
-        return getCurrentJsonSchemaFactory().getSchema(schemaLocation, getSchema().getValidationContext().getConfig());
-    }
-
-    @Deprecated
-    public JsonSchema getRefSchema(SchemaLocation schemaLocation, SchemaValidatorsConfig schemaValidatorsConfig) {
-        if (schemaValidatorsConfig != null) {
-            return getCurrentJsonSchemaFactory().getSchema(schemaLocation, schemaValidatorsConfig);
-        } else {
-            return getRefSchema(schemaLocation);
-        }
-    }
-
-    @Deprecated
-    public JsonSchemaFactory getCurrentJsonSchemaFactory() {
-        return getSchema().getValidationContext().getJsonSchemaFactory();
-    }
-
     @Override
     public String toString() {
         return "WalkEvent [evaluationPath=" + getSchema().getEvaluationPath() + ", schemaLocation="
@@ -188,41 +140,6 @@ public class WalkEvent {
             return this;
         }
 
-        @Deprecated
-        public WalkEventBuilder evaluationPath(JsonNodePath evaluationPath) {
-            return this;
-        }
-
-        @Deprecated
-        public WalkEventBuilder schemaLocation(SchemaLocation schemaLocation) {
-            return this;
-        }
-
-        @Deprecated
-        public WalkEventBuilder schemaNode(JsonNode schemaNode) {
-            return this;
-        }
-
-        @Deprecated
-        public WalkEventBuilder parentSchema(JsonSchema parentSchema) {
-            return this;
-        }
-        
-        @Deprecated
-        public WalkEventBuilder node(JsonNode node) {
-            return instanceNode(node);
-        }
-        
-        @Deprecated
-        public WalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
-            return this;
-        }
-
-        @Deprecated
-        public WalkEventBuilder validationContext(ValidationContext validationContext) {
-            return this;
-        }
-
         public WalkEvent build() {
             return walkEvent;
         }
@@ -232,5 +149,4 @@ public class WalkEvent {
     public static WalkEventBuilder builder() {
         return new WalkEventBuilder();
     }
-
 }
