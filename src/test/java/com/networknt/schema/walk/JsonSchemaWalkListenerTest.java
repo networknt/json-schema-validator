@@ -716,8 +716,7 @@ class JsonSchemaWalkListenerTest {
                     JsonNode propertyNode = walkEvent.getInstanceNode().get(requiredProperty);
                     if (propertyNode == null) {
                         // Get the schema
-                        PropertiesValidator propertiesValidator = (PropertiesValidator) walkEvent.getSchema().getValidators().stream()
-                                .filter(v -> walkEvent.getKeyword().equals(v.getKeyword())).findFirst().get();
+                        PropertiesValidator propertiesValidator = walkEvent.getValidator();
                         JsonSchema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
                         JsonSchemaRef schemaRef = JsonSchemaRefs.from(propertySchema);
                         if (schemaRef != null) {
