@@ -1022,7 +1022,7 @@ public class JsonSchema extends BaseJsonValidator {
                 // returns SKIP, then skip the walk.
                 if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        this)) {
+                        this, v)) {
                     Set<ValidationMessage> results = null;
                     try {
                         results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
@@ -1037,7 +1037,7 @@ public class JsonSchema extends BaseJsonValidator {
                 // Call all the post-walk listeners.
                 this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        this, errors);
+                        this, v, errors);
             }
         }
         return errors;

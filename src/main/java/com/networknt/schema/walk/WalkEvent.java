@@ -5,6 +5,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.JsonValidator;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationContext;
@@ -20,6 +21,7 @@ public class WalkEvent {
     private JsonNode rootNode;
     private JsonNode instanceNode;
     private JsonNodePath instanceLocation;
+    private JsonValidator validator;
 
     /**
      * Gets the execution context.
@@ -81,6 +83,16 @@ public class WalkEvent {
      */
     public JsonNodePath getInstanceLocation() {
         return instanceLocation;
+    }
+
+    /**
+     * Gets the validator that corresponds with the keyword.
+     * 
+     * @return the validator
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends JsonValidator> T getValidator() {
+        return (T) this.validator;
     }
 
     @Deprecated
@@ -168,6 +180,11 @@ public class WalkEvent {
 
         public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
             walkEvent.instanceLocation = instanceLocation;
+            return this;
+        }
+
+        public WalkEventBuilder validator(JsonValidator validator) {
+            walkEvent.validator = validator;
             return this;
         }
 

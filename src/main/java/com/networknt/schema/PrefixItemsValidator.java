@@ -146,7 +146,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             node,
             rootNode,
             instanceLocation,
-            walkSchema
+            walkSchema, this
         );
         if (executeWalk) {
             validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
@@ -158,7 +158,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             rootNode,
             instanceLocation,
             walkSchema,
-            validationMessages
+            this, validationMessages
         );
         //@formatter:on
     }

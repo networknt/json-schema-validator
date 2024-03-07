@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
+import com.networknt.schema.ItemsValidator;
+import com.networknt.schema.ItemsValidator202012;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
@@ -117,6 +119,7 @@ class JsonSchemaWalkListenerTest {
         @SuppressWarnings("unchecked")
         List<WalkEvent> propertyKeywords = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("propertyKeywords"); 
         assertEquals(3, propertyKeywords.size());
+        assertEquals("properties", propertyKeywords.get(0).getValidator().getKeyword());
         assertEquals("", propertyKeywords.get(0).getInstanceLocation().toString());
         assertEquals("/properties", propertyKeywords.get(0).getSchema().getEvaluationPath()
                 .append(propertyKeywords.get(0).getKeyword()).toString());
@@ -194,6 +197,8 @@ class JsonSchemaWalkListenerTest {
         @SuppressWarnings("unchecked")
         List<WalkEvent> properties = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("properties");
         assertEquals(5, properties.size());
+        assertEquals("properties", properties.get(0).getValidator().getKeyword());
+        
         assertEquals("/tags", properties.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags", properties.get(0).getSchema().getEvaluationPath().toString());
 
@@ -212,6 +217,154 @@ class JsonSchemaWalkListenerTest {
         assertEquals("/tags/1/description", properties.get(4).getInstanceLocation().toString());
         assertEquals("A link", properties.get(4).getInstanceNode().asText());
         assertEquals("/properties/tags/items/$ref/properties/description", properties.get(4).getSchema().getEvaluationPath().toString());
+    }
+
+    @Test
+    void itemsListener() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"description\": \"Default Description\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"tags\": {\r\n"
+                + "      \"type\": \"array\",\r\n"
+                + "      \"items\": {\r\n"
+                + "        \"$ref\": \"#/definitions/tag\"\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"definitions\": {\r\n"
+                + "    \"tag\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"name\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"description\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                        .getCollectorMap().computeIfAbsent("items", key -> new ArrayList<>());
+                items.add(walkEvent);
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            }
+        });
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
+        String inputData = "{\r\n"
+                + "  \"tags\": [\r\n"
+                + "    {\r\n"
+                + "      \"name\": \"image\",\r\n"
+                + "      \"description\": \"An image\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"name\": \"link\",\r\n"
+                + "      \"description\": \"A link\"\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(2, items.size());
+        assertEquals("items", items.get(0).getValidator().getKeyword());
+        assertTrue(items.get(0).getValidator() instanceof ItemsValidator);
+        
+        assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
+        
+        assertEquals("/tags/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("/properties/tags/items", items.get(1).getSchema().getEvaluationPath().toString());
+    }
+
+    @Test
+    void items202012Listener() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"description\": \"Default Description\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"tags\": {\r\n"
+                + "      \"type\": \"array\",\r\n"
+                + "      \"items\": {\r\n"
+                + "        \"$ref\": \"#/definitions/tag\"\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"definitions\": {\r\n"
+                + "    \"tag\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"name\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"description\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                        .getCollectorMap().computeIfAbsent("items", key -> new ArrayList<>());
+                items.add(walkEvent);
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            }
+        });
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
+        String inputData = "{\r\n"
+                + "  \"tags\": [\r\n"
+                + "    {\r\n"
+                + "      \"name\": \"image\",\r\n"
+                + "      \"description\": \"An image\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"name\": \"link\",\r\n"
+                + "      \"description\": \"A link\"\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(2, items.size());
+        assertEquals("items", items.get(0).getValidator().getKeyword());
+        assertTrue(items.get(0).getValidator() instanceof ItemsValidator202012);
+        
+        assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
+        
+        assertEquals("/tags/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("/properties/tags/items", items.get(1).getSchema().getEvaluationPath().toString());
     }
 
     @Test

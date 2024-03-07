@@ -33,7 +33,8 @@ public class JsonNodes {
      * @param path the path
      * @return the node found at the path or null
      */
-    public static JsonNode get(JsonNode node, JsonNodePath path) {
+    @SuppressWarnings("unchecked")
+    public static <T extends JsonNode> T get(JsonNode node, JsonNodePath path) {
         int nameCount = path.getNameCount();
         JsonNode current = node;
         for (int x = 0; x < nameCount; x++) {
@@ -44,7 +45,7 @@ public class JsonNodes {
             }
             current = result;
         }
-        return current;
+        return (T) current;
     }
 
     /**
@@ -54,7 +55,8 @@ public class JsonNodes {
      * @param propertyOrIndex the property or index
      * @return the node given the property or index
      */
-    public static JsonNode get(JsonNode node, Object propertyOrIndex) {
+    @SuppressWarnings("unchecked")
+    public static <T extends JsonNode> T get(JsonNode node, Object propertyOrIndex) {
         JsonNode value = null;
         if (propertyOrIndex instanceof Number) {
             value = node.get(((Number) propertyOrIndex).intValue());
@@ -75,6 +77,6 @@ public class JsonNodes {
             
             value = node.get(unescaped);
         }
-        return value;
+        return (T) value;
     }
 }
