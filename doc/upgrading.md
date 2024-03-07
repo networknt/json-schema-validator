@@ -6,7 +6,31 @@ This contains information on the notable or breaking changes in each version.
 
 ### 1.4.0
 
-This contains breaking changes in how custom meta-schemas are created.
+This contains breaking changes 
+- to those using the walk functionality
+- in how custom meta-schemas are created
+
+The following are the breaking changes to those using the walk functionality.
+
+When using the walker with defaults the `default` across a `$ref` are properly resolved and used.
+
+The behavior for the property listener is now more consistent whether or not validation is enabled. Previously if validation is enabled but the property is `null` the property listener is not called while if validation is not enabled it will be called. Now the property listener will be called in both scenarios.
+
+
+`WalkEvent`
+| Field                    | Change       | Details
+|--------------------------|--------------|----------
+| `schemaLocation`         | Removed      | For keywords: `getValidator().getSchemaLocation()`. For items and properties: `getSchema().getSchemaLocation()`
+| `evaluationPath`         | Removed      | For keywords: `getValidator().getEvaluationPath()`. For items and properties: `getSchema().getEvaluationPath()`
+| `schemaNode`             | Removed      | `getSchema().getSchemaNode()`
+| `parentSchema`           | Removed      | `getSchema().getParentSchema()`
+| `schema`                 | New          | For keywords this is the parent schema of the validator. For items and properties this is the item or property schema being evaluated.
+| `node`                   | Renamed      | `instanceNode`
+| `currentJsonSchemaFactory`| Removed     | `getSchema().getValidationContext().getJsonSchemaFactory()`
+| `validator`              | New          | The validator indicated by the keyword.
+
+
+The following are the breaking changes in how custom meta-schemas are created.
 
 `JsonSchemaFactory`
 * The following were renamed on `JsonSchemaFactory` builder

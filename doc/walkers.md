@@ -38,20 +38,16 @@ public interface JsonSchemaWalker {
 The JSONValidator interface extends this new interface thus allowing all the validator's defined in library to implement this new interface. BaseJsonValidator class provides a default implementation of the walk method. In this case the walk method does nothing but validating based on shouldValidateSchema parameter.
 
 ```java
-/**
+    /**
      * This is default implementation of walk method. Its job is to call the
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema);
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
-        if (shouldValidateSchema) {
-            validationMessages = validate(executionContext, node, rootNode, instanceLocation);
-        }
-        return validationMessages;
+    default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        return shouldValidateSchema ? validate(executionContext, node, rootNode, instanceLocation)
+                : Collections.emptySet();
     }
-    
 ```
 
 A new walk method added to the JSONSchema class allows us to walk through the JSONSchema.
@@ -95,7 +91,7 @@ A new walk method added to the JSONSchema class allows us to walk through the JS
 ```
 Following code snippet shows how to call the walk method on a JsonSchema instance.
 
-```
+```java
 ValidationResult result = jsonSchema.walk(data,false);
 
 ```
@@ -122,7 +118,7 @@ private static class PropertiesKeywordListener implements JsonSchemaWalkListener
 
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
-            JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
+            JsonNode schemaNode = keywordWalkEvent.getSchema().getSchemaNode();
             if (schemaNode.get("title").textValue().equals("Property3")) {
                 return WalkFlow.SKIP;
             }
@@ -146,7 +142,7 @@ SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
     schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
             new PropertiesKeywordListener());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-        .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+        .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
         .build();
 this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
                 
@@ -160,7 +156,7 @@ Both property walk listeners and keyword walk listener can be modeled by using t
 SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
 schemaValidatorsConfig.addPropertyWalkListener(new ExamplePropertyWalkListener());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).addMetaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
 this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
                 
@@ -176,16 +172,15 @@ Following snippet shows the details captured by WalkEvent instance.
 
 ```java
 public class WalkEvent {
-
     private ExecutionContext executionContext;
-    private SchemaLocation schemaLocation;
-    private JsonNodePath evaluationPath;
-    private JsonNode schemaNode;
-    private JsonSchema parentSchema;
+    private JsonSchema schema;
     private String keyword;
-    private JsonNode node;
     private JsonNode rootNode;
+    private JsonNode instanceNode;
     private JsonNodePath instanceLocation;
+    private JsonValidator validator;
+    ...
+}
 ```
 
 ### Sample Flow
@@ -285,7 +280,7 @@ But if we apply defaults while walking, then required validation passes, and the
         JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
-        JsonSchema jsonSchema =  schemaFactory.getSchema(getClass().getClassLoader().getResourceAsStream("schema.json"), schemaValidatorsConfig);
+        JsonSchema jsonSchema =  schemaFactory.getSchema(SchemaLocation.of("classpath:schema.json"), schemaValidatorsConfig);
 
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data.json"));
         ValidationResult result = jsonSchema.walk(inputNode, true);
