@@ -21,8 +21,76 @@ public class WalkEvent {
     private JsonNode rootNode;
     private JsonNodePath instanceLocation;
 
+    /**
+     * Gets the execution context.
+     * <p>
+     * As the listeners should be state-less, this allows listeners to store data in
+     * the collector context.
+     * 
+     * @return the execution context
+     */
     public ExecutionContext getExecutionContext() {
         return executionContext;
+    }
+
+    /**
+     * Gets the schema that will be used to evaluate the instance node.
+     * <p>
+     * For the keyword listener, this will allow getting the validator for the given keyword.
+     *
+     * @return the schema
+     */
+    public JsonSchema getSchema() {
+        return schema;
+    }
+
+    /**
+     * Gets the keyword.
+     * 
+     * @return the keyword
+     */
+    public String getKeyword() {
+        return keyword;
+    }
+
+    /**
+     * Gets the instance node.
+     * 
+     * @return the instance node
+     */
+    public JsonNode getInstanceNode() {
+        return instanceNode;
+    }
+
+    /**
+     * Gets the root instance node.
+     * <p>
+     * This makes it possible to get the parent node, for instance by getting the
+     * instance location parent and using the root node.
+     * 
+     * @return the root node
+     */
+    public JsonNode getRootNode() {
+        return rootNode;
+    }
+
+    /**
+     * Gets the instance location of the instance node.
+     * 
+     * @return the instance location of the instance node
+     */
+    public JsonNodePath getInstanceLocation() {
+        return instanceLocation;
+    }
+
+    @Deprecated
+    public JsonNode getNode() {
+        return getInstanceNode();
+    }
+    
+    @Deprecated
+    public JsonSchema getParentSchema() {
+        return getSchema().getParentSchema();
     }
 
     @Deprecated
@@ -38,41 +106,6 @@ public class WalkEvent {
     @Deprecated
     public JsonNode getSchemaNode() {
         return getSchema().getSchemaNode();
-    }
-
-    /**
-     * Gets the JsonSchema indicated by the schema node.
-     *
-     * @return the schema
-     */
-    public JsonSchema getSchema() {
-        return schema;
-    }
-
-    @Deprecated
-    public JsonSchema getParentSchema() {
-        return getSchema().getParentSchema();
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public JsonNode getInstanceNode() {
-        return instanceNode;
-    }
-
-    @Deprecated
-    public JsonNode getNode() {
-        return getInstanceNode();
-    }
-
-    public JsonNode getRootNode() {
-        return rootNode;
-    }
-
-    public JsonNodePath getInstanceLocation() {
-        return instanceLocation;
     }
 
     @Deprecated
@@ -113,6 +146,31 @@ public class WalkEvent {
             return this;
         }
 
+        public WalkEventBuilder schema(JsonSchema schema) {
+            walkEvent.schema = schema;
+            return this;
+        }
+
+        public WalkEventBuilder keyword(String keyword) {
+            walkEvent.keyword = keyword;
+            return this;
+        }
+
+        public WalkEventBuilder instanceNode(JsonNode node) {
+            walkEvent.instanceNode = node;
+            return this;
+        }
+
+        public WalkEventBuilder rootNode(JsonNode rootNode) {
+            walkEvent.rootNode = rootNode;
+            return this;
+        }
+
+        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
+            walkEvent.instanceLocation = instanceLocation;
+            return this;
+        }
+
         @Deprecated
         public WalkEventBuilder evaluationPath(JsonNodePath evaluationPath) {
             return this;
@@ -128,41 +186,16 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schema(JsonSchema schema) {
-            walkEvent.schema = schema;
-            return this;
-        }
-
         @Deprecated
         public WalkEventBuilder parentSchema(JsonSchema parentSchema) {
             return this;
         }
-
-        public WalkEventBuilder keyword(String keyword) {
-            walkEvent.keyword = keyword;
-            return this;
-        }
-
-        public WalkEventBuilder instanceNode(JsonNode node) {
-            walkEvent.instanceNode = node;
-            return this;
-        }
-
+        
         @Deprecated
         public WalkEventBuilder node(JsonNode node) {
             return instanceNode(node);
         }
-
-        public WalkEventBuilder rootNode(JsonNode rootNode) {
-            walkEvent.rootNode = rootNode;
-            return this;
-        }
-
-        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
-            walkEvent.instanceLocation = instanceLocation;
-            return this;
-        }
-
+        
         @Deprecated
         public WalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
             return this;
