@@ -233,7 +233,6 @@ public class PropertiesValidator extends BaseJsonValidator {
         propertyWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
                 rootNode, path, propertySchema,
                 this, validationMessages);
-
     }
 
     public Map<String, JsonSchema> getSchemas() {

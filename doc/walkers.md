@@ -53,46 +53,46 @@ The JSONValidator interface extends this new interface thus allowing all the val
 A new walk method added to the JSONSchema class allows us to walk through the JSONSchema.
 
 ```java
-    public ValidationResult walk(JsonNode node, boolean shouldValidateSchema) {
-        // Create the collector context object.
-        CollectorContext collectorContext = new CollectorContext();
-        // Set the collector context in thread info, this is unique for every thread.
-        ThreadInfo.set(CollectorContext.COLLECTOR_CONTEXT_THREAD_LOCAL_KEY, collectorContext);
-        Set<ValidationMessage> errors = walk(node, node, AT_ROOT, shouldValidateSchema);
-        // Load all the data from collectors into the context.
-        collectorContext.loadCollectors();
-        // Collect errors and collector context into validation result.
-        ValidationResult validationResult = new ValidationResult(errors, collectorContext);
-        return validationResult;
+    public ValidationResult walk(JsonNode node, boolean validate) {
+        return walk(createExecutionContext(), node, validate);
     }
 
     @Override
-    public Set<ValidationMessage> walk(JsonNode node, JsonNode rootNode, String at, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<ValidationMessage>();
+    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
-        for (Entry<String, JsonValidator> entry : validators.entrySet()) {
-            JsonWalker jsonWalker = entry.getValue();
-            String schemaPathWithKeyword = entry.getKey();
+        for (JsonValidator validator : getValidators()) {
+            JsonNodePath evaluationPathWithKeyword = validator.getEvaluationPath();
             try {
-                // Call all the pre-walk listeners. If all the pre-walk listeners return true
-                // then continue to walk method.
-                if (keywordWalkListenerRunner.runPreWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-                        schemaNode, parentSchema)) {
-                    validationMessages.addAll(jsonWalker.walk(node, rootNode, at, shouldValidateSchema));
+                // Call all the pre-walk listeners. If at least one of the pre walk listeners
+                // returns SKIP, then skip the walk.
+                if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        this, validator)) {
+                    Set<ValidationMessage> results = null;
+                    try {
+                        results = validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                    } finally {
+                        if (results != null && !results.isEmpty()) {
+                            errors.addAll(results);
+                        }
+                    }
                 }
             } finally {
                 // Call all the post-walk listeners.
-                keywordWalkListenerRunner.runPostWalkListeners(schemaPathWithKeyword, node, rootNode, at, schemaPath,
-                        schemaNode, parentSchema, validationMessages);
+                this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
+                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
+                        this, validator, errors);
             }
         }
-        return validationMessages;
+        return errors;
     }
 ```
 Following code snippet shows how to call the walk method on a JsonSchema instance.
 
 ```java
-ValidationResult result = jsonSchema.walk(data,false);
+ValidationResult result = jsonSchema.walk(data, false);
 
 ```
 

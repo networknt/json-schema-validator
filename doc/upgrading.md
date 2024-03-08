@@ -10,15 +10,14 @@ This contains breaking changes
 - to those using the walk functionality
 - in how custom meta-schemas are created
 
-The following are the breaking changes to those using the walk functionality.
-
 When using the walker with defaults the `default` across a `$ref` are properly resolved and used.
 
 The behavior for the property listener is now more consistent whether or not validation is enabled. Previously if validation is enabled but the property is `null` the property listener is not called while if validation is not enabled it will be called. Now the property listener will be called in both scenarios.
 
+The following are the breaking changes to those using the walk functionality.
 
 `WalkEvent`
-| Field                    | Change       | Details
+| Field                    | Change       | Notes
 |--------------------------|--------------|----------
 | `schemaLocation`         | Removed      | For keywords: `getValidator().getSchemaLocation()`. For items and properties: `getSchema().getSchemaLocation()`
 | `evaluationPath`         | Removed      | For keywords: `getValidator().getEvaluationPath()`. For items and properties: `getSchema().getEvaluationPath()`
