@@ -29,16 +29,16 @@ import java.util.*;
 public class TypeValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
 
-    private JsonType schemaType;
-    private JsonSchema parentSchema;
-    private UnionTypeValidator unionTypeValidator;
+    private final JsonType schemaType;
+    private final UnionTypeValidator unionTypeValidator;
 
     public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
-        this.parentSchema = parentSchema;
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
+        } else {
+            this.unionTypeValidator = null;
         }
     }
 
@@ -47,7 +47,7 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     public boolean equalsToSchemaType(JsonNode node) {
-        return JsonNodeUtil.equalsToSchemaType(node,this.schemaType, this.parentSchema, this.validationContext);
+        return JsonNodeUtil.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.validationContext);
     }
 
     @Override

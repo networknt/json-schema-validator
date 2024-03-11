@@ -29,13 +29,15 @@ import java.util.Set;
 public class MaxPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxPropertiesValidator.class);
 
-    private int max;
+    private final int max;
 
     public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                   ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_PROPERTIES, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
+        } else {
+            max = Integer.MAX_VALUE;
         }
     }
 

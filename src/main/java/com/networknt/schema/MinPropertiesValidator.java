@@ -29,13 +29,15 @@ import java.util.Set;
 public class MinPropertiesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinPropertiesValidator.class);
 
-    protected int min;
+    protected final int min;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                   ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
+        } else {
+            min = 0;
         }
     }
 

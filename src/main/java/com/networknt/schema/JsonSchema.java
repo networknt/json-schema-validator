@@ -543,9 +543,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
-                if (results == null || results.isEmpty()) {
-                    // Do nothing if valid
-                } else {
+                if (results != null && !results.isEmpty()) {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
