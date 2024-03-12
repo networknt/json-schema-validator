@@ -28,7 +28,7 @@ import java.util.*;
 public class DynamicRefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DynamicRefValidator.class);
 
-    protected JsonSchemaRef schema;
+    protected final JsonSchemaRef schema;
 
     public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DYNAMIC_REF, validationContext);

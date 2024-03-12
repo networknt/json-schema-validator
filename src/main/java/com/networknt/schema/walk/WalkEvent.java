@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.JsonValidator;
 
 /**
  * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
@@ -15,73 +12,89 @@ import com.networknt.schema.ValidationContext;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private SchemaLocation schemaLocation;
-    private JsonNodePath evaluationPath;
-    private JsonNode schemaNode;
-    private JsonSchema parentSchema;
+    private JsonSchema schema;
     private String keyword;
-    private JsonNode node;
     private JsonNode rootNode;
+    private JsonNode instanceNode;
     private JsonNodePath instanceLocation;
-    private JsonSchemaFactory currentJsonSchemaFactory;
-    private ValidationContext validationContext;
+    private JsonValidator validator;
 
+    /**
+     * Gets the execution context.
+     * <p>
+     * As the listeners should be state-less, this allows listeners to store data in
+     * the collector context.
+     * 
+     * @return the execution context
+     */
     public ExecutionContext getExecutionContext() {
         return executionContext;
     }
 
-    public SchemaLocation getSchemaLocation() {
-        return schemaLocation;
-    }
-    
-    public JsonNodePath getEvaluationPath() {
-        return evaluationPath;
-    }
-
-    public JsonNode getSchemaNode() {
-        return schemaNode;
-    }
-
-    public JsonSchema getParentSchema() {
-        return parentSchema;
+    /**
+     * Gets the schema that will be used to evaluate the instance node.
+     * <p>
+     * For the keyword listener, this will allow getting the validator for the given keyword.
+     *
+     * @return the schema
+     */
+    public JsonSchema getSchema() {
+        return schema;
     }
 
+    /**
+     * Gets the keyword.
+     * 
+     * @return the keyword
+     */
     public String getKeyword() {
         return keyword;
     }
 
-    public JsonNode getNode() {
-        return node;
-    }
-
+    /**
+     * Gets the root instance node.
+     * <p>
+     * This makes it possible to get the parent node, for instance by getting the
+     * instance location parent and using the root node.
+     * 
+     * @return the root node
+     */
     public JsonNode getRootNode() {
         return rootNode;
     }
 
+    /**
+     * Gets the instance node.
+     * 
+     * @return the instance node
+     */
+    public JsonNode getInstanceNode() {
+        return instanceNode;
+    }
+
+    /**
+     * Gets the instance location of the instance node.
+     * 
+     * @return the instance location of the instance node
+     */
     public JsonNodePath getInstanceLocation() {
         return instanceLocation;
     }
 
-    public JsonSchema getRefSchema(SchemaLocation schemaUri) {
-        return currentJsonSchemaFactory.getSchema(schemaUri, validationContext.getConfig());
-    }
-
-    public JsonSchema getRefSchema(SchemaLocation schemaUri, SchemaValidatorsConfig schemaValidatorsConfig) {
-        if (schemaValidatorsConfig != null) {
-            return currentJsonSchemaFactory.getSchema(schemaUri, schemaValidatorsConfig);
-        } else {
-            return getRefSchema(schemaUri);
-        }
-    }
-
-    public JsonSchemaFactory getCurrentJsonSchemaFactory() {
-        return currentJsonSchemaFactory;
+    /**
+     * Gets the validator that corresponds with the keyword.
+     * 
+     * @return the validator
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends JsonValidator> T getValidator() {
+        return (T) this.validator;
     }
 
     @Override
     public String toString() {
-        return "WalkEvent [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
-                + ", instanceLocation=" + instanceLocation + "]";
+        return "WalkEvent [evaluationPath=" + getSchema().getEvaluationPath() + ", schemaLocation="
+                + getSchema().getSchemaLocation() + ", instanceLocation=" + instanceLocation + "]";
     }
 
     static class WalkEventBuilder {
@@ -97,23 +110,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder evaluationPath(JsonNodePath evaluationPath) {
-            walkEvent.evaluationPath = evaluationPath;
-            return this;
-        }
-
-        public WalkEventBuilder schemaLocation(SchemaLocation schemaLocation) {
-            walkEvent.schemaLocation = schemaLocation;
-            return this;
-        }
-
-        public WalkEventBuilder schemaNode(JsonNode schemaNode) {
-            walkEvent.schemaNode = schemaNode;
-            return this;
-        }
-
-        public WalkEventBuilder parentSchema(JsonSchema parentSchema) {
-            walkEvent.parentSchema = parentSchema;
+        public WalkEventBuilder schema(JsonSchema schema) {
+            walkEvent.schema = schema;
             return this;
         }
 
@@ -122,8 +120,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder node(JsonNode node) {
-            walkEvent.node = node;
+        public WalkEventBuilder instanceNode(JsonNode node) {
+            walkEvent.instanceNode = node;
             return this;
         }
 
@@ -137,13 +135,8 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder currentJsonSchemaFactory(JsonSchemaFactory currentJsonSchemaFactory) {
-            walkEvent.currentJsonSchemaFactory = currentJsonSchemaFactory;
-            return this;
-        }
-
-        public WalkEventBuilder validationContext(ValidationContext validationContext) {
-            walkEvent.validationContext = validationContext;
+        public WalkEventBuilder validator(JsonValidator validator) {
+            walkEvent.validator = validator;
             return this;
         }
 
@@ -156,5 +149,4 @@ public class WalkEvent {
     public static WalkEventBuilder builder() {
         return new WalkEventBuilder();
     }
-
 }

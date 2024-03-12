@@ -162,15 +162,15 @@ public class JsonWalkTest {
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             ObjectMapper mapper = new ObjectMapper();
             String keyWordName = keywordWalkEvent.getKeyword();
-            JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
+            JsonNode schemaNode = keywordWalkEvent.getSchema().getSchemaNode();
             CollectorContext collectorContext = keywordWalkEvent.getExecutionContext().getCollectorContext();
             if (collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE) == null) {
                 collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
             if (keyWordName.equals(CUSTOM_KEYWORD) && schemaNode.get(CUSTOM_KEYWORD).isArray()) {
                 ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
-                objectNode.put(keywordWalkEvent.getSchemaNode().get("title").textValue().toUpperCase(),
-                        keywordWalkEvent.getNode().textValue());
+                objectNode.put(keywordWalkEvent.getSchema().getSchemaNode().get("title").textValue().toUpperCase(),
+                        keywordWalkEvent.getInstanceNode().textValue());
             }
             return WalkFlow.CONTINUE;
         }
@@ -191,8 +191,8 @@ public class JsonWalkTest {
                 collectorContext.add(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
             ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
-            objectNode.set(keywordWalkEvent.getSchemaNode().get("title").textValue().toLowerCase(),
-                    keywordWalkEvent.getNode());
+            objectNode.set(keywordWalkEvent.getSchema().getSchemaNode().get("title").textValue().toLowerCase(),
+                    keywordWalkEvent.getInstanceNode());
             return WalkFlow.SKIP;
         }
 
@@ -206,7 +206,7 @@ public class JsonWalkTest {
 
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
-            JsonNode schemaNode = keywordWalkEvent.getSchemaNode();
+            JsonNode schemaNode = keywordWalkEvent.getSchema().getSchemaNode();
             if (schemaNode.get("title").textValue().equals("Property3")) {
                 return WalkFlow.SKIP;
             }

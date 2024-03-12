@@ -22,11 +22,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.YamlMapperFactory;
+import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SetView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -211,7 +211,7 @@ public class JsonSchema extends BaseJsonValidator {
         return this;
     }
 
-    ValidationContext getValidationContext() {
+    public ValidationContext getValidationContext() {
         return this.validationContext;
     }
 
@@ -282,7 +282,7 @@ public class JsonSchema extends BaseJsonValidator {
         SchemaLocation schemaLocation = document.getSchemaLocation();
         JsonNodePath evaluationPath = document.getEvaluationPath();
         int nameCount = fragment.getNameCount();
-        for (int x = 0; x < fragment.getNameCount(); x++) {
+        for (int x = 0; x < nameCount; x++) {
             /*
              * The sub schema is created by iterating through the parents in order to
              * maintain the lexical parent schema context.
@@ -348,29 +348,9 @@ public class JsonSchema extends BaseJsonValidator {
     protected JsonNode getNode(Object propertyOrIndex) {
         return getNode(this.schemaNode, propertyOrIndex);
     }
-    
+
     protected JsonNode getNode(JsonNode node, Object propertyOrIndex) {
-        JsonNode value = null;
-        if (propertyOrIndex instanceof Number) {
-            value = node.get(((Number) propertyOrIndex).intValue());
-        } else {
-            // In the case of string this represents an escaped json pointer and thus does not reflect the property directly
-            String unescaped = propertyOrIndex.toString();
-            if (unescaped.contains("~")) {
-                unescaped = unescaped.replace("~1", "/");
-                unescaped = unescaped.replace("~0", "~");
-            }
-            if (unescaped.contains("%")) {
-                try {
-                    unescaped = URLDecoder.decode(unescaped, StandardCharsets.UTF_8.toString());
-                } catch (UnsupportedEncodingException e) {
-                    // Do nothing
-                }
-            }
-            
-            value = node.get(unescaped);
-        }
-        return value;
+        return JsonNodes.get(node, propertyOrIndex);
     }
 
     public JsonSchema findLexicalRoot() {
@@ -563,9 +543,7 @@ public class JsonSchema extends BaseJsonValidator {
             try {
                 results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
             } finally {
-                if (results == null || results.isEmpty()) {
-                    // Do nothing if valid
-                } else {
+                if (results != null && !results.isEmpty()) {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
@@ -918,22 +896,24 @@ public class JsonSchema extends BaseJsonValidator {
      * @return ValidationResult
      */
     private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        // Get the config.
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
-        // Get the collector context from the thread local.
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled and isValidationEnabled flag in internal validator state.
         setValidatorState(executionContext, false, true);
         // Validate.
         Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, instanceLocation);
+
+        // Get the config.
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
+
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
         if (config.doLoadCollectors()) {
+            // Get the collector context.
+            CollectorContext collectorContext = executionContext.getCollectorContext();
+
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
         // Collect errors and collector context into validation result.
-        ValidationResult validationResult = new ValidationResult(errors, executionContext);
-        return validationResult;
+        return new ValidationResult(errors, executionContext);
     }
 
     public ValidationResult validateAndCollect(JsonNode node) {
@@ -1012,22 +992,22 @@ public class JsonSchema extends BaseJsonValidator {
 
     private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        // Get the config.
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
-        // Get the collector context.
-        CollectorContext collectorContext = executionContext.getCollectorContext();
         // Set the walkEnabled flag in internal validator state.
         setValidatorState(executionContext, true, shouldValidateSchema);
         // Walk through the schema.
         Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+
+        // Get the config.
+        SchemaValidatorsConfig config = this.validationContext.getConfig();
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
         if (config.doLoadCollectors()) {
+            // Get the collector context.
+            CollectorContext collectorContext = executionContext.getCollectorContext();
+
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
-
-        ValidationResult validationResult = new ValidationResult(errors, executionContext);
-        return validationResult;
+        return new ValidationResult(errors, executionContext);
     }
 
     @Override
@@ -1035,21 +1015,19 @@ public class JsonSchema extends BaseJsonValidator {
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
-        for (JsonValidator v : getValidators()) {
-            JsonNodePath evaluationPathWithKeyword = v.getEvaluationPath();
+        for (JsonValidator validator : getValidators()) {
+            JsonNodePath evaluationPathWithKeyword = validator.getEvaluationPath();
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
                 if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory())) {
+                        this, validator)) {
                     Set<ValidationMessage> results = null;
                     try {
-                        results = v.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                        results = validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
                     } finally {
-                        if (results == null || results.isEmpty()) {
-                        } else {
+                        if (results != null && !results.isEmpty()) {
                             errors.addAll(results);
                         }
                     }
@@ -1058,9 +1036,7 @@ public class JsonSchema extends BaseJsonValidator {
                 // Call all the post-walk listeners.
                 this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        v.getEvaluationPath(), v.getSchemaLocation(), this.schemaNode,
-                        this.parentSchema, this.validationContext, this.validationContext.getJsonSchemaFactory(),
-                        errors);
+                        this, validator, errors);
             }
         }
         return errors;

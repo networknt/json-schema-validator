@@ -65,14 +65,14 @@ class Issue724Test {
         @Override
         public WalkFlow onWalkStart(WalkEvent walkEvent) {
             boolean isString =
-                Optional.of(walkEvent.getSchemaNode())
+                Optional.of(walkEvent.getSchema().getSchemaNode())
                     .map(jsonNode -> jsonNode.get("type"))
                     .map(JsonNode::asText)
                     .map(type -> type.equals("string"))
                     .orElse(false);
 
             if (isString) {
-                this.strings.add(walkEvent.getNode().asText());
+                this.strings.add(walkEvent.getInstanceNode().asText());
             }
 
             return WalkFlow.CONTINUE;

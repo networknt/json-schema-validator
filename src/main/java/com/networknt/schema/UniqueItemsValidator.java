@@ -30,12 +30,14 @@ import java.util.Set;
 public class UniqueItemsValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UniqueItemsValidator.class);
 
-    private boolean unique = false;
+    private final boolean unique;
 
     public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
+        } else {
+            unique = false;
         }
     }
 

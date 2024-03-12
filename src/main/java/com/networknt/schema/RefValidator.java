@@ -28,7 +28,7 @@ import java.util.*;
 public class RefValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
-    protected JsonSchemaRef schema;
+    protected final JsonSchemaRef schema;
 
     private static final String REF_CURRENT = "#";
 

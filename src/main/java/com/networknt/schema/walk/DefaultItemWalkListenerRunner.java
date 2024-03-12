@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.JsonValidator;
 import com.networknt.schema.ValidationMessage;
 
 import java.util.List;
@@ -21,22 +19,18 @@ public class DefaultItemWalkListenerRunner extends AbstractWalkListenerRunner {
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
-            JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
-            JsonSchemaFactory currentJsonSchemaFactory) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation,
-                evaluationPath, schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
+    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator) {
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
+                schema, validator);
         return runPreWalkListeners(itemWalkListeners, walkEvent);
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
-            JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext,
-            JsonSchemaFactory currentJsonSchemaFactory, Set<ValidationMessage> validationMessages) {
-        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, node, rootNode, instanceLocation,
-                evaluationPath, schemaLocation, schemaNode, parentSchema, validationContext, currentJsonSchemaFactory);
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator, Set<ValidationMessage> validationMessages) {
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
+                schema, validator);
         runPostWalkListeners(itemWalkListeners, walkEvent, validationMessages);
     }
 
