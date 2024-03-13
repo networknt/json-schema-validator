@@ -106,7 +106,9 @@ public class AnyOfValidator extends BaseJsonValidator {
                         // return empty errors.
                         return errors;
                     } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
-                        if (executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
+                        DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
+                        if (currentDiscriminatorContext.isDiscriminatorMatchFound()
+                                || currentDiscriminatorContext.isDiscriminatorIgnore()) {
                             if (!errors.isEmpty()) {
                                 // The following is to match the previous logic adding to all errors
                                 // which is generally discarded as it returns errors but the allErrors
@@ -137,7 +139,8 @@ public class AnyOfValidator extends BaseJsonValidator {
             }
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
-                    && executionContext.getCurrentDiscriminatorContext().isActive()) {
+                    && executionContext.getCurrentDiscriminatorContext().isActive()
+                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(

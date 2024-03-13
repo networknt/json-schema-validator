@@ -110,22 +110,36 @@ public class OneOfValidator extends BaseJsonValidator {
                     // matching discriminator to be discarded. Note that the discriminator cannot
                     // affect the actual validation result.
                     if (discriminator != null && !discriminator.getPropertyName().isEmpty()) {
-                        String discriminatorPropertyValue = node.get(discriminator.getPropertyName()).asText();
-                        discriminatorPropertyValue = discriminator.getMapping().getOrDefault(discriminatorPropertyValue,
-                                discriminatorPropertyValue);
-                        JsonNode refNode = schema.getSchemaNode().get("$ref");
-                        if (refNode != null) {
-                            String ref = refNode.asText();
-                            if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
-                                executionContext.getCurrentDiscriminatorContext().markMatch();
+                        JsonNode discriminatorPropertyNode = node.get(discriminator.getPropertyName());
+                        if (discriminatorPropertyNode != null) {
+                            String discriminatorPropertyValue = discriminatorPropertyNode.asText();
+                            discriminatorPropertyValue = discriminator.getMapping().getOrDefault(discriminatorPropertyValue,
+                                    discriminatorPropertyValue);
+                            JsonNode refNode = schema.getSchemaNode().get("$ref");
+                            if (refNode != null) {
+                                String ref = refNode.asText();
+                                if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
+                                    executionContext.getCurrentDiscriminatorContext().markMatch();
+                                }
                             }
+                        } else {
+                            // See issue 436 where the condition was relaxed to not cause an assertion
+                            // due to missing discriminator property value
+                            // Also see BaseJsonValidator#checkDiscriminatorMatch 
+                            executionContext.getCurrentDiscriminatorContext().markIgnore();
                         }
                     }
-                    boolean discriminatorMatchFound = executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound();
-                    if (discriminatorMatchFound && childErrors == null) {
+                    DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
+                    if (currentDiscriminatorContext.isDiscriminatorMatchFound() && childErrors == null) {
                         // Note that the match is set if found and not reset so checking if childErrors
                         // found is null triggers on the correct schema
                         childErrors = new SetView<>();
+                        childErrors.union(schemaErrors);
+                    } else if (currentDiscriminatorContext.isDiscriminatorIgnore()) {
+                        // This is the normal handling when discriminators aren't enabled
+                        if (childErrors == null) {
+                            childErrors = new SetView<>();
+                        }
                         childErrors.union(schemaErrors);
                     }
                 } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
@@ -140,7 +154,8 @@ public class OneOfValidator extends BaseJsonValidator {
 
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
                     && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
-                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()) {
+                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
+                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
