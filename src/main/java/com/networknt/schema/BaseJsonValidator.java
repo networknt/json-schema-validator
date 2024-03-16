@@ -114,7 +114,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                                                   final String discriminatorPropertyValue,
                                                   final JsonSchema jsonSchema) {
         if (discriminatorPropertyValue == null) {
-            currentDiscriminatorContext.markMatch();
+            currentDiscriminatorContext.markIgnore();
             return;
         }
 

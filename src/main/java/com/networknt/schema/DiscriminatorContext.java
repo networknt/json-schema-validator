@@ -10,6 +10,8 @@ public class DiscriminatorContext {
 
     private boolean discriminatorMatchFound = false;
 
+    private boolean discriminatorIgnore = false;
+
     public void registerDiscriminator(final SchemaLocation schemaLocation, final ObjectNode discriminator) {
         this.discriminators.put("#" + schemaLocation.getFragment().toString(), discriminator);
     }
@@ -26,8 +28,23 @@ public class DiscriminatorContext {
         this.discriminatorMatchFound = true;
     }
 
+    /**
+     * Indicate that discriminator processing should be ignored.
+     * <p>
+     * This is used when the discriminator property value is missing from the data.
+     * <p>
+     * See issue #436 for background.
+     */
+    public void markIgnore() {
+        this.discriminatorIgnore = true;
+    }
+
     public boolean isDiscriminatorMatchFound() {
         return this.discriminatorMatchFound;
+    }
+
+    public boolean isDiscriminatorIgnore() {
+        return this.discriminatorIgnore;
     }
 
     /**

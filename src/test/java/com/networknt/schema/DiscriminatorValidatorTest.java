@@ -538,7 +538,7 @@ public class DiscriminatorValidatorTest {
         assertEquals("required", list.get(1).getType());
         assertEquals("numberOfBeds", list.get(1).getProperty());
     }
-    
+
     @Test
     void discriminatorMappingInOneOfShouldOnlyReportErrorsInMatchingDiscriminator() {
         String schemaData = "{\r\n"
@@ -640,4 +640,151 @@ public class DiscriminatorValidatorTest {
         assertEquals("numberOfBeds", list.get(1).getProperty());
     }
 
+    /**
+     * See issue 436 and 985.
+     */
+    @Test
+    void oneOfMissingDiscriminatorValue() {
+        String schemaData = "    {\r\n"
+                + "          \"type\": \"object\",\r\n"
+                + "          \"discriminator\": { \"propertyName\": \"name\" },\r\n"
+                + "          \"oneOf\": [\r\n"
+                + "            {\r\n"
+                + "              \"$ref\": \"#/defs/Foo\"\r\n"
+                + "            },\r\n"
+                + "            {\r\n"
+                + "              \"$ref\": \"#/defs/Bar\"\r\n"
+                + "            }\r\n"
+                + "          ],\r\n"
+                + "          \"defs\": {\r\n"
+                + "            \"Foo\": {\r\n"
+                + "              \"type\": \"object\",\r\n"
+                + "              \"properties\": {\r\n"
+                + "                \"name\": {\r\n"
+                + "                  \"const\": \"Foo\"\r\n"
+                + "                }\r\n"
+                + "              },\r\n"
+                + "              \"required\": [ \"name\" ],\r\n"
+                + "              \"additionalProperties\": false\r\n"
+                + "            },\r\n"
+                + "            \"Bar\": {\r\n"
+                + "              \"type\": \"object\",\r\n"
+                + "              \"properties\": {\r\n"
+                + "                \"name\": {\r\n"
+                + "                  \"const\": \"Bar\"\r\n"
+                + "                }\r\n"
+                + "              },\r\n"
+                + "              \"required\": [ \"name\" ],\r\n"
+                + "              \"additionalProperties\": false\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }";
+
+        String inputData = "{}";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setOpenAPI3StyleDiscriminators(true);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        assertEquals(3, messages.size());
+        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", list.get(0).getType());
+        assertEquals("required", list.get(1).getType());
+        assertEquals("required", list.get(2).getType());
+    }
+
+    /**
+     * See issue 436.
+     */
+    @Test
+    void anyOfMissingDiscriminatorValue() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"array\",\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"anyOf\": [\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/Kitchen\"\r\n"
+                + "      },\r\n"
+                + "      {\r\n"
+                + "        \"$ref\": \"#/components/schemas/BedRoom\"\r\n"
+                + "      }\r\n"
+                + "    ]\r\n"
+                + "  },\r\n"
+                + "  \"components\": {\r\n"
+                + "    \"schemas\": {\r\n"
+                + "      \"Room\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"properties\": {\r\n"
+                + "          \"@type\": {\r\n"
+                + "            \"type\": \"string\"\r\n"
+                + "          }\r\n"
+                + "        },\r\n"
+                + "        \"required\": [\r\n"
+                + "          \"@type\"\r\n"
+                + "        ],\r\n"
+                + "        \"discriminator\": {\r\n"
+                + "          \"propertyName\": \"@type\"\r\n"
+                + "        }\r\n"
+                + "      },\r\n"
+                + "      \"BedRoom\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"numberOfBeds\": {\r\n"
+                + "                \"type\": \"integer\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"numberOfBeds\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      },\r\n"
+                + "      \"Kitchen\": {\r\n"
+                + "        \"type\": \"object\",\r\n"
+                + "        \"allOf\": [\r\n"
+                + "          {\r\n"
+                + "            \"$ref\": \"#/components/schemas/Room\"\r\n"
+                + "          },\r\n"
+                + "          {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "              \"hasMicrowaveOven\": {\r\n"
+                + "                \"type\": \"boolean\"\r\n"
+                + "              }\r\n"
+                + "            },\r\n"
+                + "            \"required\": [\r\n"
+                + "              \"hasMicrowaveOven\"\r\n"
+                + "            ]\r\n"
+                + "          }\r\n"
+                + "        ]\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        String inputData = "[\r\n"
+                + "  {\r\n"
+                + "    \"hasMicrowaveOven\": true\r\n"
+                + "  },\r\n"
+                + "  {\r\n"
+                + "    \"@type\": \"BedRoom\",\r\n"
+                + "    \"numberOfBeds\": 4\r\n"
+                + "  }\r\n"
+                + "]";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setOpenAPI3StyleDiscriminators(true);
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
+        assertEquals("required", list.get(0).getType());
+    }
 }
