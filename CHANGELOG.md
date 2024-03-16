@@ -11,6 +11,19 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.4.0 - 2024-03-16
+
+### Added
+
+### Changed
+
+- Explicitly handle if the discriminator property value is null (#988) Thanks @justin-tay
+- Refactor walk (#986) Thanks @justin-tay
+- Fixes uri, uri-reference, iri, iri-reference formats and does iri to uri conversion (#983) Thanks @justin-tay
+- Support custom vocabularies and unknown keyword and meta-schema handling (#980) Thanks @justin-tay
+- Fix message (#975) Thanks @justin-tay
+- Make ethlo excludable (#974) Thanks @justin-tay
+
 ## 1.3.3 - 2024-02-19
 
 ### Added
