@@ -18,12 +18,22 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
 
 /**
  * ItemsValidatorTest.
@@ -110,5 +120,249 @@ public class ItemsValidatorTest {
         assertEquals("[null,2,3,\"foo\"]", message.getInstanceNode().toString());
         assertEquals(": index '1' is not defined in the schema and the schema does not allow additional items", message.getMessage());
         assertNull(message.getProperty());
+    }
+
+    @Test
+    void walk() {
+        String schemaData = "{\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(3, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+    }
+
+    @Test
+    void walkNull() {
+        String schemaData = "{\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(1, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+    }
+
+    @Test
+    void walkNullTupleItemsAdditional() {
+        String schemaData = "{\r\n"
+                + "  \"items\": [\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    }\r\n,"
+                + "    {\r\n"
+                + "      \"type\": \"integer\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"additionalItems\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(3, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("items", items.get(0).getKeyword());
+        assertNull(items.get(0).getInstanceNode());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("items", items.get(1).getKeyword());
+        assertNull(items.get(1).getInstanceNode());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+        assertEquals("additionalItems", items.get(2).getKeyword());
+        assertNull(items.get(2).getInstanceNode());
+    }
+
+    @Test
+    void walkTupleItemsAdditional() throws JsonMappingException, JsonProcessingException {
+        String schemaData = "{\r\n"
+                + "  \"items\": [\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    }\r\n,"
+                + "    {\r\n"
+                + "      \"type\": \"integer\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"additionalItems\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        JsonNode input = JsonMapperFactory.getInstance().readTree("[\"hello\"]");
+        ValidationResult result = schema.walk(input, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(3, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("items", items.get(0).getKeyword());
+        assertEquals("hello", items.get(0).getInstanceNode().textValue());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("items", items.get(1).getKeyword());
+        assertNull(items.get(1).getInstanceNode());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+        assertEquals("additionalItems", items.get(2).getKeyword());
+        assertNull(items.get(2).getInstanceNode());
+    }
+
+    @Test
+    void walkTupleItemsAdditionalDefaults() throws JsonMappingException, JsonProcessingException {
+        String schemaData = "{\r\n"
+                + "  \"items\": [\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"default\": \"1\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"integer\",\r\n"
+                + "      \"default\": 2\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"additionalItems\": {\r\n"
+                + "    \"type\": \"string\",\r\n"
+                + "    \"default\": \"additional\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null, null, null]");
+        ValidationResult result = schema.walk(input, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(4, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("items", items.get(0).getKeyword());
+        assertEquals("1", items.get(0).getInstanceNode().textValue());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("items", items.get(1).getKeyword());
+        assertEquals(2, items.get(1).getInstanceNode().intValue());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+        assertEquals("additionalItems", items.get(2).getKeyword());
+        assertEquals("additional", items.get(2).getInstanceNode().asText());
+        assertEquals("/3", items.get(3).getInstanceLocation().toString());
+        assertEquals("additionalItems", items.get(3).getKeyword());
+        assertEquals("additional", items.get(3).getInstanceNode().asText());
     }
 }

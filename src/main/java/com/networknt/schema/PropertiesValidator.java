@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
@@ -99,7 +100,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner(), false);
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
 
                 // reset the complex flag to the original value before the recursive call
@@ -118,7 +119,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner(), true);
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
 
                 // check whether the node which has not matched was mandatory or not
@@ -165,11 +166,12 @@ public class PropertiesValidator extends BaseJsonValidator {
             applyPropertyDefaults((ObjectNode) node);
         }
         if (shouldValidateSchema) {
-            validationMessages.union(validate(executionContext, node, rootNode, instanceLocation));
+            validationMessages.union(validate(executionContext, node == null ? MissingNode.getInstance() : node, rootNode,
+                    instanceLocation));
         } else {
             WalkListenerRunner propertyWalkListenerRunner = this.validationContext.getConfig().getPropertyWalkListenerRunner();
             for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
-                walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages, propertyWalkListenerRunner, false);
+                walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages, propertyWalkListenerRunner);
             }
         }
         return validationMessages;
@@ -215,7 +217,7 @@ public class PropertiesValidator extends BaseJsonValidator {
 
     private void walkSchema(ExecutionContext executionContext, Map.Entry<String, JsonSchema> entry, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema,
-            SetView<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner, boolean skipWalk) {
+            SetView<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         JsonNodePath path = instanceLocation.append(entry.getKey());
@@ -226,7 +228,7 @@ public class PropertiesValidator extends BaseJsonValidator {
             // Attempt to get the property node again in case the propertyNode was updated
             propertyNode = node.get(entry.getKey());
         }
-        if (executeWalk && !(skipWalk && propertyNode == null)) {
+        if (executeWalk) {
             validationMessages.union(
                     propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema));
         }

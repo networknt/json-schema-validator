@@ -16,6 +16,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
@@ -138,5 +139,15 @@ public class TypeValidatorTest {
         assertEquals(1, messages.size());
         messages = schema.validate("2.000001", InputFormat.JSON);
         assertEquals(1, messages.size());
+    }
+
+    @Test
+    void walkNull() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"integer\"\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
     }
 }

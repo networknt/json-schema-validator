@@ -18,12 +18,18 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
 
 /**
  * ItemsValidatorTest.
@@ -54,5 +60,87 @@ public class ItemsValidator202012Test {
         assertEquals("\"x\"", message.getInstanceNode().toString());
         assertEquals("/1: string found, integer expected", message.getMessage());
         assertNull(message.getProperty());
+    }
+
+    @Test
+    void walkNull() {
+        String schemaData = "{\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(1, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+    }
+
+    @Test
+    void walkNullPrefixItems() {
+        String schemaData = "{\r\n"
+                + "  \"prefixItems\": [\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"integer\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"items\": {\r\n"
+                + "    \"type\": \"string\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(2, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(0).getKeyword());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("items", items.get(1).getKeyword());
     }
 }

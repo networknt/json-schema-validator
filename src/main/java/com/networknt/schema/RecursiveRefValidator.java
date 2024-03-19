@@ -110,6 +110,22 @@ public class RecursiveRefValidator extends BaseJsonValidator {
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);
         }
+        if (node == null) {
+            // Check for circular dependency
+            SchemaLocation schemaLocation = refSchema.getSchemaLocation();
+            JsonSchema check = refSchema;
+            boolean circularDependency = false;
+            while (check.getEvaluationParentSchema() != null) {
+                check = check.getEvaluationParentSchema();
+                if (check.getSchemaLocation().equals(schemaLocation)) {
+                    circularDependency = true;
+                    break;
+                }
+            }
+            if (circularDependency) {
+                return Collections.emptySet();
+            }
+        }
         return refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 

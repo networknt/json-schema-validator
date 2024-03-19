@@ -122,6 +122,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     && this.schema != null) {
                 defaultNode = getDefaultNode(this.schema);
             }
+            boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNode n = node.get(i);
                 if (n.isNull() && defaultNode != null) {
@@ -131,10 +132,24 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                 // Walk the schema.
                 walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema,
                         validationMessages);
+                if (n != null) {
+                    evaluated = true;
+                }
+            }
+            if (evaluated) {
+                if (collectAnnotations() || collectAnnotations(executionContext)) {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
             }
         } else {
-            walkSchema(executionContext, this.schema, node, rootNode, instanceLocation, shouldValidateSchema,
-                    validationMessages);
+            // If the node is not an ArrayNode, eg. ObjectNode or null then the instance is null.
+            // The instance location starts at the end of the prefix count.
+            walkSchema(executionContext, this.schema, null, rootNode, instanceLocation.append(this.prefixCount),
+                    shouldValidateSchema, validationMessages);
         }
 
         return validationMessages;
@@ -150,7 +165,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
         }
         return result;
     }
-    
+
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
         //@formatter:off

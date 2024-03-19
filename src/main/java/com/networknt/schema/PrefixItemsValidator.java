@@ -47,8 +47,11 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         this.tupleSchema = new ArrayList<>();
 
         if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
+            int i = 0;
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaLocation, evaluationPath, s, parentSchema));
+                this.tupleSchema.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i), s,
+                        parentSchema));
+                i++;
             }
         } else {
             throw new IllegalArgumentException("The value of 'prefixItems' MUST be a non-empty array of valid JSON Schemas.");
@@ -101,22 +104,49 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
-
-        if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
-                && node.isArray()) {
+        if (node instanceof ArrayNode) {
             ArrayNode array = (ArrayNode) node;
-            int count = Math.min(node.size(), this.tupleSchema.size());
+            int count = this.tupleSchema.size();
             for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
-                JsonNode defaultNode = getDefaultNode(this.tupleSchema.get(i));
-                if (n.isNull() && defaultNode != null) {
-                    array.set(i, defaultNode);
-                    n = defaultNode;
+                if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
+                    JsonNode defaultNode = getDefaultNode(this.tupleSchema.get(i));
+                    if (n != null) {
+                        // Defaults only set if array index is explicitly null
+                        if (n.isNull() && defaultNode != null) {
+                            array.set(i, defaultNode);
+                            n = defaultNode;
+                        }
+                    }
                 }
                 doWalk(executionContext, validationMessages, i, n, rootNode, instanceLocation, shouldValidateSchema);
             }
-        }
 
+            // Add annotation
+            if (collectAnnotations() || collectAnnotations(executionContext)) {
+                // Tuples
+                int items = node.isArray() ? node.size() : 1;
+                int schemas = this.tupleSchema.size();
+                if (items > schemas) {
+                    // More items than schemas so the keyword only applied to the number of schemas
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(schemas).build());
+                } else {
+                    // Applies to all
+                    executionContext.getAnnotations()
+                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword(getKeyword()).value(true).build());
+                }
+            }
+        } else {
+            int count = this.tupleSchema.size();
+            for (int i = 0; i < count; ++i) {
+                doWalk(executionContext, validationMessages, i, null, rootNode, instanceLocation, shouldValidateSchema);
+            }
+        }
         return validationMessages;
     }
 
