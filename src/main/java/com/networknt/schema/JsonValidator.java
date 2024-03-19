@@ -59,6 +59,10 @@ public interface JsonValidator extends JsonSchemaWalker {
     @Override
     default Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        if (node == null) {
+            // Note that null is not the same as NullNode
+            return Collections.emptySet();
+        }
         return shouldValidateSchema ? validate(executionContext, node, rootNode, instanceLocation)
                 : Collections.emptySet();
     }

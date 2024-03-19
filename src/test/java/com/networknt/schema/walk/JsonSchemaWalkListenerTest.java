@@ -38,6 +38,7 @@ import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.ItemsValidator;
 import com.networknt.schema.ItemsValidator202012;
+import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
@@ -811,4 +812,129 @@ class JsonSchemaWalkListenerTest {
         assertEquals("{\"name\":\"John Doe\",\"email\":\"john.doe@gmail.com\"}", inputNode.toString());
         assertTrue(result.getValidationMessages().isEmpty());
     }
+
+    /**
+     * Issue 989
+     */
+    @Test
+    void itemListenerDraft201909() {
+        String schemaData = "        {\r\n"
+                + "          \"type\": \"object\",\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"name\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            },\r\n"
+                + "            \"children\": {\r\n"
+                + "              \"type\": \"array\",\r\n"
+                + "              \"items\": {\r\n"
+                + "                \"type\": \"object\",\r\n"
+                + "                \"properties\": {\r\n"
+                + "                  \"name\": {\r\n"
+                + "                    \"type\": \"string\"\r\n"
+                + "                  }\r\n"
+                + "                }\r\n"
+                + "              }\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }";
+        JsonSchemaWalkListener listener = new JsonSchemaWalkListener() {
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        }; 
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.addItemWalkListener(listener);
+        config.addPropertyWalkListener(listener);
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(4, items.size());
+        assertEquals("$.name", items.get(0).getInstanceLocation().toString());
+        assertEquals("properties", items.get(0).getKeyword());
+        assertEquals("#/properties/name", items.get(0).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children[0].name", items.get(1).getInstanceLocation().toString());
+        assertEquals("properties", items.get(1).getKeyword());
+        assertEquals("#/properties/children/items/properties/name", items.get(1).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children[0]", items.get(2).getInstanceLocation().toString());
+        assertEquals("items", items.get(2).getKeyword());
+        assertEquals("#/properties/children/items", items.get(2).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children", items.get(3).getInstanceLocation().toString());
+        assertEquals("properties", items.get(3).getKeyword());
+        assertEquals("#/properties/children", items.get(3).getSchema().getSchemaLocation().toString());
+    }
+
+    /**
+     * Issue 989
+     */
+    @Test
+    void itemListenerDraft202012() {
+        String schemaData = "        {\r\n"
+                + "          \"type\": \"object\",\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"name\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            },\r\n"
+                + "            \"children\": {\r\n"
+                + "              \"type\": \"array\",\r\n"
+                + "              \"items\": {\r\n"
+                + "                \"type\": \"object\",\r\n"
+                + "                \"properties\": {\r\n"
+                + "                  \"name\": {\r\n"
+                + "                    \"type\": \"string\"\r\n"
+                + "                  }\r\n"
+                + "                }\r\n"
+                + "              }\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }";
+        JsonSchemaWalkListener listener = new JsonSchemaWalkListener() {
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        }; 
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.addItemWalkListener(listener);
+        config.addPropertyWalkListener(listener);
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(4, items.size());
+        assertEquals("$.name", items.get(0).getInstanceLocation().toString());
+        assertEquals("properties", items.get(0).getKeyword());
+        assertEquals("#/properties/name", items.get(0).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children[0].name", items.get(1).getInstanceLocation().toString());
+        assertEquals("properties", items.get(1).getKeyword());
+        assertEquals("#/properties/children/items/properties/name", items.get(1).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children[0]", items.get(2).getInstanceLocation().toString());
+        assertEquals("items", items.get(2).getKeyword());
+        assertEquals("#/properties/children/items", items.get(2).getSchema().getSchemaLocation().toString());
+        assertEquals("$.children", items.get(3).getInstanceLocation().toString());
+        assertEquals("properties", items.get(3).getKeyword());
+        assertEquals("#/properties/children", items.get(3).getSchema().getSchemaLocation().toString());
+    }
+
 }

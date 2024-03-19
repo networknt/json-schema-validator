@@ -4,8 +4,17 @@ import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkEvent;
+import com.networknt.schema.walk.WalkFlow;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -54,8 +63,8 @@ public class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
-        assertEquals("/prefixItems/type", message.getEvaluationPath().toString());
-        assertEquals("https://www.example.org/schema#/prefixItems/type", message.getSchemaLocation().toString());
+        assertEquals("/prefixItems/0/type", message.getEvaluationPath().toString());
+        assertEquals("https://www.example.org/schema#/prefixItems/0/type", message.getSchemaLocation().toString());
         assertEquals("/0", message.getInstanceLocation().toString());
         assertEquals("\"string\"", message.getSchemaNode().toString());
         assertEquals("1", message.getInstanceNode().toString());
@@ -108,5 +117,116 @@ public class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         assertEquals("[\"x\",1,1,2]", message.getInstanceNode().toString());
         assertEquals(": index '2' is not defined in the schema and the schema does not allow additional items", message.getMessage());
         assertNull(message.getProperty());
+    }
+
+    @Test
+    void walkNull() {
+        String schemaData = "{\n"
+                + "  \"prefixItems\": [\n"
+                + "    {\n"
+                + "      \"type\": \"integer\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"string\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"integer\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        ValidationResult result = schema.walk(null, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(3, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(0).getKeyword());
+        assertEquals("#/prefixItems/0", items.get(0).getSchema().getSchemaLocation().toString());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(1).getKeyword());
+        assertEquals("#/prefixItems/1", items.get(1).getSchema().getSchemaLocation().toString());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(2).getKeyword());
+        assertEquals("#/prefixItems/2", items.get(2).getSchema().getSchemaLocation().toString());
+    }
+
+    @Test
+    void walkDefaults() throws JsonMappingException, JsonProcessingException {
+        String schemaData = "{\n"
+                + "  \"prefixItems\": [\n"
+                + "    {\n"
+                + "      \"type\": \"integer\",\n"
+                + "      \"default\": 1\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"string\",\n"
+                + "      \"default\": \"2\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"integer\",\n"
+                + "      \"default\": 3\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        config.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
+        config.addItemWalkListener(new JsonSchemaWalkListener() {
+            
+            @Override
+            public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                return WalkFlow.CONTINUE;
+            }
+            
+            @Override
+            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                @SuppressWarnings("unchecked")
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                items.add(walkEvent);
+            }
+        });
+        JsonSchema schema = factory.getSchema(schemaData, config);
+        JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
+        ValidationResult result = schema.walk(input, true);
+        assertTrue(result.getValidationMessages().isEmpty());
+        
+        @SuppressWarnings("unchecked")
+        List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
+        assertEquals(3, items.size());
+        assertEquals("/0", items.get(0).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(0).getKeyword());
+        assertEquals("#/prefixItems/0", items.get(0).getSchema().getSchemaLocation().toString());
+        assertEquals("/1", items.get(1).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(1).getKeyword());
+        assertEquals("#/prefixItems/1", items.get(1).getSchema().getSchemaLocation().toString());
+        assertEquals("/2", items.get(2).getInstanceLocation().toString());
+        assertEquals("prefixItems", items.get(2).getKeyword());
+        assertEquals("#/prefixItems/2", items.get(2).getSchema().getSchemaLocation().toString());
     }
 }
