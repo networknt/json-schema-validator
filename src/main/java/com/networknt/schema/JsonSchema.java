@@ -474,7 +474,9 @@ public class JsonSchema extends BaseJsonValidator {
                     } else if ("required".equals(pname)) {
                         this.requiredValidator = validator;
                     } else if ("type".equals(pname)) {
-                        this.typeValidator = (TypeValidator) validator;
+                        if (validator instanceof TypeValidator) {
+                            this.typeValidator = (TypeValidator) validator;
+                        }
                     }
                 }
 
