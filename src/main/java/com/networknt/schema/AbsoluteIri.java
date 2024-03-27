@@ -101,7 +101,10 @@ public class AbsoluteIri {
                 String base = parent;
                 int scheme = parent.indexOf("://");
                 if (scheme == -1) {
-                    scheme = 0;
+                    scheme = parent.indexOf(':');
+                    if (scheme == -1) {
+                        scheme = 0;
+                    }
                 } else {
                     scheme = scheme + 3;
                 }
@@ -114,7 +117,15 @@ public class AbsoluteIri {
                     } else if (".".equals(iriParts[x])) {
                         // skip
                     } else {
-                        base = base + "/" + iriParts[x];
+                        if (base.endsWith(":")) {
+                            if (parent.length() > base.length() && parent.charAt(base.length()) == '/') {
+                                base = base + "/" + iriParts[x];
+                            } else {
+                                base = base + iriParts[x];
+                            }
+                        } else {
+                            base = base + "/" + iriParts[x];
+                        }
                     }
                 }
                 if (iri.endsWith("/")) {
@@ -127,6 +138,12 @@ public class AbsoluteIri {
     
     protected static String parent(String iri, int scheme) {
         int slash = iri.lastIndexOf('/');
+        if (slash == -1) {
+            slash = iri.lastIndexOf(':');
+            if (slash != -1) {
+                slash = slash + 1;
+            }
+        }
         if (slash != -1 && slash > scheme) {
             return iri.substring(0, slash);
         }

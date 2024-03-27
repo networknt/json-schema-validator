@@ -60,6 +60,30 @@ class AbsoluteIriTest {
     @Test
     void relativeAtRootWithSchemeSpecificPart() {
         AbsoluteIri iri = new AbsoluteIri("classpath:resource");
+        assertEquals("classpath:test.json", iri.resolve("test.json").toString());
+    }
+
+    @Test
+    void relativeAtRootWithSchemeSpecificPartNoPath() {
+        AbsoluteIri iri = new AbsoluteIri("classpath:");
+        assertEquals("classpath:test.json", iri.resolve("test.json").toString());
+    }
+
+    @Test
+    void relativeAtRootWithSchemeSpecificPartSlash() {
+        AbsoluteIri iri = new AbsoluteIri("classpath:/resource");
+        assertEquals("classpath:/test.json", iri.resolve("test.json").toString());
+    }
+
+    @Test
+    void relativeAtRootWithSchemeSpecificPartNoPathTrailingSlash() {
+        AbsoluteIri iri = new AbsoluteIri("classpath:/");
+        assertEquals("classpath:/test.json", iri.resolve("test.json").toString());
+    }
+
+    @Test
+    void relativeAtRootWithSchemeSpecificPartTrailingSlash() {
+        AbsoluteIri iri = new AbsoluteIri("classpath:resource/");
         assertEquals("classpath:resource/test.json", iri.resolve("test.json").toString());
     }
 

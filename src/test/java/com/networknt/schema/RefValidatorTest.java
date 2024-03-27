@@ -16,6 +16,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Collections;
 import java.util.Set;
@@ -102,5 +103,37 @@ public class RefValidatorTest {
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
         Set<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
+    }
+
+    @Test
+    void classPathSlash() {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:/schema/main/main.json"));
+        String inputData = "{\r\n"
+                + "  \"fields\": {\r\n"
+                + "    \"ids\": {\r\n"
+                + "      \"value\": {\r\n"
+                + "        \"value\": 1\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        assertFalse(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+
+    @Test
+    void classPathNoSlash() {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:schema/main/main.json"));
+        String inputData = "{\r\n"
+                + "  \"fields\": {\r\n"
+                + "    \"ids\": {\r\n"
+                + "      \"value\": {\r\n"
+                + "        \"value\": 1\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        assertFalse(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 }

@@ -1,0 +1,9 @@
+{
+    "title": "child schema",
+    "type": "object",
+    "properties": {
+        "value": {
+            "$ref": "./child2.json"
+        }
+    }
+}

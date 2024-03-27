@@ -1,0 +1,10 @@
+{
+    "title": "child2 schema",
+    "type": "object",
+    "properties": {
+        "value": {
+            "type": "string",
+            "$comment": "child value."
+        }
+    }
+}
