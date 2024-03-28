@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "main schema",
+  "type": "object",
+  "properties": {
+    "fields": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "../common/child.json"
+        }
+      }
+    }
+  }
+}

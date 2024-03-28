@@ -60,7 +60,7 @@ public interface OutputFormat<T> {
     /**
      * The Boolean output format.
      */
-    public static final Flag BOOLEAN = new Flag();
+    public static final Boolean BOOLEAN = new Boolean();
 
     /**
      * The Flag output format.
