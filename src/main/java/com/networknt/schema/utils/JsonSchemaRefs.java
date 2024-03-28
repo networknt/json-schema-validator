@@ -33,7 +33,7 @@ public class JsonSchemaRefs {
      * @param schema the schema
      * @return the ref
      */
-    public static JsonSchemaRef from(JsonSchema schema) {
+    public static JsonSchemaRef extractSchemaRefFromSchema(JsonSchema schema) {
         for (JsonValidator validator : schema.getValidators()) {
             if (validator instanceof RefValidator) {
                 return ((RefValidator) validator).getSchemaRef();
@@ -47,3 +47,5 @@ public class JsonSchemaRefs {
     }
 
 }
+
+

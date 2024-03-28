@@ -593,7 +593,7 @@ class JsonSchemaWalkListenerTest {
                 if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                         || walkEvent.getInstanceNode().isNull()) {
                     JsonSchema schema = walkEvent.getSchema();
-                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                    JsonSchemaRef schemaRef = JsonSchemaRefs.extractSchemaRefFromSchema(schema);
                     if (schemaRef != null) {
                         schema = schemaRef.getSchema();
                     }
@@ -650,7 +650,7 @@ class JsonSchemaWalkListenerTest {
                 if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                         || walkEvent.getInstanceNode().isNull()) {
                     JsonSchema schema = walkEvent.getSchema();
-                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                    JsonSchemaRef schemaRef = JsonSchemaRefs.extractSchemaRefFromSchema(schema);
                     if (schemaRef != null) {
                         schema = schemaRef.getSchema();
                     }
@@ -722,7 +722,7 @@ class JsonSchemaWalkListenerTest {
                         // Get the schema
                         PropertiesValidator propertiesValidator = walkEvent.getValidator();
                         JsonSchema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
-                        JsonSchemaRef schemaRef = JsonSchemaRefs.from(propertySchema);
+                        JsonSchemaRef schemaRef = JsonSchemaRefs.extractSchemaRefFromSchema(propertySchema);
                         if (schemaRef != null) {
                             propertySchema = schemaRef.getSchema();
                         }
@@ -783,7 +783,7 @@ class JsonSchemaWalkListenerTest {
                     JsonSchema schema = walkEvent.getSchema();
                     JsonSchemaRef schemaRef = null;
                     do {
-                        schemaRef = JsonSchemaRefs.from(schema);
+                        schemaRef = JsonSchemaRefs.extractSchemaRefFromSchema(schema);
                         if (schemaRef != null) {
                             schema = schemaRef.getSchema();
                         }
