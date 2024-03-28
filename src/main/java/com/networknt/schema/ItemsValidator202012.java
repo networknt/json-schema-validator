@@ -158,7 +158,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     private static JsonNode getDefaultNode(JsonSchema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+            JsonSchemaRef schemaRef = JsonSchemaRefs.extractSchemaRefFromSchema(schema);
             if (schemaRef != null) {
                 result = getDefaultNode(schemaRef.getSchema());
             }
