@@ -19,7 +19,6 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -150,16 +149,6 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         return validationMessages;
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
-        JsonNode result = schema.getSchemaNode().get("default");
-        if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
-            if (schemaRef != null) {
-                result = getDefaultNode(schemaRef.getSchema());
-            }
-        }
-        return result;
-    }
 
     private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {

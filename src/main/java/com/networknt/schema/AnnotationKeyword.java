@@ -46,11 +46,11 @@ public class AnnotationKeyword extends AbstractKeyword {
 
         protected Object getAnnotationValue(JsonNode schemaNode) {
             if (schemaNode.isTextual()) {
-                return schemaNode.textValue(); 
+                return new TextualValueHandler().getAnnotationValue(schemaNode);
             } else if (schemaNode.isNumber()) {
-                return schemaNode.numberValue();
+                return new NumericValueHandler().getAnnotationValue(schemaNode);
             } else if (schemaNode.isObject()) {
-                return schemaNode;
+                return new ObjectValueHandler().getAnnotationValue(schemaNode);
             }
             return null;
         }
