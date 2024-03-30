@@ -118,19 +118,15 @@ public class RefValidator extends BaseJsonValidator {
     }
 
     private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
-        if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
-            validationContext.getSchemaResources()
-                    .putAll(schemaResource.getValidationContext().getSchemaResources());
-        }
-        if (!schemaResource.getValidationContext().getSchemaReferences().isEmpty()) {
-            validationContext.getSchemaReferences()
-                    .putAll(schemaResource.getValidationContext().getSchemaReferences());
-        }
-        if (!schemaResource.getValidationContext().getDynamicAnchors().isEmpty()) {
-            validationContext.getDynamicAnchors()
-                    .putAll(schemaResource.getValidationContext().getDynamicAnchors());
-        }
+        copy(new SchemaResourcesCopier(), schemaResource.getValidationContext(), validationContext);
+        copy(new SchemaReferencesCopier(), schemaResource.getValidationContext(), validationContext);
+        copy(new DynamicAnchorsCopier(), schemaResource.getValidationContext(), validationContext);
     }
+    
+    private static void copy(ResourceCopier copier, ValidationContext source, ValidationContext destination) {
+        copier.copyResources(source, destination);
+    }
+    
     
     private static String resolve(JsonSchema parentSchema, String refValue) {
         // $ref prevents a sibling $id from changing the base uri
