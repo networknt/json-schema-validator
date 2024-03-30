@@ -19,7 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.DefaultNode;
+import com.networknt.schema.utils.Default;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -110,7 +110,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
                 if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                    JsonNode defaultNode = DefaultNode.getDefaultNode(this.tupleSchema.get(i));
+                    JsonNode defaultNode = Default.getDefaultNode(this.tupleSchema.get(i));
                     if (n != null) {
                         // Defaults only set if array index is explicitly null
                         if (n.isNull() && defaultNode != null) {

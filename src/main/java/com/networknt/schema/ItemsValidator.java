@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.SetView;
-import com.networknt.schema.utils.DefaultNode;
+import com.networknt.schema.utils.Default;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,7 +240,7 @@ public class ItemsValidator extends BaseJsonValidator {
                 ArrayNode arrayNode = (ArrayNode) node;
                 JsonNode defaultNode = null;
                 if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                    defaultNode = DefaultNode.getDefaultNode(this.schema);
+                    defaultNode = Default.getDefaultNode(this.schema);
                 }
                 for (int i = 0; i < count; i++) {
                     JsonNode n = arrayNode.get(i);
@@ -265,7 +265,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     JsonNode defaultNode = null;
                     JsonNode n = arrayNode.get(i);
                     if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                        defaultNode = DefaultNode.getDefaultNode(this.tupleSchema.get(i));
+                        defaultNode = Default.getDefaultNode(this.tupleSchema.get(i));
                     }
                     if (n != null) {
                         if (n.isNull() && defaultNode != null) {
@@ -292,7 +292,7 @@ public class ItemsValidator extends BaseJsonValidator {
                         JsonNode defaultNode = null;
                         JsonNode n = arrayNode.get(i);
                         if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                            defaultNode = DefaultNode.getDefaultNode(this.additionalSchema);
+                            defaultNode = Default.getDefaultNode(this.additionalSchema);
                         }
                         if (n != null) {
                             if (n.isNull() && defaultNode != null) {

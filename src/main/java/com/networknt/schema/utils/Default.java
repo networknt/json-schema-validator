@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaRef;
 
-public class DefaultNode {
+public class Default {
     
       public static JsonNode getDefaultNode(JsonSchema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
