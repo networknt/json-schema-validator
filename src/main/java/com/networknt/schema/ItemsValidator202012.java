@@ -19,7 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.Default;
+import com.networknt.schema.utils.Defaults;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -120,7 +120,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             JsonNode defaultNode = null;
             if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
                     && this.schema != null) {
-                defaultNode = Default.getDefaultNode(this.schema);
+                defaultNode = Defaults.getDefaultNode(this.schema);
             }
             boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {

@@ -14,7 +14,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SpecVersion.VersionFlag;
-public class DefaultTest {
+public class DefaultsTest {
     
     @Test
     void testGetDefaultNodeNotNull() throws Exception {
@@ -22,7 +22,7 @@ public class DefaultTest {
         JsonNode node = mapper.readTree("{\"default\": \"defaultValue\"}");
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
         JsonSchema schema = factory.getSchema(node);
-        JsonNode result = Default.getDefaultNode(schema);
+        JsonNode result = Defaults.getDefaultNode(schema);
         assertNotNull(result, "Default node should not be null");
     }
 
@@ -32,7 +32,7 @@ public class DefaultTest {
         JsonNode node = mapper.readTree("{\"default\": \"defaultValue\"}");
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
         JsonSchema schema = factory.getSchema(node);
-        JsonNode result = Default.getDefaultNode(schema);
+        JsonNode result = Defaults.getDefaultNode(schema);
         assertEquals("defaultValue", result.asText(), "Default node should have the default value");
     }
 }

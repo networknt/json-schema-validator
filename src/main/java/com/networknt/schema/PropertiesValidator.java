@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.Default;
+import com.networknt.schema.utils.Defaults;
 import com.networknt.schema.utils.SetView;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
@@ -192,7 +192,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
 
-            JsonNode defaultNode = Default.getDefaultNode(entry.getValue());
+            JsonNode defaultNode = Defaults.getDefaultNode(entry.getValue());
             if (defaultNode == null) {
                 continue;
             }
