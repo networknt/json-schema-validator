@@ -246,7 +246,7 @@ The following example demonstrates how inputs are validated against a schema. It
 * Using the schema to validate the data along with setting any execution specific configuration like for instance the locale or whether format assertions are enabled.
 
 ```java
-// This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified
+// This creates a schema factory that will use Draft 2020-12 as the default if $schema is not specified
 // in the schema data. If $schema is specified in the schema data then that schema dialect will be used
 // instead and this version is ignored.
 JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
