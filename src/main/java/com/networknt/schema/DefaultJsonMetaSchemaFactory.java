@@ -39,7 +39,11 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     protected JsonMetaSchema loadMetaSchema(String iri, JsonSchemaFactory schemaFactory,
             SchemaValidatorsConfig config) {
         try {
-            return loadMetaSchemaBuilder(iri, schemaFactory, config).build();
+            JsonMetaSchema result = loadMetaSchemaBuilder(iri, schemaFactory, config).build();
+            if (result.getKeywords().containsKey("discriminator")) {
+                config.setOpenAPI3StyleDiscriminators(true);
+            }
+            return result;
         } catch (InvalidSchemaException e) {
             throw e;
         } catch (Exception e) {

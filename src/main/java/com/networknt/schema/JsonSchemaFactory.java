@@ -359,7 +359,12 @@ public class JsonSchemaFactory {
     private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && iriNode.isTextual()) {
-            return metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()), id -> loadMetaSchema(id, config));
+            JsonMetaSchema result = metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()),
+                    id -> loadMetaSchema(id, config));
+            if (result.getKeywords().containsKey("discriminator")) {
+                config.setOpenAPI3StyleDiscriminators(true);
+            }
+            return result;
         }
         return null;
     }
@@ -382,7 +387,11 @@ public class JsonSchemaFactory {
      */
     public JsonMetaSchema getMetaSchema(String iri, SchemaValidatorsConfig config) {
         String key = normalizeMetaSchemaUri(iri);
-        return metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
+        JsonMetaSchema result =  metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
+        if (result.getKeywords().containsKey("discriminator")) {
+            config.setOpenAPI3StyleDiscriminators(true);
+        }
+        return result;
     }
 
     /**
