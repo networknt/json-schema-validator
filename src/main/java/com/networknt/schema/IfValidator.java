@@ -102,20 +102,33 @@ public class IfValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation);
-        }
+        boolean checkCondition = node != null && shouldValidateSchema;
+        boolean ifConditionPassed = false;
 
-        if (null != this.ifSchema) {
-            this.ifSchema.walk(executionContext, node, rootNode, instanceLocation, false);
+        // Save flag as nested schema evaluation shouldn't trigger fail fast
+        boolean failFast = executionContext.isFailFast();
+        try {
+            executionContext.setFailFast(false);
+            ifConditionPassed = this.ifSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema).isEmpty();
+        } finally {
+            // Restore flag
+            executionContext.setFailFast(failFast);
         }
-        if (null != this.thenSchema) {
-            this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, false);
+        if (!checkCondition) {
+            if (this.thenSchema != null) {
+                this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            }
+            if (this.elseSchema != null) {
+                this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            }
+        } else {
+            if (this.thenSchema != null && ifConditionPassed) {
+                return this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            }
+            else if (this.elseSchema != null && !ifConditionPassed) {
+                return this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            }
         }
-        if (null != this.elseSchema) {
-            this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, false);
-        }
-
         return Collections.emptySet();
     }
 
