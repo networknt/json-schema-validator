@@ -39,6 +39,7 @@ The following are the tests results after running the [JSON Schema Test Suite](h
 | Keyword                    | Draft 4 | Draft 6 | Draft 7 | Draft 2019-09 | Draft 2020-12 |
 |:---------------------------|:-------:|:-------:|:-------:|:-------------:|:-------------:|
 | $anchor                    | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
+| $defs                      | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | $dynamicAnchor             | 🚫 | 🚫 | 🚫 | 🚫 | 🟢 |
 | $dynamicRef                | 🚫 | 🚫 | 🚫 | 🚫 | 🟢 |
 | $id                        | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 |
@@ -56,7 +57,6 @@ The following are the tests results after running the [JSON Schema Test Suite](h
 | contentMediaType           | 🚫 | 🚫 | 🟢 | 🟢 | 🟢 |
 | contentSchema              | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | definitions                | 🟢 | 🟢 | 🟢 | 🚫 | 🚫 |
-| defs                       | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | dependencies               | 🟢 | 🟢 | 🟢 | 🚫 | 🚫 |
 | dependentRequired          | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
 | dependentSchemas           | 🚫 | 🚫 | 🚫 | 🟢 | 🟢 |
