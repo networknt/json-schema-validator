@@ -19,9 +19,41 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaRef;
 
+/**
+ * The 'Defaults' class provides utility methods for retrieving default values
+ * from a JSON schema.
+ * 
+ * This class contains a single static method, 'getDefaultNode', which takes a
+ * 'JsonSchema' object as input
+ * and returns the default value specified in the schema. If the schema does not
+ * have a default value,
+ * it checks if the schema has a reference to another schema and recursively
+ * calls itself with the referenced schema.
+ * 
+ * Usage:
+ * JsonSchema schema = ...; // create or obtain a JSON schema
+ * JsonNode defaultNode = Defaults.getDefaultNode(schema); // retrieve the
+ * default value from the schema
+ * 
+ * Note: This class requires the 'com.networknt.schema.JsonSchema' and
+ * 'com.networknt.schema.JsonSchemaRef' classes
+ * from the 'networknt/json-schema-validator' library.
+ */
 public class Defaults {
-    
-      public static JsonNode getDefaultNode(JsonSchema schema) {
+    /**
+     * Retrieves the default value specified in the JSON schema.
+     * 
+     * This method takes a 'JsonSchema' object as input and returns the default
+     * value specified in the schema.
+     * If the schema does not have a default value, it checks if the schema has a
+     * reference to another schema
+     * and recursively calls itself with the referenced schema.
+     * 
+     * @param schema the JSON schema from which to retrieve the default value
+     * @return the default value specified in the schema, or null if no default
+     *         value is found
+     */
+    public static JsonNode getDefaultNode(JsonSchema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
             JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
