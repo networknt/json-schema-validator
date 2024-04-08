@@ -11,7 +11,7 @@ The `if`, `then` and `else` keywords allow the application of a subschema based 
 
 If `if` is valid, `then` must also be valid (and `else` is ignored.) If `if` is invalid, `else` must also be valid (and `then` is ignored).
 
-For usage, please refer to the test cases at https://github.com/networknt/json-schema-validator/blob/master/src/test/resources/draft7/if-then-else.json
+For usage, please refer to the test cases at https://github.com/networknt/json-schema-validator/blob/master/src/test/suite/tests/draft7/if-then-else.json
 
 ### Custom Validators
 ````java
