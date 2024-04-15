@@ -227,8 +227,8 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
         if (getClass() != obj.getClass())
             return false;
         JsonNodePath other = (JsonNodePath) obj;
-        return Objects.equals(parent, other.parent) && Objects.equals(pathSegment, other.pathSegment)
-                && pathSegmentIndex == other.pathSegmentIndex && type == other.type;
+        return Objects.equals(pathSegment, other.pathSegment) && pathSegmentIndex == other.pathSegmentIndex
+                && type == other.type && Objects.equals(parent, other.parent);
     }
 
     @Override
