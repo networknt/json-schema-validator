@@ -274,7 +274,7 @@ String input = "{\r\n"
 
 Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
-    executionContext.getConfig().setFormatAssertionsEnabled(true);
+    executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
 });
 ```
 
