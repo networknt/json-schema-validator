@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class SchemaValidatorsConfig {
+    public static final int DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH = 40;
+
     /**
      * Used to validate the acceptable $id values.
      */
@@ -125,6 +127,16 @@ public class SchemaValidatorsConfig {
      * Controls if the schema will automatically be preloaded.
      */
     private boolean preloadJsonSchema = true;
+
+    /**
+     * Controls the max depth of the evaluation path to preload when preloading refs.
+     */
+    private int preloadJsonSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH;
+
+    /**
+     * Controls if schemas loaded from refs will be cached and reused for subsequent runs.
+     */
+    private boolean cacheRefs = true;
 
     // This is just a constant for listening to all Keywords.
     public static final String ALL_KEYWORD_WALK_LISTENER_KEY = "com.networknt.AllKeywordWalkListener";
@@ -622,5 +634,48 @@ public class SchemaValidatorsConfig {
      */
     public void setPreloadJsonSchema(boolean preloadJsonSchema) {
         this.preloadJsonSchema = preloadJsonSchema;
+    }
+
+    /**
+     * Gets the max depth of the evaluation path to preload when preloading refs.
+     *
+     * @return the max depth to preload
+     */
+    public int getPreloadJsonSchemaRefMaxNestingDepth() {
+        return preloadJsonSchemaRefMaxNestingDepth;
+    }
+
+    /**
+     * Sets the max depth of the evaluation path to preload when preloading refs.
+     *
+     * @param preloadJsonSchemaRefMaxNestingDepth the max depth to preload
+     */
+    public void setPreloadJsonSchemaRefMaxNestingDepth(int preloadJsonSchemaRefMaxNestingDepth) {
+        this.preloadJsonSchemaRefMaxNestingDepth = preloadJsonSchemaRefMaxNestingDepth;
+    }
+
+    /**
+     * Gets if schemas loaded from refs will be cached and reused for subsequent
+     * runs.
+     *
+     * @return true if schemas loaded from refs should be cached
+     */
+    public boolean isCacheRefs() {
+        return cacheRefs;
+    }
+
+    /**
+     * Sets if schemas loaded from refs will be cached and reused for subsequent
+     * runs.
+     * <p>
+     * Note that setting this to false will affect performance as refs will need to
+     * be repeatedly resolved for each evaluation run. It may be needed to be set to
+     * false if there are multiple nested applicators like anyOf, oneOf and allOf as
+     * that will consume a lot of memory to cache all the permutations.
+     * 
+     * @param cacheRefs true to cache
+     */
+    public void setCacheRefs(boolean cacheRefs) {
+        this.cacheRefs = cacheRefs;
     }
 }

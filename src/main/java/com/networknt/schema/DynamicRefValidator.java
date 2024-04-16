@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * {@link JsonValidator} that resolves $dynamicRef.
@@ -39,7 +41,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
     static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
         String ref = resolve(parentSchema, refValue);
-        return new JsonSchemaRef(new CachedSupplier<>(() -> {
+        return new JsonSchemaRef(getSupplier(() -> {
             JsonSchema refSchema = validationContext.getDynamicAnchors().get(ref);
             if (refSchema == null) { // This is a $dynamicRef without a matching $dynamicAnchor
                 // A $dynamicRef without a matching $dynamicAnchor in the same schema resource
@@ -73,9 +75,13 @@ public class DynamicRefValidator extends BaseJsonValidator {
                 refSchema = refSchema.fromRef(parentSchema, evaluationPath);
             }
             return refSchema;
-        }));
+        }, validationContext.getConfig().isCacheRefs()));
     }
-    
+
+    static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
+        return cache ? new CachedSupplier<>(supplier) : supplier;
+    }
+
     private static String resolve(JsonSchema parentSchema, String refValue) {
         // $ref prevents a sibling $id from changing the base uri
         JsonSchema base = parentSchema;
@@ -153,14 +159,17 @@ public class DynamicRefValidator extends BaseJsonValidator {
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
         JsonSchema check = jsonSchema;
         boolean circularDependency = false;
+        int depth = 0;
         while (check.getEvaluationParentSchema() != null) {
+            depth++;
             check = check.getEvaluationParentSchema();
             if (check.getSchemaLocation().equals(schemaLocation)) {
                 circularDependency = true;
                 break;
             }
         }
-        if (!circularDependency) {
+        if (this.validationContext.getConfig().isCacheRefs() && !circularDependency
+                && depth < this.validationContext.getConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }
