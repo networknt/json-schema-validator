@@ -208,7 +208,8 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if (maximum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
+            String theValue = value.toLowerCase().replace("\"", "");
+            if (maximum.toLowerCase().equals(theValue)) {
                 assertTrue(messages3.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
                 assertFalse(messages3.isEmpty(), format("Maximum %s is smaller than value %s ,  should be validation error reported", maximum, value));
@@ -278,7 +279,9 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
          */
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
-        assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
+        // Before 2.16.0 messages will be empty due to bug https://github.com/FasterXML/jackson-databind/issues/1770
+        // assertTrue(messages.isEmpty(), "Validation should success because the bug of bigDecimalMapper, it will treat 1.7976931348623159e+308 as INFINITY");
+        assertFalse(messages.isEmpty(), "Validation should fail as Incorrect deserialization for BigDecimal numbers is fixed in 2.16.0");
     }
 
     private static final String POSITIVE_TEST_CASE_TEMPLATE = "Expecting no validation errors, maximum %s is greater than value %s";
