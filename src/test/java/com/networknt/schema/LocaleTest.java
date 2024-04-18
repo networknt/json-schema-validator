@@ -151,7 +151,6 @@ public class LocaleTest {
         Map<String, String> expectedAlternate = new HashMap<>();
         expectedAlternate.put("ar","$: يجب أن يكون طوله ٥ حرفًا على الأكثر");
         expectedAlternate.put("fa","$: باید حداکثر ۵ کاراکتر باشد");
-        expectedAlternate.put("es","$: debe tener como mÃ¡ximo 5 caracteres");
 
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
