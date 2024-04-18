@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * {@link JsonValidator} that resolves $recursiveRef.
@@ -47,11 +49,15 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
     static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
-        return new JsonSchemaRef(new CachedSupplier<>(() -> {
+        return new JsonSchemaRef(getSupplier(() -> {
             return getSchema(parentSchema, validationContext, refValue, evaluationPath);
-        }));
+        }, validationContext.getConfig().isCacheRefs()));
     }
-    
+
+    static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
+        return cache ? new CachedSupplier<>(supplier) : supplier;
+    }
+
     static JsonSchema getSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
         JsonSchema refSchema = parentSchema.findSchemaResourceRoot(); // Get the document
@@ -150,14 +156,17 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
         JsonSchema check = jsonSchema;
         boolean circularDependency = false;
+        int depth = 0;
         while (check.getEvaluationParentSchema() != null) {
+            depth++;
             check = check.getEvaluationParentSchema();
             if (check.getSchemaLocation().equals(schemaLocation)) {
                 circularDependency = true;
                 break;
             }
         }
-        if (!circularDependency) {
+        if (this.validationContext.getConfig().isCacheRefs() && !circularDependency
+                && depth < this.validationContext.getConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

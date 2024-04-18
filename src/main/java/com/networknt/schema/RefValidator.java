@@ -20,7 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * {@link JsonValidator} that resolves $ref.
@@ -58,10 +60,10 @@ public class RefValidator extends BaseJsonValidator {
             String schemaUriFinal = resolve(parentSchema, refUri);
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
             // This should retrieve schemas regardless of the protocol that is in the uri.
-            return new JsonSchemaRef(new CachedSupplier<>(() -> {
+            return new JsonSchemaRef(getSupplier(() -> {
                 JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
-                    schemaResource = validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig()); 
+                    schemaResource = validationContext.getJsonSchemaFactory().loadSchema(schemaLocation, validationContext.getConfig()); 
                     if (schemaResource != null) {
                         copySchemaResources(validationContext, schemaResource);
                     }
@@ -89,12 +91,12 @@ public class RefValidator extends BaseJsonValidator {
                     }
                     return schemaResource.fromRef(parentSchema, evaluationPath);
                 }
-            }));
+            }, validationContext.getConfig().isCacheRefs()));
             
         } else if (SchemaLocation.Fragment.isAnchorFragment(refValue)) {
             String absoluteIri = resolve(parentSchema, refValue);
             // Schema resource needs to update the parent and evaluation path
-            return new JsonSchemaRef(new CachedSupplier<>(() -> {
+            return new JsonSchemaRef(getSupplier(() -> {
                 JsonSchema schemaResource = validationContext.getSchemaResources().get(absoluteIri);
                 if (schemaResource == null) {
                     schemaResource = validationContext.getDynamicAnchors().get(absoluteIri);
@@ -106,15 +108,21 @@ public class RefValidator extends BaseJsonValidator {
                     return null;
                 }
                 return schemaResource.fromRef(parentSchema, evaluationPath);
-            }));
+            }, validationContext.getConfig().isCacheRefs()));
         }
         if (refValue.equals(REF_CURRENT)) {
-            return new JsonSchemaRef(new CachedSupplier<>(
-                    () -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath)));
+            return new JsonSchemaRef(
+                    getSupplier(() -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath),
+                            validationContext.getConfig().isCacheRefs()));
         }
-        return new JsonSchemaRef(new CachedSupplier<>(
+        return new JsonSchemaRef(getSupplier(
                 () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)
-                        .fromRef(parentSchema, evaluationPath)));
+                        .fromRef(parentSchema, evaluationPath),
+                validationContext.getConfig().isCacheRefs()));
+    }
+
+    static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
+        return cache ? new CachedSupplier<>(supplier) : supplier;
     }
 
     private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
@@ -235,14 +243,17 @@ public class RefValidator extends BaseJsonValidator {
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
         JsonSchema check = jsonSchema;
         boolean circularDependency = false;
+        int depth = 0;
         while (check.getEvaluationParentSchema() != null) {
+            depth++;
             check = check.getEvaluationParentSchema();
             if (check.getSchemaLocation().equals(schemaLocation)) {
                 circularDependency = true;
                 break;
             }
         }
-        if (!circularDependency) {
+        if (this.validationContext.getConfig().isCacheRefs() && !circularDependency
+                && depth < this.validationContext.getConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

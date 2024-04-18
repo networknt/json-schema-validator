@@ -287,6 +287,17 @@ public class JsonSchemaFactory {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
         JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
+        preload(jsonSchema, config);
+        return jsonSchema;
+    }
+
+    /**
+     * Preloads the json schema if the configuration option is set.
+     * 
+     * @param jsonSchema the schema to preload
+     * @param config containing the configuration option
+     */
+    private void preload(JsonSchema jsonSchema, SchemaValidatorsConfig config) {
         if (config.isPreloadJsonSchema()) {
             try {
                 /*
@@ -302,7 +313,6 @@ public class JsonSchemaFactory {
                  */
             }
         }
-        return jsonSchema;
     }
 
     public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
@@ -471,7 +481,7 @@ public class JsonSchemaFactory {
     public JsonSchema getSchema(final InputStream schemaStream) {
         return getSchema(schemaStream, createSchemaValidatorsConfig());
     }
-
+    
     /**
      * Gets the schema.
      * 
@@ -480,6 +490,19 @@ public class JsonSchemaFactory {
      * @return the schema
      */
     public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
+        JsonSchema schema = loadSchema(schemaUri, config);
+        preload(schema, config);
+        return schema;
+    }
+
+    /**
+     * Loads the schema.
+     * 
+     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param config the config
+     * @return the schema
+     */
+    protected JsonSchema loadSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableSchemaCache) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
@@ -500,7 +523,7 @@ public class JsonSchemaFactory {
         }
         return getMappedSchema(schemaUri, config);
     }
-    
+
     protected ObjectMapper getYamlMapper() {
         return this.yamlMapper != null ? this.yamlMapper : YamlMapperFactory.getInstance();
     }
