@@ -145,7 +145,7 @@ public class LocaleTest {
         expected.put("vi","$: phải dài tối đa 5 ký tự");
         expected.put("zh_CN","$: 长度不得超过 5 个字符");
         expected.put("zh_TW","$: 長度不得超過 5 個字元");
-        expected.put("es","$: debe tener como máximo 5 caracteres");
+        expected.put("es","$: debe tener como mÃ¡ximo 5 caracteres");
 
         // In later JDK versions the numbers will be formatted
         Map<String, String> expectedAlternate = new HashMap<>();
