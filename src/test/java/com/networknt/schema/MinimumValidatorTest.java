@@ -199,7 +199,8 @@ public class MinimumValidatorTest {
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
             Set<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
-            if (minimum.toLowerCase().equals(value.toLowerCase()) || Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
+            String theValue = value.toLowerCase().replace("\"", "");
+            if (minimum.toLowerCase().equals(theValue)) {
                 assertTrue(messages3.isEmpty(), format("Minimum %s and value %s are equal, thus no schema violation should be reported", minimum, value));
             } else {
                 assertFalse(messages3.isEmpty(), format("Minimum %s is larger than value %s ,  should be validation error reported", minimum, value));
@@ -258,7 +259,9 @@ public class MinimumValidatorTest {
 
         v = factory.getSchema(bigDecimalMapper.readTree(schema));
         messages = v.validate(doc);
-        assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
+        // Before 2.16.0 messages will be empty due to bug https://github.com/FasterXML/jackson-databind/issues/1770
+        //assertTrue(messages.isEmpty(), "Validation should succeed due to the bug of BigDecimal option of mapper");
+        assertFalse(messages.isEmpty(), "Validation should fail as Incorrect deserialization for BigDecimal numbers is fixed in 2.16.0");
     }
 
     private void expectSomeMessages(String[][] values, String number, ObjectMapper mapper, ObjectMapper mapper2) throws IOException {
