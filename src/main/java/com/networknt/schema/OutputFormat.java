@@ -16,11 +16,13 @@
 package com.networknt.schema;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import com.networknt.schema.output.HierarchicalOutputUnitFormatter;
 import com.networknt.schema.output.ListOutputUnitFormatter;
 import com.networknt.schema.output.OutputFlag;
 import com.networknt.schema.output.OutputUnit;
+import com.networknt.schema.output.OutputUnitData;
 
 /**
  * Formats the validation results.
@@ -132,6 +134,21 @@ public interface OutputFormat<T> {
      * The List output format.
      */
     public static class List implements OutputFormat<OutputUnit> {
+        private final Function<ValidationMessage, Object> assertionMapper;
+
+        public List() {
+            this(OutputUnitData::formatAssertion);
+        }
+
+        /**
+         * Constructor.
+         * 
+         * @param assertionMapper to map the assertion
+         */
+        public List(Function<ValidationMessage, Object> assertionMapper) {
+            this.assertionMapper = assertionMapper;
+        }
+
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
         }
@@ -139,7 +156,8 @@ public interface OutputFormat<T> {
         @Override
         public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext);
+            return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext,
+                    this.assertionMapper);
         }
     }
 
@@ -147,6 +165,21 @@ public interface OutputFormat<T> {
      * The Hierarchical output format.
      */
     public static class Hierarchical implements OutputFormat<OutputUnit> {
+        private final Function<ValidationMessage, Object> assertionMapper;
+
+        public Hierarchical() {
+            this(OutputUnitData::formatAssertion);
+        }
+
+        /**
+         * Constructor.
+         * 
+         * @param assertionMapper to map the assertion
+         */
+        public Hierarchical(Function<ValidationMessage, Object> assertionMapper) {
+            this.assertionMapper = assertionMapper;
+        }
+
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
         }
@@ -154,7 +187,8 @@ public interface OutputFormat<T> {
         @Override
         public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext, validationContext);
+            return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext,
+                    validationContext, this.assertionMapper);
         }
     }
 }
