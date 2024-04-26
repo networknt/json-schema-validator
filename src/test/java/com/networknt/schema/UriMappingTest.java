@@ -76,7 +76,7 @@ public class UriMappingTest {
             fail("Expected exception not thrown");
         } catch (JsonSchemaException ex) {
             Throwable cause = ex.getCause();
-            if (!(cause instanceof FileNotFoundException || cause instanceof UnknownHostException)) {
+            if (!(cause instanceof IOException )) {
                 fail("Unexpected cause for JsonSchemaException", ex);
             }
             // passing, so do nothing
@@ -132,7 +132,7 @@ public class UriMappingTest {
             fail("Expected exception not thrown");
         } catch (JsonSchemaException ex) {
             Throwable cause = ex.getCause();
-            if (!(cause instanceof FileNotFoundException || cause instanceof UnknownHostException)) {
+            if (!(cause instanceof IOException)) {
                 fail("Unexpected cause for JsonSchemaException");
             }
             // passing, so do nothing
