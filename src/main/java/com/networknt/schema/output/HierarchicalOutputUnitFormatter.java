@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.Set;
 
 import com.networknt.schema.ExecutionContext;
@@ -34,18 +35,7 @@ import com.networknt.schema.ValidationMessage;
  * HierarchicalOutputUnitFormatter.
  */
 public class HierarchicalOutputUnitFormatter {
-    public static OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
-            ExecutionContext executionContext, ValidationContext validationContext) {
-        
-        OutputUnit root = new OutputUnit();
-        root.setValid(validationMessages.isEmpty());
-        
-        root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
-        root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
-        root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
-
-        OutputUnitData data = OutputUnitData.from(validationMessages, executionContext);
-
+    public static OutputUnit format(OutputUnit root, OutputUnitData data, JsonNodePath rootPath) {
         Map<OutputUnitKey, Boolean> valid = data.getValid();
         Map<OutputUnitKey, Map<String, Object>> errors = data.getErrors();
         Map<OutputUnitKey, Map<String, Object>> annotations = data.getAnnotations();
@@ -54,8 +44,8 @@ public class HierarchicalOutputUnitFormatter {
         // Evaluation path to output unit
         Map<JsonNodePath, Map<JsonNodePath, OutputUnit>> index = new LinkedHashMap<>();
         Map<JsonNodePath, OutputUnit> r = new LinkedHashMap<>();
-        r.put(new JsonNodePath(validationContext.getConfig().getPathType()), root);
-        index.put(new JsonNodePath(validationContext.getConfig().getPathType()), r);
+        r.put(rootPath, root);
+        index.put(rootPath, r);
         
         // Get all the evaluation paths with data
         // This is a map of evaluation path to instance location
@@ -115,6 +105,21 @@ public class HierarchicalOutputUnitFormatter {
             unit.setValid(valid.get(key));
         }
         return root;
+    }
+
+    public static OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+            ExecutionContext executionContext, ValidationContext validationContext,
+            Function<ValidationMessage, Object> assertionMapper) {
+        OutputUnit root = new OutputUnit();
+        root.setValid(validationMessages.isEmpty());
+        
+        root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
+        root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
+        root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
+
+        OutputUnitData data = OutputUnitData.from(validationMessages, executionContext, assertionMapper);
+        
+        return format(root, data, new JsonNodePath(validationContext.getConfig().getPathType()));
     }
     
     /**

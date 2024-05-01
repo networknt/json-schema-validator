@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.SchemaLocation;
@@ -51,6 +52,10 @@ public class OutputUnitData {
         return droppedAnnotations;
     }
 
+    public static String formatAssertion(ValidationMessage validationMessage) {
+        return formatMessage(validationMessage.getMessage());
+    }
+
     public static String formatMessage(String message) {
         int index = message.indexOf(":");
         if (index != -1) {
@@ -68,7 +73,8 @@ public class OutputUnitData {
     }
 
     @SuppressWarnings("unchecked")
-    public static OutputUnitData from(Set<ValidationMessage> validationMessages, ExecutionContext executionContext) {
+    public static OutputUnitData from(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
+            Function<ValidationMessage, Object> assertionMapper) {
         OutputUnitData data = new OutputUnitData();
 
         Map<OutputUnitKey, Boolean> valid = data.valid;
@@ -85,15 +91,15 @@ public class OutputUnitData {
             Map<String, Object> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
             Object value = errorMap.get(assertion.getType());
             if (value == null) {
-                errorMap.put(assertion.getType(), formatMessage(assertion.getMessage()));
+                errorMap.put(assertion.getType(), assertionMapper.apply(assertion));
             } else {
                 // Existing error, make it into a list
                 if (value instanceof List) {
-                    ((List<String>) value).add(formatMessage(assertion.getMessage()));
+                    ((List<Object>) value).add(assertionMapper.apply(assertion));
                 } else {
-                    List<String> values = new ArrayList<>();
+                    List<Object> values = new ArrayList<>();
                     values.add(value.toString());
-                    values.add(formatMessage(assertion.getMessage()));
+                    values.add(assertionMapper.apply(assertion));
                     errorMap.put(assertion.getType(), values);
                 }
             }

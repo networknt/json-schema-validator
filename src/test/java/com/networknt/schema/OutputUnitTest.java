@@ -17,6 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -339,4 +340,34 @@ public class OutputUnitTest {
         assertEquals(expected, output);
     }
 
+    @Test
+    void listAssertionMapper() {
+        String formatSchema = "{\r\n"
+                + "  \"type\": \"string\"\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(formatSchema, config);
+        OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.List(a -> a));
+        assertFalse(outputUnit.isValid());
+        OutputUnit details = outputUnit.getDetails().get(0);
+        Object assertion = details.getErrors().get("type");
+        assertInstanceOf(ValidationMessage.class, assertion);
+    }
+
+    @Test
+    void hierarchicalAssertionMapper() {
+        String formatSchema = "{\r\n"
+                + "  \"type\": \"string\"\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setPathType(PathType.JSON_POINTER);
+        JsonSchema schema = factory.getSchema(formatSchema, config);
+        OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
+        assertFalse(outputUnit.isValid());
+        Object assertion = outputUnit.getErrors().get("type");
+        assertInstanceOf(ValidationMessage.class, assertion);
+    }
 }
