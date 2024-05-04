@@ -15,10 +15,6 @@
  */
 package com.networknt.schema.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonNodePath;
 
@@ -61,21 +57,7 @@ public class JsonNodes {
         if (propertyOrIndex instanceof Number) {
             value = node.get(((Number) propertyOrIndex).intValue());
         } else {
-            // In the case of string this represents an escaped json pointer and thus does not reflect the property directly
-            String unescaped = propertyOrIndex.toString();
-            if (unescaped.contains("~")) {
-                unescaped = unescaped.replace("~1", "/");
-                unescaped = unescaped.replace("~0", "~");
-            }
-            if (unescaped.contains("%")) {
-                try {
-                    unescaped = URLDecoder.decode(unescaped, StandardCharsets.UTF_8.toString());
-                } catch (UnsupportedEncodingException e) {
-                    // Do nothing
-                }
-            }
-            
-            value = node.get(unescaped);
+            value = node.get(propertyOrIndex.toString());
         }
         return (T) value;
     }

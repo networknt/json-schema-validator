@@ -1,0 +1,9 @@
+paths:
+  /users:
+    post:
+      requestBody:
+        application/json:
+          schema:
+            anyOf:
+            - type: object
+            - type: string
