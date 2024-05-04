@@ -17,7 +17,11 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
+
+import com.networknt.schema.SpecVersion.VersionFlag;
 
 class SchemaLocationTest {
 
@@ -171,6 +175,30 @@ class SchemaLocationTest {
         assertFalse(SchemaLocation.Fragment.isDocumentFragment("#test"));
         assertFalse(SchemaLocation.Fragment.isDocumentFragment("test"));
         assertTrue(SchemaLocation.Fragment.isDocumentFragment("#"));
+    }
+
+    @Test
+    void shouldLoadEscapedFragment() {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchema schema = factory.getSchema(SchemaLocation
+                .of("classpath:schema/example-escaped.yaml#/paths/~1users/post/requestBody/application~1json/schema"));
+        Set<ValidationMessage> result = schema.validate("1", InputFormat.JSON);
+        assertFalse(result.isEmpty());
+        result = schema.validate("{}", InputFormat.JSON);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void escapedJsonPointerFragment() {
+        JsonNodePath fragment = SchemaLocation.Fragment.of("/paths/~1users/post/requestBody/application~1json/schema");
+        assertEquals("/paths/~1users/post/requestBody/application~1json/schema", fragment.toString());
+        assertEquals(6, fragment.getNameCount());
+        assertEquals("paths", fragment.getName(0));
+        assertEquals("/users", fragment.getName(1));
+        assertEquals("post", fragment.getName(2));
+        assertEquals("requestBody", fragment.getName(3));
+        assertEquals("application/json", fragment.getName(4));
+        assertEquals("schema", fragment.getName(5));
     }
 
     @Test

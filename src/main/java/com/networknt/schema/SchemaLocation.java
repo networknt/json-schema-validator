@@ -15,6 +15,9 @@
  */
 package com.networknt.schema;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -230,7 +233,21 @@ public class SchemaLocation {
                 if (index != -1) {
                     fragment = fragment.append(index);
                 } else {
-                    fragment = fragment.append(fragmentPart.toString());
+                    String fragmentPartString = fragmentPart.toString();
+                    if (PathType.JSON_POINTER.equals(fragment.getPathType())) {
+                        if (fragmentPartString.contains("~")) {
+                            fragmentPartString = fragmentPartString.replace("~1", "/");
+                            fragmentPartString = fragmentPartString.replace("~0", "~");
+                        }
+                        if (fragmentPartString.contains("%")) {
+                            try {
+                                fragmentPartString = URLDecoder.decode(fragmentPartString, StandardCharsets.UTF_8.toString());
+                            } catch (UnsupportedEncodingException e) {
+                                // Do nothing
+                            }
+                        }
+                    }
+                    fragment = fragment.append(fragmentPartString);
                 }
             }
             if (index == -1 && fragmentString.endsWith("/")) {
