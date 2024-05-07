@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Set;
@@ -122,5 +123,20 @@ public class OneOfValidatorTest {
         assertEquals("type", assertions.get(3).getType());
         assertEquals("$.test", assertions.get(3).getInstanceLocation().toString());
         assertEquals("$.oneOf[2].additionalProperties.type", assertions.get(3).getEvaluationPath().toString());
+    }
+
+    @Test
+    void invalidTypeShouldThrowJsonSchemaException() {
+        String schemaData = "{\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"User\": true\r\n"
+                + "  },\r\n"
+                + "  \"oneOf\": {\r\n"
+                + "    \"$ref\": \"#/defs/User\"\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        assertEquals("type", ex.getValidationMessage().getMessageKey());
     }
 }

@@ -36,6 +36,14 @@ public class OneOfValidator extends BaseJsonValidator {
 
     public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ONE_OF, validationContext);
+        if (!schemaNode.isArray()) {
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
+            throw new JsonSchemaException(message().instanceNode(schemaNode)
+                    .instanceLocation(schemaLocation.getFragment())
+                    .messageKey("type")
+                    .arguments(nodeType.toString(), "array")
+                    .build());
+        }
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
