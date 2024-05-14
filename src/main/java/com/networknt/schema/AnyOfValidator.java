@@ -37,6 +37,14 @@ public class AnyOfValidator extends BaseJsonValidator {
 
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
+        if (!schemaNode.isArray()) {
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
+            throw new JsonSchemaException(message().instanceNode(schemaNode)
+                    .instanceLocation(schemaLocation.getFragment())
+                    .messageKey("type")
+                    .arguments(nodeType.toString(), "array")
+                    .build());
+        }
         int size = schemaNode.size();
         for (int i = 0; i < size; i++) {
             this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
