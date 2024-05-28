@@ -369,7 +369,7 @@ public class JsonMetaSchema {
      * Use {@link #getV4()} for the Draft 4 Metaschema, or if you need a builder based on Draft4, use
      *
      * <code>
-     * JsonMetaSchema.builder("http://your-metaschema-iri", JsonSchemaFactory.getDraftV4()).build();
+     * JsonMetaSchema.builder("http://your-metaschema-iri", JsonMetaSchema.getDraftV4()).build();
      * </code>
      *
      * @param iri the IRI of the metaschema that will be defined via this builder.
