@@ -341,8 +341,8 @@ Assertions contains the following additional information
 | Arguments         | The arguments used for generating the message.
 | Type              | The keyword that generated the message.
 | Property          | The property name that caused the validation error for example for the `required` keyword. Note that this is not part of the instance location as that points to the instance node.
-| Schema Node       | The `JsonNode` pointed to by the Schema Location.
-| Instance Node     | The `JsonNode` pointed to by the Instance Location.
+| Schema Node       | The `JsonNode` pointed to by the Schema Location. This is the schema data that caused the input data to fail. It is possible to get the location information by configuring the `JsonSchemaFactory` with the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(schemaNode)`.
+| Instance Node     | The `JsonNode` pointed to by the Instance Location. This is the input data that failed validation. It is possible to get the location information by configuring the `JsonSchemaFactory` with the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(instanceNode)`.
 | Details           | Additional details that can be set by custom keyword validator implementations. This is not used by the library.
 
 Annotations contains the following additional information
@@ -350,6 +350,58 @@ Annotations contains the following additional information
 | Type              | Description 
 |-------------------|-------------------
 | Value             | The annotation value generated
+
+##### Line and Column Information
+
+The library can be configured to store line and column information in the `JsonNode` instances for the instance and schema nodes. This will adversely affect performance and is not configured by default.
+
+This is done by configuring a `LocationJsonNodeFactoryFactory` on the `JsonSchemaFactory`. The `JsonLocation` information can then be retrieved using `JsonNodes.tokenLocationOf(jsonNode)`.
+
+```java
+String schemaData = "{\r\n"
+                + "  \"$id\": \"https://schema/myschema\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"startDate\": {\r\n"
+                + "      \"format\": \"date\",\r\n"
+                + "      \"minLength\": 6\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+String inputData = "{\r\n"
+                + "  \"startDate\": \"1\"\r\n"
+                + "}";
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        builder -> builder.jsonNodeFactoryFactory(LocationJsonNodeFactoryFactory.getInstance()));
+SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+config.setPathType(PathType.JSON_POINTER);
+JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
+Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
+    executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+});
+List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
+ValidationMessage format = list.get(0);
+JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
+JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
+ValidationMessage minLength = list.get(1);
+JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
+JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
+
+assertEquals("format", format.getType());
+assertEquals("date", format.getSchemaNode().asText());
+assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
+assertEquals(17, formatSchemaNodeTokenLocation.getColumnNr());
+assertEquals("1", format.getInstanceNode().asText());
+assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
+assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
+assertEquals("minLength", minLength.getType());
+assertEquals("6", minLength.getSchemaNode().asText());
+assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
+assertEquals(20, minLengthSchemaNodeTokenLocation.getColumnNr());
+assertEquals("1", minLength.getInstanceNode().asText());
+assertEquals(2, minLengthInstanceNodeTokenLocation.getLineNr());
+assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
+assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
+```
 
 
 #### Output formats
@@ -479,9 +531,9 @@ The following is sample output from the Hierarchical format.
 
 When the library creates a schema from the schema factory, it creates a distinct validator instance for each location on the evaluation path. This means if there are different `$ref` that reference the same schema location, different validator instances are created for each evaluation path.
 
-When the schema is created, the library will automatically preload all the validators needed and resolve references. At this point, no exceptions will be thrown if a reference cannot be resolved. If there are references that are cyclic, only the first cycle will be preloaded. If you wish to ensure that remote references can all be resolved, the `initializeValidators` method needs to be called on the `JsonSchema` which will throw an exception if there are references that cannot be resolved.
+When the schema is created, the library will by default automatically preload all the validators needed and resolve references. This can be disabled with the `preloadJsonSchema` option in the `SchemaValidatorsConfig`. At this point, no exceptions will be thrown if a reference cannot be resolved. If there are references that are cyclic, only the first cycle will be preloaded. If you wish to ensure that remote references can all be resolved, the `initializeValidators` method needs to be called on the `JsonSchema` which will throw an exception if there are references that cannot be resolved.
 
-The `JsonSchema` created from the factory should be cached and reused. Not reusing the `JsonSchema` means that the schema data needs to be repeated parsed with validator instances created and references resolved.
+Instances for `JsonSchemaFactory` and the `JsonSchema` created from it are designed to be thread-safe provided its configuration is not modified and should be cached and reused. Not reusing the `JsonSchema` means that the schema data needs to be repeated parsed with validator instances created and references resolved. When references are resolved, the validators created will be cached. For schemas that have deeply nested references, the memory needed for the validators may be very high, in which case the caching may need to be disabled using the `cacheRefs` option in the `JsonSchemaValidatorsConfig`. Disabling this will mean the validators from the references need to be re-created for each validation run which will impact performance.
 
 Collecting annotations will adversely affect validation performance.
 
