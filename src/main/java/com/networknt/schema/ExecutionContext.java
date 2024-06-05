@@ -27,7 +27,6 @@ import java.util.Stack;
 public class ExecutionContext {
     private ExecutionConfig executionConfig;
     private CollectorContext collectorContext = null;
-    private ValidatorState validatorState = null;
     private Stack<DiscriminatorContext> discriminatorContexts = null;
     private JsonNodeAnnotations annotations = null;
     private JsonNodeResults results = null;
@@ -151,24 +150,6 @@ public class ExecutionContext {
      */
     public void setFailFast(boolean failFast) {
         this.failFast = failFast;
-    }
-
-    /**
-     * Gets the validator state.
-     * 
-     * @return the validator state
-     */
-    public ValidatorState getValidatorState() {
-        return validatorState;
-    }
-
-    /**
-     * Sets the validator state.
-     * 
-     * @param validatorState the validator state
-     */
-    public void setValidatorState(ValidatorState validatorState) {
-        this.validatorState = validatorState;
     }
 
     public DiscriminatorContext getCurrentDiscriminatorContext() {

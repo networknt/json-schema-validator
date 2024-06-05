@@ -52,12 +52,16 @@ public class OneOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         Set<ValidationMessage> errors = null;
 
         debug(logger, node, rootNode, instanceLocation);
-
-        ValidatorState state = executionContext.getValidatorState();
         int numberOfValidSchema = 0;
         int index = 0;
         SetView<ValidationMessage> childErrors = null;
@@ -78,11 +82,11 @@ public class OneOfValidator extends BaseJsonValidator {
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
-                if (!state.isWalkEnabled()) {
+                if (!walk) {
                     schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
                     schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation,
-                            state.isValidationEnabled());
+                            true);
                 }
 
                 // check if any validation errors have occurred
@@ -214,7 +218,7 @@ public class OneOfValidator extends BaseJsonValidator {
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (shouldValidateSchema) {
-            validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation));
+            validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation, true));
         } else {
             for (JsonSchema schema : this.schemas) {
                 schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);

@@ -537,9 +537,6 @@ public class JsonSchema extends BaseJsonValidator {
         }
 
         SetView<ValidationMessage> errors = null;
-        // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-        setValidatorState(executionContext, false, true);
-
         for (JsonValidator v : getValidators()) {
             Set<ValidationMessage> results = null;
 
@@ -894,8 +891,6 @@ public class JsonSchema extends BaseJsonValidator {
      * @return ValidationResult
      */
     private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        // Set the walkEnabled and isValidationEnabled flag in internal validator state.
-        setValidatorState(executionContext, false, true);
         // Validate.
         Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, instanceLocation);
 
@@ -990,8 +985,6 @@ public class JsonSchema extends BaseJsonValidator {
 
     private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        // Set the walkEnabled flag in internal validator state.
-        setValidatorState(executionContext, true, shouldValidateSchema);
         // Walk through the schema.
         Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
 
@@ -1041,17 +1034,6 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /************************ END OF WALK METHODS **********************************/
-
-    private static void setValidatorState(ExecutionContext executionContext, boolean isWalkEnabled,
-            boolean shouldValidateSchema) {
-        // Get the Validator state object storing validation data
-        ValidatorState validatorState = executionContext.getValidatorState();
-        if (validatorState == null) {
-            // If one has not been created, instantiate one
-            executionContext.setValidatorState(new ValidatorState(isWalkEnabled, shouldValidateSchema));
-        }
-    }
-
     @Override
     public String toString() {
         return "\"" + getEvaluationPath() + "\" : " + getSchemaNode().toString();

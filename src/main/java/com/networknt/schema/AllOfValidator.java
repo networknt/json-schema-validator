@@ -52,17 +52,18 @@ public class AllOfValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
 
-        // get the Validator state object storing validation data
-        ValidatorState state = executionContext.getValidatorState();
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean walk) {
+        debug(logger, node, rootNode, instanceLocation);
 
         SetView<ValidationMessage> childSchemaErrors = null;
 
         for (JsonSchema schema : this.schemas) {
             Set<ValidationMessage> localErrors = null;
 
-            if (!state.isWalkEnabled()) {
+            if (!walk) {
                 localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
                 localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
@@ -111,7 +112,7 @@ public class AllOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation);
+            return validate(executionContext, node, rootNode, instanceLocation, true);
         }
         for (JsonSchema schema : this.schemas) {
             // Walk through the schema

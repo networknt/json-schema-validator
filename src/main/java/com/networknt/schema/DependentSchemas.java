@@ -44,7 +44,13 @@ public class DependentSchemas extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         debug(logger, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = null;
@@ -52,7 +58,9 @@ public class DependentSchemas extends BaseJsonValidator {
             String pname = it.next();
             JsonSchema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
-                Set<ValidationMessage> schemaDependenciesErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                Set<ValidationMessage> schemaDependenciesErrors = !walk
+                        ? schema.validate(executionContext, node, rootNode, instanceLocation)
+                        : schema.walk(executionContext, node, rootNode, instanceLocation, true);
                 if (!schemaDependenciesErrors.isEmpty()) {
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
@@ -72,7 +80,7 @@ public class DependentSchemas extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation);
+            return validate(executionContext, node, rootNode, instanceLocation, true);
         }
         for (JsonSchema schema : this.schemaDependencies.values()) {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);

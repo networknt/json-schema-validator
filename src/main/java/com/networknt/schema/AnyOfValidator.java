@@ -53,11 +53,14 @@ public class AnyOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
 
-        // get the Validator state object storing validation data
-        ValidatorState state = executionContext.getValidatorState();
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
+        debug(logger, node, rootNode, instanceLocation);
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
@@ -85,7 +88,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                             continue;
                         }
                     }
-                    if (!state.isWalkEnabled()) {
+                    if (!walk) {
                         errors = schema.validate(executionContext, node, rootNode, instanceLocation);
                     } else {
                         errors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
@@ -159,7 +162,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation);
+            return validate(executionContext, node, rootNode, instanceLocation, true);
         }
         for (JsonSchema schema : this.schemas) {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
