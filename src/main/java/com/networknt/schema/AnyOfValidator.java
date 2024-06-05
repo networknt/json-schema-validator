@@ -62,9 +62,6 @@ public class AnyOfValidator extends BaseJsonValidator {
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
-
-        boolean initialHasMatchedNode = state.hasMatchedNode();
-
         SetView<ValidationMessage> allErrors = null;
 
         int numberOfValidSubSchemas = 0;
@@ -75,8 +72,6 @@ public class AnyOfValidator extends BaseJsonValidator {
                 executionContext.setFailFast(false);
                 for (JsonSchema schema : this.schemas) {
                     Set<ValidationMessage> errors = Collections.emptySet();
-                    state.setMatchedNode(initialHasMatchedNode);
-
                     TypeValidator typeValidator = schema.getTypeValidator();
                     if (typeValidator != null) {
                         // If schema has type validator and node type doesn't match with schemaType then
@@ -98,11 +93,6 @@ public class AnyOfValidator extends BaseJsonValidator {
 
                     // check if any validation errors have occurred
                     if (errors.isEmpty()) {
-                        // check whether there are no errors HOWEVER we have validated the exact
-                        // validator
-                        if (!state.hasMatchedNode()) {
-                            continue;
-                        }
                         // we found a valid subschema, so increase counter
                         numberOfValidSubSchemas++;
                     }
@@ -158,9 +148,6 @@ public class AnyOfValidator extends BaseJsonValidator {
         } finally {
             if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
-            }
-            if (allErrors == null || allErrors.isEmpty()) {
-                state.setMatchedNode(true);
             }
         }
         if (numberOfValidSubSchemas >= 1) {

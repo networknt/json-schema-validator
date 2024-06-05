@@ -58,10 +58,6 @@ public class OneOfValidator extends BaseJsonValidator {
         debug(logger, node, rootNode, instanceLocation);
 
         ValidatorState state = executionContext.getValidatorState();
-
-        // this is a complex validator, we set the flag to true
-        state.setComplexValidator(true);
-
         int numberOfValidSchema = 0;
         int index = 0;
         SetView<ValidationMessage> childErrors = null;
@@ -82,10 +78,6 @@ public class OneOfValidator extends BaseJsonValidator {
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
-
-                // Reset state in case the previous validator did not match
-                state.setMatchedNode(true);
-
                 if (!state.isWalkEnabled()) {
                     schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
@@ -95,11 +87,6 @@ public class OneOfValidator extends BaseJsonValidator {
 
                 // check if any validation errors have occurred
                 if (schemaErrors.isEmpty()) {
-                    // check whether there are no errors HOWEVER we have validated the exact
-                    // validator
-                    if (!state.hasMatchedNode()) {
-                        continue;
-                    }
                     numberOfValidSchema++;
                     if (indexes == null) {
                         indexes = new ArrayList<>();
@@ -194,15 +181,6 @@ public class OneOfValidator extends BaseJsonValidator {
                 errors = Collections.singleton(message);
             }
         }
-
-        // Make sure to signal parent handlers we matched
-        if (errors == null || errors.isEmpty()) {
-            state.setMatchedNode(true);
-        }
-
-        // reset the ValidatorState object
-        resetValidatorState(executionContext);
-
         return errors != null ? errors : Collections.emptySet();
     }
 
@@ -230,12 +208,6 @@ public class OneOfValidator extends BaseJsonValidator {
             this.canShortCircuit = canShortCircuit;
         }
         return this.canShortCircuit;
-    }
-
-    private static void resetValidatorState(ExecutionContext executionContext) {
-        ValidatorState state = executionContext.getValidatorState();
-        state.setComplexValidator(false);
-        state.setMatchedNode(true);
     }
 
     @Override
