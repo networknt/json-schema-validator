@@ -16,15 +16,13 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.serialization.YamlMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SetView;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -46,6 +44,9 @@ import java.util.function.Consumer;
  * This is the core of json constraint implementation. It parses json constraint
  * file and generates JsonValidators. The class is thread safe, once it is
  * constructed, it can be used to validate multiple json data concurrently.
+ * <p>
+ * JsonSchema instances are thread-safe provided its configuration is not
+ * modified.
  */
 public class JsonSchema extends BaseJsonValidator {
     private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
@@ -871,15 +872,10 @@ public class JsonSchema extends BaseJsonValidator {
      */
     private JsonNode deserialize(String input, InputFormat inputFormat) {
         try {
-            if (InputFormat.JSON.equals(inputFormat)) {
-                return JsonMapperFactory.getInstance().readTree(input);
-            } else if (InputFormat.YAML.equals(inputFormat)) {
-                return YamlMapperFactory.getInstance().readTree(input);
-            }
-        } catch (JsonProcessingException e) {
+            return this.getValidationContext().getJsonSchemaFactory().readTree(input, inputFormat);
+        } catch (IOException e) {
             throw new IllegalArgumentException("Invalid input", e);
         }
-        throw new IllegalArgumentException("Unsupported input format "+inputFormat);
     }
 
     public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
