@@ -97,7 +97,21 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     }
 
     protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
+        // logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
+        // The below is equivalent to the above but as there are more than 2 arguments
+        // the var-arg method is used and an array needs to be allocated even if debug
+        // is not enabled
+        if (logger.isDebugEnabled()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("validate( ");
+            builder.append(node.toString());
+            builder.append(", ");
+            builder.append(rootNode.toString());
+            builder.append(", ");
+            builder.append(instanceLocation.toString());
+            builder.append(")");
+            logger.debug(builder.toString());
+        }
     }
 
     /**
