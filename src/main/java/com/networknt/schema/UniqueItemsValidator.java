@@ -42,7 +42,7 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (unique) {
             Set<JsonNode> set = new HashSet<JsonNode>();

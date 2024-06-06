@@ -510,6 +510,7 @@ The following is sample output from the Hierarchical format.
 | `locale`                       | The locale to use for generating messages in the `ValidationMessage`. Note that this value is copied from `SchemaValidatorsConfig` for each execution.                                                                            | `Locale.getDefault()`
 | `failFast`                     | Whether to return failure immediately when an assertion is generated. Note that this value is copied from `SchemaValidatorsConfig` for each execution but is automatically set to `true` for the Boolean and Flag output formats. | `false`
 | `formatAssertionsEnabled`      | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`
+| `debugEnabled`                 | Controls whether debug logging is enabled for logging the node information when processing. Note that this will generate a lot of logs that will affect performance.                                                              | `false`
 
 ### Schema Validators Configuration
 

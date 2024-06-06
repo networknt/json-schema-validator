@@ -61,7 +61,7 @@ public class OneOfValidator extends BaseJsonValidator {
             JsonNodePath instanceLocation, boolean walk) {
         Set<ValidationMessage> errors = null;
 
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         int numberOfValidSchema = 0;
         int index = 0;
         SetView<ValidationMessage> childErrors = null;

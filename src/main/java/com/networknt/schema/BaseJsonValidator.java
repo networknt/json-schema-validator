@@ -96,12 +96,13 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         return Math.abs(n1 - n2) < 1e-12;
     }
 
-    protected static void debug(Logger logger, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        // logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
+    public static void debug(Logger logger, ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        //logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
         // The below is equivalent to the above but as there are more than 2 arguments
         // the var-arg method is used and an array needs to be allocated even if debug
         // is not enabled
-        if (logger.isDebugEnabled()) {
+        if (executionContext.getExecutionConfig().isDebugEnabled() && logger.isDebugEnabled()) {
             StringBuilder builder = new StringBuilder();
             builder.append("validate( ");
             builder.append(node.toString());

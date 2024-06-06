@@ -115,7 +115,7 @@ public class MinimumValidator extends BaseJsonValidator {
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
             // minimum only applies to numbers

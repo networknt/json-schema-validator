@@ -60,7 +60,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         // ignores non-arrays
         if (node.isArray()) {
             SetView<ValidationMessage> errors = null;

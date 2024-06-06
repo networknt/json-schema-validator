@@ -51,7 +51,7 @@ public class DependentSchemas extends BaseJsonValidator {
 
     protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = null;
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
