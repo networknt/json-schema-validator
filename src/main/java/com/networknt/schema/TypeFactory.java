@@ -17,8 +17,18 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
+/**
+ * Type factory.
+ */
 public class TypeFactory {
+    /**
+     * Gets the {@link JsonType} indicated by the schema node.
+     * 
+     * @param node the schema node
+     * @return the json type
+     */
     public static JsonType getSchemaNodeType(JsonNode node) {
         //Single Type Definition
         if (node.isTextual()) {
@@ -57,37 +67,38 @@ public class TypeFactory {
         return JsonType.UNKNOWN;
     }
 
+    /**
+     * Gets the {@link JsonType} of the value node.
+     *
+     * @param node the value node
+     * @param config the config
+     * @return the json type
+     */
     public static JsonType getValueNodeType(JsonNode node, SchemaValidatorsConfig config) {
-        if (node.isContainerNode()) {
-            if (node.isObject())
-                return JsonType.OBJECT;
-            if (node.isArray())
-                return JsonType.ARRAY;
-            return JsonType.UNKNOWN;
-        }
-
-        if (node.isValueNode()) {
-            if (node.isTextual())
-                return JsonType.STRING;
-            if (node.isBinary())
-                return JsonType.STRING;
-            if (node.isIntegralNumber())
+        JsonNodeType type = node.getNodeType();
+        switch (type) {
+        case OBJECT:
+            return JsonType.OBJECT;
+        case ARRAY:
+            return JsonType.ARRAY;
+        case STRING:
+        case BINARY:
+            return JsonType.STRING;
+        case NUMBER:
+            if (node.isIntegralNumber()) {
                 return JsonType.INTEGER;
-            if (node.isNumber())
-                if (config != null && config.isJavaSemantics() && node.canConvertToExactIntegral())
-                    return JsonType.INTEGER;
-                else if (config != null && config.isLosslessNarrowing() && node.canConvertToExactIntegral())
-                    return JsonType.INTEGER;
-                else
-                    return JsonType.NUMBER;
-            if (node.isBoolean())
-                return JsonType.BOOLEAN;
-            if (node.isNull())
-                return JsonType.NULL;
+            } else if (config != null && (config.isJavaSemantics() || config.isLosslessNarrowing())
+                    && node.canConvertToExactIntegral()) {
+                return JsonType.INTEGER;
+            } else {
+                return JsonType.NUMBER;
+            }
+        case BOOLEAN:
+            return JsonType.BOOLEAN;
+        case NULL:
+            return JsonType.NULL;
+        default:
             return JsonType.UNKNOWN;
         }
-
-        return JsonType.UNKNOWN;
     }
-
 }
