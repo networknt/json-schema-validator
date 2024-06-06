@@ -17,7 +17,7 @@ public class IriFormat extends AbstractRFC3986Format {
                 }
             }
 
-            String query = uri.getQuery();
+            String query = uri.getRawQuery();
             if (query != null) {
                 // [ and ] must be percent encoded
                 if (query.indexOf('[') != -1 || query.indexOf(']') != -1) {
