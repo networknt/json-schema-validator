@@ -58,7 +58,6 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
 
-    private JsonValidator requiredValidator = null;
     private TypeValidator typeValidator;
 
     private final String id;
@@ -161,7 +160,6 @@ public class JsonSchema extends BaseJsonValidator {
         this.validators = copy.validators;
         this.validatorsLoaded = copy.validatorsLoaded;
         this.recursiveAnchor = copy.recursiveAnchor;
-        this.requiredValidator = copy.requiredValidator;
         this.typeValidator = copy.typeValidator;
         this.id = copy.id;
     }
@@ -189,7 +187,6 @@ public class JsonSchema extends BaseJsonValidator {
         copy.evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
         copy.validatorsLoaded = false;
-        copy.requiredValidator = null;
         copy.typeValidator = null;
         copy.validators = null;
         return copy;
@@ -204,7 +201,6 @@ public class JsonSchema extends BaseJsonValidator {
                     copy.getValidationContext().getSchemaResources(),
                     copy.getValidationContext().getDynamicAnchors());
             copy.validatorsLoaded = false;
-            copy.requiredValidator = null;
             copy.typeValidator = null;
             copy.validators = null;
             return copy;
@@ -472,8 +468,6 @@ public class JsonSchema extends BaseJsonValidator {
 
                     if ("$ref".equals(pname)) {
                         refValidator = validator;
-                    } else if ("required".equals(pname)) {
-                        this.requiredValidator = validator;
                     } else if ("type".equals(pname)) {
                         if (validator instanceof TypeValidator) {
                             this.typeValidator = (TypeValidator) validator;
@@ -1037,14 +1031,6 @@ public class JsonSchema extends BaseJsonValidator {
     @Override
     public String toString() {
         return "\"" + getEvaluationPath() + "\" : " + getSchemaNode().toString();
-    }
-
-    public boolean hasRequiredValidator() {
-        return this.requiredValidator != null;
-    }
-
-    public JsonValidator getRequiredValidator() {
-        return this.requiredValidator;
     }
 
     public boolean hasTypeValidator() {
