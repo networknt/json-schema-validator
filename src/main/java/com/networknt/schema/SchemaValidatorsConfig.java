@@ -19,6 +19,9 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
+import com.networknt.schema.regex.ECMAScriptRegularExpressionFactory;
+import com.networknt.schema.regex.JDKRegularExpressionFactory;
+import com.networknt.schema.regex.RegularExpressionFactory;
 import com.networknt.schema.walk.DefaultItemWalkListenerRunner;
 import com.networknt.schema.walk.DefaultKeywordWalkListenerRunner;
 import com.networknt.schema.walk.DefaultPropertyWalkListenerRunner;
@@ -59,9 +62,9 @@ public class SchemaValidatorsConfig {
     private ApplyDefaultsStrategy applyDefaultsStrategy = ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
 
     /**
-     * When set to true, use ECMA-262 compatible validator
+     * Used to create {@link com.networknt.schema.regex.RegularExpression}.
      */
-    private boolean ecma262Validator;
+    private RegularExpressionFactory regularExpressionFactory = JDKRegularExpressionFactory.getInstance();
 
     /**
      * When set to true, use Java-specific semantics rather than native JavaScript
@@ -268,12 +271,55 @@ public class SchemaValidatorsConfig {
         this.handleNullableField = handleNullableField;
     }
 
+    /**
+     * Gets whether to use a ECMA-262 compliant regular expression validator.
+     * <p>
+     * This defaults to the false and setting true require inclusion of optional
+     * org.jruby.joni:joni or org.graalvm.js:js dependencies.
+     *
+     * @return true if ECMA-262 compliant
+     */
     public boolean isEcma262Validator() {
-        return this.ecma262Validator;
+        return !(this.regularExpressionFactory instanceof JDKRegularExpressionFactory);
     }
 
+    /**
+     * Sets whether to use a ECMA-262 compliant regular expression validator.
+     * <p>
+     * This defaults to the false and setting true require inclusion of optional
+     * org.jruby.joni:joni or org.graalvm.js:js dependencies.
+     *
+     * @param ecma262Validator true if ECMA-262 compliant
+     */
     public void setEcma262Validator(boolean ecma262Validator) {
-        this.ecma262Validator = ecma262Validator;
+        this.regularExpressionFactory = ecma262Validator ? ECMAScriptRegularExpressionFactory.getInstance()
+                : JDKRegularExpressionFactory.getInstance();
+    }
+
+    /**
+     * Gets the regular expression factory.
+     * <p>
+     * This defaults to the JDKRegularExpressionFactory and the implementations
+     * require inclusion of optional org.jruby.joni:joni or org.graalvm.js:js dependencies.
+     *
+     * @return the factory
+     */
+    public RegularExpressionFactory getRegularExpressionFactory() {
+        return regularExpressionFactory;
+    }
+
+    /**
+     * Sets the regular expression factory.
+     * <p>
+     * This defaults to the JDKRegularExpressionFactory and the implementations
+     * require inclusion of optional org.jruby.joni:joni or org.graalvm.js:js dependencies.
+     *
+     * @see JDKRegularExpressionFactory
+     * @see ECMAScriptRegularExpressionFactory
+     * @param regularExpressionFactory the factory
+     */
+    public void setRegularExpressionFactory(RegularExpressionFactory regularExpressionFactory) {
+        this.regularExpressionFactory = regularExpressionFactory;
     }
 
     public boolean isJavaSemantics() {

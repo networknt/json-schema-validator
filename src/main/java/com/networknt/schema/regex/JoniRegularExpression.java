@@ -7,18 +7,37 @@ import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Syntax;
+import org.joni.constants.SyntaxProperties;
 import org.joni.exception.SyntaxException;
 
 /**
- * ECMAScript {@link RegularExpression}.
+ * Joni {@link RegularExpression}.
+ * <p>
+ * This requires a dependency on org.jruby.joni:joni which along with its
+ * dependency libraries are 2 MB.
  */
 class JoniRegularExpression implements RegularExpression {
     private final Regex pattern;
     private final Pattern INVALID_ESCAPE_PATTERN = Pattern.compile(
-            ".*\\\\([aeg-moqyzACE-OQ-RT-VX-Z1-9]|c$|[pP]([^{]|$)|u([^{0-9]|$)|x([0-9a-fA-F][^0-9a-fA-F]|[^0-9a-fA-F][0-9a-fA-F]|[^0-9a-fA-F][^0-9a-fA-F]|.?$)).*");
+            ".*\\\\([aeg-jl-moqyzACE-OQ-RT-VX-Z1-9]|k([^<]|$)|c$|[pP]([^{]|$)|u([^{0-9]|$)|x([0-9a-fA-F][^0-9a-fA-F]|[^0-9a-fA-F][0-9a-fA-F]|[^0-9a-fA-F][^0-9a-fA-F]|.?$)).*");
+    
+    /**
+     * This is a custom syntax as Syntax.ECMAScript doesn't seem to be correct.
+     * <p>
+     * 
+     * @see <a href=
+     *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group">OP2_QMARK_LT_NAMED_GROUP</a>
+     * @see <a href=
+     *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_backreference">OP2_ESC_K_NAMED_BACKREF</a>
+     */
+    private static final Syntax SYNTAX = new Syntax(Syntax.ECMAScript.name, Syntax.ECMAScript.op,
+            Syntax.ECMAScript.op2 | SyntaxProperties.OP2_QMARK_LT_NAMED_GROUP
+                    | SyntaxProperties.OP2_ESC_K_NAMED_BACKREF,
+            Syntax.ECMAScript.op3, Syntax.ECMAScript.behavior, Syntax.ECMAScript.options,
+            Syntax.ECMAScript.metaCharTable);;
 
     JoniRegularExpression(String regex) {
-        this(regex, Syntax.ECMAScript);
+        this(regex, SYNTAX);
     }
 
     JoniRegularExpression(String regex, Syntax syntax) {

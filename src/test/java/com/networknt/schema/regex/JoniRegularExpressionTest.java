@@ -18,6 +18,7 @@ package com.networknt.schema.regex;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.joni.exception.SyntaxException;
 import org.junit.jupiter.api.Test;
@@ -111,12 +112,45 @@ class JoniRegularExpressionTest {
     void validEscape(ValidEscapeInput input) {
         assertDoesNotThrow(() -> new JoniRegularExpression(input.value));
     }
-    
+
     @Test
     void invalidPropertyName() {
         assertThrows(SyntaxException.class, () -> new JoniRegularExpression("\\p"));
         assertThrows(SyntaxException.class, () -> new JoniRegularExpression("\\P"));
         assertThrows(SyntaxException.class, () -> new JoniRegularExpression("\\pa"));
         assertThrows(SyntaxException.class, () -> new JoniRegularExpression("\\Pa"));
+    }
+
+    /**
+     * Named capturing group: (?<name>...).
+     * 
+     * @see org.joni.constants.SyntaxProperties#OP2_QMARK_LT_NAMED_GROUP.
+     * @see <a href=
+     *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group">Named
+     *      capturing group</a>
+     */
+    @Test
+    void namedCapturingGroup() {
+        RegularExpression regex = new JoniRegularExpression("((?<OrgOID>[^,. ]+)\\s*\\.\\s*(?<AOID>[^,. ]+))(?:\\s*,\\s*)?");
+        assertTrue(regex.matches("FFFF.12645,AAAA.6456"));
+    }
+
+    @Test
+    void invalidNamedCapturingGroup() {
+        assertThrows(RuntimeException.class, () -> new JoniRegularExpression("(?<name>)(?<name>)"));
+    }
+
+    /**
+     * Named capturing group: (?<name>...).
+     * 
+     * @see org.joni.constants.SyntaxProperties#OP2_ESC_K_NAMED_BACKREF.
+     * @see <a href=
+     *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_backreference">Named
+     *      backreference</a>
+     */
+    @Test
+    void namedBackreference() {
+        RegularExpression regex = new JoniRegularExpression("title=(?<quote>[\"'])(.*?)\\k<quote>");
+        assertTrue(regex.matches("title=\"Named capturing groups\\' advantages\""));
     }
 }

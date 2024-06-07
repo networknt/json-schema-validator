@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.output.OutputUnit;
+import com.networknt.schema.regex.JoniRegularExpressionFactory;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
     public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
             SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setEcma262Validator(true);
+            config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
