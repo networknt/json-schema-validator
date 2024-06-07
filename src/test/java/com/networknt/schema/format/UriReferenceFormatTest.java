@@ -58,6 +58,20 @@ class UriReferenceFormatTest {
     }
 
     @Test
+    void queryWithEncodedBracketsShouldPass() {
+        String schemaData = "{\r\n"
+                + "  \"format\": \"uri-reference\"\r\n"
+                + "}";
+
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setFormatAssertionsEnabled(true);
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        Set<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
+                InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
     void iriShouldFail() {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri-reference\"\r\n"
