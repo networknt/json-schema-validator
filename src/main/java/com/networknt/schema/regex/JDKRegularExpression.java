@@ -2,6 +2,9 @@ package com.networknt.schema.regex;
 
 import java.util.regex.Pattern;
 
+/**
+ * JDK {@link RegularExpression}. 
+ */
 class JDKRegularExpression implements RegularExpression {
     private final Pattern pattern;
 

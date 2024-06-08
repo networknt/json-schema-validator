@@ -409,12 +409,12 @@
         "description": "\\a is not an ECMA 262 control escape",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
-            "$ref": "https://json-schema.org/draft/next/schema"
+            "format": "regex"
         },
         "tests": [
             {
                 "description": "when used as a pattern",
-                "data": { "pattern": "\\a" },
+                "data": "\\a",
                 "valid": false
             }
         ]

@@ -13,24 +13,22 @@
  */
 package com.networknt.schema.format;
 
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Format;
+import com.networknt.schema.ValidationContext;
+import com.networknt.schema.regex.RegularExpression;
 
 /**
  * Format for regex.
  */
 public class RegexFormat implements Format {
     @Override
-    public boolean matches(ExecutionContext executionContext, String value) {
+    public boolean matches(ExecutionContext executionContext, ValidationContext validationContext, String value) {
         if (null == value) return true;
         try {
-            Pattern.compile(value);
+            RegularExpression.compile(value, validationContext);
             return true;
-
-        } catch (PatternSyntaxException e) {
+        } catch (RuntimeException e) {
             return false;
         }
     }
