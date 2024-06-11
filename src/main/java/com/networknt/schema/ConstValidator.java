@@ -45,7 +45,7 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
             }
         } else if (!schemaNode.equals(node)) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText()).build());
+                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
         }
         return Collections.emptySet();
     }
