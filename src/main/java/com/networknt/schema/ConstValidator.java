@@ -34,7 +34,7 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {

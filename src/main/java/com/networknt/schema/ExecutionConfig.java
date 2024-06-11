@@ -54,7 +54,16 @@ public class ExecutionConfig {
      * Determine if the validation execution can fail fast.
      */
     private boolean failFast = false;
-    
+
+    /**
+     * Determine if debugging features such that logging are switched on.
+     * <p>
+     * This is turned off by default. This is present because the library attempts
+     * to log debug logs at each validation node and the logger evaluation on
+     * whether the logger is turned on is impacting performance.
+     */
+    private boolean debugEnabled = false;
+
     /**
      * Gets the locale to use for formatting messages.
      * 
@@ -180,4 +189,21 @@ public class ExecutionConfig {
                 "annotationCollectionFilter must not be null");
     }
 
+    /**
+     * Gets if debugging features such as logging is switched on.
+     *
+     * @return true if debug is enabled
+     */
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    /**
+     * Sets if debugging features such as logging is switched on.
+     *
+     * @param debugEnabled true to enable debug
+     */
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
 }

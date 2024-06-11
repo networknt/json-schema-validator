@@ -63,7 +63,7 @@ public class PropertiesValidator extends BaseJsonValidator {
 
     protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         SetView<ValidationMessage> errors = null;
 

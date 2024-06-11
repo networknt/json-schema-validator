@@ -60,7 +60,7 @@ public class AnyOfValidator extends BaseJsonValidator {
 
     protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);

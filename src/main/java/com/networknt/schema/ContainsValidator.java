@@ -72,7 +72,7 @@ public class ContainsValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // ignores non-arrays
         Set<ValidationMessage> results = null;

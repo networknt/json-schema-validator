@@ -33,7 +33,7 @@ public class TrueValidator extends BaseJsonValidator implements JsonValidator {
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         // For the true validator, it is always valid which means there is no ValidationMessage.
         return Collections.emptySet();
     }

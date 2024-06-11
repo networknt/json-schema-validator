@@ -45,7 +45,7 @@ public class NotValidator extends BaseJsonValidator {
     protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
         Set<ValidationMessage> errors = null;
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();

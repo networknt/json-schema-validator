@@ -35,7 +35,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = null;
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {

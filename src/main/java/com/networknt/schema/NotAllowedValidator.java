@@ -41,7 +41,7 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         Set<ValidationMessage> errors = null;
 

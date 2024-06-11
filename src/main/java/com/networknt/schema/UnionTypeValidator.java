@@ -65,7 +65,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
 

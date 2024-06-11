@@ -42,7 +42,7 @@ public class MaxPropertiesValidator extends BaseJsonValidator implements JsonVal
     }
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (node.isObject()) {
             if (node.size() > max) {

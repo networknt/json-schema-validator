@@ -93,7 +93,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             ValidationMessage validationMessage = message().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
@@ -107,7 +107,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.

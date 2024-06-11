@@ -42,7 +42,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
 
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         if (this.divisor != null) {
             BigDecimal dividend = getDividend(node);
             if (dividend != null) {

@@ -59,7 +59,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
     }
     
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         /*
          * Annotations must be collected even if the format is unknown according to the specification.
          */

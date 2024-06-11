@@ -59,7 +59,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
 
-        debug(logger, node, rootNode, instanceLocation);
+        debug(logger, executionContext, node, rootNode, instanceLocation);
         /*
          * Keywords renamed in 2020-12
          * 
