@@ -56,15 +56,17 @@ public class PropertiesValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         debug(logger, node, rootNode, instanceLocation);
 
         SetView<ValidationMessage> errors = null;
 
-        // get the Validator state object storing validation data
-        ValidatorState state = executionContext.getValidatorState();
-
-        Set<ValidationMessage> requiredErrors = null;
         Set<String> matchedInstancePropertyNames = null;
         boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
         for (Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
@@ -77,15 +79,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     }
                     matchedInstancePropertyNames.add(entry.getKey());
                 }
-                // check whether this is a complex validator. save the state
-                boolean isComplex = state.isComplexValidator();
-               // if this is a complex validator, the node has matched, and all it's child elements, if available, are to be validated
-                if (isComplex) {
-                    state.setMatchedNode(true);
-                    // reset the complex validator for child element validation, and reset it after the return from the recursive call
-                    state.setComplexValidator(false);
-                }
-                if (!state.isWalkEnabled()) {
+                if (!walk) {
                     //validate the child element(s)
                     Set<ValidationMessage> result = entry.getValue().validate(executionContext, propertyNode, rootNode,
                             path);
@@ -100,17 +94,10 @@ public class PropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
-                }
-
-                // reset the complex flag to the original value before the recursive call
-                if (isComplex) {
-                    state.setComplexValidator(isComplex);
-                    // if this was a complex validator, the node has matched and has been validated
-                    state.setMatchedNode(true);
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
             } else {
-                if (state.isWalkEnabled()) {
+                if (walk) {
                     // This tries to make the walk listener consistent between when validation is
                     // enabled or disabled as when validation is disabled it will walk where node is
                     // null.
@@ -119,30 +106,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     if (errors == null) {
                         errors = new SetView<>();
                     }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, state.isValidationEnabled(), errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
-                }
-
-                // check whether the node which has not matched was mandatory or not
-
-                // the node was mandatory, decide which behavior to employ when validator has
-                // not matched
-                if (state.isComplexValidator()) {
-                    if (getParentSchema().hasRequiredValidator()) {
-
-                        // The required validator runs for all properties in the node and not just the
-                        // current propertyNode
-                        if (requiredErrors == null) {
-                            // Note that the results of the required validator shouldn't be added to the errors here, the required validator
-                            // will still trigger normally in the schema
-                            requiredErrors = getParentSchema().getRequiredValidator().validate(executionContext, node,
-                                    rootNode, instanceLocation);
-                        }
-                        if (!requiredErrors.isEmpty()) {
-                            // this was a complex validator (ex oneOf) and the node has not been matched
-                            state.setMatchedNode(false);
-                            return Collections.emptySet();
-                        }
-                    }
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
             }
         }
@@ -167,7 +131,7 @@ public class PropertiesValidator extends BaseJsonValidator {
         }
         if (shouldValidateSchema) {
             validationMessages.union(validate(executionContext, node == null ? MissingNode.getInstance() : node, rootNode,
-                    instanceLocation));
+                    instanceLocation, true));
         } else {
             WalkListenerRunner propertyWalkListenerRunner = this.validationContext.getConfig().getPropertyWalkListenerRunner();
             for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {

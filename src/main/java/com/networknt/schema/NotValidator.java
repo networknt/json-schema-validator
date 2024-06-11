@@ -37,7 +37,13 @@ public class NotValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         Set<ValidationMessage> errors = null;
         debug(logger, node, rootNode, instanceLocation);
 
@@ -45,7 +51,8 @@ public class NotValidator extends BaseJsonValidator {
         boolean failFast = executionContext.isFailFast();
         try {
             executionContext.setFailFast(false);
-            errors = this.schema.validate(executionContext, node, rootNode, instanceLocation);
+            errors = !walk ? this.schema.validate(executionContext, node, rootNode, instanceLocation)
+                    : this.schema.walk(executionContext, node, rootNode, instanceLocation, true);
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
@@ -62,7 +69,7 @@ public class NotValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation);
+            return validate(executionContext, node, rootNode, instanceLocation, true);
         }
 
         Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);

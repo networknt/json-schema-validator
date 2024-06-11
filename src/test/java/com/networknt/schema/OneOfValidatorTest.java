@@ -17,8 +17,11 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -138,5 +141,147 @@ public class OneOfValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getValidationMessage().getMessageKey());
+    }
+
+    /**
+     * This test checks that the oneOf example at
+     * https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/
+     * behaves according to the specification instead of the example.
+     *
+     * https://github.com/swagger-api/swagger.io/issues/253
+     * https://github.com/OAI/OpenAPI-Specification/issues/3477
+     * https://github.com/networknt/json-schema-validator/issues/110
+     */
+    @Test
+    void invalidSwaggerIoExample() {
+        String document = "paths:\r\n"
+                + "  /pets:\r\n"
+                + "    patch:\r\n"
+                + "      requestBody:\r\n"
+                + "        content:\r\n"
+                + "          application/json:\r\n"
+                + "            schema:\r\n"
+                + "              oneOf:\r\n"
+                + "                - $ref: '#/components/schemas/Cat'\r\n"
+                + "                - $ref: '#/components/schemas/Dog'\r\n"
+                + "      responses:\r\n"
+                + "        '200':\r\n"
+                + "          description: Updated\r\n"
+                + "components:\r\n"
+                + "  schemas:\r\n"
+                + "    Dog:\r\n"
+                + "      type: object\r\n"
+                + "      properties:\r\n"
+                + "        bark:\r\n"
+                + "          type: boolean\r\n"
+                + "        breed:\r\n"
+                + "          type: string\r\n"
+                + "          enum: [Dingo, Husky, Retriever, Shepherd]\r\n"
+                + "    Cat:\r\n"
+                + "      type: object\r\n"
+                + "      properties:\r\n"
+                + "        hunts:\r\n"
+                + "          type: boolean\r\n"
+                + "        age:\r\n"
+                + "          type: integer";
+        
+        JsonSchema schema = JsonSchemaFactory
+                .getInstance(VersionFlag.V202012,
+                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
+                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+                .getSchema(SchemaLocation.of(
+                        "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
+        
+        String example1 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"breed\": \"Dingo\" \r\n"
+                + "}";
+        assertFalse(schema.validate(example1, InputFormat.JSON, OutputFormat.BOOLEAN));
+        String example2 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"hunts\": true\r\n"
+                + "}";
+        assertFalse(schema.validate(example2, InputFormat.JSON, OutputFormat.BOOLEAN));
+        String example3 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"hunts\": true,\r\n"
+                + "  \"breed\": \"Husky\",\r\n"
+                + "  \"age\": 3      \r\n"
+                + "}";
+        assertFalse(schema.validate(example3, InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+    
+    /**
+     * This test checks that the oneOf example at
+     * https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/
+     * behaves according to the specification instead of the example.
+     *
+     * https://github.com/swagger-api/swagger.io/issues/253
+     * https://github.com/OAI/OpenAPI-Specification/issues/3477
+     * https://github.com/networknt/json-schema-validator/issues/110
+     */
+    @Test
+    void fixedSwaggerIoExample() {
+        String document = "paths:\r\n"
+                + "  /pets:\r\n"
+                + "    patch:\r\n"
+                + "      requestBody:\r\n"
+                + "        content:\r\n"
+                + "          application/json:\r\n"
+                + "            schema:\r\n"
+                + "              oneOf:\r\n"
+                + "                - $ref: '#/components/schemas/Cat'\r\n"
+                + "                - $ref: '#/components/schemas/Dog'\r\n"
+                + "      responses:\r\n"
+                + "        '200':\r\n"
+                + "          description: Updated\r\n"
+                + "components:\r\n"
+                + "  schemas:\r\n"
+                + "    Dog:\r\n"
+                + "      type: object\r\n"
+                + "      properties:\r\n"
+                + "        bark:\r\n"
+                + "          type: boolean\r\n"
+                + "        breed:\r\n"
+                + "          type: string\r\n"
+                + "          enum: [Dingo, Husky, Retriever, Shepherd]\r\n"
+                + "      required:\r\n"
+                + "        - bark\r\n"
+                + "        - breed\r\n"
+                + "    Cat:\r\n"
+                + "      type: object\r\n"
+                + "      properties:\r\n"
+                + "        hunts:\r\n"
+                + "          type: boolean\r\n"
+                + "        age:\r\n"
+                + "          type: integer\r\n"
+                + "      required:\r\n"
+                + "        - hunts\r\n"
+                + "        - age";
+        
+        JsonSchema schema = JsonSchemaFactory
+                .getInstance(VersionFlag.V202012,
+                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
+                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+                .getSchema(SchemaLocation.of(
+                        "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
+        
+        String example1 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"breed\": \"Dingo\" \r\n"
+                + "}";
+        assertTrue(schema.validate(example1, InputFormat.JSON, OutputFormat.BOOLEAN));
+        String example2 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"hunts\": true\r\n"
+                + "}";
+        assertFalse(schema.validate(example2, InputFormat.JSON, OutputFormat.BOOLEAN));
+        String example3 = "{\r\n"
+                + "  \"bark\": true,\r\n"
+                + "  \"hunts\": true,\r\n"
+                + "  \"breed\": \"Husky\",\r\n"
+                + "  \"age\": 3      \r\n"
+                + "}";
+        assertFalse(schema.validate(example3, InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 }

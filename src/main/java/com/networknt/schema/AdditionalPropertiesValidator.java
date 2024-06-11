@@ -80,7 +80,14 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    @Override
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         debug(logger, node, rootNode, instanceLocation);
         if (!node.isObject()) {
             // ignore no object
@@ -110,15 +117,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             if (pname.startsWith("#")) {
                 continue;
             }
-            boolean handledByPatternProperties = false;
-            for (RegularExpression pattern : patternProperties) {
-                if (pattern.matches(pname)) {
-                    handledByPatternProperties = true;
-                    break;
-                }
-            }
-
-            if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
+            if (!allowedProperties.contains(pname) && !handledByPatternProperties(pname)) {
                 if (!allowAdditionalProperties) {
                     if (errors == null) {
                         errors = new LinkedHashSet<>();
@@ -129,26 +128,16 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                             .failFast(executionContext.isFailFast()).arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = executionContext.getValidatorState();
-                        if (state != null && state.isWalkEnabled()) {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.walk(executionContext,
-                                    entry.getValue(), rootNode, instanceLocation.append(pname),
-                                    state.isValidationEnabled());
-                            if (!results.isEmpty()) {
-                                if (errors == null) {
-                                    errors = new LinkedHashSet<>();
-                                }
-                                errors.addAll(results);
+                        Set<ValidationMessage> results = !walk
+                                ? additionalPropertiesSchema.validate(executionContext, entry.getValue(), rootNode,
+                                        instanceLocation.append(pname))
+                                : additionalPropertiesSchema.walk(executionContext, entry.getValue(), rootNode,
+                                        instanceLocation.append(pname), true);
+                        if (!results.isEmpty()) {
+                            if (errors == null) {
+                                errors = new LinkedHashSet<>();
                             }
-                        } else {
-                            Set<ValidationMessage> results = additionalPropertiesSchema.validate(executionContext,
-                                    entry.getValue(), rootNode, instanceLocation.append(pname));
-                            if (!results.isEmpty()) {
-                                if (errors == null) {
-                                    errors = new LinkedHashSet<>();
-                                }
-                                errors.addAll(results);
-                            }
+                            errors.addAll(results);
                         }
                     }
                 }
@@ -166,7 +155,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
-            return validate(executionContext, node, rootNode, instanceLocation);
+            return validate(executionContext, node, rootNode, instanceLocation, true);
         }
 
         if (node == null || !node.isObject()) {
@@ -181,26 +170,25 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             if (pname.startsWith("#")) {
                 continue;
             }
-            boolean handledByPatternProperties = false;
-            for (RegularExpression pattern : patternProperties) {
-                if (pattern.matches(pname)) {
-                    handledByPatternProperties = true;
-                    break;
-                }
-            }
-
-            if (!allowedProperties.contains(pname) && !handledByPatternProperties) {
+            if (!allowedProperties.contains(pname) && !handledByPatternProperties(pname)) {
                 if (allowAdditionalProperties) {
                     if (additionalPropertiesSchema != null) {
-                        ValidatorState state = executionContext.getValidatorState();
-                        if (state != null && state.isWalkEnabled()) {
-                           additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode, instanceLocation.append(pname), state.isValidationEnabled());
-                        }
+                        additionalPropertiesSchema.walk(executionContext, node.get(pname), rootNode,
+                                instanceLocation.append(pname), shouldValidateSchema);
                     }
                 }
             }
         }
         return Collections.emptySet();
+    }
+
+    private boolean handledByPatternProperties(String pname) {
+        for (RegularExpression pattern : this.patternProperties) {
+            if (pattern.matches(pname)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean collectAnnotations() {

@@ -52,16 +52,16 @@ public class OneOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        return validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
         Set<ValidationMessage> errors = null;
 
         debug(logger, node, rootNode, instanceLocation);
-
-        ValidatorState state = executionContext.getValidatorState();
-
-        // this is a complex validator, we set the flag to true
-        state.setComplexValidator(true);
-
         int numberOfValidSchema = 0;
         int index = 0;
         SetView<ValidationMessage> childErrors = null;
@@ -82,24 +82,15 @@ public class OneOfValidator extends BaseJsonValidator {
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
                 Set<ValidationMessage> schemaErrors = Collections.emptySet();
-
-                // Reset state in case the previous validator did not match
-                state.setMatchedNode(true);
-
-                if (!state.isWalkEnabled()) {
+                if (!walk) {
                     schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
                     schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation,
-                            state.isValidationEnabled());
+                            true);
                 }
 
                 // check if any validation errors have occurred
                 if (schemaErrors.isEmpty()) {
-                    // check whether there are no errors HOWEVER we have validated the exact
-                    // validator
-                    if (!state.hasMatchedNode()) {
-                        continue;
-                    }
                     numberOfValidSchema++;
                     if (indexes == null) {
                         indexes = new ArrayList<>();
@@ -194,15 +185,6 @@ public class OneOfValidator extends BaseJsonValidator {
                 errors = Collections.singleton(message);
             }
         }
-
-        // Make sure to signal parent handlers we matched
-        if (errors == null || errors.isEmpty()) {
-            state.setMatchedNode(true);
-        }
-
-        // reset the ValidatorState object
-        resetValidatorState(executionContext);
-
         return errors != null ? errors : Collections.emptySet();
     }
 
@@ -232,17 +214,11 @@ public class OneOfValidator extends BaseJsonValidator {
         return this.canShortCircuit;
     }
 
-    private static void resetValidatorState(ExecutionContext executionContext) {
-        ValidatorState state = executionContext.getValidatorState();
-        state.setComplexValidator(false);
-        state.setMatchedNode(true);
-    }
-
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
         if (shouldValidateSchema) {
-            validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation));
+            validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation, true));
         } else {
             for (JsonSchema schema : this.schemas) {
                 schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
