@@ -23,8 +23,8 @@ import java.util.function.Supplier;
  * @param <T> the type cached
  */
 public class CachedSupplier<T> implements Supplier<T> {
-    private final Supplier<T> delegate;
-    private T cache = null;
+    private volatile Supplier<T> delegate;
+    private volatile T cache = null;
 
     public CachedSupplier(Supplier<T> delegate) {
         this.delegate = delegate;
@@ -32,10 +32,16 @@ public class CachedSupplier<T> implements Supplier<T> {
 
     @Override
     public T get() {
-        if (cache == null) {
-            cache = delegate.get();
+        if (this.delegate == null) {
+            return this.cache;
         }
-        return cache;
-    }
 
+        synchronized(this) {
+            if (this.delegate != null) {
+                this.cache = this.delegate.get();
+                this.delegate = null;
+            }
+        }
+        return this.cache;
+    }
 }
