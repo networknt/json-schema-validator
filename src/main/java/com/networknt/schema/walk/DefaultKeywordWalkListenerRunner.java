@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
-    private Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap;
+    private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap;
 
     public DefaultKeywordWalkListenerRunner(Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap) {
         this.keywordWalkListenersMap = keywordWalkListenersMap;

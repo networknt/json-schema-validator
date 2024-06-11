@@ -34,7 +34,7 @@ public class MaximumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaximumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MAXIMUM = "exclusiveMaximum";
 
-    private boolean excludeEqual = false;
+    private final boolean excludeEqual;
 
     private final ThresholdMixin typedMaximum;
 
@@ -47,14 +47,16 @@ public class MaximumValidator extends BaseJsonValidator {
 
         JsonNode exclusiveMaximumNode = getParentSchema().getSchemaNode().get(PROPERTY_EXCLUSIVE_MAXIMUM);
         if (exclusiveMaximumNode != null && exclusiveMaximumNode.isBoolean()) {
-            excludeEqual = exclusiveMaximumNode.booleanValue();
+            this.excludeEqual = exclusiveMaximumNode.booleanValue();
+        } else {
+            this.excludeEqual = false;
         }
 
         final String maximumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
-            typedMaximum = new ThresholdMixin() {
+            this.typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     if (node.isBigInteger()) {
@@ -78,7 +80,7 @@ public class MaximumValidator extends BaseJsonValidator {
                 }
             };
         } else {
-            typedMaximum = new ThresholdMixin() {
+            this.typedMaximum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     if (schemaNode.isDouble() && schemaNode.doubleValue() == Double.POSITIVE_INFINITY) {
@@ -115,11 +117,11 @@ public class MaximumValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
 
-        if (typedMaximum.crossesThreshold(node)) {
+        if (this.typedMaximum.crossesThreshold(node)) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
-                    .arguments(typedMaximum.thresholdValue()).build());
+                    .arguments(this.typedMaximum.thresholdValue()).build());
         }
         return Collections.emptySet();
     }

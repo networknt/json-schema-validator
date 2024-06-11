@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class ContentEncodingValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentEncodingValidator.class);
-    private String contentEncoding;
+    private final String contentEncoding;
 
     /**
      * Constructor.

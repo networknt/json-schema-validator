@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.i18n.MessageSource;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SetView;
 
@@ -31,6 +32,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
@@ -50,17 +52,15 @@ import java.util.function.Consumer;
  */
 public class JsonSchema extends BaseJsonValidator {
     private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
+    private final String id;
 
     /**
      * The validators sorted and indexed by evaluation path.
      */
-    private List<JsonValidator> validators;
+    private List<JsonValidator> validators = null;
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
-
-    private TypeValidator typeValidator;
-
-    private final String id;
+    private TypeValidator typeValidator = null;
 
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
@@ -149,19 +149,56 @@ public class JsonSchema extends BaseJsonValidator {
         }
         getValidators();
     }
-    
+
     /**
-     * Copy constructor.
+     * Constructor to create a copy using fields.
      * 
-     * @param copy to copy from
+     * @param validators the validators
+     * @param validatorsLoaded whether the validators are preloaded
+     * @param recursiveAnchor whether this is has a recursive anchor
+     * @param typeValidator the type validator
+     * @param id the id
+     * @param suppressSubSchemaRetrieval to suppress sub schema retrieval
+     * @param schemaNode the schema node
+     * @param validationContext the validation context
+     * @param errorMessageType the error message type
+     * @param customErrorMessagesEnabled whether custom error msessages are enabled
+     * @param messageSource the message source
+     * @param keyword the keyword
+     * @param parentSchema the parent schema
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
+     * @param evaluationParentSchema the evaluation parent schema
+     * @param errorMessage the error message
      */
-    protected JsonSchema(JsonSchema copy) {
-        super(copy);
-        this.validators = copy.validators;
-        this.validatorsLoaded = copy.validatorsLoaded;
-        this.recursiveAnchor = copy.recursiveAnchor;
-        this.typeValidator = copy.typeValidator;
-        this.id = copy.id;
+    protected JsonSchema(
+            /* Below from JsonSchema */
+            List<JsonValidator> validators,
+            boolean validatorsLoaded,
+            boolean recursiveAnchor,
+            TypeValidator typeValidator,
+            String id,            
+            /* Below from BaseJsonValidator */
+            boolean suppressSubSchemaRetrieval,
+            JsonNode schemaNode,
+            ValidationContext validationContext,
+            /* Below from ValidationMessageHandler */
+            ErrorMessageType errorMessageType,
+            boolean customErrorMessagesEnabled,
+            MessageSource messageSource,
+            Keyword keyword,
+            JsonSchema parentSchema,
+            SchemaLocation schemaLocation,
+            JsonNodePath evaluationPath,
+            JsonSchema evaluationParentSchema,
+            Map<String, String> errorMessage) {
+        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, customErrorMessagesEnabled, messageSource, keyword,
+                parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
+        this.validators = validators;
+        this.validatorsLoaded = validatorsLoaded;
+        this.recursiveAnchor = recursiveAnchor;
+        this.typeValidator = typeValidator;
+        this.id = id;
     }
 
     /**
@@ -176,34 +213,68 @@ public class JsonSchema extends BaseJsonValidator {
      * @return the schema
      */
     public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
-        JsonSchema copy = new JsonSchema(this);
-        copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
-                copy.getValidationContext().getJsonSchemaFactory(),
+        ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
+                this.getValidationContext().getJsonSchemaFactory(),
                 refEvaluationParentSchema.validationContext.getConfig(),
                 refEvaluationParentSchema.getValidationContext().getSchemaReferences(),
                 refEvaluationParentSchema.getValidationContext().getSchemaResources(),
                 refEvaluationParentSchema.getValidationContext().getDynamicAnchors());
-        copy.evaluationPath = refEvaluationPath;
-        copy.evaluationParentSchema = refEvaluationParentSchema;
+        JsonNodePath evaluationPath = refEvaluationPath;
+        JsonSchema evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
-        copy.validatorsLoaded = false;
-        copy.typeValidator = null;
-        copy.validators = null;
-        return copy;
+        boolean validatorsLoaded = false;
+        TypeValidator typeValidator = null;
+        List<JsonValidator> validators = null;
+
+        return new JsonSchema(
+                /* Below from JsonSchema */
+                validators,
+                validatorsLoaded,
+                recursiveAnchor,
+                typeValidator,
+                id,            
+                /* Below from BaseJsonValidator */
+                suppressSubSchemaRetrieval,
+                schemaNode,
+                validationContext,
+                /* Below from ValidationMessageHandler */
+                errorMessageType, customErrorMessagesEnabled, messageSource,
+                keyword, parentSchema, schemaLocation, evaluationPath,
+                evaluationParentSchema, errorMessage);
     }
 
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
         if (!this.getValidationContext().getConfig().equals(config)) {
-            JsonSchema copy = new JsonSchema(this);
-            copy.validationContext = new ValidationContext(copy.getValidationContext().getMetaSchema(),
-                    copy.getValidationContext().getJsonSchemaFactory(), config,
-                    copy.getValidationContext().getSchemaReferences(),
-                    copy.getValidationContext().getSchemaResources(),
-                    copy.getValidationContext().getDynamicAnchors());
-            copy.validatorsLoaded = false;
-            copy.typeValidator = null;
-            copy.validators = null;
-            return copy;
+            ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
+                    this.getValidationContext().getJsonSchemaFactory(), config,
+                    this.getValidationContext().getSchemaReferences(),
+                    this.getValidationContext().getSchemaResources(),
+                    this.getValidationContext().getDynamicAnchors());
+            boolean validatorsLoaded = false;
+            TypeValidator typeValidator = null;
+            List<JsonValidator> validators = null;
+            return new JsonSchema(
+                    /* Below from JsonSchema */
+                    validators,
+                    validatorsLoaded,
+                    recursiveAnchor,
+                    typeValidator,
+                    id,            
+                    /* Below from BaseJsonValidator */
+                    suppressSubSchemaRetrieval,
+                    schemaNode,
+                    validationContext,
+                    /* Below from ValidationMessageHandler */
+                    errorMessageType,
+                    customErrorMessagesEnabled,
+                    messageSource,
+                    keyword,
+                    parentSchema,
+                    schemaLocation,
+                    evaluationPath,
+                    evaluationParentSchema,
+                    errorMessage);
+
         }
         return this;
     }

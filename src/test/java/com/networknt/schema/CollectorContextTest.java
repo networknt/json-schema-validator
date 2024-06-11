@@ -24,8 +24,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CollectorContextTest {
 
@@ -379,5 +383,20 @@ public class CollectorContextTest {
         map.put("sample2", "actual_value_added_to_context2");
         map.put("sample3", "actual_value_added_to_context3");
         return map;
+    }
+
+    @Test
+    void constructor() {
+        CollectorContext context = new CollectorContext();
+        assertTrue(context.getCollectorMap().isEmpty());
+        assertTrue(context.getAll().isEmpty());
+    }
+
+    @Test
+    void constructorWithMap() {
+        ConcurrentHashMap<String, Object> collectorMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Object> collectorLoadMap = new ConcurrentHashMap<>();
+        CollectorContext context = new CollectorContext(collectorMap, collectorLoadMap);
+        assertSame(collectorMap, context.getCollectorMap());
     }
 }
