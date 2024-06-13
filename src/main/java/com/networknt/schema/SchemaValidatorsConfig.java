@@ -171,54 +171,52 @@ public class SchemaValidatorsConfig {
 
     /************************ START OF UNEVALUATED CHECKS **********************************/
 
-    // These are costly in terms of performance so we provide a way to disable them.
-    private boolean disableUnevaluatedItems = false;
-    private boolean disableUnevaluatedProperties = false;
-    
+    @Deprecated
     public SchemaValidatorsConfig disableUnevaluatedAnalysis() {
-        disableUnevaluatedItems();
-        disableUnevaluatedProperties();
         return this;
     }
 
+    @Deprecated
     public SchemaValidatorsConfig disableUnevaluatedItems() {
-        this.disableUnevaluatedItems = true;
         return this;
     }
 
+    @Deprecated
     public SchemaValidatorsConfig disableUnevaluatedProperties() {
-        this.disableUnevaluatedProperties = true;
         return this;
     }
 
+    @Deprecated
     public SchemaValidatorsConfig enableUnevaluatedAnalysis() {
-        enableUnevaluatedItems();
-        enableUnevaluatedProperties();
         return this;
     }
 
+    @Deprecated
     public SchemaValidatorsConfig enableUnevaluatedItems() {
-        this.disableUnevaluatedItems = false;
         return this;
     }
 
+    @Deprecated
     public SchemaValidatorsConfig enableUnevaluatedProperties() {
-        this.disableUnevaluatedProperties = false;
         return this;
     }
 
+    @Deprecated
     public boolean isUnevaluatedItemsAnalysisDisabled() {
-        return this.disableUnevaluatedItems;
+        return false;
     }
 
+    @Deprecated
     public boolean isUnevaluatedItemsAnalysisEnabled() {
         return !isUnevaluatedItemsAnalysisDisabled();
     }
 
+    @Deprecated
     public boolean isUnevaluatedPropertiesAnalysisDisabled() {
-        return this.disableUnevaluatedProperties;
+        return false;
     }
 
+    @Deprecated
     public boolean isUnevaluatedPropertiesAnalysisEnabled() {
         return !isUnevaluatedPropertiesAnalysisDisabled();
     }
