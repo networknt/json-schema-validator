@@ -155,6 +155,7 @@ public class SchemaValidatorsConfig {
 
     private ExecutionContextCustomizer executionContextCustomizer;
 
+    @Deprecated
     private boolean loadCollectors = true;
 
     /**
@@ -483,10 +484,24 @@ public class SchemaValidatorsConfig {
         this.openAPI3StyleDiscriminators = openAPI3StyleDiscriminators;
     }
 
+    /**
+     * Sets if collectors are to be loaded.
+     * <p>
+     * This is deprecated in favor of the caller calling {@link CollectorContext#loadCollectors()} manually.
+     * 
+     * @param loadCollectors to load collectors
+     */
+    @Deprecated
     public void setLoadCollectors(boolean loadCollectors) {
         this.loadCollectors = loadCollectors;
     }
 
+    /**
+     * Gets if collectors are to be loaded.
+     * 
+     * @return if collectors are to be loader
+     */
+    @Deprecated
     public boolean doLoadCollectors() {
         return this.loadCollectors;
     }
