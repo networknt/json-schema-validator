@@ -140,7 +140,7 @@ public class CollectorContext {
     /**
      * Loads data from all collectors.
      */
-    void loadCollectors() {
+    public void loadCollectors() {
         Set<Entry<String, Object>> entrySet = this.collectorMap.entrySet();
         for (Entry<String, Object> entry : entrySet) {
             if (entry.getValue() instanceof Collector<?>) {

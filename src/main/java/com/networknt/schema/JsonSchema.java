@@ -942,11 +942,21 @@ public class JsonSchema extends BaseJsonValidator {
         }
     }
 
+    /**
+     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
+     * <p>
+     * @param executionContext ExecutionContext
+     * @param node JsonNode
+     * @return ValidationResult
+     */
+    @Deprecated
     public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
         return validateAndCollect(executionContext, node, node, atRoot());
     }
 
     /**
+     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
+     * <p>
      * This method both validates and collects the data in a CollectorContext.
      * Unlike others this methods cleans and removes everything from collector
      * context before returning.
@@ -957,6 +967,7 @@ public class JsonSchema extends BaseJsonValidator {
      *
      * @return ValidationResult
      */
+    @Deprecated
     private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         // Validate.
         Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, instanceLocation);
@@ -976,6 +987,13 @@ public class JsonSchema extends BaseJsonValidator {
         return new ValidationResult(errors, executionContext);
     }
 
+    /**
+     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
+     *
+     * @param node JsonNode
+     * @return ValidationResult
+     */
+    @Deprecated
     public ValidationResult validateAndCollect(JsonNode node) {
         return validateAndCollect(createExecutionContext(), node, node, atRoot());
     }
@@ -990,11 +1008,76 @@ public class JsonSchema extends BaseJsonValidator {
      * @param executionContext the execution context
      * @param node             the input
      * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     *
+     * @return the validation result
+     */
+    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate,
+            ExecutionContextCustomizer executionCustomizer) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
+                executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param outputFormat     the output format
+     * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     *
+     * @return the validation result
+     */
+    public <T> T walk(ExecutionContext executionContext, JsonNode node, OutputFormat<T> outputFormat, boolean validate,
+            ExecutionContextCustomizer executionCustomizer) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, outputFormat, executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     *
+     * @return the validation result
+     */
+    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate,
+            Consumer<ExecutionContext> executionCustomizer) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
+                executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param outputFormat     the output format
+     * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     *
+     * @return the validation result
+     */
+    public <T> T walk(ExecutionContext executionContext, JsonNode node, OutputFormat<T> outputFormat, boolean validate,
+            Consumer<ExecutionContext> executionCustomizer) {
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, outputFormat, executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param executionContext the execution context
+     * @param node             the input
+     * @param validate         true to validate the input against the schema
      *
      * @return the validation result
      */
     public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate) {
-        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
+                (ExecutionContextCustomizer) null);
     }
 
     /**
@@ -1009,7 +1092,58 @@ public class JsonSchema extends BaseJsonValidator {
     public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
             boolean validate) {
         JsonNode node = deserialize(input, inputFormat);
-        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
+                (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param executionContext the execution context
+     * @param input            the input
+     * @param inputFormat      the input format
+     * @param outputFormat     the output format
+     * @param validate         true to validate the input against the schema
+     * @return the validation result
+     */
+    public <T> T walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+            OutputFormat<T> outputFormat, boolean validate) {
+        JsonNode node = deserialize(input, inputFormat);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, outputFormat,
+                (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param executionContext the execution context
+     * @param input            the input
+     * @param inputFormat      the input format
+     * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+            boolean validate, ExecutionContextCustomizer executionCustomizer) {
+        JsonNode node = deserialize(input, inputFormat);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT, executionCustomizer);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param executionContext the execution context
+     * @param input            the input
+     * @param inputFormat      the input format
+     * @param outputFormat     the output format
+     * @param validate         true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public <T> T walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+            OutputFormat<T> outputFormat, boolean validate, ExecutionContextCustomizer executionCustomizer) {
+        JsonNode node = deserialize(input, inputFormat);
+        return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, outputFormat, executionCustomizer);
     }
 
     /**
@@ -1021,6 +1155,18 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ValidationResult walk(JsonNode node, boolean validate) {
         return walk(createExecutionContext(), node, validate);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param node     the input
+     * @param validate true to validate the input against the schema
+     * @param outputFormat the output format
+     * @return the validation result
+     */
+    public <T> T walk(JsonNode node, OutputFormat<T> outputFormat, boolean validate) {
+        return walk(createExecutionContext(), node, outputFormat, validate, (ExecutionContextCustomizer) null);
     }
 
     /**
@@ -1036,6 +1182,34 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate,
+            ExecutionContextCustomizer executionCustomizer) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate,
+            Consumer<ExecutionContext> executionCustomizer) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
+    }
+
+    /**
      * Walk at the node.
      * 
      * @param executionContext the execution content
@@ -1047,17 +1221,31 @@ public class JsonSchema extends BaseJsonValidator {
      */
     public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean validate) {
-        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate);
+        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate, OutputFormat.RESULT,
+                (ExecutionContextCustomizer) null);
     }
 
-    private ValidationResult walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    private <T> T walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean validate, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate, format,
+                (executeContext, validationContext) -> {
+                    executionCustomizer.accept(executeContext);
+                });
+    }
+
+    private <T> T walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean validate, OutputFormat<T> format,
+            ExecutionContextCustomizer executionCustomizer) {
+        if (executionCustomizer != null) {
+            executionCustomizer.customize(executionContext, this.validationContext);
+        }
         // Walk through the schema.
-        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, validate);
 
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
         // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
+        /* When doLoadCollectors is removed after the deprecation period the following block should be removed */
         if (config.doLoadCollectors()) {
             // Get the collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
@@ -1065,7 +1253,7 @@ public class JsonSchema extends BaseJsonValidator {
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
-        return new ValidationResult(errors, executionContext);
+        return format.format(this, errors, executionContext, this.validationContext);
     }
 
     @Override

@@ -81,6 +81,13 @@ public interface OutputFormat<T> {
     public static final Hierarchical HIERARCHICAL = new Hierarchical();
 
     /**
+     * The Result output format.
+     * <p>
+     * This is currently not exposed to consumers.
+     */
+    static final Result RESULT = new Result();
+
+    /**
      * The Default output format.
      */
     public static class Default implements OutputFormat<Set<ValidationMessage>> {
@@ -189,6 +196,23 @@ public interface OutputFormat<T> {
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext,
                     validationContext, this.assertionMapper);
+        }
+    }
+
+    /**
+     * The Result output format.
+     * <p>
+     * This is currently not exposed to consumers.
+     */
+    static class Result implements OutputFormat<ValidationResult> {
+        @Override
+        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        }
+
+        @Override
+        public ValidationResult format(JsonSchema jsonSchema,
+                Set<ValidationMessage> validationMessages, ExecutionContext executionContext, ValidationContext validationContext) {
+            return new ValidationResult(validationMessages, executionContext);
         }
     }
 }

@@ -19,17 +19,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.SpecVersion.VersionFlag;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CollectorContextTest {
 
@@ -105,9 +109,11 @@ public class CollectorContextTest {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = jsonSchemaForCombine.createExecutionContext();
         executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
-        ValidationResult validationResult = jsonSchemaForCombine.validateAndCollect(executionContext, objectMapper
+        Set<ValidationMessage> messages = jsonSchemaForCombine.validate(executionContext, objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
+        ValidationResult validationResult = new ValidationResult(messages, executionContext);
         CollectorContext collectorContext = validationResult.getCollectorContext();
+        collectorContext.loadCollectors();
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR)).size(), 1);
         Assertions.assertEquals(((List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER)).size(), 3);
     }
@@ -279,14 +285,13 @@ public class CollectorContextTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-            // Get an instance of collector context.
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                JsonNodePath instanceLocation) {
             CollectorContext collectorContext = executionContext.getCollectorContext();
-            if (collectorContext.get(SAMPLE_COLLECTOR) == null) {
-                collectorContext.add(SAMPLE_COLLECTOR, new CustomCollector());
-            }
-            collectorContext.combineWithCollector(SAMPLE_COLLECTOR, node.textValue());
-            return new TreeSet<ValidationMessage>();
+            CustomCollector customCollector = (CustomCollector) collectorContext.getCollectorMap().computeIfAbsent(SAMPLE_COLLECTOR,
+                    key -> new CustomCollector());
+            customCollector.combine(node.textValue());
+            return Collections.emptySet();
         }
 
         @Override
@@ -313,7 +318,9 @@ public class CollectorContextTest {
 
         @Override
         public void combine(Object object) {
-            returnList.add(referenceMap.get((String) object));
+            synchronized (returnList) {
+                returnList.add(referenceMap.get((String) object));
+            }
         }
 
     }
@@ -357,12 +364,12 @@ public class CollectorContextTest {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
-            if (collectorContext.get(SAMPLE_COLLECTOR_OTHER) == null) {
-                collectorContext.add(SAMPLE_COLLECTOR_OTHER, new ArrayList<String>());
+            List<String> returnList = (List<String>) collectorContext.getCollectorMap()
+                    .computeIfAbsent(SAMPLE_COLLECTOR_OTHER, key -> new ArrayList<String>());
+            synchronized(returnList) {
+                returnList.add(node.textValue());
             }
-            List<String> returnList = (List<String>) collectorContext.get(SAMPLE_COLLECTOR_OTHER);
-            returnList.add(node.textValue());
-            return new TreeSet<ValidationMessage>();
+            return Collections.emptySet();
         }
 
         @Override
@@ -374,7 +381,10 @@ public class CollectorContextTest {
 
     private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        return this.jsonSchema.validateAndCollect(objectMapper.readTree(jsonData));
+        ExecutionContext executionContext = this.jsonSchema.createExecutionContext();
+        Set<ValidationMessage> messages = this.jsonSchema.validate(executionContext, objectMapper.readTree(jsonData));
+        executionContext.getCollectorContext().loadCollectors();
+        return new ValidationResult(messages, executionContext);
     }
 
     private Map<String, String> getDatasourceMap() {
@@ -399,4 +409,151 @@ public class CollectorContextTest {
         CollectorContext context = new CollectorContext(collectorMap, collectorLoadMap);
         assertSame(collectorMap, context.getCollectorMap());
     }
+
+    private class CollectKeyword implements Keyword {
+        @Override
+        public String getValue() {
+            return "collect";
+        }
+
+        @Override
+        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+            if (schemaNode != null && schemaNode.isBoolean()) {
+                return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
+            }
+            return null;
+        }
+    }
+
+    private class CollectValidator extends AbstractJsonValidator {
+        public CollectValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+            super(schemaLocation, evaluationPath, new CollectKeyword(), schemaNode);
+        }
+
+        @Override
+        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            // Get an instance of collector context.
+            CollectorContext collectorContext = executionContext.getCollectorContext();
+            AtomicInteger count = (AtomicInteger) collectorContext.getCollectorMap().computeIfAbsent("collect",
+                    (key) -> new AtomicInteger(0));
+            count.incrementAndGet();
+            return Collections.emptySet();
+        }
+
+        @Override
+        public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+            if (!shouldValidateSchema) {
+                CollectorContext collectorContext = executionContext.getCollectorContext();
+                AtomicInteger count = (AtomicInteger) collectorContext.getCollectorMap().computeIfAbsent("collect",
+                        (key) -> new AtomicInteger(0));
+                count.incrementAndGet();
+            }
+            return super.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        }
+    }
+
+    @Test
+    void concurrency() throws Exception {
+        CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchema schema = factory.getSchema("{\n"
+                + "  \"collect\": true\n"
+                + "}");
+        Exception[] instance = new Exception[1];
+        CountDownLatch latch = new CountDownLatch(1);
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 50; ++i) {
+            Runnable runner = new Runnable() {
+                public void run() {
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        schema.validate("1", InputFormat.JSON, executionContext -> {
+                            executionContext.setCollectorContext(collectorContext);
+                        });
+                    } catch (RuntimeException e) {
+                        instance[0] = e;
+                    }
+                }
+            };
+            Thread thread = new Thread(runner, "Thread" + i);
+            thread.start();
+            threads.add(thread);
+        }
+        latch.countDown(); // Release the latch for threads to run concurrently
+        threads.forEach(t -> {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        if (instance[0] != null) {
+            throw instance[0];
+        }
+        collectorContext.loadCollectors();
+        AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
+        assertEquals(50, result.get());
+    }
+
+    @Test
+    void iterate() {
+        CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchema schema = factory.getSchema("{\n"
+                + "  \"collect\": true\n"
+                + "}");
+        for (int i = 0; i < 50; ++i) {
+            schema.validate("1", InputFormat.JSON, executionContext -> {
+                executionContext.setCollectorContext(collectorContext);
+            });
+        }
+        collectorContext.loadCollectors();
+        AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
+        assertEquals(50, result.get());
+    }
+
+    @Test
+    void iterateWalk() {
+        CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchema schema = factory.getSchema("{\n"
+                + "  \"collect\": true\n"
+                + "}");
+        for (int i = 0; i < 50; ++i) {
+            schema.walk("1", InputFormat.JSON, false, executionContext -> {
+                executionContext.setCollectorContext(collectorContext);
+            });
+        }
+        collectorContext.loadCollectors();
+        AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
+        assertEquals(50, result.get());
+    }
+
+    @Test
+    void iterateWalkValidate() {
+        CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchema schema = factory.getSchema("{\n"
+                + "  \"collect\": true\n"
+                + "}");
+        for (int i = 0; i < 50; ++i) {
+            schema.walk("1", InputFormat.JSON, true, executionContext -> {
+                executionContext.setCollectorContext(collectorContext);
+            });
+        }
+        collectorContext.loadCollectors();
+        AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
+        assertEquals(50, result.get());
+    }
+
 }
