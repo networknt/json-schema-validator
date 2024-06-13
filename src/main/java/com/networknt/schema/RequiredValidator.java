@@ -28,14 +28,17 @@ import java.util.*;
 public class RequiredValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
-    private final List<String> fieldNames = new ArrayList<>();
+    private final List<String> fieldNames;
 
     public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
         if (schemaNode.isArray()) {
+            this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {
                 fieldNames.add(fieldNme.asText());
             }
+        } else {
+            this.fieldNames = Collections.emptyList();
         }
     }
 

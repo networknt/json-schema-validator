@@ -28,15 +28,18 @@ import java.util.*;
 public class NotAllowedValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotAllowedValidator.class);
 
-    private final List<String> fieldNames = new ArrayList<>();
+    private final List<String> fieldNames;
 
     public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
+            this.fieldNames = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 fieldNames.add(schemaNode.get(i).asText());
             }
+        } else {
+            this.fieldNames = Collections.emptyList();
         }
     }
 
