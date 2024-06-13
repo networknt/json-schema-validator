@@ -30,7 +30,7 @@ import java.util.*;
 public class OneOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
-    private final List<JsonSchema> schemas = new ArrayList<>();
+    private final List<JsonSchema> schemas;
 
     private Boolean canShortCircuit = null;
 
@@ -45,6 +45,7 @@ public class OneOfValidator extends BaseJsonValidator {
                     .build());
         }
         int size = schemaNode.size();
+        this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
             this.schemas.add(validationContext.newSchema( schemaLocation.append(i), evaluationPath.append(i), childNode, parentSchema));

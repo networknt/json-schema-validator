@@ -420,8 +420,9 @@ public class JsonSchema extends BaseJsonValidator {
      * Please note that the key in {@link #validators} map is the evaluation path.
      */
     private List<JsonValidator> read(JsonNode schemaNode) {
-        List<JsonValidator> validators = new ArrayList<>();
+        List<JsonValidator> validators;
         if (schemaNode.isBoolean()) {
+            validators = new ArrayList<>(1);
             if (schemaNode.booleanValue()) {
                 JsonNodePath path = getEvaluationPath().append("true");
                 JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().append("true"), path,
@@ -437,6 +438,7 @@ public class JsonSchema extends BaseJsonValidator {
             JsonValidator refValidator = null;
 
             Iterator<Entry<String, JsonNode>> iterator = schemaNode.fields();
+            validators = new ArrayList<>(schemaNode.size());
             while (iterator.hasNext()) {
                 Entry<String, JsonNode> entry = iterator.next();
                 String pname = entry.getKey();

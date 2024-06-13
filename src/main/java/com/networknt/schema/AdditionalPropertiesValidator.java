@@ -71,7 +71,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
         if (patternPropertiesNode != null) {
-            this.patternProperties = new ArrayList<>();
+            this.patternProperties = new ArrayList<>(patternPropertiesNode.size());
             for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
                 patternProperties.add(RegularExpression.compile(it.next(), validationContext));
             }

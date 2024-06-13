@@ -31,7 +31,7 @@ import java.util.Set;
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
-    private final List<JsonValidator> schemas = new ArrayList<>();
+    private final List<JsonValidator> schemas;
     private final String error;
 
     public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -41,21 +41,24 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         String sep = "";
         errorBuilder.append('[');
 
-        if (!schemaNode.isArray())
+        if (!schemaNode.isArray()) {
             throw new JsonSchemaException("Expected array for type property on Union Type Definition.");
+        }
 
         int i = 0;
+        this.schemas = new ArrayList<>(schemaNode.size());
         for (JsonNode n : schemaNode) {
             JsonType t = TypeFactory.getSchemaNodeType(n);
             errorBuilder.append(sep).append(t);
             sep = ", ";
 
-            if (n.isObject())
+            if (n.isObject()) {
                 schemas.add(validationContext.newSchema(schemaLocation.append(ValidatorTypeCode.TYPE.getValue()),
                         evaluationPath.append(ValidatorTypeCode.TRUE.getValue()), n, parentSchema));
-            else
-                schemas.add(new TypeValidator(schemaLocation.append(i), evaluationPath.append(i), n, parentSchema, validationContext));
-
+            } else {
+                schemas.add(new TypeValidator(schemaLocation.append(i), evaluationPath.append(i), n, parentSchema,
+                        validationContext));
+            }
             i++;
         }
 

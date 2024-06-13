@@ -31,7 +31,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
-    private final List<JsonSchema> schemas = new ArrayList<>();
+    private final List<JsonSchema> schemas;
 
     private Boolean canShortCircuit = null;
 
@@ -46,6 +46,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                     .build());
         }
         int size = schemaNode.size();
+        this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                     schemaNode.get(i), parentSchema));
