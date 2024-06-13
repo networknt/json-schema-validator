@@ -11,9 +11,7 @@ public interface RegularExpression {
 
     static RegularExpression compile(String regex, ValidationContext validationContext) {
         if (null == regex) return s -> true;
-        return validationContext.getConfig().isEcma262Validator()
-            ? new JoniRegularExpression(regex)
-            : new JDKRegularExpression(regex);
+        return validationContext.getConfig().getRegularExpressionFactory().getRegularExpression(regex);
     }
 
 }

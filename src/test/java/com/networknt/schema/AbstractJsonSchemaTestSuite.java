@@ -18,6 +18,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.regex.JDKRegularExpressionFactory;
+import com.networknt.schema.regex.JoniRegularExpressionFactory;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
@@ -206,7 +208,9 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setTypeLoose(typeLoose);
-        config.setEcma262Validator(TestSpec.RegexKind.JDK != testSpec.getRegex());
+        config.setRegularExpressionFactory(
+                TestSpec.RegexKind.JDK == testSpec.getRegex() ? JDKRegularExpressionFactory.getInstance()
+                        : JoniRegularExpressionFactory.getInstance());
         testSpec.getStrictness().forEach(config::setStrict);
 
         if (testSpec.getConfig() != null) {
