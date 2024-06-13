@@ -42,9 +42,9 @@ public class ContainsValidator extends BaseJsonValidator {
     private final JsonSchema schema;
     private final boolean isMinV201909;
 
-    private Integer min = null;
-    private Integer max = null;
-    
+    private final Integer min;
+    private final Integer max;
+
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -55,19 +55,29 @@ public class ContainsValidator extends BaseJsonValidator {
         // slightly.
         this.isMinV201909 = MinV201909.getVersions().contains(this.validationContext.getMetaSchema().getSpecification());
 
+        Integer currentMax = null;
+        Integer currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
-            Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
-                    .filter(JsonNode::canConvertToExactIntegral)
-                    .ifPresent(node -> this.max = node.intValue());
+            Optional<JsonNode> maxNode = Optional
+                    .ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral);
+            if (maxNode.isPresent()) {
+                currentMax = maxNode.get().intValue();
+            }
 
-            Optional.ofNullable(parentSchemaNode.get(ValidatorTypeCode.MIN_CONTAINS.getValue()))
-                    .filter(JsonNode::canConvertToExactIntegral)
-                    .ifPresent(node -> this.min = node.intValue());
+            Optional<JsonNode> minNode = Optional
+                    .ofNullable(parentSchemaNode.get(ValidatorTypeCode.MIN_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral);
+            if (minNode.isPresent()) {
+                currentMin = minNode.get().intValue();
+            }
         } else {
             this.schema = null;
         }
+        this.max = currentMax;
+        this.min = currentMin;
     }
 
     @Override

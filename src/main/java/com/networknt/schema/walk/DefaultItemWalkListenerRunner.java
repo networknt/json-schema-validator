@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class DefaultItemWalkListenerRunner extends AbstractWalkListenerRunner {
 
-    private List<JsonSchemaWalkListener> itemWalkListeners;
+    private final List<JsonSchemaWalkListener> itemWalkListeners;
 
     public DefaultItemWalkListenerRunner(List<JsonSchemaWalkListener> itemWalkListeners) {
         this.itemWalkListeners = itemWalkListeners;

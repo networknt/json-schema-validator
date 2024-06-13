@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunner {
 
-    private List<JsonSchemaWalkListener> propertyWalkListeners;
+    private final List<JsonSchemaWalkListener> propertyWalkListeners;
 
     public DefaultPropertyWalkListenerRunner(List<JsonSchemaWalkListener> propertyWalkListeners) {
         this.propertyWalkListeners = propertyWalkListeners;

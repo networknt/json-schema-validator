@@ -17,11 +17,14 @@ package com.networknt.schema;
 
 import java.util.Set;
 
+/**
+ * Represents a validation result.
+ */
 public class ValidationResult {
 
-    private Set<ValidationMessage> validationMessages;
+    private final Set<ValidationMessage> validationMessages;
 
-    private ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
     public ValidationResult(Set<ValidationMessage> validationMessages, ExecutionContext executionContext) {
         super();

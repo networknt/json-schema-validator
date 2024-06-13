@@ -28,16 +28,35 @@ public class CollectorContext {
     /**
      * Map for holding the name and {@link Collector} or a simple Object.
      */
-    private Map<String, Object> collectorMap = new HashMap<>();
+    private final Map<String, Object> collectorMap;
 
     /**
      * Map for holding the name and {@link Collector} class collect method output.
      */
-    private Map<String, Object> collectorLoadMap = new HashMap<>();
+    private final Map<String, Object> collectorLoadMap;
 
+    /**
+     * Default constructor will use an unsynchronized HashMap to store data. This is
+     * suitable if the collector context is not shared with multiple threads.
+     */
     public CollectorContext() {
+        this(new HashMap<>(), new HashMap<>());
     }
 
+    /**
+     * Constructor that creates the context using the specified instances to store
+     * data.
+     * <p>
+     * If for instance the collector context needs to be shared with multiple
+     * threads a ConcurrentHashMap can be used.
+     *
+     * @param collectorMap the collector map
+     * @param collectorLoadMap the collector load map
+     */
+    public CollectorContext(Map<String, Object> collectorMap, Map<String, Object> collectorLoadMap) {
+        this.collectorMap = collectorMap;
+        this.collectorLoadMap = collectorLoadMap;
+    }
 
     /**
      * Adds a collector with give name. Preserving this method for backward

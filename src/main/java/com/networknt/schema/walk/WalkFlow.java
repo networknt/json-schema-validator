@@ -8,9 +8,9 @@ public enum WalkFlow {
 
     CONTINUE("ContinueToWalk", "continue to invoke the walk method and other listeners");
 
-    private String name;
+    private final String name;
 
-    private String description;
+    private final String description;
 
     WalkFlow(String name, String description) {
         this.name = name;

@@ -34,7 +34,7 @@ public class MinimumValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinimumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MINIMUM = "exclusiveMinimum";
 
-    private boolean excludeEqual = false;
+    private final boolean excludeEqual;
 
     /**
      * In order to limit number of `if` statements in `validate` method, all the
@@ -51,14 +51,16 @@ public class MinimumValidator extends BaseJsonValidator {
 
         JsonNode exclusiveMinimumNode = getParentSchema().getSchemaNode().get(PROPERTY_EXCLUSIVE_MINIMUM);
         if (exclusiveMinimumNode != null && exclusiveMinimumNode.isBoolean()) {
-            excludeEqual = exclusiveMinimumNode.booleanValue();
+            this.excludeEqual = exclusiveMinimumNode.booleanValue();
+        } else {
+            this.excludeEqual = false;
         }
 
         final String minimumText = schemaNode.asText();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
-            typedMinimum = new ThresholdMixin() {
+            this.typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     if (node.isBigInteger()) {
@@ -84,7 +86,7 @@ public class MinimumValidator extends BaseJsonValidator {
             };
 
         } else {
-            typedMinimum = new ThresholdMixin() {
+            this.typedMinimum = new ThresholdMixin() {
                 @Override
                 public boolean crossesThreshold(JsonNode node) {
                     // jackson's BIG_DECIMAL parsing is limited. see https://github.com/FasterXML/jackson-databind/issues/1770
@@ -122,11 +124,11 @@ public class MinimumValidator extends BaseJsonValidator {
             return Collections.emptySet();
         }
 
-        if (typedMinimum.crossesThreshold(node)) {
+        if (this.typedMinimum.crossesThreshold(node)) {
             return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
-                    .arguments(typedMinimum.thresholdValue()).build());
+                    .arguments(this.typedMinimum.thresholdValue()).build());
         }
         return Collections.emptySet();
     }

@@ -31,7 +31,7 @@ public class JsonNodeResults {
     /**
      * Stores the invalid results.
      */
-    private Map<JsonNodePath, List<JsonNodeResult>> values = new HashMap<>();
+    private final Map<JsonNodePath, List<JsonNodeResult>> values = new HashMap<>();
 
     public void setResult(JsonNodePath instanceLocation, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             boolean valid) {

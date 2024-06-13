@@ -35,6 +35,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Configuration for validators. 
+ */
 public class SchemaValidatorsConfig {
     public static final int DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH = 40;
 
@@ -81,7 +84,7 @@ public class SchemaValidatorsConfig {
      * When set to true, "messages" provided in schema are used for forming validation errors
      * else default messages are used
      */
-    private boolean isCustomMessageSupported = true;
+    private boolean customMessageSupported = true;
 
     /**
      * When set to true, support for discriminators is enabled for validations of
@@ -329,11 +332,11 @@ public class SchemaValidatorsConfig {
     }
 
     public boolean isCustomMessageSupported() {
-        return isCustomMessageSupported;
+        return customMessageSupported;
     }
 
     public void setCustomMessageSupported(boolean customMessageSupported) {
-        this.isCustomMessageSupported = customMessageSupported;
+        this.customMessageSupported = customMessageSupported;
     }
 
     public void addKeywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
@@ -402,13 +405,13 @@ public class SchemaValidatorsConfig {
         return this.itemWalkListenerRunner;
     }
     
-    private WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+    private final WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
 
     WalkListenerRunner getKeywordWalkListenerRunner() {
         return this.keywordWalkListenerRunner;
     }
 
-    private WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
+    private final WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
 
     WalkListenerRunner getPropertyWalkListenerRunner() {
         return this.propertyWalkListenerRunner;

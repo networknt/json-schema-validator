@@ -30,12 +30,14 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
 
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
 
-    private int max = 0;
+    private final int max;
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_ITEMS, validationContext);
         if (schemaNode.canConvertToExactIntegral()) {
-            max = schemaNode.intValue();
+            this.max = schemaNode.intValue();
+        } else {
+            this.max = 0;
         }
     }
 
@@ -43,16 +45,16 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (node.isArray()) {
-            if (node.size() > max) {
+            if (node.size() > this.max) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(max, node.size()).build());
+                        .failFast(executionContext.isFailFast()).arguments(this.max, node.size()).build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
-            if (1 > max) {
+            if (1 > this.max) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(max, 1).build());
+                        .failFast(executionContext.isFailFast()).arguments(this.max, 1).build());
             }
         }
 
