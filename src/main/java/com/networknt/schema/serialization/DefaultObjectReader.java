@@ -162,7 +162,7 @@ public class DefaultObjectReader implements ObjectReader {
         }
 
         /**
-         * Builds the {@link ObjectReader.
+         * Builds the {@link ObjectReader}.
          *
          * @return the object reader
          */

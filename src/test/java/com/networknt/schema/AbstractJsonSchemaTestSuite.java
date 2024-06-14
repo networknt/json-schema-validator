@@ -16,11 +16,9 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
-import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
@@ -47,9 +45,6 @@ import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
-
-
-    protected ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');
@@ -190,7 +185,6 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
                 .builder(base)
-                .jsonMapper(this.mapper)
                 .schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))

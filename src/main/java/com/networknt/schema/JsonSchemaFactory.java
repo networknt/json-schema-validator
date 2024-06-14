@@ -67,6 +67,8 @@ public class JsonSchemaFactory {
          * Sets the object reader to read the data.
          * <p>
          * If set this takes precedence over the configured json mapper and yaml mapper.
+         * <p>
+         * A location aware object reader can be created using ObjectReader.builder().locationAware().build().
          *
          * @param objectReader the object reader
          * @return the builder
@@ -80,10 +82,13 @@ public class JsonSchemaFactory {
          * Sets the json mapper to read the data.
          * <p>
          * If the object reader is set this will not be used.
+         * <p>
+         * This is deprecated use a object reader instead.
          * 
          * @param jsonMapper the json mapper
          * @return the builder
          */
+        @Deprecated
         public Builder jsonMapper(final ObjectMapper jsonMapper) {
             this.jsonMapper = jsonMapper;
             return this;
@@ -93,10 +98,13 @@ public class JsonSchemaFactory {
          * Sets the yaml mapper to read the data.
          * <p>
          * If the object reader is set this will not be used.
+         * <p>
+         * This is deprecated use a object reader instead.
          * 
          * @param yamlMapper the yaml mapper
          * @return the builder
          */
+        @Deprecated
         public Builder yamlMapper(final ObjectMapper yamlMapper) {
             this.yamlMapper = yamlMapper;
             return this;
