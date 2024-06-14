@@ -353,8 +353,8 @@ Assertions contains the following additional information
 | Arguments         | The arguments used for generating the message.
 | Type              | The keyword that generated the message.
 | Property          | The property name that caused the validation error for example for the `required` keyword. Note that this is not part of the instance location as that points to the instance node.
-| Schema Node       | The `JsonNode` pointed to by the Schema Location. This is the schema data that caused the input data to fail. It is possible to get the location information by configuring the `JsonSchemaFactory` with the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(schemaNode)`.
-| Instance Node     | The `JsonNode` pointed to by the Instance Location. This is the input data that failed validation. It is possible to get the location information by configuring the `JsonSchemaFactory` with the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(instanceNode)`.
+| Schema Node       | The `JsonNode` pointed to by the Schema Location. This is the schema data that caused the input data to fail. It is possible to get the location information by configuring the `JsonSchemaFactory` with a `ObjectReader` that uses the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(schemaNode)`.
+| Instance Node     | The `JsonNode` pointed to by the Instance Location. This is the input data that failed validation. It is possible to get the location information by configuring the `JsonSchemaFactory` with a `ObjectReader` that uses the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(instanceNode)`.
 | Details           | Additional details that can be set by custom keyword validator implementations. This is not used by the library.
 
 Annotations contains the following additional information
@@ -367,7 +367,7 @@ Annotations contains the following additional information
 
 The library can be configured to store line and column information in the `JsonNode` instances for the instance and schema nodes. This will adversely affect performance and is not configured by default.
 
-This is done by configuring a `LocationJsonNodeFactoryFactory` on the `JsonSchemaFactory`. The `JsonLocation` information can then be retrieved using `JsonNodes.tokenLocationOf(jsonNode)`.
+This is done by configuring a `ObjectReader` that uses the `LocationJsonNodeFactoryFactory`on the `JsonSchemaFactory`. The `JsonLocation` information can then be retrieved using `JsonNodes.tokenLocationOf(jsonNode)`.
 
 ```java
 String schemaData = "{\r\n"
@@ -383,7 +383,7 @@ String inputData = "{\r\n"
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-        builder -> builder.jsonNodeFactoryFactory(LocationJsonNodeFactoryFactory.getInstance()));
+        builder -> builder.objectReader(ObjectReader.builder().locationAware().build()));
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 config.setPathType(PathType.JSON_POINTER);
 JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);

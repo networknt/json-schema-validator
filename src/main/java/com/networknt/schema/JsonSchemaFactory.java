@@ -25,9 +25,8 @@ import com.networknt.schema.resource.SchemaLoaders;
 import com.networknt.schema.resource.SchemaMapper;
 import com.networknt.schema.resource.SchemaMappers;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.ObjectReader;
 import com.networknt.schema.serialization.YamlMapperFactory;
-import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
-import com.networknt.schema.utils.JsonNodes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class JsonSchemaFactory {
     public static class Builder {
         private ObjectMapper jsonMapper = null;
         private ObjectMapper yamlMapper = null;
-        private JsonNodeFactoryFactory jsonNodeFactoryFactory = null;
+        private ObjectReader objectReader = null;
         private String defaultMetaSchemaIri;
         private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
@@ -65,25 +64,39 @@ public class JsonSchemaFactory {
         private JsonMetaSchemaFactory metaSchemaFactory = null;
 
         /**
-         * Configures the {@link JsonNodeFactoryFactory} to use.
+         * Sets the object reader to read the data.
          * <p>
-         * To get location information from {@link JsonNode} the
-         * {@link com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory}
-         * can be used.
+         * If set this takes precedence over the configured json mapper and yaml mapper.
          *
-         * @param jsonNodeFactoryFactory the factory to create json node factories
+         * @param objectReader the object reader
          * @return the builder
          */
-        public Builder jsonNodeFactoryFactory(JsonNodeFactoryFactory jsonNodeFactoryFactory) {
-            this.jsonNodeFactoryFactory = jsonNodeFactoryFactory;
+        public Builder objectReader(ObjectReader objectReader) {
+            this.objectReader = objectReader;
             return this;
         }
 
+        /**
+         * Sets the json mapper to read the data.
+         * <p>
+         * If the object reader is set this will not be used.
+         * 
+         * @param jsonMapper the json mapper
+         * @return the builder
+         */
         public Builder jsonMapper(final ObjectMapper jsonMapper) {
             this.jsonMapper = jsonMapper;
             return this;
         }
 
+        /**
+         * Sets the yaml mapper to read the data.
+         * <p>
+         * If the object reader is set this will not be used.
+         * 
+         * @param yamlMapper the yaml mapper
+         * @return the builder
+         */
         public Builder yamlMapper(final ObjectMapper yamlMapper) {
             this.yamlMapper = yamlMapper;
             return this;
@@ -151,7 +164,7 @@ public class JsonSchemaFactory {
             return new JsonSchemaFactory(
                     jsonMapper,
                     yamlMapper,
-                    jsonNodeFactoryFactory,
+                    objectReader,
                     defaultMetaSchemaIri,
                     schemaLoadersBuilder,
                     schemaMappersBuilder,
@@ -164,7 +177,7 @@ public class JsonSchemaFactory {
 
     private final ObjectMapper jsonMapper;
     private final ObjectMapper yamlMapper;
-    private final JsonNodeFactoryFactory jsonNodeFactoryFactory;
+    private final ObjectReader objectReader;
     private final String defaultMetaSchemaIri;
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
@@ -180,7 +193,7 @@ public class JsonSchemaFactory {
     private JsonSchemaFactory(
             ObjectMapper jsonMapper,
             ObjectMapper yamlMapper,
-            JsonNodeFactoryFactory jsonNodeFactoryFactory,
+            ObjectReader objectReader,
             String defaultMetaSchemaIri,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
@@ -197,7 +210,7 @@ public class JsonSchemaFactory {
         }
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
-        this.jsonNodeFactoryFactory = jsonNodeFactoryFactory;
+        this.objectReader = objectReader;
         this.defaultMetaSchemaIri = defaultMetaSchemaIri;
         this.schemaLoadersBuilder = schemaLoadersBuilder;
         this.schemaMappersBuilder = schemaMappersBuilder;
@@ -290,7 +303,7 @@ public class JsonSchemaFactory {
                 .defaultMetaSchemaIri(blueprint.defaultMetaSchemaIri)
                 .jsonMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper)
-                .jsonNodeFactoryFactory(blueprint.jsonNodeFactoryFactory);
+                .objectReader(blueprint.objectReader);
         if (blueprint.schemaLoadersBuilder != null) {
             builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
         }
@@ -442,18 +455,18 @@ public class JsonSchemaFactory {
     }
 
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeFactoryFactory == null) {
+        if (this.objectReader == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {
-            return JsonNodes.readTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
+            return this.objectReader.readTree(content, inputFormat);
         }
     }
 
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeFactoryFactory == null) {
+        if (this.objectReader == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {
-            return JsonNodes.readTree(getObjectMapper(inputFormat), content, this.jsonNodeFactoryFactory);
+            return this.objectReader.readTree(content, inputFormat);
         }
     }
 
@@ -625,10 +638,6 @@ public class JsonSchemaFactory {
 
     ObjectMapper getJsonMapper() {
         return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
-    }
-
-    JsonNodeFactoryFactory getJsonNodeFactoryFactory() {
-        return this.jsonNodeFactoryFactory;
     }
 
     /**
