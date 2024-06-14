@@ -1021,6 +1021,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Walk the JSON node.
      * 
+     * @param <T>         the result type
      * @param executionContext the execution context
      * @param node             the input
      * @param outputFormat     the output format
@@ -1053,6 +1054,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Walk the JSON node.
      * 
+     * @param <T>         the result type
      * @param executionContext the execution context
      * @param node             the input
      * @param outputFormat     the output format
@@ -1099,6 +1101,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Walk the input.
      * 
+     * @param <T>         the result type
      * @param executionContext the execution context
      * @param input            the input
      * @param inputFormat      the input format
@@ -1132,6 +1135,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Walk the input.
      * 
+     * @param <T>         the result type
      * @param executionContext the execution context
      * @param input            the input
      * @param inputFormat      the input format
@@ -1160,6 +1164,7 @@ public class JsonSchema extends BaseJsonValidator {
     /**
      * Walk the JSON node.
      * 
+     * @param <T>         the result type
      * @param node     the input
      * @param validate true to validate the input against the schema
      * @param outputFormat the output format
