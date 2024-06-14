@@ -11,9 +11,9 @@ import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 import com.networknt.schema.utils.JsonNodes;
 
 /**
- * Default {@link ObjectReader}.
+ * Default {@link JsonNodeReader}.
  */
-public class DefaultObjectReader implements ObjectReader {
+public class DefaultJsonNodeReader implements JsonNodeReader {
     protected final ObjectMapper jsonMapper;
     protected final ObjectMapper yamlMapper;
     protected final JsonNodeFactoryFactory jsonNodeFactoryFactory;
@@ -25,7 +25,7 @@ public class DefaultObjectReader implements ObjectReader {
      * @param yamlMapper the yaml mapper
      * @param jsonNodeFactoryFactory the json node factory factory
      */
-    protected DefaultObjectReader(ObjectMapper jsonMapper, ObjectMapper yamlMapper,
+    protected DefaultJsonNodeReader(ObjectMapper jsonMapper, ObjectMapper yamlMapper,
             JsonNodeFactoryFactory jsonNodeFactoryFactory) {
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
@@ -84,7 +84,7 @@ public class DefaultObjectReader implements ObjectReader {
     }
 
     /**
-     * Gets the builder for {@link DefaultObjectReader}.
+     * Gets the builder for {@link DefaultJsonNodeReader}.
      * 
      * @return the builder
      */
@@ -93,7 +93,7 @@ public class DefaultObjectReader implements ObjectReader {
     }
 
     /**
-     * Builder support for {@link ObjectReader}.
+     * Builder support for {@link JsonNodeReader}.
      * 
      * @param <T> the super type
      */
@@ -143,7 +143,7 @@ public class DefaultObjectReader implements ObjectReader {
     }
 
     /**
-     * Builder for {@link DefaultObjectReader}. 
+     * Builder for {@link DefaultJsonNodeReader}. 
      */
     public static class Builder extends BuilderSupport<Builder> {
 
@@ -162,12 +162,12 @@ public class DefaultObjectReader implements ObjectReader {
         }
 
         /**
-         * Builds the {@link ObjectReader}.
+         * Builds the {@link JsonNodeReader}.
          *
          * @return the object reader
          */
-        public ObjectReader build() {
-            return new DefaultObjectReader(this.jsonMapper, this.yamlMapper, this.jsonNodeFactoryFactory);
+        public JsonNodeReader build() {
+            return new DefaultJsonNodeReader(this.jsonMapper, this.yamlMapper, this.jsonNodeFactoryFactory);
         }
     }
 }

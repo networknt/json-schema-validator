@@ -25,7 +25,7 @@ import com.networknt.schema.resource.SchemaLoaders;
 import com.networknt.schema.resource.SchemaMapper;
 import com.networknt.schema.resource.SchemaMappers;
 import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.serialization.ObjectReader;
+import com.networknt.schema.serialization.JsonNodeReader;
 import com.networknt.schema.serialization.YamlMapperFactory;
 
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class JsonSchemaFactory {
     public static class Builder {
         private ObjectMapper jsonMapper = null;
         private ObjectMapper yamlMapper = null;
-        private ObjectReader objectReader = null;
+        private JsonNodeReader jsonNodeReader = null;
         private String defaultMetaSchemaIri;
         private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
@@ -64,17 +64,17 @@ public class JsonSchemaFactory {
         private JsonMetaSchemaFactory metaSchemaFactory = null;
 
         /**
-         * Sets the object reader to read the data.
+         * Sets the json node reader to read the data.
          * <p>
          * If set this takes precedence over the configured json mapper and yaml mapper.
          * <p>
-         * A location aware object reader can be created using ObjectReader.builder().locationAware().build().
+         * A location aware object reader can be created using JsonNodeReader.builder().locationAware().build().
          *
-         * @param objectReader the object reader
+         * @param jsonNodeReader the object reader
          * @return the builder
          */
-        public Builder objectReader(ObjectReader objectReader) {
-            this.objectReader = objectReader;
+        public Builder jsonNodeReader(JsonNodeReader jsonNodeReader) {
+            this.jsonNodeReader = jsonNodeReader;
             return this;
         }
 
@@ -172,7 +172,7 @@ public class JsonSchemaFactory {
             return new JsonSchemaFactory(
                     jsonMapper,
                     yamlMapper,
-                    objectReader,
+                    jsonNodeReader,
                     defaultMetaSchemaIri,
                     schemaLoadersBuilder,
                     schemaMappersBuilder,
@@ -185,7 +185,7 @@ public class JsonSchemaFactory {
 
     private final ObjectMapper jsonMapper;
     private final ObjectMapper yamlMapper;
-    private final ObjectReader objectReader;
+    private final JsonNodeReader jsonNodeReader;
     private final String defaultMetaSchemaIri;
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
@@ -201,7 +201,7 @@ public class JsonSchemaFactory {
     private JsonSchemaFactory(
             ObjectMapper jsonMapper,
             ObjectMapper yamlMapper,
-            ObjectReader objectReader,
+            JsonNodeReader jsonNodeReader,
             String defaultMetaSchemaIri,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
@@ -218,7 +218,7 @@ public class JsonSchemaFactory {
         }
         this.jsonMapper = jsonMapper;
         this.yamlMapper = yamlMapper;
-        this.objectReader = objectReader;
+        this.jsonNodeReader = jsonNodeReader;
         this.defaultMetaSchemaIri = defaultMetaSchemaIri;
         this.schemaLoadersBuilder = schemaLoadersBuilder;
         this.schemaMappersBuilder = schemaMappersBuilder;
@@ -311,7 +311,7 @@ public class JsonSchemaFactory {
                 .defaultMetaSchemaIri(blueprint.defaultMetaSchemaIri)
                 .jsonMapper(blueprint.jsonMapper)
                 .yamlMapper(blueprint.yamlMapper)
-                .objectReader(blueprint.objectReader);
+                .jsonNodeReader(blueprint.jsonNodeReader);
         if (blueprint.schemaLoadersBuilder != null) {
             builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
         }
@@ -463,18 +463,18 @@ public class JsonSchemaFactory {
     }
 
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
-        if (this.objectReader == null) {
+        if (this.jsonNodeReader == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {
-            return this.objectReader.readTree(content, inputFormat);
+            return this.jsonNodeReader.readTree(content, inputFormat);
         }
     }
 
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
-        if (this.objectReader == null) {
+        if (this.jsonNodeReader == null) {
             return getObjectMapper(inputFormat).readTree(content);
         } else {
-            return this.objectReader.readTree(content, inputFormat);
+            return this.jsonNodeReader.readTree(content, inputFormat);
         }
     }
 

@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.InputFormat;
 
 /**
- * Object reader.
+ * Reader for reading content to {@link JsonNode}.
  */
-public interface ObjectReader {
+public interface JsonNodeReader {
 
     /**
      * Deserialize content as a tree.
@@ -47,11 +47,11 @@ public interface ObjectReader {
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException;
 
     /**
-     * Creates a builder for {@link ObjectReader}.
+     * Creates a builder for {@link JsonNodeReader}.
      *
      * @return the builder
      */
-    public static DefaultObjectReader.Builder builder() {
-        return DefaultObjectReader.builder();
+    public static DefaultJsonNodeReader.Builder builder() {
+        return DefaultJsonNodeReader.builder();
     }
 }
