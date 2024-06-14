@@ -25,6 +25,7 @@ import com.networknt.schema.regex.JDKRegularExpressionFactory;
 /**
  * Test for SchemaValidatorsConfig.
  */
+@SuppressWarnings("deprecation")
 class SchemaValidatorsConfigTest {
     @Test
     void defaultEcma262Validator() {
@@ -46,4 +47,51 @@ class SchemaValidatorsConfigTest {
         assertFalse(config.isEcma262Validator());
     }
 
+    @Test
+    void constructorPathType() {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        assertEquals(PathType.LEGACY, config.getPathType());
+    }
+
+    @Test
+    void builderPathType() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        assertEquals(PathType.JSON_POINTER, config.getPathType());
+    }
+    
+    @Test
+    void constructorCustomMessageSupported() {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        assertEquals(true, config.isCustomMessageSupported());
+    }
+
+    @Test
+    void builderCustomMessageSupported() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        assertEquals(false, config.isCustomMessageSupported());
+    }
+
+    @Test
+    void constructorHandleNullableField() {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        assertEquals(true, config.isHandleNullableField());
+    }
+
+    @Test
+    void builderHandleNullableField() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        assertEquals(false, config.isHandleNullableField());
+    }
+    
+    @Test
+    void constructorMutable() {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        assertDoesNotThrow(() -> config.setFailFast(true));
+    }
+
+    @Test
+    void builderImmutable() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        assertThrows(UnsupportedOperationException.class, () -> config.setFailFast(true));
+    }
 }
