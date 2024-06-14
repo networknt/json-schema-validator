@@ -40,6 +40,7 @@ import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationMessage;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.JsonNodeReader;
 import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 /**
  * Tests for JsonNodes.
@@ -73,7 +74,7 @@ public class JsonNodesTest {
         assertEquals(6, location.getLineNr());
         assertEquals(20, location.getColumnNr());
     }
-    
+
     @Test
     void jsonLocation() {
         String schemaData = "{\r\n"
@@ -89,7 +90,7 @@ public class JsonNodesTest {
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.jsonNodeFactoryFactory(LocationJsonNodeFactoryFactory.getInstance()));
+                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
@@ -138,7 +139,7 @@ public class JsonNodesTest {
                 + "startDate: '1'\r\n"
                 + "";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.jsonNodeFactoryFactory(LocationJsonNodeFactoryFactory.getInstance()));
+                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();
         config.setPathType(PathType.JSON_POINTER);
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.YAML, config);

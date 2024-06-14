@@ -27,7 +27,7 @@ public class Issue366FailFastTest {
         SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         schemaValidatorsConfig.setFailFast(true);
         JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).jsonMapper(objectMapper).build();
+                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
 
         schemaValidatorsConfig.setTypeLoose(false);
 

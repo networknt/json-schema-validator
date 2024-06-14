@@ -31,6 +31,11 @@ public class DisallowUnknownJsonMetaSchemaFactory implements JsonMetaSchemaFacto
         private static DisallowUnknownJsonMetaSchemaFactory INSTANCE = new DisallowUnknownJsonMetaSchemaFactory();
     }
 
+    /**
+     * Gets the instance of {@link DisallowUnknownJsonMetaSchemaFactory}.
+     * 
+     * @return the json meta schema factory
+     */
     public static DisallowUnknownJsonMetaSchemaFactory getInstance() {
         return Holder.INSTANCE;
     }

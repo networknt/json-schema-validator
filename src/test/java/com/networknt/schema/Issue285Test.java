@@ -15,7 +15,6 @@ public class Issue285Test {
     private ObjectMapper mapper = new ObjectMapper();
     private JsonSchemaFactory schemaFactory = JsonSchemaFactory
 		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-		.jsonMapper(mapper)
             .schemaMappers(schemaMappers -> schemaMappers
                     .mapPrefix("http://json-schema.org", "resource:")
                     .mapPrefix("https://json-schema.org", "resource:"))

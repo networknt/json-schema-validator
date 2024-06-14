@@ -36,6 +36,11 @@ public class DisallowUnknownKeywordFactory implements KeywordFactory {
         private static DisallowUnknownKeywordFactory INSTANCE = new DisallowUnknownKeywordFactory();
     }
 
+    /**
+     * Gets the instance of {@link DisallowUnknownKeywordFactory}.
+     *
+     * @return the keyword factory
+     */
     public static DisallowUnknownKeywordFactory getInstance() {
         return Holder.INSTANCE;
     }

@@ -89,7 +89,6 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
         config.setFailFast(true);
         return JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-            .jsonMapper(objectMapper)
             .build()
             .getSchema(schema, config)
             .validate(dataFile);
