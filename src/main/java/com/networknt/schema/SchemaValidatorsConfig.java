@@ -59,7 +59,7 @@ public class SchemaValidatorsConfig {
      * When set to true, "messages" provided in schema are used for forming validation errors
      * else default messages are used
      */
-    private boolean customMessageSupported = true;
+    private String errorMessageKeyword = "message";
 
     private ExecutionContextCustomizer executionContextCustomizer;
 
@@ -86,7 +86,7 @@ public class SchemaValidatorsConfig {
      */
     private boolean handleNullableField = true;
 
-    private final WalkListenerRunner itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
+    private final WalkListenerRunner itemWalkListenerRunner;
 
     private final List<JsonSchemaWalkListener> itemWalkListeners;
 
@@ -96,7 +96,7 @@ public class SchemaValidatorsConfig {
      */
     private boolean javaSemantics;
 
-    private final WalkListenerRunner keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+    private final WalkListenerRunner keywordWalkListenerRunner;
 
     private final Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap;
 
@@ -137,7 +137,7 @@ public class SchemaValidatorsConfig {
      */
     private int preloadJsonSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH;
 
-    private final WalkListenerRunner propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
+    private final WalkListenerRunner propertyWalkListenerRunner;
 
     private final List<JsonSchemaWalkListener> propertyWalkListeners;
 
@@ -176,6 +176,18 @@ public class SchemaValidatorsConfig {
      */
     private Boolean writeOnly = null;
 
+    /**
+     * Constructor to create an instance.
+     * <p>
+     * This is deprecated in favor of using the builder
+     * {@link SchemaValidatorsConfig#builder()} to create an instance. Migration
+     * note: The builder has different defaults from the constructor.
+     * <p><ul>
+     * <li> customMessageSupported (errorMessageKeyword): change from message to null
+     * <li> pathType: changed from PathType.LEGACY to PathType.JSON_POINTER.
+     * <li> handleNullableField (nullableKeywordEnabled): changed from true to false
+     * </ul><p>
+     */
     @Deprecated
     public SchemaValidatorsConfig() {
         this.strictness = new HashMap<>(0);
@@ -183,10 +195,14 @@ public class SchemaValidatorsConfig {
         this.keywordWalkListenersMap = new HashMap<>();
         this.propertyWalkListeners = new ArrayList<>();
         this.itemWalkListeners = new ArrayList<>();
+        
+        this.itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
+        this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+        this.propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
     }
  
     SchemaValidatorsConfig(ApplyDefaultsStrategy applyDefaultsStrategy, boolean cacheRefs,
-            boolean customMessageSupported, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
+            String errorMessageKeyword, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
             Boolean formatAssertionsEnabled, boolean handleNullableField,
             List<JsonSchemaWalkListener> itemWalkListeners, boolean javaSemantics,
             Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap, Locale locale, boolean losslessNarrowing,
@@ -198,7 +214,7 @@ public class SchemaValidatorsConfig {
         super();
         this.applyDefaultsStrategy = applyDefaultsStrategy;
         this.cacheRefs = cacheRefs;
-        this.customMessageSupported = customMessageSupported;
+        this.errorMessageKeyword = errorMessageKeyword;
         this.executionContextCustomizer = executionContextCustomizer;
         this.failFast = failFast;
         this.formatAssertionsEnabled = formatAssertionsEnabled;
@@ -220,6 +236,10 @@ public class SchemaValidatorsConfig {
         this.strictness = strictness;
         this.typeLoose = typeLoose;
         this.writeOnly = writeOnly;
+
+        this.itemWalkListenerRunner = new DefaultItemWalkListenerRunner(getArrayItemWalkListeners());
+        this.keywordWalkListenerRunner = new DefaultKeywordWalkListenerRunner(getKeywordWalkListenersMap());
+        this.propertyWalkListenerRunner = new DefaultPropertyWalkListenerRunner(getPropertyWalkListeners());
     }
 
     public void addItemWalkListener(JsonSchemaWalkListener itemWalkListener) {
@@ -395,8 +415,13 @@ public class SchemaValidatorsConfig {
         return cacheRefs;
     }
 
+    @Deprecated
     public boolean isCustomMessageSupported() {
-        return customMessageSupported;
+        return this.errorMessageKeyword != null;
+    }
+
+    public String getErrorMessageKeyword() {
+        return this.errorMessageKeyword;
     }
 
     /**
@@ -508,8 +533,16 @@ public class SchemaValidatorsConfig {
         this.cacheRefs = cacheRefs;
     }
 
+    /**
+     * Sets whether custom error messages in the schema are used.
+     * <p>
+     * This is deprecated in favor of setting the error message keyword to use.
+     *
+     * @param customMessageSupported true to use message as the error message keyword
+     */
+    @Deprecated
     public void setCustomMessageSupported(boolean customMessageSupported) {
-        this.customMessageSupported = customMessageSupported;
+        this.errorMessageKeyword = customMessageSupported ? "message" : null;
     }
 
     /**
@@ -706,7 +739,7 @@ public class SchemaValidatorsConfig {
     public static class Builder {
         private ApplyDefaultsStrategy applyDefaultsStrategy = ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
         private boolean cacheRefs = true;
-        private boolean customMessageEnabled = false;
+        private String errorMessageKeyword = null;
         private ExecutionContextCustomizer executionContextCustomizer = null;
         private boolean failFast = false;
         private Boolean formatAssertionsEnabled = false;
@@ -754,15 +787,15 @@ public class SchemaValidatorsConfig {
             return this;
         }
         /**
-         * Sets if the message keyword for setting custom messages in the schema is enabled.
+         * Sets the error message keyword for setting custom messages in the schema.
          * <p>
-         * Defaults to false.
+         * Defaults to null meaning custom messages are not enabled.
          * 
-         * @param messageKeywordEnabled true to enable
+         * @param errorMessageKeyword to use for custom messages in the schema
          * @return the builder
          */
-        public Builder messageKeywordEnabled(boolean messageKeywordEnabled) {
-            this.customMessageEnabled = messageKeywordEnabled;
+        public Builder errorMessageKeyword(String errorMessageKeyword) {
+            this.errorMessageKeyword = errorMessageKeyword;
             return this;
         }
         /**
@@ -956,7 +989,7 @@ public class SchemaValidatorsConfig {
             return this;
         }
         public SchemaValidatorsConfig build() {
-            return new ImmutableSchemaValidatorsConfig(applyDefaultsStrategy, cacheRefs, customMessageEnabled,
+            return new ImmutableSchemaValidatorsConfig(applyDefaultsStrategy, cacheRefs, errorMessageKeyword,
                     executionContextCustomizer, failFast, formatAssertionsEnabled, handleNullableField,
                     itemWalkListeners, javaSemantics, keywordWalkListeners, locale, losslessNarrowing, messageSource,
                     openAPI3StyleDiscriminators, pathType, preloadJsonSchema, preloadJsonSchemaRefMaxNestingDepth,
@@ -976,7 +1009,7 @@ public class SchemaValidatorsConfig {
      */
     public static class ImmutableSchemaValidatorsConfig extends SchemaValidatorsConfig {
         public ImmutableSchemaValidatorsConfig(ApplyDefaultsStrategy applyDefaultsStrategy, boolean cacheRefs,
-                boolean customMessageSupported, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
+                String errorMessageKeyword, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
                 Boolean formatAssertionsEnabled, boolean handleNullableField,
                 List<JsonSchemaWalkListener> itemWalkListeners, boolean javaSemantics,
                 Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap, Locale locale,
@@ -985,7 +1018,7 @@ public class SchemaValidatorsConfig {
                 List<JsonSchemaWalkListener> propertyWalkListeners, Boolean readOnly,
                 RegularExpressionFactory regularExpressionFactory, JsonSchemaIdValidator schemaIdValidator,
                 Map<String, Boolean> strictness, boolean typeLoose, Boolean writeOnly) {
-            super(applyDefaultsStrategy, cacheRefs, customMessageSupported, executionContextCustomizer, failFast,
+            super(applyDefaultsStrategy, cacheRefs, errorMessageKeyword, executionContextCustomizer, failFast,
                     formatAssertionsEnabled, handleNullableField, itemWalkListeners, javaSemantics, keywordWalkListenersMap, locale,
                     losslessNarrowing, messageSource, openAPI3StyleDiscriminators, pathType, preloadJsonSchema,
                     preloadJsonSchemaRefMaxNestingDepth, propertyWalkListeners, readOnly, regularExpressionFactory,

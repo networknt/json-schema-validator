@@ -162,7 +162,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @param schemaNode the schema node
      * @param validationContext the validation context
      * @param errorMessageType the error message type
-     * @param customErrorMessagesEnabled whether custom error msessages are enabled
+     * @param errorMessageKeyword the error message keyword
      * @param messageSource the message source
      * @param keyword the keyword
      * @param parentSchema the parent schema
@@ -184,7 +184,7 @@ public class JsonSchema extends BaseJsonValidator {
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
             ErrorMessageType errorMessageType,
-            boolean customErrorMessagesEnabled,
+            String errorMessageKeyword,
             MessageSource messageSource,
             Keyword keyword,
             JsonSchema parentSchema,
@@ -192,7 +192,7 @@ public class JsonSchema extends BaseJsonValidator {
             JsonNodePath evaluationPath,
             JsonSchema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, customErrorMessagesEnabled, messageSource, keyword,
+        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, errorMessageKeyword, messageSource, keyword,
                 parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
         this.validators = validators;
         this.validatorsLoaded = validatorsLoaded;
@@ -238,7 +238,7 @@ public class JsonSchema extends BaseJsonValidator {
                 schemaNode,
                 validationContext,
                 /* Below from ValidationMessageHandler */
-                errorMessageType, customErrorMessagesEnabled, messageSource,
+                errorMessageType, errorMessageKeyword, messageSource,
                 keyword, parentSchema, schemaLocation, evaluationPath,
                 evaluationParentSchema, errorMessage);
     }
@@ -266,7 +266,7 @@ public class JsonSchema extends BaseJsonValidator {
                     validationContext,
                     /* Below from ValidationMessageHandler */
                     errorMessageType,
-                    customErrorMessagesEnabled,
+                    errorMessageKeyword,
                     messageSource,
                     keyword,
                     parentSchema,

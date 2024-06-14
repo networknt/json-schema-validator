@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public abstract class ValidationMessageHandler {
     protected final ErrorMessageType errorMessageType;
-    protected final boolean customErrorMessagesEnabled;
+    protected final String errorMessageKeyword;
     protected final MessageSource messageSource;
     protected final Keyword keyword;
     protected final JsonSchema parentSchema;
@@ -23,7 +23,7 @@ public abstract class ValidationMessageHandler {
     protected final JsonSchema evaluationParentSchema;
     protected final Map<String, String> errorMessage;
 
-    protected ValidationMessageHandler(ErrorMessageType errorMessageType, boolean customErrorMessagesEnabled,
+    protected ValidationMessageHandler(ErrorMessageType errorMessageType, String errorMessageKeyword,
             MessageSource messageSource, Keyword keyword, JsonSchema parentSchema, SchemaLocation schemaLocation,
             JsonNodePath evaluationPath) {
         ErrorMessageType currentErrorMessageType = errorMessageType;
@@ -32,14 +32,15 @@ public abstract class ValidationMessageHandler {
         this.evaluationPath = Objects.requireNonNull(evaluationPath);
         this.parentSchema = parentSchema;
         this.evaluationParentSchema = null;
-        this.customErrorMessagesEnabled = customErrorMessagesEnabled;
+        this.errorMessageKeyword = errorMessageKeyword;
         this.keyword = keyword;
 
         Map<String, String> currentErrorMessage = null;
 
         if (this.keyword != null) {
-            if (this.customErrorMessagesEnabled && keyword != null && parentSchema != null) {
-                currentErrorMessage = getErrorMessage(parentSchema.getSchemaNode(), keyword.getValue());
+            if (this.errorMessageKeyword != null && keyword != null && parentSchema != null) {
+                currentErrorMessage = getErrorMessage(this.errorMessageKeyword, parentSchema.getSchemaNode(),
+                        keyword.getValue());
             }
             String errorCodeKey = getErrorCodeKey(keyword.getValue());
             if (errorCodeKey != null && this.parentSchema != null) {
@@ -60,7 +61,7 @@ public abstract class ValidationMessageHandler {
      * Constructor to create a copy using fields.
      * 
      * @param errorMessageType the error message type
-     * @param customErrorMessagesEnabled whether custom error msessages are enabled
+     * @param errorMessageKeyword the error message keyword
      * @param messageSource the message source
      * @param keyword the keyword
      * @param parentSchema the parent schema
@@ -69,11 +70,11 @@ public abstract class ValidationMessageHandler {
      * @param evaluationParentSchema the evaluation parent schema
      * @param errorMessage the error message
      */
-    protected ValidationMessageHandler(ErrorMessageType errorMessageType, boolean customErrorMessagesEnabled,
+    protected ValidationMessageHandler(ErrorMessageType errorMessageType, String errorMessageKeyword,
             MessageSource messageSource, Keyword keyword, JsonSchema parentSchema, SchemaLocation schemaLocation,
             JsonNodePath evaluationPath, JsonSchema evaluationParentSchema, Map<String, String> errorMessage) {
         this.errorMessageType = errorMessageType;
-        this.customErrorMessagesEnabled = customErrorMessagesEnabled;
+        this.errorMessageKeyword = errorMessageKeyword;
         this.messageSource = messageSource;
         this.keyword = keyword;
         this.parentSchema = parentSchema;
@@ -104,9 +105,9 @@ public abstract class ValidationMessageHandler {
      * @param keyword    the keyword
      * @return the custom error message
      */
-    protected Map<String, String> getErrorMessage(JsonNode schemaNode, String keyword) {
+    protected Map<String, String> getErrorMessage(String errorMessageKeyword, JsonNode schemaNode, String keyword) {
         final JsonSchema parentSchema = this.parentSchema;
-        final JsonNode message = getMessageNode(schemaNode, parentSchema, keyword);
+        final JsonNode message = getMessageNode(errorMessageKeyword, schemaNode, parentSchema, keyword);
         if (message != null) {
             JsonNode messageNode = message.get(keyword);
             if (messageNode != null) {
@@ -126,16 +127,18 @@ public abstract class ValidationMessageHandler {
         return Collections.emptyMap();
     }
 
-    protected JsonNode getMessageNode(JsonNode schemaNode, JsonSchema parentSchema, String pname) {
-        if (schemaNode.get("message") != null && schemaNode.get("message").get(pname) != null) {
-            return schemaNode.get("message");
+    protected JsonNode getMessageNode(String errorMessageKeyword, JsonNode schemaNode, JsonSchema parentSchema,
+            String pname) {
+        if (schemaNode.get(errorMessageKeyword) != null && schemaNode.get(errorMessageKeyword).get(pname) != null) {
+            return schemaNode.get(errorMessageKeyword);
         }
         JsonNode messageNode;
-        messageNode = schemaNode.get("message");
+        messageNode = schemaNode.get(errorMessageKeyword);
         if (messageNode == null && parentSchema != null) {
-            messageNode = parentSchema.schemaNode.get("message");
+            messageNode = parentSchema.schemaNode.get(errorMessageKeyword);
             if (messageNode == null) {
-                return getMessageNode(parentSchema.schemaNode, parentSchema.getParentSchema(), pname);
+                return getMessageNode(errorMessageKeyword, parentSchema.schemaNode, parentSchema.getParentSchema(),
+                        pname);
             }
         }
         return messageNode;

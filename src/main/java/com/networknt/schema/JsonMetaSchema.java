@@ -478,7 +478,7 @@ public class JsonMetaSchema {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
-                if ("message".equals(keyword) && validationContext.getConfig().isCustomMessageSupported()) {
+                if (keyword.equals(validationContext.getConfig().getErrorMessageKeyword())) {
                     return null;
                 }
                 if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)

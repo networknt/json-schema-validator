@@ -51,8 +51,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
         super(errorMessageType,
                 (validationContext != null && validationContext.getConfig() != null)
-                        ? validationContext.getConfig().isCustomMessageSupported()
-                        : true,
+                        ? validationContext.getConfig().getErrorMessageKeyword()
+                        : null,
                 (validationContext != null && validationContext.getConfig() != null)
                         ? validationContext.getConfig().getMessageSource()
                         : DefaultMessageSource.getInstance(),
@@ -70,7 +70,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @param schemaNode the schema node
      * @param validationContext the validation context
      * @param errorMessageType the error message type
-     * @param customErrorMessagesEnabled whether custom error msessages are enabled
+     * @param errorMessageKeyword the error message keyword
      * @param messageSource the message source
      * @param keyword the keyword
      * @param parentSchema the parent schema
@@ -86,7 +86,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
             ErrorMessageType errorMessageType,
-            boolean customErrorMessagesEnabled,
+            String errorMessageKeyword,
             MessageSource messageSource,
             Keyword keyword,
             JsonSchema parentSchema,
@@ -94,7 +94,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
             JsonNodePath evaluationPath,
             JsonSchema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        super(errorMessageType, customErrorMessagesEnabled, messageSource, keyword,
+        super(errorMessageType, errorMessageKeyword, messageSource, keyword,
                 parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.schemaNode = schemaNode;
