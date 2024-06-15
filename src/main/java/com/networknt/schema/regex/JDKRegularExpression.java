@@ -14,6 +14,9 @@ class JDKRegularExpression implements RegularExpression {
 
     @Override
     public boolean matches(String value) {
+        /*
+         * Note that the matches function is not used here as it implicitly adds anchors 
+         */
         return this.pattern.matcher(value).find();
     }
 }

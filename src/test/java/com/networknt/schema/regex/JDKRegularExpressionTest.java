@@ -15,9 +15,11 @@
  */
 package com.networknt.schema.regex;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -39,5 +41,22 @@ class JDKRegularExpressionTest {
     void namedBackreference() {
         RegularExpression regex = new JDKRegularExpression("title=(?<quote>[\"'])(.*?)\\k<quote>");
         assertTrue(regex.matches("title=\"Named capturing groups\\' advantages\""));
+    }
+
+    @Test
+    @Disabled
+    void anchorShouldNotMatchMultilineInput() {
+        RegularExpression regex = new JDKRegularExpression("^[a-z]{1,10}$");
+        assertFalse(regex.matches("abc\n"));
+    }
+
+    /**
+     * This test is because the JDK regex matches function implicitly adds anchors
+     * which isn't expected.
+     */
+    @Test
+    void noImplicitAnchors() {
+        RegularExpression regex = new JDKRegularExpression("[a-z]{1,10}");
+        assertTrue(regex.matches("1abc1"));
     }
 }

@@ -98,7 +98,7 @@ This implementation is tested against the [JSON Schema Test Suite](https://githu
 |-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
 | NetworkNt       | pass: r:4703 (100.0%) o:2369 (100.0%)<br>fail: r:0 (0.0%) o:1 (0.0%)    |                                                                   | pass: r:600 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:796 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:880 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)     | pass: r:1201 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:1226 (100.0%) o:634 (99.8%)<br>fail: r:0 (0.0%) o:1 (0.2%)     |
 
-* Note that this uses the ECMA 262 Validator option turned on for the `pattern` tests.
+* Note that this uses the `JoniRegularExpressionFactory` for the `pattern` and `format` `regex` tests.
 
 #### Jackson Parser
 
@@ -157,17 +157,6 @@ The following are the optional dependencies that may be required for certain opt
 These are not automatically included and setting the relevant option without adding the library will result in a `ClassNotFoundException`.
 
 ```xml
-<!-- Either library is required when setting setEcma262Validator(true) or explicitly via setRegularExpressionFactory() -->
-<dependency>
-    <!-- Used to validate ECMA 262 regular expressions -->
-    <!-- Approximately 2 MB in dependencies -->
-    <!-- JoniRegularExpressionFactory -->
-    <groupId>org.jruby.joni</groupId>
-    <artifactId>joni</artifactId>
-    <version>${version.joni}</version>
-    <optional>true</optional>
-</dependency>
-
 <dependency>
     <!-- Used to validate ECMA 262 regular expressions -->
     <!-- Approximately 50 MB in dependencies -->
@@ -175,7 +164,15 @@ These are not automatically included and setting the relevant option without add
     <groupId>org.graalvm.js</groupId>
     <artifactId>js</artifactId>
     <version>${version.graaljs}</version>
-    <optional>true</optional>
+</dependency>
+
+<dependency>
+    <!-- Used to validate ECMA 262 regular expressions -->
+    <!-- Approximately 2 MB in dependencies -->
+    <!-- JoniRegularExpressionFactory -->
+    <groupId>org.jruby.joni</groupId>
+    <artifactId>joni</artifactId>
+    <version>${version.joni}</version>
 </dependency>
 ```
 
@@ -270,8 +267,9 @@ SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance location and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-// Note that setting this to true requires including the optional joni or graaljs dependency
-// config.setEcma262Validator(true);
+// Note that setting this requires including optional depedencies
+// config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+// config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
 
 // Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json.
 // If the schema data does not specify an $id the absolute IRI of the schema location will be used as the $id.
@@ -305,8 +303,9 @@ SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 // By default JSON Path is used for reporting the instance location and evaluation path
 config.setPathType(PathType.JSON_POINTER);
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-// Note that setting this to true requires including the optional joni or graaljs dependency
-// config.setEcma262Validator(true);
+// Note that setting this requires including optional depedencies
+// config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+// config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
 
 // Due to the mapping the meta-schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
@@ -529,7 +528,6 @@ The following is sample output from the Hierarchical format.
 | Name                                  | Description                                                                                                                                                                                                                       | Default Value
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------
 | `pathType`                            | The path type to use for reporting the instance location and evaluation path. Set to `PathType.JSON_POINTER` to use JSON Pointer.                                                                                                 | `PathType.DEFAULT`
-| `ecma262Validator`                    | Whether to use the ECMA 262 `joni` or `graaljs` library to validate the `pattern` keyword. This requires the dependency to be manually added to the project or a `ClassNotFoundException` will be thrown.                         | `false`
 | `executionContextCustomizer`          | This can be used to customize the `ExecutionContext` generated by the `JsonSchema` for each validation run.                                                                                                                       | `null`
 | `schemaIdValidator`                   | This is used to customize how the `$id` values are validated. Note that the default implementation allows non-empty fragments where no base IRI is specified and also allows non-absolute IRI `$id` values in the root schema.    | `JsonSchemaIdValidator.DEFAULT`
 | `messageSource`                       | This is used to retrieve the locale specific messages.                                                                                                                                                                            | `DefaultMessageSource.getInstance()`
@@ -539,7 +537,7 @@ The following is sample output from the Hierarchical format.
 | `locale`                              | The locale to use for generating messages in the `ValidationMessage`.                                                                                                                                                             | `Locale.getDefault()`
 | `failFast`                            | Whether to return failure immediately when an assertion is generated.                                                                                                                                                             | `false`
 | `formatAssertionsEnabled`             | The default is to generate format assertions from Draft 4 to Draft 7 and to only generate annotations from Draft 2019-09. Setting to `true` or `false` will override the default behavior.                                        | `null`
-| `regularExpressionFactory`            | The factory to use to create regular expressions for instance `JoniRegularExpressionFactory` or `GraalJSRegularExpressionFactory`.                                                                                                | `JDKRegularExpressionFactory.getInstance()`
+| `regularExpressionFactory`            | The factory to use to create regular expressions for instance `JoniRegularExpressionFactory` or `GraalJSRegularExpressionFactory`. This requires the dependency to be manually added to the project or a `ClassNotFoundException` will be thrown. | `JDKRegularExpressionFactory.getInstance()`
 
 ## Performance Considerations
 
@@ -576,7 +574,7 @@ This does not mean that using a schema with a later draft specification will aut
 
 ## [JSON Schema Walkers and WalkListeners](doc/walkers.md)
 
-## [ECMA-262 Regex](doc/ecma-262.md)
+## [Regular Expressions](doc/ecma-262.md)
 
 ## [Custom Message](doc/cust-msg.md)
 

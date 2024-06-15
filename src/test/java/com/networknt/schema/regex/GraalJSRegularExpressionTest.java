@@ -158,6 +158,23 @@ class GraalJSRegularExpressionTest {
     }
 
     @Test
+    void anchorShouldNotMatchMultilineInput() {
+        RegularExpression regex = new GraalJSRegularExpression("^[a-z]{1,10}$", CONTEXT);
+        assertFalse(regex.matches("abc\n"));
+    }
+
+    /**
+     * This test is because the JDK regex matches function implicitly adds anchors
+     * which isn't expected.
+     */
+    @Test
+    void noImplicitAnchors() {
+        RegularExpression regex = new GraalJSRegularExpression("[a-z]{1,10}", CONTEXT);
+        assertTrue(regex.matches("1abc1"));
+    }
+
+
+    @Test
     void concurrency() throws Exception {
         RegularExpression regex = new GraalJSRegularExpression("\\d", CONTEXT);
         Exception[] instance = new Exception[1];
