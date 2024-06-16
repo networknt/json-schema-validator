@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Configuration for validators. 
@@ -84,7 +85,7 @@ public class SchemaValidatorsConfig {
      * field is nullable && value is field: null --> it is up to the type validator
      * using the SchemaValidator to handle it.
      */
-    private boolean handleNullableField = true;
+    private boolean nullableKeywordEnabled = true;
 
     private final WalkListenerRunner itemWalkListenerRunner;
 
@@ -120,7 +121,7 @@ public class SchemaValidatorsConfig {
      * oneOf, anyOf and allOf as described on <a href=
      * "https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#discriminatorObject">GitHub</a>.
      */
-    private boolean openAPI3StyleDiscriminators = false;
+    private boolean discriminatorKeywordEnabled = false;
 
     /**
      * The approach used to generate paths in reported messages, logs and errors. Default is the legacy "JSONPath-like" approach.
@@ -203,10 +204,10 @@ public class SchemaValidatorsConfig {
  
     SchemaValidatorsConfig(ApplyDefaultsStrategy applyDefaultsStrategy, boolean cacheRefs,
             String errorMessageKeyword, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
-            Boolean formatAssertionsEnabled, boolean handleNullableField,
+            Boolean formatAssertionsEnabled, boolean nullableKeywordEnabled,
             List<JsonSchemaWalkListener> itemWalkListeners, boolean javaSemantics,
             Map<String, List<JsonSchemaWalkListener>> keywordWalkListenersMap, Locale locale, boolean losslessNarrowing,
-            MessageSource messageSource, boolean openAPI3StyleDiscriminators, PathType pathType,
+            MessageSource messageSource, boolean discriminatorKeywordEnabled, PathType pathType,
             boolean preloadJsonSchema, int preloadJsonSchemaRefMaxNestingDepth,
             List<JsonSchemaWalkListener> propertyWalkListeners, Boolean readOnly,
             RegularExpressionFactory regularExpressionFactory, JsonSchemaIdValidator schemaIdValidator,
@@ -218,14 +219,14 @@ public class SchemaValidatorsConfig {
         this.executionContextCustomizer = executionContextCustomizer;
         this.failFast = failFast;
         this.formatAssertionsEnabled = formatAssertionsEnabled;
-        this.handleNullableField = handleNullableField;
+        this.nullableKeywordEnabled = nullableKeywordEnabled;
         this.itemWalkListeners = itemWalkListeners;
         this.javaSemantics = javaSemantics;
         this.keywordWalkListenersMap = keywordWalkListenersMap;
         this.locale = locale;
         this.losslessNarrowing = losslessNarrowing;
         this.messageSource = messageSource;
-        this.openAPI3StyleDiscriminators = openAPI3StyleDiscriminators;
+        this.discriminatorKeywordEnabled = discriminatorKeywordEnabled;
         this.pathType = pathType;
         this.preloadJsonSchema = preloadJsonSchema;
         this.preloadJsonSchemaRefMaxNestingDepth = preloadJsonSchemaRefMaxNestingDepth;
@@ -440,8 +441,23 @@ public class SchemaValidatorsConfig {
         return this.failFast;
     }
 
+    /**
+     * Deprecated use {{@link #isNullableKeywordEnabled()} instead.
+     *
+     * @return true if the nullable keyword is enabled
+     */
+    @Deprecated
     public boolean isHandleNullableField() {
-        return this.handleNullableField;
+        return isNullableKeywordEnabled();
+    }
+
+    /**
+     * Gets if the nullable keyword is enabled.
+     *
+     * @return true if the nullable keyword is enabled
+     */
+    public boolean isNullableKeywordEnabled() {
+        return this.nullableKeywordEnabled;
     }
 
     public boolean isJavaSemantics() {
@@ -454,12 +470,24 @@ public class SchemaValidatorsConfig {
 
     /**
      * Indicates whether OpenAPI 3 style discriminators should be supported
+     * <p>
+     * Deprecated use {{@link #isDiscriminatorKeywordEnabled()} instead.
      * 
      * @return true in case discriminators are enabled
      * @since 1.0.51
      */
+    @Deprecated
     public boolean isOpenAPI3StyleDiscriminators() {
-        return this.openAPI3StyleDiscriminators;
+        return isDiscriminatorKeywordEnabled();
+    }
+
+    /**
+     * Gets if the discriminator keyword is enabled.
+     * 
+     * @return true if the discriminator keyword is enabled
+     */
+    public boolean isDiscriminatorKeywordEnabled() {
+        return this.discriminatorKeywordEnabled;
     }
 
     /**
@@ -585,7 +613,7 @@ public class SchemaValidatorsConfig {
     }
 
     public void setHandleNullableField(boolean handleNullableField) {
-        this.handleNullableField = handleNullableField;
+        this.nullableKeywordEnabled = handleNullableField;
     }
 
     public void setJavaSemantics(boolean javaSemantics) {
@@ -652,7 +680,7 @@ public class SchemaValidatorsConfig {
      * @since 1.0.51
      */
     public void setOpenAPI3StyleDiscriminators(boolean openAPI3StyleDiscriminators) {
-        this.openAPI3StyleDiscriminators = openAPI3StyleDiscriminators;
+        this.discriminatorKeywordEnabled = openAPI3StyleDiscriminators;
     }
 
     /**
@@ -743,14 +771,14 @@ public class SchemaValidatorsConfig {
         private ExecutionContextCustomizer executionContextCustomizer = null;
         private boolean failFast = false;
         private Boolean formatAssertionsEnabled = false;
-        private boolean handleNullableField = false;
+        private boolean nullableKeywordEnabled = false;
         private List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
         private boolean javaSemantics = false;
         private Map<String, List<JsonSchemaWalkListener>> keywordWalkListeners = new HashMap<>();
         private Locale locale = null; // This must be null to use Locale.getDefault() as the default can be changed
         private boolean losslessNarrowing = false;
         private MessageSource messageSource = null;
-        private boolean openAPI3StyleDiscriminators = false;
+        private boolean discriminatorKeywordEnabled = false;
         private PathType pathType = PathType.JSON_POINTER;
         private boolean preloadJsonSchema = true;
         private int preloadJsonSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH;
@@ -847,7 +875,7 @@ public class SchemaValidatorsConfig {
          * @return the builder
          */
         public Builder nullableKeywordEnabled(boolean nullableKeywordEnabled) {
-            this.handleNullableField = nullableKeywordEnabled;
+            this.nullableKeywordEnabled = nullableKeywordEnabled;
             return this;
         }
         public Builder itemWalkListeners(List<JsonSchemaWalkListener> itemWalkListeners) {
@@ -900,7 +928,7 @@ public class SchemaValidatorsConfig {
          * @return the builder
          */
         public Builder discriminatorKeywordEnabled(boolean discriminatorKeywordEnabled) {
-            this.openAPI3StyleDiscriminators = discriminatorKeywordEnabled;
+            this.discriminatorKeywordEnabled = discriminatorKeywordEnabled;
             return this;
         }
         /**
@@ -990,14 +1018,41 @@ public class SchemaValidatorsConfig {
         }
         public SchemaValidatorsConfig build() {
             return new ImmutableSchemaValidatorsConfig(applyDefaultsStrategy, cacheRefs, errorMessageKeyword,
-                    executionContextCustomizer, failFast, formatAssertionsEnabled, handleNullableField,
+                    executionContextCustomizer, failFast, formatAssertionsEnabled, nullableKeywordEnabled,
                     itemWalkListeners, javaSemantics, keywordWalkListeners, locale, losslessNarrowing, messageSource,
-                    openAPI3StyleDiscriminators, pathType, preloadJsonSchema, preloadJsonSchemaRefMaxNestingDepth,
+                    discriminatorKeywordEnabled, pathType, preloadJsonSchema, preloadJsonSchemaRefMaxNestingDepth,
                     propertyWalkListeners, readOnly, regularExpressionFactory, schemaIdValidator, strictness, typeLoose,
                     writeOnly);
         }
         public Builder strict(String keyword, boolean strict) {
             this.strictness.put(Objects.requireNonNull(keyword, "keyword cannot be null"), strict);
+            return this;
+        }
+        public Builder keywordWalkListener(String keyword, JsonSchemaWalkListener keywordWalkListener) {
+            this.keywordWalkListeners.computeIfAbsent(keyword, key -> new ArrayList<>()).add(keywordWalkListener);
+            return this;
+        }
+        public Builder keywordWalkListener(JsonSchemaWalkListener keywordWalkListener) {
+            return keywordWalkListener(ALL_KEYWORD_WALK_LISTENER_KEY, keywordWalkListener);
+        }
+        public Builder keywordWalkListeners(Consumer<Map<String, List<JsonSchemaWalkListener>>> keywordWalkListeners) {
+            keywordWalkListeners.accept(this.keywordWalkListeners);
+            return this;
+        }
+        public Builder propertyWalkListener(JsonSchemaWalkListener propertyWalkListener) {
+            this.propertyWalkListeners.add(propertyWalkListener);
+            return this;
+        }
+        public Builder propertyWalkListeners(Consumer<List<JsonSchemaWalkListener>> propertyWalkListeners) {
+            propertyWalkListeners.accept(this.propertyWalkListeners);
+            return this;
+        }
+        public Builder itemWalkListener(JsonSchemaWalkListener itemWalkListener) {
+            this.itemWalkListeners.add(itemWalkListener);
+            return this;
+        }
+        public Builder itemWalkListeners(Consumer<List<JsonSchemaWalkListener>> itemWalkListeners) {
+            itemWalkListeners.accept(this.itemWalkListeners);
             return this;
         }
     }
