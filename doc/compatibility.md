@@ -7,7 +7,7 @@
 [![Draft 6](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-com.networknt-json-schema-validator%2Fcompliance%2Fdraft6.json)](https://bowtie.report/#/dialects/draft6)
 [![Draft 4](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fjava-com.networknt-json-schema-validator%2Fcompliance%2Fdraft4.json)](https://bowtie.report/#/dialects/draft4)
 
-The `pattern` validator by default uses the JDK regular expression implementation which is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. The library can however be configured to use a ECMA-262 compliant regular expression implementation.
+The `pattern` and `format` `regex` validator by default uses the JDK regular expression implementation which is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. The library can however be configured to use a ECMA-262 compliant regular expression implementation such as `GraalJS` or `Joni`.
 
 Annotation processing and reporting are implemented. Note that the collection of annotations will have an adverse performance impact.
 
@@ -113,13 +113,24 @@ By default the `pattern` keyword uses the JDK regular expression implementation 
 
 This is not ECMA-262 compliant and is thus not compliant with the JSON Schema specification. This is however the more likely desired behavior as other logic will most likely be using the default JDK regular expression implementation to perform downstream processing.
 
-The library can be configured to use a ECMA-262 compliant regular expression validator which is implemented using [joni](https://github.com/jruby/joni). This can be configured by setting `setEcma262Validator` to `true`.
+The library can be configured to use a ECMA-262 compliant regular expression validator which is implemented using [GraalJS](https://github.com/oracle/graaljs) or [Joni](https://github.com/jruby/joni). This can be configured by setting `setRegularExpressionFactory` to the respective `GraalJSRegularExpressionFactory` or `JoniRegularExpressionFactory` instances.
 
-This also requires adding the `joni` dependency.
+This also requires adding the `org.graalvm.js:js` or `org.jruby.joni:joni` dependency.
 
 ```xml
 <dependency>
     <!-- Used to validate ECMA 262 regular expressions -->
+    <!-- Approximately 50 MB in dependencies -->
+    <!-- GraalJSRegularExpressionFactory -->
+    <groupId>org.graalvm.js</groupId>
+    <artifactId>js</artifactId>
+    <version>${version.graaljs}</version>
+</dependency>
+
+<dependency>
+    <!-- Used to validate ECMA 262 regular expressions -->
+    <!-- Approximately 2 MB in dependencies -->
+    <!-- JoniRegularExpressionFactory -->
     <groupId>org.jruby.joni</groupId>
     <artifactId>joni</artifactId>
     <version>${version.joni}</version>

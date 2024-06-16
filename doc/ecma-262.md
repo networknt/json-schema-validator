@@ -1,28 +1,65 @@
-For the pattern validator, we now have two options for regex in the library. The default one is `java.util.regex`; however, you can use the ECMA-262 standard library `org.jruby.joni` by configuration. 
+# Regular Expressions
 
-As we know, the JSON schema is designed based on the Javascript language and its regex. The Java internal implementation has some differences which don't comply with the standard. For most users, these edge cases are not the issue as they are not using them anyway. Even when they are using it, they are expecting the Java regex result as the application is built on the Java platform. For users who want to ensure that they are using 100% standard patter validator, we have provided an option to override the default regex library with `org.jruby.joni` that is complying with the ECMA-262 standard.
+For the `pattern` and `format` `regex` validators there are 3 built in options in the library.
 
-### Which one to choose?
+A custom implementation can be made by implementing `com.networknt.schema.regex.RegularExpressionFactory` to return a custom implementation of `com.networknt.schema.regex.RegularExpression`.
 
-If you want a faster regex lib and don't care about the slight difference between Java and Javascript regex, then you don't need to do anything. The default regex lib is the `java.util.regex`.
+| Regular Expression Factory                       | Description                                        |
+|--------------------------------------------------|----------------------------------------------------|
+| `JDKRegularExpressionFactory`                    | Uses Java's standard `java.util.regex` and calls the `find()` method. Note that `matches()` is not called as that attempts to match the entire string, implicitly adding anchors. This is the default implementation and does not require any additional libraries. |
+| `JoniRegularExpressionFactory`                   | Uses `org.joni.Regex` with `Syntax.ECMAScript`. This requires adding the `org.jruby.joni:joni` dependency which will require about 2MB.                                                                                                                             |
+| `GraalJSRegularExpressionFactory`                | Uses GraalJS with `new RegExp(pattern, 'u')`. This requires adding the `org.graalvm.js:js` dependency which will require about 50MB.                                                                                                                                |
 
-If you want to ensure full compliance, use the `org.jruby.joni`. It is 1.5 times slower then `java.util.regex`. Depending on your use case, it might not be an issue. 
+## Specification
 
-### How to switch?
+The use of Regular Expressions is specified in JSON Schema at https://json-schema.org/draft/2020-12/json-schema-core#name-regular-expressions.
 
-Here is the test case that shows how to pass a config object to use the ECMA-262 library.
+```
+Keywords MAY use regular expressions to express constraints, or constrain the instance value to be a regular expression. These regular expressions SHOULD be valid according to the regular expression dialect described in ECMA-262, section 21.2.1 [ecma262].
+
+Regular expressions SHOULD be built with the "u" flag (or equivalent) to provide Unicode support, or processed in such a way which provides Unicode support as defined by ECMA-262.
+
+Furthermore, given the high disparity in regular expression constructs support, schema authors SHOULD limit themselves to the following regular expression tokens:
+
+individual Unicode characters, as defined by the JSON specification [RFC8259];
+simple character classes ([abc]), range character classes ([a-z]);
+complemented character classes ([^abc], [^a-z]);
+simple quantifiers: "+" (one or more), "*" (zero or more), "?" (zero or one), and their lazy versions ("+?", "*?", "??");
+range quantifiers: "{x}" (exactly x occurrences), "{x,y}" (at least x, at most y, occurrences), {x,} (x occurrences or more), and their lazy versions;
+the beginning-of-input ("^") and end-of-input ("$") anchors;
+simple grouping ("(...)") and alternation ("|").
+Finally, implementations MUST NOT take regular expressions to be anchored, neither at the beginning nor at the end. This means, for instance, the pattern "es" matches "expression".
+```
+
+## Considerations when selecting implementation
+
+If strict compliance with the regular expression dialect described in ECMA-262 is required. Then only the `GraalJS` implementation meets that criteria.
+
+The `Joni` implementation is configured to attempt to match the ECMA-262 regular expression dialect. However this dialect isn't directly maintained by its maintainers as it doesn't come from its upstream `Oniguruma`. The current implementation has known issues matching inputs with newlines and not respecting `^` and `$` anchors.
+
+The `JDK` implementation is the default and uses `java.util.regex` with the `find()` method.
+
+As the implementations are used when validating regular expressions, using `format` `regex`, one consideration is how the regular expression is used. For instance if the system that consumes the input is implemented in Javascript then the `GraalJS` implementation will ensure that this regular expression will work. If the system that consumes the input is implemented in Java then the `JDK` implementation may be better.
+
+## Configuration of implementation
+
+The following test case shows how to pass a config object to use the `GraalJS` factory.
 
 ```java
-@Test(expected = JsonSchemaException.class)
-public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
-    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-    config.setEcma262Validator(true);
-    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-    JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
-
-    JsonNode node = getJsonNodeFromStringContent("");
-    Set<ValidationMessage> errors = schema.validate(node);
-    Assert.assertEquals(errors.size(), 0);
+public class RegularExpressionTest {
+    @Test
+    public void testInvalidRegexValidatorECMA262() throws Exception {
+        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchema schema = factory.getSchema("{\r\n"
+                + "  \"format\": \"regex\"\r\n"
+                + "}", config);
+        Set<ValidationMessage> errors = schema.validate("\"\\\\a\"", InputFormat.JSON, executionContext -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        });
+        assertFalse(errors.isEmpty());
+    }
 }
 ```
 
