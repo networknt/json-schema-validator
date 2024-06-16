@@ -4,6 +4,32 @@ This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 
+### 1.4.1
+
+The `SchemaValidatorsConfig` constructor has been deprecated. Use the `SchemaValidators.builder` to create an instance instead.
+
+Note that there are differences in defaults from the builder vs the constructor.
+
+The following builder creates the same values as the constructor previously.
+
+```java
+SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+    .pathType(PathType.LEGACY)
+    .errorMessageKeyword("message")
+    .nullableKeywordEnabled(true)
+    .build();
+```
+
+The following configurations were renamed with the old ones deprecated
+* `handleNullableField` -> `nullableKeywordEnabled`
+* `openAPI3StyleDiscriminators` -> `discriminatorKeywordEnabled`
+* `customMessageSupported` -> `errorMessageKeyword`
+
+The following defaults were changed in the builder vs the constructor
+* `pathType` from `PathType.LEGACY` to `PathType.JSON_POINTER`
+* `handleNullableField` from `true` to `false`
+* `customMessageSupported` from `true` to `false`
+
 ### 1.4.0
 
 This contains breaking changes 

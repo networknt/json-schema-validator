@@ -183,6 +183,13 @@ public class SchemaValidatorsConfig {
      * This is deprecated in favor of using the builder
      * {@link SchemaValidatorsConfig#builder()} to create an instance. Migration
      * note: The builder has different defaults from the constructor.
+     * <pre>
+     * SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+     *     .pathType(PathType.LEGACY)
+     *     .errorMessageKeyword("message")
+     *     .nullableKeywordEnabled(true)
+     *     .build();
+     * </pre>
      * <p><ul>
      * <li> customMessageSupported (errorMessageKeyword): change from message to null
      * <li> pathType: changed from PathType.LEGACY to PathType.JSON_POINTER.

@@ -13,8 +13,7 @@ Most of the configuration flags are used to control the difference between Swagg
 When you create a `JsonSchema` instance from the `JsonSchemaFactory`, you can pass an object of SchemaValidatorsConfig as the second parameter. 
 
 ```java
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-config.setTypeLoose(false);
+SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(false).build();
 JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config);
 ```
 
