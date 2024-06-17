@@ -263,13 +263,12 @@ JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.
     builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
 );
 
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-// By default JSON Path is used for reporting the instance location and evaluation path
-config.setPathType(PathType.JSON_POINTER);
+SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder.build();
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-// Note that setting this requires including optional depedencies
+// Note that setting this requires including optional dependencies
 // config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
 // config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
+SchemaValidatorsConfig config = builder.build();
 
 // Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json.
 // If the schema data does not specify an $id the absolute IRI of the schema location will be used as the $id.
@@ -299,13 +298,12 @@ Note that the meta-schemas for Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draf
 ```java
 JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
 
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-// By default JSON Path is used for reporting the instance location and evaluation path
-config.setPathType(PathType.JSON_POINTER);
+SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder.build();
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
-// Note that setting this requires including optional depedencies
+// Note that setting this requires including optional dependencies
 // config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
 // config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
+SchemaValidatorsConfig config = builder.build();
 
 // Due to the mapping the meta-schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
 JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
@@ -384,7 +382,7 @@ String inputData = "{\r\n"
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
         builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
 SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-config.setPathType(PathType.JSON_POINTER);
+SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
 JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
 Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
     executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
@@ -433,9 +431,7 @@ The following example shows how to generate the hierarchical output format with 
 
 ```java
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-config.setPathType(PathType.JSON_POINTER);
-config.setFormatAssertionsEnabled(true);
+SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().formatAssertionsEnabled(true).build();
 JsonSchema schema = factory.getSchema(SchemaLocation.of("https://json-schema.org/schemas/example"), config);
         
 OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
