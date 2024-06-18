@@ -77,7 +77,7 @@ public class AllOfValidator extends BaseJsonValidator {
                 childSchemaErrors.union(localErrors);
             }
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
                 while (arrayElements.hasNext()) {
                     final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();

@@ -28,7 +28,7 @@ class ReadOnlyValidatorTest {
 		ObjectNode node = getJsonNode();
 		Set<ValidationMessage> errors = loadJsonSchema(true).validate(node);
 		assertFalse(errors.isEmpty());
-		assertEquals("$.firstName: is a readonly field, it cannot be changed",
+		assertEquals("/firstName: is a readonly field, it cannot be changed",
 				errors.stream().map(e -> e.getMessage()).collect(Collectors.toList()).get(0));
 	}
 
@@ -47,8 +47,7 @@ class ReadOnlyValidatorTest {
 	}
 
 	private SchemaValidatorsConfig createSchemaConfig(Boolean write) {
-		SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-		config.setReadOnly(write);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(write).build();
 		return config;
 	}
 

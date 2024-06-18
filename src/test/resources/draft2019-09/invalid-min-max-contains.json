@@ -11,7 +11,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":\"1\"}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":\"1\"}"
                 ]
             }
         ]
@@ -28,7 +28,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":0.5}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":0.5}"
                 ]
             }
         ]
@@ -45,7 +45,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":-1}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"minContains\":-1}"
                 ]
             }
         ]
@@ -62,7 +62,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":\"1\"}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":\"1\"}"
                 ]
             }
         ]
@@ -79,7 +79,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0.5}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0.5}"
                 ]
             }
         ]
@@ -96,7 +96,7 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":-1}"
+                    ": must be a non-negative integer in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":-1}"
                 ]
             }
         ]
@@ -114,8 +114,8 @@
                 "data": [],
                 "valid": false,
                 "validationMessages": [
-                    "$: minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0,\"minContains\":1}",
-                    "$: minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0,\"minContains\":1}"
+                    ": minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0,\"minContains\":1}",
+                    ": minContains must less than or equal to maxContains in {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"maxContains\":0,\"minContains\":1}"
                 ]
             }
         ]

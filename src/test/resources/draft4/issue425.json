@@ -1,6 +1,6 @@
 [
   {
-    "description": "Nuallable oneOf validation",
+    "description": "Nullable oneOf validation",
     "schema": {
       "properties": {
         "values": {
@@ -35,9 +35,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.values: must be valid to one and only one schema, but 0 are valid",
-          "$.values: integer found, array expected",
-          "$.values: integer found, string expected"
+          "/values: must be valid to one and only one schema, but 0 are valid",
+          "/values: integer found, array expected",
+          "/values: integer found, string expected"
         ]
       },
       {

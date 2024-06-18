@@ -29,8 +29,7 @@ class OutputFormatTest {
     @DisplayName("Test Validation Messages")
     void testInvalidJson() throws Exception {
         InputStream schemaInputStream = OutputFormatTest.class.getResourceAsStream(schemaPath1);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
         Set<ValidationMessage> errors = schema.validate(node);

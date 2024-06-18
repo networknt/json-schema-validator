@@ -28,9 +28,7 @@ public class Issue792 {
                 "   }\n" +
                 "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setTypeLoose(false);
-        config.setFailFast(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(false).failFast(true).build();
 
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaDef, config);
         JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\"}");

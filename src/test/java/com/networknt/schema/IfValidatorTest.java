@@ -49,25 +49,24 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                return WalkFlow.CONTINUE;
-            }
-
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
-                        .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
-                types.add(walkEvent);
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                        types.add(walkEvent);
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, true);
         assertFalse(result.getValidationMessages().isEmpty());
@@ -93,25 +92,24 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                return WalkFlow.CONTINUE;
-            }
-
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
-                        .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
-                types.add(walkEvent);
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                        types.add(walkEvent);
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"hello\"", InputFormat.JSON, true);
         assertFalse(result.getValidationMessages().isEmpty());
@@ -137,25 +135,24 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                return WalkFlow.CONTINUE;
-            }
-
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
-                        .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
-                types.add(walkEvent);
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                        types.add(walkEvent);
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getValidationMessages().isEmpty());
@@ -179,25 +176,24 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                return WalkFlow.CONTINUE;
-            }
-
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
-                        .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
-                types.add(walkEvent);
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                        types.add(walkEvent);
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, false);
         assertTrue(result.getValidationMessages().isEmpty());

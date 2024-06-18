@@ -200,27 +200,27 @@ public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         // if test file do not contains typeLoose flag, use default value: false.
         @SuppressWarnings("deprecation") boolean typeLoose = testSpec.isTypeLoose();
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setTypeLoose(typeLoose);
-        config.setRegularExpressionFactory(
+        SchemaValidatorsConfig.Builder configBuilder = SchemaValidatorsConfig.builder();
+        configBuilder.typeLoose(typeLoose);
+        configBuilder.regularExpressionFactory(
                 TestSpec.RegexKind.JDK == testSpec.getRegex() ? JDKRegularExpressionFactory.getInstance()
                         : JoniRegularExpressionFactory.getInstance());
-        testSpec.getStrictness().forEach(config::setStrict);
+        testSpec.getStrictness().forEach(configBuilder::strict);
 
         if (testSpec.getConfig() != null) {
             if (testSpec.getConfig().containsKey("isCustomMessageSupported")) {
-                config.setCustomMessageSupported((Boolean) testSpec.getConfig().get("isCustomMessageSupported"));
+                configBuilder.errorMessageKeyword(
+                        (Boolean) testSpec.getConfig().get("isCustomMessageSupported") ? "message" : null);
             }
             if (testSpec.getConfig().containsKey("readOnly")) {
-                config.setReadOnly((Boolean) testSpec.getConfig().get("readOnly"));
+                configBuilder.readOnly((Boolean) testSpec.getConfig().get("readOnly"));
             }
             if (testSpec.getConfig().containsKey("writeOnly")) {
-                config.setWriteOnly((Boolean) testSpec.getConfig().get("writeOnly"));
+                configBuilder.writeOnly((Boolean) testSpec.getConfig().get("writeOnly"));
             }
         }
-
         SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
-        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), config);
+        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), configBuilder.build());
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }

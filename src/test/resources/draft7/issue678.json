@@ -49,10 +49,10 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.outerObject.innerObject: object found, string expected",
-          "$.outerObject.innerObject: required property 'value' not found",
-          "$.outerObject.innerObject: required property 'unit' not found", 
-          "$.outerObject.innerObject: must be valid to one and only one schema, but 0 are valid"
+          "/outerObject/innerObject: object found, string expected",
+          "/outerObject/innerObject: required property 'value' not found",
+          "/outerObject/innerObject: required property 'unit' not found", 
+          "/outerObject/innerObject: must be valid to one and only one schema, but 0 are valid"
         ]
       }
     ]

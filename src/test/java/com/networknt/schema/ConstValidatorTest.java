@@ -36,12 +36,13 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": \"aa\"\r\n"
                 + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setMessageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"));
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .messageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"))
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "\"bb\"";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
-        assertEquals("$: must be the constant value 'aa' but is 'bb'", messages.iterator().next().getMessage());
+        assertEquals(": must be the constant value 'aa' but is 'bb'", messages.iterator().next().getMessage());
     }
 
     @Test
@@ -49,12 +50,13 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1\r\n"
                 + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setMessageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"));
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .messageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"))
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "2";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
-        assertEquals("$: must be the constant value '1' but is '2'", messages.iterator().next().getMessage());
+        assertEquals(": must be the constant value '1' but is '2'", messages.iterator().next().getMessage());
     }
 
     @Test
@@ -62,7 +64,7 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": \"aa\"\r\n"
                 + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "\"aa\"";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
@@ -74,7 +76,7 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1234.56789\r\n"
                 + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "1234.56789";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
@@ -86,7 +88,7 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1234.56789\r\n"
                 + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "\"1234.56789\"";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);

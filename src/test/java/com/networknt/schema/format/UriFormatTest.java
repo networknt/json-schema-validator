@@ -15,7 +15,8 @@
  */
 package com.networknt.schema.format;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
@@ -35,8 +36,7 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
         
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFormatAssertionsEnabled(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         Set<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
                 InputFormat.JSON);
@@ -48,9 +48,8 @@ class UriFormatTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
-        
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFormatAssertionsEnabled(true);
+
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         Set<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
                 InputFormat.JSON);
@@ -63,8 +62,7 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFormatAssertionsEnabled(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         Set<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
                 InputFormat.JSON);
@@ -76,9 +74,8 @@ class UriFormatTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
-        
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFormatAssertionsEnabled(true);
+
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         Set<ValidationMessage> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
                 InputFormat.JSON);

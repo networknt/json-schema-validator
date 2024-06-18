@@ -85,8 +85,7 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
         final ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode schema = getJsonNodeFromResource(objectMapper, schemaFileName);
         final JsonNode dataFile = getJsonNodeFromResource(objectMapper, dataFileName);
-        final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFailFast(true);
+        final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
         return JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
             .build()

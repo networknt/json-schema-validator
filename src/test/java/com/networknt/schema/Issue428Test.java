@@ -26,7 +26,6 @@ public class Issue428Test extends HTTPServiceSupport {
         for (int j = 0; j < testCases.size(); j++) {
             try {
                 JsonNode testCase = testCases.get(j);
-                SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 
                 ArrayNode testNodes = (ArrayNode) testCase.get("tests");
                 for (int i = 0; i < testNodes.size(); i++) {
@@ -36,9 +35,10 @@ public class Issue428Test extends HTTPServiceSupport {
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
                     // if test file do not contains typeLoose flag, use default value: true.
-                    config.setTypeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
-                    config.setOpenAPI3StyleDiscriminators(false);
-                    JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), config);
+                    SchemaValidatorsConfig.Builder configBuilder = SchemaValidatorsConfig.builder();
+                    configBuilder.typeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
+                    configBuilder.discriminatorKeywordEnabled(false);
+                    JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
 
                     List<ValidationMessage> errors = new ArrayList<ValidationMessage>(schema.validate(node));
 

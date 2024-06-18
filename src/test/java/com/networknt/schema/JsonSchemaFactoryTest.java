@@ -56,7 +56,7 @@ class JsonSchemaFactoryTest {
         for (int i = 0; i < 50; ++i) {
             Runnable runner = new Runnable() {
                 public void run() {
-                    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+                    SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
                     try {
                         latch.await();
                     } catch (InterruptedException e) {

@@ -58,7 +58,7 @@ class SchemaValidatorsConfigTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         assertEquals(PathType.JSON_POINTER, config.getPathType());
     }
-    
+
     @Test
     void constructorCustomMessageSupported() {
         SchemaValidatorsConfig config = new SchemaValidatorsConfig();

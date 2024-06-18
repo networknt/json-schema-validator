@@ -17,8 +17,7 @@ public class RefTest {
     @Test
     void shouldLoadRelativeClasspathReference() throws JsonMappingException, JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
@@ -41,8 +40,7 @@ public class RefTest {
     @Test
     void shouldLoadSchemaResource() throws JsonMappingException, JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"

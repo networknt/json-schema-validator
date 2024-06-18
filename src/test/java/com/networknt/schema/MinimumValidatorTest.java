@@ -16,20 +16,21 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static com.networknt.schema.MaximumValidatorTest.augmentWithQuotes;
+import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Set;
 
-import static com.networknt.schema.MaximumValidatorTest.augmentWithQuotes;
-import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MinimumValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
@@ -171,8 +172,7 @@ public class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, minimum);
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setTypeLoose(true);
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
             // Schema and document parsed with just double
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
@@ -287,8 +287,7 @@ public class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(integer, minimum);
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setTypeLoose(true);
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = bigIntegerMapper.readTree(value);

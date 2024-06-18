@@ -47,6 +47,7 @@ public class ValidationContext {
         }
         this.metaSchema = metaSchema;
         this.jsonSchemaFactory = jsonSchemaFactory;
+        // The deprecated SchemaValidatorsConfig constructor needs to remain until removed
         this.config = config == null ? new SchemaValidatorsConfig() : config;
         this.schemaReferences = schemaReferences;
         this.schemaResources = schemaResources;

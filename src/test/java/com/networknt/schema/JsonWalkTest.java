@@ -36,21 +36,21 @@ public class JsonWalkTest {
     private void setupSchema() {
         final JsonMetaSchema metaSchema = getJsonMetaSchema();
         // Create Schema.
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
-        schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
-        schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+        SchemaValidatorsConfig.Builder schemaValidatorsConfigBuilder = SchemaValidatorsConfig.builder();
+        schemaValidatorsConfigBuilder.keywordWalkListener(new AllKeywordListener());
+        schemaValidatorsConfigBuilder.keywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+        schemaValidatorsConfigBuilder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
-        this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
+        this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfigBuilder.build());
         // Create another Schema.
-        SchemaValidatorsConfig schemaValidatorsConfig1 = new SchemaValidatorsConfig();
-        schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
-        schemaValidatorsConfig1.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+        SchemaValidatorsConfig.Builder schemaValidatorsConfig1Builder = SchemaValidatorsConfig.builder();
+        schemaValidatorsConfig1Builder.keywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+        schemaValidatorsConfig1Builder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
-        this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1);
+        this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1Builder.build());
     }
 
     private JsonMetaSchema getJsonMetaSchema() {

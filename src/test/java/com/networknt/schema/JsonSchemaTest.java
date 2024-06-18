@@ -58,8 +58,7 @@ class JsonSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPreloadJsonSchema(false);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().preloadJsonSchema(false).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Exception[] instance = new Exception[1];
         CountDownLatch latch = new CountDownLatch(1);

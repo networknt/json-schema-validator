@@ -13,8 +13,7 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testMessagesWithSingleQuotes() throws Exception {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.FRENCH);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.FRENCH).build();
 
         JsonSchema schema = getJsonSchemaFromClasspath("schema/issue898.json", SpecVersion.VersionFlag.V202012, config);
         JsonNode node = getJsonNodeFromClasspath("data/issue898.json");
@@ -24,8 +23,8 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
                 .collect(toList());
 
         Assertions.assertEquals(2, messages.size());
-        Assertions.assertEquals("$.foo: n'a pas de valeur dans l'énumération [foo1, foo2]", messages.get(0));
-        Assertions.assertEquals("$.bar: ne correspond pas au modèle d'expression régulière (bar)+", messages.get(1));
+        Assertions.assertEquals("/foo: n'a pas de valeur dans l'énumération [foo1, foo2]", messages.get(0));
+        Assertions.assertEquals("/bar: ne correspond pas au modèle d'expression régulière (bar)+", messages.get(1));
     }
 
 }

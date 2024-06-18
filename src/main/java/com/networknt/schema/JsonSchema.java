@@ -595,7 +595,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
                 executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
@@ -619,7 +619,7 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
                 final DiscriminatorContext discriminatorContext = executionContext

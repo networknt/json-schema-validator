@@ -806,7 +806,8 @@ public class SchemaValidatorsConfig {
          * @return the builder
          */
         public Builder applyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
-            this.applyDefaultsStrategy = applyDefaultsStrategy;
+            this.applyDefaultsStrategy = applyDefaultsStrategy != null ? applyDefaultsStrategy
+                    : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY;
             return this;
         }
         /**
@@ -1128,11 +1129,6 @@ public class SchemaValidatorsConfig {
         }
 
         @Override
-        public boolean isWriteOnly() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void setApplyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
             throw new UnsupportedOperationException();
         }
@@ -1243,17 +1239,7 @@ public class SchemaValidatorsConfig {
         }
 
         @Override
-        public boolean isWriteMode() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void setLoadCollectors(boolean loadCollectors) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean doLoadCollectors() {
             throw new UnsupportedOperationException();
         }
 
@@ -1284,26 +1270,6 @@ public class SchemaValidatorsConfig {
 
         @Override
         public SchemaValidatorsConfig enableUnevaluatedProperties() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isUnevaluatedItemsAnalysisDisabled() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isUnevaluatedItemsAnalysisEnabled() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isUnevaluatedPropertiesAnalysisDisabled() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isUnevaluatedPropertiesAnalysisEnabled() {
             throw new UnsupportedOperationException();
         }
     }

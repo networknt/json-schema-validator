@@ -654,6 +654,7 @@ public class JsonSchemaFactory {
      * @return the schema validators config
      */
     protected SchemaValidatorsConfig createSchemaValidatorsConfig() {
+        // Remain as constructor until constructor is removed
         return new SchemaValidatorsConfig();
     }
 

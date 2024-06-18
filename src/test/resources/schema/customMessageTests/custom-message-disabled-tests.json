@@ -57,7 +57,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.bar: integer found, string expected"
+          "/bar: integer found, string expected"
         ]
       },
       {
@@ -71,7 +71,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo[2]: string found, number expected"
+          "/foo/2: string found, number expected"
         ]
       },
       {
@@ -85,7 +85,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo: must have at most 3 items but found 4"
+          "/foo: must have at most 3 items but found 4"
         ]
       },
       {
@@ -99,8 +99,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo[2]: string found, number expected",
-          "$.bar: integer found, string expected"
+          "/foo/2: string found, number expected",
+          "/bar: integer found, string expected"
         ]
       },
       {
@@ -114,9 +114,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.foo: must have at most 3 items but found 4",
-          "$.foo[2]: string found, number expected",
-          "$.bar: integer found, string expected"
+          "/foo: must have at most 3 items but found 4",
+          "/foo/2: string found, number expected",
+          "/bar: integer found, string expected"
         ]
       }
     ]

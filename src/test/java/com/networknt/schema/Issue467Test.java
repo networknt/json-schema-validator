@@ -44,22 +44,23 @@ public class Issue467Test {
     public void shouldWalkKeywordWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<JsonNodePath> properties = new LinkedHashSet<>();
-        final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                properties.add(walkEvent.getSchema().getEvaluationPath().append(walkEvent.getKeyword()));
-                return WalkFlow.CONTINUE;
-            }
+        final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        properties.add(walkEvent.getSchema().getEvaluationPath().append(walkEvent.getKeyword()));
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
-        assertEquals(new HashSet<>(Arrays.asList("$.properties", "$.properties.tags.items[0].properties")),
+        assertEquals(new HashSet<>(Arrays.asList("/properties", "/properties/tags/items/0/properties")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getValidationMessages().size());
     }
@@ -68,23 +69,24 @@ public class Issue467Test {
     public void shouldWalkPropertiesWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<JsonNodePath> properties = new LinkedHashSet<>();
-        final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                properties.add(walkEvent.getSchema().getEvaluationPath());
-                return WalkFlow.CONTINUE;
-            }
+        final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        properties.add(walkEvent.getSchema().getEvaluationPath());
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
         assertEquals(
-                new HashSet<>(Arrays.asList("$.properties.tags", "$.properties.tags.items[0].properties.category", "$.properties.tags.items[0].properties.value")),
+                new HashSet<>(Arrays.asList("/properties/tags", "/properties/tags/items/0/properties/category", "/properties/tags/items/0/properties/value")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getValidationMessages().size());
     }

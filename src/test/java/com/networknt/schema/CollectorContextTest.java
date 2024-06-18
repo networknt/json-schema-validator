@@ -154,7 +154,7 @@ public class CollectorContextTest {
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
-        SchemaValidatorsConfig schemaValidatorsConfig  = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig schemaValidatorsConfig  = SchemaValidatorsConfig.builder().build();
         this.jsonSchema = schemaFactory.getSchema(getSchemaString(), schemaValidatorsConfig);
         this.jsonSchemaForCombine = schemaFactory.getSchema(getSchemaStringMultipleProperties(), schemaValidatorsConfig);
     }
