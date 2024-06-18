@@ -612,9 +612,15 @@ public class SchemaValidatorsConfig {
 
     /**
      * Sets the format assertion enabled flag.
+     * <p>
+     * This is deprecated. Either set this using the builder
+     * SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build() or
+     * this should be set via
+     * executionContext.getExecutionConfig().setFormatAssertionsEnabled(true).
      * 
      * @param formatAssertionsEnabled the format assertions enabled flag
      */
+    @Deprecated
     public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
         this.formatAssertionsEnabled = formatAssertionsEnabled;
     }
@@ -633,9 +639,14 @@ public class SchemaValidatorsConfig {
      * Note that this locale is set on a schema basis. To configure the schema on a
      * per execution basis use
      * {@link com.networknt.schema.ExecutionConfig#setLocale(Locale)}.
+     * <p>
+     * This is deprecated. Either set this using the builder
+     * SchemaValidatorsConfig.builder().locale(locale).build() or this should be set
+     * via executionContext.getExecutionConfig().setLocale(locale).
      *
      * @param locale The locale.
      */
+    @Deprecated
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
