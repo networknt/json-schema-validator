@@ -768,6 +768,35 @@ public class SchemaValidatorsConfig {
         return new Builder();
     }
 
+    public static Builder builder(SchemaValidatorsConfig config) {
+        Builder builder = new Builder();
+        builder.applyDefaultsStrategy = config.applyDefaultsStrategy;
+        builder.cacheRefs = config.cacheRefs;
+        builder.errorMessageKeyword = config.errorMessageKeyword;
+        builder.executionContextCustomizer = config.executionContextCustomizer;
+        builder.failFast = config.failFast;
+        builder.formatAssertionsEnabled = config.formatAssertionsEnabled;
+        builder.nullableKeywordEnabled = config.nullableKeywordEnabled;
+        builder.itemWalkListeners = config.itemWalkListeners;
+        builder.javaSemantics = config.javaSemantics;
+        builder.keywordWalkListeners = config.keywordWalkListenersMap;
+        builder.locale = config.locale;
+        builder.losslessNarrowing = config.losslessNarrowing;
+        builder.messageSource = config.messageSource;
+        builder.discriminatorKeywordEnabled = config.discriminatorKeywordEnabled;
+        builder.pathType = config.pathType;
+        builder.preloadJsonSchema = config.preloadJsonSchema;
+        builder.preloadJsonSchemaRefMaxNestingDepth = config.preloadJsonSchemaRefMaxNestingDepth;
+        builder.propertyWalkListeners = config.propertyWalkListeners;
+        builder.readOnly = config.readOnly;
+        builder.regularExpressionFactory = config.regularExpressionFactory;
+        builder.schemaIdValidator = config.schemaIdValidator;
+        builder.strictness = config.strictness;
+        builder.typeLoose = config.typeLoose;
+        builder.writeOnly = config.writeOnly;
+        return builder;
+    }
+
     /**
      * Builder for {@link SchemaValidatorsConfig}.
      */

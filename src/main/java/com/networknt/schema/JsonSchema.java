@@ -244,6 +244,13 @@ public class JsonSchema extends BaseJsonValidator {
     }
 
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
+        if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
+                && !config.isDiscriminatorKeywordEnabled()) {
+            config = SchemaValidatorsConfig.builder(config)
+                    .discriminatorKeywordEnabled(true)
+                    .nullableKeywordEnabled(true)
+                    .build();
+        }
         if (!this.getValidationContext().getConfig().equals(config)) {
             ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
                     this.getValidationContext().getJsonSchemaFactory(), config,
