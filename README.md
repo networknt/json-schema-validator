@@ -60,34 +60,26 @@ In this case this workload is using the Draft 4 specification and largely tests 
 
 If performance is an important consideration, the specific sample workloads should be benchmarked, as there are different performance characteristics when certain keywords are used. For instance the use of the `unevaluatedProperties` or `unevaluatedItems` keyword will trigger annotation collection in the related validators, such as the `properties` or `items` validators, and annotation collection will adversely affect performance.
 
-##### NetworkNT 1.3.1
+##### NetworkNT 1.4.1
 
 ```
-Benchmark                                                          Mode  Cnt       Score      Error   Units
-NetworkntBenchmark.testValidate                                   thrpt   10    6776.693 ±  115.309   ops/s
-NetworkntBenchmark.testValidate:·gc.alloc.rate                    thrpt   10     971.191 ±   16.420  MB/sec
-NetworkntBenchmark.testValidate:·gc.alloc.rate.norm               thrpt   10  165318.816 ±    0.459    B/op
-NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space           thrpt   10     968.894 ±   51.234  MB/sec
-NetworkntBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm      thrpt   10  164933.962 ± 8636.203    B/op
-NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space       thrpt   10       0.002 ±    0.001  MB/sec
-NetworkntBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm  thrpt   10       0.274 ±    0.218    B/op
-NetworkntBenchmark.testValidate:·gc.count                         thrpt   10      89.000             counts
-NetworkntBenchmark.testValidate:·gc.time                          thrpt   10      99.000                 ms
+Benchmark                                            Mode  Cnt      Score    Error   Units
+NetworkntBenchmark.testValidate                     thrpt   10   8352.126 ± 61.870   ops/s
+NetworkntBenchmark.testValidate:gc.alloc.rate       thrpt   10    721.296 ±  5.342  MB/sec
+NetworkntBenchmark.testValidate:gc.alloc.rate.norm  thrpt   10  90560.013 ±  0.001    B/op
+NetworkntBenchmark.testValidate:gc.count            thrpt   10     61.000           counts
+NetworkntBenchmark.testValidate:gc.time             thrpt   10     68.000               ms
 ```
 
 ###### Everit 1.14.1
 
 ```
-Benchmark                                                          Mode  Cnt       Score       Error   Units
-EveritBenchmark.testValidate                                      thrpt   10    3719.192 ±   125.592   ops/s
-EveritBenchmark.testValidate:·gc.alloc.rate                       thrpt   10    1448.208 ±    74.746  MB/sec
-EveritBenchmark.testValidate:·gc.alloc.rate.norm                  thrpt   10  449621.927 ±  7400.825    B/op
-EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space              thrpt   10    1446.397 ±    79.919  MB/sec
-EveritBenchmark.testValidate:·gc.churn.G1_Eden_Space.norm         thrpt   10  449159.799 ± 18614.931    B/op
-EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space          thrpt   10       0.001 ±     0.001  MB/sec
-EveritBenchmark.testValidate:·gc.churn.G1_Survivor_Space.norm     thrpt   10       0.364 ±     0.391    B/op
-EveritBenchmark.testValidate:·gc.count                            thrpt   10     133.000              counts
-EveritBenchmark.testValidate:·gc.time                             thrpt   10     148.000                  ms
+Benchmark                                            Mode  Cnt       Score    Error   Units
+EveritBenchmark.testValidate                        thrpt   10    3775.453 ± 44.023   ops/s
+EveritBenchmark.testValidate:gc.alloc.rate          thrpt   10    1667.345 ± 19.437  MB/sec
+EveritBenchmark.testValidate:gc.alloc.rate.norm     thrpt   10  463104.030 ±  0.003    B/op
+EveritBenchmark.testValidate:gc.count               thrpt   10     140.000           counts
+EveritBenchmark.testValidate:gc.time                thrpt   10     158.000               ms
 ```
 
 #### Functionality
@@ -230,7 +222,7 @@ This package is available on Maven central.
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
@@ -238,7 +230,7 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.4.0');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.4.1');
 }
 ```
 
