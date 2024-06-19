@@ -24,8 +24,8 @@ The custom message can be provided outside properties for each type, as shown in
     }
   },
   "errorMessage": {
-    "maxItems" : "MaxItem must be 3 only",
-    "type" : "Invalid type"
+    "maxItems": "MaxItem must be 3 only",
+    "type": "Invalid type"
   }
 }
 ```
@@ -68,10 +68,10 @@ For the keywords `required` and `dependencies`, different messages can be specif
   },
   "required": ["foo", "bar"],
   "errorMessage": {
-    "type" : "should be an object",
+    "type": "should be an object",
     "required": {
-      "foo" : "'foo' is required",
-      "bar" : "'bar' is required"
+      "foo": "'foo' is required",
+      "bar": "'bar' is required"
     }
   }
 }
@@ -92,10 +92,10 @@ The message can use arguments but note that single quotes need to be escaped as 
   },
   "required": ["foo", "bar"],
   "errorMessage": {
-    "type" : "should be an object",
+    "type": "should be an object",
     "required": {
-      "foo" : "{0}: ''foo'' is required",
-      "bar" : "{0}: ''bar'' is required"
+      "foo": "{0}: ''foo'' is required",
+      "bar": "{0}: ''bar'' is required"
     }
   }
 }
@@ -104,8 +104,8 @@ The message can use arguments but note that single quotes need to be escaped as 
 ## Format
 ```json
 "errorMessage": {
-    [keyword] : [customMessage]
-  }
+  "[keyword]": "[customMessage]"
+}
 ```
 Users can provide custom messages in the configured keyword, typically `errorMessage` or `message` field. 
 The `keyword` should be the key and the `customMessage` should be the value.

@@ -255,11 +255,11 @@ JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.
     builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
 );
 
-SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder.build();
+SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder();
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
 // Note that setting this requires including optional dependencies
-// config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
-// config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
+// builder.regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+// builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());
 SchemaValidatorsConfig config = builder.build();
 
 // Due to the mapping the schema will be retrieved from the classpath at classpath:schema/example-main.json.
@@ -290,11 +290,11 @@ Note that the meta-schemas for Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draf
 ```java
 JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
 
-SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder.build();
+SchemaValidatorsConfig.Builder builder = SchemaValidatorsConfig.builder();
 // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
 // Note that setting this requires including optional dependencies
-// config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
-// config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
+// builder.regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+// builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());
 SchemaValidatorsConfig config = builder.build();
 
 // Due to the mapping the meta-schema will be retrieved from the classpath at classpath:draft/2020-12/schema.
@@ -310,7 +310,7 @@ String input = "{\r\n"
     + "}";
 Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, executionContext -> {
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
-    executionContext.getConfig().setFormatAssertionsEnabled(true);
+    executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
 });
 ```        
 ### Results and output formats
@@ -344,6 +344,7 @@ Assertions contains the following additional information
 | Property          | The property name that caused the validation error for example for the `required` keyword. Note that this is not part of the instance location as that points to the instance node.
 | Schema Node       | The `JsonNode` pointed to by the Schema Location. This is the schema data that caused the input data to fail. It is possible to get the location information by configuring the `JsonSchemaFactory` with a `JsonNodeReader` that uses the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(schemaNode)`.
 | Instance Node     | The `JsonNode` pointed to by the Instance Location. This is the input data that failed validation. It is possible to get the location information by configuring the `JsonSchemaFactory` with a `JsonNodeReader` that uses the `LocationJsonNodeFactoryFactory` and using `JsonNodes.tokenLocationOf(instanceNode)`.
+| Error             | The error.
 | Details           | Additional details that can be set by custom keyword validator implementations. This is not used by the library.
 
 Annotations contains the following additional information
@@ -542,7 +543,7 @@ When the library creates a schema from the schema factory, it creates a distinct
 
 When the schema is created, the library will by default automatically preload all the validators needed and resolve references. This can be disabled with the `preloadJsonSchema` option in the `SchemaValidatorsConfig`. At this point, no exceptions will be thrown if a reference cannot be resolved. If there are references that are cyclic, only the first cycle will be preloaded. If you wish to ensure that remote references can all be resolved, the `initializeValidators` method needs to be called on the `JsonSchema` which will throw an exception if there are references that cannot be resolved.
 
-Instances for `JsonSchemaFactory` and the `JsonSchema` created from it are designed to be thread-safe provided its configuration is not modified and should be cached and reused. Not reusing the `JsonSchema` means that the schema data needs to be repeated parsed with validator instances created and references resolved. When references are resolved, the validators created will be cached. For schemas that have deeply nested references, the memory needed for the validators may be very high, in which case the caching may need to be disabled using the `cacheRefs` option in the `JsonSchemaValidatorsConfig`. Disabling this will mean the validators from the references need to be re-created for each validation run which will impact performance.
+Instances for `JsonSchemaFactory` and the `JsonSchema` created from it are designed to be thread-safe provided its configuration is not modified and should be cached and reused. Not reusing the `JsonSchema` means that the schema data needs to be repeated parsed with validator instances created and references resolved. When references are resolved, the validators created will be cached. For schemas that have deeply nested references, the memory needed for the validators may be very high, in which case the caching may need to be disabled using the `cacheRefs` option in the `SchemaValidatorsConfig`. Disabling this will mean the validators from the references need to be re-created for each validation run which will impact performance.
 
 Collecting annotations will adversely affect validation performance.
 
