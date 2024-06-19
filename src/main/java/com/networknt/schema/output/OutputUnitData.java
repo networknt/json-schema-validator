@@ -57,7 +57,7 @@ public class OutputUnitData {
     }
 
     public static String formatMessage(String message) {
-        int index = message.indexOf(":");
+        int index = message.indexOf(':');
         if (index != -1) {
             int length = message.length();
             while (index + 1 < length) {
