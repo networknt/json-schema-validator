@@ -271,9 +271,8 @@ either [JSONPath](https://datatracker.ietf.org/doc/draft-ietf-jsonpath-base/) or
 we will set the path expressions to be JSONPointers. This is achieved by configuring the reported path type through the `SchemaValidatorsConfig` before we read our schema:
 
 ```java
-    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-    config.setPathType(PathType.JSON_POINTER);
-    JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config);
+    SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+    JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
 ```
 
 Having set paths to be JSONPointer expressions we can use those pointers for locating the appropriate `JsonNode` instances. The following couple of methods illustrate this process:

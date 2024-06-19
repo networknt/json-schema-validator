@@ -136,15 +136,15 @@ If the onWalkStart method returns WalkFlow.SKIP, the actual walk method executio
 Walk listeners can be added by using the SchemaValidatorsConfig class.
 
 ```java
-SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-    schemaValidatorsConfig.addKeywordWalkListener(new AllKeywordListener());
-    schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
-    schemaValidatorsConfig.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+SchemaValidatorsConfig.Builder schemaValidatorsConfig = SchemaValidatorsConfig.builder();
+    schemaValidatorsConfig.keywordWalkListener(new AllKeywordListener());
+    schemaValidatorsConfig.keywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
+    schemaValidatorsConfig.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
             new PropertiesKeywordListener());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
         .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
         .build();
-this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
+this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig.build());
                 
 ```
 
@@ -153,12 +153,12 @@ There are two kinds of walk listeners, keyword walk listeners and property walk 
 Both property walk listeners and keyword walk listener can be modeled by using the same WalkListener interface. Following is an example of how to add a property walk listener.
 
 ```java
-SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-schemaValidatorsConfig.addPropertyWalkListener(new ExamplePropertyWalkListener());
+SchemaValidatorsConfig.Builder schemaValidatorsConfig = SchemaValidatorsConfig.builder();
+schemaValidatorsConfig.propertyWalkListener(new ExamplePropertyWalkListener());
 final JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
                 .build();
-this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig);
+this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig.build());
                 
 ```
 
@@ -278,9 +278,9 @@ But if we apply defaults while walking, then required validation passes, and the
 
 ```java
         JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
-        JsonSchema jsonSchema =  schemaFactory.getSchema(SchemaLocation.of("classpath:schema.json"), schemaValidatorsConfig);
+        SchemaValidatorsConfig.Builder schemaValidatorsConfig = SchemaValidatorsConfig.builder();
+        schemaValidatorsConfig.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
+        JsonSchema jsonSchema =  schemaFactory.getSchema(SchemaLocation.of("classpath:schema.json"), schemaValidatorsConfig.build());
 
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data.json"));
         ValidationResult result = jsonSchema.walk(inputNode, true);

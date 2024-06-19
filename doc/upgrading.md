@@ -32,6 +32,8 @@ The following defaults were changed in the builder vs the constructor
 * `handleNullableField` from `true` to `false`
 * `customMessageSupported` from `true` to `false`
 
+When using the builder custom error messages are not enabled by default and must be enabled by specifying the error message keyword to use ie. "message".
+
 | Deprecated Code                                                        | Replacement
 |------------------------------------------------------------------------|----------------------------------------------------------------------
 | `SchemaValidatorsConfig config = new SchemaValidatorsConfig();`        | `SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().pathType(PathType.LEGACY).errorMessageKeyword("message").nullableKeywordEnabled(true).build();`
@@ -71,6 +73,16 @@ collectorContext.loadCollectors();
 AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
 assertEquals(50, result.get());
 ```
+
+#### Schema Reference Caching
+
+Previously when schema `$ref` are encountered, the reference and all the validators it requires will always be cached and stored if needed in the future. This can potentially cause out of memory errors for schemas that use applicators like `allOf`, `anyOf`, `oneOf`. This can be configured by setting the `cacheRefs` option to `false` on `SchemaValidatorsConfig.builder()`. Note that not caching will impact performance and make it slower.
+
+#### Regular Expressions
+
+This adds GraalJS as an implementation. The Joni implementation now will throw an `Exception` if illegal escapes are used in the regular expressions.
+
+The preferred way of configuring the implementation is via setting the `regularExpressionFactory` on `SchemaValidatorsConfig.builder()`.
 
 #### Fine Grain Debug Logging
 

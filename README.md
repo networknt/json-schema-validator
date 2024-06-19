@@ -373,7 +373,6 @@ String inputData = "{\r\n"
                 + "}";
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
         builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
 JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
 Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
