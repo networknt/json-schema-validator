@@ -63,7 +63,7 @@ public class AnyOfValidator extends BaseJsonValidator {
             JsonNodePath instanceLocation, boolean walk) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
         SetView<ValidationMessage> allErrors = null;
@@ -101,13 +101,13 @@ public class AnyOfValidator extends BaseJsonValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.getConfig().isOpenAPI3StyleDiscriminators())
+                    if (errors.isEmpty() && (!this.validationContext.getConfig().isDiscriminatorKeywordEnabled())
                             && canShortCircuit() && canShortCircuit(executionContext)) {
                         // Clear all errors. Note that this is checked in finally.
                         allErrors = null;
                         // return empty errors.
                         return errors;
-                    } else if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                    } else if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                         DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
                         if (currentDiscriminatorContext.isDiscriminatorMatchFound()
                                 || currentDiscriminatorContext.isDiscriminatorIgnore()) {
@@ -140,7 +140,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                 executionContext.setFailFast(failFast);
             }
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()
                     && executionContext.getCurrentDiscriminatorContext().isActive()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
@@ -150,7 +150,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                         .build());
             }
         } finally {
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
         }

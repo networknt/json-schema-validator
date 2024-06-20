@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -13,12 +14,13 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 public class Issue461Test {
-    protected ObjectMapper mapper = new ObjectMapper();
+    protected ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     protected JsonSchema getJsonSchemaFromStreamContentV7(SchemaLocation schemaUri) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        SchemaValidatorsConfig svc = new SchemaValidatorsConfig();
-        svc.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new Walker());
+        SchemaValidatorsConfig svc = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new Walker())
+                .build();
         return factory.getSchema(schemaUri, svc);
     }
 

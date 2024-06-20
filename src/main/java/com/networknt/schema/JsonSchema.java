@@ -162,7 +162,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @param schemaNode the schema node
      * @param validationContext the validation context
      * @param errorMessageType the error message type
-     * @param customErrorMessagesEnabled whether custom error msessages are enabled
+     * @param errorMessageKeyword the error message keyword
      * @param messageSource the message source
      * @param keyword the keyword
      * @param parentSchema the parent schema
@@ -184,7 +184,7 @@ public class JsonSchema extends BaseJsonValidator {
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
             ErrorMessageType errorMessageType,
-            boolean customErrorMessagesEnabled,
+            String errorMessageKeyword,
             MessageSource messageSource,
             Keyword keyword,
             JsonSchema parentSchema,
@@ -192,7 +192,7 @@ public class JsonSchema extends BaseJsonValidator {
             JsonNodePath evaluationPath,
             JsonSchema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, customErrorMessagesEnabled, messageSource, keyword,
+        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, errorMessageKeyword, messageSource, keyword,
                 parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
         this.validators = validators;
         this.validatorsLoaded = validatorsLoaded;
@@ -238,12 +238,19 @@ public class JsonSchema extends BaseJsonValidator {
                 schemaNode,
                 validationContext,
                 /* Below from ValidationMessageHandler */
-                errorMessageType, customErrorMessagesEnabled, messageSource,
+                errorMessageType, errorMessageKeyword, messageSource,
                 keyword, parentSchema, schemaLocation, evaluationPath,
                 evaluationParentSchema, errorMessage);
     }
 
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
+        if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
+                && !config.isDiscriminatorKeywordEnabled()) {
+            config = SchemaValidatorsConfig.builder(config)
+                    .discriminatorKeywordEnabled(true)
+                    .nullableKeywordEnabled(true)
+                    .build();
+        }
         if (!this.getValidationContext().getConfig().equals(config)) {
             ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
                     this.getValidationContext().getJsonSchemaFactory(), config,
@@ -266,7 +273,7 @@ public class JsonSchema extends BaseJsonValidator {
                     validationContext,
                     /* Below from ValidationMessageHandler */
                     errorMessageType,
-                    customErrorMessagesEnabled,
+                    errorMessageKeyword,
                     messageSource,
                     keyword,
                     parentSchema,
@@ -595,7 +602,7 @@ public class JsonSchema extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
                 executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
@@ -619,7 +626,7 @@ public class JsonSchema extends BaseJsonValidator {
             }
         }
 
-        if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
                 final DiscriminatorContext discriminatorContext = executionContext

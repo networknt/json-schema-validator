@@ -20,9 +20,8 @@ By default, the duration validator performs a strict check that the value
 conforms to RFC 3339. You can relax this constraint by setting strict to false.
 
 ```java
-SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-config.setStrict("duration", false);
-JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema, config);
+SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().strict("duration", false).build();
+JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
 ```
 
 The relaxed check permits:

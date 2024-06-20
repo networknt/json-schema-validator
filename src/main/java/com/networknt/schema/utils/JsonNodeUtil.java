@@ -63,7 +63,7 @@ public class JsonNodeUtil {
     //Check to see if a JsonNode is nullable with checking the isHandleNullableField
     public static boolean isNodeNullable(JsonNode schema, SchemaValidatorsConfig config){
         // check if the parent schema declares the fields as nullable
-        if (config.isHandleNullableField()) {
+        if (config.isNullableKeywordEnabled()) {
             return isNodeNullable(schema);
         }
         return false;

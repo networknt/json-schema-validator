@@ -48,8 +48,7 @@ public class Issue857Test {
                 + "  \"id\": \"4\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setFailFast(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         Set<ValidationMessage> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
         assertTrue(result.isEmpty());

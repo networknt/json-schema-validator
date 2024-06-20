@@ -41,11 +41,9 @@ public class TypeFactoryTest {
 
     private static final String[] validNonIntegralNumberValues = { "1.1", "-1.1", "1.10" };
 
-    private final SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-
     @Test
     void testIntegralValuesWithJavaSemantics() {
-        schemaValidatorsConfig.setJavaSemantics(true);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().javaSemantics(true).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.INTEGER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
@@ -60,7 +58,7 @@ public class TypeFactoryTest {
 
     @Test
     void testIntegralValuesWithoutJavaSemantics() {
-        schemaValidatorsConfig.setJavaSemantics(false);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().javaSemantics(false).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.NUMBER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
@@ -75,7 +73,7 @@ public class TypeFactoryTest {
 
     @Test
     void testWithLosslessNarrowing() {
-        schemaValidatorsConfig.setLosslessNarrowing(true);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().losslessNarrowing(true).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.INTEGER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig), validValue);
@@ -87,7 +85,7 @@ public class TypeFactoryTest {
 
     @Test
     void testWithoutLosslessNarrowing() {
-        schemaValidatorsConfig.setLosslessNarrowing(false);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().losslessNarrowing(false).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.NUMBER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal("1.0")), schemaValidatorsConfig), validValue);
@@ -101,44 +99,44 @@ public class TypeFactoryTest {
     @Test
     void testObjectValue() {
         assertSame(JsonType.OBJECT, getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().objectNode(),
-                schemaValidatorsConfig));
+                SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     void testArrayValue() {
         assertSame(JsonType.ARRAY,
-                getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().arrayNode(), schemaValidatorsConfig));
+                getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().arrayNode(), SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     void testBooleanValue() {
         assertSame(JsonType.BOOLEAN, getValueNodeType(
-                JsonMapperFactory.getInstance().getNodeFactory().booleanNode(true), schemaValidatorsConfig));
+                JsonMapperFactory.getInstance().getNodeFactory().booleanNode(true), SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     public void testNullValue() {
         assertSame(JsonType.NULL,
-                getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().nullNode(), schemaValidatorsConfig));
+                getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().nullNode(), SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     void testMissingValue() {
         assertSame(JsonType.UNKNOWN, getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().missingNode(),
-                schemaValidatorsConfig));
+                SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     void testIntegerValue() {
         assertSame(JsonType.INTEGER, getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().numberNode(10),
-                schemaValidatorsConfig));
+                SchemaValidatorsConfig.builder().build()));
     }
 
     @Test
     void testBinaryValue() {
         assertSame(JsonType.STRING, getValueNodeType(
                 JsonMapperFactory.getInstance().getNodeFactory().binaryNode("test".getBytes(StandardCharsets.UTF_8)),
-                schemaValidatorsConfig));
+                SchemaValidatorsConfig.builder().build()));
     }
 
     @Test

@@ -22,8 +22,9 @@ public class Issue451Test {
 
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        SchemaValidatorsConfig svc = new SchemaValidatorsConfig();
-        svc.addPropertyWalkListener(new CountingWalker());
+        SchemaValidatorsConfig svc = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new CountingWalker())
+                .build();
         return factory.getSchema(schemaContent, svc);
     }
 

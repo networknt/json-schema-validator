@@ -32,9 +32,10 @@ public class SharedConfigTest {
     public void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
 
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
         AllKeywordListener allKeywordListener = new AllKeywordListener();
-        schemaValidatorsConfig.addKeywordWalkListener(allKeywordListener);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(allKeywordListener)
+                .build();
 
         SchemaLocation draft07Schema = SchemaLocation.of("resource:/draft-07/schema#");
 

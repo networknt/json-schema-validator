@@ -52,8 +52,9 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
     @Test
     public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setRegularExpressionFactory(JoniRegularExpressionFactory.getInstance());
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                    .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())
+                    .build();
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
@@ -78,8 +79,7 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
                 + "  }\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
                 + "  \"valid_array\": [\"array1_value\", \"array2_value\"],\n"
@@ -130,8 +130,7 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
                 + "  }\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
                 + "  \"test\": 5\n"

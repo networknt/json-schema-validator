@@ -49,8 +49,9 @@ The following test case shows how to pass a config object to use the `GraalJS` f
 public class RegularExpressionTest {
     @Test
     public void testInvalidRegexValidatorECMA262() throws Exception {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setRegularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance())
+                .build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchema schema = factory.getSchema("{\r\n"
                 + "  \"format\": \"regex\"\r\n"
@@ -63,4 +64,26 @@ public class RegularExpressionTest {
 }
 ```
 
+## Performance
+
+The following is the relative performance of the different implementations.
+
+```
+Benchmark                                               Mode  Cnt        Score       Error   Units
+RegularExpressionBenchmark.graaljs                     thrpt    6   362696.226 ± 15811.099   ops/s
+RegularExpressionBenchmark.graaljs:gc.alloc.rate       thrpt    6     2584.386 ±   112.708  MB/sec
+RegularExpressionBenchmark.graaljs:gc.alloc.rate.norm  thrpt    6     7472.003 ±     0.001    B/op
+RegularExpressionBenchmark.graaljs:gc.count            thrpt    6      130.000              counts
+RegularExpressionBenchmark.graaljs:gc.time             thrpt    6      144.000                  ms
+RegularExpressionBenchmark.jdk                         thrpt    6  2776184.321 ± 41838.479   ops/s
+RegularExpressionBenchmark.jdk:gc.alloc.rate           thrpt    6     1482.565 ±    22.343  MB/sec
+RegularExpressionBenchmark.jdk:gc.alloc.rate.norm      thrpt    6      560.000 ±     0.001    B/op
+RegularExpressionBenchmark.jdk:gc.count                thrpt    6       74.000              counts
+RegularExpressionBenchmark.jdk:gc.time                 thrpt    6       78.000                  ms
+RegularExpressionBenchmark.joni                        thrpt    6  1810229.581 ± 35230.798   ops/s
+RegularExpressionBenchmark.joni:gc.alloc.rate          thrpt    6     1463.887 ±    28.483  MB/sec
+RegularExpressionBenchmark.joni:gc.alloc.rate.norm     thrpt    6      848.003 ±     0.001    B/op
+RegularExpressionBenchmark.joni:gc.count               thrpt    6       73.000              counts
+RegularExpressionBenchmark.joni:gc.time                thrpt    6       77.000                  ms
+```
 

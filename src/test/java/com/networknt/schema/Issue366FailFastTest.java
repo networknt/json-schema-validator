@@ -23,14 +23,12 @@ public class Issue366FailFastTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     private void setupSchema() throws IOException {
-
-        SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-        schemaValidatorsConfig.setFailFast(true);
+        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+                .failFast(true)
+                .typeLoose(false)
+                .build();
         JsonSchemaFactory schemaFactory = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
-
-        schemaValidatorsConfig.setTypeLoose(false);
-
         SchemaLocation uri = getSchema();
 
         InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");

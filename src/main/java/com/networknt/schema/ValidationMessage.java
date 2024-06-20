@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  *      "https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
-@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
+@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid", "error" })
 @JsonPropertyOrder({ "type", "code", "message", "instanceLocation", "property", "evaluationPath", "schemaLocation",
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
@@ -158,6 +158,11 @@ public class ValidationMessage {
         return details;
     }
 
+    /**
+     * Gets the formatted error message.
+     * 
+     * @return the error message
+     */
     public String getMessage() {
         return messageSupplier.get();
     }
@@ -168,6 +173,28 @@ public class ValidationMessage {
     
     public boolean isValid() {
         return messageSupplier != null;
+    }
+
+    /**
+     * Gets the error.
+     *
+     * @return the error
+     */
+    public String getError() {
+        String message = getMessage();
+        int index = message.indexOf(':');
+        if (index != -1) {
+            int length = message.length();
+            while (index + 1 < length) {
+                if (message.charAt(index + 1) == ' ') {
+                    index++;
+                } else {
+                    break;
+                }
+            }
+            return message.substring(index + 1);
+        }
+        return message;
     }
 
     @Override

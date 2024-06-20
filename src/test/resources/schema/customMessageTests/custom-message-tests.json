@@ -42,6 +42,9 @@
       },
       {
         "description": "Custom error message for keyword failing at top level - type keyword",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": [1, 2, 3],
           "bar": 123
@@ -53,6 +56,9 @@
       },
       {
         "description": "Custom error message for keyword failing at nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": [1, 2, "text"],
           "bar": "Bar 1"
@@ -64,6 +70,9 @@
       },
       {
         "description": "Custom error message for keyword failing at nested property level - maxItems keyword",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": [1, 2, 3, 4],
           "bar": "Bar 1"
@@ -75,6 +84,9 @@
       },
       {
         "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": [1, 2, "text"],
           "bar": 123
@@ -87,6 +99,9 @@
       },
       {
         "description": "Custom error message for keyword failing at both top level and nested property level - type keyword",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": [1, 2, "text", 3],
           "bar": 123
@@ -124,32 +139,41 @@
     "tests": [
       {
         "description": "bar is required",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "foo": 1
         },
         "valid": false,
         "validationMessages": [
-          "$: 'bar' is required"
+          ": 'bar' is required"
         ]
       },
       {
         "description": "foo is required",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "bar": "bar"
         },
         "valid": false,
         "validationMessages": [
-          "$: 'foo' is required"
+          ": 'foo' is required"
         ]
       },
       {
         "description": "both foo and bar are required",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
         },
         "valid": false,
         "validationMessages": [
-          "$: 'foo' is required",
-          "$: 'bar' is required"
+          ": 'foo' is required",
+          ": 'bar' is required"
         ]
       }
    ]
@@ -179,6 +203,9 @@
     "tests": [
       {
         "description": "should not be empty",
+        "config": {
+          "isCustomMessageSupported": true
+        },        
         "data": {
           "requestedItems": [
           {
@@ -188,7 +215,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.requestedItems[0].item: Item should not be empty"
+          "/requestedItems/0/item: Item should not be empty"
         ]
       }
    ]

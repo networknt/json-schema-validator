@@ -42,7 +42,6 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
-import com.networknt.schema.PathType;
 import com.networknt.schema.PropertiesValidator;
 import com.networknt.schema.SchemaId;
 import com.networknt.schema.SchemaLocation;
@@ -87,24 +86,25 @@ class JsonSchemaWalkListenerTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
-            
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                        .getCollectorMap().computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
-                propertyKeywords.add(walkEvent);
-                return WalkFlow.CONTINUE;
-            }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
+                        propertyKeywords.add(walkEvent);
+                        return WalkFlow.CONTINUE;
+                    }
+
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
@@ -167,23 +167,24 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
         
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> properties = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("properties", key -> new ArrayList<>());
+                        properties.add(walkEvent);
+                        return WalkFlow.CONTINUE;
+                    }
 
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> properties = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                        .getCollectorMap().computeIfAbsent("properties", key -> new ArrayList<>());
-                properties.add(walkEvent);
-                return WalkFlow.CONTINUE;
-            }
-
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
@@ -253,15 +254,14 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 @SuppressWarnings("unchecked")
-                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                        .getCollectorMap().computeIfAbsent("items", key -> new ArrayList<>());
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<>());
                 items.add(walkEvent);
                 return WalkFlow.CONTINUE;
             }
@@ -269,7 +269,7 @@ class JsonSchemaWalkListenerTest {
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
             }
-        });
+        }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
@@ -327,15 +327,14 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 @SuppressWarnings("unchecked")
-                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                        .getCollectorMap().computeIfAbsent("items", key -> new ArrayList<>());
+                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                        .getCollectorContext()
+                        .getCollectorMap()
+                        .computeIfAbsent("items", key -> new ArrayList<>());
                 items.add(walkEvent);
                 return WalkFlow.CONTINUE;
             }
@@ -343,7 +342,7 @@ class JsonSchemaWalkListenerTest {
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
             }
-        });
+        }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
@@ -375,23 +374,24 @@ class JsonSchemaWalkListenerTest {
 
     @Test
     void draft201909() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
-            
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                        .getCollectorMap().computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
-                propertyKeywords.add(walkEvent);
-                return WalkFlow.CONTINUE;
-            }
-            
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> propertyKeywords = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("propertyKeywords", key -> new ArrayList<>());
+                        propertyKeywords.add(walkEvent);
+                        return WalkFlow.CONTINUE;
+                    }
+
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909)
                 .getSchema(SchemaLocation.of(SchemaId.V201909), config);
         String inputData = "{\r\n"
@@ -553,8 +553,9 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
@@ -585,33 +586,33 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
-
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
-                        || walkEvent.getInstanceNode().isNull()) {
-                    JsonSchema schema = walkEvent.getSchema();
-                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
-                    if (schemaRef != null) {
-                        schema = schemaRef.getSchema();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
+                                || walkEvent.getInstanceNode().isNull()) {
+                            JsonSchema schema = walkEvent.getSchema();
+                            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                            if (schemaRef != null) {
+                                schema = schemaRef.getSchema();
+                            }
+                            JsonNode defaultNode = schema.getSchemaNode().get("default");
+                            if (defaultNode != null) {
+                                ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
+                                        walkEvent.getInstanceLocation().getParent());
+                                parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
+                            }
+                        }
+                        return WalkFlow.CONTINUE;
                     }
-                    JsonNode defaultNode = schema.getSchemaNode().get("default");
-                    if (defaultNode != null) {
-                        ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
-                                walkEvent.getInstanceLocation().getParent());
-                        parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
-                    }
-                }
-                return WalkFlow.CONTINUE;
-            }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
-        
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
+
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
@@ -642,32 +643,32 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
-
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
-                        || walkEvent.getInstanceNode().isNull()) {
-                    JsonSchema schema = walkEvent.getSchema();
-                    JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
-                    if (schemaRef != null) {
-                        schema = schemaRef.getSchema();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
+                                || walkEvent.getInstanceNode().isNull()) {
+                            JsonSchema schema = walkEvent.getSchema();
+                            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                            if (schemaRef != null) {
+                                schema = schemaRef.getSchema();
+                            }
+                            JsonNode defaultNode = schema.getSchemaNode().get("default");
+                            if (defaultNode != null) {
+                                ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
+                                        walkEvent.getInstanceLocation().getParent());
+                                parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
+                            }
+                        }
+                        return WalkFlow.CONTINUE;
                     }
-                    JsonNode defaultNode = schema.getSchemaNode().get("default");
-                    if (defaultNode != null) {
-                        ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
-                                walkEvent.getInstanceLocation().getParent());
-                        parentNode.set(walkEvent.getInstanceLocation().getName(-1), defaultNode);
-                    }
-                }
-                return WalkFlow.CONTINUE;
-            }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
         
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
@@ -702,40 +703,40 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
         Map<String, JsonNode> missingSchemaNode = new LinkedHashMap<>();
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addKeywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
-
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                JsonNode requiredNode = walkEvent.getSchema().getSchemaNode().get("required");
-                List<String> requiredProperties = new ArrayList<>();
-                if (requiredNode != null) {
-                    if (requiredNode.isArray()) {
-                        for (JsonNode fieldName : requiredNode) {
-                            requiredProperties.add(fieldName.asText());
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        JsonNode requiredNode = walkEvent.getSchema().getSchemaNode().get("required");
+                        List<String> requiredProperties = new ArrayList<>();
+                        if (requiredNode != null) {
+                            if (requiredNode.isArray()) {
+                                for (JsonNode fieldName : requiredNode) {
+                                    requiredProperties.add(fieldName.asText());
+                                }
+                            }
                         }
-                    }
-                }
-                for (String requiredProperty : requiredProperties) {
-                    JsonNode propertyNode = walkEvent.getInstanceNode().get(requiredProperty);
-                    if (propertyNode == null) {
-                        // Get the schema
-                        PropertiesValidator propertiesValidator = walkEvent.getValidator();
-                        JsonSchema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
-                        JsonSchemaRef schemaRef = JsonSchemaRefs.from(propertySchema);
-                        if (schemaRef != null) {
-                            propertySchema = schemaRef.getSchema();
+                        for (String requiredProperty : requiredProperties) {
+                            JsonNode propertyNode = walkEvent.getInstanceNode().get(requiredProperty);
+                            if (propertyNode == null) {
+                                // Get the schema
+                                PropertiesValidator propertiesValidator = walkEvent.getValidator();
+                                JsonSchema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
+                                JsonSchemaRef schemaRef = JsonSchemaRefs.from(propertySchema);
+                                if (schemaRef != null) {
+                                    propertySchema = schemaRef.getSchema();
+                                }
+                                missingSchemaNode.put(requiredProperty, propertySchema.getSchemaNode());
+                            }
                         }
-                        missingSchemaNode.put(requiredProperty, propertySchema.getSchemaNode());
+                        return WalkFlow.CONTINUE;
                     }
-                }
-                return WalkFlow.CONTINUE;
-            }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
 
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
@@ -774,37 +775,38 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addPropertyWalkListener(new JsonSchemaWalkListener() {
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
-                        || walkEvent.getInstanceNode().isNull()) {
-                    JsonSchema schema = walkEvent.getSchema();
-                    JsonSchemaRef schemaRef = null;
-                    do {
-                        schemaRef = JsonSchemaRefs.from(schema);
-                        if (schemaRef != null) {
-                            schema = schemaRef.getSchema();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .propertyWalkListener(new JsonSchemaWalkListener() {
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
+                                || walkEvent.getInstanceNode().isNull()) {
+                            JsonSchema schema = walkEvent.getSchema();
+                            JsonSchemaRef schemaRef = null;
+                            do {
+                                schemaRef = JsonSchemaRefs.from(schema);
+                                if (schemaRef != null) {
+                                    schema = schemaRef.getSchema();
+                                }
+                            } while (schemaRef != null);
+                            JsonNode fakerNode = schema.getSchemaNode().get("faker");
+                            if (fakerNode != null) {
+                                String faker = fakerNode.asText();
+                                String fakeData = generators.get(faker).get();
+                                JsonNode fakeDataNode = JsonNodeFactory.instance.textNode(fakeData);
+                                ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
+                                        walkEvent.getInstanceLocation().getParent());
+                                parentNode.set(walkEvent.getInstanceLocation().getName(-1), fakeDataNode);
+                            }
                         }
-                    } while (schemaRef != null);
-                    JsonNode fakerNode = schema.getSchemaNode().get("faker");
-                    if (fakerNode != null) {
-                        String faker = fakerNode.asText();
-                        String fakeData = generators.get(faker).get();
-                        JsonNode fakeDataNode = JsonNodeFactory.instance.textNode(fakeData);
-                        ObjectNode parentNode = (ObjectNode) JsonNodes.get(walkEvent.getRootNode(),
-                                walkEvent.getInstanceLocation().getParent());
-                        parentNode.set(walkEvent.getInstanceLocation().getName(-1), fakeDataNode);
+                        return WalkFlow.CONTINUE;
                     }
-                }
-                return WalkFlow.CONTINUE;
-            }
 
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-            }
-        });
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    }
+                })
+                .build();
 
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
@@ -853,24 +855,25 @@ class JsonSchemaWalkListenerTest {
                 items.add(walkEvent);
             }
         }; 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addItemWalkListener(listener);
-        config.addPropertyWalkListener(listener);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .itemWalkListener(listener)
+                .propertyWalkListener(listener)
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(4, items.size());
-        assertEquals("$.name", items.get(0).getInstanceLocation().toString());
+        assertEquals("/name", items.get(0).getInstanceLocation().toString());
         assertEquals("properties", items.get(0).getKeyword());
         assertEquals("#/properties/name", items.get(0).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children[0].name", items.get(1).getInstanceLocation().toString());
+        assertEquals("/children/0/name", items.get(1).getInstanceLocation().toString());
         assertEquals("properties", items.get(1).getKeyword());
         assertEquals("#/properties/children/items/properties/name", items.get(1).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children[0]", items.get(2).getInstanceLocation().toString());
+        assertEquals("/children/0", items.get(2).getInstanceLocation().toString());
         assertEquals("items", items.get(2).getKeyword());
         assertEquals("#/properties/children/items", items.get(2).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children", items.get(3).getInstanceLocation().toString());
+        assertEquals("/children", items.get(3).getInstanceLocation().toString());
         assertEquals("properties", items.get(3).getKeyword());
         assertEquals("#/properties/children", items.get(3).getSchema().getSchemaLocation().toString());
     }
@@ -914,25 +917,26 @@ class JsonSchemaWalkListenerTest {
                         .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
                 items.add(walkEvent);
             }
-        }; 
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.addItemWalkListener(listener);
-        config.addPropertyWalkListener(listener);
+        };
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .itemWalkListener(listener)
+                .propertyWalkListener(listener)
+                .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(4, items.size());
-        assertEquals("$.name", items.get(0).getInstanceLocation().toString());
+        assertEquals("/name", items.get(0).getInstanceLocation().toString());
         assertEquals("properties", items.get(0).getKeyword());
         assertEquals("#/properties/name", items.get(0).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children[0].name", items.get(1).getInstanceLocation().toString());
+        assertEquals("/children/0/name", items.get(1).getInstanceLocation().toString());
         assertEquals("properties", items.get(1).getKeyword());
         assertEquals("#/properties/children/items/properties/name", items.get(1).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children[0]", items.get(2).getInstanceLocation().toString());
+        assertEquals("/children/0", items.get(2).getInstanceLocation().toString());
         assertEquals("items", items.get(2).getKeyword());
         assertEquals("#/properties/children/items", items.get(2).getSchema().getSchemaLocation().toString());
-        assertEquals("$.children", items.get(3).getInstanceLocation().toString());
+        assertEquals("/children", items.get(3).getInstanceLocation().toString());
         assertEquals("properties", items.get(3).getKeyword());
         assertEquals("#/properties/children", items.get(3).getSchema().getSchemaLocation().toString());
     }

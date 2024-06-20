@@ -22,14 +22,14 @@
         "data": { "a": "a string", "b": "a string" },
         "valid": false,
         "config": { "readOnly": true, "writeOnly": true },
-        "validationMessages": [ "$.b: is a readonly field, it cannot be changed" ]
+        "validationMessages": [ "/b: is a readonly field, it cannot be changed" ]
       },
       {
         "description": "write-only behavior",
         "data": { "a": "a string", "c": "a string" },
         "valid": false,
         "config": { "readOnly": true, "writeOnly": true },
-        "validationMessages": [ "$.c: is a write-only field, it cannot appear in the data" ]
+        "validationMessages": [ "/c: is a write-only field, it cannot appear in the data" ]
       },
       {
         "description": "both behavior",
@@ -37,8 +37,8 @@
         "valid": false,
         "config": { "readOnly": true, "writeOnly": true },
         "validationMessages": [
-           "$.d: is a readonly field, it cannot be changed",
-           "$.d: is a write-only field, it cannot appear in the data"
+           "/d: is a readonly field, it cannot be changed",
+           "/d: is a write-only field, it cannot appear in the data"
          ]
       }
     ]

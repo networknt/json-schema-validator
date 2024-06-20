@@ -117,8 +117,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
         
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -150,8 +149,7 @@ public class DiscriminatorValidatorTest {
                 + "               }";
         
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -244,8 +242,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -338,8 +335,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -429,8 +425,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
@@ -526,8 +521,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
@@ -627,8 +621,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
@@ -683,8 +676,7 @@ public class DiscriminatorValidatorTest {
         String inputData = "{}";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
@@ -780,8 +772,7 @@ public class DiscriminatorValidatorTest {
                 + "]";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setOpenAPI3StyleDiscriminators(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());

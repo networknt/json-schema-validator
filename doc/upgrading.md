@@ -4,6 +4,91 @@ This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 
+### 1.4.1
+
+#### Schema Validators Config
+
+The `SchemaValidatorsConfig` constructor has been deprecated. Use the `SchemaValidators.builder` to create an instance instead. `SchemaValidatorConfig` instances are intended to be immutable in future and those created by the builder will throw `UnsupportedOperationException` when setters are called.
+
+Note that there are differences in defaults from the builder vs the constructor.
+
+The following builder creates the same values as the constructor previously.
+
+```java
+SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+    .pathType(PathType.LEGACY)
+    .errorMessageKeyword("message")
+    .nullableKeywordEnabled(true)
+    .build();
+```
+
+The following configurations were renamed with the old ones deprecated
+* `handleNullableField` -> `nullableKeywordEnabled`
+* `openAPI3StyleDiscriminators` -> `discriminatorKeywordEnabled`
+* `customMessageSupported` -> `errorMessageKeyword`
+
+The following defaults were changed in the builder vs the constructor
+* `pathType` from `PathType.LEGACY` to `PathType.JSON_POINTER`
+* `handleNullableField` from `true` to `false`
+* `customMessageSupported` from `true` to `false`
+
+When using the builder custom error messages are not enabled by default and must be enabled by specifying the error message keyword to use ie. "message".
+
+| Deprecated Code                                                        | Replacement
+|------------------------------------------------------------------------|----------------------------------------------------------------------
+| `SchemaValidatorsConfig config = new SchemaValidatorsConfig();`        | `SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().pathType(PathType.LEGACY).errorMessageKeyword("message").nullableKeywordEnabled(true).build();`
+| `config.setEcma262Validator(true);`                                    | `builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());`
+| `config.setHandleNullableField(true);`                                 | `builder.nullableKeywordEnabled(true);`
+| `config.setOpenAPI3StyleDiscriminators(true);`                         | `builder.discriminatorKeywordEnabled(true);`
+| `config.setCustomMessageSupported(true);`                              | `builder.errorMessageKeyword("message");`
+
+#### Collector Context
+
+`JsonSchema.validateAndCollect` has been deprecated in favor of explicitly calling `loadCollectors`.
+
+This also deprecates the related `loadCollectors` configuration in `SchemaValidatorsConfig`.
+
+This makes the `CollectorContext.loadCollectors()` method public to be explicitly called instead of relying on the `SchemaValidatorsConfig`.
+
+Proper usage of the `validateAndCollect` method is confusing. It relies on a configuration set in `SchemaValidatorsConfig` that is configured on a per schema basis. It immediately runs `loadCollectors` if set to `true` and will never be able to run `loadCollectors` if set to `false` as the method is not `public`.
+
+The documentation has been updated to reflect the replacement, which is to explicitly create the `CollectorContext` to be shared and set for each execution. Finally `loadCollectors` can be called a the end if needed.
+
+```java
+CollectorContext collectorContext = new CollectorContext();
+// This adds a custom collect keyword that sets values in the CollectorContext whenever it gets processed
+JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
+JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+JsonSchema schema = factory.getSchema("{\n"
+        + "  \"collect\": true\n"
+        + "}");
+for (int i = 0; i < 50; i++) {
+    // The shared CollectorContext is set on the ExecutionContext for every run to aggregate data from all the runs
+    schema.validate("1", InputFormat.JSON, executionContext -> {
+        executionContext.setCollectorContext(collectorContext);
+    });
+}
+// This is called for Collector implementations to aggregate data
+collectorContext.loadCollectors();
+AtomicInteger result = (AtomicInteger) collectorContext.get("collect");
+assertEquals(50, result.get());
+```
+
+#### Schema Reference Caching
+
+Previously when schema `$ref` are encountered, the reference and all the validators it requires will always be cached and stored if needed in the future. This can potentially cause out of memory errors for schemas that use applicators like `allOf`, `anyOf`, `oneOf`. This can be configured by setting the `cacheRefs` option to `false` on `SchemaValidatorsConfig.builder()`. Note that not caching will impact performance and make it slower.
+
+#### Regular Expressions
+
+This adds GraalJS as an implementation. The Joni implementation now will throw an `Exception` if illegal escapes are used in the regular expressions.
+
+The preferred way of configuring the implementation is via setting the `regularExpressionFactory` on `SchemaValidatorsConfig.builder()`.
+
+#### Fine Grain Debug Logging
+
+Previously the if debug logging is enabled the validators will log fine grained logs. This now requires setting the `debugEnabled` flag in `ExecutionConfig` as the checks to determine if the logger was enabled was impacting performance.
+
+
 ### 1.4.0
 
 This contains breaking changes 

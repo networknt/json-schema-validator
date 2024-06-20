@@ -96,8 +96,7 @@ public class OutputUnitTest {
     @Test
     void annotationCollectionList() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         
         String inputData = inputData1;
@@ -114,8 +113,7 @@ public class OutputUnitTest {
     @Test
     void annotationCollectionHierarchical() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
 
         String inputData = inputData1;
@@ -132,8 +130,7 @@ public class OutputUnitTest {
     @Test
     void annotationCollectionHierarchical2() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
 
         String inputData = inputData2;
@@ -182,8 +179,7 @@ public class OutputUnitTest {
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
@@ -202,8 +198,7 @@ public class OutputUnitTest {
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
@@ -222,8 +217,7 @@ public class OutputUnitTest {
                 + "  \"type\": [\"string\",\"array\"]\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(typeSchema, config);
         OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
@@ -273,8 +267,7 @@ public class OutputUnitTest {
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         
      // The following checks if the heirarchical output format is correct with multiple unevaluated properties
@@ -323,8 +316,7 @@ public class OutputUnitTest {
                 + "}";
         
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         
         String inputData = "{\r\n"
@@ -346,8 +338,7 @@ public class OutputUnitTest {
                 + "  \"type\": \"string\"\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.List(a -> a));
         assertFalse(outputUnit.isValid());
@@ -362,8 +353,7 @@ public class OutputUnitTest {
                 + "  \"type\": \"string\"\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
         assertFalse(outputUnit.isValid());

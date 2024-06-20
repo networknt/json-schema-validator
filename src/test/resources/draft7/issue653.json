@@ -80,9 +80,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.pets[0]: must be valid to one and only one schema, but 0 are valid",
-          "$.pets[0]: required property 'age' not found",
-          "$.pets[0]: schema for 'else' is false"
+          "/pets/0: must be valid to one and only one schema, but 0 are valid",
+          "/pets/0: required property 'age' not found",
+          "/pets/0: schema for 'else' is false"
         ]
       }
     ]

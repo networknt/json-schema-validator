@@ -31,8 +31,9 @@ public class DefaultJsonSchemaIdValidatorTest {
     void givenRelativeIdShouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setSchemaIdValidator(JsonSchemaIdValidator.DEFAULT);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+                .build();
         assertThrowsExactly(InvalidSchemaException.class,
                 () -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
         try {
@@ -46,8 +47,9 @@ public class DefaultJsonSchemaIdValidatorTest {
     void givenFragmentWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"#0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setSchemaIdValidator(JsonSchemaIdValidator.DEFAULT);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+                .build();
         assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
     }
     
@@ -55,15 +57,17 @@ public class DefaultJsonSchemaIdValidatorTest {
     void givenSlashWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"/base\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setSchemaIdValidator(JsonSchemaIdValidator.DEFAULT);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+                .build();
         assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
     }
 
     @Test
     void givenRelativeIdWithClasspathBaseShouldNotThrowInvalidSchemaException() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setSchemaIdValidator(JsonSchemaIdValidator.DEFAULT);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+                .build();
         assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012)
                 .getSchema(SchemaLocation.of("classpath:schema/id-relative.json"), config));
     }

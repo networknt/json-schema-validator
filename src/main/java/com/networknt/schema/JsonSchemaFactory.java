@@ -386,9 +386,16 @@ public class JsonSchemaFactory {
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
         JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
         if (metaSchema != null && !metaSchema.getIri().equals(validationContext.getMetaSchema().getIri())) {
-            return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(),
-                    validationContext.getConfig(), validationContext.getSchemaReferences(),
-                    validationContext.getSchemaResources(), validationContext.getDynamicAnchors());
+            SchemaValidatorsConfig config = validationContext.getConfig();
+            if (metaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
+                config = SchemaValidatorsConfig.builder(config)
+                        .discriminatorKeywordEnabled(true)
+                        .nullableKeywordEnabled(true)
+                        .build();
+            }
+            return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(), config,
+                    validationContext.getSchemaReferences(), validationContext.getSchemaResources(),
+                    validationContext.getDynamicAnchors());
         }
         return validationContext;
     }
@@ -409,17 +416,21 @@ public class JsonSchemaFactory {
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
-        return new ValidationContext(jsonMetaSchema, this, config);
+        SchemaValidatorsConfig configResult = config;
+        if (jsonMetaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
+            configResult = SchemaValidatorsConfig.builder(config)
+                    .discriminatorKeywordEnabled(true)
+                    .nullableKeywordEnabled(true)
+                    .build();
+        }
+        return new ValidationContext(jsonMetaSchema, this, configResult);
     }
-    
+
     private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && iriNode.isTextual()) {
             JsonMetaSchema result = metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()),
                     id -> loadMetaSchema(id, config));
-            if (result.getKeywords().containsKey("discriminator")) {
-                config.setOpenAPI3StyleDiscriminators(true);
-            }
             return result;
         }
         return null;
@@ -444,9 +455,6 @@ public class JsonSchemaFactory {
     public JsonMetaSchema getMetaSchema(String iri, SchemaValidatorsConfig config) {
         String key = normalizeMetaSchemaUri(iri);
         JsonMetaSchema result =  metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
-        if (result.getKeywords().containsKey("discriminator")) {
-            config.setOpenAPI3StyleDiscriminators(true);
-        }
         return result;
     }
 
@@ -654,6 +662,7 @@ public class JsonSchemaFactory {
      * @return the schema validators config
      */
     protected SchemaValidatorsConfig createSchemaValidatorsConfig() {
+        // Remain as constructor until constructor is removed
         return new SchemaValidatorsConfig();
     }
 

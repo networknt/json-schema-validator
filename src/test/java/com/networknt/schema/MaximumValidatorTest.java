@@ -185,8 +185,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, maximum);
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setTypeLoose(true);
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
             // Schema and document parsed with just double
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
@@ -295,8 +294,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setTypeLoose(true);
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);

@@ -66,6 +66,7 @@ public class Issue650Test {
          * @return the data
          * @since 1.0.77
          */
+        @SuppressWarnings("unused") // called by jackson
         public byte[] getData() {
             return this.data;
         }

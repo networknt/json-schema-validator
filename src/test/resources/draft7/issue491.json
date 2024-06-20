@@ -82,9 +82,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: required property 'name' not found",
-          "$.search.searchAge.age: string found, integer expected",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search: required property 'name' not found",
+          "/search/searchAge/age: string found, integer expected",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       },
       {
@@ -96,9 +96,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: integer found, string expected",
-          "$.search: required property 'searchAge' not found",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search/name: integer found, string expected",
+          "/search: required property 'searchAge' not found",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       }
     ]
@@ -184,9 +184,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: required property 'name' not found",
-          "$.search.byAge.age: string found, integer expected",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search: required property 'name' not found",
+          "/search/byAge/age: string found, integer expected",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       },
       {
@@ -198,9 +198,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: integer found, string expected",
-          "$.search: required property 'byAge' not found",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search/name: integer found, string expected",
+          "/search: required property 'byAge' not found",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       }
     ]
@@ -276,9 +276,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: required property 'name' not found",
-          "$.search.age: string found, integer expected",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search: required property 'name' not found",
+          "/search/age: string found, integer expected",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       },
       {
@@ -290,9 +290,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: integer found, string expected",
-          "$.search: required property 'age' not found",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search/name: integer found, string expected",
+          "/search: required property 'age' not found",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       },
       {
@@ -304,9 +304,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: required property 'name' not found",
-          "$.search.age: must have a maximum value of 150",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search: required property 'name' not found",
+          "/search/age: must have a maximum value of 150",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       },
       {
@@ -318,9 +318,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search.name: must be at most 20 characters long",
-          "$.search: required property 'age' not found",
-          "$.search: must be valid to one and only one schema, but 0 are valid"
+          "/search/name: must be at most 20 characters long",
+          "/search: required property 'age' not found",
+          "/search: must be valid to one and only one schema, but 0 are valid"
         ]
       }
     ]

@@ -89,7 +89,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
+          ": property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -106,7 +106,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
+          "/address: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -123,7 +123,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address: property 'invalid2' is not evaluated and the schema does not allow unevaluated properties"
+          "/address: property 'invalid2' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -142,7 +142,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.address.residence: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
+          "/address/residence: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
         ]
       }
     ]
@@ -237,7 +237,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: property 'wheels' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: property 'wheels' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -253,9 +253,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
-          "$.vehicle: required property 'wheels' not found",
-          "$.vehicle: required property 'headlights' not found"
+          "/vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
+          "/vehicle: required property 'wheels' not found",
+          "/vehicle: required property 'headlights' not found"
         ]
       },
       {
@@ -272,10 +272,10 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
-          "$.vehicle: property 'invalid' is not evaluated and the schema does not allow unevaluated properties",
-          "$.vehicle: required property 'wheels' not found",
-          "$.vehicle: required property 'headlights' not found"
+          "/vehicle: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
+          "/vehicle: property 'invalid' is not evaluated and the schema does not allow unevaluated properties",
+          "/vehicle: required property 'wheels' not found",
+          "/vehicle: required property 'headlights' not found"
         ]
       },
       {
@@ -290,8 +290,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: must be valid to one and only one schema, but 0 are valid",
-          "$.vehicle: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: must be valid to one and only one schema, but 0 are valid",
+          "/vehicle: property 'invalid' is not evaluated and the schema does not allow unevaluated properties"
         ]
       }
     ]
@@ -386,7 +386,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -401,7 +401,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
         ]
       },
       {
@@ -418,7 +418,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
         ]
       }
     ]
@@ -515,8 +515,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.vehicle: required property 'wings' not found",
-          "$.vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
+          "/vehicle: required property 'wings' not found",
+          "/vehicle: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
         ]
       }
     ]
@@ -578,8 +578,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: property 'age' is not evaluated and the schema does not allow unevaluated properties",
-          "$: property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
+          ": property 'age' is not evaluated and the schema does not allow unevaluated properties",
+          ": property 'unevaluated' is not evaluated and the schema does not allow unevaluated properties"
         ]
       }
     ]

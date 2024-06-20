@@ -18,40 +18,39 @@ public class Issue686Test {
 
     @Test
     void testDefaults() {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         assertEquals(DefaultMessageSource.getInstance(), config.getMessageSource());
     }
 
     @Test
     void testValidationWithDefaultBundleAndLocale() throws JsonProcessingException {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         ResourceBundle resourceBundle = ResourceBundle.getBundle(DefaultMessageSource.BUNDLE_BASE_NAME, Locale.getDefault());
-        String expectedMessage = new MessageFormat(resourceBundle.getString("type")).format(new String[] {"$.foo", "integer", "string"});
+        String expectedMessage = new MessageFormat(resourceBundle.getString("type")).format(new String[] {"/foo", "integer", "string"});
         verify(config, expectedMessage);
     }
 
     @Test
     void testValidationWithDefaultBundleAndCustomLocale() throws JsonProcessingException {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.ITALIAN);
-        verify(config, "$.foo: integer trovato, string previsto");
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.ITALIAN).build();
+        verify(config, "/foo: integer trovato, string previsto");
     }
 
     @Test
     void testValidationWithCustomBundle() throws JsonProcessingException {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setMessageSource(new ResourceBundleMessageSource("issue686/translations"));
-        config.setLocale(Locale.FRENCH);
-        verify(config, "$.foo: integer found, string expected (TEST) (FR)");
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .messageSource(new ResourceBundleMessageSource("issue686/translations"))
+                .locale(Locale.FRENCH)
+                .build();
+        verify(config, "/foo: integer found, string expected (TEST) (FR)");
     }
 
     @Test
     void testLocaleSwitch() throws JsonProcessingException {
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setLocale(Locale.ITALIAN);
-        verify(config, "$.foo: integer trovato, string previsto");
-        config.setLocale(Locale.FRENCH);
-        verify(config, "$.foo: integer trouvé, string attendu");
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.ITALIAN).build();
+        verify(config, "/foo: integer trovato, string previsto");
+        SchemaValidatorsConfig config2 = SchemaValidatorsConfig.builder().locale(Locale.FRENCH).build();
+        verify(config2, "/foo: integer trouvé, string attendu");
     }
 
     private JsonSchema getSchema(SchemaValidatorsConfig config) {

@@ -84,9 +84,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: must be valid to one and only one schema, but 0 are valid",
-          "$.search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
-          "$.search.byName.name: integer found, string expected"
+          "/search: must be valid to one and only one schema, but 0 are valid",
+          "/search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
+          "/search/byName/name: integer found, string expected"
         ]
       },
       {
@@ -100,9 +100,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: must be valid to one and only one schema, but 0 are valid",
-          "$.search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
-          "$.search.byName.name: must be at most 20 characters long"
+          "/search: must be valid to one and only one schema, but 0 are valid",
+          "/search: property 'byName' is not defined in the schema and the schema does not allow additional properties",
+          "/search/byName/name: must be at most 20 characters long"
         ]
       },
       {
@@ -116,9 +116,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: must be valid to one and only one schema, but 0 are valid",
-          "$.search.byAge.age: string found, integer expected",
-          "$.search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
+          "/search: must be valid to one and only one schema, but 0 are valid",
+          "/search/byAge/age: string found, integer expected",
+          "/search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
         ]
       },
       {
@@ -132,9 +132,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "$.search: must be valid to one and only one schema, but 0 are valid",
-          "$.search.byAge.age: must have a maximum value of 150",
-          "$.search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
+          "/search: must be valid to one and only one schema, but 0 are valid",
+          "/search/byAge/age: must have a maximum value of 150",
+          "/search: property 'byAge' is not defined in the schema and the schema does not allow additional properties"
         ]
       }
     ]

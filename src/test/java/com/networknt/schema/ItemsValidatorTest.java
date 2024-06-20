@@ -50,8 +50,7 @@ public class ItemsValidatorTest {
                 + "  \"items\": {\"type\": \"integer\"}"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
@@ -65,7 +64,7 @@ public class ItemsValidatorTest {
         assertEquals("/1: string found, integer expected", message.getMessage());
         assertNull(message.getProperty());
     }
-    
+
     /**
      * Tests that the message contains the correct values when there are invalid
      * items.
@@ -78,8 +77,7 @@ public class ItemsValidatorTest {
                 + "  \"additionalItems\": {\"type\": \"integer\"}"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
@@ -93,7 +91,7 @@ public class ItemsValidatorTest {
         assertEquals("/3: string found, integer expected", message.getMessage());
         assertNull(message.getProperty());
     }
-    
+
     /**
      * Tests that the message contains the correct values when there are invalid
      * items.
@@ -106,8 +104,7 @@ public class ItemsValidatorTest {
                 + "  \"additionalItems\": false"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
         Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
@@ -130,15 +127,12 @@ public class ItemsValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-            
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
             }
-            
+
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
@@ -148,7 +142,7 @@ public class ItemsValidatorTest {
                         .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
                 items.add(walkEvent);
             }
-        });
+        }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true);
         assertTrue(result.getValidationMessages().isEmpty());
@@ -169,15 +163,12 @@ public class ItemsValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-            
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
             }
-            
+
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
@@ -187,7 +178,7 @@ public class ItemsValidatorTest {
                         .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
                 items.add(walkEvent);
             }
-        });
+        }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getValidationMessages().isEmpty());
@@ -214,15 +205,12 @@ public class ItemsValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-            
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
             }
-            
+
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
@@ -232,7 +220,7 @@ public class ItemsValidatorTest {
                         .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
                 items.add(walkEvent);
             }
-        });
+        }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getValidationMessages().isEmpty());
@@ -267,15 +255,12 @@ public class ItemsValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-            
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
             }
-            
+
             @Override
             public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
@@ -285,7 +270,7 @@ public class ItemsValidatorTest {
                         .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
                 items.add(walkEvent);
             }
-        });
+        }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[\"hello\"]");
         ValidationResult result = schema.walk(input, true);
@@ -324,26 +309,26 @@ public class ItemsValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setApplyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true));
-        config.setPathType(PathType.JSON_POINTER);
-        config.addItemWalkListener(new JsonSchemaWalkListener() {
-            
-            @Override
-            public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                return WalkFlow.CONTINUE;
-            }
-            
-            @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
-                @SuppressWarnings("unchecked")
-                List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
-                        .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
-                items.add(walkEvent);
-            }
-        });
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
+                .itemWalkListener(new JsonSchemaWalkListener() {
+
+                    @Override
+                    public WalkFlow onWalkStart(WalkEvent walkEvent) {
+                        return WalkFlow.CONTINUE;
+                    }
+
+                    @Override
+                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                        @SuppressWarnings("unchecked")
+                        List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
+                                .getCollectorContext()
+                                .getCollectorMap()
+                                .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        items.add(walkEvent);
+                    }
+                })
+                .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null, null, null]");
         ValidationResult result = schema.walk(input, true);

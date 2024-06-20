@@ -40,9 +40,6 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
             SchemaValidatorsConfig config) {
         try {
             JsonMetaSchema result = loadMetaSchemaBuilder(iri, schemaFactory, config).build();
-            if (result.getKeywords().containsKey("discriminator")) {
-                config.setOpenAPI3StyleDiscriminators(true);
-            }
             return result;
         } catch (InvalidSchemaException e) {
             throw e;

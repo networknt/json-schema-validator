@@ -72,7 +72,7 @@ public class OneOfValidator extends BaseJsonValidator {
         boolean failFast = executionContext.isFailFast();
         try {
             DiscriminatorValidator discriminator = null;
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 DiscriminatorContext discriminatorContext = new DiscriminatorContext();
                 executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
                 
@@ -105,7 +105,7 @@ public class OneOfValidator extends BaseJsonValidator {
                     break;
                 }
                 
-                if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                     // The discriminator will cause all messages other than the one with the
                     // matching discriminator to be discarded. Note that the discriminator cannot
                     // affect the actual validation result.
@@ -152,7 +152,7 @@ public class OneOfValidator extends BaseJsonValidator {
                 index++;
             }
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()
                     && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
@@ -166,7 +166,7 @@ public class OneOfValidator extends BaseJsonValidator {
             // Restore flag
             executionContext.setFailFast(failFast);
 
-            if (this.validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
         }

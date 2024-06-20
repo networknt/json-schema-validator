@@ -478,11 +478,14 @@ public class JsonMetaSchema {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
-                if ("message".equals(keyword) && validationContext.getConfig().isCustomMessageSupported()) {
+                if (keyword.equals(validationContext.getConfig().getErrorMessageKeyword())) {
+                    return null;
+                }
+                if (validationContext.getConfig().isNullableKeywordEnabled() && "nullable".equals(keyword)) {
                     return null;
                 }
                 if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)
-                        && validationContext.getConfig().isOpenAPI3StyleDiscriminators()) {
+                        && validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                     return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
                             parentSchema, validationContext);
                 }

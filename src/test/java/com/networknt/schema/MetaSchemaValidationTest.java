@@ -40,8 +40,7 @@ public class MetaSchemaValidationTest {
     void oas31() throws IOException {
         try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/3.1/petstore.json")) {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
-            SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-            config.setPathType(PathType.JSON_POINTER);
+            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
             JsonSchema schema = JsonSchemaFactory
                     .getInstance(VersionFlag.V202012,
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers

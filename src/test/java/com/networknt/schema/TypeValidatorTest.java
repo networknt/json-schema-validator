@@ -78,8 +78,7 @@ public class TypeValidatorTest {
         assertEquals(1, messages.stream().filter(m -> "type".equals(m.getType())).count());
 
         // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
-        SchemaValidatorsConfig config = new SchemaValidatorsConfig();
-        config.setTypeLoose(true);
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
         JsonSchema typeLoose = factory.getSchema(schemaData, config);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());

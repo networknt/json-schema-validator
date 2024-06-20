@@ -155,7 +155,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "$: must be valid to one and only one schema, but 2 are valid with indexes '0, 1'"
+          ": must be valid to one and only one schema, but 2 are valid with indexes '0, 1'"
         ]
       }
     ]
