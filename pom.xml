@@ -88,7 +88,7 @@
     <version.maven-bundle-plugin>5.1.9</version.maven-bundle-plugin>
     <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
     <version.maven-javadoc-plugin>3.6.3</version.maven-javadoc-plugin>
-    <version.maven-source-plugin>3.3.1</version.maven-source-plugin>
+    <version.maven-source-plugin>3.2.1</version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
     <version.maven-surefire-junit5-tree-reporter>1.2.1</version.maven-surefire-junit5-tree-reporter>
     <version.maven-surefire-plugin>3.2.5</version.maven-surefire-plugin>
     <version.moditect-maven-plugin>1.2.1.Final</version.moditect-maven-plugin>
