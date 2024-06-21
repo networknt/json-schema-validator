@@ -82,4 +82,39 @@ class IriFormatTest {
         assertTrue(messages.isEmpty());
     }
 
+    @Test
+    void noAuthorityShouldPass() {
+        String schemaData = "{\r\n"
+                + "  \"format\": \"iri\"\r\n"
+                + "}";
+
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        Set<ValidationMessage> messages = schema.validate("\"http://\"", InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void noSchemeNoAuthorityShouldPass() {
+        String schemaData = "{\r\n"
+                + "  \"format\": \"iri\"\r\n"
+                + "}";
+
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        Set<ValidationMessage> messages = schema.validate("\"//\"", InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
+
+    @Test
+    void noPathShouldPass() {
+        String schemaData = "{\r\n"
+                + "  \"format\": \"iri\"\r\n"
+                + "}";
+
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        Set<ValidationMessage> messages = schema.validate("\"about:\"", InputFormat.JSON);
+        assertTrue(messages.isEmpty());
+    }
 }
