@@ -11,6 +11,54 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.4.1 - 2024-06-20
+
+### Added
+
+### Changed
+
+- Add builder for SchemaValidatorsConfig (#1068) Thanks @justin-tay
+- Improve documentation on regular expressions (#1066) Thanks @justin-tay
+- Adds JsonNodeReader (#1065) Thanks @justin-tay
+- Bump jackson-databind from 2.17.0 to 2.17.1 (#1064) Thanks @justin-tay
+- Deprecate validateAndCollect in favor of explicitly calling loadCollectors (#1063) Thanks @justin-tay
+- Set initial array list size (#1062) Thanks @justin-tay
+- Refactor to make more fields final (#1060) Thanks @justin-tay
+- Deprecate config to disable unevaluatedItems and unevaluatedProperties evaluation as no longer needed (#1059) Thanks @justin-tay
+- Add GraalJS regular expression and factory implementation (#1058) Thanks @justin-tay
+- Allow customization of const message to include input value (#1057) Thanks @justin-tay
+- Optimize logging by creating a debug flag (#1054) Thanks @justin-tay 
+- Release delegate held by cached supplier (#1056) Thanks @justin-tay
+- Remove incorrect logic for oneOf, anyOf and properties (#1053) Thanks @justin-tay
+- Detect invalid escape for ecmascript (#1049) Thanks @justin-tay
+- Fix uri and uri-reference incorrect validation failure (#1052) Thanks @justin-tay
+- Fix for incorrect validation failure for %-encoded '[' and ']' characters. (#1051) Thanks @4naesthetic
+- Optimize getValueNodeType (#1048) Thanks @justin-tay
+- Allow tracking of json node location information (#1046) Thanks @justin-tay
+- Update example in javadoc for JsonMetaSchema builder (#1043) Thanks @khouari1
+- Validate allOf, oneOf and anyOf contains array (#1039) Thanks @justin-tay
+- Update JSON Schema badges (#1041) Thanks @justin-tay
+- Fix schema location for escaped json pointer (#1038) Thanks @justin-tay
+- Allow customization of assertion for outputunit (#1033) Thanks @justin-tay
+- change example.com connection error IOException (#1028)
+- Fix broken link in README (#1029) Thanks @danielaparker
+- Update dependency versions (#1023) Thanks @justin-tay
+- upgrade slf4j to 2.0.13
+- upgrade jackson to 2.17.0
+- Add options to control caching of schemas (#1018) Thanks @justin-tay
+- Update github actions (#1022) Thanks @justin-tay
+- Fix code example in README.md (#1020) Thanks @tombentley
+- Fix the broken link to if-then-else.json (#1014) Thanks @emmanuel-ferdman
+- Changed defs to $defs in compatibility.md (#1013) Thanks @danielaparker
+- Add OpenAPI JsonMetaSchema (#1011) Thanks @justin-tay
+- Fix walk for if validator with validation (#1010) Thanks @justin-tay
+- Fix 2012-12 typo (#1008) Thanks @justin-tay
+- Check type validator is of correct class (#1003) Thanks @justin-tay
+- Fix root classpath resolve (#1000) Thanks @justin-tay
+- upgrade undertow to 2.2.31.Final (#998)
+- Walk items schema instead of walking instance data (#993) Thanks @justin-tay
+
+
 ## 1.4.0 - 2024-03-16
 
 ### Added
