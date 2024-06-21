@@ -83,7 +83,7 @@ public class WalkEvent {
 
     /**
      * Gets the validator that corresponds with the keyword.
-     * 
+     * @param <T> the type of the validator
      * @return the validator
      */
     @SuppressWarnings("unchecked")

@@ -190,11 +190,11 @@ public class SchemaValidatorsConfig {
      *     .nullableKeywordEnabled(true)
      *     .build();
      * </pre>
-     * <p><ul>
+     * <ul>
      * <li> customMessageSupported (errorMessageKeyword): change from message to null
      * <li> pathType: changed from PathType.LEGACY to PathType.JSON_POINTER.
      * <li> handleNullableField (nullableKeywordEnabled): changed from true to false
-     * </ul><p>
+     * </ul>
      */
     @Deprecated
     public SchemaValidatorsConfig() {
@@ -948,6 +948,7 @@ public class SchemaValidatorsConfig {
          * Defaults to use {@link Locale#getDefault()}.
          *
          * @param locale The locale.
+         * @return the builder
          */
         public Builder locale(Locale locale) {
             this.locale = locale;

@@ -100,7 +100,7 @@ public abstract class ValidationMessageHandler {
 
     /**
      * Gets the custom error message to use.
-     * 
+     * @param errorMessageKeyword the error message keyword
      * @param schemaNode the schema node
      * @param keyword    the keyword
      * @return the custom error message

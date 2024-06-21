@@ -35,7 +35,8 @@ import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
 public class JsonNodes {
     /**
      * Gets the node found at the path.
-     * 
+     *
+     * @param <T> the type of the node
      * @param node the node
      * @param path the path
      * @return the node found at the path or null
@@ -57,7 +58,8 @@ public class JsonNodes {
 
     /**
      * Gets the node given the property or index.
-     * 
+     *
+     * @param <T> the type of the node
      * @param node the node
      * @param propertyOrIndex the property or index
      * @return the node given the property or index

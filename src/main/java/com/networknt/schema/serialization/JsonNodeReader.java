@@ -32,17 +32,17 @@ public interface JsonNodeReader {
      * @param content     the content
      * @param inputFormat the input format
      * @return the node
-     * @throws IOException
+     * @throws IOException IOException
      */
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException;
 
     /**
      * Deserialize content as a tree.
      * 
-     * @param content
-     * @param inputFormat
+     * @param content input stream
+     * @param inputFormat input format
      * @return the node
-     * @throws IOException
+     * @throws IOException IOException
      */
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException;
 
