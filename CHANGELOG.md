@@ -11,6 +11,16 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.4.2 - 2024-06-21
+
+### Added
+
+### Changed
+
+- Resolve javadoc warning messages #1073
+- Fix iri, iri-reference, uri and uri-reference (#1071) Thanks @justin-tay
+- fixes #1072 Downgrade maven-source-plugin to 3.2.1
+
 ## 1.4.1 - 2024-06-20
 
 ### Added
