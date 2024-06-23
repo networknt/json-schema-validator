@@ -17,6 +17,7 @@ package com.networknt.schema.resource;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 import com.networknt.schema.AbsoluteIri;
 
@@ -24,6 +25,23 @@ import com.networknt.schema.AbsoluteIri;
  * Loads from classpath.
  */
 public class ClasspathSchemaLoader implements SchemaLoader {
+    private final Supplier<ClassLoader> classLoaderSource;
+
+    /**
+     * Constructor.
+     */
+    public ClasspathSchemaLoader() {
+        this(ClasspathSchemaLoader::getClassLoader);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param classLoaderSource the class loader source
+     */
+    public ClasspathSchemaLoader(Supplier<ClassLoader> classLoaderSource) {
+        this.classLoaderSource = classLoaderSource;
+    }
 
     @Override
     public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
@@ -35,19 +53,15 @@ public class ClasspathSchemaLoader implements SchemaLoader {
             name = iri.substring(9);
         }
         if (name != null) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            if (classLoader == null) {
-                classLoader = SchemaLoader.class.getClassLoader();
-            }
-            ClassLoader loader = classLoader;
+            ClassLoader classLoader = this.classLoaderSource.get();
             if (name.startsWith("//")) {
                 name = name.substring(2);
             }
             String resource = name;
             return () -> {
-                InputStream result = loader.getResourceAsStream(resource);
+                InputStream result = classLoader.getResourceAsStream(resource);
                 if (result == null) {
-                    result = loader.getResourceAsStream(resource.substring(1));
+                    result = classLoader.getResourceAsStream(resource.substring(1));
                 }
                 if (result == null) {
                     throw new FileNotFoundException(iri);
@@ -58,4 +72,11 @@ public class ClasspathSchemaLoader implements SchemaLoader {
         return null;
     }
 
+    protected static ClassLoader getClassLoader() {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = SchemaLoader.class.getClassLoader();
+        }
+        return classLoader;
+    }
 }
