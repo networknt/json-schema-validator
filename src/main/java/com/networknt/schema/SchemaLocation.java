@@ -114,14 +114,16 @@ public class SchemaLocation {
         if ("#".equals(iri)) {
             return DOCUMENT;
         }
-        String[] iriParts = iri.split("#");
         AbsoluteIri absoluteIri = null;
         JsonNodePath fragment = JSON_POINTER;
-        if (iriParts.length > 0) {
-            absoluteIri = AbsoluteIri.of(iriParts[0]);
-        }
-        if (iriParts.length > 1) {
-            fragment = Fragment.of(iriParts[1]);
+        int index = iri.indexOf('#');
+        if (index == -1) {
+            absoluteIri = AbsoluteIri.of(iri);
+        } else {
+            absoluteIri = AbsoluteIri.of(iri.substring(0, index));
+            if (iri.length() > index + 1) {
+                fragment = Fragment.of(iri.substring(index + 1));
+            }
         }
         return new SchemaLocation(absoluteIri, fragment);
     }

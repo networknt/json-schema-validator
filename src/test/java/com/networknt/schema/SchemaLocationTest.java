@@ -231,4 +231,28 @@ class SchemaLocationTest {
                 SchemaLocation.of("https://example.com/schemas/address/#street_address").hashCode());
     }
 
+    @Test
+    void hashInFragment() {
+        SchemaLocation location = SchemaLocation.of("https://example.com/example.yaml#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema");
+        assertEquals("/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema", location.getFragment().toString());
+    }
+
+    @Test
+    void trailingHash() {
+        SchemaLocation location = SchemaLocation.of("https://example.com/example.yaml#");
+        assertEquals("", location.getFragment().toString());
+    }
+
+    @Test
+    void equalsEqualsNoFragment() {
+        assertEquals(SchemaLocation.of("https://example.com/example.yaml#"),
+                SchemaLocation.of("https://example.com/example.yaml"));
+    }
+
+    @Test
+    void equalsEqualsNoFragmentToString() {
+        assertEquals(SchemaLocation.of("https://example.com/example.yaml#").toString(),
+                SchemaLocation.of("https://example.com/example.yaml").toString());
+    }
+
 }
