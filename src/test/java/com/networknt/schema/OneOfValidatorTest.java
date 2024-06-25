@@ -284,4 +284,189 @@ public class OneOfValidatorTest {
                 + "}";
         assertFalse(schema.validate(example3, InputFormat.JSON, OutputFormat.BOOLEAN));
     }
+
+    /**
+     * Test for when the discriminator keyword is enabled but no discriminator is
+     * present in the schema. This should process as a normal oneOf and return the
+     * error messages.
+     */
+    @Test
+    void oneOfDiscriminatorEnabled() {
+        String schemaData = "{\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"type\": \"number\"\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        String inputData = "{}";
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(3, messages.size());
+    }
+
+    /**
+     * Standard case where the discriminator is in the same schema as oneOf.
+     * <p>
+     * Note that discriminators do not affect the validation result and can only
+     * affect the messages returned.
+     */
+    @Test
+    void oneOfDiscriminatorEnabledWithDiscriminator() {
+        String schemaData = "{\r\n"
+                + "  \"discriminator\": {\r\n"
+                + "    \"propertyName\": \"type\",\r\n"
+                + "    \"mapping\": {\r\n"
+                + "      \"string\": \"#/$defs/string\",\r\n"
+                + "      \"number\": \"#/$defs/number\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/string\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/number\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"string\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"type\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"value\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    },\r\n"
+                + "    \"number\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"type\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"value\": {\r\n"
+                + "          \"type\": \"number\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        // Valid
+        String inputData = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"value\": 1\r\n"
+                + "}";
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(0, messages.size());
+
+        // Invalid only 1 message returned for number
+        String inputData2 = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"value\": {}\r\n"
+                + "}";
+        Set<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        assertEquals(2, messages2.size());
+
+        // Invalid both messages for string and object returned
+        JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
+        Set<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        assertEquals(3, messages3.size());
+    }
+
+    /**
+     * Subclass case where the discriminator is in an allOf inside one of the oneOf references.
+     * <p>
+     * Note that discriminators do not affect the validation result and can only
+     * affect the messages returned.
+     */
+    @Test
+    void oneOfDiscriminatorEnabledWithDiscriminatorInSubclass() {
+        String schemaData = "{\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/string\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/number\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"typed\": {\r\n"
+                + "      \"discriminator\": {\r\n"
+                + "        \"propertyName\": \"type\",\r\n"
+                + "        \"mapping\": {\r\n"
+                + "          \"string\": \"#/$defs/string\",\r\n"
+                + "          \"number\": \"#/$defs/number\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    },\r\n"
+                + "    \"string\": {\r\n"
+                + "      \"allOf\": [\r\n"
+                + "        {\r\n"
+                + "          \"$ref\": \"#/$defs/typed\"\r\n"
+                + "        },\r\n"
+                + "        {\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"type\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            },\r\n"
+                + "            \"value\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }\r\n"
+                + "      ]\r\n"
+                + "    },\r\n"
+                + "    \"number\": {\r\n"
+                + "      \"allOf\": [\r\n"
+                + "        {\r\n"
+                + "          \"$ref\": \"#/$defs/typed\"\r\n"
+                + "        },\r\n"
+                + "        {\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"type\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            },\r\n"
+                + "            \"value\": {\r\n"
+                + "              \"type\": \"number\"\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }\r\n"
+                + "      ]\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        // Valid
+        String inputData = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"value\": 1\r\n"
+                + "}";
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(0, messages.size());
+
+        // Invalid only 1 message returned for number
+        String inputData2 = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"value\": {}\r\n"
+                + "}";
+        Set<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        assertEquals(2, messages2.size());
+
+        // Invalid both messages for string and object returned
+        JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
+        Set<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        assertEquals(3, messages3.size());
+    }
+
 }

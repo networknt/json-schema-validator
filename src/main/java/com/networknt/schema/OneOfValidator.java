@@ -16,13 +16,19 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.utils.SetView;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.utils.SetView;
 
 /**
  * {@link JsonValidator} for oneOf.
@@ -75,10 +81,15 @@ public class OneOfValidator extends BaseJsonValidator {
             if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 DiscriminatorContext discriminatorContext = new DiscriminatorContext();
                 executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
-                
+
                 // check if discriminator present
                 discriminator = (DiscriminatorValidator) this.getParentSchema().getValidators().stream()
                         .filter(v -> "discriminator".equals(v.getKeyword())).findFirst().orElse(null);
+                if (discriminator != null) {
+                    // this is just to make the discriminator context active
+                    discriminatorContext.registerDiscriminator(discriminator.getSchemaLocation(),
+                            (ObjectNode) discriminator.getSchemaNode());
+                }
             }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
@@ -135,7 +146,8 @@ public class OneOfValidator extends BaseJsonValidator {
                         // found is null triggers on the correct schema
                         childErrors = new SetView<>();
                         childErrors.union(schemaErrors);
-                    } else if (currentDiscriminatorContext.isDiscriminatorIgnore()) {
+                    } else if (currentDiscriminatorContext.isDiscriminatorIgnore()
+                            || !currentDiscriminatorContext.isActive()) {
                         // This is the normal handling when discriminators aren't enabled
                         if (childErrors == null) {
                             childErrors = new SetView<>();
