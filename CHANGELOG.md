@@ -11,6 +11,14 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.4.3 - 2024-06-25
+
+### Added
+
+### Changed
+
+- Fix schema location with hash in fragment (#1075) Thanks @justin-tay
+
 ## 1.4.2 - 2024-06-21
 
 ### Added
