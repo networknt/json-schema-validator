@@ -19,7 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.JsonSchemaRefs;
+import com.networknt.schema.utils.Defaults;
 import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
                 if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                    JsonNode defaultNode = getDefaultNode(this.tupleSchema.get(i));
+                    JsonNode defaultNode = Defaults.getDefaultNode(this.tupleSchema.get(i));
                     if (n != null) {
                         // Defaults only set if array index is explicitly null
                         if (n.isNull() && defaultNode != null) {
@@ -149,16 +149,6 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         return validationMessages;
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
-        JsonNode result = schema.getSchemaNode().get("default");
-        if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
-            if (schemaRef != null) {
-                result = getDefaultNode(schemaRef.getSchema());
-            }
-        }
-        return result;
-    }
 
     private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
