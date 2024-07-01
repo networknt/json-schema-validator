@@ -551,6 +551,16 @@ The earlier draft specifications contain less keywords that can potentially impa
 
 This does not mean that using a schema with a later draft specification will automatically cause a performance impact. For instance, the `properties` validator will perform checks to determine if annotations need to be collected, and checks if the meta-schema contains the `unevaluatedProperties` keyword and whether the `unevaluatedProperties` keyword exists adjacent the evaluation path.
 
+## Security Considerations
+
+The library assumes that the schemas being loaded are trusted. This security model assumes the use case where the schemas are bundled with the application on the classpath.
+
+| Issue                 | Description                                                                                                                                                                                                                                          | Mitigation
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------
+| Schema Loading        | The library by default will load schemas from the classpath and over the internet if needed.                                                                                                                                                         | A `DisallowSchemaLoader` can be configured to not allow schema retrieval. Alternatively an `AllowSchemaLoader` can be configured to restrict the retrieval IRIs that are allowed.
+| Schema Caching        | The library by default preloads and caches references when loading schemas. While there is a max nesting depth when preloading schemas it is still possible to construct a schema that has a fan out that consumes a lot of memory from the server.  | Set `cacheRefs` option in `SchemaValidatorsConfig` to false.
+| Regular Expressions   | The library does not validate if a given regular expression is susceptable to denial of service ([ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS)).                                                     | An `AllowRegularExpressionFactory` can be configured to perform validation on the regular expressions that are allowed.
+| Validation Errors     | The library by default attempts to return all validation errors. The use of applicators such as `allOf` with a large number of schemas may result in a large number of validation errors taking up memory.                                           | Set `failFast` option in `SchemaValidatorsConfig` to immediately return when the first error is encountered. The `OutputFormat.BOOLEAN` or `OutputFormat.FLAG` also can be used.
 
 ## [Quick Start](doc/quickstart.md)
 

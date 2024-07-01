@@ -182,7 +182,7 @@ public class AbsoluteIri {
             return "";
         }
         // iri refers to root
-        int start = iri.indexOf(":");
+        int start = iri.indexOf(':');
         if (start == -1) {
             return "";
         } else {
