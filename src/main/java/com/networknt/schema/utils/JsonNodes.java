@@ -67,7 +67,7 @@ public class JsonNodes {
     @SuppressWarnings("unchecked")
     public static <T extends JsonNode> T get(JsonNode node, Object propertyOrIndex) {
         JsonNode value = null;
-        if (propertyOrIndex instanceof Number) {
+        if (propertyOrIndex instanceof Number && node.isArray()) {
             value = node.get(((Number) propertyOrIndex).intValue());
         } else {
             value = node.get(propertyOrIndex.toString());

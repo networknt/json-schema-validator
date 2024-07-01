@@ -16,6 +16,7 @@
 package com.networknt.schema.oas;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -63,5 +64,17 @@ class OpenApi30Test {
         assertEquals("oneOf", list.get(0).getType());
         assertEquals("required", list.get(1).getType());
         assertEquals("bark", list.get(1).getProperty());
+    }
+
+    /**
+     * Tests that schema location with number in fragment can resolve.
+     */
+    @Test
+    void jsonPointerWithNumberInFragment() {
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        JsonSchema schema = factory.getSchema(SchemaLocation.of(
+                "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"));
+        assertNotNull(schema);
     }
 }
