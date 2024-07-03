@@ -65,11 +65,12 @@ public class JsonSchema extends BaseJsonValidator {
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
     }
-    
+
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
-        return this.schemaLocation.getFragment() == null || this.schemaLocation.getFragment().getNameCount() == 0;
+        JsonNodePath fragment = this.schemaLocation.getFragment();
+        return fragment == null || (fragment.getParent() == null && fragment.getNameCount() == 0);
     }
-    
+
     private static SchemaLocation resolve(SchemaLocation schemaLocation, JsonNode schemaNode, boolean rootSchema,
             ValidationContext validationContext) {
         String id = validationContext.resolveSchemaId(schemaNode);
@@ -112,7 +113,7 @@ public class JsonSchema extends BaseJsonValidator {
         if (id != null) {
             // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
             // Note that json pointer fragments in $id are not allowed
-            SchemaLocation result = id.contains("#") ? schemaLocation.resolve(id) : this.schemaLocation;
+            SchemaLocation result = id.indexOf('#') != -1 ? schemaLocation.resolve(id) : this.schemaLocation;
             if (hasNoFragment(result)) {
                 this.id = id;
             } else {

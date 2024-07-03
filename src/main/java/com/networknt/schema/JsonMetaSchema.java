@@ -439,11 +439,8 @@ public class JsonMetaSchema {
     }
 
     private static String readText(JsonNode node, String field) {
-        JsonNode idNode = node.get(field);
-        if (idNode == null || !idNode.isTextual()) {
-            return null;
-        }
-        return idNode.textValue();
+        JsonNode fieldNode = node.get(field);
+        return fieldNode == null ? null : fieldNode.textValue();
     }
 
     public String getIri() {
