@@ -82,6 +82,7 @@ public class VocabularyTest {
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("minimum", messages.iterator().next().getType());
+        assertEquals(VersionFlag.V202012, schema.getValidationContext().activeDialect().get());
     }
 
     @Test

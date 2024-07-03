@@ -107,7 +107,6 @@ public class ValidationContext {
     }
 
     public Optional<VersionFlag> activeDialect() {
-        String metaSchema = getMetaSchema().getIri();
-        return SpecVersionDetector.detectOptionalVersion(metaSchema);
+        return Optional.of(this.metaSchema.getSpecification());
     }
 }
