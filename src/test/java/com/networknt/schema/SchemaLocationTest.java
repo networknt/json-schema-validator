@@ -75,6 +75,24 @@ class SchemaLocationTest {
     }
 
     @Test
+    void schemaLocationResolveHashInFragment() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals(
+                "https://example.com/schemas/address#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema",
+                SchemaLocation.resolve(schemaLocation,
+                        "#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema"));
+    }
+
+    @Test
+    void schemaLocationResolvePathHashInFragment() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals(
+                "https://example.com/schemas/hello#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema",
+                SchemaLocation.resolve(schemaLocation,
+                        "hello#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema"));
+    }
+
+    @Test
     void schemaLocationResolveEmptyString() {
         SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
         assertEquals("https://example.com/schemas/address#", SchemaLocation.resolve(schemaLocation, ""));
@@ -103,6 +121,26 @@ class SchemaLocationTest {
         SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
         assertEquals("https://example.com/schemas/address#/allOf/10/properties",
                 schemaLocation.resolve("#/allOf/10/properties").toString());
+    }
+
+    @Test
+    void resolveHashInFragment() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals(
+                "https://example.com/schemas/address#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema",
+                schemaLocation.resolve(
+                        "#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema")
+                        .toString());
+    }
+
+    @Test
+    void resolvePathHashInFragment() {
+        SchemaLocation schemaLocation = SchemaLocation.of("https://example.com/schemas/address#street_address");
+        assertEquals(
+                "https://example.com/schemas/hello#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema",
+                schemaLocation.resolve(
+                        "hello#/paths/~1subscribe/post/callbacks/myEvent/{request.body#~1callbackUrl}/post/requestBody/content/application~1json/schema")
+                        .toString());
     }
 
     @Test
