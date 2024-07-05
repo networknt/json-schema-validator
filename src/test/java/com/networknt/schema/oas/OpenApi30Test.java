@@ -28,7 +28,9 @@ import com.networknt.schema.DisallowUnknownJsonMetaSchemaFactory;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationMessage;
 
@@ -74,7 +76,10 @@ class OpenApi30Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(SchemaLocation.of(
-                "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"));
+                "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"),
+                SchemaValidatorsConfig.builder().pathType(PathType.JSON_PATH).build());
         assertNotNull(schema);
+        assertEquals("$.paths['/pet'].post.responses['200'].content['application/json'].schema",
+                schema.getEvaluationPath().toString());
     }
 }

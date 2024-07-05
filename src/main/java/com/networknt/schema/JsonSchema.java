@@ -369,7 +369,7 @@ public class JsonSchema extends BaseJsonValidator {
             Object segment = fragment.getElement(x);
             JsonNode subSchemaNode = getNode(parentNode, segment);
             if (subSchemaNode != null) {
-                if (segment instanceof Number) {
+                if (segment instanceof Number && parentNode.isArray()) {
                     int index = ((Number) segment).intValue();
                     schemaLocation = schemaLocation.append(index);
                     evaluationPath = evaluationPath.append(index);
