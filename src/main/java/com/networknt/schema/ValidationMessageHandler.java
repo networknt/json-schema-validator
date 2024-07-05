@@ -2,7 +2,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.MessageSource;
-import com.networknt.schema.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,7 +25,7 @@ public abstract class ValidationMessageHandler {
     protected ValidationMessageHandler(ErrorMessageType errorMessageType, String errorMessageKeyword,
             MessageSource messageSource, Keyword keyword, JsonSchema parentSchema, SchemaLocation schemaLocation,
             JsonNodePath evaluationPath) {
-        ErrorMessageType currentErrorMessageType = errorMessageType;
+        this.errorMessageType = errorMessageType;
         this.messageSource = messageSource;
         this.schemaLocation = Objects.requireNonNull(schemaLocation);
         this.evaluationPath = Objects.requireNonNull(evaluationPath);
@@ -36,24 +35,12 @@ public abstract class ValidationMessageHandler {
         this.keyword = keyword;
 
         Map<String, String> currentErrorMessage = null;
-
         if (this.keyword != null) {
             if (this.errorMessageKeyword != null && keyword != null && parentSchema != null) {
                 currentErrorMessage = getErrorMessage(this.errorMessageKeyword, parentSchema.getSchemaNode(),
                         keyword.getValue());
             }
-            String errorCodeKey = getErrorCodeKey(keyword.getValue());
-            if (errorCodeKey != null && this.parentSchema != null) {
-                JsonNode errorCodeNode = this.parentSchema.getSchemaNode().get(errorCodeKey);
-                if (errorCodeNode != null && errorCodeNode.isTextual()) {
-                    String errorCodeText = errorCodeNode.asText();
-                    if (StringUtils.isNotBlank(errorCodeText)) {
-                        currentErrorMessageType = CustomErrorMessageType.of(errorCodeText);
-                    }
-                }
-            }
         }
-        this.errorMessageType = currentErrorMessageType;
         this.errorMessage = currentErrorMessage;
     }
 
@@ -142,12 +129,5 @@ public abstract class ValidationMessageHandler {
             }
         }
         return messageNode;
-    }
-
-    protected String getErrorCodeKey(String keyword) {
-        if (keyword != null) {
-            return keyword + "ErrorCode";
-        }
-        return null;
     }
 }

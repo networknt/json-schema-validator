@@ -39,7 +39,7 @@ public class SampleTest {
 
     @Test
     void schemaFromSchemaLocationContent() throws JsonMappingException, JsonProcessingException {
-        String schemaData = "{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}";
+        String schemaData = "{\"enum\":[1, 2, 3, 4]}";
         
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
@@ -91,7 +91,7 @@ public class SampleTest {
          * resolving relative $ref.
          */
         JsonSchema schemaFromString = factory
-                .getSchema("{\"enum\":[1, 2, 3, 4],\"enumErrorCode\":\"Not in the list\"}");
+                .getSchema("{\"enum\":[1, 2, 3, 4]}");
         Set<ValidationMessage> errors = schemaFromString.validate("7", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
