@@ -11,6 +11,22 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.0 - 2024-07-05
+
+### Added
+
+### Changed
+
+- Improve performance and fixes (#1086) Thanks @justin-tay
+- Fix activeDialect for custom meta schema (#1084) Thanks @justin-tay
+- Remove alternate custom error message mechanism (#1083) Thanks @justin-tay
+- Fix evaluationPath and schemaLocation in getSubSchema for number in fragment (#1081) Thanks @justin-tay
+- Bump io.undertow:undertow-core from 2.2.31.Final to 2.2.33.Final (#1080) Thanks @justin-tay
+- Add security considerations and mitigations (#1079) Thanks @justin-tay
+- Fix oneOf when discriminator enabled but no discriminator (#1078) Thanks @justin-tay
+- Fix json pointer with number in fragment (#1077) Thanks @justin-tay
+
+
 ## 1.4.3 - 2024-06-25
 
 ### Added
