@@ -1,0 +1,24 @@
+$id: resource:/schema/issue1087
+$defs:
+  TypeA:
+    type: object
+    required:
+      - kind
+    properties:
+      kind:
+        type: string
+  TypeB:
+    type: object
+    required:
+      - kind
+    properties:
+      kind:
+        type: string
+oneOf:
+  - $ref: "#/$defs/TypeA"
+  - $ref: "#/$defs/TypeB"
+discriminator:
+  propertyName: kind
+  mapping:
+    A: "#/$defs/TypeA"
+    B: "#/$defs/TypeB"
