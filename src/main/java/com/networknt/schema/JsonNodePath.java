@@ -28,6 +28,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
     private final int pathSegmentIndex;
 
     private volatile String value = null; // computed lazily
+    private int hash = 0; // computed lazily
 
     public JsonNodePath(PathType type) {
         this.type = type;
@@ -215,7 +216,12 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(parent, pathSegment, pathSegmentIndex, type);
+        int h = hash;
+        if (h == 0) {
+            h = Objects.hash(parent, pathSegment, pathSegmentIndex, type);
+            hash = h;
+        }
+        return h;
     }
 
     @Override

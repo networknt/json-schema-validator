@@ -142,17 +142,24 @@ public class SchemaLocation {
             return new SchemaLocation(this.getAbsoluteIri(), JSON_POINTER);
         }
         JsonNodePath fragment = JSON_POINTER;
-        String[] parts = absoluteIriReferenceOrFragment.split("#");
+        int index = absoluteIriReferenceOrFragment.indexOf('#');
         AbsoluteIri absoluteIri = this.getAbsoluteIri();
+        String part0 = index == -1 ? absoluteIriReferenceOrFragment
+                : absoluteIriReferenceOrFragment.substring(0, index);
         if (absoluteIri != null) {
-            if (!parts[0].isEmpty()) {
-                absoluteIri = absoluteIri.resolve(parts[0]);
+            if (!part0.isEmpty()) {
+                absoluteIri = absoluteIri.resolve(part0);
             }
         } else {
-            absoluteIri = AbsoluteIri.of(parts[0]);
+            absoluteIri = AbsoluteIri.of(part0);
         }
-        if (parts.length > 1 && !parts[1].isEmpty()) {
-            fragment = Fragment.of(parts[1]);
+        if (index != -1) {
+            if (absoluteIriReferenceOrFragment.length() > index + 1) {
+                String part1 = absoluteIriReferenceOrFragment.substring(index + 1);
+                if (!part1.isEmpty()) {
+                    fragment = Fragment.of(part1);
+                }
+            }
         }
         return new SchemaLocation(absoluteIri, fragment);
     }
@@ -168,18 +175,26 @@ public class SchemaLocation {
         if ("#".equals(absoluteIriReferenceOrFragment)) {
             return schemaLocation.getAbsoluteIri().toString() + "#";
         }
-        String[] parts = absoluteIriReferenceOrFragment.split("#");
+        int index = absoluteIriReferenceOrFragment.indexOf('#');
         AbsoluteIri absoluteIri = schemaLocation.getAbsoluteIri();
-        String resolved = parts[0];
+        String part0 = index == -1 ? absoluteIriReferenceOrFragment
+                : absoluteIriReferenceOrFragment.substring(0, index);
+        String resolved = part0;
         if (absoluteIri != null) {
-            if (!parts[0].isEmpty()) {
-                resolved = absoluteIri.resolve(parts[0]).toString();
+            if (!part0.isEmpty()) {
+                resolved = absoluteIri.resolve(part0).toString();
             } else {
                 resolved = absoluteIri.toString();
             }
         }
-        if (parts.length > 1 && !parts[1].isEmpty()) {
-            resolved = resolved + "#" + parts[1];
+        String part1 = "";
+        if (index != -1) {
+            if (absoluteIriReferenceOrFragment.length() > index + 1) {
+                part1 = absoluteIriReferenceOrFragment.substring(index + 1);
+            }
+        }
+        if (!part1.isEmpty()) {
+            resolved = resolved + "#" + part1;
         } else {
             resolved = resolved + "#";
         }
