@@ -131,10 +131,7 @@ public class JsonNodeUtil {
     }
 
     private static long detectVersion(ValidationContext validationContext) {
-        String metaSchema = validationContext.getMetaSchema().getIri();
-        return SpecVersionDetector.detectOptionalVersion(metaSchema)
-            .orElse(VersionFlag.V4)
-            .getVersionFlagValue();
+        return validationContext.activeDialect().orElse(VersionFlag.V4).getVersionFlagValue();
     }
 
     /**
