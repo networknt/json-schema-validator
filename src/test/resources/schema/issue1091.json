@@ -1,0 +1,2529 @@
+{
+  "$ref": "#/definitions/doc_node",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "blockCard_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["blockCard"]
+        },
+        "attrs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "datasource": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "parameters": {},
+                    "views": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "properties": {},
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["type"],
+                        "type": "object"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": ["id", "parameters", "views"]
+                },
+                "width": {
+                  "type": "number"
+                },
+                "layout": {
+                  "enum": [
+                    "wide",
+                    "full-width",
+                    "center",
+                    "wrap-right",
+                    "wrap-left",
+                    "align-end",
+                    "align-start"
+                  ]
+                }
+              },
+              "required": ["datasource"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": ["url"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "data": {}
+              },
+              "required": ["data"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "text_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["text"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "text": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "text"]
+    },
+    "codeBlock_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["codeBlock"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/text_node"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "marks": {
+                    "type": "array",
+                    "maxItems": 0
+                  }
+                },
+                "additionalProperties": true
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type"]
+    },
+    "codeBlock_with_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/codeBlock_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/breakout_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "breakout_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["breakout"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": ["wide", "full-width"]
+            }
+          },
+          "required": ["mode"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "codeBlock_with_no_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/codeBlock_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "mediaSingle_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["mediaSingle"]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link_mark"
+          }
+        },
+        "attrs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "layout": {
+                  "enum": [
+                    "wide",
+                    "full-width",
+                    "center",
+                    "wrap-right",
+                    "wrap-left",
+                    "align-end",
+                    "align-start"
+                  ]
+                },
+                "widthType": {
+                  "enum": ["percentage"]
+                }
+              },
+              "required": ["layout"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "widthType": {
+                  "enum": ["pixel"]
+                },
+                "layout": {
+                  "enum": [
+                    "wide",
+                    "full-width",
+                    "center",
+                    "wrap-right",
+                    "wrap-left",
+                    "align-end",
+                    "align-start"
+                  ]
+                }
+              },
+              "required": ["width", "widthType", "layout"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "required": ["type"]
+    },
+    "link_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["link"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "href": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "collection": {
+              "type": "string"
+            },
+            "occurrenceKey": {
+              "type": "string"
+            }
+          },
+          "required": ["href"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "media_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["media"]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/link_mark"
+              },
+              {
+                "$ref": "#/definitions/annotation_mark"
+              },
+              {
+                "$ref": "#/definitions/border_mark"
+              }
+            ]
+          }
+        },
+        "attrs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "enum": ["link", "file"]
+                },
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "alt": {
+                  "type": "string"
+                },
+                "collection": {
+                  "type": "string"
+                },
+                "height": {
+                  "type": "number"
+                },
+                "occurrenceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "width": {
+                  "type": "number"
+                }
+              },
+              "required": ["type", "id", "collection"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "enum": ["external"]
+                },
+                "alt": {
+                  "type": "string"
+                },
+                "height": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": ["type", "url"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "annotation_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["annotation"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "annotationType": {
+              "enum": ["inlineComment"]
+            }
+          },
+          "required": ["id", "annotationType"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "border_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["border"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 3
+            },
+            "color": {
+              "pattern": "^#[0-9a-fA-F]{8}$|^#[0-9a-fA-F]{6}$",
+              "type": "string"
+            }
+          },
+          "required": ["size", "color"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "hardBreak_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["hardBreak"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "enum": ["\n"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type"]
+    },
+    "mention_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["mention"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "localId": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "accessLevel": {
+              "type": "string"
+            },
+            "userType": {
+              "enum": ["DEFAULT", "SPECIAL", "APP"]
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "emoji_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["emoji"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "shortName": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": ["shortName"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "date_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["date"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["timestamp"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "placeholder_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["placeholder"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": ["text"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "inlineCard_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["inlineCard"]
+        },
+        "attrs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": ["url"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "data": {}
+              },
+              "required": ["data"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "status_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["status"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "color": {
+              "enum": ["neutral", "purple", "blue", "red", "yellow", "green"]
+            },
+            "localId": {
+              "type": "string"
+            },
+            "style": {
+              "type": "string"
+            }
+          },
+          "required": ["text", "color"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "formatted_text_inline_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/text_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/link_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/em_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/strong_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/strike_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/subsup_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/underline_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/textColor_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/annotation_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/backgroundColor_mark"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "em_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["em"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "strong_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["strong"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "strike_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["strike"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "subsup_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["subsup"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": ["sub", "sup"]
+            }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "underline_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["underline"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "textColor_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["textColor"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": ["color"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "backgroundColor_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["backgroundColor"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "type": "string"
+            }
+          },
+          "required": ["color"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "code_inline_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/text_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/code_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/link_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/annotation_mark"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "code_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["code"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "caption_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["caption"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/hardBreak_node"
+              },
+              {
+                "$ref": "#/definitions/mention_node"
+              },
+              {
+                "$ref": "#/definitions/emoji_node"
+              },
+              {
+                "$ref": "#/definitions/date_node"
+              },
+              {
+                "$ref": "#/definitions/placeholder_node"
+              },
+              {
+                "$ref": "#/definitions/inlineCard_node"
+              },
+              {
+                "$ref": "#/definitions/status_node"
+              },
+              {
+                "$ref": "#/definitions/formatted_text_inline_node"
+              },
+              {
+                "$ref": "#/definitions/code_inline_node"
+              }
+            ]
+          },
+          "minItems": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "mediaSingle_caption_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/mediaSingle_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "array",
+              "items": [
+                {
+                  "$ref": "#/definitions/media_node"
+                },
+                {
+                  "$ref": "#/definitions/caption_node"
+                }
+              ],
+              "minItems": 1,
+              "maxItems": 2
+            }
+          },
+          "required": ["content"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "mediaSingle_full_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/mediaSingle_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/media_node"
+              },
+              "minItems": 1,
+              "maxItems": 1
+            }
+          },
+          "required": ["content"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "inlineExtension_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["inlineExtension"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "extensionKey": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "extensionType": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "parameters": {},
+            "text": {
+              "type": "string"
+            },
+            "localId": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["extensionKey", "extensionType"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "inlineExtension_with_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/inlineExtension_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/dataConsumer_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/fragment_mark"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "dataConsumer_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["dataConsumer"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          },
+          "required": ["sources"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "fragment_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["fragment"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": ["localId"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "mediaInline_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["mediaInline"]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/link_mark"
+              },
+              {
+                "$ref": "#/definitions/annotation_mark"
+              },
+              {
+                "$ref": "#/definitions/border_mark"
+              }
+            ]
+          }
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": ["link", "file", "image"]
+            },
+            "id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "alt": {
+              "type": "string"
+            },
+            "collection": {
+              "type": "string"
+            },
+            "occurrenceKey": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "data": {}
+          },
+          "required": ["id", "collection"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "inline_node": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/formatted_text_inline_node"
+        },
+        {
+          "$ref": "#/definitions/code_inline_node"
+        },
+        {
+          "$ref": "#/definitions/date_node"
+        },
+        {
+          "$ref": "#/definitions/emoji_node"
+        },
+        {
+          "$ref": "#/definitions/hardBreak_node"
+        },
+        {
+          "$ref": "#/definitions/inlineCard_node"
+        },
+        {
+          "$ref": "#/definitions/mention_node"
+        },
+        {
+          "$ref": "#/definitions/placeholder_node"
+        },
+        {
+          "$ref": "#/definitions/status_node"
+        },
+        {
+          "$ref": "#/definitions/inlineExtension_with_marks_node"
+        },
+        {
+          "$ref": "#/definitions/mediaInline_node"
+        }
+      ]
+    },
+    "paragraph_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["paragraph"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inline_node"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type"]
+    },
+    "paragraph_with_alignment_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/paragraph_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/alignment_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "alignment_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["alignment"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "align": {
+              "enum": ["center", "end"]
+            }
+          },
+          "required": ["align"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "paragraph_with_indentation_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/paragraph_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/indentation_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "indentation_mark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["indentation"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 6
+            }
+          },
+          "required": ["level"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "attrs"],
+      "additionalProperties": false
+    },
+    "paragraph_with_no_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/paragraph_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "taskItem_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["taskItem"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "type": "string"
+            },
+            "state": {
+              "enum": ["TODO", "DONE"]
+            }
+          },
+          "required": ["localId", "state"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inline_node"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "taskList_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["taskList"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "type": "string"
+            }
+          },
+          "required": ["localId"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": [
+            {
+              "$ref": "#/definitions/taskItem_node"
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/taskItem_node"
+                },
+                {
+                  "$ref": "#/definitions/taskList_node"
+                }
+              ]
+            }
+          ],
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs", "content"]
+    },
+    "bulletList_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["bulletList"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/listItem_node"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "listItem_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["listItem"]
+        },
+        "content": {
+          "type": "array",
+          "items": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/paragraph_with_no_marks_node"
+                },
+                {
+                  "$ref": "#/definitions/mediaSingle_caption_node"
+                },
+                {
+                  "$ref": "#/definitions/mediaSingle_full_node"
+                },
+                {
+                  "$ref": "#/definitions/codeBlock_with_no_marks_node"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/paragraph_with_no_marks_node"
+                },
+                {
+                  "$ref": "#/definitions/bulletList_node"
+                },
+                {
+                  "$ref": "#/definitions/orderedList_node"
+                },
+                {
+                  "$ref": "#/definitions/taskList_node"
+                },
+                {
+                  "$ref": "#/definitions/mediaSingle_caption_node"
+                },
+                {
+                  "$ref": "#/definitions/mediaSingle_full_node"
+                },
+                {
+                  "$ref": "#/definitions/codeBlock_with_no_marks_node"
+                }
+              ]
+            }
+          ],
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "orderedList_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["orderedList"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/listItem_node"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "blockquote_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["blockquote"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/paragraph_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/orderedList_node"
+              },
+              {
+                "$ref": "#/definitions/bulletList_node"
+              }
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "decisionItem_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["decisionItem"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            }
+          },
+          "required": ["localId", "state"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inline_node"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "decisionList_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["decisionList"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "localId": {
+              "type": "string"
+            }
+          },
+          "required": ["localId"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/decisionItem_node"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs", "content"]
+    },
+    "embedCard_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["embedCard"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "layout": {
+              "enum": [
+                "wide",
+                "full-width",
+                "center",
+                "wrap-right",
+                "wrap-left",
+                "align-end",
+                "align-start"
+              ]
+            },
+            "width": {
+              "type": "number",
+              "maximum": 100,
+              "minimum": 0
+            },
+            "originalHeight": {
+              "type": "number"
+            },
+            "originalWidth": {
+              "type": "number"
+            }
+          },
+          "required": ["url", "layout"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "extension_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["extension"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "extensionKey": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "extensionType": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "parameters": {},
+            "text": {
+              "type": "string"
+            },
+            "layout": {
+              "enum": ["wide", "full-width", "default"]
+            },
+            "localId": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["extensionKey", "extensionType"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "extension_with_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/extension_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/dataConsumer_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/fragment_mark"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "heading_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["heading"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 6
+            },
+            "localId": {
+              "type": "string"
+            }
+          },
+          "required": ["level"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inline_node"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs"]
+    },
+    "heading_with_indentation_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/heading_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/indentation_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "heading_with_no_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/heading_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "heading_with_alignment_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/heading_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/alignment_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "mediaGroup_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["mediaGroup"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/media_node"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "rule_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["rule"]
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type"]
+    },
+    "panel_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["panel"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "panelType": {
+              "enum": [
+                "info",
+                "note",
+                "tip",
+                "warning",
+                "error",
+                "success",
+                "custom"
+              ]
+            },
+            "panelIcon": {
+              "type": "string"
+            },
+            "panelIconId": {
+              "type": "string"
+            },
+            "panelIconText": {
+              "type": "string"
+            },
+            "panelColor": {
+              "type": "string"
+            }
+          },
+          "required": ["panelType"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/paragraph_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/heading_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/bulletList_node"
+              },
+              {
+                "$ref": "#/definitions/orderedList_node"
+              },
+              {
+                "$ref": "#/definitions/blockCard_node"
+              },
+              {
+                "$ref": "#/definitions/mediaGroup_node"
+              },
+              {
+                "$ref": "#/definitions/mediaSingle_caption_node"
+              },
+              {
+                "$ref": "#/definitions/mediaSingle_full_node"
+              },
+              {
+                "$ref": "#/definitions/codeBlock_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/taskList_node"
+              },
+              {
+                "$ref": "#/definitions/rule_node"
+              },
+              {
+                "$ref": "#/definitions/decisionList_node"
+              }
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs", "content"]
+    },
+    "nestedExpand_content": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/paragraph_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/heading_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/mediaSingle_caption_node"
+          },
+          {
+            "$ref": "#/definitions/mediaSingle_full_node"
+          },
+          {
+            "$ref": "#/definitions/mediaGroup_node"
+          },
+          {
+            "$ref": "#/definitions/codeBlock_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/bulletList_node"
+          },
+          {
+            "$ref": "#/definitions/orderedList_node"
+          },
+          {
+            "$ref": "#/definitions/taskList_node"
+          },
+          {
+            "$ref": "#/definitions/decisionList_node"
+          },
+          {
+            "$ref": "#/definitions/rule_node"
+          },
+          {
+            "$ref": "#/definitions/panel_node"
+          },
+          {
+            "$ref": "#/definitions/blockquote_node"
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "nestedExpand_with_no_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/nestedExpand_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "table_cell_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["tableCell"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "colspan": {
+              "type": "number"
+            },
+            "rowspan": {
+              "type": "number"
+            },
+            "colwidth": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "background": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "$ref": "#/definitions/table_cell_content"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "nestedExpand_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["nestedExpand"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "$ref": "#/definitions/nestedExpand_content"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content", "attrs"]
+    },
+    "table_header_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["tableHeader"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "colspan": {
+              "type": "number"
+            },
+            "rowspan": {
+              "type": "number"
+            },
+            "colwidth": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "background": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "$ref": "#/definitions/table_cell_content"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "table_cell_content": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/paragraph_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/paragraph_with_alignment_node"
+          },
+          {
+            "$ref": "#/definitions/panel_node"
+          },
+          {
+            "$ref": "#/definitions/blockquote_node"
+          },
+          {
+            "$ref": "#/definitions/orderedList_node"
+          },
+          {
+            "$ref": "#/definitions/bulletList_node"
+          },
+          {
+            "$ref": "#/definitions/rule_node"
+          },
+          {
+            "$ref": "#/definitions/heading_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/heading_with_alignment_node"
+          },
+          {
+            "$ref": "#/definitions/heading_with_indentation_node"
+          },
+          {
+            "$ref": "#/definitions/codeBlock_with_no_marks_node"
+          },
+          {
+            "$ref": "#/definitions/mediaSingle_caption_node"
+          },
+          {
+            "$ref": "#/definitions/mediaSingle_full_node"
+          },
+          {
+            "$ref": "#/definitions/mediaGroup_node"
+          },
+          {
+            "$ref": "#/definitions/decisionList_node"
+          },
+          {
+            "$ref": "#/definitions/taskList_node"
+          },
+          {
+            "$ref": "#/definitions/blockCard_node"
+          },
+          {
+            "$ref": "#/definitions/embedCard_node"
+          },
+          {
+            "$ref": "#/definitions/extension_with_marks_node"
+          },
+          {
+            "$ref": "#/definitions/nestedExpand_with_no_marks_node"
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "table_row_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["tableRow"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/table_cell_node"
+              },
+              {
+                "$ref": "#/definitions/table_header_node"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "table_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["table"]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fragment_mark"
+          }
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "displayMode": {
+              "enum": ["default", "fixed"]
+            },
+            "isNumberColumnEnabled": {
+              "type": "boolean"
+            },
+            "layout": {
+              "enum": [
+                "wide",
+                "full-width",
+                "center",
+                "align-end",
+                "align-start",
+                "default"
+              ]
+            },
+            "localId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/table_row_node"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "non_nestable_block_content": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/paragraph_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/panel_node"
+        },
+        {
+          "$ref": "#/definitions/blockquote_node"
+        },
+        {
+          "$ref": "#/definitions/orderedList_node"
+        },
+        {
+          "$ref": "#/definitions/bulletList_node"
+        },
+        {
+          "$ref": "#/definitions/rule_node"
+        },
+        {
+          "$ref": "#/definitions/heading_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/codeBlock_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/mediaGroup_node"
+        },
+        {
+          "$ref": "#/definitions/mediaSingle_caption_node"
+        },
+        {
+          "$ref": "#/definitions/mediaSingle_full_node"
+        },
+        {
+          "$ref": "#/definitions/decisionList_node"
+        },
+        {
+          "$ref": "#/definitions/taskList_node"
+        },
+        {
+          "$ref": "#/definitions/table_node"
+        },
+        {
+          "$ref": "#/definitions/blockCard_node"
+        },
+        {
+          "$ref": "#/definitions/embedCard_node"
+        },
+        {
+          "$ref": "#/definitions/extension_with_marks_node"
+        }
+      ]
+    },
+    "bodiedExtension_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["bodiedExtension"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "extensionKey": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "extensionType": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "parameters": {},
+            "text": {
+              "type": "string"
+            },
+            "layout": {
+              "enum": ["wide", "full-width", "default"]
+            },
+            "localId": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["extensionKey", "extensionType"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/non_nestable_block_content"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs", "content"]
+    },
+    "bodiedExtension_with_marks_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/bodiedExtension_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/dataConsumer_mark"
+                  },
+                  {
+                    "$ref": "#/definitions/fragment_mark"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "expand_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["expand"]
+        },
+        "marks": {
+          "type": "array"
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/non_nestable_block_content"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content", "attrs"]
+    },
+    "expand_with_no_mark_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/expand_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "expand_with_breakout_mark_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/expand_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/breakout_mark"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "block_content": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/blockCard_node"
+        },
+        {
+          "$ref": "#/definitions/codeBlock_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/mediaSingle_caption_node"
+        },
+        {
+          "$ref": "#/definitions/mediaSingle_full_node"
+        },
+        {
+          "$ref": "#/definitions/paragraph_with_alignment_node"
+        },
+        {
+          "$ref": "#/definitions/paragraph_with_indentation_node"
+        },
+        {
+          "$ref": "#/definitions/paragraph_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/taskList_node"
+        },
+        {
+          "$ref": "#/definitions/orderedList_node"
+        },
+        {
+          "$ref": "#/definitions/bulletList_node"
+        },
+        {
+          "$ref": "#/definitions/blockquote_node"
+        },
+        {
+          "$ref": "#/definitions/decisionList_node"
+        },
+        {
+          "$ref": "#/definitions/embedCard_node"
+        },
+        {
+          "$ref": "#/definitions/extension_with_marks_node"
+        },
+        {
+          "$ref": "#/definitions/heading_with_indentation_node"
+        },
+        {
+          "$ref": "#/definitions/heading_with_no_marks_node"
+        },
+        {
+          "$ref": "#/definitions/heading_with_alignment_node"
+        },
+        {
+          "$ref": "#/definitions/mediaGroup_node"
+        },
+        {
+          "$ref": "#/definitions/rule_node"
+        },
+        {
+          "$ref": "#/definitions/panel_node"
+        },
+        {
+          "$ref": "#/definitions/table_node"
+        },
+        {
+          "$ref": "#/definitions/bodiedExtension_with_marks_node"
+        },
+        {
+          "$ref": "#/definitions/expand_with_no_mark_node"
+        }
+      ]
+    },
+    "layoutColumn_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["layoutColumn"]
+        },
+        "attrs": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "required": ["width"],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/block_content"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "attrs", "content"]
+    },
+    "layoutSection_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["layoutSection"]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/breakout_mark"
+          }
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/layoutColumn_node"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["type", "content"]
+    },
+    "layoutSection_full_node": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/layoutSection_node"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/breakout_mark"
+              }
+            },
+            "content": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/layoutColumn_node"
+              },
+              "minItems": 2,
+              "maxItems": 3
+            },
+            "type": {
+              "enum": ["layoutSection"]
+            }
+          },
+          "required": ["type", "content"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "doc_node": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["doc"]
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/blockCard_node"
+              },
+              {
+                "$ref": "#/definitions/codeBlock_with_marks_node"
+              },
+              {
+                "$ref": "#/definitions/codeBlock_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/mediaSingle_caption_node"
+              },
+              {
+                "$ref": "#/definitions/mediaSingle_full_node"
+              },
+              {
+                "$ref": "#/definitions/paragraph_with_alignment_node"
+              },
+              {
+                "$ref": "#/definitions/paragraph_with_indentation_node"
+              },
+              {
+                "$ref": "#/definitions/paragraph_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/taskList_node"
+              },
+              {
+                "$ref": "#/definitions/orderedList_node"
+              },
+              {
+                "$ref": "#/definitions/bulletList_node"
+              },
+              {
+                "$ref": "#/definitions/blockquote_node"
+              },
+              {
+                "$ref": "#/definitions/decisionList_node"
+              },
+              {
+                "$ref": "#/definitions/embedCard_node"
+              },
+              {
+                "$ref": "#/definitions/extension_with_marks_node"
+              },
+              {
+                "$ref": "#/definitions/heading_with_indentation_node"
+              },
+              {
+                "$ref": "#/definitions/heading_with_no_marks_node"
+              },
+              {
+                "$ref": "#/definitions/heading_with_alignment_node"
+              },
+              {
+                "$ref": "#/definitions/mediaGroup_node"
+              },
+              {
+                "$ref": "#/definitions/rule_node"
+              },
+              {
+                "$ref": "#/definitions/panel_node"
+              },
+              {
+                "$ref": "#/definitions/table_node"
+              },
+              {
+                "$ref": "#/definitions/bodiedExtension_with_marks_node"
+              },
+              {
+                "$ref": "#/definitions/expand_with_no_mark_node"
+              },
+              {
+                "$ref": "#/definitions/expand_with_breakout_mark_node"
+              },
+              {
+                "$ref": "#/definitions/layoutSection_full_node"
+              }
+            ]
+          }
+        },
+        "version": {
+          "enum": [1]
+        }
+      },
+      "additionalProperties": false,
+      "required": ["version", "type", "content"]
+    }
+  }
+}
