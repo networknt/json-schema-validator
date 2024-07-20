@@ -391,21 +391,32 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * @return true if found
      */
     protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
-        boolean hasValidator = false;
         JsonSchema schema = getEvaluationParentSchema();
+        boolean checkInstance = false;
+        boolean anchor = false;
+        boolean stop = false;
         while (schema != null) {
             for (JsonValidator validator : schema.getValidators()) {
                 if (keyword.equals(validator.getKeyword())) {
-                    hasValidator = true;
-                    break;
+                    return true;
+                }
+                if (checkInstance) {
+                    if ("properties".equals(validator.getKeyword()) || "items".equals(validator.getKeyword())) {
+                        stop = true;
+                    } else if ("$dynamicAnchor".equals(validator.getKeyword()) || "$recursiveAnchor".equals(validator.getKeyword())) {
+                        anchor = true;
+                    }
                 }
             }
-            if (hasValidator) {
-                break;
+            if (stop && !anchor) {
+                // If there is a change in instance location then return false
+                return false;
             }
             schema = schema.getEvaluationParentSchema();
+            checkInstance = true;
+            anchor = false;
         }
-        return hasValidator;
+        return false;
     }
 
     @Override
