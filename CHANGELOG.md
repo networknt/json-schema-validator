@@ -11,6 +11,15 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.1 - 2024-07-25
+
+### Added
+
+### Changed
+
+- Fix enum validator messages for object, array and text nodes (#1095) Thanks @justin-tay
+- Optimize hasAdjacentKeywordInEvaluationPath (#1092) Thanks @justin-tay
+
 ## 1.5.0 - 2024-07-05
 
 ### Added
