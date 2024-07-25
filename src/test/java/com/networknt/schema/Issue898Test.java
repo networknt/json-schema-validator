@@ -23,7 +23,7 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
                 .collect(toList());
 
         Assertions.assertEquals(2, messages.size());
-        Assertions.assertEquals("/foo: n'a pas de valeur dans l'énumération [foo1, foo2]", messages.get(0));
+        Assertions.assertEquals("/foo: n'a pas de valeur dans l'énumération [\"foo1\", \"foo2\"]", messages.get(0));
         Assertions.assertEquals("/bar: ne correspond pas au modèle d'expression régulière (bar)+", messages.get(1));
     }
 

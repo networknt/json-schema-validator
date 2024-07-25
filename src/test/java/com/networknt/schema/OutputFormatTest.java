@@ -114,7 +114,7 @@ class OutputFormatTest {
                 + "  \"id\": 1\n"
                 + "}";
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, DETAILED).stream().collect(Collectors.toList());
-        assertEquals("[/type] with value 'cat' does not have a value in the enumeration [book, author]", messages.get(0).getMessage());
+        assertEquals("[/type] with value 'cat' does not have a value in the enumeration [\"book\", \"author\"]", messages.get(0).getMessage());
         assertEquals("[/id] with value '1' integer found, string expected", messages.get(1).getMessage());
     }
 }

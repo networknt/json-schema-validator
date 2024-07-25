@@ -37,6 +37,14 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     private final Set<JsonNode> nodes;
     private final String error;
 
+    static String asText(JsonNode node) {
+        if (node.isObject() || node.isArray() || node.isTextual()) {
+            // toString for isTextual is so that there are quotes
+            return node.toString();
+        }
+        return node.asText();
+    }
+    
     public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
         if (schemaNode != null && schemaNode.isArray()) {
@@ -58,7 +66,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
                 }
 
                 sb.append(separator);
-                sb.append(n.asText());
+                sb.append(asText(n));
                 separator = ", ";
             }
 
