@@ -62,7 +62,7 @@ public class PatternValidator extends BaseJsonValidator {
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(this.pattern).build());
             }
-        } catch (JsonSchemaException e) {
+        } catch (JsonSchemaException | FailFastAssertionException e) {
             throw e;
         } catch (RuntimeException e) {
             logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, instanceLocation, e.getMessage());
