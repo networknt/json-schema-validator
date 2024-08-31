@@ -81,7 +81,7 @@
 
     <version.hamcrest>2.2</version.hamcrest>
     <version.junit>5.10.2</version.junit>
-    <version.undertow>2.2.33.Final</version.undertow> <!-- 2.3.x and above is not Java 8 compatible -->
+    <version.undertow>2.2.35.Final</version.undertow> <!-- 2.3.x and above is not Java 8 compatible -->
 
     <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
     <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
