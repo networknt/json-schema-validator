@@ -16,6 +16,7 @@
 package com.networknt.schema.oas;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import com.networknt.schema.DisallowUnknownJsonMetaSchemaFactory;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.OutputFormat;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -81,5 +83,41 @@ class OpenApi30Test {
         assertNotNull(schema);
         assertEquals("$.paths['/pet'].post.responses['200'].content['application/json'].schema",
                 schema.getEvaluationPath().toString());
+    }
+
+    /**
+     * Exclusive maximum true.
+     */
+    @Test
+    void exclusiveMaximum() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"minimum\": 0,\r\n"
+                + "  \"maximum\": 100,\r\n"
+                + "  \"exclusiveMaximum\": true\r\n"
+                + "}\r\n"
+                + "";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        JsonSchema schema = factory.getSchema(schemaData);
+        assertFalse(schema.validate("100", InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+
+    /**
+     * Exclusive minimum true.
+     */
+    @Test
+    void exclusiveMinimum() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"number\",\r\n"
+                + "  \"minimum\": 0,\r\n"
+                + "  \"maximum\": 100,\r\n"
+                + "  \"exclusiveMinimum\": true\r\n"
+                + "}\r\n"
+                + "";
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        JsonSchema schema = factory.getSchema(schemaData);
+        assertFalse(schema.validate("0", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 }

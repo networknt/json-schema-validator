@@ -31,8 +31,6 @@ public class OpenApi30 {
                             ValidatorTypeCode.ENUM,
                             ValidatorTypeCode.MINIMUM,
                             ValidatorTypeCode.MAXIMUM,
-                            ValidatorTypeCode.EXCLUSIVE_MINIMUM,
-                            ValidatorTypeCode.EXCLUSIVE_MAXIMUM,
                             ValidatorTypeCode.MULTIPLE_OF,
                             ValidatorTypeCode.MIN_LENGTH,
                             ValidatorTypeCode.MAX_LENGTH,
