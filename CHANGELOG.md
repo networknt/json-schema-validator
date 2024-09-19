@@ -11,6 +11,17 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.2 - 2024-09-19
+
+### Added
+
+### Changed
+
+- Fix exclusiveMinimum and exclusiveMaximum for OpenAPI 3.0 (#1115) Thanks @justin-tay
+- Bump jackson-databind from 2.17.1 to 2.17.2 (#1111) Thanks @justin-tay
+- Bump io.undertow:undertow-core from 2.2.33.Final to 2.2.35.Final (#1110) Thanks @justin-tay
+- Fix PatternValidator to not log for fail fast (#1106) Thanks @justin-tay
+
 ## 1.5.1 - 2024-07-25
 
 ### Added
