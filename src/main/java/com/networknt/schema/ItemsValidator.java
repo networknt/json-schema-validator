@@ -19,9 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.utils.SetView;
-
+import com.networknt.schema.utils.Defaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,7 +241,7 @@ public class ItemsValidator extends BaseJsonValidator {
                 ArrayNode arrayNode = (ArrayNode) node;
                 JsonNode defaultNode = null;
                 if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                    defaultNode = getDefaultNode(this.schema);
+                    defaultNode = Defaults.getDefaultNode(this.schema);
                 }
                 for (int i = 0; i < count; i++) {
                     JsonNode n = arrayNode.get(i);
@@ -267,7 +266,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     JsonNode defaultNode = null;
                     JsonNode n = arrayNode.get(i);
                     if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                        defaultNode = getDefaultNode(this.tupleSchema.get(i));
+                        defaultNode = Defaults.getDefaultNode(this.tupleSchema.get(i));
                     }
                     if (n != null) {
                         if (n.isNull() && defaultNode != null) {
@@ -294,7 +293,7 @@ public class ItemsValidator extends BaseJsonValidator {
                         JsonNode defaultNode = null;
                         JsonNode n = arrayNode.get(i);
                         if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
-                            defaultNode = getDefaultNode(this.additionalSchema);
+                            defaultNode = Defaults.getDefaultNode(this.additionalSchema);
                         }
                         if (n != null) {
                             if (n.isNull() && defaultNode != null) {
@@ -325,17 +324,6 @@ public class ItemsValidator extends BaseJsonValidator {
             }
         }
         return validationMessages;
-    }
-
-    private static JsonNode getDefaultNode(JsonSchema schema) {
-        JsonNode result = schema.getSchemaNode().get("default");
-        if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
-            if (schemaRef != null) {
-                result = getDefaultNode(schemaRef.getSchema());
-            }
-        }
-        return result;
     }
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
