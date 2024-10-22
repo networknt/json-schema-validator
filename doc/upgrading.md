@@ -145,7 +145,7 @@ This contains a breaking change in that the results from `failFast` are no longe
 
 * Annotation collection and reporting has been implemented
 * Keywords have been refactored to use annotations for evaluation to improve performance and meet functional requirements
-* The list and hierarchical output formats have been implemented as per the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md).
+* The list and hierarchical output formats have been implemented as per the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
 * The fail fast evaluation processing has been redesigned and fixed. This currently passes the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) with fail fast enabled. Previously contains and union type may cause incorrect results.
 * This also contains fixes for regressions introduced in 1.3.0
 
@@ -237,7 +237,7 @@ This can be changed by using a custom meta schema with the relevant `$vocabulary
 ### 1.2.0
 
 The following are a summary of the changes
-* Paths are now specified using the `JsonNodePath`. The paths are `instanceLocation`, `schemaLocation` and `evaluationPath`. The meaning of these paths are as defined in the [specification](https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md).
+* Paths are now specified using the `JsonNodePath`. The paths are `instanceLocation`, `schemaLocation` and `evaluationPath`. The meaning of these paths are as defined in the [specification](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
 * Schema Location comprises an absolute IRI component and a fragment that is a `JsonNodePath` that is typically a JSON pointer
 * Rename `at` to `instanceLocation`. Note that for the `required` validator the error message `instanceLocation` does not point to the missing property to be consistent with the [specification](https://json-schema.org/draft/2020-12/json-schema-core#section-12.4.2).  The `ValidationMessage` now contains a `property` attribute if this is required.
 * Rename `schemaPath` to `schemaLocation`. This should generally be an absolute IRI with a fragment particularly in later drafts.
