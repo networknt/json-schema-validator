@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  * The output format.
  * 
  * @see <a href=
- *      "https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md">JSON
+ *      "https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
 @JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid", "error" })

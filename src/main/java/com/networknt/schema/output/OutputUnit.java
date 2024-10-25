@@ -29,7 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * Represents an output unit.
  * 
  * @see <a href=
- *      "https://github.com/json-schema-org/json-schema-spec/blob/main/jsonschema-validation-output-machines.md">A
+ *      "https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md">A
  *      Specification for Machine-Readable Output for JSON Schema Validation and
  *      Annotation</a>
  */
