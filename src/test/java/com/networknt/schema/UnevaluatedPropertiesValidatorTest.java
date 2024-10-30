@@ -17,14 +17,18 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.output.OutputUnit;
 
 /**
  * UnevaluatedPropertiesValidatorTest.
@@ -147,5 +151,93 @@ public class UnevaluatedPropertiesValidatorTest {
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getType());
         assertEquals("$.unevaluatedProperties.type", assertions.get(0).getEvaluationPath().toString());
+    }
+
+    @Test
+    void ref() {
+        String schemaData = "{\r\n"
+                + "    \"definitions\": {\r\n"
+                + "        \"other\": {\r\n"
+                + "            \"type\": \"object\",\r\n"
+                + "            \"properties\": {\r\n"
+                + "                \"surfboard\": {\r\n"
+                + "                    \"type\": \"string\"\r\n"
+                + "                }\r\n"
+                + "            }\r\n"
+                + "        }\r\n"
+                + "    },\r\n"
+                + "    \"allOf\": [\r\n"
+                + "        {\r\n"
+                + "            \"$ref\": \"#/definitions/other\"\r\n"
+                + "        },\r\n"
+                + "        {\r\n"
+                + "            \"properties\": {\r\n"
+                + "                \"wheels\": {},\r\n"
+                + "                \"headlights\": {}\r\n"
+                + "            }\r\n"
+                + "        },\r\n"
+                + "        {\r\n"
+                + "            \"properties\": {\r\n"
+                + "                \"pontoons\": {}\r\n"
+                + "            }\r\n"
+                + "        },\r\n"
+                + "        {\r\n"
+                + "            \"properties\": {\r\n"
+                + "                \"wings\": {}\r\n"
+                + "            }\r\n"
+                + "        }\r\n"
+                + "    ],\r\n"
+                + "    \"unevaluatedProperties\": false\r\n"
+                + "}";
+        String inputData = "{ \"pontoons\": {}, \"wheels\": {}, \"surfboard\": \"2\" }";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    void nestedRef() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"allOf\": [ { \"$ref\": \"https://www.example.org/PrimaryDeviceConfiguration.json#PrimaryDeviceConfiguration\" } ],\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"__type\": { \"const\": \"dk.cachet.carp.common.application.devices.Smartphone\" }\r\n"
+                + "  },\r\n"
+                + "  \"unevaluatedProperties\": false\r\n"
+                + "}";
+        String primaryDeviceConfiguration =  "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\r\n"
+                + "    \"PrimaryDeviceConfiguration\": {\r\n"
+                + "      \"$anchor\": \"PrimaryDeviceConfiguration\",\r\n"
+                + "      \"allOf\": [ { \"$ref\": \"DeviceConfiguration.json#DeviceConfiguration\" } ],\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"isPrimaryDevice\": { \"const\": true }\r\n"
+                + "      },\r\n"
+                + "      \"required\": [ \"isPrimaryDevice\" ]\r\n"
+                + "    }\r\n"
+                + "  }";
+        String deviceConfiguration = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\r\n"
+                + "    \"DeviceConfiguration\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"roleName\": { \"type\": \"string\" }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "}";
+        Map<String, String> schemas = new HashMap<>();
+        schemas.put("https://www.example.org/PrimaryDeviceConfiguration.json", primaryDeviceConfiguration);
+        schemas.put("https://www.example.org/DeviceConfiguration.json", deviceConfiguration);
+        JsonSchema schema = JsonSchemaFactory
+                .getInstance(VersionFlag.V201909,
+                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas)))
+                .getSchema(schemaData);
+        String inputData = "{ \"isPrimaryDevice\": true, \"roleName\": \"hello\" }";
+        OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,
+                executionContext -> {
+                    executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
+                    executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+                });
+        assertTrue(outputUnit.isValid());
     }
 }
