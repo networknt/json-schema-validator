@@ -80,7 +80,7 @@
     <version.graaljs>21.3.10</version.graaljs> <!-- 22.x and above is not Java 8 compatible -->
 
     <version.hamcrest>2.2</version.hamcrest>
-    <version.junit>5.10.2</version.junit>
+    <version.junit>5.11.3</version.junit>
     <version.undertow>2.2.35.Final</version.undertow> <!-- 2.3.x and above is not Java 8 compatible -->
 
     <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
