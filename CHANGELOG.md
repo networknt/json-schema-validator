@@ -10,6 +10,16 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+## 1.5.3 - 2024-10-31
+
+### Added
+
+### Changed
+
+- Upgrade many libraries (#1122) Thanks @jkosternl
+- Fix hasAdjacentKeywordInEvaluationPath optimisation (#1124) Thanks @justin-tay
+- Correct URL to jsonschema-validation-output-machines.md documentation (#1121) Thanks @jkosternl
+
 
 ## 1.5.2 - 2024-09-19
 
