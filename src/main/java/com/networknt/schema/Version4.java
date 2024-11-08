@@ -26,7 +26,9 @@ public class Version4 implements JsonSchemaVersion {
                             new AnnotationKeyword("default"),
                             new NonValidationKeyword("definitions"),
                             new NonValidationKeyword("additionalItems"),
-                            new AnnotationKeyword("exampleSetFlag")
+                            new AnnotationKeyword("exampleSetFlag"),
+                            new NonValidationKeyword("exclusiveMinimum"), // exclusiveMinimum boolean handled by minimum validator
+                            new NonValidationKeyword("exclusiveMaximum")  // exclusiveMaximum boolean handled by maximum validator
                     ))
                     .build(); 
         }
