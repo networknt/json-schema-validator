@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @see Issue769ContainsTest
  * @author vwuilbea
  */
-public abstract class AbstractJsonSchemaTest {
+abstract class AbstractJsonSchemaTest {
 
     private static final String SCHEMA = "$schema";
     private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;

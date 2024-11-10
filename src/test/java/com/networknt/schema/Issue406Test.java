@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-public class Issue406Test {
+class Issue406Test {
     protected static final String INVALID_$REF_SCHEMA = "{\"$ref\":\"urn:unresolved\"}";
     protected static final String CIRCULAR_$REF_SCHEMA = "{\"$ref\":\"#/nestedSchema\","
             + "\"nestedSchema\":{\"$ref\":\"#/nestedSchema\"}}";
 
     @Test
-    public void testPreloadingNotHappening() {
+    void testPreloadingNotHappening() {
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         // not breaking - pass
@@ -21,7 +21,7 @@ public class Issue406Test {
     }
 
     @Test
-    public void testPreloadingHappening() {
+    void testPreloadingHappening() {
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         Assertions.assertThrows(JsonSchemaException.class,
@@ -35,7 +35,7 @@ public class Issue406Test {
     }
 
     @Test
-    public void testPreloadingHappeningForCircularDependency() {
+    void testPreloadingHappeningForCircularDependency() {
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         final JsonSchema schema = factory.getSchema(CIRCULAR_$REF_SCHEMA);
         schema.initializeValidators();

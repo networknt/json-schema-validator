@@ -28,14 +28,14 @@ import org.junit.jupiter.api.Test;
 import com.networknt.schema.AbsoluteIri;
 
 class MapSchemaLoaderTest {
-    public static class Result {
+    static class Result {
         private final String schema;
 
-        public Result(String schema) {
+        Result(String schema) {
             this.schema = schema;
         }
 
-        public String getSchema() {
+        String getSchema() {
             return this.schema;
         }
     }

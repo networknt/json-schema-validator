@@ -30,7 +30,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * Tests for meta schema validating a schema.
  */
-public class MetaSchemaValidationTest {
+class MetaSchemaValidationTest {
     /**
      * Validates a OpenAPI 3.1 schema using the OpenAPI 3.1 meta schema.
      *

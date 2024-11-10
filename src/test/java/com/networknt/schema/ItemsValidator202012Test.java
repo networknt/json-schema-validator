@@ -34,7 +34,7 @@ import com.networknt.schema.walk.WalkFlow;
 /**
  * ItemsValidatorTest.
  */
-public class ItemsValidator202012Test {
+class ItemsValidator202012Test {
     /**
      * Tests that the message contains the correct values when there are invalid
      * items.

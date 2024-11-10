@@ -26,7 +26,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test MultipleOfValidator validator.
  */
-public class MultipleOfValidatorTest {
+class MultipleOfValidatorTest {
     String schemaData = "{" +
             "  \"type\": \"object\"," +
             "  \"properties\": {" +

@@ -28,7 +28,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * Test that the code isn't confused by an anchor in the id.
  */
-public class Issue927Test {
+class Issue927Test {
     @Test
     void test() throws JsonProcessingException {
         String schema = "{\r\n"

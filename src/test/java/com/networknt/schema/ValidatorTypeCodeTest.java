@@ -23,26 +23,26 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ValidatorTypeCodeTest {
+class ValidatorTypeCodeTest {
 
     @Test
-    public void testFromValueString() {
+    void testFromValueString() {
         assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("additionalProperties"));
     }
 
     @Test
-    public void testFromValueMissing() {
+    void testFromValueMissing() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing")));
     }
 
     @Test
-    public void testIfThenElseNotInV4() {
+    void testIfThenElseNotInV4() {
         List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
     }
 
     @Test
-    public void testExclusiveMaximumNotInV4() {
+    void testExclusiveMaximumNotInV4() {
         List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
     }

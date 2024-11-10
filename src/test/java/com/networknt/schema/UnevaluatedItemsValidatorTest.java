@@ -29,7 +29,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * UnevaluatedItemsValidatorTest.
  */
-public class UnevaluatedItemsValidatorTest {
+class UnevaluatedItemsValidatorTest {
     @Test
     void unevaluatedItemsFalse() {
         String schemaData = "{\r\n"

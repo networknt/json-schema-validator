@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Issue396Test {
+class Issue396Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -24,7 +24,7 @@ public class Issue396Test {
     }
 
     @Test
-    public void testComplexPropertyNamesV7() throws Exception {
+    void testComplexPropertyNamesV7() throws Exception {
         String schemaPath = "/schema/issue396-v7.json";
         String dataPath = "/data/issue396.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

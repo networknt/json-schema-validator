@@ -27,7 +27,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test ExclusiveMinimumValidator validator.
  */
-public class ExclusiveMinimumValidatorTest {
+class ExclusiveMinimumValidatorTest {
     @Test
     void draftV4ShouldHaveExclusiveMinimum() {
         String schemaData = "{" +

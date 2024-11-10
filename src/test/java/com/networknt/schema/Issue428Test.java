@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class Issue428Test extends HTTPServiceSupport {
+class Issue428Test extends HTTPServiceSupport {
     protected ObjectMapper mapper = new ObjectMapper();
     protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).build();
@@ -84,7 +84,7 @@ public class Issue428Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void testNullableOneOf() throws Exception {
+    void testNullableOneOf() throws Exception {
         runTestFile("data/issue428.json");
     }
 }

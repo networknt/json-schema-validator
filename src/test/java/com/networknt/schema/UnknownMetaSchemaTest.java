@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Set;
 
-public class UnknownMetaSchemaTest {
+class UnknownMetaSchemaTest {
 
     private final String schema1 = "{\"$schema\":\"http://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
     private final String schema2 = "{\"$schema\":\"https://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
@@ -17,7 +17,7 @@ public class UnknownMetaSchemaTest {
     private final String json = "{\"data\":1}";
 
     @Test
-    public void testSchema1() throws IOException {
+    void testSchema1() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
@@ -31,7 +31,7 @@ public class UnknownMetaSchemaTest {
     }
 
     @Test
-    public void testSchema2() throws IOException {
+    void testSchema2() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
@@ -44,7 +44,7 @@ public class UnknownMetaSchemaTest {
         }
     }
     @Test
-    public void testSchema3() throws IOException {
+    void testSchema3() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
@@ -58,7 +58,7 @@ public class UnknownMetaSchemaTest {
     }
 
     @Test
-    public void testNormalize() throws JsonSchemaException {
+    void testNormalize() throws JsonSchemaException {
 
         String uri01 = "http://json-schema.org/draft-07/schema";
         String uri02 = "http://json-schema.org/draft-07/schema#";

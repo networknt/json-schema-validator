@@ -15,7 +15,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * Sample test.
  */
-public class SampleTest {
+class SampleTest {
     @Test
     void schemaFromSchemaLocationMapping() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.schemaMappers(

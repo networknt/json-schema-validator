@@ -10,10 +10,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Set;
 
-public class Issue461Test {
+class Issue461Test {
     protected ObjectMapper mapper = JsonMapperFactory.getInstance();
 
     protected JsonSchema getJsonSchemaFromStreamContentV7(SchemaLocation schemaUri) {
@@ -25,7 +24,7 @@ public class Issue461Test {
     }
 
     @Test
-    public void shouldWalkWithValidation() throws URISyntaxException, IOException {
+    void shouldWalkWithValidation() throws IOException {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
         JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
         ValidationResult result = schema.walk(data, true);

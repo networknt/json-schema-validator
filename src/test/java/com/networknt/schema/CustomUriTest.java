@@ -13,9 +13,9 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class CustomUriTest {
+class CustomUriTest {
     @Test
-    public void customUri() throws Exception {
+    void customUri() throws Exception {
         /* Given */
         final JsonSchemaFactory factory = buildJsonSchemaFactory();
         final JsonSchema schema = factory.getSchema(

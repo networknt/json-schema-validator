@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Issue832Test {
+class Issue832Test {
     private class NoMatchFormat implements Format {
         @Override
         public boolean matches(ExecutionContext executionContext, String value) {
@@ -48,7 +48,7 @@ public class Issue832Test {
     }
 
     @Test
-    public void testV7WithNonMatchingCustomFormat() throws IOException {
+    void testV7WithNonMatchingCustomFormat() throws IOException {
         String schemaPath = "/schema/issue832-v7.json";
         String dataPath = "/data/issue832.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

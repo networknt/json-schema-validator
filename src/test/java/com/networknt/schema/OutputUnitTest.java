@@ -41,7 +41,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  *      Specification for Machine-Readable Output for JSON Schema Validation and
  *      Annotation</a>
  */
-public class OutputUnitTest {
+class OutputUnitTest {
     String schemaData = "{\r\n"
             + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
             + "  \"$id\": \"https://json-schema.org/schemas/example\",\r\n"

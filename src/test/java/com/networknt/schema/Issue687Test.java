@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class Issue687Test {
+class Issue687Test {
 
     @Test
     void testRoot() {
@@ -27,7 +27,7 @@ public class Issue687Test {
         assertEquals(PathType.LEGACY, PathType.DEFAULT);
     }
 
-    public static Stream<Arguments> appendTokens() {
+    static Stream<Arguments> appendTokens() {
         return Stream.of(
                 Arguments.of(PathType.LEGACY, "$.foo", "bar", "$.foo.bar"),
                 Arguments.of(PathType.LEGACY, "$.foo", "b.ar", "$.foo.b.ar"),
@@ -46,7 +46,7 @@ public class Issue687Test {
         );
     }
 
-    public static Stream<Arguments> appendIndexes() {
+    static Stream<Arguments> appendIndexes() {
         return Stream.of(
                 Arguments.of(PathType.LEGACY, "$.foo", 0, "$.foo[0]"),
                 Arguments.of(PathType.JSON_PATH, "$.foo", 0, "$.foo[0]"),
@@ -54,7 +54,7 @@ public class Issue687Test {
         );
     }
 
-    public static Stream<Arguments> validationMessages() {
+    static Stream<Arguments> validationMessages() {
         String schemaPath = "/schema/issue687.json";
         String content = "{ \"foo\": \"a\", \"b.ar\": 1, \"children\": [ { \"childFoo\": \"a\", \"c/hildBar\": 1 } ] }";
         return Stream.of(
@@ -90,7 +90,7 @@ public class Issue687Test {
         }
     }
 
-    public static Stream<Arguments> specialCharacterTests() {
+    static Stream<Arguments> specialCharacterTests() {
         return Stream.of(
                 Arguments.of(PathType.JSON_PATH, "'", "$['\\'']"),
                 Arguments.of(PathType.JSON_PATH, "\\\"", "$['\"']"),

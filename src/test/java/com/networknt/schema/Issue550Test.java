@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 
-public class Issue550Test {
+class Issue550Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(String schemaPath) {
         InputStream schemaContent = getClass().getResourceAsStream(schemaPath);
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);

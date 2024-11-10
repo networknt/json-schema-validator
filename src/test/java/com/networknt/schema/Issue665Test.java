@@ -9,7 +9,7 @@ import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.Set;
 
-public class Issue665Test extends BaseJsonSchemaValidatorTest {
+class Issue665Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testUrnUriAsLocalRef() throws IOException {

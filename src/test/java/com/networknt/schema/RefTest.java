@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class RefTest {
+class RefTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
     
     @Test

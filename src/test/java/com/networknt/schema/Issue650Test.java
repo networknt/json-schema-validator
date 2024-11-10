@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
  * @author k-oliver
  * @since 1.0.77
  */
-public class Issue650Test {
+class Issue650Test {
 
     /**
      * Test using a Java model with a byte[] property which jackson converts to a BASE64 encoded string automatically. Then convert into
@@ -29,7 +29,7 @@ public class Issue650Test {
      * @since 1.0.77
      */
     @Test
-    public void testBinaryNode() throws Exception {
+    void testBinaryNode() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Set;
 
-public class DateTimeDSTTest {
+class DateTimeDSTTest {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -21,7 +21,7 @@ public class DateTimeDSTTest {
     }
 
     @Test
-    public void shouldWorkV7() throws Exception {
+    void shouldWorkV7() throws Exception {
         String schemaPath = "/schema/dateTimeArray.json";
         String dataPath = "/data/dstTimes.json"; // Contains 2020 DST changes for various countries
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

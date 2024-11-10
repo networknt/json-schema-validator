@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.util.stream.Stream;
 
 @DisplayName("Properties")
-public class PropertiesTest extends AbstractJsonSchemaTestSuite {
+class PropertiesTest extends AbstractJsonSchemaTestSuite {
 
     @TestFactory
     @DisplayName("Draft 2019-09")

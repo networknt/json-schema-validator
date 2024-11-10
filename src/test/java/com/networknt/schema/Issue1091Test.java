@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
-public class Issue1091Test {
+class Issue1091Test {
     @Test
     @Disabled // Disabled as this test takes quite long to run for ci
     void testHasAdjacentKeywordInEvaluationPath() throws Exception {

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * This class handles exception case for {@link PrefixItemsValidator}
  */
-public class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
+class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
 
     /**
      * this method create test cases from JSON and run those test cases with assertion

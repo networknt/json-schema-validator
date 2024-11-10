@@ -28,7 +28,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Tests for RefValidator.
  */
-public class RefValidatorTest {
+class RefValidatorTest {
     @Test
     void resolveSamePathDotSlash() {
         String mainSchema = "{\r\n"

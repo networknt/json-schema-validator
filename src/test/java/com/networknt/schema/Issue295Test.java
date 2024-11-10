@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Set;
 
-public class Issue295Test {
+class Issue295Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -21,7 +21,7 @@ public class Issue295Test {
     }
 
     @Test
-    public void shouldWorkV7() throws Exception {
+    void shouldWorkV7() throws Exception {
         String schemaPath = "/schema/issue295-v7.json";
         String dataPath = "/data/issue295.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

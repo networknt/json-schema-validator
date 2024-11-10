@@ -18,7 +18,7 @@ import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonWalkTest {
+class JsonWalkTest {
 
     private JsonSchema jsonSchema;
 
@@ -29,7 +29,7 @@ public class JsonWalkTest {
     private static final String CUSTOM_KEYWORD = "custom-keyword";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         setupSchema();
     }
 
@@ -60,7 +60,7 @@ public class JsonWalkTest {
     }
 
     @Test
-    public void testWalk() throws IOException {
+    void testWalk() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ValidationResult result = jsonSchema.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false);
@@ -79,7 +79,7 @@ public class JsonWalkTest {
     }
 
     @Test
-    public void testWalkWithDifferentListeners() throws IOException {
+    void testWalkWithDifferentListeners() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         // This instance of schema contains all listeners.
         ValidationResult result = jsonSchema.walk(
@@ -140,13 +140,13 @@ public class JsonWalkTest {
          */
         private static class CustomValidator extends AbstractJsonValidator {
 
-            public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+            CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
                 super(schemaLocation, evaluationPath, new CustomKeyword(), schemaNode);
             }
 
             @Override
             public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-                return new TreeSet<ValidationMessage>();
+                return new TreeSet<>();
             }
 
             @Override

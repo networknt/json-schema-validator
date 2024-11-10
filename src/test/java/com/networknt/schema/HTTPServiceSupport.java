@@ -26,12 +26,12 @@ import java.io.File;
 
 import static io.undertow.Handlers.*;
 
-public abstract class HTTPServiceSupport {
+abstract class HTTPServiceSupport {
 
     protected static Undertow server = null;
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         if (server == null) {
             PathHandler pathHandler = path(resource(
                 new FileResourceManager(
@@ -70,7 +70,7 @@ public abstract class HTTPServiceSupport {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    static void tearDown() throws Exception {
         if (server != null) {
             try {
                 Thread.sleep(100);

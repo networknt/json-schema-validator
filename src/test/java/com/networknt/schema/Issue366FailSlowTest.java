@@ -13,10 +13,10 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Issue366FailSlowTest {
+class Issue366FailSlowTest {
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         setupSchema();
     }
 
@@ -44,7 +44,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void firstOneValid() throws Exception {
+    void firstOneValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -57,7 +57,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void secondOneValid() throws Exception {
+    void secondOneValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -70,7 +70,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void bothValid() throws Exception {
+    void bothValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -84,7 +84,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void neitherValid() throws Exception {
+    void neitherValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);

@@ -34,14 +34,14 @@ import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
-public class Issue467Test {
+class Issue467Test {
     private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
     private static final String schemaPath = "/schema/issue467.json";
 
     protected ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void shouldWalkKeywordWithValidation() throws URISyntaxException, IOException {
+    void shouldWalkKeywordWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<JsonNodePath> properties = new LinkedHashSet<>();
         final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
@@ -66,7 +66,7 @@ public class Issue467Test {
     }
 
     @Test
-    public void shouldWalkPropertiesWithValidation() throws URISyntaxException, IOException {
+    void shouldWalkPropertiesWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<JsonNodePath> properties = new LinkedHashSet<>();
         final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()

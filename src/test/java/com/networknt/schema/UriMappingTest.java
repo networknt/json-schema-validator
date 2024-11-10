@@ -31,7 +31,7 @@ import com.networknt.schema.JsonSchemaFactory.Builder;
 import com.networknt.schema.resource.MapSchemaMapper;
 import com.networknt.schema.resource.SchemaMapper;
 
-public class UriMappingTest {
+class UriMappingTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -42,7 +42,7 @@ public class UriMappingTest {
      * @throws IOException if unable to parse the mapping file
      */
     @Test
-    public void testBuilderUriMappingUri() throws IOException {
+    void testBuilderUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/uri-mapping.json");
         JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
         Builder builder = JsonSchemaFactory.builder()
@@ -58,13 +58,13 @@ public class UriMappingTest {
     /**
      * Validate that local URI is used when attempting to get a schema that is not
      * available publicly. Use the URL http://example.com/invalid/schema/url to use
-     * a public URL that returns a 404 Not Found. The locally mapped schema is a
+     * a URL that returns a 404 Not Found. The locally mapped schema is a
      * valid, but empty schema.
      *
      * @throws IOException if unable to parse the mapping file
      */
     @Test
-    public void testBuilderExampleMappings() throws IOException {
+    void testBuilderExampleMappings() throws IOException {
         JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
@@ -99,7 +99,7 @@ public class UriMappingTest {
      * @throws IOException if unable to parse the mapping file
      */
     @Test
-    public void testValidatorConfigUriMappingUri() throws IOException {
+    void testValidatorConfigUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/uri-mapping.json");
         JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
@@ -111,13 +111,13 @@ public class UriMappingTest {
     /**
      * Validate that local URL is used when attempting to get a schema that is not
      * available publicly. Use the URL http://example.com/invalid/schema/url to use
-     * a public URL that returns a 404 Not Found. The locally mapped schema is a
+     * a URL that returns a 404 Not Found. The locally mapped schema is a
      * valid, but empty schema.
      *
      * @throws IOException if unable to parse the mapping file
      */
     @Test
-    public void testValidatorConfigExampleMappings() throws IOException {
+    void testValidatorConfigExampleMappings() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/invalid-schema-uri.json");
         JsonSchemaFactory instance = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).build();
@@ -144,7 +144,7 @@ public class UriMappingTest {
     }
 
     @Test
-    public void testMappingsForRef() throws IOException {
+    void testMappingsForRef() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/draft4/extra/uri_mapping/schema-with-ref-mapping.json");
         JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();

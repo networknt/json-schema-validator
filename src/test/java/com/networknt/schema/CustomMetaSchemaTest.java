@@ -16,7 +16,6 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CustomMetaSchemaTest {
+class CustomMetaSchemaTest {
 
     /**
      * Introduces the keyword "enumNames".
@@ -41,7 +40,7 @@ public class CustomMetaSchemaTest {
      *
      * @author klaskalass
      */
-    public static class EnumNamesKeyword extends AbstractKeyword {
+    static class EnumNamesKeyword extends AbstractKeyword {
 
         private static final class Validator extends AbstractJsonValidator {
             private final List<String> enumValues;
@@ -79,7 +78,7 @@ public class CustomMetaSchemaTest {
         }
 
 
-        public EnumNamesKeyword() {
+        EnumNamesKeyword() {
             super("enumNames");
         }
 
@@ -115,7 +114,7 @@ public class CustomMetaSchemaTest {
     }
 
     @Test
-    public void customMetaSchemaWithIgnoredKeyword() throws JsonProcessingException, IOException {
+    void customMetaSchemaWithIgnoredKeyword() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonMetaSchema metaSchema = JsonMetaSchema
                 .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV4())

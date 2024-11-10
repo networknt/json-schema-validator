@@ -29,7 +29,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test for discriminator.
  */
-public class DiscriminatorValidatorTest {
+class DiscriminatorValidatorTest {
     /**
      * Issue 609.
      */

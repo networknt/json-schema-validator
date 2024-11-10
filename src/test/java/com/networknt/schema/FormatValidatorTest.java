@@ -35,7 +35,7 @@ import com.networknt.schema.output.OutputUnit;
 /**
  * Test for format validator.
  */
-public class FormatValidatorTest {
+class FormatValidatorTest {
     @Test
     void unknownFormatNoVocab() {
         String schemaData = "{\r\n"
@@ -180,10 +180,10 @@ public class FormatValidatorTest {
         assertEquals(": does not match the custom pattern must be test", messages.iterator().next().getMessage());
     }
 
-    public static class CustomNumberFormat implements Format {
+    static class CustomNumberFormat implements Format {
         private final BigDecimal compare;
         
-        public CustomNumberFormat(BigDecimal compare) {
+        CustomNumberFormat(BigDecimal compare) {
             this.compare = compare;
         }
 

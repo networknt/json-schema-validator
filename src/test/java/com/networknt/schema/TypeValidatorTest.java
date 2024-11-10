@@ -27,7 +27,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test TypeValidator validator.
  */
-public class TypeValidatorTest {
+class TypeValidatorTest {
     String schemaData = "{\r\n" // Issue 415
             + "  \"$schema\": \"http://json-schema.org/draft-07/schema\",\r\n"
             + "  \"$id\": \"http://example.com/example.json\",\r\n"

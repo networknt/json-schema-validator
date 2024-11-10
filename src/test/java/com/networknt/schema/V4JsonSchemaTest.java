@@ -27,12 +27,12 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class V4JsonSchemaTest extends HTTPServiceSupport {
+class V4JsonSchemaTest extends HTTPServiceSupport {
 
     protected ObjectMapper mapper = new ObjectMapper();
 
     @Test(/* expected = java.lang.StackOverflowError.class */)
-    public void testLoadingWithId() throws Exception {
+    void testLoadingWithId() throws Exception {
         URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
         JsonNode schemaJson = mapper.readTree(url);
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
@@ -44,7 +44,7 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      * Although, the data file has three errors, but only on is reported
      */
     @Test
-    public void testFailFast_AllErrors() throws IOException {
+    void testFailFast_AllErrors() throws IOException {
         Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-all-errors-data.json");
         assertEquals(1, messages.size());
@@ -54,7 +54,7 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      * File contains only one error and that is reported.
      */
     @Test
-    public void testFailFast_OneErrors() throws IOException {
+    void testFailFast_OneErrors() throws IOException {
         Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-one-error-data.json");
         assertEquals(1, messages.size());
@@ -64,7 +64,7 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      * Although, the file contains two errors, but only one is reported
      */
     @Test
-    public void testFailFast_TwoErrors() throws IOException {
+    void testFailFast_TwoErrors() throws IOException {
         Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-two-errors-data.json");
         assertEquals(1, messages.size());
@@ -75,7 +75,7 @@ public class V4JsonSchemaTest extends HTTPServiceSupport {
      * {@link Set}&lt;{@link ValidationMessage}&gt; must be empty
      */
     @Test
-    public void testFailFast_NoErrors() throws IOException {
+    void testFailFast_NoErrors() throws IOException {
         final Set<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-no-errors-data.json");
         assertTrue(messages.isEmpty());

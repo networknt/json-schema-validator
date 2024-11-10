@@ -28,13 +28,13 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test for messages.
  */
-public class MessageTest {
-    public static class EqualsValidator extends BaseJsonValidator {
+class MessageTest {
+    static class EqualsValidator extends BaseJsonValidator {
         private static final ErrorMessageType ERROR_MESSAGE_TYPE = () -> "equals";
         
         private final String value;
 
-        public EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, Keyword keyword,
                 ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
             super(schemaLocation, evaluationPath, schemaNode, parentSchema, ERROR_MESSAGE_TYPE, keyword, validationContext,
@@ -55,7 +55,7 @@ public class MessageTest {
         }
     }
     
-    public static class EqualsKeyword implements Keyword {
+    static class EqualsKeyword implements Keyword {
         
         @Override
         public String getValue() {

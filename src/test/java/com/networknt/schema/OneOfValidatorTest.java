@@ -33,7 +33,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * OneOfValidatorTest.
  */
-public class OneOfValidatorTest {
+class OneOfValidatorTest {
     @Test
     void oneOfMultiple() {
         String schemaData = "{\r\n"

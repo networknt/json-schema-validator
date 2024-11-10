@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
-public class Issue994Test {
+class Issue994Test {
     @Test
     void test() throws JsonProcessingException {
         String schemaData = "{\r\n"

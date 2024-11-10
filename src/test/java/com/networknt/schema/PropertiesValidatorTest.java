@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Created by josejulio on 25/04/22.
  */
-public class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
+class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
     @Test
-    public void testDoesNotThrowWhenApplyingDefaultPropertiesToNonObjects() throws Exception {
+    void testDoesNotThrowWhenApplyingDefaultPropertiesToNonObjects() throws Exception {
         Assertions.assertDoesNotThrow(() -> {
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
 

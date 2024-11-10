@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Issue383Test {
+class Issue383Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -22,7 +22,7 @@ public class Issue383Test {
     }
 
     @Test
-    public void nestedOneOfsShouldStillMatchV7() throws Exception {
+    void nestedOneOfsShouldStillMatchV7() throws Exception {
         String schemaPath = "/schema/issue383-v7.json";
         String dataPath = "/data/issue383.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

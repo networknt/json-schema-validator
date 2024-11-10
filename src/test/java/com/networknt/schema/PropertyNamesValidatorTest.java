@@ -27,7 +27,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * PropertyNamesValidatorTest.
  */
-public class PropertyNamesValidatorTest {
+class PropertyNamesValidatorTest {
     /**
      * Tests that the message contains the correct values when there are invalid
      * property names.

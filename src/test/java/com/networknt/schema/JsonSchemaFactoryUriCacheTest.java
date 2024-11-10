@@ -15,17 +15,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonSchemaFactoryUriCacheTest {
+class JsonSchemaFactoryUriCacheTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void cacheEnabled() throws JsonProcessingException {
+    void cacheEnabled() throws JsonProcessingException {
         runCacheTest(true);
     }
 
     @Test
-    public void cacheDisabled() throws JsonProcessingException {
+    void cacheDisabled() throws JsonProcessingException {
         runCacheTest(false);
     }
 

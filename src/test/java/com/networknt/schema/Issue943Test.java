@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class Issue943Test {
+class Issue943Test {
     @Test
     void test() {
         Map<String, String> external = new HashMap<>();

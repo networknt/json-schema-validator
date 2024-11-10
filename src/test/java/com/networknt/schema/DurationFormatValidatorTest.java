@@ -26,10 +26,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DurationFormatValidatorTest {
+class DurationFormatValidatorTest {
 
     @Test
-    public void durationFormatValidatorTest() throws JsonProcessingException, IOException {
+    void durationFormatValidatorTest() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final String schema = "{\"type\": \"string\", \"format\": \"duration\"}\n";
         final JsonNode validTargetNode = objectMapper.readTree("\"P1D\"");

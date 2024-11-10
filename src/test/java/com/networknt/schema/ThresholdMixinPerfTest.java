@@ -24,11 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static java.lang.String.format;
 import static java.lang.System.out;
 
 @Disabled
-public class ThresholdMixinPerfTest {
+class ThresholdMixinPerfTest {
     private static final long thresholdIntegral = Long.MAX_VALUE - 1;
 
 
@@ -58,7 +57,7 @@ public class ThresholdMixinPerfTest {
     private double baseTimeForLong;
 
     @BeforeEach
-    public void baseTimeEstimate() {
+    void baseTimeEstimate() {
         baseTimeForDouble = getAvgTimeViaMixin(asDouble, valueDouble, executeTimes);
         out.printf("Base execution time (comparing two DoubleNodes) %f ns%n", baseTimeForDouble);
 
@@ -67,7 +66,7 @@ public class ThresholdMixinPerfTest {
     }
 
     @Test
-    public void currentTimeEstimate() {
+    void currentTimeEstimate() {
         out.println("Estimating time for current implementation:");
         double currentAvgTimeOnDouble = getAvgTimeViaMixin(currentImplementationDouble, valueDouble, executeTimes);
         out.printf("Current double on double execution time %f ns, %f times slower%n", currentAvgTimeOnDouble, (currentAvgTimeOnDouble / baseTimeForDouble));
@@ -91,7 +90,7 @@ public class ThresholdMixinPerfTest {
     }
 
     @Test
-    public void allInOneAproachTimeEstimate() {
+    void allInOneAproachTimeEstimate() {
         out.println("Estimating time threshold value agnostic mixin (aka allInOne):");
         double allInOneDoubleOnDouble = getAvgTimeViaMixin(allInOneDouble, valueDouble, executeTimes);
         out.printf("AllInOne double on double execution time  %f ns, %f times slower%n", allInOneDoubleOnDouble, (allInOneDoubleOnDouble / baseTimeForDouble));
@@ -115,7 +114,7 @@ public class ThresholdMixinPerfTest {
     }
 
     @Test
-    public void specificCaseForEachThresholdValue() {
+    void specificCaseForEachThresholdValue() {
         out.println("Estimating time for specific cases:");
         double doubleValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueDouble, executeTimes);
         out.printf("Typed threshold execution time %f ns, %f times slower%n", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble));
@@ -130,7 +129,7 @@ public class ThresholdMixinPerfTest {
     }
 
     @Test
-    public void noMixinsFloatingTimeEstimate() {
+    void noMixinsFloatingTimeEstimate() {
         out.println("Estimating time no mixins at all (floating point values):");
         double doubleValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueDecimal, executeTimes);
         out.printf("No mixins with double value time %f ns, %f times slower%n", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble));
@@ -145,7 +144,7 @@ public class ThresholdMixinPerfTest {
     }
 
     @Test
-    public void noMixinsIntegralTimeEstimate() {
+    void noMixinsIntegralTimeEstimate() {
         double longValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new LongNode((long) value), executeTimes);
         out.printf("No mixins with long value time %f ns, %f times slower%n", longValueAvgTime, (longValueAvgTime / baseTimeForLong));
 

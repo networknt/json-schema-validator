@@ -17,7 +17,7 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
 
     private final Map<Path, String> disabled;
 
-    public JsonSchemaTestSuiteTest() {
+    JsonSchemaTestSuiteTest() {
         this.disabled = new HashMap<>();
 
         disableV202012Tests();

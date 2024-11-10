@@ -44,7 +44,7 @@ import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 /**
  * Tests for JsonNodes.
  */
-public class JsonNodesTest {
+class JsonNodesTest {
     @Test
     void location() throws JsonParseException, IOException {
         String schemaData = "{\r\n"
