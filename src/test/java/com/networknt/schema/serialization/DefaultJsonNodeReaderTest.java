@@ -88,8 +88,7 @@ class DefaultJsonNodeReaderTest {
                 + "properties:\r\n"
                 + "  startDate:\r\n"
                 + "    format: 'date'\r\n"
-                + "    minLength: 6\r\n"
-                + "";
+                + "    minLength: 6\r\n";
         JsonNode jsonNode = JsonNodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.YAML);
 
         JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(jsonNode.at("/properties/startDate/format"));

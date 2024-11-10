@@ -34,14 +34,14 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
-    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
     // https://github.com/FasterXML/jackson-databind/issues/1770
     // https://github.com/FasterXML/jackson-databind/issues/2087
-    private static ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-    private static ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+    private static final ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    private static final ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
 
     static String[][] augmentWithQuotes(String[][] values) {
         for (int i = 0; i < values.length; i++) {

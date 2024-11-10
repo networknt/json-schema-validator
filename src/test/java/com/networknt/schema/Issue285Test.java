@@ -12,8 +12,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class Issue285Test {
-    private ObjectMapper mapper = new ObjectMapper();
-    private JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonSchemaFactory schemaFactory = JsonSchemaFactory
 		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
             .schemaMappers(schemaMappers -> schemaMappers
                     .mapPrefix("http://json-schema.org", "resource:")

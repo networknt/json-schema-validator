@@ -30,7 +30,7 @@ import com.networknt.schema.InvalidSchemaException;
 class AllowRegularExpressionFactoryTest {
     @Test
     void getRegularExpression() {
-        boolean called[] = { false };
+        boolean[] called = { false };
         RegularExpressionFactory delegate = (regex) -> {
             called[0] = true;
             return null;

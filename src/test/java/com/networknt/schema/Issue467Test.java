@@ -35,8 +35,8 @@ import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
 public class Issue467Test {
-    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-    private static String schemaPath = "/schema/issue467.json";
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    private static final String schemaPath = "/schema/issue467.json";
 
     protected ObjectMapper mapper = new ObjectMapper();
 

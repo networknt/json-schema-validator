@@ -1,9 +1,9 @@
 package com.networknt.schema.suite;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +74,7 @@ public class TestSource {
     }
 
     public static Optional<TestSource> loadFrom(Path path, boolean disabled, String reason) {
-        try (InputStream in = new FileInputStream(path.toFile())) {
+        try (InputStream in = Files.newInputStream(path.toFile().toPath())) {
             List<TestCase> testCases = mapper.readValue(in, testCaseType);
             return Optional.of(new TestSource(path, testCases, disabled, reason));
         } catch (MismatchedInputException e) {

@@ -45,7 +45,7 @@ public class Issue428Test extends HTTPServiceSupport {
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
-                            System.out.println("schema: " + schema.toString());
+                            System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
                             System.out.println("errors:");
                             for (ValidationMessage error : errors) {

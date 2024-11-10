@@ -105,7 +105,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException, IOException {
+    public void testCollectorGetAll() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = jsonSchemaForCombine.createExecutionContext();
         executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
@@ -218,9 +218,9 @@ public class CollectorContextTest {
 
     private class ValidationThread implements Runnable {
 
-        private String data;
+        private final String data;
 
-        private String name;
+        private final String name;
 
         private ValidationResult validationResult;
         
@@ -379,7 +379,7 @@ public class CollectorContextTest {
         }
     }
 
-    private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {
+    private ValidationResult validate(String jsonData) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = this.jsonSchema.createExecutionContext();
         Set<ValidationMessage> messages = this.jsonSchema.validate(executionContext, objectMapper.readTree(jsonData));

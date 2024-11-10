@@ -22,7 +22,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -31,7 +30,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  */
 public class Issue927Test {
     @Test
-    void test() throws JsonMappingException, JsonProcessingException {
+    void test() throws JsonProcessingException {
         String schema = "{\r\n"
                 + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r\n"
                 + "  \"$id\": \"id\",\r\n"

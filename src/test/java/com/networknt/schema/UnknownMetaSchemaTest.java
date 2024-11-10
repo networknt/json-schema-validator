@@ -10,11 +10,11 @@ import java.util.Set;
 
 public class UnknownMetaSchemaTest {
 
-    private String schema1 = "{\"$schema\":\"http://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
-    private String schema2 = "{\"$schema\":\"https://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
-    private String schema3 = "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
+    private final String schema1 = "{\"$schema\":\"http://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
+    private final String schema2 = "{\"$schema\":\"https://json-schema.org/draft-07/schema\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
+    private final String schema3 = "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"title\":\"thingModel\",\"description\":\"description of thing\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"integer\"},\"required\":[\"data\"]}}";
 
-    private String json = "{\"data\":1}";
+    private final String json = "{\"data\":1}";
 
     @Test
     public void testSchema1() throws IOException {

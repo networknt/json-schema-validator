@@ -1,6 +1,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -78,7 +79,7 @@ public class Issue366FailSlowTest {
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
         Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-        assertTrue(!errors.isEmpty());
+	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 1);
     }
 
@@ -92,7 +93,7 @@ public class Issue366FailSlowTest {
         JsonNode testNode = testNodes.get(0).get(3);
         JsonNode dataNode = testNode.get("data");
         Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-        assertTrue(!errors.isEmpty());
+	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 3);
     }
 

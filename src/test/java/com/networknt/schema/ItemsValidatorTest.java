@@ -27,7 +27,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
@@ -240,7 +239,7 @@ public class ItemsValidatorTest {
     }
 
     @Test
-    void walkTupleItemsAdditional() throws JsonMappingException, JsonProcessingException {
+    void walkTupleItemsAdditional() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"items\": [\r\n"
                 + "    {\r\n"
@@ -291,7 +290,7 @@ public class ItemsValidatorTest {
     }
 
     @Test
-    void walkTupleItemsAdditionalDefaults() throws JsonMappingException, JsonProcessingException {
+    void walkTupleItemsAdditionalDefaults() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"items\": [\r\n"
                 + "    {\r\n"

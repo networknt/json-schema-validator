@@ -126,7 +126,7 @@ class JoniRegularExpressionTest {
     /**
      * Named capturing group: (?<name>...).
      * 
-     * @see org.joni.constants.SyntaxProperties#OP2_QMARK_LT_NAMED_GROUP.
+     * @see org.joni.constants.SyntaxProperties#OP2_QMARK_LT_NAMED_GROUP
      * @see <a href=
      *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group">Named
      *      capturing group</a>
@@ -145,7 +145,7 @@ class JoniRegularExpressionTest {
     /**
      * Named capturing group: (?<name>...).
      * 
-     * @see org.joni.constants.SyntaxProperties#OP2_ESC_K_NAMED_BACKREF.
+     * @see org.joni.constants.SyntaxProperties#OP2_ESC_K_NAMED_BACKREF
      * @see <a href=
      *      "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_backreference">Named
      *      backreference</a>

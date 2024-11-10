@@ -30,12 +30,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
  */
 public class MessageTest {
     public static class EqualsValidator extends BaseJsonValidator {
-        private static ErrorMessageType ERROR_MESSAGE_TYPE = new ErrorMessageType() {
-            @Override
-            public String getErrorCode() {
-                return "equals";
-            }
-        };
+        private static final ErrorMessageType ERROR_MESSAGE_TYPE = () -> "equals";
         
         private final String value;
 
@@ -55,7 +50,7 @@ public class MessageTest {
                         .singleton(message().message("{0}: must be equal to ''{1}''")
                                 .arguments(value)
                                 .instanceLocation(instanceLocation).instanceNode(node).build());
-            };
+            }
             return Collections.emptySet();
         }
     }

@@ -53,7 +53,7 @@ public class JsonSchemaFactoryUriCacheTest {
 
     private class CustomURIFetcher implements SchemaLoader {
 
-        private Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
+        private final Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
 
         void addResource(AbsoluteIri uri, String schema) {
             addResource(uri, new ByteArrayInputStream(schema.getBytes(StandardCharsets.UTF_8)));

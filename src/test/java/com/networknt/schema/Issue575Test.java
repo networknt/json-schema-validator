@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * This project uses a dependency (com.ethlo.time:itu) to validate time representations. Version 1.51 of this library
  * has a problem dealing with certain time zones having a negative offset; for example "-2:30" (Newfoundland time, NDT).
  * Moving to version 1.7.0 of this library resolves the issue.
- *
+ * <p>
  * This test class confirms that valid negative offsets do not result in a JSON validation error if the ITU library is
  * updated to version 1.7.0 or later.
  */
