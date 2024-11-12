@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CollectorContextTest {
+class CollectorContextTest {
 
     private static final String SAMPLE_COLLECTOR = "sampleCollector";
 
@@ -46,13 +46,13 @@ public class CollectorContextTest {
     private JsonSchema jsonSchemaForCombine;
     
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
         setupSchema();
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorContextWithKeyword() throws Exception {
+    void testCollectorContextWithKeyword() throws Exception {
         ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
         Assertions.assertEquals(0, validationResult.getValidationMessages().size());
         List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
@@ -65,7 +65,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorContextWithMultipleThreads() throws Exception {
+    void testCollectorContextWithMultipleThreads() throws Exception {
 
         ValidationThread validationRunnable1 = new ValidationThread("{\"test-property1\":\"sample1\" }", "thread1");
         ValidationThread validationRunnable2 = new ValidationThread("{\"test-property1\":\"sample2\" }", "thread2");
@@ -105,7 +105,7 @@ public class CollectorContextTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testCollectorGetAll() throws JsonMappingException, JsonProcessingException, IOException {
+    void testCollectorGetAll() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = jsonSchemaForCombine.createExecutionContext();
         executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
@@ -218,9 +218,9 @@ public class CollectorContextTest {
 
     private class ValidationThread implements Runnable {
 
-        private String data;
+        private final String data;
 
-        private String name;
+        private final String name;
 
         private ValidationResult validationResult;
         
@@ -379,7 +379,7 @@ public class CollectorContextTest {
         }
     }
 
-    private ValidationResult validate(String jsonData) throws JsonMappingException, JsonProcessingException, Exception {
+    private ValidationResult validate(String jsonData) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = this.jsonSchema.createExecutionContext();
         Set<ValidationMessage> messages = this.jsonSchema.validate(executionContext, objectMapper.readTree(jsonData));
@@ -427,7 +427,7 @@ public class CollectorContextTest {
     }
 
     private class CollectValidator extends AbstractJsonValidator {
-        public CollectValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+        CollectValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
             super(schemaLocation, evaluationPath, new CollectKeyword(), schemaNode);
         }
 

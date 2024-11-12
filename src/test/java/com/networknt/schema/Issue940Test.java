@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class Issue940Test {
+class Issue940Test {
     @Test
     void shouldNotThrowException() {
         String schema = "{\r\n"

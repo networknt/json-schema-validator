@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Set;
 
-public class Issue255Test {
+class Issue255Test {
     protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -36,7 +36,7 @@ public class Issue255Test {
     }
 
     @Test
-    public void shouldFailWhenRequiredPropertiesDoNotExistInReferencedSubSchema() throws Exception {
+    void shouldFailWhenRequiredPropertiesDoNotExistInReferencedSubSchema() throws Exception {
         String schemaPath = "/draft2019-09/issue255.json";
         String dataPath = "/data/issue255.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.List;
 
 @Disabled
-public class MaximumValidatorPerfTest {
+class MaximumValidatorPerfTest {
     MaximumValidatorTest test = new MaximumValidatorTest();
 
     @Test
-    public void testTime() throws InvocationTargetException, IllegalAccessException {
+    void testTime() throws InvocationTargetException, IllegalAccessException {
         String[] testMethodsToBeExecuted = {"testMaximumDoubleValue"};
         List<Method> testMethods = getTestMethods(testMethodsToBeExecuted);
         long start = System.currentTimeMillis();
@@ -39,7 +39,7 @@ public class MaximumValidatorPerfTest {
         System.out.println("time to execute all tests using:" + (end - start) + "ms");
     }
 
-    public void executeTests(List<Method> methods, int executeTimes) throws InvocationTargetException, IllegalAccessException {
+    void executeTests(List<Method> methods, int executeTimes) throws InvocationTargetException, IllegalAccessException {
 
         for (int i = 0; i < executeTimes; i++) {
             for (Method testMethod : methods) {
@@ -49,7 +49,7 @@ public class MaximumValidatorPerfTest {
 
     }
 
-    public List<Method> getTestMethods(String[] methodNames) {
+    List<Method> getTestMethods(String[] methodNames) {
         Method[] methods = test.getClass().getMethods();
         List<Method> testMethods = new ArrayList<Method>();
         if (methodNames.length > 0) {

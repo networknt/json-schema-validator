@@ -10,7 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class OverwritingCustomMessageBugTest {
+class OverwritingCustomMessageBugTest {
   private JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
     JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
     return factory.getSchema(schemaContent);
@@ -22,7 +22,7 @@ public class OverwritingCustomMessageBugTest {
   }
 
   @Test
-  public void customMessageIsNotOverwritten() throws Exception {
+  void customMessageIsNotOverwritten() throws Exception {
     Set<ValidationMessage> errors = validate();
     Map<String, String> errorMsgMap = transferErrorMsg(errors);
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].foos"), "error message must contains key: $.foos");

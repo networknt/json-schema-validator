@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class Issue935Test {
+class Issue935Test {
     @Test
     void shouldThrowInvalidSchemaException() {
         String schema = "{ \"$schema\": \"0\" }";

@@ -50,7 +50,7 @@ class JsonSchemaFactoryTest {
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);
-        JsonMetaSchema[] instance = new JsonMetaSchema[1];;
+        JsonMetaSchema[] instance = new JsonMetaSchema[1];
         CountDownLatch latch = new CountDownLatch(1);
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 50; ++i) {

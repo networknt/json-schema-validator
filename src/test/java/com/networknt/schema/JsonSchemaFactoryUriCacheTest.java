@@ -15,17 +15,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonSchemaFactoryUriCacheTest {
+class JsonSchemaFactoryUriCacheTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void cacheEnabled() throws JsonProcessingException {
+    void cacheEnabled() throws JsonProcessingException {
         runCacheTest(true);
     }
 
     @Test
-    public void cacheDisabled() throws JsonProcessingException {
+    void cacheDisabled() throws JsonProcessingException {
         runCacheTest(false);
     }
 
@@ -53,7 +53,7 @@ public class JsonSchemaFactoryUriCacheTest {
 
     private class CustomURIFetcher implements SchemaLoader {
 
-        private Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
+        private final Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
 
         void addResource(AbsoluteIri uri, String schema) {
             addResource(uri, new ByteArrayInputStream(schema.getBytes(StandardCharsets.UTF_8)));

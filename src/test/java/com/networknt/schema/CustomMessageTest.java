@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.util.stream.Stream;
 
 @DisplayName("Custom Messages")
-public class CustomMessageTest extends AbstractJsonSchemaTestSuite {
+class CustomMessageTest extends AbstractJsonSchemaTestSuite {
 
     @TestFactory
     @DisplayName("Draft 2019-09 - Custom Messages Enabled")

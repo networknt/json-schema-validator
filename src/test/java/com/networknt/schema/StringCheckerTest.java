@@ -22,7 +22,7 @@ import static com.networknt.schema.utils.StringChecker.isNumeric;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class StringCheckerTest {
+class StringCheckerTest {
 
     private static final String[] validNumericValues = {
             "1", "-1", "1.1", "-1.1", "0E+1", "0E-1", "0E1", "-0E+1", "-0E-1", "-0E1", "0.1E+1", "0.1E-1", "0.1E1",

@@ -11,7 +11,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class Issue662Test extends BaseJsonSchemaValidatorTest {
+class Issue662Test extends BaseJsonSchemaValidatorTest {
 
     private static final String RESOURCE_PREFIX = "issues/662/";
     private static JsonSchema schema;

@@ -7,15 +7,14 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class RefTest {
+class RefTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
     
     @Test
-    void shouldLoadRelativeClasspathReference() throws JsonMappingException, JsonProcessingException {
+    void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
@@ -38,7 +37,7 @@ public class RefTest {
     }
     
     @Test
-    void shouldLoadSchemaResource() throws JsonMappingException, JsonProcessingException {
+    void shouldLoadSchemaResource() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);

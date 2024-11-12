@@ -33,7 +33,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * OneOfValidatorTest.
  */
-public class OneOfValidatorTest {
+class OneOfValidatorTest {
     @Test
     void oneOfMultiple() {
         String schemaData = "{\r\n"
@@ -147,7 +147,7 @@ public class OneOfValidatorTest {
      * This test checks that the oneOf example at
      * https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/
      * behaves according to the specification instead of the example.
-     *
+     * <p>
      * https://github.com/swagger-api/swagger.io/issues/253
      * https://github.com/OAI/OpenAPI-Specification/issues/3477
      * https://github.com/networknt/json-schema-validator/issues/110
@@ -215,7 +215,7 @@ public class OneOfValidatorTest {
      * This test checks that the oneOf example at
      * https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/
      * behaves according to the specification instead of the example.
-     *
+     * <p>
      * https://github.com/swagger-api/swagger.io/issues/253
      * https://github.com/OAI/OpenAPI-Specification/issues/3477
      * https://github.com/networknt/json-schema-validator/issues/110

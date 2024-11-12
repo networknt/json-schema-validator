@@ -95,8 +95,7 @@ class OpenApi30Test {
                 + "  \"minimum\": 0,\r\n"
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMaximum\": true\r\n"
-                + "}\r\n"
-                + "";
+                + "}\r\n";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(schemaData);
@@ -113,8 +112,7 @@ class OpenApi30Test {
                 + "  \"minimum\": 0,\r\n"
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMinimum\": true\r\n"
-                + "}\r\n"
-                + "";
+                + "}\r\n";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(schemaData);

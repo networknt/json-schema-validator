@@ -8,7 +8,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.util.stream.Stream;
 
 @DisplayName("Unevaluated Items")
-public class UnevaluatedItemsTest extends AbstractJsonSchemaTestSuite {
+class UnevaluatedItemsTest extends AbstractJsonSchemaTestSuite {
 
     @TestFactory
     @DisplayName("Draft 2019-09")

@@ -22,8 +22,8 @@ import com.networknt.schema.utils.CachingSupplier;
 
 class OutputFormatTest {
 
-    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-    private static String schemaPath1 = "/schema/output-format-schema.json";
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    private static final String schemaPath1 = "/schema/output-format-schema.json";
 
     private JsonNode getJsonNodeFromJsonData(String jsonFilePath) throws Exception {
         InputStream content = getClass().getResourceAsStream(jsonFilePath);

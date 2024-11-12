@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Validating anyOf walker
  */
-public class Issue451Test {
+class Issue451Test {
 
     private static final String COLLECTOR_ID = "collector-451";
 
@@ -34,19 +34,19 @@ public class Issue451Test {
     }
 
     @Test
-    public void shouldWalkAnyOfProperties() {
+    void shouldWalkAnyOfProperties() {
         walk(null, false);
     }
 
     @Test
-    public void shouldWalkAnyOfPropertiesWithWithPayloadAndValidation() throws Exception {
+    void shouldWalkAnyOfPropertiesWithWithPayloadAndValidation() throws Exception {
         JsonNode data = getJsonNodeFromStreamContent(Issue451Test.class.getResourceAsStream(
                 "/data/issue451.json"));
         walk(data,true);
     }
 
     @Test
-    public void shouldWalkAnyOfPropertiesWithWithPayload() throws Exception {
+    void shouldWalkAnyOfPropertiesWithWithPayload() throws Exception {
         JsonNode data = getJsonNodeFromStreamContent(Issue451Test.class.getResourceAsStream(
                 "/data/issue451.json"));
         walk(data, false);

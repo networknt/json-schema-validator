@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Validating custom message
  */
-public class Issue426Test {
+class Issue426Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -23,7 +23,7 @@ public class Issue426Test {
     }
 
     @Test
-    public void shouldWorkV7() throws Exception {
+    void shouldWorkV7() throws Exception {
         String schemaPath = "/schema/issue426-v7.json";
         String dataPath = "/data/issue426.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

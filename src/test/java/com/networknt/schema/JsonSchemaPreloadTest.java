@@ -23,7 +23,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Test to control preloading of schemas.
  */
-public class JsonSchemaPreloadTest {
+class JsonSchemaPreloadTest {
     @Test
     void cacheRefsFalse() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class Issue619Test extends HTTPServiceSupport {
+class Issue619Test extends HTTPServiceSupport {
 
     private JsonSchemaFactory factory;
     private JsonNode one;
@@ -34,7 +34,7 @@ public class Issue619Test extends HTTPServiceSupport {
     private JsonNode three;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
         factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");
@@ -42,7 +42,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void bundledSchemaLoadsAndValidatesCorrectly_Ref() {
+    void bundledSchemaLoadsAndValidatesCorrectly_Ref() {
         JsonSchema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json\" }");
 
         assertTrue(referencingRootSchema.validate(one).isEmpty());
@@ -51,7 +51,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void bundledSchemaLoadsAndValidatesCorrectly_Uri() throws Exception {
+    void bundledSchemaLoadsAndValidatesCorrectly_Uri() throws Exception {
         JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
@@ -60,7 +60,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriWithEmptyFragment_Ref() {
+    void uriWithEmptyFragment_Ref() {
         JsonSchema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#\" }");
 
         assertTrue(referencingRootSchema.validate(one).isEmpty());
@@ -69,7 +69,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriWithEmptyFragment_Uri() throws Exception {
+    void uriWithEmptyFragment_Uri() throws Exception {
         JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
@@ -78,7 +78,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToTwoShouldOnlyValidateTwo_Ref() {
+    void uriThatPointsToTwoShouldOnlyValidateTwo_Ref() {
         JsonSchema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/two\" }");
 
         assertFalse(referencingTwoSchema.validate(one).isEmpty());
@@ -87,7 +87,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToOneShouldOnlyValidateOne_Uri() throws Exception {
+    void uriThatPointsToOneShouldOnlyValidateOne_Uri() throws Exception {
         JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/one"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
@@ -96,7 +96,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Ref() {
+    void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Ref() {
         JsonSchema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/refToOne\" }");
 
         assertTrue(referencingTwoSchema.validate(one).isEmpty());
@@ -105,7 +105,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Uri() throws Exception {
+    void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Uri() throws Exception {
         JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/refToOne"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
@@ -114,7 +114,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
     
     @Test
-    public void uriThatPointsToSchemaWithIdThatHasDifferentUri_Ref() throws Exception {
+    void uriThatPointsToSchemaWithIdThatHasDifferentUri_Ref() throws Exception {
         JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
         JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
@@ -124,7 +124,7 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToSchemaWithIdThatHasDifferentUri_Uri() throws Exception {
+    void uriThatPointsToSchemaWithIdThatHasDifferentUri_Uri() throws Exception {
         JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
         JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
@@ -134,26 +134,26 @@ public class Issue619Test extends HTTPServiceSupport {
     }
 
     @Test
-    public void uriThatPointsToSchemaThatDoesNotExistShouldFail_Ref() {
+    void uriThatPointsToSchemaThatDoesNotExistShouldFail_Ref() {
         JsonSchema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:data/schema-that-does-not-exist.json#/definitions/something\" }");
 
         assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
-    public void uriThatPointsToSchemaThatDoesNotExistShouldFail_Uri() {
+    void uriThatPointsToSchemaThatDoesNotExistShouldFail_Uri() {
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
     }
 
     @Test
-    public void uriThatPointsToNodeThatDoesNotExistShouldFail_Ref() {
+    void uriThatPointsToNodeThatDoesNotExistShouldFail_Ref() {
         JsonSchema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/node-that-does-not-exist\" }");
 
         assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
-    public void uriThatPointsToNodeThatDoesNotExistShouldFail_Uri() {
+    void uriThatPointsToNodeThatDoesNotExistShouldFail_Uri() {
         // This test failed before adding the 10-millisecond sleep. IllegalStateException is returned with recursive update error. This only happens on my faster desktop
         // computer during 'maven clean install'. It passes within the IDE on the same computer. It passes on my slower laptop. It passes on Travis CI.
         try {

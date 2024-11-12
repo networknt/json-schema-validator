@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class Issue792 {
+class Issue792 {
 
     @Test
     void test() throws JsonProcessingException {

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Issue928Test {
+class Issue928Test {
     private final ObjectMapper mapper = new ObjectMapper();
 
     private JsonSchemaFactory factoryFor(SpecVersion.VersionFlag version) {
@@ -15,21 +15,21 @@ public class Issue928Test {
     }
 
     @Test
-    public void test_07() {
+    void test_07() {
         test_spec(SpecVersion.VersionFlag.V7);
     }
 
     @Test
-    public void test_201909() {
+    void test_201909() {
         test_spec(SpecVersion.VersionFlag.V201909);
     }
 
     @Test
-    public void test_202012() {
+    void test_202012() {
         test_spec(SpecVersion.VersionFlag.V202012);
     }
 
-    public void test_spec(SpecVersion.VersionFlag specVersion) {
+    void test_spec(SpecVersion.VersionFlag specVersion) {
         JsonSchemaFactory schemaFactory = factoryFor(specVersion);
 
         String versionId = specVersion.getId();

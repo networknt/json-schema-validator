@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
+class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
     protected ObjectMapper mapper = new ObjectMapper();
     protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).build();
 
-    public OpenAPI30JsonSchemaTest() {
+    OpenAPI30JsonSchemaTest() {
     }
 
     private void runTestFile(String testCaseFile) throws Exception {
@@ -48,7 +48,7 @@ public class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
-                            System.out.println("schema: " + schema.toString());
+                            System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
                             System.out.println("errors:");
                             for (ValidationMessage error : errors) {
@@ -84,7 +84,7 @@ public class OpenAPI30JsonSchemaTest extends HTTPServiceSupport {
     }
 
     @Test
-    public void testDiscriminatorMapping() throws Exception {
+    void testDiscriminatorMapping() throws Exception {
         runTestFile("openapi3/discriminator.json");
     }
 }

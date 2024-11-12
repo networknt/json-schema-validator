@@ -21,14 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
-public class Issue994Test {
+class Issue994Test {
     @Test
-    void test() throws JsonMappingException, JsonProcessingException {
+    void test() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "    \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "    \"type\": \"object\",\r\n"

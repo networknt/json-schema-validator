@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-public abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
+abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
     private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');

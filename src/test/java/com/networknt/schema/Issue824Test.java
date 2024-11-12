@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Issue824Test {
+class Issue824Test {
     @Test
     void validate() throws JsonProcessingException {
         final JsonSchema v201909SpecSchema = JsonSchemaFactory

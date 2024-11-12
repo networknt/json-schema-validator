@@ -16,11 +16,11 @@ import java.util.stream.Stream;
  * This project uses a dependency (com.ethlo.time:itu) to validate time representations. Version 1.51 of this library
  * has a problem dealing with certain time zones having a negative offset; for example "-2:30" (Newfoundland time, NDT).
  * Moving to version 1.7.0 of this library resolves the issue.
- *
+ * <p>
  * This test class confirms that valid negative offsets do not result in a JSON validation error if the ITU library is
  * updated to version 1.7.0 or later.
  */
-public class Issue575Test {
+class Issue575Test {
     private static JsonSchema schema;
 
     @BeforeAll
@@ -31,7 +31,7 @@ public class Issue575Test {
         schema = factory.getSchema(schemaInputStream);
     }
 
-    public static Stream<Arguments> validTimeZoneOffsets() {
+    static Stream<Arguments> validTimeZoneOffsets() {
         String json1 = "{\"testDateTime\":\"2022-05-18T08:27:53-05:00\"}";         // America/New_York
         String json2 = "{\"testDateTime\":\"2022-05-18T08:27:53-04:00\"}";         // America/New_York (DST)
         String json3 = "{\"testDateTime\":\"2022-05-18T08:27:53-03:30\"}";         // America/St_Johns
@@ -83,7 +83,7 @@ public class Issue575Test {
         Assertions.assertTrue(errors.isEmpty());
     }
 
-    public static Stream<Arguments> invalidTimeRepresentations() {
+    static Stream<Arguments> invalidTimeRepresentations() {
         // Invalid JSON payload: 30 days in April
         String json1 = "{\"testDateTime\":\"2022-04-31T08:27:53+05:00\"}";
         // Invalid JSON payload: Invalid date/time separator

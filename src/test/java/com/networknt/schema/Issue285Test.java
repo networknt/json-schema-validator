@@ -11,9 +11,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class Issue285Test {
-    private ObjectMapper mapper = new ObjectMapper();
-    private JsonSchemaFactory schemaFactory = JsonSchemaFactory
+class Issue285Test {
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonSchemaFactory schemaFactory = JsonSchemaFactory
 		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
             .schemaMappers(schemaMappers -> schemaMappers
                     .mapPrefix("http://json-schema.org", "resource:")
@@ -54,9 +54,9 @@ public class Issue285Test {
 
     // This checks the that the validation checks the type of the nested attribute.
     // In this case the "lastName" should be a string.
-    // The result is as expected and we get an validation error.
+    // The result is as expected, and we get a validation error.
     @Test
-    public void nestedValidation() throws IOException {
+    void nestedValidation() throws IOException {
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
 
@@ -94,9 +94,9 @@ public class Issue285Test {
     // This checks the that the validation checks the type of the nested attribute.
     // Based on the meta-schema found on https://json-schema.org/draft/2019-09/schema.
     // In this case a nested type declaration isn't valid and should raise an error.
-    // The result is not as expected and we get no validation error.
+    // The result is not as expected, and we get no validation error.
     @Test
-    public void nestedTypeValidation() throws IOException, URISyntaxException {
+    void nestedTypeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
@@ -117,9 +117,9 @@ public class Issue285Test {
     // This checks the that the validation checks the type of the JSON.
     // Based on the meta-schema found on https://json-schema.org/draft/2019-09/schema.
     // In this case the toplevel type declaration isn't valid and should raise an error.
-    // The result is as expected and we get no validation error: '[$.type: does not have a value in the enumeration [array, boolean, integer, null, number, object, string], $.type: should be valid to any of the schemas array]'.
+    // The result is as expected, and we get no validation error: '[$.type: does not have a value in the enumeration [array, boolean, integer, null, number, object, string], $.type: should be valid to any of the schemas array]'.
     @Test
-    public void typeValidation() throws IOException, URISyntaxException {
+    void typeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
         Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));

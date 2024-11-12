@@ -35,10 +35,10 @@ import java.util.Set;
 /**
  * Created by steve on 22/10/16.
  */
-public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
+class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
     @Test
-    public void testInvalidPatternPropertiesValidator() throws Exception {
+    void testInvalidPatternPropertiesValidator() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
@@ -50,7 +50,7 @@ public class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest 
     }
 
     @Test
-    public void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
+    void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())

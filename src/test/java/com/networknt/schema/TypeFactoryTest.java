@@ -33,7 +33,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * Test for TypeFactory.
  */
-public class TypeFactoryTest {
+class TypeFactoryTest {
 
     private static final String[] validIntegralValues = { "1", "-1", "0E+1", "0E1", "-0E+1", "-0E1", "10.1E+1",
             "10.1E1", "-10.1E+1", "-10.1E1", "1E+0", "1E-0", "1E0", "1E18", "9223372036854775807",
@@ -115,7 +115,7 @@ public class TypeFactoryTest {
     }
 
     @Test
-    public void testNullValue() {
+    void testNullValue() {
         assertSame(JsonType.NULL,
                 getValueNodeType(JsonMapperFactory.getInstance().getNodeFactory().nullNode(), SchemaValidatorsConfig.builder().build()));
     }

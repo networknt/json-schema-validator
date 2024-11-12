@@ -1,6 +1,7 @@
 package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,10 +13,10 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Issue366FailSlowTest {
+class Issue366FailSlowTest {
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         setupSchema();
     }
 
@@ -43,7 +44,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void firstOneValid() throws Exception {
+    void firstOneValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -56,7 +57,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void secondOneValid() throws Exception {
+    void secondOneValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -69,7 +70,7 @@ public class Issue366FailSlowTest {
     }
 
     @Test
-    public void bothValid() throws Exception {
+    void bothValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -78,12 +79,12 @@ public class Issue366FailSlowTest {
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
         Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-        assertTrue(!errors.isEmpty());
+	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 1);
     }
 
     @Test
-    public void neitherValid() throws Exception {
+    void neitherValid() throws Exception {
         String dataPath = "/data/issue366.json";
 
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
@@ -92,7 +93,7 @@ public class Issue366FailSlowTest {
         JsonNode testNode = testNodes.get(0).get(3);
         JsonNode dataNode = testNode.get("data");
         Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
-        assertTrue(!errors.isEmpty());
+	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 3);
     }
 

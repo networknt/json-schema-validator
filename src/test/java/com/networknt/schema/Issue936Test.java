@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class Issue936Test {
+class Issue936Test {
     @Test
     void shouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"

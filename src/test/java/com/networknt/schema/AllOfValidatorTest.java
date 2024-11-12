@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class AllOfValidatorTest {
+class AllOfValidatorTest {
     @Test
     void invalidTypeShouldThrowJsonSchemaException() {
         String schemaData = "{\r\n"

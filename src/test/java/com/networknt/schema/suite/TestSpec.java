@@ -3,6 +3,7 @@ package com.networknt.schema.suite;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.SchemaValidatorsConfig;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -261,7 +262,7 @@ public class TestSpec {
         return this.regex;
     }
 
-    public static enum RegexKind {
+    public enum RegexKind {
         @JsonProperty("unspecified") UNSPECIFIED,
         @JsonProperty("ecma-262") JONI,
         @JsonProperty("jdk") JDK

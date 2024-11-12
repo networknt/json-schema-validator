@@ -33,7 +33,7 @@ import org.junit.jupiter.params.provider.EnumSource;
  * Test for GraalJSRegularExpression.
  */
 class GraalJSRegularExpressionTest {
-    private static GraalJSRegularExpressionContext CONTEXT = new GraalJSRegularExpressionContext(
+    private static final GraalJSRegularExpressionContext CONTEXT = new GraalJSRegularExpressionContext(
             GraalJSContextFactory.getInstance());
 
     enum InvalidEscapeInput {

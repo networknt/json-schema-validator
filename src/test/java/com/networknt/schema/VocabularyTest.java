@@ -31,7 +31,7 @@ import com.networknt.schema.output.OutputUnit;
 /**
  * Tests for vocabulary support in meta schemas.
  */
-public class VocabularyTest {
+class VocabularyTest {
     @Test
     void noValidation() {
         String metaSchemaData = "{\r\n"

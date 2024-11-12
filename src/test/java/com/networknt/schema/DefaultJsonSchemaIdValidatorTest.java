@@ -26,7 +26,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * Tests for the non-standard DefaultJsonSchemaIdValidator.
  */
-public class DefaultJsonSchemaIdValidatorTest {
+class DefaultJsonSchemaIdValidatorTest {
     @Test
     void givenRelativeIdShouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"

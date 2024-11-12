@@ -29,19 +29,19 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
+class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s }";
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
-    private static JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
     // https://github.com/FasterXML/jackson-databind/issues/1770
     // https://github.com/FasterXML/jackson-databind/issues/2087
-    private static ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-    private static ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+    private static final ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    private static final ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
 
     static String[][] augmentWithQuotes(String[][] values) {
         for (int i = 0; i < values.length; i++) {
@@ -52,7 +52,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void positiveNumber() throws IOException {
+    void positiveNumber() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
                 {"1000.1", "1000"},
@@ -64,7 +64,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void negativeNumber() throws IOException {
+    void negativeNumber() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                           value
 //            These values overflow 64bit IEEE 754
@@ -86,7 +86,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void positiveInteger() throws IOException {
+    void positiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
                 {"9223372036854775807", "9223372036854775807"},
@@ -105,7 +105,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void negativeInteger() throws IOException {
+    void negativeInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                value
                 {"9223372036854775800", "9223372036854775855"},
@@ -123,7 +123,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void positiveExclusiveInteger() throws IOException {
+    void positiveExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
                 {"9223372036854775000", "9223372036854774988"},
@@ -142,7 +142,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void negativeExclusiveInteger() throws IOException {
+    void negativeExclusiveInteger() throws IOException {
         String[][] values = augmentWithQuotes(new String[][]{
 //            maximum,                       value
                 {"10", "20"},
@@ -160,7 +160,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     }
 
     @Test
-    public void negativeDoubleOverflowTest() throws IOException {
+    void negativeDoubleOverflowTest() throws IOException {
         String[][] values = new String[][]{
 //            maximum,                           value
 //                both of these get parsed into double (with a precision loss) as  1.7976931348623157E+308
@@ -221,7 +221,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      * the only way to spot this is to use BigDecimal for schema (and for document)
      */
     @Test
-    public void doubleValueCoarsing() throws IOException {
+    void doubleValueCoarsing() throws IOException {
         String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623157e+308 }";
         String content = "1.7976931348623158e+308";
 
@@ -253,7 +253,7 @@ public class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
      * BigDecimalMapper issue, it doesn't work as expected, it will treat 1.7976931348623159e+308 as INFINITY instead of as it is.
      */
     @Test
-    public void doubleValueCoarsingExceedRange() throws IOException {
+    void doubleValueCoarsingExceedRange() throws IOException {
         String schema = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": 1.7976931348623159e+308 }";
         String content = "1.7976931348623160e+308";
 

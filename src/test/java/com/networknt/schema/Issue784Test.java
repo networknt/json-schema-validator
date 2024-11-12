@@ -10,7 +10,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Issue784Test {
+class Issue784Test {
 
     private static final String FOO_BAR = "foo-bar";
     private static final String SOMETHING_ELSE = "something-else";
@@ -34,7 +34,7 @@ public class Issue784Test {
     }
 
     @Test
-    public void allowToOverrideDataTime() throws IOException {
+    void allowToOverrideDataTime() throws IOException {
         JsonSchema jsonSchema = createSchema(true);
 
         // Custom validator checks for FOO_BAR
@@ -45,7 +45,7 @@ public class Issue784Test {
     }
 
     @Test
-    public void useDefaultValidatorIfNotOverriden() throws IOException {
+    void useDefaultValidatorIfNotOverriden() throws IOException {
         JsonSchema jsonSchema = createSchema(false);
 
         // Default validator fails with FOO_BAR

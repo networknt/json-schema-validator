@@ -13,9 +13,9 @@ import com.networknt.schema.walk.WalkFlow;
 /**
  * Issue 918.
  */
-public class SharedConfigTest {
+class SharedConfigTest {
     private static class AllKeywordListener implements JsonSchemaWalkListener {
-        public boolean wasCalled = false;
+        boolean wasCalled = false;
 
         @Override
         public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -29,7 +29,7 @@ public class SharedConfigTest {
     }
 
     @Test
-    public void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
+    void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
 
         AllKeywordListener allKeywordListener = new AllKeywordListener();

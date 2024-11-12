@@ -24,12 +24,11 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static java.lang.String.format;
 import static java.lang.System.out;
 
 @Disabled
-public class ThresholdMixinPerfTest {
-    private static long thresholdIntegral = Long.MAX_VALUE - 1;
+class ThresholdMixinPerfTest {
+    private static final long thresholdIntegral = Long.MAX_VALUE - 1;
 
 
     private final LongNode maximumLong = new LongNode(thresholdIntegral);
@@ -58,104 +57,104 @@ public class ThresholdMixinPerfTest {
     private double baseTimeForLong;
 
     @BeforeEach
-    public void baseTimeEstimate() {
+    void baseTimeEstimate() {
         baseTimeForDouble = getAvgTimeViaMixin(asDouble, valueDouble, executeTimes);
-        out.println(format("Base execution time (comparing two DoubleNodes) %f ns", baseTimeForDouble));
+        out.printf("Base execution time (comparing two DoubleNodes) %f ns%n", baseTimeForDouble);
 
         baseTimeForLong = getAvgTimeViaMixin(asLong, valueLong, executeTimes);
-        out.println(format("Base execution time (comparing two LongeNodes) %f ns \n", baseTimeForDouble));
+        out.printf("Base execution time (comparing two LongeNodes) %f ns \n%n", baseTimeForDouble);
     }
 
     @Test
-    public void currentTimeEstimate() {
+    void currentTimeEstimate() {
         out.println("Estimating time for current implementation:");
         double currentAvgTimeOnDouble = getAvgTimeViaMixin(currentImplementationDouble, valueDouble, executeTimes);
-        out.println(format("Current double on double execution time %f ns, %f times slower", currentAvgTimeOnDouble, (currentAvgTimeOnDouble / baseTimeForDouble)));
+        out.printf("Current double on double execution time %f ns, %f times slower%n", currentAvgTimeOnDouble, (currentAvgTimeOnDouble / baseTimeForDouble));
 
         double currentAvgTimeOnDecimal = getAvgTimeViaMixin(currentImplementationDouble, valueDecimal, executeTimes);
-        out.println(format("Current double on decimal execution time %f ns, %f times slower", currentAvgTimeOnDecimal, (currentAvgTimeOnDecimal / baseTimeForDouble)));
+        out.printf("Current double on decimal execution time %f ns, %f times slower%n", currentAvgTimeOnDecimal, (currentAvgTimeOnDecimal / baseTimeForDouble));
 
         double currentAvgTimeOnText = getAvgTimeViaMixin(currentImplementationDouble, valueTextual, executeTimes);
-        out.println(format("Current double on text execution time %f ns, %f times slower", currentAvgTimeOnText, (currentAvgTimeOnText / baseTimeForDouble)));
+        out.printf("Current double on text execution time %f ns, %f times slower%n", currentAvgTimeOnText, (currentAvgTimeOnText / baseTimeForDouble));
 
         double currentAvgTimeDecimalOnDouble = getAvgTimeViaMixin(currentImplementationDecimal, valueDouble, executeTimes);
-        out.println(format("Current decimal on double execution time %f ns, %f times slower", currentAvgTimeDecimalOnDouble, (currentAvgTimeDecimalOnDouble / baseTimeForDouble)));
+        out.printf("Current decimal on double execution time %f ns, %f times slower%n", currentAvgTimeDecimalOnDouble, (currentAvgTimeDecimalOnDouble / baseTimeForDouble));
 
         double currentAvgTimeDecimalOnDecimal = getAvgTimeViaMixin(currentImplementationDecimal, valueDecimal, executeTimes);
-        out.println(format("Current decimal on decimal execution time %f ns, %f times slower", currentAvgTimeDecimalOnDecimal, (currentAvgTimeDecimalOnDecimal / baseTimeForDouble)));
+        out.printf("Current decimal on decimal execution time %f ns, %f times slower%n", currentAvgTimeDecimalOnDecimal, (currentAvgTimeDecimalOnDecimal / baseTimeForDouble));
 
         double currentAvgTimeDecimalOnText = getAvgTimeViaMixin(currentImplementationDecimal, valueTextual, executeTimes);
-        out.println(format("Current decimal on text execution time %f ns, %f times slower", currentAvgTimeDecimalOnText, (currentAvgTimeDecimalOnText / baseTimeForDouble)));
+        out.printf("Current decimal on text execution time %f ns, %f times slower%n", currentAvgTimeDecimalOnText, (currentAvgTimeDecimalOnText / baseTimeForDouble));
 
-        out.println(format("Cumulative average: %f\n\n", (currentAvgTimeOnDouble + currentAvgTimeOnDecimal + currentAvgTimeOnText + currentAvgTimeDecimalOnDouble + currentAvgTimeDecimalOnDecimal + currentAvgTimeDecimalOnText) / 6.0d));
+        out.printf("Cumulative average: %f\n\n%n", (currentAvgTimeOnDouble + currentAvgTimeOnDecimal + currentAvgTimeOnText + currentAvgTimeDecimalOnDouble + currentAvgTimeDecimalOnDecimal + currentAvgTimeDecimalOnText) / 6.0d);
     }
 
     @Test
-    public void allInOneAproachTimeEstimate() {
+    void allInOneAproachTimeEstimate() {
         out.println("Estimating time threshold value agnostic mixin (aka allInOne):");
         double allInOneDoubleOnDouble = getAvgTimeViaMixin(allInOneDouble, valueDouble, executeTimes);
-        out.println(format("AllInOne double on double execution time  %f ns, %f times slower", allInOneDoubleOnDouble, (allInOneDoubleOnDouble / baseTimeForDouble)));
+        out.printf("AllInOne double on double execution time  %f ns, %f times slower%n", allInOneDoubleOnDouble, (allInOneDoubleOnDouble / baseTimeForDouble));
 
         double allInOneDoubleOnDecimal = getAvgTimeViaMixin(allInOneDouble, valueDecimal, executeTimes);
-        out.println(format("AllInOne double on decimal execution time %f ns, %f times slower", allInOneDoubleOnDecimal, (allInOneDoubleOnDecimal / baseTimeForDouble)));
+        out.printf("AllInOne double on decimal execution time %f ns, %f times slower%n", allInOneDoubleOnDecimal, (allInOneDoubleOnDecimal / baseTimeForDouble));
 
         double allInOneDoubleOnText = getAvgTimeViaMixin(allInOneDouble, valueTextual, executeTimes);
-        out.println(format("AllInOne double on text execution time %f ns, %f times slower", allInOneDoubleOnText, (allInOneDoubleOnText / baseTimeForDouble)));
+        out.printf("AllInOne double on text execution time %f ns, %f times slower%n", allInOneDoubleOnText, (allInOneDoubleOnText / baseTimeForDouble));
 
         double allInOneDecimalOnDouble = getAvgTimeViaMixin(allInOneDecimal, valueDouble, executeTimes);
-        out.println(format("AllInOne decimal on double execution time %f ns, %f times slower", allInOneDecimalOnDouble, (allInOneDecimalOnDouble / baseTimeForDouble)));
+        out.printf("AllInOne decimal on double execution time %f ns, %f times slower%n", allInOneDecimalOnDouble, (allInOneDecimalOnDouble / baseTimeForDouble));
 
         double allInOneDecimalOnDecimal = getAvgTimeViaMixin(allInOneDecimal, valueDecimal, executeTimes);
-        out.println(format("AllInOne decimal on decimal execution time %f ns, %f times slower", allInOneDecimalOnDecimal, (allInOneDecimalOnDecimal / baseTimeForDouble)));
+        out.printf("AllInOne decimal on decimal execution time %f ns, %f times slower%n", allInOneDecimalOnDecimal, (allInOneDecimalOnDecimal / baseTimeForDouble));
 
         double allInOneDecimalOnText = getAvgTimeViaMixin(allInOneDecimal, valueTextual, executeTimes);
-        out.println(format("AllInOne decimal on text execution time %f ns, %f times slower", allInOneDecimalOnText, (allInOneDecimalOnText / baseTimeForDouble)));
+        out.printf("AllInOne decimal on text execution time %f ns, %f times slower%n", allInOneDecimalOnText, (allInOneDecimalOnText / baseTimeForDouble));
 
-        out.println(format("Cumulative average: %f\n\n", (allInOneDoubleOnDouble + allInOneDoubleOnDecimal + allInOneDoubleOnText + allInOneDecimalOnDouble + allInOneDecimalOnDecimal + allInOneDecimalOnText) / 6.0d));
+        out.printf("Cumulative average: %f\n\n%n", (allInOneDoubleOnDouble + allInOneDoubleOnDecimal + allInOneDoubleOnText + allInOneDecimalOnDouble + allInOneDecimalOnDecimal + allInOneDecimalOnText) / 6.0d);
     }
 
     @Test
-    public void specificCaseForEachThresholdValue() {
+    void specificCaseForEachThresholdValue() {
         out.println("Estimating time for specific cases:");
         double doubleValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueDouble, executeTimes);
-        out.println(format("Typed threshold execution time %f ns, %f times slower", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble)));
+        out.printf("Typed threshold execution time %f ns, %f times slower%n", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble));
 
         double decimalValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueDecimal, executeTimes);
-        out.println(format("Typed threshold execution time %f ns, %f times slower", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble)));
+        out.printf("Typed threshold execution time %f ns, %f times slower%n", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble));
 
         double textValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueTextual, executeTimes);
-        out.println(format("Typed threshold execution time %f ns, %f times slower", textValueAvgTime, (textValueAvgTime / baseTimeForDouble)));
+        out.printf("Typed threshold execution time %f ns, %f times slower%n", textValueAvgTime, (textValueAvgTime / baseTimeForDouble));
 
-        out.println(format("Cumulative average: %f\n\n", (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d));
+        out.printf("Cumulative average: %f\n\n%n", (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d);
     }
 
     @Test
-    public void noMixinsFloatingTimeEstimate() {
+    void noMixinsFloatingTimeEstimate() {
         out.println("Estimating time no mixins at all (floating point values):");
         double doubleValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueDecimal, executeTimes);
-        out.println(format("No mixins with double value time %f ns, %f times slower", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble)));
+        out.printf("No mixins with double value time %f ns, %f times slower%n", doubleValueAvgTime, (doubleValueAvgTime / baseTimeForDouble));
 
         double decimalValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueDecimal, executeTimes);
-        out.println(format("No mixins with decimal value time %f ns, %f times slower", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble)));
+        out.printf("No mixins with decimal value time %f ns, %f times slower%n", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble));
 
         double textValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueTextual, executeTimes);
-        out.println(format("No mixins with text value time %f ns, %f times slower", textValueAvgTime, (textValueAvgTime / baseTimeForDouble)));
-        out.println(format("Cumulative average: %f\n\n",
-                (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d));
+        out.printf("No mixins with text value time %f ns, %f times slower%n", textValueAvgTime, (textValueAvgTime / baseTimeForDouble));
+        out.printf("Cumulative average: %f\n\n%n",
+                (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d);
     }
 
     @Test
-    public void noMixinsIntegralTimeEstimate() {
+    void noMixinsIntegralTimeEstimate() {
         double longValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new LongNode((long) value), executeTimes);
-        out.println(format("No mixins with long value time %f ns, %f times slower", longValueAvgTime, (longValueAvgTime / baseTimeForLong)));
+        out.printf("No mixins with long value time %f ns, %f times slower%n", longValueAvgTime, (longValueAvgTime / baseTimeForLong));
 
         double bigIntValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new BigIntegerNode(BigInteger.valueOf((long) value)), executeTimes);
-        out.println(format("No mixins with big int value time %f ns, %f times slower", bigIntValueAvgTime, (bigIntValueAvgTime / baseTimeForLong)));
+        out.printf("No mixins with big int value time %f ns, %f times slower%n", bigIntValueAvgTime, (bigIntValueAvgTime / baseTimeForLong));
 
         double textIntValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new TextNode(String.valueOf((long) value)), executeTimes);
-        out.println(format("No mixins with text value time %f ns, %f times slower", textIntValueAvgTime, (textIntValueAvgTime / baseTimeForLong)));
-        out.println(format("Cumulative average: %f\n\n",
-                (longValueAvgTime + bigIntValueAvgTime + textIntValueAvgTime) / 3.0d));
+        out.printf("No mixins with text value time %f ns, %f times slower%n", textIntValueAvgTime, (textIntValueAvgTime / baseTimeForLong));
+        out.printf("Cumulative average: %f\n\n%n",
+                (longValueAvgTime + bigIntValueAvgTime + textIntValueAvgTime) / 3.0d);
     }
 
     ThresholdMixin allInOneDouble = new AllInOneThreshold(maximumDouble, false);
@@ -165,7 +164,7 @@ public class ThresholdMixinPerfTest {
 
         private final BigDecimal bigDecimalMax;
         JsonNode maximum;
-        private boolean excludeEqual;
+        private final boolean excludeEqual;
 
         AllInOneThreshold(JsonNode maximum, boolean exludeEqual) {
             this.maximum = maximum;
@@ -204,9 +203,7 @@ public class ThresholdMixinPerfTest {
         }
     }
 
-    ;
-
-    ThresholdMixin asDouble = new ThresholdMixin() {
+	ThresholdMixin asDouble = new ThresholdMixin() {
         @Override
         public boolean crossesThreshold(JsonNode node) {
             double lm = maximumDouble.doubleValue();

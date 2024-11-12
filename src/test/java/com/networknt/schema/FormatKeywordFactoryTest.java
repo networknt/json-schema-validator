@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class FormatKeywordFactoryTest {
+class FormatKeywordFactoryTest {
     
     public static class CustomFormatKeyword extends FormatKeyword {
         public CustomFormatKeyword(Map<String, Format> formats) {

@@ -28,7 +28,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 /**
  * AdditionalPropertiesValidatorTest.
  */
-public class AdditionalPropertiesValidatorTest {
+class AdditionalPropertiesValidatorTest {
     /**
      * Tests that the message contains the correct values when additional properties
      * schema is false.

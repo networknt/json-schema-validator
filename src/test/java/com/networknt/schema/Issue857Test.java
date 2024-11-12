@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class Issue857Test {
+class Issue857Test {
     @Test
     void test() {
         String schema = "{\r\n"

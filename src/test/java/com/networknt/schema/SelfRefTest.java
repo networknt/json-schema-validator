@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Created by stevehu on 2016-12-20.
  */
-public class SelfRefTest extends BaseJsonSchemaValidatorTest {
+class SelfRefTest extends BaseJsonSchemaValidatorTest {
     @Disabled("This test currently is failing because of a StackOverflow caused by a recursive $ref.")
     @Test()
-    public void testSelfRef() throws Exception {
+    void testSelfRef() throws Exception {
         JsonSchema node = getJsonSchemaFromClasspath("selfRef.json");
         System.out.println("node = " + node);
     }

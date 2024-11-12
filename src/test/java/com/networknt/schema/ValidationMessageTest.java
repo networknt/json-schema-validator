@@ -25,7 +25,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * ValidationMessageTest.
  */
-public class ValidationMessageTest {
+class ValidationMessageTest {
     @Test
     void testSerialization() throws JsonProcessingException {
         String value = JsonMapperFactory.getInstance()

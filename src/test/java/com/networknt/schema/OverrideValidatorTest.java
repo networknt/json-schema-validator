@@ -28,10 +28,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OverrideValidatorTest {
+class OverrideValidatorTest {
 
     @Test
-    public void overrideDefaultValidator() throws JsonProcessingException, IOException {
+    void overrideDefaultValidator() throws JsonProcessingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final String URI = "https://github.com/networknt/json-schema-validator/tests/schemas/example01";
         final String schema = "{\n" +

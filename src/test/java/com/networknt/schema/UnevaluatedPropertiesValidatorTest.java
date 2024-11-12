@@ -33,7 +33,7 @@ import com.networknt.schema.output.OutputUnit;
 /**
  * UnevaluatedPropertiesValidatorTest.
  */
-public class UnevaluatedPropertiesValidatorTest {
+class UnevaluatedPropertiesValidatorTest {
     /**
      * Issue 962.
      */

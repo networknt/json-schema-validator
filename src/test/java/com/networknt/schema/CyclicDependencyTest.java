@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CyclicDependencyTest {
+class CyclicDependencyTest {
 
     @Test
-    public void whenDependencyBetweenSchemaThenValidationSuccessful() throws Exception {
+    void whenDependencyBetweenSchemaThenValidationSuccessful() throws Exception {
 
         JsonSchemaFactory schemaFactory = JsonSchemaFactory
             .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))

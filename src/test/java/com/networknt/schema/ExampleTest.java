@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public class ExampleTest {
+class ExampleTest {
     @Test
-    public void exampleSchemaLocation() throws Exception {
+    void exampleSchemaLocation() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
             builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
@@ -50,7 +50,7 @@ public class ExampleTest {
     }
 
     @Test
-    public void exampleClasspath() throws Exception {
+    void exampleClasspath() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();

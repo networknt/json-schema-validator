@@ -9,7 +9,7 @@ import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UrnTest
+class UrnTest
 {
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -20,7 +20,7 @@ public class UrnTest
    * @throws IOException if unable to parse the mapping file
    */
   @Test
-  public void testURNToURI() throws Exception {
+  void testURNToURI() throws Exception {
     InputStream urlTestData = UrnTest.class.getResourceAsStream("/draft7/urn/test.json");
     InputStream is = null;
     try {

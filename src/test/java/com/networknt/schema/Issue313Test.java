@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Set;
 
-public class Issue313Test {
+class Issue313Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         return factory.getSchema(schemaContent);
@@ -28,7 +28,7 @@ public class Issue313Test {
 
     @Test
     @Disabled
-    public void shouldFailV201909() throws Exception {
+    void shouldFailV201909() throws Exception {
         String schemaPath = "/schema/issue313-2019-09.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
@@ -40,7 +40,7 @@ public class Issue313Test {
     }
 
     @Test
-    public void shouldFailV7() throws Exception {
+    void shouldFailV7() throws Exception {
         String schemaPath = "/schema/issue313-v7.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);

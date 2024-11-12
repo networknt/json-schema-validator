@@ -27,7 +27,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * ContentSchemaValidatorTest.
  */
-public class ContentSchemaValidatorTest {
+class ContentSchemaValidatorTest {
     @Test
     void annotationCollection() throws JsonProcessingException {
         String schemaData = "{\r\n"

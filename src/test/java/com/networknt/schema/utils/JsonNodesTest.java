@@ -44,7 +44,7 @@ import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 /**
  * Tests for JsonNodes.
  */
-public class JsonNodesTest {
+class JsonNodesTest {
     @Test
     void location() throws JsonParseException, IOException {
         String schemaData = "{\r\n"
@@ -131,11 +131,9 @@ public class JsonNodesTest {
                 + "properties:\r\n"
                 + "  startDate:\r\n"
                 + "    format: 'date'\r\n"
-                + "    minLength: 6\r\n"
-                + "";
+                + "    minLength: 6\r\n";
         String inputData = "---\r\n"
-                + "startDate: '1'\r\n"
-                + "";
+                + "startDate: '1'\r\n";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();

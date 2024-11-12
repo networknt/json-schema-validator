@@ -4,7 +4,7 @@ import java.io.InputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Issue314Test {
+class Issue314Test {
     private static final JsonSchemaFactory FACTORY =
             JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
                     .metaSchema(
@@ -15,7 +15,7 @@ public class Issue314Test {
                     .build();
 
     @Test
-    public void testNormalizeHttpOnly() {
+    void testNormalizeHttpOnly() {
         String schemaPath = "/schema/issue314-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         JsonSchema schema = FACTORY.getSchema(schemaInputStream);

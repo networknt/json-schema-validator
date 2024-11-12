@@ -33,7 +33,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
-public class LocaleTest {
+class LocaleTest {
     private JsonSchema getSchema(SchemaValidatorsConfig config) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
         return factory.getSchema(

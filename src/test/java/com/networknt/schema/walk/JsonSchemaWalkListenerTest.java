@@ -17,6 +17,7 @@ package com.networknt.schema.walk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -290,7 +290,7 @@ class JsonSchemaWalkListenerTest {
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(2, items.size());
         assertEquals("items", items.get(0).getValidator().getKeyword());
-        assertTrue(items.get(0).getValidator() instanceof ItemsValidator);
+	    assertInstanceOf(ItemsValidator.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
@@ -363,7 +363,7 @@ class JsonSchemaWalkListenerTest {
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(2, items.size());
         assertEquals("items", items.get(0).getValidator().getKeyword());
-        assertTrue(items.get(0).getValidator() instanceof ItemsValidator202012);
+	    assertInstanceOf(ItemsValidator202012.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
@@ -531,7 +531,7 @@ class JsonSchemaWalkListenerTest {
     }
 
     @Test
-    void applyDefaults() throws JsonMappingException, JsonProcessingException {
+    void applyDefaults() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -564,7 +564,7 @@ class JsonSchemaWalkListenerTest {
     }
 
     @Test
-    void applyDefaultsWithWalker() throws JsonMappingException, JsonProcessingException {
+    void applyDefaultsWithWalker() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -621,7 +621,7 @@ class JsonSchemaWalkListenerTest {
     }
 
     @Test
-    void applyInvalidDefaultsWithWalker() throws JsonMappingException, JsonProcessingException {
+    void applyInvalidDefaultsWithWalker() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -683,7 +683,7 @@ class JsonSchemaWalkListenerTest {
     }
 
     @Test
-    void missingRequired() throws JsonMappingException, JsonProcessingException {
+    void missingRequired() throws JsonProcessingException {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -747,7 +747,7 @@ class JsonSchemaWalkListenerTest {
     }
 
     @Test
-    void generateDataWithWalker() throws JsonMappingException, JsonProcessingException {
+    void generateDataWithWalker() throws JsonProcessingException {
         Map<String, Supplier<String>> generators = new HashMap<>();
         generators.put("name.findName", () -> "John Doe");
         generators.put("internet.email", () -> "john.doe@gmail.com");

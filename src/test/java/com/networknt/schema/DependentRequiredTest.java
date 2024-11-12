@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.empty;
 
 class DependentRequiredTest {
 
-    public static final String SCHEMA =
+    static final String SCHEMA =
         "{ " +
             "   \"$schema\":\"https://json-schema.org/draft/2019-09/schema\"," +
             "   \"type\": \"object\"," +
