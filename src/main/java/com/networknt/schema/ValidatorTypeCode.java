@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +49,7 @@ enum VersionCode {
 
     VersionCode(SpecVersion.VersionFlag[] versionFlags) {
         this.versions = EnumSet.noneOf(VersionFlag.class);
-        for (VersionFlag flag: versionFlags) {
-            this.versions.add(flag);
-        }
+	      this.versions.addAll(Arrays.asList(versionFlags));
     }
 
     EnumSet<VersionFlag> getVersions() {
@@ -129,7 +128,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     private final ValidatorFactory validatorFactory;
     private final VersionCode versionCode;
 
-    private ValidatorTypeCode(String value, String errorCode, ValidatorFactory validatorFactory, VersionCode versionCode) {
+    ValidatorTypeCode(String value, String errorCode, ValidatorFactory validatorFactory, VersionCode versionCode) {
         this.value = value;
         this.errorCode = errorCode;
         this.validatorFactory = validatorFactory;

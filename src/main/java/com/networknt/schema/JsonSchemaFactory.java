@@ -57,7 +57,7 @@ public class JsonSchemaFactory {
         private ObjectMapper yamlMapper = null;
         private JsonNodeReader jsonNodeReader = null;
         private String defaultMetaSchemaIri;
-        private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<String, JsonMetaSchema>();
+        private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
         private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableSchemaCache = true;
@@ -83,7 +83,7 @@ public class JsonSchemaFactory {
          * <p>
          * If the object reader is set this will not be used.
          * <p>
-         * This is deprecated use a object reader instead.
+         * This is deprecated use an object reader instead.
          * 
          * @param jsonMapper the json mapper
          * @return the builder
@@ -99,7 +99,7 @@ public class JsonSchemaFactory {
          * <p>
          * If the object reader is set this will not be used.
          * <p>
-         * This is deprecated use a object reader instead.
+         * This is deprecated use an object reader instead.
          * 
          * @param yamlMapper the yaml mapper
          * @return the builder
@@ -439,7 +439,7 @@ public class JsonSchemaFactory {
     private JsonMetaSchema getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && !iriNode.isNull() && !iriNode.isTextual()) {
-            throw new JsonSchemaException("Unknown MetaSchema: " + iriNode.toString());
+            throw new JsonSchemaException("Unknown MetaSchema: " + iriNode);
         }
         final String iri = iriNode == null || iriNode.isNull() ? defaultMetaSchemaIri : iriNode.textValue();
         return getMetaSchema(iri, config);
@@ -669,7 +669,7 @@ public class JsonSchemaFactory {
     protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
         try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
             if (inputStream == null) {
-                throw new IOException("Cannot load schema at " + schemaUri.toString());
+                throw new IOException("Cannot load schema at " + schemaUri);
             }
             final JsonNode schemaNode;
             if (isYaml(schemaUri)) {

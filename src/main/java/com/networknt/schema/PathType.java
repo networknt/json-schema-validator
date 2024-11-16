@@ -35,7 +35,7 @@ public enum PathType {
             return currentPath + "." + token;
         }
 
-        // Replace single quote (used to wrap property names when not shorthand form.
+        // Replace single quote (used to wrap property names when not shorthand form).
         if (token.indexOf('\'') != -1) token = token.replace("'", "\\'");
         // Replace other special characters.
         token = replaceCommonSpecialCharactersIfPresent(token);
@@ -60,9 +60,7 @@ public enum PathType {
     /**
      * Paths as a URI reference.
      */
-    URI_REFERENCE("", (currentPath, token) -> {
-        return !currentPath.isEmpty() ? currentPath + "/" + token : token;
-    }, (currentPath, index) -> currentPath + "/" + index);
+    URI_REFERENCE("", (currentPath, token) -> !currentPath.isEmpty() ? currentPath + "/" + token : token, (currentPath, index) -> currentPath + "/" + index);
 
     /**
      * The default path generation approach to use.
@@ -211,7 +209,7 @@ public enum PathType {
         if ('\'' == s.charAt(pos)) {
             parseQuote(sb, s, pos + 1);
         } else {
-            sb.append(s.substring(pos, close));
+            sb.append(s, pos, close);
         }
 
         return close + 1;
@@ -232,7 +230,7 @@ public enum PathType {
                 throw new IllegalArgumentException("JSONPath contains an unterminated quoted string");
             }
         } while ('\\' == s.charAt(close - 1)) ;
-        sb.append(s.substring(pos, close));
+        sb.append(s, pos, close);
         return close + 1;
     }
 

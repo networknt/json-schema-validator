@@ -27,8 +27,8 @@ import java.util.*;
  */
 public class DependenciesValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
-    private final Map<String, List<String>> propertyDeps = new HashMap<String, List<String>>();
-    private final Map<String, JsonSchema> schemaDeps = new HashMap<String, JsonSchema>();
+    private final Map<String, List<String>> propertyDeps = new HashMap<>();
+    private final Map<String, JsonSchema> schemaDeps = new HashMap<>();
 
     /**
      * Constructor.

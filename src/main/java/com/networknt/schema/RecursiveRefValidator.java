@@ -49,9 +49,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
     static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
-        return new JsonSchemaRef(getSupplier(() -> {
-            return getSchema(parentSchema, validationContext, refValue, evaluationPath);
-        }, validationContext.getConfig().isCacheRefs()));
+        return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, validationContext, refValue, evaluationPath), validationContext.getConfig().isCacheRefs()));
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {

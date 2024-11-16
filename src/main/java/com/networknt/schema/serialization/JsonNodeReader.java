@@ -51,7 +51,7 @@ public interface JsonNodeReader {
      *
      * @return the builder
      */
-    public static DefaultJsonNodeReader.Builder builder() {
+    static DefaultJsonNodeReader.Builder builder() {
         return DefaultJsonNodeReader.builder();
     }
 }

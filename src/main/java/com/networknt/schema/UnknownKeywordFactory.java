@@ -42,7 +42,7 @@ public class UnknownKeywordFactory implements KeywordFactory {
     }
 
     private static class Holder {
-        private static UnknownKeywordFactory INSTANCE = new UnknownKeywordFactory();
+        private static final UnknownKeywordFactory INSTANCE = new UnknownKeywordFactory();
     }
 
     public static UnknownKeywordFactory getInstance() {

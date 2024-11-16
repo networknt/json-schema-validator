@@ -48,7 +48,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
         if (schemaNode != null && schemaNode.isArray()) {
-            nodes = new HashSet<JsonNode>();
+            nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();
 
             sb.append('[');
@@ -144,7 +144,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
         if (!hasNumber(node)) {
             return node;
         }
-        ArrayNode a = (ArrayNode) node.deepCopy();
+        ArrayNode a = node.deepCopy();
         for (int x = 0; x < a.size(); x++) {
             JsonNode v = a.get(x);
             if (v.isNumber()) {

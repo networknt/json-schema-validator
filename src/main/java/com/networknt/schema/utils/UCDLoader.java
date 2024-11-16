@@ -18,7 +18,7 @@ public class UCDLoader {
     static void loadMapping(String filename, Function<String, BitSet> selector) {
         try (
             InputStream is = IdnHostnameFormat.class.getResourceAsStream(filename);
-            LineNumberReader rd = new LineNumberReader(new InputStreamReader(is));
+            LineNumberReader rd = new LineNumberReader(new InputStreamReader(is))
         ) {
             rd.lines().forEach(line -> {
                 if (!line.isEmpty() && '#' != line.charAt(0)) {

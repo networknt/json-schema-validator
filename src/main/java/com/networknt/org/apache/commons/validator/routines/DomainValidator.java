@@ -96,7 +96,6 @@ public class DomainValidator implements Serializable {
          * @since 1.7
          */
         LOCAL_MINUS
-        ;
     }
 
     private static class IDNBUGHOLDER {

@@ -12,7 +12,7 @@ public class StringChecker {
     private static final char CHAR_e = 'e';
 
     public static boolean isInteger(String str) {
-        if (str == null || str.equals("")) {
+        if (str == null || str.isEmpty()) {
             return false;
         }
 
@@ -39,7 +39,7 @@ public class StringChecker {
     }
 
     public static boolean isNumeric(String str) {
-        if (str == null || str.equals("")) {
+        if (str == null || str.isEmpty()) {
             return false;
         }
 

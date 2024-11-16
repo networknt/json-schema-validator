@@ -75,9 +75,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
         boolean evaluated = false;
 
         // Get all the valid adjacent annotations
-        Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> {
-            return executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
-        };
+        Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
 
         Predicate<JsonNodeAnnotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
                 .startsWith(this.evaluationPath.getParent());
@@ -90,7 +88,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
             valid = true;
             // No need to actually evaluate since the schema is true but if there are any
             // items the annotation needs to be set
-            if (node.size() > 0) {
+            if (!node.isEmpty()) {
                 evaluated = true;
             }
         } else {

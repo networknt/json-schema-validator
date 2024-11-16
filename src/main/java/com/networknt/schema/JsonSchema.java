@@ -332,7 +332,7 @@ public class JsonSchema extends BaseJsonValidator {
         } else {
             // Anchor
             String base = this.getSchemaLocation().getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
-            String anchor = base + "#" + fragment.toString();
+            String anchor = base + "#" + fragment;
             JsonSchema result = this.validationContext.getSchemaResources().get(anchor);
             if (result == null) {
                 result  = this.validationContext.getDynamicAnchors().get(anchor);
@@ -468,11 +468,8 @@ public class JsonSchema extends BaseJsonValidator {
             return true;
         }
         // The schema should not cross
-        if (!Objects.equals(getSchemaLocation().getAbsoluteIri(),
-                getParentSchema().getSchemaLocation().getAbsoluteIri())) {
-            return true;
-        }
-        return false;
+	    return !Objects.equals(getSchemaLocation().getAbsoluteIri(),
+			    getParentSchema().getSchemaLocation().getAbsoluteIri());
     }
 
     public String getId() {
@@ -581,7 +578,7 @@ public class JsonSchema extends BaseJsonValidator {
      * A comparator that sorts validators, such that 'properties' comes before 'required',
      * so that we can apply default values before validating required.
      */
-    private static Comparator<JsonValidator> VALIDATOR_SORT = (lhs, rhs) -> {
+    private static final Comparator<JsonValidator> VALIDATOR_SORT = (lhs, rhs) -> {
         String lhsName = lhs.getEvaluationPath().getName(-1);
         String rhsName = rhs.getEvaluationPath().getName(-1);
 
@@ -771,9 +768,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return the result
      */
     public <T> T validate(JsonNode rootNode, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
-        return validate(createExecutionContext(), rootNode, format, (executionContext, validationContext) -> {
-            executionCustomizer.accept(executionContext);
-        });
+        return validate(createExecutionContext(), rootNode, format, (executionContext, validationContext) -> executionCustomizer.accept(executionContext));
     }
 
     /**
@@ -892,9 +887,7 @@ public class JsonSchema extends BaseJsonValidator {
      * @return the result
      */
     public <T> T validate(String input, InputFormat inputFormat, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
-        return validate(createExecutionContext(), deserialize(input, inputFormat), format, (executionContext, validationContext) -> {
-            executionCustomizer.accept(executionContext);
-        });
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, (executionContext, validationContext) -> executionCustomizer.accept(executionContext));
     }
 
     /**
@@ -1241,9 +1234,7 @@ public class JsonSchema extends BaseJsonValidator {
     private <T> T walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean validate, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
         return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate, format,
-                (executeContext, validationContext) -> {
-                    executionCustomizer.accept(executeContext);
-                });
+                (executeContext, validationContext) -> executionCustomizer.accept(executeContext));
     }
 
     private <T> T walkAtNodeInternal(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,

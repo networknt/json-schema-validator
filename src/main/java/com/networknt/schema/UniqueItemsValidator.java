@@ -45,7 +45,7 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (unique) {
-            Set<JsonNode> set = new HashSet<JsonNode>();
+            Set<JsonNode> set = new HashSet<>();
             for (JsonNode n : node) {
                 if (!set.add(n)) {
                     return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)

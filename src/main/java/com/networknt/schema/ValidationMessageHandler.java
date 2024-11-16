@@ -102,9 +102,7 @@ public abstract class ValidationMessageHandler {
                     return Collections.singletonMap("", messageNode.asText());
                 } else if (messageNode.isObject()) {
                     Map<String, String> result = new LinkedHashMap<>();
-                    messageNode.fields().forEachRemaining(entry -> {
-                        result.put(entry.getKey(), entry.getValue().textValue());
-                    });
+                    messageNode.fields().forEachRemaining(entry -> result.put(entry.getKey(), entry.getValue().textValue()));
                     if (!result.isEmpty()) {
                         return result;
                     }

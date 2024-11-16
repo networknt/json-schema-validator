@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +32,8 @@ public class Version201909 implements JsonSchemaVersion {
                     .formats(Formats.DEFAULT)
                     .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V201909))
                     // keywords that may validly exist, but have no validation aspect to them
-                    .keywords(Arrays.asList(
-                            new NonValidationKeyword("definitions")
+                    .keywords(Collections.singletonList(
+		                    new NonValidationKeyword("definitions")
                     ))
                     .vocabularies(VOCABULARY)
                     .build(); 

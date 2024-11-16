@@ -120,7 +120,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
     public Object getElement(int index) {
         if (index == -1) {
             if (this.pathSegmentIndex != -1) {
-                return Integer.valueOf(this.pathSegmentIndex);
+                return this.pathSegmentIndex;
             } else {
                 return this.pathSegment;
             }

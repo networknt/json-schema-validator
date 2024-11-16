@@ -213,9 +213,6 @@ public class InetAddressValidator implements Serializable {
             }
             validOctets++;
         }
-        if (validOctets > IPV6_MAX_HEX_GROUPS || validOctets < IPV6_MAX_HEX_GROUPS && !containsCompressedZeroes) {
-            return false;
-        }
-        return true;
+	    return validOctets <= IPV6_MAX_HEX_GROUPS && (validOctets >= IPV6_MAX_HEX_GROUPS || containsCompressedZeroes);
     }
 }

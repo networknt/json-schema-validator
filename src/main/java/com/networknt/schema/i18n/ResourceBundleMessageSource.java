@@ -34,19 +34,19 @@ public class ResourceBundleMessageSource implements MessageSource {
     /**
      * Resource Bundle Cache. baseName -> locale -> resourceBundle.
      */
-    private Map<String, Map<Locale, ResourceBundle>> resourceBundleMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<Locale, ResourceBundle>> resourceBundleMap = new ConcurrentHashMap<>();
 
     /**
      * Message Cache. locale -> key -> message.
      */
-    private Map<Locale, Map<String, String>> messageMap = new ConcurrentHashMap<>();
+    private final Map<Locale, Map<String, String>> messageMap = new ConcurrentHashMap<>();
 
     /**
      * Message Format Cache. locale -> message -> messageFormat.
      * <p>
      * Note that Message Format is not threadsafe.
      */
-    private Map<Locale, Map<String, MessageFormat>> messageFormatMap = new ConcurrentHashMap<>();
+    private final Map<Locale, Map<String, MessageFormat>> messageFormatMap = new ConcurrentHashMap<>();
 
     private final List<String> baseNames;
 
@@ -76,12 +76,8 @@ public class ResourceBundleMessageSource implements MessageSource {
     }
 
     protected MessageFormat getMessageFormat(Locale locale, String message) {
-        Map<String, MessageFormat> map = messageFormatMap.computeIfAbsent(locale, l -> {
-            return new ConcurrentHashMap<>();
-        });
-        return map.computeIfAbsent(message, m -> {
-            return new MessageFormat(m, locale);
-        });
+        Map<String, MessageFormat> map = messageFormatMap.computeIfAbsent(locale, l -> new ConcurrentHashMap<>());
+        return map.computeIfAbsent(message, m -> new MessageFormat(m, locale));
     }
 
     /**
@@ -94,9 +90,7 @@ public class ResourceBundleMessageSource implements MessageSource {
      */
     protected String getMessageFromCache(Locale locale, String key) {
         Map<String, String> map = messageMap.computeIfAbsent(locale, l -> new ConcurrentHashMap<>());
-        return map.computeIfAbsent(key, k -> {
-            return resolveMessage(locale, k);
-        });
+        return map.computeIfAbsent(key, k -> resolveMessage(locale, k));
     }
 
     /**
@@ -120,9 +114,7 @@ public class ResourceBundleMessageSource implements MessageSource {
     }
 
     protected Map<Locale, ResourceBundle> getResourceBundle(String baseName) {
-        return resourceBundleMap.computeIfAbsent(baseName, key -> {
-            return new ConcurrentHashMap<>();
-        });
+        return resourceBundleMap.computeIfAbsent(baseName, key -> new ConcurrentHashMap<>());
     }
 
     protected ResourceBundle getResourceBundle(String baseName, Locale locale) {

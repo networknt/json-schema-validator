@@ -28,7 +28,7 @@ public class DisallowUnknownJsonMetaSchemaFactory implements JsonMetaSchemaFacto
     }
 
     private static class Holder {
-        private static DisallowUnknownJsonMetaSchemaFactory INSTANCE = new DisallowUnknownJsonMetaSchemaFactory();
+        private static final DisallowUnknownJsonMetaSchemaFactory INSTANCE = new DisallowUnknownJsonMetaSchemaFactory();
     }
 
     /**

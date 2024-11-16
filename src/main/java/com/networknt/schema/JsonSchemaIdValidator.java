@@ -36,19 +36,19 @@ public interface JsonSchemaIdValidator {
     boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
             SchemaLocation resolvedSchemaLocation, ValidationContext validationContext);
 
-    public static final JsonSchemaIdValidator DEFAULT = new DefaultJsonSchemaIdValidator();
+    JsonSchemaIdValidator DEFAULT = new DefaultJsonSchemaIdValidator();
 
     /**
      * Implementation of {@link JsonSchemaIdValidator}.
      * <p>
      * Note that this does not strictly follow the specification.
      * <p>
-     * This allows an $id that isn't an absolute-IRI on the root schema but it must
+     * This allows an $id that isn't an absolute-IRI on the root schema, but it must
      * resolve to an absolute-IRI given a base-IRI.
      * <p>
      * This also allows non-empty fragments.
      */
-    public static class DefaultJsonSchemaIdValidator implements JsonSchemaIdValidator {
+    class DefaultJsonSchemaIdValidator implements JsonSchemaIdValidator {
         @Override
         public boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
                 SchemaLocation resolvedSchemaLocation, ValidationContext validationContext) {

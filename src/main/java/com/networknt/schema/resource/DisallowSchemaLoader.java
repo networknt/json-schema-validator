@@ -23,7 +23,7 @@ import com.networknt.schema.ValidationMessage;
  * {@link SchemaLoader} that disallows loading external resources.
  */
 public class DisallowSchemaLoader implements SchemaLoader {
-    private static DisallowSchemaLoader INSTANCE = new DisallowSchemaLoader();
+    private static final DisallowSchemaLoader INSTANCE = new DisallowSchemaLoader();
 
     /**
      * Disallows loading schemas from external resources.

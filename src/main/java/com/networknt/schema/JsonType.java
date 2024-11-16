@@ -39,7 +39,7 @@ public enum JsonType {
      * 
      * @param typeStr the type value
      */
-    private JsonType(String typeStr) {
+    JsonType(String typeStr) {
         this.type = typeStr;
     }
 

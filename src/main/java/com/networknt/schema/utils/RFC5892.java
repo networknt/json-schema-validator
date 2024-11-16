@@ -36,21 +36,21 @@ public class RFC5892 {
     private static final BitSet DISALLOWED = new BitSet(0x110000);
     private static final BitSet UNASSIGNED = new BitSet(0x110000);
 
-    private static BiPredicate<String, Integer> RULE_ARABIC_INDIC_DIGITS_RULE = RFC5892::testArabicIndicDigit;
-    private static BiPredicate<String, Integer> RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE = RFC5892::testExtendedArabicIndicDigit;
-    private static BiPredicate<String, Integer> RULE_GREEK_LOWER_NUMERAL_SIGN = RFC5892::testGreekLowerNumeralSign;
-    private static BiPredicate<String, Integer> RULE_HEBREW_GERESH_GERSHAYIM = RFC5892::testHebrewPuncuation;
-    private static BiPredicate<String, Integer> RULE_KATAKANA_MIDDLE_DOT = RFC5892::testKatakanaMiddleDot;
-    private static BiPredicate<String, Integer> RULE_MIDDLE_DOT = RFC5892::testeMiddleDotRule;
-    private static BiPredicate<String, Integer> RULE_ZERO_WIDTH_JOINER = RFC5892::testZeroWidthJoiner;
-    private static BiPredicate<String, Integer> RULE_ZERO_WIDTH_NON_JOINER = RFC5892::testZeroWidthNonJoiner;
+    private static final BiPredicate<String, Integer> RULE_ARABIC_INDIC_DIGITS_RULE = RFC5892::testArabicIndicDigit;
+    private static final BiPredicate<String, Integer> RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE = RFC5892::testExtendedArabicIndicDigit;
+    private static final BiPredicate<String, Integer> RULE_GREEK_LOWER_NUMERAL_SIGN = RFC5892::testGreekLowerNumeralSign;
+    private static final BiPredicate<String, Integer> RULE_HEBREW_GERESH_GERSHAYIM = RFC5892::testHebrewPuncuation;
+    private static final BiPredicate<String, Integer> RULE_KATAKANA_MIDDLE_DOT = RFC5892::testKatakanaMiddleDot;
+    private static final BiPredicate<String, Integer> RULE_MIDDLE_DOT = RFC5892::testeMiddleDotRule;
+    private static final BiPredicate<String, Integer> RULE_ZERO_WIDTH_JOINER = RFC5892::testZeroWidthJoiner;
+    private static final BiPredicate<String, Integer> RULE_ZERO_WIDTH_NON_JOINER = RFC5892::testZeroWidthNonJoiner;
 
-    private static BiPredicate<String, Integer> ALLOWED_CHARACTER = RFC5892::testAllowedCharacter;
+    private static final BiPredicate<String, Integer> ALLOWED_CHARACTER = RFC5892::testAllowedCharacter;
 
-    private static BiPredicate<String, Integer> LTR = RFC5892::testLTR;
-    private static BiPredicate<String, Integer> RTL = RFC5892::testRTL;
+    private static final BiPredicate<String, Integer> LTR = RFC5892::testLTR;
+    private static final BiPredicate<String, Integer> RTL = RFC5892::testRTL;
 
-    private static BiPredicate<String, Integer> IDNA_RULES =
+    private static final BiPredicate<String, Integer> IDNA_RULES =
         ALLOWED_CHARACTER
         .and(RULE_ARABIC_INDIC_DIGITS_RULE)
         .and(RULE_EXTENDED_ARABIC_INDIC_DIGITS_RULE)
@@ -235,7 +235,7 @@ public class RFC5892 {
             // There must be a Greek character after this symbol
             if (s.length() == 1 + i) return false;
             int following = s.codePointAt(i + 1);
-            if (!isGreek(following)) return false;
+	        return isGreek(following);
         }
         return true;
     }
@@ -254,7 +254,7 @@ public class RFC5892 {
             // There must be a Hebrew character before this symbol
             if (0 == i) return false;
             int preceding = s.codePointAt(i - 1);
-            if (!isHebrew(preceding)) return false;
+	        return isHebrew(preceding);
         }
         return true;
     }
@@ -273,7 +273,7 @@ public class RFC5892 {
             // There must be a Katakana, Hiragana or Han character after this symbol
             if (s.length() == 1 + i) return false;
             int following = s.codePointAt(i + 1);
-            if (!isKatakana(following)) return false;
+	        return isKatakana(following);
         }
         return true;
     }
@@ -294,7 +294,7 @@ public class RFC5892 {
             if (s.length() == 1 + i) return false;
             int preceding = s.codePointAt(i - 1);
             int following = s.codePointAt(i + 1);
-            if ('l' != preceding || 'l' != following) return false;
+	        return 'l' == preceding && 'l' == following;
         }
         return true;
     }
@@ -313,7 +313,7 @@ public class RFC5892 {
             // There must be a virama character before this symbol.
             if (0 == i) return false;
             int preceding = s.codePointAt(i - 1);
-            if (VIRAMA != preceding) return false;
+	        return VIRAMA == preceding;
         }
         return true;
     }
@@ -351,7 +351,7 @@ public class RFC5892 {
             if (len == j) return false;
 
             int following = s.codePointAt(j);
-            if (!isJoinTypeRight(following) && !isJoinTypeDual(following)) return false;
+	        return isJoinTypeRight(following) || isJoinTypeDual(following);
         }
         return true;
     }

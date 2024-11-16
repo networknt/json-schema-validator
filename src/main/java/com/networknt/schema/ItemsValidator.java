@@ -125,7 +125,7 @@ public class ItemsValidator extends BaseJsonValidator {
         }
 
         boolean hasAdditionalItem = false;
-        SetView<ValidationMessage> errors = new SetView<ValidationMessage>();
+        SetView<ValidationMessage> errors = new SetView<>();
         if (node.isArray()) {
             int i = 0;
             for (JsonNode n : node) {

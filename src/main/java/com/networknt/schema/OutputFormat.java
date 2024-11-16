@@ -57,40 +57,40 @@ public interface OutputFormat<T> {
     /**
      * The Default output format.
      */
-    public static final Default DEFAULT = new Default();
+    Default DEFAULT = new Default();
 
     /**
      * The Boolean output format.
      */
-    public static final Boolean BOOLEAN = new Boolean();
+    Boolean BOOLEAN = new Boolean();
 
     /**
      * The Flag output format.
      */
-    public static final Flag FLAG = new Flag();
+    Flag FLAG = new Flag();
     
     /**
      * The List output format.
      */
-    public static final List LIST = new List();
+    List LIST = new List();
 
     
     /**
      * The Hierarchical output format.
      */
-    public static final Hierarchical HIERARCHICAL = new Hierarchical();
+    Hierarchical HIERARCHICAL = new Hierarchical();
 
     /**
      * The Result output format.
      * <p>
      * This is currently not exposed to consumers.
      */
-    static final Result RESULT = new Result();
+    Result RESULT = new Result();
 
     /**
      * The Default output format.
      */
-    public static class Default implements OutputFormat<Set<ValidationMessage>> {
+    class Default implements OutputFormat<Set<ValidationMessage>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
@@ -106,7 +106,7 @@ public interface OutputFormat<T> {
     /**
      * The Flag output format.
      */
-    public static class Flag implements OutputFormat<OutputFlag> {
+    class Flag implements OutputFormat<OutputFlag> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
@@ -123,7 +123,7 @@ public interface OutputFormat<T> {
     /**
      * The Boolean output format.
      */
-    public static class Boolean implements OutputFormat<java.lang.Boolean> {
+    class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
@@ -140,7 +140,7 @@ public interface OutputFormat<T> {
     /**
      * The List output format.
      */
-    public static class List implements OutputFormat<OutputUnit> {
+    class List implements OutputFormat<OutputUnit> {
         private final Function<ValidationMessage, Object> assertionMapper;
 
         public List() {
@@ -171,7 +171,7 @@ public interface OutputFormat<T> {
     /**
      * The Hierarchical output format.
      */
-    public static class Hierarchical implements OutputFormat<OutputUnit> {
+    class Hierarchical implements OutputFormat<OutputUnit> {
         private final Function<ValidationMessage, Object> assertionMapper;
 
         public Hierarchical() {
@@ -204,7 +204,7 @@ public interface OutputFormat<T> {
      * <p>
      * This is currently not exposed to consumers.
      */
-    static class Result implements OutputFormat<ValidationResult> {
+    class Result implements OutputFormat<ValidationResult> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
         }

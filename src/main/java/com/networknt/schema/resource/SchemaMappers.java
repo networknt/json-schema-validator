@@ -47,7 +47,7 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
     }
 
     public static class Builder {
-        private SchemaMappers values = new SchemaMappers();
+        private final SchemaMappers values = new SchemaMappers();
 
         public Builder() {
         }

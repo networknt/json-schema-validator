@@ -9,7 +9,6 @@ import com.networknt.schema.JsonType;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.SpecVersionDetector;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 
@@ -54,10 +53,7 @@ public class JsonNodeUtil {
 
     public static boolean isNodeNullable(JsonNode schema){
         JsonNode nullable = schema.get(NULLABLE);
-        if (nullable != null && nullable.asBoolean()) {
-            return true;
-        }
-        return false;
+	    return nullable != null && nullable.asBoolean();
     }
 
     //Check to see if a JsonNode is nullable with checking the isHandleNullableField
@@ -110,17 +106,11 @@ public class JsonNodeUtil {
                 }
                 if (nodeType == JsonType.STRING) {
                     if (schemaType == JsonType.INTEGER) {
-                        if (StringChecker.isInteger(node.textValue())) {
-                            return true;
-                        }
+	                    return StringChecker.isInteger(node.textValue());
                     } else if (schemaType == JsonType.BOOLEAN) {
-                        if (StringChecker.isBoolean(node.textValue())) {
-                            return true;
-                        }
+	                    return StringChecker.isBoolean(node.textValue());
                     } else if (schemaType == JsonType.NUMBER) {
-                        if (StringChecker.isNumeric(node.textValue())) {
-                            return true;
-                        }
+	                    return StringChecker.isNumeric(node.textValue());
                     }
                 }
             }
