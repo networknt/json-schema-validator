@@ -33,7 +33,7 @@ public class DisallowUnknownKeywordFactory implements KeywordFactory {
     }
 
     private static class Holder {
-        private static DisallowUnknownKeywordFactory INSTANCE = new DisallowUnknownKeywordFactory();
+        private static final DisallowUnknownKeywordFactory INSTANCE = new DisallowUnknownKeywordFactory();
     }
 
     /**

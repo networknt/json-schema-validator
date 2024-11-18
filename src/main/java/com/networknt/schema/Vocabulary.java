@@ -15,6 +15,7 @@
  */
 package com.networknt.schema;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -112,9 +113,7 @@ public class Vocabulary {
     public Vocabulary(String iri, Keyword... keywords) {
         this.iri = iri;
         this.keywords = new LinkedHashSet<>();
-        for (Keyword keyword : keywords) {
-            this.keywords.add(keyword);
-        }
+	      this.keywords.addAll(Arrays.asList(keywords));
     }
 
     /**

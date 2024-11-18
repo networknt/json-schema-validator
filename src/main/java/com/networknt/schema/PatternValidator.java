@@ -27,8 +27,8 @@ import java.util.Set;
 
 public class PatternValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
-    private String pattern;
-    private RegularExpression compiledPattern;
+    private final String pattern;
+    private final RegularExpression compiledPattern;
 
     public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);

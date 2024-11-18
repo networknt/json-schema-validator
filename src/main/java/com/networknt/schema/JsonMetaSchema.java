@@ -56,9 +56,9 @@ public class JsonMetaSchema {
         private String iri;
         private String idKeyword = "$id";
         private VersionFlag specification = null;
-        private Map<String, Keyword> keywords = new HashMap<>();
-        private Map<String, Format> formats = new HashMap<>();
-        private Map<String, Boolean> vocabularies = new HashMap<>();
+        private final Map<String, Keyword> keywords = new HashMap<>();
+        private final Map<String, Format> formats = new HashMap<>();
+        private final Map<String, Boolean> vocabularies = new HashMap<>();
         private FormatKeywordFactory formatKeywordFactory = null;
         private VocabularyFactory vocabularyFactory = null;
         private KeywordFactory unknownKeywordFactory = null;

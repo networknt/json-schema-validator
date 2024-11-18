@@ -45,7 +45,7 @@ public class SchemaLoaders extends ArrayList<SchemaLoader> {
     }
 
     public static class Builder {
-        private SchemaLoaders values = new SchemaLoaders();
+        private final SchemaLoaders values = new SchemaLoaders();
 
         public Builder() {
         }

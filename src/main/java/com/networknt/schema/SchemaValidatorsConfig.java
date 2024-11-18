@@ -173,7 +173,7 @@ public class SchemaValidatorsConfig {
     private boolean typeLoose;
 
     /**
-     * When set to true assumes that schema is used to to validate outgoing data from an API.
+     * When set to true assumes that schema is used to validate outgoing data from an API.
      */
     private Boolean writeOnly = null;
 
@@ -693,8 +693,8 @@ public class SchemaValidatorsConfig {
      * discriminator property matches</li>
      * </ul>
      * 
-     * @param openAPI3StyleDiscriminators whether or not discriminators should be
-     *                                    used. Defaults to <code>false</code>
+     * @param openAPI3StyleDiscriminators whether discriminators should be used.
+     *                                    Defaults to <code>false</code>
      * @since 1.0.51
      */
     public void setOpenAPI3StyleDiscriminators(boolean openAPI3StyleDiscriminators) {
@@ -902,7 +902,7 @@ public class SchemaValidatorsConfig {
 
         /**
          * Sets if format assertions are enabled. If format assertions are not enabled
-         * the format keyword will behave like a annotation and not attempt to validate
+         * the format keyword will behave like an annotation and not attempt to validate
          * if the inputs are valid.
          * <p>
          * Defaults to not enabling format assertions for Draft 2019-09 and above and

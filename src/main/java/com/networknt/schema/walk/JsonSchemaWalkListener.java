@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public interface JsonSchemaWalkListener {
 
-	public WalkFlow onWalkStart(WalkEvent walkEvent);
+	WalkFlow onWalkStart(WalkEvent walkEvent);
 
-	public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages);
+	void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages);
 }

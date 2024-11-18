@@ -250,7 +250,7 @@ public class SchemaLocation {
                 if (index != -1) {
                     fragment = fragment.append(index);
                 } else {
-                    String fragmentPartString = fragmentPart.toString();
+                    String fragmentPartString = fragmentPart;
                     if (PathType.JSON_POINTER.equals(fragment.getPathType())) {
                         if (fragmentPartString.contains("~")) {
                             fragmentPartString = fragmentPartString.replace("~1", "/");
@@ -399,11 +399,11 @@ public class SchemaLocation {
             } else {
                 StringBuilder result = new StringBuilder();
                 if (this.absoluteIri != null) {
-                    result.append(this.absoluteIri.toString());
+                    result.append(this.absoluteIri);
                 }
                 result.append("#");
                 if (this.fragment != null) {
-                    result.append(this.fragment.toString());
+                    result.append(this.fragment);
                 }
                 this.value = result.toString();
             }

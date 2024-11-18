@@ -12,12 +12,12 @@ public interface JsonSchemaWalker {
 	/**
 	 * 
 	 * This method gives the capability to walk through the given JsonNode, allowing
-	 * functionality beyond validation like collecting information,handling cross
-	 * cutting concerns like logging or instrumentation. This method also performs
+	 * functionality beyond validation like collecting information,handling cross-cutting
+	 * concerns like logging or instrumentation. This method also performs
 	 * the validation if {@code shouldValidateSchema} is set to true. <br>
 	 * <br>
 	 * {@link BaseJsonValidator#walk(ExecutionContext, JsonNode, JsonNode, JsonNodePath, boolean)} provides
-	 * a default implementation of this method. However validators that parse
+	 * a default implementation of this method. However, validators that parse
 	 * sub-schemas should override this method to call walk method on those
 	 * sub-schemas.
 	 * 

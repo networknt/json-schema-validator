@@ -44,7 +44,7 @@ public class AnnotationKeyword extends AbstractKeyword {
             return Collections.emptySet();
         }
 
-        protected Object getAnnotationValue(JsonNode schemaNode) {
+        private Object getAnnotationValue(JsonNode schemaNode) {
             if (schemaNode.isTextual()) {
                 return schemaNode.textValue(); 
             } else if (schemaNode.isNumber()) {
@@ -62,7 +62,7 @@ public class AnnotationKeyword extends AbstractKeyword {
 
     @Override
     public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                      JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                      JsonSchema parentSchema, ValidationContext validationContext) {
         return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
     }
 }

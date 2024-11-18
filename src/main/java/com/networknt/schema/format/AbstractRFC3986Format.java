@@ -38,9 +38,6 @@ public abstract class AbstractRFC3986Format implements Format {
      * @return false if it does not match
      */
     protected boolean handleException(URISyntaxException e) {
-        if (VALID.matcher(e.getInput()).matches()) {
-            return true;
-        }
-        return false;
+	    return VALID.matcher(e.getInput()).matches();
     }
 }

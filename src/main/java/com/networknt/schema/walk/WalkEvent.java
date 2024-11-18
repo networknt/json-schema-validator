@@ -99,7 +99,7 @@ public class WalkEvent {
 
     static class WalkEventBuilder {
 
-        private WalkEvent walkEvent;
+        private final WalkEvent walkEvent;
 
         WalkEventBuilder() {
             walkEvent = new WalkEvent();

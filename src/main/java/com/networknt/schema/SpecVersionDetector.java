@@ -35,7 +35,7 @@ import java.util.stream.StreamSupport;
  */
 public final class SpecVersionDetector {
 
-    protected static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
+    private static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
     private static final String SCHEMA_TAG = "$schema";
 
     static {

@@ -58,7 +58,7 @@ public class SetView<E> implements Set<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new SetViewIterator<E>(this);
+        return new SetViewIterator<>(this);
     }
 
     @Override

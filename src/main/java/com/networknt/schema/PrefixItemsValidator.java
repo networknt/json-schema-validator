@@ -44,7 +44,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
 
-        if (schemaNode instanceof ArrayNode && 0 < schemaNode.size()) {
+        if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
             int i = 0;
             this.tupleSchema = new ArrayList<>(schemaNode.size());
             for (JsonNode s : schemaNode) {

@@ -147,7 +147,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     /**
      * Checks based on the current {@link DiscriminatorContext} whether the provided {@link JsonSchema} a match against
-     * against the current discriminator.
+     * the current discriminator.
      *
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check

@@ -32,7 +32,7 @@ public interface Collector<E> {
      * at multiple touch points or accumulating data at same touch point.
 	 * @param object Object
      */
-    public void combine(Object object);
+    void combine(Object object);
 
     /**
      * Final method called by the framework that returns the actual collected data.
@@ -40,7 +40,7 @@ public interface Collector<E> {
      * multiple touch points, only this method can be implemented.
 	 * @return E element
      */
-    public E collect();
+    E collect();
 
 
 }

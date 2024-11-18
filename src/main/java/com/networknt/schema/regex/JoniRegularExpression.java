@@ -34,9 +34,9 @@ class JoniRegularExpression implements RegularExpression {
             Syntax.ECMAScript.op2 | SyntaxProperties.OP2_QMARK_LT_NAMED_GROUP
                     | SyntaxProperties.OP2_ESC_K_NAMED_BACKREF,
             Syntax.ECMAScript.op3, Syntax.ECMAScript.behavior, Syntax.ECMAScript.options,
-            Syntax.ECMAScript.metaCharTable);;
+            Syntax.ECMAScript.metaCharTable);
 
-    JoniRegularExpression(String regex) {
+	  JoniRegularExpression(String regex) {
         this(regex, SYNTAX);
     }
 
@@ -60,7 +60,7 @@ class JoniRegularExpression implements RegularExpression {
         if (INVALID_ESCAPE_PATTERN.matcher(regex).matches()) {
             /*
              * One option considered was a custom Encoding implementation that rejects
-             * certain code points but it is unable to distinguish \a vs \cG for instance as
+             * certain code points, but it is unable to distinguish \a vs \cG for instance as
              * both translate to BEL
              */
             throw new SyntaxException("Invalid escape");
