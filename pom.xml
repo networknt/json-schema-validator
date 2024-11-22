@@ -46,9 +46,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git://github.com:networknt/json-schema-validator.git</connection>
-    <developerConnection>scm:git://github.com:networknt/json-schema-validator.git</developerConnection>
-    <url>https://github.com:networknt/json-schema-validator.git</url>
+    <connection>scm:https://github.com/networknt/json-schema-validator.git</connection>
+    <developerConnection>scm:https://github.com/networknt/json-schema-validator.git</developerConnection>
+    <url>https://github.com/networknt/json-schema-validator.git</url>
   </scm>
 
   <issueManagement>
