@@ -149,4 +149,36 @@ class TypeValidatorTest {
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getValidationMessages().isEmpty());
     }
+
+    @Test
+    void nullable() {
+        String schemaData = "{\r\n"
+                + "   \"$schema\":\"http://json-schema.org/draft-07/schema#\",\r\n"
+                + "   \"type\":\"object\",\r\n"
+                + "   \"properties\":{\r\n"
+                + "      \"test\":{\r\n"
+                + "         \"type\":\"object\",\r\n"
+                + "         \"properties\":{\r\n"
+                + "            \"nested\":{\r\n"
+                + "               \"type\":\"string\",\r\n"
+                + "               \"nullable\":true,\r\n"
+                + "               \"format\":\"date\"\r\n"
+                + "            }\r\n"
+                + "         }\r\n"
+                + "      }\r\n"
+                + "   }\r\n"
+                + "}";
+        String inputData = "{\r\n"
+                + "  \"test\":{\r\n"
+                + "      \"nested\":null\r\n"
+                + "  }\r\n"
+                + "}";
+        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+        final JsonSchema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
+            .nullableKeywordEnabled(false)
+            .build());
+
+        final Set<ValidationMessage> errors = validator.validate(inputData, InputFormat.JSON);
+        assertEquals(1, errors.size());
+    }
 }

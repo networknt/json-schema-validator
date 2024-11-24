@@ -84,10 +84,9 @@ public class JsonNodeUtil {
             }
 
             if (nodeType == JsonType.NULL) {
-                if (parentSchema != null) {
+                if (parentSchema != null && config.isNullableKeywordEnabled()) {
                     JsonSchema grandParentSchema = parentSchema.getParentSchema();
-                    if (grandParentSchema != null
-                            && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode(), config)
+                    if (grandParentSchema != null && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode())
                             || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode())) {
                         return true;
                     }
