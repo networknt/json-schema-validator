@@ -10,6 +10,19 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 ### Added
 
 ### Changed
+
+## 1.5.4 - 2024-11-24
+
+### Added
+
+### Changed
+
+- Fix nullable issue (#1134) Thanks @justin-tay
+- fixes #1131 pom.xml scm url URI is invalid (#1132)
+- Remove warning for exclusiveMinimum and exclusiveMaximum for Draft 4 (#1127) Thanks @justin-tay
+- Clean up code (#1130) Thanks @jkosternl
+- Test Code Cleanup (#1128) Thanks @jkosternl
+
 ## 1.5.3 - 2024-10-31
 
 ### Added
