@@ -61,4 +61,32 @@ class ValidationMessageHandlerTest {
         assertEquals("should not have properties other than foo", messages.get(1).getMessage());
     }
 
+    @Test
+    void errorMessageUnionType() {
+        String schemaData = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"keyword1\": {\r\n"
+                + "      \"type\": [\r\n"
+                + "        \"string\",\r\n"
+                + "        \"null\"\r\n"
+                + "      ],\r\n"
+                + "      \"errorMessage\": {\r\n"
+                + "        \"type\": \"关键字1必须为字符串\"\r\n"
+                + "      },\r\n"
+                + "      \"title\": \"关键字\"\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+        String inputData = "{\r\n"
+                + "  \"keyword1\": 2\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
+                SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
+        assertFalse(messages.isEmpty());
+        assertEquals("/keyword1", messages.get(0).getInstanceLocation().toString());
+        assertEquals("关键字1必须为字符串", messages.get(0).getMessage());
+    }
+
 }
