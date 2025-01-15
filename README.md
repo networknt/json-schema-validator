@@ -40,7 +40,7 @@ The [Releases](https://github.com/networknt/json-schema-validator/releases) page
 
 ## Comparing against other implementations
 
-The [JSON Schema Validation Comparison](https://github.com/creek-service/json-schema-validation-comparison) project from Creek has an informative [Comparison of JVM based Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/) which compares both the functional and performance characteristics of a number of different Java implementations. 
+The [JSON Schema Validation Comparison](https://github.com/creek-service/json-schema-validation-comparison) project from Creek has an informative [Comparison of JVM based Schema Validation Implementations](https://www.creekservice.org/json-schema-validation-comparison/) which compares both the functional and performance characteristics of a number of different Java implementations.
 * [Functional comparison](https://www.creekservice.org/json-schema-validation-comparison/functional#summary-results-table)
 * [Performance comparison](https://www.creekservice.org/json-schema-validation-comparison/performance#json-schema-test-suite-benchmark)
 
@@ -94,19 +94,19 @@ This implementation is tested against the [JSON Schema Test Suite](https://githu
 
 #### Jackson Parser
 
-This library uses [Jackson](https://github.com/FasterXML/jackson) which is a Java JSON parser that is widely used in other projects. If you are already using the Jackson parser in your project, it is natural to choose this library over others for schema validation. 
+This library uses [Jackson](https://github.com/FasterXML/jackson) which is a Java JSON parser that is widely used in other projects. If you are already using the Jackson parser in your project, it is natural to choose this library over others for schema validation.
 
 #### YAML Support
 
-The library works with JSON and YAML on both schema definitions and input data. 
+The library works with JSON and YAML on both schema definitions and input data.
 
 #### OpenAPI Support
 
-The OpenAPI 3.0 specification is using JSON schema to validate the request/response, but there are some differences. With a configuration file, you can enable the library to work with OpenAPI 3.0 validation. 
+The OpenAPI 3.0 specification is using JSON schema to validate the request/response, but there are some differences. With a configuration file, you can enable the library to work with OpenAPI 3.0 validation.
 
 #### Minimal Dependencies
 
-Following the design principle of the Light Platform, this library has minimal dependencies to ensure there are no dependency conflicts when using it. 
+Following the design principle of the Light Platform, this library has minimal dependencies to ensure there are no dependency conflicts when using it.
 
 ##### Required Dependencies
 
@@ -204,7 +204,7 @@ The Ethlo Time dependency can be excluded if accurate validation of the `date-ti
 
 #### Community
 
-This library is very active with a lot of contributors. New features and bug fixes are handled quickly by the team members. Because it is an essential dependency of the [light-4j](https://github.com/networknt/light-4j) framework in the same GitHub organization, it will be evolved and maintained along with the framework. 
+This library is very active with a lot of contributors. New features and bug fixes are handled quickly by the team members. Because it is an essential dependency of the [light-4j](https://github.com/networknt/light-4j) framework in the same GitHub organization, it will be evolved and maintained along with the framework.
 
 ## Prerequisite
 
@@ -214,15 +214,15 @@ The library supports Java 8 and up. If you want to build from the source code, y
 
 ### Adding the dependency
 
-This package is available on Maven central. 
+This package is available on Maven central.
 
-#### Maven: 
+#### Maven:
 
 ```xml
 <dependency>
     <groupId>com.networknt</groupId>
     <artifactId>json-schema-validator</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.5</version>
 </dependency>
 ```
 
@@ -230,7 +230,7 @@ This package is available on Maven central.
 
 ```java
 dependencies {
-    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.5.4');
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '1.5.5');
 }
 ```
 
@@ -238,7 +238,7 @@ dependencies {
 
 The following example demonstrates how inputs are validated against a schema. It comprises the following steps.
 
-* Creating a schema factory with the default schema dialect and how the schemas can be retrieved. 
+* Creating a schema factory with the default schema dialect and how the schemas can be retrieved.
   * Configuring mapping the `$id` to a retrieval URI using `schemaMappers`.
   * Configuring how the schemas are loaded using the retrieval URI using `schemaLoaders`.
     For instance a `Map<String, String> schemas` containing a mapping of retrieval URI to schema data as a `String` can by configured using `builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas))`. This also accepts a `Function<String, String> schemaRetrievalFunction`.
@@ -250,7 +250,7 @@ The following example demonstrates how inputs are validated against a schema. It
 // This creates a schema factory that will use Draft 2020-12 as the default if $schema is not specified
 // in the schema data. If $schema is specified in the schema data then that schema dialect will be used
 // instead and this version is ignored.
-JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> 
+JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder ->
     // This creates a mapping from $id which starts with https://www.example.org/ to the retrieval URI classpath:schema/
     builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
 );
@@ -312,21 +312,21 @@ Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON, exe
     // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
     executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
 });
-```        
+```
 ### Results and output formats
 
 #### Results
 
 The following types of results are generated by the library.
 
-| Type        | Description 
+| Type        | Description
 |-------------|-------------------
 | Assertions  | Validation errors generated by a keyword on a particular input data instance. This is generally described in a `ValidationMessage` or in a `OutputUnit`. Note that since Draft 2019-09 the `format` keyword no longer generates assertions by default and instead generates only annotations unless configured otherwise using a configuration option or by using a meta-schema that uses the appropriate vocabulary.
 | Annotations | Additional information generated by a keyword for a particular input data instance. This is generally described in a `OutputUnit`. Annotation collection and reporting is turned off by default. Annotations required by keywords such as `unevaluatedProperties` or `unevaluatedItems` are always collected for evaluation purposes and cannot be disabled but will not be reported unless configured to do so.
 
 The following information is used to describe both types of results.
 
-| Type              | Description 
+| Type              | Description
 |-------------------|-------------------
 | Evaluation Path   | This is the set of keys from the root through which evaluation passes to reach the schema for evaluating the instance. This includes `$ref` and `$dynamicRef`. eg. ```/properties/bar/$ref/properties/bar-prop```
 | Schema Location   | This is the canonical IRI of the schema plus the JSON pointer fragment to the schema that was used for evaluating the instance. eg. ```https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop```
@@ -334,7 +334,7 @@ The following information is used to describe both types of results.
 
 Assertions contains the following additional information
 
-| Type              | Description 
+| Type              | Description
 |-------------------|-------------------
 | Message           | The validation error message.
 | Code              | The error code.
@@ -349,7 +349,7 @@ Assertions contains the following additional information
 
 Annotations contains the following additional information
 
-| Type              | Description 
+| Type              | Description
 |-------------------|-------------------
 | Value             | The annotation value generated
 
@@ -411,7 +411,7 @@ This library implements the Flag, List and Hierarchical output formats defined i
 
 The List and Hierarchical output formats are particularly helpful for understanding how the system arrived at a particular result.
 
-| Output Format     | Description 
+| Output Format     | Description
 |-------------------|-------------------
 | Default           | Generates the list of assertions.
 | Boolean           | Returns `true` if the validation is successful. Note that the fail fast option is turned on by default for this output format.
@@ -425,7 +425,7 @@ The following example shows how to generate the hierarchical output format with 
 JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
 SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().formatAssertionsEnabled(true).build();
 JsonSchema schema = factory.getSchema(SchemaLocation.of("https://json-schema.org/schemas/example"), config);
-        
+
 OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
     executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
     executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
@@ -533,7 +533,7 @@ The following is sample output from the Hierarchical format.
 | `readOnly`                            | Whether schema is read only. This affects the `readOnly` keyword.                                                                                                                                                                 | `null`
 | `regularExpressionFactory`            | The factory to use to create regular expressions for instance `JoniRegularExpressionFactory` or `GraalJSRegularExpressionFactory`. This requires the dependency to be manually added to the project or a `ClassNotFoundException` will be thrown. | `JDKRegularExpressionFactory.getInstance()`
 | `schemaIdValidator`                   | This is used to customize how the `$id` values are validated. Note that the default implementation allows non-empty fragments where no base IRI is specified and also allows non-absolute IRI `$id` values in the root schema.    | `JsonSchemaIdValidator.DEFAULT`
-| `strict`                              | This is set whether keywords are strict in their validation. What this does depends on the individual validators.                                                                                                                 | 
+| `strict`                              | This is set whether keywords are strict in their validation. What this does depends on the individual validators.                                                                                                                 |
 | `typeLoose`                           | Whether types are interpreted in a loose manner. If set to true, a single value can be interpreted as a size 1 array. Strings may also be interpreted as number, integer or boolean.                                              | `false`
 | `writeOnly`                           | Whether schema is write only. This affects the `writeOnly` keyword.                                                                                                                                                               | `null`
 
@@ -594,13 +594,13 @@ The library assumes that the schemas being loaded are trusted. This security mod
 
 ## Projects
 
-The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-4j](https://github.com/networknt/light-graphql-4j) and [light-hybrid-4j](https://github.com/networknt/light-hybrid-4j) use this library to validate the request and response based on the specifications. If you are using other frameworks like Spring Boot, you can use the [OpenApiValidator](https://github.com/mservicetech/openapi-schema-validation), a generic OpenAPI 3.0 validator based on the OpenAPI 3.0 specification. 
+The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-4j](https://github.com/networknt/light-graphql-4j) and [light-hybrid-4j](https://github.com/networknt/light-hybrid-4j) use this library to validate the request and response based on the specifications. If you are using other frameworks like Spring Boot, you can use the [OpenApiValidator](https://github.com/mservicetech/openapi-schema-validation), a generic OpenAPI 3.0 validator based on the OpenAPI 3.0 specification.
 
 If you have a project using this library, please submit a PR to add your project below.
 
 ## Contributors
 
-Thanks to the following people who have contributed to this project. If you are using this library, please consider to be a sponsor for one of the contributors. 
+Thanks to the following people who have contributed to this project. If you are using this library, please consider to be a sponsor for one of the contributors.
 
 [@stevehu](https://github.com/sponsors/stevehu)
 
@@ -644,6 +644,3 @@ If you are a contributor, please join the [GitHub Sponsors](https://github.com/s
 
 
 ### Corporation Sponsors
-
-
-
