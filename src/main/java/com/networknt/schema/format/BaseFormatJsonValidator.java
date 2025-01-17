@@ -49,6 +49,8 @@ public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
     protected boolean isAssertionsEnabled(ExecutionContext executionContext) {
         if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getFormatAssertionsEnabled())) {
             return true;
+        } else if (Boolean.FALSE.equals(executionContext.getExecutionConfig().getFormatAssertionsEnabled())) {
+            return false;
         }
         return this.assertionsEnabled;
     }
