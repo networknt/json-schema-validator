@@ -233,4 +233,16 @@ class FormatValidatorTest {
         assertTrue(messages.isEmpty());
         
     }
+
+    @Test
+    void draft7DisableFormat() {
+        String schemaData = "{\r\n"
+                + "  \"format\":\"uri\"\r\n"
+                + "}";
+        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData);
+        Set<ValidationMessage> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(false);
+        });
+        assertEquals(0, messages.size());
+    }
 }

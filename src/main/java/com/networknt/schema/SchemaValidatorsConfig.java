@@ -817,7 +817,7 @@ public class SchemaValidatorsConfig {
         private String errorMessageKeyword = null;
         private ExecutionContextCustomizer executionContextCustomizer = null;
         private boolean failFast = false;
-        private Boolean formatAssertionsEnabled = false;
+        private Boolean formatAssertionsEnabled = null;
         private boolean nullableKeywordEnabled = false;
         private List<JsonSchemaWalkListener> itemWalkListeners = new ArrayList<>();
         private boolean javaSemantics = false;
