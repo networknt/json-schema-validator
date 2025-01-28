@@ -34,6 +34,30 @@ class AbsoluteIriTest {
     }
 
     @Test
+    void relativeColonDotPathSegment() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/foo/foo:bar", iri.resolve("./foo:bar").toString());
+    }
+
+    @Test
+    void relativeColonSecondSegment() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/foo/bar/foo:bar", iri.resolve("bar/foo:bar").toString());
+    }
+
+    @Test
+    void relativeColonQueryString() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/foo/test.json?queryParam=foo:bar", iri.resolve("test.json?queryParam=foo:bar").toString());
+    }
+
+    @Test
+    void relativeColonAnchor() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/foo/test.json#foo:bar", iri.resolve("test.json#foo:bar").toString());
+    }
+
+    @Test
     void relativeAtDocument() {
         AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
         assertEquals("http://www.example.org/foo/test.json", iri.resolve("test.json").toString());
@@ -91,6 +115,18 @@ class AbsoluteIriTest {
     void relativeParentWithSchemeSpecificPart() {
         AbsoluteIri iri = new AbsoluteIri("classpath:resource/hello/world/testing.json");
         assertEquals("classpath:resource/test.json", iri.resolve("../../test.json").toString());
+    }
+
+    @Test
+    void rootColonDotPathSegment() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/foo:bar", iri.resolve("/foo:bar").toString());
+    }
+
+    @Test
+    void rootColonSecondSegment() {
+        AbsoluteIri iri = new AbsoluteIri("http://www.example.org/foo/bar.json");
+        assertEquals("http://www.example.org/bar/foo:bar", iri.resolve("/bar/foo:bar").toString());
     }
 
     @Test

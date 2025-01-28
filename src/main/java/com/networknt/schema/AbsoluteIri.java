@@ -77,6 +77,27 @@ public class AbsoluteIri {
     }
 
     /**
+     * Determines if the iri is absolute or relative.
+     *
+     * @param iri to determine
+     * @return true if absolute
+     */
+    private static boolean isAbsoluteIri(String iri) {
+        int length = iri.length();
+        for (int x = 0; x < length; x++) {
+            char ch = iri.charAt(x);
+            if (ch == ':') {
+                // if the first segment is relative with a colon it must be a dot path segment
+                // ie. ./foo:bar
+                return true;
+            } else if (ch == '/' || ch == '?' || ch == '#') {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Constructs a new IRI by parsing the given string and then resolving it
      * against this IRI.
      *
@@ -85,7 +106,7 @@ public class AbsoluteIri {
      * @return the new absolute IRI
      */
     public static String resolve(String parent, String iri) {
-        if (iri.contains(":")) {
+        if (isAbsoluteIri(iri)) {
             // IRI is absolute
             return iri;
         } else {
