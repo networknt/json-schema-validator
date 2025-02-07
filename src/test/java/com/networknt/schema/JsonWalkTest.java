@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
@@ -16,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonWalkTest {
@@ -108,6 +110,27 @@ class JsonWalkTest {
                 + "          }"
                 + "     }"
                 + "}")));
+    }
+
+    @Test
+    void testWalkMissingNodeWithPropertiesSchemaShouldNotThrow() {
+        String schemaContents = "{\n"
+                + "                \"type\": \"object\",\n"
+                + "                \"properties\": {\n"
+                + "                    \"field\": {\n"
+                + "                    \"anyOf\": [\n"
+                + "                        {\n"
+                + "                        \"type\": \"string\"\n"
+                + "                        }\n"
+                + "                    ]\n"
+                + "                    }\n"
+                + "                }\n"
+                + "            }";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchema schema = factory.getSchema(schemaContents);
+        JsonNode missingNode = MissingNode.getInstance();
+        assertDoesNotThrow(() -> schema.walk(missingNode, true));
     }
 
     private InputStream getSchema() {

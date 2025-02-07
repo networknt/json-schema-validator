@@ -75,6 +75,11 @@ public class TypeFactory {
      * @return the json type
      */
     public static JsonType getValueNodeType(JsonNode node, SchemaValidatorsConfig config) {
+        if (node == null) {
+            // This returns JsonType.UNKNOWN to be consistent with the behavior when
+            // JsonNodeType.MISSING
+            return JsonType.UNKNOWN;
+        }
         JsonNodeType type = node.getNodeType();
         switch (type) {
         case OBJECT:
