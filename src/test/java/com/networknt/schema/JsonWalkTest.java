@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonWalkTest {
@@ -112,7 +113,7 @@ class JsonWalkTest {
     }
 
     @Test
-    void testWalkMissingNodeWithPropertiesSchema() {
+    void testWalkMissingNodeWithPropertiesSchemaShouldNotThrow() {
         String schemaContents = "{\n"
                 + "                \"type\": \"object\",\n"
                 + "                \"properties\": {\n"
@@ -128,7 +129,8 @@ class JsonWalkTest {
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         JsonSchema schema = factory.getSchema(schemaContents);
-        schema.walk(MissingNode.getInstance(), true).getValidationMessages();
+        JsonNode missingNode = MissingNode.getInstance();
+        assertDoesNotThrow(() -> schema.walk(missingNode, true));
     }
 
     private InputStream getSchema() {
