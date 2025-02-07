@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
@@ -108,6 +109,26 @@ class JsonWalkTest {
                 + "          }"
                 + "     }"
                 + "}")));
+    }
+
+    @Test
+    void testWalkMissingNodeWithPropertiesSchema() {
+        String schemaContents = "{\n"
+                + "                \"type\": \"object\",\n"
+                + "                \"properties\": {\n"
+                + "                    \"field\": {\n"
+                + "                    \"anyOf\": [\n"
+                + "                        {\n"
+                + "                        \"type\": \"string\"\n"
+                + "                        }\n"
+                + "                    ]\n"
+                + "                    }\n"
+                + "                }\n"
+                + "            }";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchema schema = factory.getSchema(schemaContents);
+        schema.walk(MissingNode.getInstance(), true).getValidationMessages();
     }
 
     private InputStream getSchema() {
