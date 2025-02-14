@@ -15,451 +15,455 @@
   ~ limitations under the License.
   -->
 <project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-  >
-  <modelVersion>4.0.0</modelVersion>
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.networknt</groupId>
-  <artifactId>json-schema-validator</artifactId>
-  <version>1.5.6</version>
-  <packaging>bundle</packaging>
-  <name>JsonSchemaValidator</name>
-  <description>A json schema validator that supports draft v4, v6, v7, v2019-09 and v2020-12</description>
-  <url>https://github.com/networknt/json-schema-validator</url>
+    <groupId>com.networknt</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <version>1.5.6</version>
+    <packaging>bundle</packaging>
+    <name>JsonSchemaValidator</name>
+    <description>A json schema validator that supports draft v4, v6, v7, v2019-09 and v2020-12</description>
+    <url>https://github.com/networknt/json-schema-validator</url>
 
-  <licenses>
-    <license>
-      <name>Apache License Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <developers>
-    <developer>
-      <id>stevehu</id>
-      <name>Steve Hu</name>
-      <email>stevehu@gmail.com</email>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>stevehu</id>
+            <name>Steve Hu</name>
+            <email>stevehu@gmail.com</email>
+        </developer>
+    </developers>
 
-  <scm>
-    <connection>scm:https://github.com/networknt/json-schema-validator.git</connection>
-    <developerConnection>scm:https://github.com/networknt/json-schema-validator.git</developerConnection>
-    <url>https://github.com/networknt/json-schema-validator.git</url>
-  </scm>
+    <scm>
+        <connection>scm:https://github.com/networknt/json-schema-validator.git</connection>
+        <developerConnection>scm:https://github.com/networknt/json-schema-validator.git</developerConnection>
+        <url>https://github.com/networknt/json-schema-validator.git</url>
+    </scm>
 
-  <issueManagement>
-    <system>github</system>
-    <url>https://github.com/networknt/json-schema-validator/issues</url>
-  </issueManagement>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/networknt/json-schema-validator/issues</url>
+    </issueManagement>
 
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-  <properties>
-    <java.testversion>1.8</java.testversion>
-    <java.version>1.8</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <java.testversion>1.8</java.testversion>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <version.itu>1.10.3</version.itu>
-    <version.jackson>2.18.1</version.jackson>
-    <version.joni>2.2.1</version.joni>
-    <version.logback>1.3.14</version.logback> <!-- 1.4.x and above is not Java 8 compatible -->
-    <version.slf4j>2.0.16</version.slf4j>
-    <version.graaljs>21.3.10</version.graaljs> <!-- 22.x and above is not Java 8 compatible -->
-    <version.hamcrest>3.0</version.hamcrest>
-    <version.junit>5.11.3</version.junit>
-    <version.undertow>2.2.37.Final</version.undertow> <!-- 2.3.x and above is not Java 8 compatible -->
-    <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
-    <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
-    <version.maven-bundle-plugin>5.1.9</version.maven-bundle-plugin>
-    <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
-    <version.maven-javadoc-plugin>3.6.3</version.maven-javadoc-plugin>
-    <version.maven-source-plugin>3.2.1</version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
-    <version.maven-surefire-junit5-tree-reporter>1.3.0</version.maven-surefire-junit5-tree-reporter>
-    <version.maven-surefire-plugin>3.5.1</version.maven-surefire-plugin>
-    <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
-    <version.nexus-staging-maven-plugin>1.7.0</version.nexus-staging-maven-plugin>
-  </properties>
+        <version.itu>1.10.3</version.itu>
+        <version.jackson>2.18.1</version.jackson>
+        <version.joni>2.2.1</version.joni>
+        <version.logback>1.3.14</version.logback> <!-- 1.4.x and above is not Java 8 compatible -->
+        <version.slf4j>2.0.16</version.slf4j>
+        <version.graaljs>21.3.10</version.graaljs> <!-- 22.x and above is not Java 8 compatible -->
+        <version.hamcrest>3.0</version.hamcrest>
+        <version.junit>5.11.3</version.junit>
+        <version.undertow>2.2.37.Final</version.undertow> <!-- 2.3.x and above is not Java 8 compatible -->
+        <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
+        <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
+        <version.maven-bundle-plugin>5.1.9</version.maven-bundle-plugin>
+        <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
+        <version.maven-javadoc-plugin>3.6.3</version.maven-javadoc-plugin>
+        <version.maven-source-plugin>3.2.1
+        </version.maven-source-plugin> <!-- 3.3.0 and above is not Java 8 compatible -->
+        <version.maven-surefire-junit5-tree-reporter>1.3.0</version.maven-surefire-junit5-tree-reporter>
+        <version.maven-surefire-plugin>3.5.1</version.maven-surefire-plugin>
+        <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
+        <version.nexus-staging-maven-plugin>1.7.0</version.nexus-staging-maven-plugin>
+    </properties>
 
-  <dependencies>
+    <dependencies>
 
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${version.logback}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <!-- Used to validate RFC 3339 date and date-time -->
-      <groupId>com.ethlo.time</groupId>
-      <artifactId>itu</artifactId>
-      <version>${version.itu}</version>
-    </dependency>
+        <dependency>
+            <!-- Used to validate RFC 3339 date and date-time -->
+            <groupId>com.ethlo.time</groupId>
+            <artifactId>itu</artifactId>
+            <version>${version.itu}</version>
+            <optional>true</optional>
+        </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${version.jackson}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>${version.jackson}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>io.undertow</groupId>
-      <artifactId>undertow-core</artifactId>
-      <version>${version.undertow}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>${version.undertow}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest</artifactId>
-      <version>${version.hamcrest}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>${version.hamcrest}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <!-- Used to validate ECMA 262 regular expressions -->
-      <!-- Approximately 2 MB in dependencies -->
-      <groupId>org.jruby.joni</groupId>
-      <artifactId>joni</artifactId>
-      <version>${version.joni}</version>
-      <optional>true</optional>
-    </dependency>
+        <dependency>
+            <!-- Used to validate ECMA 262 regular expressions -->
+            <!-- Approximately 2 MB in dependencies -->
+            <groupId>org.jruby.joni</groupId>
+            <artifactId>joni</artifactId>
+            <version>${version.joni}</version>
+            <optional>true</optional>
+        </dependency>
 
-    <dependency>
-      <!-- Used to validate ECMA 262 regular expressions -->
-      <!-- Approximately 50 MB in dependencies -->
-      <groupId>org.graalvm.js</groupId>
-      <artifactId>js</artifactId>
-      <version>${version.graaljs}</version>
-      <optional>true</optional>
-    </dependency>
+        <dependency>
+            <!-- Used to validate ECMA 262 regular expressions -->
+            <!-- Approximately 50 MB in dependencies -->
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>${version.graaljs}</version>
+            <optional>true</optional>
+        </dependency>
 
-    <dependency>
-      <!-- Used to validate ECMA 262 regular expressions -->
-      <!-- Approximately 50 MB in dependencies -->
-      <groupId>org.graalvm.sdk</groupId>
-      <artifactId>graal-sdk</artifactId>
-      <version>${version.graaljs}</version>
-      <optional>true</optional>
-    </dependency>
+        <dependency>
+            <!-- Used to validate ECMA 262 regular expressions -->
+            <!-- Approximately 50 MB in dependencies -->
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>${version.graaljs}</version>
+            <optional>true</optional>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${version.junit}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <version>${version.junit}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${version.slf4j}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version.slf4j}</version>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
-  <build>
+    <build>
 
-    <resources>
-      <resource>
-        <filtering>false</filtering>
-        <directory>${basedir}/src/main/resources</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-    </resources>
+        <resources>
+            <resource>
+                <filtering>false</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
 
-    <testResources>
-      <testResource>
-        <filtering>false</filtering>
-        <directory>${basedir}/src/test/resources</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>${project.basedir}/src/test/suite</directory>
-      </testResource>
-    </testResources>
+        <testResources>
+            <testResource>
+                <filtering>false</filtering>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/src/test/suite</directory>
+            </testResource>
+        </testResources>
 
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>${version.maven-bundle-plugin}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Import-Package>
-              org.jcodings;resolution:=optional,
-              org.jcodings.specific;resolution:=optional,
-              org.joni;resolution:=optional,
-              org.joni.exception;resolution:=optional,
-              *
-            </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>${version.nexus-staging-maven-plugin}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>${version.maven-source-plugin}</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${version.maven-javadoc-plugin}</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <source>8</source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.maven-compiler-plugin}</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <testSource>${java.testversion}</testSource>
-          <testTarget>${java.testversion}</testTarget>
-        </configuration>
-        <executions>
-          <execution>
-            <id>test-compile</id>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-            <phase>process-test-sources</phase>
-            <configuration>
-              <source>${java.testversion}</source>
-              <target>${java.testversion}</target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.maven-surefire-plugin}</version>
-        <configuration>
-          <argLine>@{argLine} -Duser.language=en -Duser.region=GB</argLine>
-          <reportFormat>plain</reportFormat>
-          <consoleOutputReporter>
-            <disable>true</disable>
-          </consoleOutputReporter>
-          <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
-            <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
-            <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
-            <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
-          </statelessTestsetReporter>
-          <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
-            <usePhrasedClassNameInRunning>true</usePhrasedClassNameInRunning>
-            <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
-          </statelessTestsetInfoReporter>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>me.fabriciorby</groupId>
-            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
-            <version>${version.maven-surefire-junit5-tree-reporter}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${version.jacoco-maven-plugin}</version>
-
-        <configuration>
-          <excludes>
-            <exclude>com/networknt/org/apache/commons/validator/**</exclude>
-          </excludes>
-        </configuration>
-
-        <executions>
-          <!--
-           | Prepares the property pointing to the JaCoCo runtime agent
-           | which is passed as VM argument when Maven the Surefire plugin
-           | is executed.
-           +-->
-          <execution>
-            <id>pre-unit-test</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-
-          <!--
-           | Ensures that the code coverage report for unit-tests
-           | is created after unit tests have been run.
-           +-->
-          <execution>
-            <id>post-unit-test</id>
-            <goals>
-              <goal>report</goal>
-            </goals>
-            <phase>test</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-
-    <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-    <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-
-  </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>${version.maven-surefire-plugin}</version>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <profiles>
-
-    <profile>
-      <id>release-sign-artifacts</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${version.maven-gpg-plugin}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
 
-    <profile>
-      <id>java-module</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.moditect</groupId>
-            <artifactId>moditect-maven-plugin</artifactId>
-            <version>${version.moditect-maven-plugin}</version>
-            <executions>
-              <execution>
-                <id>add-module-infos</id>
-                <goals>
-                  <goal>add-module-info</goal>
-                </goals>
-                <phase>package</phase>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
                 <configuration>
-                  <jvmVersion>9</jvmVersion>
-                  <overwriteExistingFiles>true</overwriteExistingFiles>
-                  <module>
-                    <moduleInfo>
-                      <name>com.networknt.schema</name>
-                      <!-- export everything except embedded Apache code -->
-                      <exports>
-                        !com.networknt.org*;
-                        *;
-                      </exports>
-                      <requires>
-                        static com.ethlo*;
-                        static org.graalvm*;
-                        *;
-                      </requires>
-                      <!-- declare services consumed by the artifact -->
-                      <addServiceUses>true</addServiceUses>
-                    </moduleInfo>
-                  </module>
-                  <jdepsExtraArgs>
-                    <arg>--multi-release=9</arg>
-                  </jdepsExtraArgs>
+                    <instructions>
+                        <Import-Package>
+                            org.jcodings;resolution:=optional,
+                            org.jcodings.specific;resolution:=optional,
+                            org.joni;resolution:=optional,
+                            org.joni.exception;resolution:=optional,
+                            *
+                        </Import-Package>
+                    </instructions>
                 </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+            </plugin>
 
-  </profiles>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${version.nexus-staging-maven-plugin}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${version.maven-source-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.maven-javadoc-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <source>8</source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven-compiler-plugin}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <testSource>${java.testversion}</testSource>
+                    <testTarget>${java.testversion}</testTarget>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>process-test-sources</phase>
+                        <configuration>
+                            <source>${java.testversion}</source>
+                            <target>${java.testversion}</target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.maven-surefire-plugin}</version>
+                <configuration>
+                    <argLine>@{argLine} -Duser.language=en -Duser.region=GB</argLine>
+                    <reportFormat>plain</reportFormat>
+                    <consoleOutputReporter>
+                        <disable>true</disable>
+                    </consoleOutputReporter>
+                    <statelessTestsetReporter
+                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <usePhrasedTestSuiteClassName>true</usePhrasedTestSuiteClassName>
+                        <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
+                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                    </statelessTestsetReporter>
+                    <statelessTestsetInfoReporter
+                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                        <usePhrasedClassNameInRunning>true</usePhrasedClassNameInRunning>
+                        <usePhrasedClassNameInTestCaseSummary>true</usePhrasedClassNameInTestCaseSummary>
+                    </statelessTestsetInfoReporter>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>me.fabriciorby</groupId>
+                        <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                        <version>${version.maven-surefire-junit5-tree-reporter}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${version.jacoco-maven-plugin}</version>
+
+                <configuration>
+                    <excludes>
+                        <exclude>com/networknt/org/apache/commons/validator/**</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <!--
+                     | Prepares the property pointing to the JaCoCo runtime agent
+                     | which is passed as VM argument when Maven the Surefire plugin
+                     | is executed.
+                     +-->
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <!--
+                     | Ensures that the code coverage report for unit-tests
+                     | is created after unit tests have been run.
+                     +-->
+                    <execution>
+                        <id>post-unit-test</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${version.maven-surefire-plugin}</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <profiles>
+
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>java-module</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.moditect</groupId>
+                        <artifactId>moditect-maven-plugin</artifactId>
+                        <version>${version.moditect-maven-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>add-module-infos</id>
+                                <goals>
+                                    <goal>add-module-info</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <jvmVersion>9</jvmVersion>
+                                    <overwriteExistingFiles>true</overwriteExistingFiles>
+                                    <module>
+                                        <moduleInfo>
+                                            <name>com.networknt.schema</name>
+                                            <!-- export everything except embedded Apache code -->
+                                            <exports>
+                                                !com.networknt.org*;
+                                                *;
+                                            </exports>
+                                            <requires>
+                                                static com.ethlo*;
+                                                static org.graalvm*;
+                                                *;
+                                            </requires>
+                                            <!-- declare services consumed by the artifact -->
+                                            <addServiceUses>true</addServiceUses>
+                                        </moduleInfo>
+                                    </module>
+                                    <jdepsExtraArgs>
+                                        <arg>--multi-release=9</arg>
+                                    </jdepsExtraArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 
 </project>
