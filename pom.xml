@@ -442,6 +442,8 @@
                       </exports>
                       <requires>
                         static com.ethlo*;
+                        static org.graalvm*;
+
                         *;
                       </requires>
                       <!-- declare services consumed by the artifact -->
