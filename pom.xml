@@ -440,6 +440,14 @@
                         !com.networknt.org*;
                         *;
                       </exports>
+                      <requires>
+                        static com.ethlo.time;
+                        static com.fasterxml.jackson.dataformat.yaml;
+                        static org.jruby.jcodings;
+                        static org.jruby.joni;
+                        static org.graalvm.sdk;
+                        *;
+                      </requires>
                       <!-- declare services consumed by the artifact -->
                       <addServiceUses>true</addServiceUses>
                     </moduleInfo>
