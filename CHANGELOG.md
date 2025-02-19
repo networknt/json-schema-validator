@@ -11,6 +11,17 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.6- 2025-02-19
+
+### Added
+
+### Changed
+
+- Set requires static for optional and excludable dependencies (#1155) Thanks @justin-tay
+- Fix NPE when walking a missing node that will have missing properties (#1152) Thanks @justin-tay
+- Fix relative iris with colons (#1147) Thanks @justin-tay
+- Fix explicit disabling of format assertions (#1145) Thanks @justin-tay
+
 ## 1.5.5 - 2025-01-14
 
 ### Added
