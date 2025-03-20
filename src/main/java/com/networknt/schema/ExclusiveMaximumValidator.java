@@ -35,13 +35,21 @@ public class ExclusiveMaximumValidator extends BaseJsonValidator {
 
     private final ThresholdMixin typedMaximum;
 
+    private static boolean checktheschemaNodeLongOrInt(JsonNode schemaNode) {
+        return (schemaNode.isLong() || schemaNode.isInt()) ;
+    }
+    private boolean checkIntEqualNodeFieldType() {
+        return JsonType.INTEGER.toString().equals(getNodeFieldType())  ;
+    }
+
+
     public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MAXIMUM, validationContext);
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMaximum value is not a number");
         }
         final String maximumText = schemaNode.asText();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
+        if (checktheschemaNodeLongOrInt(schemaNode) && (checkIntEqualNodeFieldType())) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             typedMaximum = new ThresholdMixin() {
