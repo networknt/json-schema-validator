@@ -182,6 +182,24 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         }
     }
 
+    private static void updateMappingWithFieldsCheck(Iterator<Map.Entry<String, JsonNode>> fieldsToAdd,
+                                                    ObjectNode mappingOnContextDiscriminator, JsonNodePath instanceLocation) {
+        while (fieldsToAdd.hasNext()) {
+            final Map.Entry<String, JsonNode> fieldToAdd = fieldsToAdd.next();
+            final String mappingKeyToAdd = fieldToAdd.getKey();
+            final JsonNode mappingValueToAdd = fieldToAdd.getValue();
+
+            final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
+            if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
+                throw new JsonSchemaException(
+                        instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
+                                + "/" + currentMappingValue + " to " + mappingValueToAdd);
+            } else if (null == currentMappingValue) {
+                mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
+            }
+        }
+    }
+
     /**
      * Rolls up all nested and compatible discriminators to the root discriminator of the type. Detects attempts to redefine
      * the <code>propertyName</code> or mappings.
@@ -213,19 +231,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                 // here we have to merge. The spec doesn't specify anything on this, but here we don't accept redefinition of
                 // mappings that already exist
                 final Iterator<Map.Entry<String, JsonNode>> fieldsToAdd = mappingOnCurrentSchemaDiscriminator.fields();
-                while (fieldsToAdd.hasNext()) {
-                    final Map.Entry<String, JsonNode> fieldToAdd = fieldsToAdd.next();
-                    final String mappingKeyToAdd = fieldToAdd.getKey();
-                    final JsonNode mappingValueToAdd = fieldToAdd.getValue();
+                updateMappingWithFieldsCheck(fieldsToAdd, mappingOnContextDiscriminator, instanceLocation);
 
-                    final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
-                    if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
-                        throw new JsonSchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
-                                + "/" + currentMappingValue + " to " + mappingValueToAdd);
-                    } else if (null == currentMappingValue) {
-                        mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
-                    }
-                }
             }
         }
         currentDiscriminatorContext.registerDiscriminator(schema.schemaLocation, discriminator);
