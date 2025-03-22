@@ -90,7 +90,7 @@
     <version.maven-surefire-junit5-tree-reporter>1.3.0</version.maven-surefire-junit5-tree-reporter>
     <version.maven-surefire-plugin>3.5.1</version.maven-surefire-plugin>
     <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
-    <version.nexus-staging-maven-plugin>1.7.0</version.nexus-staging-maven-plugin>
+    <version.nexus-staging-maven>1.7.0</version.nexus-staging-maven>
   </properties>
 
   <dependencies>
@@ -232,7 +232,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>${version.nexus-staging-maven-plugin}</version>
+        <version>${version.nexus-staging-maven}</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>ossrh</serverId>
