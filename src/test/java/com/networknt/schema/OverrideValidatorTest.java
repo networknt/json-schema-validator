@@ -24,9 +24,11 @@ import com.networknt.schema.format.PatternFormat;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OverrideValidatorTest {
 
@@ -37,9 +39,15 @@ class OverrideValidatorTest {
         final String schema = "{\n" +
         "  \"$schema\":\n" +
         "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +
-        "  \"properties\": {\"mailaddress\": {\"type\": \"string\", \"format\": \"email\"}}\n" +
+        "  \"properties\": {\n" +
+        "     \"mailaddress\": {\"type\": \"string\", \"format\": \"email\"},\n" +
+        "     \"timestamp\": {\"type\": \"string\", \"format\": \"date-time\"}\n" +
+        "  }\n" +
         "}";
-        final JsonNode targetNode = objectMapper.readTree("{\"mailaddress\": \"a-zA-Z0-9.!#$%&'*+@a---a.a--a\"}");
+        final JsonNode targetNode = objectMapper.readTree("{\n" +
+        "  \"mailaddress\": \"a-zA-Z0-9.!#$%&'*+@a---a.a--a\",\n" +
+        "  \"timestamp\": \"bad\"\n" +
+        "}");
         // Use Default EmailValidator
         final JsonMetaSchema validatorMetaSchema = JsonMetaSchema
                 .builder(URI, JsonMetaSchema.getV201909())
@@ -51,7 +59,10 @@ class OverrideValidatorTest {
         Set<ValidationMessage> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
-        assertEquals(1, messages.size());
+
+        assertEquals(2, messages.size(), Arrays.toString(messages.toArray()));
+        assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("mailaddress")));
+        assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
 
         // Override EmailValidator
         final JsonMetaSchema overrideValidatorMetaSchema = JsonMetaSchema
@@ -62,9 +73,10 @@ class OverrideValidatorTest {
         final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(overrideValidatorMetaSchema).build();
         final JsonSchema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
-        messages = overrideValidatorSchema.validate(targetNode);
-        assertEquals(0, messages.size());
-
-
+        messages = overrideValidatorSchema.validate(targetNode, executionContext -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        });
+        assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
+        assertEquals(1, messages.size());
     }
 }
