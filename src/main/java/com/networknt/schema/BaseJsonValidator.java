@@ -40,6 +40,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     protected final ValidationContext validationContext;
 
+    private final PathStrategy pathStrategy;
+
     public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                              JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext,
@@ -61,6 +63,12 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
+        // Added: Initialize pathStrategy with a safe default
+        this.pathStrategy = PathStrategyFactory.createStrategy(
+                validationContext != null && validationContext.getConfig() != null
+                        ? validationContext.getConfig().getPathType()
+                        : PathType.LEGACY // Default fallback
+        );
     }
 
     /**
@@ -99,6 +107,12 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.schemaNode = schemaNode;
         this.validationContext = validationContext;
+        // Pick the right helper based on PathType when the class starts
+        this.pathStrategy = PathStrategyFactory.createStrategy(
+                validationContext != null && validationContext.getConfig() != null
+                        ? validationContext.getConfig().getPathType()
+                        : PathType.LEGACY // Default fallback
+        );
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
@@ -274,15 +288,64 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      *
      * @return The path.
      */
+    // Updated to use polymorphic strategy
     protected JsonNodePath atRoot() {
-        if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_POINTER)) {
-            return JsonNodePathJsonPointer.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.LEGACY)) {
-            return JsonNodePathLegacy.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_PATH)) {
-            return JsonNodePathJsonPath.getInstance();
+        return pathStrategy.getRootPath();
+    }
+
+    // Nested interface for path strategy
+    private interface PathStrategy {
+        JsonNodePath getRootPath();
+    }
+
+    // Nested factory for creating strategies
+    private static class PathStrategyFactory {
+        public static PathStrategy createStrategy(PathType pathType) {
+            if (pathType.equals(PathType.JSON_POINTER)) {
+                return new JsonPointerPathStrategy();
+            } else if (pathType.equals(PathType.LEGACY)) {
+                return new LegacyPathStrategy();
+            } else if (pathType.equals(PathType.JSON_PATH)) {
+                return new JsonPathStrategy();
+            }
+            return new DefaultPathStrategy(pathType);
         }
-        return new JsonNodePath(this.validationContext.getConfig().getPathType());
+    }
+
+    // Nested strategy implementations
+    private static class LegacyPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.LEGACY);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class JsonPointerPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_POINTER);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class JsonPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_PATH);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class DefaultPathStrategy implements PathStrategy {
+        private final PathType pathType;
+        public DefaultPathStrategy(PathType pathType) {
+            this.pathType = pathType;
+        }
+        @Override
+        public JsonNodePath getRootPath() {
+            return new JsonNodePath(pathType);
+        }
     }
 
     @Override
