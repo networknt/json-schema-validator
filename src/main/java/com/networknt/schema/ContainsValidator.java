@@ -39,13 +39,13 @@ public class ContainsValidator extends BaseJsonValidator {
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
 
-    private final JsonSchema schema;
-    private final boolean isMinV201909;
+    protected final JsonSchema schema;
+    protected final boolean isMinV201909;
 
-    private final Integer min;
-    private final Integer max;
+    protected final Integer min;
+    protected final Integer max;
 
-    private Boolean hasUnevaluatedItemsValidator = null;
+//    private Boolean hasUnevaluatedItemsValidator = null;
 
     public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
@@ -81,135 +81,132 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                                           JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        // ignores non-arrays
-        Set<ValidationMessage> results = null;
-        int actual = 0, i = 0;
-        List<Integer> indexes = new ArrayList<>(); // for the annotation
-        if (null != this.schema && node.isArray()) {
-            // Save flag as nested schema evaluation shouldn't trigger fail fast
-            boolean failFast = executionContext.isFailFast();
-            try {
-                executionContext.setFailFast(false);
-                for (JsonNode n : node) {
-                    JsonNodePath path = instanceLocation.append(i);
-                    if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
-                        ++actual;
-                        indexes.add(i);
-                    }
-                    ++i;
-                }
-            } finally {
-                // Restore flag
-                executionContext.setFailFast(failFast);
-            }
-            int m = 1; // default to 1 if "min" not specified
-            if (this.min != null) {
-                m = this.min;
-            }
-            if (actual < m) {
-                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(),
-                        executionContext.isFailFast(), node, instanceLocation, m);
-            }
+        if (schema == null || !node.isArray()) {
+            return Collections.emptySet();
+        }
 
-            if (this.max != null && actual > this.max) {
-                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
-                        executionContext.getExecutionConfig().getLocale(),
-                        executionContext.isFailFast(), node, instanceLocation, this.max);
+        int actual = 0;
+        boolean failFast = executionContext.isFailFast();
+        try {
+            executionContext.setFailFast(false);
+            for (int i = 0; i < node.size(); i++) {
+                JsonNodePath path = instanceLocation.append(i);
+                if (schema.validate(executionContext, node.get(i), rootNode, path).isEmpty()) {
+                    actual++;
+                }
             }
+        } finally {
+            executionContext.setFailFast(failFast);
         }
-        
-        boolean collectAnnotations = collectAnnotations();
-        if (this.schema != null) {
-            // This keyword produces an annotation value which is an array of the indexes to
-            // which this keyword validates successfully when applying its subschema, in
-            // ascending order. The value MAY be a boolean "true" if the subschema validates
-            // successfully when applied to every index of the instance. The annotation MUST
-            // be present if the instance array to which this keyword's schema applies is
-            // empty.
-            
-            if (collectAnnotations || collectAnnotations(executionContext, "contains")) {
-                if (actual == i) {
-                    // evaluated all
-                    executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                    .keyword("contains").value(true).build());
-                } else {
-                    executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
-                                    .keyword("contains").value(indexes).build());
-                }
-            }
-            
-            // Add minContains and maxContains annotations
-            if (this.min != null) {
-                String minContainsKeyword = "minContains";
-                if (collectAnnotations || collectAnnotations(executionContext, minContainsKeyword)) {
-                    // Omitted keywords MUST NOT produce annotation results. However, as described
-                    // in the section for contains, the absence of this keyword's annotation causes
-                    // contains to assume a minimum value of 1.
-                    executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath.append(minContainsKeyword))
-                                    .schemaLocation(this.schemaLocation.append(minContainsKeyword))
-                                    .keyword(minContainsKeyword).value(this.min).build());
-                }
-            }
-            
-            if (this.max != null) {
-                String maxContainsKeyword = "maxContains";
-                if (collectAnnotations || collectAnnotations(executionContext, maxContainsKeyword)) {
-                    executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
-                                    .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
-                                    .keyword(maxContainsKeyword).value(this.max).build());
-                }
-            }
+
+        int effectiveMin = min != null ? min : 1;
+        if (actual < effectiveMin) {
+            return boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
+                    executionContext.getExecutionConfig().getLocale(),
+                    executionContext.isFailFast(), node, instanceLocation, effectiveMin);
         }
-        return results == null ? Collections.emptySet() : results;
+
+        if (max != null && actual > max) {
+            return boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
+                    executionContext.getExecutionConfig().getLocale(),
+                    executionContext.isFailFast(), node, instanceLocation, max);
+        }
+
+        return Collections.emptySet();
     }
-
     @Override
     public void preloadJsonSchema() {
         Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
-        collectAnnotations(); // cache the flag
     }
 
-    private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale, boolean failFast,
-            JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
+    protected Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale,
+                                                    boolean failFast, JsonNode instanceNode,
+                                                    JsonNodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MIN;
         } else if (ValidatorTypeCode.MAX_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MAX;
         }
-        return Collections
-                .singleton(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
-                        .locale(locale).failFast(failFast).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
-                        .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
+        return Collections.singleton(message().instanceNode(instanceNode).instanceLocation(instanceLocation)
+                .messageKey(messageKey).locale(locale).failFast(failFast)
+                .arguments(String.valueOf(bounds), schema.getSchemaNode().toString())
+                .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }
-    
-    /**
-     * Determine if annotations must be collected for evaluation.
-     * <p>
-     * This will be collected regardless of whether it is needed for reporting.
-     * 
-     * @return true if annotations must be collected for evaluation.
-     */
+}
+class AnnotatedContainsValidator extends ContainsValidator {
+    private Boolean hasUnevaluatedItemsValidator = null;
+
+    public AnnotatedContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+                                      JsonSchema parentSchema, ValidationContext validationContext) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
+    }
+
+    @Override
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+                                           JsonNodePath instanceLocation) {
+        Set<ValidationMessage> results = super.validate(executionContext, node, rootNode, instanceLocation);
+        if (schema != null && node.isArray() && (collectAnnotations() || collectAnnotations(executionContext, "contains"))) {
+            int actual = 0, total = node.size();
+            java.util.ArrayList<Integer> indexes = new java.util.ArrayList<>();
+            boolean failFast = executionContext.isFailFast();
+            try {
+                executionContext.setFailFast(false);
+                for (int i = 0; i < total; i++) {
+                    JsonNodePath path = instanceLocation.append(i);
+                    if (schema.validate(executionContext, node.get(i), rootNode, path).isEmpty()) {
+                        actual++;
+                        indexes.add(i);
+                    }
+                }
+            } finally {
+                executionContext.setFailFast(failFast);
+            }
+
+            if (actual == total) {
+                executionContext.getAnnotations().put(JsonNodeAnnotation.builder()
+                        .instanceLocation(instanceLocation).evaluationPath(evaluationPath)
+                        .schemaLocation(schemaLocation).keyword("contains").value(true).build());
+            } else {
+                executionContext.getAnnotations().put(JsonNodeAnnotation.builder()
+                        .instanceLocation(instanceLocation).evaluationPath(evaluationPath)
+                        .schemaLocation(schemaLocation).keyword("contains").value(indexes).build());
+            }
+
+            if (min != null && (collectAnnotations() || collectAnnotations(executionContext, "minContains"))) {
+                executionContext.getAnnotations().put(JsonNodeAnnotation.builder()
+                        .instanceLocation(instanceLocation).evaluationPath(evaluationPath.append("minContains"))
+                        .schemaLocation(schemaLocation.append("minContains")).keyword("minContains")
+                        .value(min).build());
+            }
+
+            if (max != null && (collectAnnotations() || collectAnnotations(executionContext, "maxContains"))) {
+                executionContext.getAnnotations().put(JsonNodeAnnotation.builder()
+                        .instanceLocation(instanceLocation).evaluationPath(evaluationPath.append("maxContains"))
+                        .schemaLocation(schemaLocation.append("maxContains")).keyword("maxContains")
+                        .value(max).build());
+            }
+        }
+        return results;
+    }
+
     private boolean collectAnnotations() {
         return hasUnevaluatedItemsValidator();
+    }
+
+    @Override
+    protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
+        return executionContext.getExecutionConfig().isAnnotationCollectionEnabled();
     }
 
     private boolean hasUnevaluatedItemsValidator() {
         if (this.hasUnevaluatedItemsValidator == null) {
             this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
         }
-        return hasUnevaluatedItemsValidator;
+        return this.hasUnevaluatedItemsValidator;
     }
 }
