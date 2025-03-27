@@ -40,15 +40,17 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     protected final ValidationContext validationContext;
 
+    private final PathStrategy pathStrategy;
+
     public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
+                             JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
         this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext,
                 false);
     }
 
     public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
-            ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
+                             JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
+                             ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
         super(errorMessageType,
                 (validationContext != null && validationContext.getConfig() != null)
                         ? validationContext.getConfig().getErrorMessageKeyword()
@@ -61,6 +63,12 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
+        // Added: Initialize pathStrategy with a safe default
+        this.pathStrategy = PathStrategyFactory.createStrategy(
+                validationContext != null && validationContext.getConfig() != null
+                        ? validationContext.getConfig().getPathType()
+                        : PathType.LEGACY // Default fallback
+        );
     }
 
     /**
@@ -99,6 +107,12 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
         this.schemaNode = schemaNode;
         this.validationContext = validationContext;
+        // Pick the right helper based on PathType when the class starts
+        this.pathStrategy = PathStrategyFactory.createStrategy(
+                validationContext != null && validationContext.getConfig() != null
+                        ? validationContext.getConfig().getPathType()
+                        : PathType.LEGACY // Default fallback
+        );
     }
 
     private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
@@ -127,7 +141,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
     }
 
     public static void debug(Logger logger, ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+                             JsonNodePath instanceLocation) {
         //logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
         // The below is equivalent to the above but as there are more than 2 arguments
         // the var-arg method is used and an array needs to be allocated even if debug
@@ -158,28 +172,8 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                                                   final ObjectNode discriminator,
                                                   final String discriminatorPropertyValue,
                                                   final JsonSchema jsonSchema) {
-        if (discriminatorPropertyValue == null) {
-            currentDiscriminatorContext.markIgnore();
-            return;
-        }
-
-        final JsonNode discriminatorMapping = discriminator.get("mapping");
-        if (null == discriminatorMapping) {
-            checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                    discriminatorPropertyValue,
-                    jsonSchema);
-        } else {
-            checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                    discriminatorPropertyValue,
-                    discriminatorMapping,
-                    jsonSchema);
-            if (!currentDiscriminatorContext.isDiscriminatorMatchFound()
-                    && noExplicitDiscriminatorKeyOverride(discriminatorMapping, jsonSchema)) {
-                checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                        discriminatorPropertyValue,
-                        jsonSchema);
-            }
-        }
+        // Updated to delegate to DiscriminatorContext instance
+        currentDiscriminatorContext.checkDiscriminatorMatch(discriminator, discriminatorPropertyValue, jsonSchema);
     }
 
     /**
@@ -195,78 +189,11 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
                                                         final ObjectNode discriminator,
                                                         final JsonSchema schema,
                                                         final JsonNodePath instanceLocation) {
-        final JsonNode discriminatorOnSchema = schema.schemaNode.get("discriminator");
-        if (null != discriminatorOnSchema && null != currentDiscriminatorContext
-                .getDiscriminatorForPath(schema.schemaLocation)) {
-            // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
-            final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
-            if (null != propertyName) {
-                throw new JsonSchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
-            }
-            final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
-            final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
-            if (null == mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have a mapping on a nested discriminator and none on the root discriminator, so we can simply
-                // make it the root's
-                discriminator.set("mapping", discriminatorOnSchema);
-            } else if (null != mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have to merge. The spec doesn't specify anything on this, but here we don't accept redefinition of
-                // mappings that already exist
-                final Iterator<Map.Entry<String, JsonNode>> fieldsToAdd = mappingOnCurrentSchemaDiscriminator.fields();
-                while (fieldsToAdd.hasNext()) {
-                    final Map.Entry<String, JsonNode> fieldToAdd = fieldsToAdd.next();
-                    final String mappingKeyToAdd = fieldToAdd.getKey();
-                    final JsonNode mappingValueToAdd = fieldToAdd.getValue();
-
-                    final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
-                    if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
-                        throw new JsonSchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
-                                + "/" + currentMappingValue + " to " + mappingValueToAdd);
-                    } else if (null == currentMappingValue) {
-                        mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
-                    }
-                }
-            }
-        }
-        currentDiscriminatorContext.registerDiscriminator(schema.schemaLocation, discriminator);
+        // Updated to delegate to DiscriminatorContext instance
+        currentDiscriminatorContext.registerAndMergeDiscriminator(discriminator, schema, instanceLocation);
     }
 
-    private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
-                                                                  final String discriminatorPropertyValue,
-                                                                  final JsonSchema schema) {
-        if (schema.schemaLocation.getFragment().getName(-1).equals(discriminatorPropertyValue)) {
-            currentDiscriminatorContext.markMatch();
-        }
-    }
 
-    private static void checkForExplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
-                                                                  final String discriminatorPropertyValue,
-                                                                  final JsonNode discriminatorMapping,
-                                                                  final JsonSchema schema) {
-        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
-        while (explicitMappings.hasNext()) {
-            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
-                    && ("#" + schema.schemaLocation.getFragment().toString())
-                            .equals(candidateExplicitMapping.getValue().asText())) {
-                currentDiscriminatorContext.markMatch();
-                break;
-            }
-        }
-    }
-
-    private static boolean noExplicitDiscriminatorKeyOverride(final JsonNode discriminatorMapping,
-                                                              final JsonSchema parentSchema) {
-        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
-        while (explicitMappings.hasNext()) {
-            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getValue().asText()
-                    .equals(parentSchema.schemaLocation.getFragment().toString())) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     @Override
     public SchemaLocation getSchemaLocation() {
@@ -291,7 +218,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * Gets the parent schema.
      * <p>
      * This is the lexical parent schema.
-     * 
+     *
      * @return the parent schema
      */
     public JsonSchema getParentSchema() {
@@ -302,7 +229,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * Gets the evaluation parent schema.
      * <p>
      * This is the dynamic parent schema when following references.
-     * 
+     *
      * @see JsonSchema#fromRef(JsonSchema, JsonNodePath)
      * @return the evaluation parent schema
      */
@@ -361,15 +288,64 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      *
      * @return The path.
      */
+    // Updated to use polymorphic strategy
     protected JsonNodePath atRoot() {
-        if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_POINTER)) {
-            return JsonNodePathJsonPointer.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.LEGACY)) {
-            return JsonNodePathLegacy.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_PATH)) {
-            return JsonNodePathJsonPath.getInstance();
+        return pathStrategy.getRootPath();
+    }
+
+    // Nested interface for path strategy
+    private interface PathStrategy {
+        JsonNodePath getRootPath();
+    }
+
+    // Nested factory for creating strategies
+    private static class PathStrategyFactory {
+        public static PathStrategy createStrategy(PathType pathType) {
+            if (pathType.equals(PathType.JSON_POINTER)) {
+                return new JsonPointerPathStrategy();
+            } else if (pathType.equals(PathType.LEGACY)) {
+                return new LegacyPathStrategy();
+            } else if (pathType.equals(PathType.JSON_PATH)) {
+                return new JsonPathStrategy();
+            }
+            return new DefaultPathStrategy(pathType);
         }
-        return new JsonNodePath(this.validationContext.getConfig().getPathType());
+    }
+
+    // Nested strategy implementations
+    private static class LegacyPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.LEGACY);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class JsonPointerPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_POINTER);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class JsonPathStrategy implements PathStrategy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_PATH);
+        @Override
+        public JsonNodePath getRootPath() {
+            return INSTANCE;
+        }
+    }
+
+    private static class DefaultPathStrategy implements PathStrategy {
+        private final PathType pathType;
+        public DefaultPathStrategy(PathType pathType) {
+            this.pathType = pathType;
+        }
+        @Override
+        public JsonNodePath getRootPath() {
+            return new JsonNodePath(pathType);
+        }
     }
 
     @Override
@@ -386,7 +362,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
      * <p>
      * The fact that the validator exists in the evaluation path implies that the
      * keyword was valid in whatever meta schema for that schema it was created for.
-     * 
+     *
      * @param keyword the keyword to check
      * @return true if found
      */
@@ -415,7 +391,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     /**
      * Determine if annotations should be reported.
-     * 
+     *
      * @param executionContext the execution context
      * @return true if annotations should be reported
      */
@@ -425,7 +401,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     /**
      * Determine if annotations should be reported.
-     * 
+     *
      * @param executionContext the execution context
      * @param keyword          the keyword
      * @return true if annotations should be reported
@@ -437,7 +413,7 @@ public abstract class BaseJsonValidator extends ValidationMessageHandler impleme
 
     /**
      * Puts an annotation.
-     * 
+     *
      * @param executionContext the execution context
      * @param customizer to customize the annotation
      */

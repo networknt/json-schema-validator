@@ -133,7 +133,7 @@ public class AbsoluteIris {
     static String unicodeToASCII(final String input) {
         try {
             final String ascii = IDN.toASCII(input);
-            if (IDNBUGHOLDER.IDN_TOASCII_PRESERVES_TRAILING_DOTS) {
+            if (IDNBUGHOLDER.IDN_KEEPS_TRAILING_DOTS) {
                 return ascii;
             }
             final int length = input.length();
@@ -161,7 +161,7 @@ public class AbsoluteIris {
     }
 
     private static class IDNBUGHOLDER {
-        private static final boolean IDN_TOASCII_PRESERVES_TRAILING_DOTS = keepsTrailingDot();
+        private static final boolean IDN_KEEPS_TRAILING_DOTS = keepsTrailingDot();
 
         private static boolean keepsTrailingDot() {
             final String input = "a."; // must be a valid name
