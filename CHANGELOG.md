@@ -11,6 +11,18 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.7- 2025-05-23
+
+### Added
+
+### Changed
+
+- upgrade nexus-staging verison
+- Fix OverrideValidatorTest (#1159) Thanks @justin-tay
+- update slf4j to 2.0.17
+- update jackson to 2.18.3
+
+
 ## 1.5.6- 2025-02-19
 
 ### Added
