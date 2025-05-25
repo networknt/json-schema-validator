@@ -68,18 +68,11 @@ public class NotValidator extends BaseJsonValidator {
     
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        if (shouldValidateSchema) {
+        if (shouldValidateSchema && node != null) {
             return validate(executionContext, node, rootNode, instanceLocation, true);
         }
 
-        Set<ValidationMessage> errors = this.schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-        if (errors.isEmpty()) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).arguments(this.schema.toString())
-                    .build());
-        }
-        return Collections.emptySet();
+        return this.schema.walk(executionContext, node, rootNode, instanceLocation, false);
     }
 
     @Override

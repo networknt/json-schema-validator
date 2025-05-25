@@ -37,4 +37,31 @@ class AnyOfValidatorTest {
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getValidationMessage().getMessageKey());
     }
+
+    @Test
+    void walkValidationWithNullNodeShouldNotValidate() {
+        String schemaContents = "            {\r\n"
+                + "                \"type\": \"object\",\r\n"
+                + "                \"properties\": {\r\n"
+                + "                    \"prop1\": {\r\n"
+                + "                        \"anyOf\": [\r\n"
+                + "                            {\r\n"
+                + "                            \"type\": \"string\"\r\n"
+                + "                            },\r\n"
+                + "                            {\r\n"
+                + "                            \"type\": \"integer\"\r\n"
+                + "                            }\r\n"
+                + "                        ]\r\n"
+                + "                    }\r\n"
+                + "                },\r\n"
+                + "                \"additionalProperties\": false\r\n"
+                + "            }";
+
+        String jsonContents = "{}";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchema schema = factory.getSchema(schemaContents);
+        ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
+        assertEquals(true, result.getValidationMessages().isEmpty());
+    }
 }
