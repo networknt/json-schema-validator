@@ -112,7 +112,7 @@ public class AllOfValidator extends BaseJsonValidator {
 
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        if (shouldValidateSchema) {
+        if (shouldValidateSchema && node != null) {
             return validate(executionContext, node, rootNode, instanceLocation, true);
         }
         for (JsonSchema schema : this.schemas) {

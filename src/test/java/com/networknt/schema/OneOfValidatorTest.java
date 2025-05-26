@@ -469,4 +469,32 @@ class OneOfValidatorTest {
         assertEquals(3, messages3.size());
     }
 
+    @Test
+    void walkValidationWithNullNodeShouldNotValidate() {
+        String schemaContents = "            {\r\n"
+                + "                \"type\": \"object\",\r\n"
+                + "                \"properties\": {\r\n"
+                + "                    \"prop1\": {\r\n"
+                + "                        \"oneOf\": [\r\n"
+                + "                            {\r\n"
+                + "                            \"type\": \"string\"\r\n"
+                + "                            },\r\n"
+                + "                            {\r\n"
+                + "                            \"type\": \"integer\"\r\n"
+                + "                            }\r\n"
+                + "                        ]\r\n"
+                + "                    }\r\n"
+                + "                },\r\n"
+                + "                \"additionalProperties\": false\r\n"
+                + "            }";
+
+        String jsonContents = "{}";
+
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchema schema = factory.getSchema(schemaContents);
+        ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
+        result.getValidationMessages().forEach(m -> System.out.println(m));
+        assertEquals(true, result.getValidationMessages().isEmpty());
+    }
+
 }

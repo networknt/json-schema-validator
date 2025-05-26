@@ -230,11 +230,11 @@ public class OneOfValidator extends BaseJsonValidator {
     @Override
     public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
-        if (shouldValidateSchema) {
+        if (shouldValidateSchema && node != null) {
             validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation, true));
         } else {
             for (JsonSchema schema : this.schemas) {
-                schema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                schema.walk(executionContext, node, rootNode, instanceLocation, false);
             }
         }
         return validationMessages;
