@@ -525,6 +525,7 @@ public class DomainValidator implements Serializable {
         "eus", // eus Puntueus Fundazioa
         "events", // events Pioneer Maple, LLC
 //        "everbank", // everbank EverBank
+        "example", // RFC recommended for use in documentation or examples
         "exchange", // exchange Spring Falls, LLC
         "expert", // expert Magic Pass, LLC
         "exposed", // exposed Victor Beach, LLC
@@ -712,6 +713,7 @@ public class DomainValidator implements Serializable {
 //        "intel", // intel Intel Corporation
         "international", // international Wild Way, LLC
         "intuit", // intuit Intuit Administrative Services, Inc.
+        "invalid", // RFC recommended for use to be clearly invalid
         "investments", // investments Holly Glen, LLC
         "ipiranga", // ipiranga Ipiranga Produtos de Petroleo S.A.
         "irish", // irish Dot-Irish LLC
@@ -810,6 +812,7 @@ public class DomainValidator implements Serializable {
         "llp", // llp Dot Registry LLC
         "loan", // loan dot Loan Limited
         "loans", // loans June Woods, LLC
+        "localhost", // RFC reserved for DNC with A record pointing to loop back IP address
         "locker", // locker Dish DBS Corporation
         "locus", // locus Locus Analytics LLC
 //        "loft", // loft Annco, Inc.
@@ -1208,6 +1211,7 @@ public class DomainValidator implements Serializable {
 //        "telefonica", // telefonica Telefónica S.A.
         "temasek", // temasek Temasek Holdings (Private) Limited
         "tennis", // tennis Cotton Bloom, LLC
+        "test", // RFC recommended for use in testing
         "teva", // teva Teva Pharmaceutical Industries Limited
         "thd", // thd Homer TLC, Inc.
         "theater", // theater Blue Tigers, LLC
