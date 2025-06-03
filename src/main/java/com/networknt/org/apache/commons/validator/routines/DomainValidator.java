@@ -812,7 +812,7 @@ public class DomainValidator implements Serializable {
         "llp", // llp Dot Registry LLC
         "loan", // loan dot Loan Limited
         "loans", // loans June Woods, LLC
-        "localhost", // RFC reserved for DNC with A record pointing to loop back IP address
+        "localhost", // RFC reserved for DNS with A record pointing to loop back IP address
         "locker", // locker Dish DBS Corporation
         "locus", // locus Locus Analytics LLC
 //        "loft", // loft Annco, Inc.
