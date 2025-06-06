@@ -51,7 +51,7 @@ public class DefaultSchemaLoader implements SchemaLoader {
                 mappedResult = mapped;
             }
         }
-        AbsoluteIri mapped = META_SCHEMA_MAPPER.map(absoluteIri);
+        AbsoluteIri mapped = META_SCHEMA_MAPPER.map(mappedResult);
         if (mapped != null) {
             mappedResult = mapped;
         }
