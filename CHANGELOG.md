@@ -11,6 +11,17 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.8- 2025-06-27
+
+### Added
+
+### Changed
+
+- upgrade maven-gpg to 3.2.7
+- Fix walk with validate when node is null (#1169) Thanks @justin-tay
+- add central-publishing-maven-plugin
+
+
 ## 1.5.7- 2025-05-23
 
 ### Added
