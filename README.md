@@ -598,6 +598,8 @@ The [light-rest-4j](https://github.com/networknt/light-rest-4j), [light-graphql-
 
 If you have a project using this library, please submit a PR to add your project below.
 
+* [mpenet/legba](https://github.com/mpenet/legba/) - OpenAPI service library for clojure, adhering to the [RING spec](https://github.com/ring-clojure/ring)
+
 ## Contributors
 
 Thanks to the following people who have contributed to this project. If you are using this library, please consider to be a sponsor for one of the contributors.
