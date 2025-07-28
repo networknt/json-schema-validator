@@ -40,6 +40,12 @@ class LocalesTest {
         Locale result = Locales.findSupported("zh-CN;q=1.0,zh-TW;q=0.9");
         assertEquals("zh-CN", result.toLanguageTag());
     }
+    
+    @Test
+    void shouldReturnSpanish() {
+        Locale result = Locales.findSupported("es;q=1.0,zh-CN;q=0.9,zh-TW;q=0.9");
+        assertEquals("es", result.toLanguageTag());
+    }
 
     @Test
     void shouldReturnFound() {

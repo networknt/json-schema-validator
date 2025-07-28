@@ -120,6 +120,7 @@ class LocaleTest {
         expected.put("cs","$: musí mít maximálně 5 znaků");
         expected.put("da","$: må højst være på 5 tegn");
         expected.put("de","$: darf höchstens 5 Zeichen lang sein");
+        expected.put("es","$: debe tener como máximo 5 caracteres");
         expected.put("fa","$: باید حداکثر 5 کاراکتر باشد");
         expected.put("fi","$: saa olla enintään 5 merkkiä pitkä");
         expected.put("fr","$: doit contenir au plus 5 caractères");
