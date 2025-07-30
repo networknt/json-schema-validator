@@ -510,6 +510,10 @@ public class SchemaValidatorsConfig {
         return null != this.readOnly && this.readOnly;
     }
 
+    Boolean getReadOnly() {
+        return this.readOnly;
+    }
+
     /**
      * Answers whether a keyword's validators may relax their analysis. The
      * default is to perform strict checking. One must explicitly allow a
@@ -546,6 +550,10 @@ public class SchemaValidatorsConfig {
 
     public boolean isWriteOnly() {
         return null != this.writeOnly && this.writeOnly;
+    }
+
+    Boolean getWriteOnly() {
+        return this.writeOnly;
     }
 
     public void setApplyDefaultsStrategy(ApplyDefaultsStrategy applyDefaultsStrategy) {
