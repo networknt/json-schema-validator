@@ -55,6 +55,19 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode == null) {
+                Boolean readOnly = this.validationContext.getConfig().getReadOnly();
+                Boolean writeOnly = this.validationContext.getConfig().getWriteOnly();
+                if (Boolean.TRUE.equals(readOnly)) {
+                    JsonNode readOnlyNode = getFieldKeyword(fieldName, "readOnly");
+                    if (readOnlyNode != null && readOnlyNode.booleanValue()) {
+                        continue;
+                    }
+                } else if(Boolean.TRUE.equals(writeOnly)) {
+                    JsonNode writeOnlyNode = getFieldKeyword(fieldName, "writeOnly");
+                    if (writeOnlyNode != null && writeOnlyNode.booleanValue()) {
+                        continue;
+                    }
+                }
                 if (errors == null) {
                     errors = new LinkedHashSet<>();
                 }
@@ -72,4 +85,14 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
         return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
+    protected JsonNode getFieldKeyword(String fieldName, String keyword) {
+        JsonNode propertiesNode = this.parentSchema.getSchemaNode().get("properties");
+        if (propertiesNode != null) {
+            JsonNode fieldNode = propertiesNode.get(fieldName);
+            if (fieldNode != null) {
+                return fieldNode.get(keyword);
+            }
+        }
+        return null;
+    }
 }
