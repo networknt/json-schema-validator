@@ -57,9 +57,17 @@ public class TimeFormat implements Format {
             long offset = accessor.getLong(OFFSET_SECONDS) / 60;
             if (MAX_OFFSET_MIN < offset || MIN_OFFSET_MIN > offset) return false;
 
-            long hr = accessor.getLong(HOUR_OF_DAY) - offset / 60;
-            long min = accessor.getLong(MINUTE_OF_HOUR) - offset % 60;
+            long hr = accessor.getLong(HOUR_OF_DAY);
+            long min = accessor.getLong(MINUTE_OF_HOUR);
             long sec = accessor.getLong(SECOND_OF_MINUTE);
+
+            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
+            if (isStandardTimeRange) {
+                return true;
+            }
+            // Leap second check normalize to UTC to check if 23:59:60Z
+            hr = hr - offset / 60;
+            min = min - offset % 60;
 
             if (min < 0) {
                 --hr;
@@ -68,16 +76,25 @@ public class TimeFormat implements Format {
             if (hr < 0) {
                 hr += 24;
             }
-
-            boolean isStandardTimeRange = (sec <= 59 && min <= 59 && hr <= 23);
-            boolean isSpecialCaseEndOfDay = (sec == 60 && min == 59 && hr == 23);
-
-            return isStandardTimeRange
-                    || isSpecialCaseEndOfDay;
+            return isSpecialCaseLeapSecond(sec, min, hr);
 
         } catch (DateTimeException e) {
             return false;
         }
+    }
+
+    /**
+     * Determines if it is a valid leap second.
+     *
+     * See https://datatracker.ietf.org/doc/html/rfc3339#appendix-D
+     *
+     * @param sec second
+     * @param min minute
+     * @param hr  hour
+     * @return true if it is a valid leap second
+     */
+    private boolean isSpecialCaseLeapSecond(long sec, long min, long hr) {
+        return (sec == 60 && min == 59 && hr == 23);
     }
 
     @Override
