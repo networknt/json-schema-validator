@@ -91,6 +91,8 @@
     <version.moditect-maven-plugin>1.2.2.Final</version.moditect-maven-plugin>
     <version.nexus-staging-maven>1.7.0</version.nexus-staging-maven>
     <version.maven-gpg>3.2.7</version.maven-gpg>
+
+    <argLine>-Duser.language=en -Duser.region=GB</argLine> <!-- For surefire -->
   </properties>
 
   <dependencies>
@@ -304,7 +306,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.maven-surefire-plugin}</version>
         <configuration>
-          <argLine>@{argLine} -Duser.language=en -Duser.region=GB</argLine>
           <reportFormat>plain</reportFormat>
           <consoleOutputReporter>
             <disable>true</disable>
