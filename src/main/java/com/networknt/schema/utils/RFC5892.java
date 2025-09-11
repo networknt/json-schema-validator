@@ -88,9 +88,22 @@ public class RFC5892 {
             && !isContextJ(c)   && !isContextO(c);  // RFC 5891 4.2.3.3.  Contextual Rules
     }
 
+    /**
+     * Whenever dots are used as label separators, the following characters MUST be
+     * recognized as dots: U+002E (full stop), U+3002 (ideographic full stop),
+     * U+FF0E (fullwidth full stop), U+FF61 (halfwidth ideographic full stop)
+     */
+    private static String LABEL_SEPARATOR_REGEX = "[\\.\\u3002\\uff0e\\uff61]";
+
     public static boolean isValid(String value) {
-        // RFC 5892 calls each segment in a host name a label. They are separated by '.'.
-        String[] labels = value.split("\\.");
+        if ("".equals(value)) {
+            return false; // empty string should fail
+        }
+        if (value.length() == 1 && value.matches(LABEL_SEPARATOR_REGEX)) {
+            return false; // single label separator should fail
+        }
+        // RFC 5892 calls each segment in a host name a label. They are separated by all the recognized label separators.
+        String[] labels = value.split(LABEL_SEPARATOR_REGEX);
         for (String label : labels) {
             if (label.isEmpty()) continue; // A DNS entry may contain a trailing '.'.
 

@@ -10,7 +10,7 @@ import com.networknt.schema.utils.RFC5892;
 public class IdnHostnameFormat implements Format {
     @Override
     public boolean matches(ExecutionContext executionContext, String value) {
-        if (null == value || value.isEmpty()) return true;
+        if (null == value) return true;
         return RFC5892.isValid(value);
     }
 

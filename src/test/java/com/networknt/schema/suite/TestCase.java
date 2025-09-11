@@ -1,6 +1,7 @@
 package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * An individual test case, containing multiple testSpecs of a single schema's
  * behavior
  */
+@JsonIgnoreProperties(ignoreUnknown = true) // ignore specification in additionalProperties.json
 public class TestCase {
 
     /**
