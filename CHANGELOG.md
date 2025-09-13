@@ -11,6 +11,21 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 1.5.8- 2025-09-13
+
+### Added
+
+### Changed
+
+- Fix idn-hostname format and update json schema test suite (#1191) Thanks @justin-tay
+- Fix JoniRegularExpression compatibility issues with ECMA-262 (#1193) Thanks @justin-tay
+- Fix time format validation (#1188) Thanks @justin-tay
+- Fix eclipse junit issue due to m2e-core (#1189) Thanks @justin-tay
+- Support readOnly and writeOnly for required validation (#1186) Thanks @justin-tay
+- Spanish translations (#1183) Thanks @MickMonaghanGW
+- Upgrade to ITU 1.14.0 (#1184) Thanks @ethlo
+- Add mpenet/legba to list of librairies (#1181) Thanks @mpenet
+
 ## 1.5.8- 2025-06-27
 
 ### Added
