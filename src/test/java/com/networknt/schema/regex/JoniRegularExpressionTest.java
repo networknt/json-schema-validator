@@ -172,4 +172,82 @@ class JoniRegularExpressionTest {
         RegularExpression regex = new JoniRegularExpression("[a-z]{1,10}");
         assertTrue(regex.matches("1abc1"));
     }
+
+    @Test
+    void digitCharacterClassShouldNotMatchUnicodeDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\d");
+        assertFalse(regex.matches("߀"));
+    }
+
+    @Test
+    void wordCharacterClassShouldNotMatchUnicodeDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\w");
+        assertFalse(regex.matches("߀"));
+    }
+
+    @Test
+    void unicodeNumberCharacterClassShouldMatchUnicodeDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\p{N}");
+        assertTrue(regex.matches("߀"));
+    }
+
+    @Test
+    void unicodeNumberDigitCharacterClassShouldMatchUnicodeDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\p{digit}");
+        assertTrue(regex.matches("߀"));
+    }
+
+    @Test
+    void unicodeNdCharacterClassShouldMatchUnicodeDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\p{Nd}");
+        assertTrue(regex.matches("߀"));
+    }
+
+    @Test
+    void digitCharacterClassShouldMatchAsciiDigit() {
+        RegularExpression regex = new JoniRegularExpression("\\d");
+        assertTrue(regex.matches("0"));
+    }
+
+    @Test
+    void digitCharacterClassShouldMatchAsciiDigitInCharacterSet() {
+        RegularExpression regex = new JoniRegularExpression("[\\d]");
+        assertTrue(regex.matches("0"));
+    }
+
+    @Test
+    void whitespaceClassShouldMatchWhitespace() {
+        RegularExpression regex = new JoniRegularExpression("\\s");
+        assertTrue(regex.matches(" "));
+    }
+
+    @Test
+    void whitespaceClassShouldMatchLatin1NonBreakingSpace() {
+        RegularExpression regex = new JoniRegularExpression("\\s");
+        assertTrue(regex.matches("\u00a0"));
+    }
+
+    @Test
+    void whitespaceClassShouldMatchWhitespaceInCharacterSet() {
+        RegularExpression regex = new JoniRegularExpression("[\\s]");
+        assertTrue(regex.matches(" "));
+    }
+
+    @Test
+    void whitespaceClassShouldMatchLatin1NonBreakingSpaceInCharacterSet() {
+        RegularExpression regex = new JoniRegularExpression("[\\s]");
+        assertTrue(regex.matches("\u00a0"));
+    }
+
+    @Test
+    void nonWhitespaceClassShouldNotMatchWhitespaceInCharacterSet() {
+        RegularExpression regex = new JoniRegularExpression("[\\S]");
+        assertFalse(regex.matches(" "));
+    }
+
+    @Test
+    void nonWhitespaceClassShouldNotMatchLatin1NonBreakingSpaceInCharacterSet() {
+        RegularExpression regex = new JoniRegularExpression("[\\S]");
+        assertFalse(regex.matches("\u00a0"));
+    }
 }
