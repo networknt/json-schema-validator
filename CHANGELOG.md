@@ -11,7 +11,7 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
-## 1.5.8- 2025-09-13
+## 1.5.9- 2025-09-13
 
 ### Added
 
