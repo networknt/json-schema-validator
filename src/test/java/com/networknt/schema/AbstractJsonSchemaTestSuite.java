@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
+import com.networknt.schema.resource.InputStreamSource;
+import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
@@ -27,6 +29,8 @@ import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.DynamicNode;
 import org.opentest4j.AssertionFailedError;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -44,7 +48,7 @@ import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
+abstract class AbstractJsonSchemaTestSuite {
 
     private static String toForwardSlashPath(Path file) {
         return file.toString().replace('\\', '/');
@@ -52,9 +56,7 @@ abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
     private static void executeTest(JsonSchema schema, TestSpec testSpec) {
         Set<ValidationMessage> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")
-                    || "ecmascript-regex.json"
-                            .equals(testSpec.getTestCase().getSource().getPath().getFileName().toString())) {
+            if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
                 executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
             }
         });
@@ -180,7 +182,23 @@ abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
 
     private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
         if (testCase.isDisabled()) return null;
-
+        SchemaLoader schemaLoader = new SchemaLoader() {
+            @Override
+            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+                String iri = absoluteIri.toString();
+                if (iri.startsWith("http://localhost:1234")) {
+                    return () -> {
+                        String path = iri.substring("http://localhost:1234".length());
+                        File file = new File("src/test/resources/remotes" + path);
+                        if (file.exists()) {
+                            return new FileInputStream("src/test/resources/remotes" + path);
+                        }
+                        return new FileInputStream("src/test/suite/remotes" + path);
+                    };
+                }
+                return null;
+            }
+        };
         VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
         JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
         return JsonSchemaFactory
@@ -188,6 +206,7 @@ abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
                 .schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))
+                .schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader))               
                 .build();
     }
 
@@ -239,6 +258,9 @@ abstract class AbstractJsonSchemaTestSuite extends HTTPServiceSupport {
         } finally {
             cleanup();
         }
+    }
+
+    protected void cleanup() {
     }
 
     private List<Path> findTestCases(String basePath) {
