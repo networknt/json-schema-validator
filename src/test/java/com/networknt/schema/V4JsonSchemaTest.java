@@ -21,23 +21,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class V4JsonSchemaTest extends HTTPServiceSupport {
+class V4JsonSchemaTest {
 
     protected ObjectMapper mapper = new ObjectMapper();
 
     @Test(/* expected = java.lang.StackOverflowError.class */)
     void testLoadingWithId() throws Exception {
-        URL url = new URL("http://localhost:1234/self_ref/selfRef.json");
-        JsonNode schemaJson = mapper.readTree(url);
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        @SuppressWarnings("unused")
-        JsonSchema schema = factory.getSchema(schemaJson);
+        try (InputStream inputStream = new FileInputStream("src/test/resources/remotes/self_ref/selfRef.json")) {
+            JsonNode schemaJson = mapper.readTree(inputStream);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            @SuppressWarnings("unused")
+            JsonSchema schema = factory.getSchema(schemaJson);
+        }
     }
 
     /**

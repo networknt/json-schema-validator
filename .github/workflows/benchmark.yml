@@ -1,0 +1,46 @@
+name: Benchmarks
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  benchmark:
+    name: Run benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+      - name: Build with Maven
+        run: |
+          mvn --batch-mode --update-snapshots verify -Dstyle.color=always -Dmaven.javadoc.skip=true -Pbenchmark
+      - name: Run benchmark
+        run: |
+          java -jar target/benchmarks.jar -wi 3 -i 3 -f 1 -rf json
+      - name: Store raw benchmark result as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-result
+          path: jmh-result.json
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: JSON Schema Validator Benchmark
+          tool: 'jmh'
+          output-file-path: jmh-result.json
+          # Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          comment-on-alert: false
+          max-items-in-chart: 50
+          summary-always: true

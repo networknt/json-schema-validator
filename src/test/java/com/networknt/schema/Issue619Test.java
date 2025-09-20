@@ -16,17 +16,21 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.resource.SchemaLoader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.networknt.schema.BaseJsonSchemaValidatorTest.getJsonNodeFromStringContent;
+import com.networknt.schema.resource.InputStreamSource;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Issue619Test extends HTTPServiceSupport {
+import java.io.FileInputStream;
+
+class Issue619Test {
 
     private JsonSchemaFactory factory;
     private JsonNode one;
@@ -35,7 +39,22 @@ class Issue619Test extends HTTPServiceSupport {
 
     @BeforeEach
     void setup() throws Exception {
-        factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        SchemaLoader schemaLoader = new SchemaLoader() {
+            @Override
+            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+                String iri = absoluteIri.toString();
+                if (iri.startsWith("http://localhost:1234")) {
+                    return () -> {
+                      String path = iri.substring("http://localhost:1234".length());
+                      return new FileInputStream("src/test/suite/remotes" + path);
+                    };
+                }
+                return null;
+            }
+        };
+
+        factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
+                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");
         three = getJsonNodeFromStringContent("3");

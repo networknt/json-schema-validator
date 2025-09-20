@@ -18,6 +18,7 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -28,7 +29,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
+import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.MapSchemaMapper;
+import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.resource.SchemaMapper;
 
 class UriMappingTest {
@@ -65,7 +68,20 @@ class UriMappingTest {
      */
     @Test
     void testBuilderExampleMappings() throws IOException {
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        SchemaLoader schemaLoader = new SchemaLoader() {
+            @Override
+            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+                String iri = absoluteIri.toString();
+                if ("https://example.com/invalid/schema/url".equals(iri)) {
+                    return () -> {
+                        throw new FileNotFoundException(iri);
+                    };
+                }
+                return null;
+            }
+        };
+        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
+                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
@@ -118,9 +134,21 @@ class UriMappingTest {
      */
     @Test
     void testValidatorConfigExampleMappings() throws IOException {
+        SchemaLoader schemaLoader = new SchemaLoader() {
+            @Override
+            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+                String iri = absoluteIri.toString();
+                if ("https://example.com/invalid/schema/url".equals(iri)) {
+                    return () -> {
+                        throw new FileNotFoundException(iri);
+                    };
+                }
+                return null;
+            }
+        };        
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
-        JsonSchemaFactory instance = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).build();
+        JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
+                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))).build();
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
