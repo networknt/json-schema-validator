@@ -53,9 +53,9 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         if (!node.isArray()) {
-            return Collections.emptySet();
+            return;
         }
 
         debug(logger, executionContext, node, rootNode, instanceLocation);
@@ -149,8 +149,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                 }
             }
         }
-        Set<ValidationMessage> messages = null;
         if (!valid) {
+            int currentErrors = executionContext.getErrors().size();
             // Get all the "contains" for the instanceLocation
             List<JsonNodeAnnotation> contains = instanceLocationAnnotations.stream()
                     .filter(a -> "contains".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
@@ -167,7 +167,6 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                 }
             }
 
-            messages = new LinkedHashSet<>();
             if (!containsEvaluatedAll) {
                 // Start evaluating from the valid count
                 for (int x = validCount; x < node.size(); x++) {
@@ -175,19 +174,18 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     if (!containsEvaluated.contains(x)) {
                         if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                             // All fails as "unevaluatedItems: false"
-                            messages.add(message().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
+                            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
                                     .locale(executionContext.getExecutionConfig().getLocale())
                                     .failFast(executionContext.isFailFast()).build());
                         } else {
                             // Schema errors will be reported as is
-                            messages.addAll(this.schema.validate(executionContext, node.get(x), node,
-                                    instanceLocation.append(x)));
+                            this.schema.validate(executionContext, node.get(x), node, instanceLocation.append(x));
                         }
                         evaluated = true;
                     }
                 }
             }
-            if (messages.isEmpty()) {
+            if (currentErrors == executionContext.getErrors().size()) { // No new errors
                 valid = true;
             }
         }
@@ -203,6 +201,5 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                             .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                             .keyword("unevaluatedItems").value(true).build());
         }
-        return messages == null || messages.isEmpty() ? Collections.emptySet() : messages;
     }
 }

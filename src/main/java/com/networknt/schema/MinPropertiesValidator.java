@@ -20,9 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * {@link JsonValidator} for minProperties.
  */
@@ -41,18 +38,16 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (node.isObject()) {
             if (node.size() < min) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(min).build());
             }
         }
-
-        return Collections.emptySet();
     }
 
 }

@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -38,7 +38,7 @@ class OutputFormatTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
-        Set<ValidationMessage> errors = schema.validate(node);
+        List<ValidationMessage> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
 
         Set<String[]> messages = errors.stream().map(m -> new String[] { m.getEvaluationPath().toString(),
@@ -53,7 +53,7 @@ class OutputFormatTest {
                         new String[] { "/items/$ref/required", "https://example.com/polygon#/$defs/point/required", "/1", "/1: required property 'y' not found"}));
     }
 
-    public static class Detailed implements OutputFormat<Set<ValidationMessage>> {
+    public static class Detailed implements OutputFormat<List<ValidationMessage>> {
         private ValidationMessage format(ValidationMessage message) {
             Supplier<String> messageSupplier = () -> {
                 StringBuilder builder = new StringBuilder();
@@ -84,13 +84,13 @@ class OutputFormatTest {
         }
 
         @Override
-        public Set<ValidationMessage> format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return validationMessages.stream().map(this::format).collect(Collectors.toCollection(LinkedHashSet::new));
+            return executionContext.getErrors().stream().map(this::format).collect(Collectors.toCollection(ArrayList::new));
         }
     }
 
-    public static final OutputFormat<Set<ValidationMessage>> DETAILED = new Detailed();
+    public static final OutputFormat<List<ValidationMessage>> DETAILED = new Detailed();
 
     @Test
     void customFormat() {

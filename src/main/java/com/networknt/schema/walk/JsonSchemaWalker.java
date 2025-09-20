@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonValidator;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.ValidationMessage;
-
-import java.util.Set;
 
 public interface JsonSchemaWalker {
 	/**
@@ -26,8 +23,7 @@ public interface JsonSchemaWalker {
 	 * @param rootNode             JsonNode
 	 * @param instanceLocation     JsonNodePath
 	 * @param shouldValidateSchema boolean
-	 * @return a set of validation messages if shouldValidateSchema is true.
 	 */
-    Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema);
 }

@@ -8,9 +8,9 @@ import com.networknt.schema.i18n.ResourceBundleMessageSource;
 import org.junit.jupiter.api.Test;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,7 +59,7 @@ class Issue686Test {
     }
 
     private void verify(SchemaValidatorsConfig config, String expectedMessage) throws JsonProcessingException {
-        Set<ValidationMessage> messages = getSchema(config).validate(new ObjectMapper().readTree(" { \"foo\": 123 } "));
+        List<ValidationMessage> messages = getSchema(config).validate(new ObjectMapper().readTree(" { \"foo\": 123 } "));
         assertEquals(1, messages.size());
         assertEquals(expectedMessage, messages.iterator().next().getMessage());
     }

@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,21 +57,19 @@ class CustomMetaSchemaTest {
             }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
                 String value = node.asText();
                 int idx = enumValues.indexOf(value);
                 if (idx < 0) {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
                 }
                 String valueName = enumNames.get(idx);
-                Set<ValidationMessage> messages = new HashSet<>();
                 ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
                         .schemaNode(node)
                         .instanceNode(node)
                         .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
-                messages.add(validationMessage);
-                return messages;
+                executionContext.addError(validationMessage);
             }
         }
 
@@ -130,7 +126,7 @@ class CustomMetaSchemaTest {
                 "  \"enumNames\": [\"Foo !\", \"Bar !\"]\n" +
                 "}");
 
-        Set<ValidationMessage> messages = schema.validate(objectMapper.readTree("\"foo\""));
+        List<ValidationMessage> messages = schema.validate(objectMapper.readTree("\"foo\""));
         assertEquals(1, messages.size());
 
         ValidationMessage message = messages.iterator().next();

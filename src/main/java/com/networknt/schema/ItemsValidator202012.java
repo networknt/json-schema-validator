@@ -20,12 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
-import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * {@link JsonValidator} for items from V2012-12.
@@ -63,35 +60,25 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // ignores non-arrays
         if (node.isArray()) {
-            SetView<ValidationMessage> errors = null;
             boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
                 JsonNodePath path = instanceLocation.append(i);
                 // validate with item schema (the whole array has the same item schema)
-                Set<ValidationMessage> results = null;
                 if (additionalItems) {
-                    results = this.schema.validate(executionContext, node.get(i), rootNode, path);
+                    this.schema.validate(executionContext, node.get(i), rootNode, path);
                 } else {
                     // This handles the case where "items": false as the boolean false schema doesn't
                     // generate a helpful message
                     int x = i;
-                    results = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .failFast(executionContext.isFailFast()).arguments(x).build());
-                }
-                if (results.isEmpty()) {
-//                    evaluatedItems.add(path);
-                } else {
-                    if (errors == null) {
-                        errors = new SetView<>();
-                    }
-                    errors.union(results);
                 }
                 evaluated = true;
             }
@@ -104,17 +91,12 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
-            return errors == null || errors.isEmpty() ? Collections.emptySet() : errors;
-        } else {
-            return Collections.emptySet();
         }
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
-
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
@@ -130,8 +112,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     n = defaultNode;
                 }
                 // Walk the schema.
-                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema,
-                        validationMessages);
+                walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema);
                 if (n != null) {
                     evaluated = true;
                 }
@@ -149,10 +130,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             // If the node is not an ArrayNode, e.g. ObjectNode or null then the instance is null.
             // The instance location starts at the end of the prefix count.
             walkSchema(executionContext, this.schema, null, rootNode, instanceLocation.append(this.prefixCount),
-                    shouldValidateSchema, validationMessages);
+                    shouldValidateSchema);
         }
-
-        return validationMessages;
     }
 
     private static JsonNode getDefaultNode(JsonSchema schema) {
@@ -167,7 +146,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
         boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
@@ -177,8 +156,9 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             instanceLocation,
             walkSchema, this
         );
+        int currentErrors = executionContext.getErrors().size();
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
+            walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
         this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
@@ -187,7 +167,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
             rootNode,
             instanceLocation,
             walkSchema,
-            this, validationMessages
+            this, executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size())
         );
         //@formatter:on
     }

@@ -15,7 +15,6 @@
  */
 package com.networknt.schema;
 
-import java.util.Set;
 import java.util.function.Function;
 
 import com.networknt.schema.output.HierarchicalOutputUnitFormatter;
@@ -45,13 +44,12 @@ public interface OutputFormat<T> {
      * Formats the validation results.
      * 
      * @param jsonSchema         the schema
-     * @param validationMessages the validation messages
      * @param executionContext   the execution context
      * @param validationContext  the validation context
      * 
      * @return the result
      */
-    T format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+    T format(JsonSchema jsonSchema, 
             ExecutionContext executionContext, ValidationContext validationContext);
 
     /**
@@ -90,16 +88,16 @@ public interface OutputFormat<T> {
     /**
      * The Default output format.
      */
-    class Default implements OutputFormat<Set<ValidationMessage>> {
+    class Default implements OutputFormat<java.util.List<ValidationMessage>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
-        public Set<ValidationMessage> format(JsonSchema jsonSchema,
-                Set<ValidationMessage> validationMessages, ExecutionContext executionContext, ValidationContext validationContext) {
-            return validationMessages;
+        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
+                ExecutionContext executionContext, ValidationContext validationContext) {
+            return executionContext.getErrors();
         }
     }
 
@@ -114,9 +112,9 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputFlag format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+        public OutputFlag format(JsonSchema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return new OutputFlag(validationMessages.isEmpty());
+            return new OutputFlag(executionContext.getErrors().isEmpty());
         }
     }
 
@@ -131,9 +129,9 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public java.lang.Boolean format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+        public java.lang.Boolean format(JsonSchema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return validationMessages.isEmpty();
+            return executionContext.getErrors().isEmpty();
         }
     }
     
@@ -161,9 +159,9 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+        public OutputUnit format(JsonSchema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return ListOutputUnitFormatter.format(validationMessages, executionContext, validationContext,
+            return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, validationContext,
                     this.assertionMapper);
         }
     }
@@ -192,9 +190,9 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+        public OutputUnit format(JsonSchema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
-            return HierarchicalOutputUnitFormatter.format(jsonSchema, validationMessages, executionContext,
+            return HierarchicalOutputUnitFormatter.format(jsonSchema, executionContext.getErrors(), executionContext,
                     validationContext, this.assertionMapper);
         }
     }
@@ -210,9 +208,8 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public ValidationResult format(JsonSchema jsonSchema,
-                Set<ValidationMessage> validationMessages, ExecutionContext executionContext, ValidationContext validationContext) {
-            return new ValidationResult(validationMessages, executionContext);
+        public ValidationResult format(JsonSchema jsonSchema,ExecutionContext executionContext, ValidationContext validationContext) {
+            return new ValidationResult(executionContext);
         }
     }
 }

@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Validating anyOf walker
@@ -77,7 +77,7 @@ class Issue451Test {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
 
         }
 

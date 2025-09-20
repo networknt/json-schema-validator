@@ -3,7 +3,7 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ class SampleTest {
          * initializeValidators()
          */
         schemaFromSchemaLocation.initializeValidators();
-        Set<ValidationMessage> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
+        List<ValidationMessage> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
     }
@@ -54,7 +54,7 @@ class SampleTest {
          * initializeValidators()
          */
         schemaFromSchemaLocation.initializeValidators();
-        Set<ValidationMessage> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
+        List<ValidationMessage> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
     }
@@ -75,7 +75,7 @@ class SampleTest {
          * initializeValidators()
          */
         schemaFromClasspath.initializeValidators();
-        Set<ValidationMessage> errors = schemaFromClasspath.validate("{\"id\": \"2\"}", InputFormat.JSON,
+        List<ValidationMessage> errors = schemaFromClasspath.validate("{\"id\": \"2\"}", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
     }
@@ -91,7 +91,7 @@ class SampleTest {
          */
         JsonSchema schemaFromString = factory
                 .getSchema("{\"enum\":[1, 2, 3, 4]}");
-        Set<ValidationMessage> errors = schemaFromString.validate("7", InputFormat.JSON,
+        List<ValidationMessage> errors = schemaFromString.validate("7", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
     }
@@ -117,7 +117,7 @@ class SampleTest {
          * initializeValidators()
          */
         schemaFromNode.initializeValidators();
-        Set<ValidationMessage> errors = schemaFromNode.validate("{\"id\": \"2\"}", InputFormat.JSON,
+        List<ValidationMessage> errors = schemaFromNode.validate("{\"id\": \"2\"}", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(1, errors.size());
     }

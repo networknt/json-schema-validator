@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +50,7 @@ class Issue857Test {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        Set<ValidationMessage> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
+        List<ValidationMessage> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
         assertTrue(result.isEmpty());
     }
 }

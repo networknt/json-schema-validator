@@ -37,7 +37,7 @@ class DisallowSchemaLoaderTest {
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
                 () -> factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json")));
         assertEquals("classpath:schema/example-main.json",
-                invalidSchemaException.getValidationMessage().getArguments()[0].toString());
+                invalidSchemaException.getError().getArguments()[0].toString());
     }
 
 }

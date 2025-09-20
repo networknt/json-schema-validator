@@ -17,18 +17,13 @@
 package com.networknt.schema;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.utils.SetView;
 
 /**
  * {@link JsonValidator} for oneOf.
@@ -59,23 +54,24 @@ public class OneOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        return validate(executionContext, node, rootNode, instanceLocation, false);
+        validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        Set<ValidationMessage> errors = null;
-
         debug(logger, executionContext, node, rootNode, instanceLocation);
         int numberOfValidSchema = 0;
         int index = 0;
-        SetView<ValidationMessage> childErrors = null;
         List<String> indexes = null;
-
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<ValidationMessage> childErrors = null;
+        List<ValidationMessage> schemaErrors = new ArrayList<>();
+        executionContext.setErrors(schemaErrors);
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
+        boolean addMessages = true;
         try {
             DiscriminatorValidator discriminator = null;
             if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
@@ -93,16 +89,15 @@ public class OneOfValidator extends BaseJsonValidator {
             }
             executionContext.setFailFast(false);
             for (JsonSchema schema : this.schemas) {
-                Set<ValidationMessage> schemaErrors = Collections.emptySet();
+                schemaErrors.clear();
                 if (!walk) {
-                    schemaErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                    schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
-                    schemaErrors = schema.walk(executionContext, node, rootNode, instanceLocation,
-                            true);
+                    schema.walk(executionContext, node, rootNode, instanceLocation, true);
                 }
 
                 // check if any validation errors have occurred
-                if (schemaErrors.isEmpty()) {
+                if (schemaErrors.isEmpty()) { // No new errors
                     numberOfValidSchema++;
                     if (indexes == null) {
                         indexes = new ArrayList<>();
@@ -144,22 +139,22 @@ public class OneOfValidator extends BaseJsonValidator {
                     if (currentDiscriminatorContext.isDiscriminatorMatchFound() && childErrors == null) {
                         // Note that the match is set if found and not reset so checking if childErrors
                         // found is null triggers on the correct schema
-                        childErrors = new SetView<>();
-                        childErrors.union(schemaErrors);
+                        childErrors = new ArrayList<>();
+                        childErrors.addAll(schemaErrors);
                     } else if (currentDiscriminatorContext.isDiscriminatorIgnore()
                             || !currentDiscriminatorContext.isActive()) {
                         // This is the normal handling when discriminators aren't enabled
                         if (childErrors == null) {
-                            childErrors = new SetView<>();
+                            childErrors = new ArrayList<>();
                         }
-                        childErrors.union(schemaErrors);
+                        childErrors.addAll(schemaErrors);
                     }
                 } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
                     // This is the normal handling when discriminators aren't enabled
                     if (childErrors == null) {
-                        childErrors = new SetView<>();
+                        childErrors = new ArrayList<>();
                     }
-                    childErrors.union(schemaErrors);
+                    childErrors.addAll(schemaErrors);
                 }
                 index++;
             }
@@ -168,7 +163,8 @@ public class OneOfValidator extends BaseJsonValidator {
                     && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
-                errors = Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                addMessages = false;
+                existingErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
@@ -186,19 +182,19 @@ public class OneOfValidator extends BaseJsonValidator {
         // ensure there is always an "OneOf" error reported if number of valid schemas
         // is not equal to 1.
         // errors will only not be null in the discriminator case where no match is found
-        if (numberOfValidSchema != 1 && errors == null) {
+        if (numberOfValidSchema != 1 && addMessages) {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
                     .arguments(Integer.toString(numberOfValidSchema), numberOfValidSchema > 1 ? String.join(", ", indexes) : "").build();
+            existingErrors.add(message);
             if (childErrors != null) {
-                errors = new SetView<ValidationMessage>().union(Collections.singleton(message)).union(childErrors);
-            } else {
-                errors = Collections.singleton(message);
+                existingErrors.addAll(childErrors);
             }
         }
-        return errors != null ? errors : Collections.emptySet();
+        executionContext.setErrors(existingErrors);
+        return;
     }
 
     /**
@@ -228,16 +224,14 @@ public class OneOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        HashSet<ValidationMessage> validationMessages = new LinkedHashSet<>();
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
-            validationMessages.addAll(validate(executionContext, node, rootNode, instanceLocation, true));
+            validate(executionContext, node, rootNode, instanceLocation, true);
         } else {
             for (JsonSchema schema : this.schemas) {
                 schema.walk(executionContext, node, rootNode, instanceLocation, false);
             }
         }
-        return validationMessages;
     }
 
     @Override

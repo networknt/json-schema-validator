@@ -18,7 +18,7 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +50,7 @@ class Issue939Test {
                 + "        }";
         JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
-        Set<ValidationMessage> assertions = jsonSchema
+        List<ValidationMessage> assertions = jsonSchema
                 .validate("{\"someUuid\":\"invalid\"}", InputFormat.JSON);
         assertEquals(2, assertions.size());
     }

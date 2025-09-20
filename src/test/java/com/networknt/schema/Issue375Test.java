@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ class Issue375Test {
         JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        Set<ValidationMessage> errors = schema.validate(node);
+        List<ValidationMessage> errors = schema.validate(node);
         List<String> errorMessages = new ArrayList<String>();
         for (ValidationMessage error: errors) {
             errorMessages.add(error.getMessage());

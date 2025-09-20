@@ -20,9 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * {@link JsonValidator} for maxItems.
  */
@@ -41,24 +38,22 @@ public class MaxItemsValidator extends BaseJsonValidator implements JsonValidato
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (node.isArray()) {
             if (node.size() > this.max) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(this.max, node.size()).build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 > this.max) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(this.max, 1).build());
             }
         }
-
-        return Collections.emptySet();
     }
 
 }

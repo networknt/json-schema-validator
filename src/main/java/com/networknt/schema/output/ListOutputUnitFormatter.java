@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.Set;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.ValidationContext;
@@ -91,7 +90,7 @@ public class ListOutputUnitFormatter {
         return root;
     }
 
-    public static OutputUnit format(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
+    public static OutputUnit format(List<ValidationMessage> validationMessages, ExecutionContext executionContext,
             ValidationContext validationContext, Function<ValidationMessage, Object> assertionMapper) {
         OutputUnit root = new OutputUnit();
         root.setValid(validationMessages.isEmpty());

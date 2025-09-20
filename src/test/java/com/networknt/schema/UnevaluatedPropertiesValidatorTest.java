@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -63,7 +62,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "    \"key4\": \"value4\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("required", assertions.get(0).getType());
@@ -118,7 +117,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("additionalProperties", assertions.get(0).getType());
@@ -146,7 +145,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getType());
@@ -191,7 +190,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "}";
         String inputData = "{ \"pontoons\": {}, \"wheels\": {}, \"surfboard\": \"2\" }";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

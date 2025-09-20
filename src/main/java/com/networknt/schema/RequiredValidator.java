@@ -42,14 +42,12 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (!node.isObject()) {
-            return Collections.emptySet();
+            return;
         }
-
-        Set<ValidationMessage> errors = null;
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
@@ -68,21 +66,16 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                         continue;
                     }
                 }
-                if (errors == null) {
-                    errors = new LinkedHashSet<>();
-                }
                 /**
                  * Note that for the required validation the instanceLocation does not contain the missing property
                  * <p>
                  * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
                  */
-                errors.add(message().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
+                executionContext.addError(message().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(fieldName).build());
             }
         }
-
-        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     protected JsonNode getFieldKeyword(String fieldName, String keyword) {

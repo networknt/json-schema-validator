@@ -15,10 +15,9 @@
  */
 package com.networknt.schema;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,30 +33,30 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
         innerSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        Set<ValidationMessage> errors = null;
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<ValidationMessage> schemaErrors = new ArrayList<>();
+        executionContext.setErrors(schemaErrors);
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             final String pname = it.next();
             final TextNode pnameText = TextNode.valueOf(pname);
-            final Set<ValidationMessage> schemaErrors = innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
+            innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
             for (final ValidationMessage schemaError : schemaErrors) {
                 final String path = schemaError.getInstanceLocation().toString();
                 String msg = schemaError.getMessage();
                 if (msg.startsWith(path)) {
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
                 }
-                if (errors == null) {
-                    errors = new LinkedHashSet<>();
-                }
-                errors.add(
+                existingErrors.add(
                         message().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast()).arguments(pname, msg).build());
             }
+            schemaErrors.clear();
         }
-        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
+        executionContext.setErrors(existingErrors);
     }
 
 

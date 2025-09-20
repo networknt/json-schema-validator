@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +57,8 @@ class LocaleTest {
         ExecutionContext executionContext = jsonSchema.createExecutionContext();
         assertEquals(config.getLocale(), executionContext.getExecutionConfig().getLocale());
         executionContext.getExecutionConfig().setLocale(locale);
-        Set<ValidationMessage> messages = jsonSchema.validate(executionContext, rootNode);
+        jsonSchema.validate(executionContext, rootNode);
+        List<ValidationMessage> messages = executionContext.getErrors();
         assertEquals(1, messages.size());
         assertEquals("/foo: integer trouvé, string attendu", messages.iterator().next().getMessage());
 
@@ -66,7 +66,8 @@ class LocaleTest {
         executionContext = jsonSchema.createExecutionContext();
         assertEquals(config.getLocale(), executionContext.getExecutionConfig().getLocale());
         executionContext.getExecutionConfig().setLocale(locale);
-        messages = jsonSchema.validate(executionContext, rootNode);
+        jsonSchema.validate(executionContext, rootNode);
+        messages = executionContext.getErrors();
         assertEquals(1, messages.size());
         assertEquals("/foo: integer trovato, string previsto", messages.iterator().next().getMessage());
     }
@@ -92,7 +93,7 @@ class LocaleTest {
             JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             String input = "1";
-            Set<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
+            List<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
             assertEquals("$: integer gefunden, object erwartet", messages.iterator().next().toString());
             
@@ -158,7 +159,7 @@ class LocaleTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData);
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
-            Set<ValidationMessage> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
+            List<ValidationMessage> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
                 executionContext.getExecutionConfig().setLocale(locale);
             });
             String msg = messages.iterator().next().toString();

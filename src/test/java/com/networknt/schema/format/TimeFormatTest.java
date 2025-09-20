@@ -18,7 +18,7 @@ package com.networknt.schema.format;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -61,7 +61,7 @@ class TimeFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -90,7 +90,7 @@ class TimeFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
     }
 }

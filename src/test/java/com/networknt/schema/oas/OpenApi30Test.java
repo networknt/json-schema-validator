@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -55,7 +54,7 @@ class OpenApi30Test {
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"

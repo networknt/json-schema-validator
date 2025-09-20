@@ -37,42 +37,49 @@ public class NotValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        return validate(executionContext, node, rootNode, instanceLocation, false);
+        validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        Set<ValidationMessage> errors = null;
+        
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<ValidationMessage> test = new ArrayList<>();
+        executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);
-            errors = !walk ? this.schema.validate(executionContext, node, rootNode, instanceLocation)
-                    : this.schema.walk(executionContext, node, rootNode, instanceLocation, true);
+            if (!walk) {
+                this.schema.validate(executionContext, node, rootNode, instanceLocation);
+            } else {
+                this.schema.walk(executionContext, node, rootNode, instanceLocation, true);
+            }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+            executionContext.setErrors(existingErrors);
         }
-        if (errors.isEmpty()) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+        if (test.isEmpty()) {
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast()).arguments(this.schema.toString())
                     .build());
         }
-        return Collections.emptySet();
     }
     
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
-            return validate(executionContext, node, rootNode, instanceLocation, true);
+            validate(executionContext, node, rootNode, instanceLocation, true);
+            return;
         }
 
-        return this.schema.walk(executionContext, node, rootNode, instanceLocation, false);
+        this.schema.walk(executionContext, node, rootNode, instanceLocation, false);
     }
 
     @Override

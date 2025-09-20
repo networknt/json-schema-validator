@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +51,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(0);
         JsonNode dataNode = testNode.get("data");
-        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 
@@ -65,7 +64,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(1);
         JsonNode dataNode = testNode.get("data");
-        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 
@@ -78,7 +77,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
-        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
 	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 1);
     }
@@ -92,7 +91,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(3);
         JsonNode dataNode = testNode.get("data");
-        Set<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
 	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 3);
     }

@@ -15,25 +15,21 @@
  */
 package com.networknt.schema;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Represents a validation result.
  */
 public class ValidationResult {
-
-    private final Set<ValidationMessage> validationMessages;
-
     private final ExecutionContext executionContext;
 
-    public ValidationResult(Set<ValidationMessage> validationMessages, ExecutionContext executionContext) {
+    public ValidationResult(ExecutionContext executionContext) {
         super();
-        this.validationMessages = validationMessages;
         this.executionContext = executionContext;
     }
 
-    public Set<ValidationMessage> getValidationMessages() {
-        return validationMessages;
+    public List<ValidationMessage> getValidationMessages() {
+        return getExecutionContext().getErrors();
     }
 
     public ExecutionContext getExecutionContext() {

@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +26,8 @@ class Issue824Test {
                 "}");
 
         // Validate same JSON schema against v2019-09 spec schema twice
-        final Set<ValidationMessage> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
-        final Set<ValidationMessage> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
+        final List<ValidationMessage> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
+        final List<ValidationMessage> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
 
         // Validation errors should be the same
         assertEquals(validationErrors1, validationErrors2);

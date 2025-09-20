@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -107,7 +108,7 @@ public class HierarchicalOutputUnitFormatter {
         return root;
     }
 
-    public static OutputUnit format(JsonSchema jsonSchema, Set<ValidationMessage> validationMessages,
+    public static OutputUnit format(JsonSchema jsonSchema, List<ValidationMessage> validationMessages,
             ExecutionContext executionContext, ValidationContext validationContext,
             Function<ValidationMessage, Object> assertionMapper) {
         OutputUnit root = new OutputUnit();

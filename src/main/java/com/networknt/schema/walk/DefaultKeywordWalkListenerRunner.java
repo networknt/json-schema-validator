@@ -5,7 +5,6 @@ import com.networknt.schema.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
@@ -34,7 +33,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode, JsonNodePath instanceLocation,
-            JsonSchema schema, JsonValidator validator, Set<ValidationMessage> validationMessages) {
+            JsonSchema schema, JsonValidator validator, List<ValidationMessage> validationMessages) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.
         List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);

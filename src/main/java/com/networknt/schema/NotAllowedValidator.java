@@ -43,26 +43,19 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        Set<ValidationMessage> errors = null;
 
         for (String fieldName : fieldNames) {
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode != null) {
-                if (errors == null) {
-                    errors = new LinkedHashSet<>();
-                }
-                errors.add(message().property(fieldName).instanceNode(node)
+                executionContext.addError(message().property(fieldName).instanceNode(node)
                         .instanceLocation(instanceLocation.append(fieldName))
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(fieldName).build());
             }
         }
-
-        return errors == null ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
 }

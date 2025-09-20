@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +48,7 @@ class ItemsValidator202012Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/items/type", message.getEvaluationPath().toString());
@@ -76,7 +75,7 @@ class ItemsValidator202012Test {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -115,7 +114,7 @@ class ItemsValidator202012Test {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()

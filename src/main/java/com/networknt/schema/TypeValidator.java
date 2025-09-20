@@ -21,8 +21,6 @@ import com.networknt.schema.utils.JsonNodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
 /**
  * {@link JsonValidator} for type.
  */
@@ -51,20 +49,20 @@ public class TypeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (this.schemaType == JsonType.UNION) {
-            return this.unionTypeValidator.validate(executionContext, node, rootNode, instanceLocation);
+            this.unionTypeValidator.validate(executionContext, node, rootNode, instanceLocation);
+            return;
         }
 
         if (!equalsToSchemaType(node)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());
         }
-        return Collections.emptySet();
     }
 }

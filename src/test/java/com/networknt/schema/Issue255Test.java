@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 class Issue255Test {
     protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) {
@@ -43,7 +43,7 @@ class Issue255Test {
         JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        Set<ValidationMessage> errors = schema.validate(node);
+        List<ValidationMessage> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
     }
 }

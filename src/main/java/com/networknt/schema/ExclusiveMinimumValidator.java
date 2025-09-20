@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * {@link JsonValidator} for exclusiveMinimum.
@@ -104,21 +102,20 @@ public class ExclusiveMinimumValidator extends BaseJsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
             // minimum only applies to numbers
-            return Collections.emptySet();
+            return;
         }
 
         if (typedMinimum.crossesThreshold(node)) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
                     .arguments(typedMinimum.thresholdValue()).build());
         }
-        return Collections.emptySet();
     }
 
 }

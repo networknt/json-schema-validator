@@ -19,9 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * {@link JsonValidator} for true.
  */
@@ -32,9 +29,8 @@ public class TrueValidator extends BaseJsonValidator implements JsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TRUE, validationContext);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         // For the true validator, it is always valid which means there is no ValidationMessage.
-        return Collections.emptySet();
     }
 }

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ class OverwritingCustomMessageBugTest {
 
   @Test
   void customMessageIsNotOverwritten() throws Exception {
-    Set<ValidationMessage> errors = validate();
+    List<ValidationMessage> errors = validate();
     Map<String, String> errorMsgMap = transferErrorMsg(errors);
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].foos"), "error message must contains key: $.foos");
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].bars"), "error message must contains key: $.bars");
@@ -32,7 +32,7 @@ class OverwritingCustomMessageBugTest {
   }
 
 
-  private Set<ValidationMessage> validate() throws Exception {
+  private List<ValidationMessage> validate() throws Exception {
     String schemaPath = "/schema/OverwritingCustomMessageBug.json";
     String dataPath = "/data/OverwritingCustomMessageBug.json";
     InputStream schemaInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(schemaPath);
@@ -42,7 +42,7 @@ class OverwritingCustomMessageBugTest {
     return schema.validate(node);
   }
 
-  private Map<String, String> transferErrorMsg(Set<ValidationMessage> validationMessages) {
+  private Map<String, String> transferErrorMsg(List<ValidationMessage> validationMessages) {
     Map<String, String> pathToMessage = new HashMap<>();
     validationMessages.forEach(msg -> {
       pathToMessage.put(msg.getInstanceLocation().toString(), msg.getMessage());

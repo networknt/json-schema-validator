@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ class RefTest {
                 + "  }\r\n"
                 + "}";
         assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        Set<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         ValidationMessage error = errors.iterator().next();
         assertEquals("classpath:///schema/ref-ref.json#/definitions/DriverProperties/required",
@@ -49,7 +49,7 @@ class RefTest {
                 + "  }\r\n"
                 + "}";
         assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        Set<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         ValidationMessage error = errors.iterator().next();
         assertEquals("https://www.example.org/common#/definitions/DriverProperties/required",

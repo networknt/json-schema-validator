@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -127,7 +127,7 @@ class Issue927Test {
                 + "    ]\r\n"
                 + "  }\r\n"
                 + "}";
-        Set<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

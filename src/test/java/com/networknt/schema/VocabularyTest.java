@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -68,7 +68,7 @@ class VocabularyTest {
                 + "  \"numberProperty\": 1\r\n"
                 + "}";
 
-        Set<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Set validation vocab
@@ -120,7 +120,7 @@ class VocabularyTest {
                 + "  \"dateProperty\": \"hello\"\r\n"
                 + "}";
 
-        Set<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
+        List<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(0, messages.size());
 

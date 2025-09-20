@@ -44,32 +44,26 @@ public class DependentSchemas extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        return validate(executionContext, node, rootNode, instanceLocation, false);
+        validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        Set<ValidationMessage> errors = null;
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             JsonSchema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
-                Set<ValidationMessage> schemaDependenciesErrors = !walk
-                        ? schema.validate(executionContext, node, rootNode, instanceLocation)
-                        : schema.walk(executionContext, node, rootNode, instanceLocation, true);
-                if (!schemaDependenciesErrors.isEmpty()) {
-                    if (errors == null) {
-                        errors = new LinkedHashSet<>();
-                    }
-                    errors.addAll(schemaDependenciesErrors);
+                if(!walk) {
+                    schema.validate(executionContext, node, rootNode, instanceLocation);
+                } else {
+                    schema.walk(executionContext, node, rootNode, instanceLocation, true);   
                 }
             }
         }
-        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override
@@ -78,14 +72,14 @@ public class DependentSchemas extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
-            return validate(executionContext, node, rootNode, instanceLocation, true);
+            validate(executionContext, node, rootNode, instanceLocation, true);
+            return;
         }
         for (JsonSchema schema : this.schemaDependencies.values()) {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
-        return Collections.emptySet();
     }
 
 }
