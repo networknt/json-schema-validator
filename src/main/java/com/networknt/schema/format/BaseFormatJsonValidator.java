@@ -19,7 +19,7 @@ public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
     public BaseFormatJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
             ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext, false);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext);
         VersionFlag dialect = this.validationContext.getMetaSchema().getSpecification();
         if (dialect == null || dialect.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
             assertionsEnabled = true;

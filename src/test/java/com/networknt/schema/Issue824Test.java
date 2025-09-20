@@ -19,7 +19,6 @@ class Issue824Test {
                     schemaMappers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
                 .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getIri()));
-        v201909SpecSchema.preloadJsonSchema();
         final JsonNode invalidSchema = new ObjectMapper().readTree(
                 "{"+
                 "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\","+

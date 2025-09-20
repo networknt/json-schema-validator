@@ -16,13 +16,6 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.i18n.MessageSource;
-import com.networknt.schema.utils.JsonNodes;
-import com.networknt.schema.utils.SetView;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -38,6 +31,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.utils.JsonNodes;
+import com.networknt.schema.utils.SetView;
+
 /**
  * Used for creating a schema with validators for validating inputs. This is
  * created using {@link JsonSchemaFactory#getInstance(VersionFlag, Consumer)}
@@ -50,7 +49,7 @@ import java.util.function.Consumer;
  * JsonSchema instances are thread-safe provided its configuration is not
  * modified.
  */
-public class JsonSchema extends BaseJsonValidator {
+public class JsonSchema implements JsonSchemaValidator {
     private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
     private final String id;
 
@@ -61,6 +60,107 @@ public class JsonSchema extends BaseJsonValidator {
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
     private TypeValidator typeValidator = null;
+
+    protected final JsonNode schemaNode;
+    protected final JsonSchema parentSchema;
+    protected final SchemaLocation schemaLocation;
+    protected final ValidationContext validationContext;
+    protected final boolean suppressSubSchemaRetrieval;
+
+    protected final JsonNodePath evaluationPath;
+    protected final JsonSchema evaluationParentSchema;
+    
+    public JsonNode getSchemaNode() {
+        return this.schemaNode;
+    }
+    
+    public SchemaLocation getSchemaLocation() {
+        return this.schemaLocation;
+    }
+    
+    public JsonSchema getParentSchema() {
+        return parentSchema;
+    }
+
+    public boolean isSuppressSubSchemaRetrieval() {
+        return suppressSubSchemaRetrieval;
+    }
+
+    public JsonNodePath getEvaluationPath() {
+        return evaluationPath;
+    }
+
+    public JsonSchema getEvaluationParentSchema() {
+        if (this.evaluationParentSchema != null) {
+            return this.evaluationParentSchema;
+        }
+        return getParentSchema();
+    }
+
+    protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
+        return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
+    }
+    
+    private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
+        final JsonNode node = schemaNode.get("id");
+
+        if (node == null) {
+            return null;
+        }
+
+        if (node.equals(schemaNode.get("$schema"))) {
+            return null;
+        }
+
+        final String text = node.textValue();
+        if (text == null) {
+            return null;
+        }
+
+        final SchemaLocation schemaLocation = SchemaLocation.of(node.textValue());
+
+        return validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig());
+    }
+    public static class JsonNodePathLegacy {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.LEGACY);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    public static class JsonNodePathJsonPointer {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_POINTER);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    public static class JsonNodePathJsonPath {
+        private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.JSON_PATH);
+        public static JsonNodePath getInstance() {
+            return INSTANCE;
+        }
+    }
+
+    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
+        return validate(executionContext, node, node, atRoot());
+    }
+
+    /**
+     * Get the root path.
+     *
+     * @return The path.
+     */
+    protected JsonNodePath atRoot() {
+        if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_POINTER)) {
+            return JsonNodePathJsonPointer.getInstance();
+        } else if (this.validationContext.getConfig().getPathType().equals(PathType.LEGACY)) {
+            return JsonNodePathLegacy.getInstance();
+        } else if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_PATH)) {
+            return JsonNodePathJsonPath.getInstance();
+        }
+        return new JsonNodePath(this.validationContext.getConfig().getPathType());
+    }    
 
     static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
         return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
@@ -107,8 +207,18 @@ public class JsonSchema extends BaseJsonValidator {
 
     private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+        /*
         super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
+        */
+        this.validationContext = validationContext;
+        this.schemaLocation = resolve(schemaLocation, schemaNode, parent == null, validationContext);
+        this.schemaNode = schemaNode;
+        this.parentSchema = parent;
+        this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
+        this.evaluationPath = evaluationPath;
+        this.evaluationParentSchema = null;
+        
         String id = this.validationContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
             // In earlier drafts $id may contain an anchor fragment see draft4/idRef.json
@@ -163,8 +273,6 @@ public class JsonSchema extends BaseJsonValidator {
      * @param schemaNode the schema node
      * @param validationContext the validation context
      * @param errorMessageType the error message type
-     * @param errorMessageKeyword the error message keyword
-     * @param messageSource the message source
      * @param keyword the keyword
      * @param parentSchema the parent schema
      * @param schemaLocation the schema location
@@ -185,21 +293,27 @@ public class JsonSchema extends BaseJsonValidator {
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
             ErrorMessageType errorMessageType,
-            String errorMessageKeyword,
-            MessageSource messageSource,
             Keyword keyword,
             JsonSchema parentSchema,
             SchemaLocation schemaLocation,
             JsonNodePath evaluationPath,
             JsonSchema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, errorMessageKeyword, messageSource, keyword,
-                parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
+//        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, keyword,
+//                parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
         this.validators = validators;
         this.validatorsLoaded = validatorsLoaded;
         this.recursiveAnchor = recursiveAnchor;
         this.typeValidator = typeValidator;
         this.id = id;
+        
+        this.validationContext = validationContext;
+        this.schemaLocation = schemaLocation;
+        this.schemaNode = schemaNode;
+        this.parentSchema = parentSchema;
+        this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
+        this.evaluationPath = evaluationPath;
+        this.evaluationParentSchema = evaluationParentSchema;
     }
 
     /**
@@ -239,9 +353,9 @@ public class JsonSchema extends BaseJsonValidator {
                 schemaNode,
                 validationContext,
                 /* Below from ValidationMessageHandler */
-                errorMessageType, errorMessageKeyword, messageSource,
-                keyword, parentSchema, schemaLocation, evaluationPath,
-                evaluationParentSchema, errorMessage);
+                /*errorMessageType*/ null,
+                /*keyword*/ null, parentSchema, schemaLocation, evaluationPath,
+                evaluationParentSchema, /* errorMessage */ null);
     }
 
     public JsonSchema withConfig(SchemaValidatorsConfig config) {
@@ -273,15 +387,13 @@ public class JsonSchema extends BaseJsonValidator {
                     schemaNode,
                     validationContext,
                     /* Below from ValidationMessageHandler */
-                    errorMessageType,
-                    errorMessageKeyword,
-                    messageSource,
-                    keyword,
+                    /* errorMessageType */ null,
+                    /* keyword */ null,
                     parentSchema,
                     schemaLocation,
                     evaluationPath,
                     evaluationParentSchema,
-                    errorMessage);
+                    /* errorMessage */ null);
 
         }
         return this;
@@ -647,7 +759,7 @@ public class JsonSchema extends BaseJsonValidator {
                     final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
                     final String discriminatorPropertyValue = discriminatorNode == null ? null
                             : discriminatorNode.asText();
-                    checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
+                    DiscriminatorValidator.checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
                             this);
                 }
             }

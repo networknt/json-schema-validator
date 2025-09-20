@@ -89,7 +89,7 @@ public class AllOfValidator extends BaseJsonValidator {
                             final ObjectNode discriminator = currentDiscriminatorContext
                                     .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
                             if (null != discriminator) {
-                                registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator,
+                                DiscriminatorValidator.registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator,
                                         this.parentSchema, instanceLocation);
                                 // now we have to check whether we have hit the right target
                                 final String discriminatorPropertyName = discriminator.get("propertyName").asText();
@@ -98,7 +98,7 @@ public class AllOfValidator extends BaseJsonValidator {
                                         : discriminatorNode.textValue();
 
                                 final JsonSchema jsonSchema = this.parentSchema;
-                                checkDiscriminatorMatch(currentDiscriminatorContext, discriminator,
+                                DiscriminatorValidator.checkDiscriminatorMatch(currentDiscriminatorContext, discriminator,
                                         discriminatorPropertyValue, jsonSchema);
                             }
                         }
