@@ -21,9 +21,9 @@ import java.util.Map;
 import com.networknt.schema.i18n.MessageSource;
 
 /**
- * MessageSourceValidationMessage.
+ * MessageSourceError.
  */
-public class MessageSourceValidationMessage {
+public class MessageSourceError {
 
     public static Builder builder(MessageSource messageSource, Map<String, String> errorMessage) {
         return new Builder(messageSource, errorMessage);
@@ -40,7 +40,7 @@ public class MessageSourceValidationMessage {
         }
     }
 
-    public abstract static class BuilderSupport<S> extends ValidationMessage.BuilderSupport<S> {
+    public abstract static class BuilderSupport<S> extends Error.BuilderSupport<S> {
         private final MessageSource messageSource;
         private final Map<String, String> errorMessage;
         private Locale locale;
@@ -51,7 +51,7 @@ public class MessageSourceValidationMessage {
         }
 
         @Override
-        public ValidationMessage build() {
+        public Error build() {
             // Use custom error message if present
             String messagePattern = null;
             if (this.errorMessage != null) {

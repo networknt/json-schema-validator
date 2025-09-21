@@ -55,7 +55,7 @@ abstract class AbstractJsonSchemaTestSuite {
     }
 
     private static void executeTest(JsonSchema schema, TestSpec testSpec) {
-        List<ValidationMessage> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<Error> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
                 executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
             }
@@ -74,7 +74,7 @@ abstract class AbstractJsonSchemaTestSuite {
 
                 AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
                         .message(msg)
-                        .reason(errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
+                        .reason(errors.stream().map(Error::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
                         .build();
                 t.setStackTrace(new StackTraceElement[0]);
                 throw t;
@@ -103,7 +103,7 @@ abstract class AbstractJsonSchemaTestSuite {
         Set<String> actual = errors.stream()
                 .map(error -> error.getInstanceLocation().toString() + ": " + error.getMessage())
                 .collect(Collectors.toSet());
-        Set<String> expected = testSpec.getValidationMessages();
+        Set<String> expected = testSpec.getErrors();
         expected.removeAll(actual);
         if (!expected.isEmpty()) {
             String msg = new StringBuilder("Expected Validation Messages")

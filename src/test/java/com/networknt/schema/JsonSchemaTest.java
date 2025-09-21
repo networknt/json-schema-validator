@@ -72,7 +72,7 @@ class JsonSchemaTest {
                         throw new RuntimeException(e);
                     }
                     try {
-                        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON)
+                        List<Error> messages = schema.validate(inputData, InputFormat.JSON)
                                 .stream()
                                 .collect(Collectors.toList());
                         assertEquals(1, messages.size());

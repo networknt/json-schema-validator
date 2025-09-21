@@ -57,7 +57,7 @@ class LocaleTest {
         ExecutionContext executionContext = jsonSchema.createExecutionContext();
         assertEquals(config.getLocale(), executionContext.getExecutionConfig().getLocale());
         executionContext.getExecutionConfig().setLocale(locale);
-        List<ValidationMessage> messages = jsonSchema.validate(executionContext, rootNode, OutputFormat.DEFAULT);
+        List<Error> messages = jsonSchema.validate(executionContext, rootNode, OutputFormat.DEFAULT);
         assertEquals(1, messages.size());
         assertEquals("/foo: integer trouvé, string attendu", messages.iterator().next().toString());
 
@@ -91,7 +91,7 @@ class LocaleTest {
             JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             String input = "1";
-            List<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
+            List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
             assertEquals("$: integer gefunden, object erwartet", messages.iterator().next().toString());
             
@@ -157,7 +157,7 @@ class LocaleTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData);
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
-            List<ValidationMessage> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
+            List<Error> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
                 executionContext.getExecutionConfig().setLocale(locale);
             });
             String msg = messages.iterator().next().toString();

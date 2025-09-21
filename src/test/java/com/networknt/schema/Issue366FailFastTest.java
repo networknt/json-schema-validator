@@ -50,7 +50,7 @@ class Issue366FailFastTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(0);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 
@@ -63,7 +63,7 @@ class Issue366FailFastTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(1);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 

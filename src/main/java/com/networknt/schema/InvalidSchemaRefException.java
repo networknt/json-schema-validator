@@ -22,11 +22,11 @@ package com.networknt.schema;
 public class InvalidSchemaRefException extends InvalidSchemaException {
     private static final long serialVersionUID = 1L;
 
-    public InvalidSchemaRefException(ValidationMessage message, Exception cause) {
+    public InvalidSchemaRefException(Error message, Exception cause) {
         super(message, cause);
     }
 
-    public InvalidSchemaRefException(ValidationMessage message) {
+    public InvalidSchemaRefException(Error message) {
         super(message);
     }
 }

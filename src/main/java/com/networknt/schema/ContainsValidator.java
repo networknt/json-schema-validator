@@ -88,10 +88,10 @@ public class ContainsValidator extends BaseJsonValidator {
         if (null != this.schema && node.isArray()) {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
             boolean failFast = executionContext.isFailFast();
-            List<ValidationMessage> existingErrors = executionContext.getErrors();
+            List<Error> existingErrors = executionContext.getErrors();
             try {
                 executionContext.setFailFast(false);
-                List<ValidationMessage> test = new ArrayList<>();
+                List<Error> test = new ArrayList<>();
                 executionContext.setErrors(test);
                 for (JsonNode n : node) {
                     JsonNodePath path = instanceLocation.append(i);
@@ -192,7 +192,7 @@ public class ContainsValidator extends BaseJsonValidator {
         } else if (ValidatorTypeCode.MAX_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MAX;
         }
-        executionContext.addError(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
+        executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
                         .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .keyword(validatorTypeCode.getValue()).build());
     }

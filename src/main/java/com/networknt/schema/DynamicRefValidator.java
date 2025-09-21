@@ -94,11 +94,11 @@ public class DynamicRefValidator extends BaseJsonValidator {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
+            Error error = error().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
-            throw new InvalidSchemaRefException(validationMessage);
+            throw new InvalidSchemaRefException(error);
         }
         refSchema.validate(executionContext, node, rootNode, instanceLocation);
     }
@@ -111,11 +111,11 @@ public class DynamicRefValidator extends BaseJsonValidator {
         // with the latest config. Reset the config.
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
+            Error error = error().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
-            throw new InvalidSchemaRefException(validationMessage);
+            throw new InvalidSchemaRefException(error);
         }
         if (node == null) {
             // Check for circular dependency

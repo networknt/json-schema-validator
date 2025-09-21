@@ -35,12 +35,12 @@ public class RecursiveRefValidator extends BaseJsonValidator {
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {
-            ValidationMessage validationMessage = message()
+            Error error = error()
                     .keyword(ValidatorTypeCode.RECURSIVE_REF.getValue()).messageKey("internal.invalidRecursiveRef")
                     .message("The value of a $recursiveRef must be '#' but is '{0}'").instanceLocation(schemaLocation.getFragment())
                     .instanceNode(this.schemaNode)
                     .evaluationPath(evaluationPath).arguments(refValue).build();
-            throw new JsonSchemaException(validationMessage);
+            throw new JsonSchemaException(error);
         }
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }
@@ -89,11 +89,11 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
+            Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
-            throw new InvalidSchemaRefException(validationMessage);
+            throw new InvalidSchemaRefException(error);
         }
          refSchema.validate(executionContext, node, rootNode, instanceLocation);
     }
@@ -106,11 +106,11 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         // with the latest config. Reset the config.
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
+            Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
-            throw new InvalidSchemaRefException(validationMessage);
+            throw new InvalidSchemaRefException(error);
         }
         if (node == null) {
             // Check for circular dependency

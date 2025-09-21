@@ -50,7 +50,7 @@ class Issue939Test {
                 + "        }";
         JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
-        List<ValidationMessage> assertions = jsonSchema
+        List<Error> assertions = jsonSchema
                 .validate("{\"someUuid\":\"invalid\"}", InputFormat.JSON);
         assertEquals(2, assertions.size());
     }

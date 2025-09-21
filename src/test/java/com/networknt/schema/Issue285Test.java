@@ -57,11 +57,11 @@ class Issue285Test {
     @Test
     void nestedValidation() throws IOException {
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
+        List<Error> errors = jsonSchema.validate(mapper.readTree(person));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
 
 
     }
@@ -98,11 +98,11 @@ class Issue285Test {
     void nestedTypeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
+        List<Error> errors = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
     }
 
     String invalidSchema = "{\n" +
@@ -121,10 +121,10 @@ class Issue285Test {
     void typeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
+        List<Error> errors = jsonSchema.validate(mapper.readTree(invalidSchema));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
     }
 }

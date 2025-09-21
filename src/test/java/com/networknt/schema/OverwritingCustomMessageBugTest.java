@@ -23,7 +23,7 @@ class OverwritingCustomMessageBugTest {
 
   @Test
   void customMessageIsNotOverwritten() throws Exception {
-    List<ValidationMessage> errors = validate();
+    List<Error> errors = validate();
     Map<String, String> errorMsgMap = transferErrorMsg(errors);
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].foos"), "error message must contains key: $.foos");
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].bars"), "error message must contains key: $.bars");
@@ -32,7 +32,7 @@ class OverwritingCustomMessageBugTest {
   }
 
 
-  private List<ValidationMessage> validate() throws Exception {
+  private List<Error> validate() throws Exception {
     String schemaPath = "/schema/OverwritingCustomMessageBug.json";
     String dataPath = "/data/OverwritingCustomMessageBug.json";
     InputStream schemaInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(schemaPath);
@@ -42,9 +42,9 @@ class OverwritingCustomMessageBugTest {
     return schema.validate(node);
   }
 
-  private Map<String, String> transferErrorMsg(List<ValidationMessage> validationMessages) {
+  private Map<String, String> transferErrorMsg(List<Error> errors) {
     Map<String, String> pathToMessage = new HashMap<>();
-    validationMessages.forEach(msg -> {
+    errors.forEach(msg -> {
       pathToMessage.put(msg.getInstanceLocation().toString(), msg.toString());
     });
     return pathToMessage;

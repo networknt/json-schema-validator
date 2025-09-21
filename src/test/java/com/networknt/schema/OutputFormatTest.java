@@ -38,7 +38,7 @@ class OutputFormatTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaInputStream, config);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
 
         Set<String[]> messages = errors.stream().map(m -> new String[] { m.getEvaluationPath().toString(),
@@ -53,8 +53,8 @@ class OutputFormatTest {
                         new String[] { "/items/$ref/required", "https://example.com/polygon#/$defs/point/required", "/1", "/1: required property 'y' not found"}));
     }
 
-    public static class Detailed implements OutputFormat<List<ValidationMessage>> {
-        private ValidationMessage format(ValidationMessage message) {
+    public static class Detailed implements OutputFormat<List<Error>> {
+        private Error format(Error message) {
             Supplier<String> messageSupplier = () -> {
                 StringBuilder builder = new StringBuilder();
                 builder.append("[");
@@ -72,7 +72,7 @@ class OutputFormatTest {
 
                 return builder.toString();
             };
-            return ValidationMessage.builder()
+            return Error.builder()
                     .messageSupplier(new CachingSupplier<>(messageSupplier))
                     .evaluationPath(message.getEvaluationPath())
                     .instanceLocation(message.getInstanceLocation())
@@ -84,13 +84,13 @@ class OutputFormatTest {
         }
 
         @Override
-        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
+        public java.util.List<Error> format(JsonSchema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return executionContext.getErrors().stream().map(this::format).collect(Collectors.toCollection(ArrayList::new));
         }
     }
 
-    public static final OutputFormat<List<ValidationMessage>> DETAILED = new Detailed();
+    public static final OutputFormat<List<Error>> DETAILED = new Detailed();
 
     @Test
     void customFormat() {
@@ -113,7 +113,7 @@ class OutputFormatTest {
                 + "  \"type\": \"cat\",\n"
                 + "  \"id\": 1\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, DETAILED).stream().collect(Collectors.toList());
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON, DETAILED).stream().collect(Collectors.toList());
         assertEquals("[/type] with value 'cat' does not have a value in the enumeration [\"book\", \"author\"]", messages.get(0).getMessage());
         assertEquals("[/id] with value '1' integer found, string expected", messages.get(1).getMessage());
     }

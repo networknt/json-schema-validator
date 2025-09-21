@@ -54,7 +54,7 @@ class Issue687Test {
         );
     }
 
-    static Stream<Arguments> validationMessages() {
+    static Stream<Arguments> errors() {
         String schemaPath = "/schema/issue687.json";
         String content = "{ \"foo\": \"a\", \"b.ar\": 1, \"children\": [ { \"childFoo\": \"a\", \"c/hildBar\": 1 } ] }";
         return Stream.of(
@@ -78,12 +78,12 @@ class Issue687Test {
     }
 
     @ParameterizedTest
-    @MethodSource("validationMessages")
-    void testValidationMessage(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
+    @MethodSource("errors")
+    void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().pathType(pathType).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
         JsonSchema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath), config);
-        List<ValidationMessage> messages = schema.validate(new ObjectMapper().readTree(content));
+        List<Error> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
         for (String expectedPath: expectedMessagePaths) {
             assertTrue(messages.stream().anyMatch(msg -> expectedPath.equals(msg.getInstanceLocation().toString())));
@@ -124,9 +124,9 @@ class Issue687Test {
                         "        }\n" +
                         "    }\n" +
                         "}"), schemaValidatorsConfig);
-        List<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
-        assertEquals(1, validationMessages.size());
-        assertEquals(expectedPath, validationMessages.iterator().next().getInstanceLocation().toString());
+        List<Error> errors = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
+        assertEquals(1, errors.size());
+        assertEquals(expectedPath, errors.iterator().next().getInstanceLocation().toString());
     }
 
 }

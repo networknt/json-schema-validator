@@ -79,7 +79,7 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("validTimeZoneOffsets")
     void testValidTimeZoneOffsets(String jsonObject) throws JsonProcessingException {
-        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
+        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -121,7 +121,7 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("invalidTimeRepresentations")
     void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
-        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         Assertions.assertFalse(errors.isEmpty());

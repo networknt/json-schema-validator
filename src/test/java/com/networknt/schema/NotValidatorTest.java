@@ -39,6 +39,6 @@ class NotValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         JsonSchema schema = factory.getSchema(schemaContents);
         ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
-        assertEquals(true, result.getValidationMessages().isEmpty());
+        assertEquals(true, result.getErrors().isEmpty());
     }    
 }

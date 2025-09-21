@@ -56,7 +56,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -68,7 +68,7 @@ class IfValidatorTest {
                 .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, true);
-        assertFalse(result.getValidationMessages().isEmpty());
+        assertFalse(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> types = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("types");
@@ -99,7 +99,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -111,7 +111,7 @@ class IfValidatorTest {
                 .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"hello\"", InputFormat.JSON, true);
-        assertFalse(result.getValidationMessages().isEmpty());
+        assertFalse(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> types = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("types");
@@ -142,7 +142,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -154,7 +154,7 @@ class IfValidatorTest {
                 .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> types = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("types");
@@ -183,7 +183,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -195,7 +195,7 @@ class IfValidatorTest {
                 .build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, false);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> types = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("types");

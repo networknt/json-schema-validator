@@ -28,7 +28,7 @@ public class ValidationResult {
         this.executionContext = executionContext;
     }
 
-    public List<ValidationMessage> getValidationMessages() {
+    public List<Error> getErrors() {
         return getExecutionContext().getErrors();
     }
 

@@ -5,7 +5,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonValidator;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 import java.util.List;
 
@@ -26,9 +26,9 @@ public class DefaultPropertyWalkListenerRunner extends AbstractWalkListenerRunne
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode, JsonNodePath instanceLocation,
-            JsonSchema schema, JsonValidator validator, List<ValidationMessage> validationMessages) {
+            JsonSchema schema, JsonValidator validator, List<Error> errors) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
-        runPostWalkListeners(propertyWalkListeners, walkEvent, validationMessages);
+        runPostWalkListeners(propertyWalkListeners, walkEvent, errors);
 
     }
 

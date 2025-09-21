@@ -50,7 +50,7 @@
           "bar": 123
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/bar: Custom Message: Invalid type provided"
         ]
       },
@@ -64,7 +64,7 @@
           "bar": "Bar 1"
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/foo/2: Custom Message: Only numbers are supported in 'foo'"
         ]
       },
@@ -78,7 +78,7 @@
           "bar": "Bar 1"
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/foo: Custom Message: Maximum 3 numbers can be given in 'foo'"
         ]
       },
@@ -92,7 +92,7 @@
           "bar": 123
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/bar: Custom Message: Invalid type provided",
           "/foo/2: Custom Message: Only numbers are supported in 'foo'"
         ]
@@ -107,7 +107,7 @@
           "bar": 123
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/bar: Custom Message: Invalid type provided",
           "/foo/2: Custom Message: Only numbers are supported in 'foo'",
           "/foo: Custom Message: Maximum 3 numbers can be given in 'foo'"
@@ -146,7 +146,7 @@
           "foo": 1
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           ": 'bar' is required"
         ]
       },
@@ -159,7 +159,7 @@
           "bar": "bar"
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           ": 'foo' is required"
         ]
       },
@@ -171,7 +171,7 @@
         "data": {
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           ": 'foo' is required",
           ": 'bar' is required"
         ]
@@ -214,7 +214,7 @@
           ]
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/requestedItems/0/item: Item should not be empty"
         ]
       }

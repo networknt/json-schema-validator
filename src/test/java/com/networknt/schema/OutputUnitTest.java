@@ -344,7 +344,7 @@ class OutputUnitTest {
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         Object assertion = details.getErrors().get("type");
-        assertInstanceOf(ValidationMessage.class, assertion);
+        assertInstanceOf(Error.class, assertion);
     }
 
     @Test
@@ -358,6 +358,6 @@ class OutputUnitTest {
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
         assertFalse(outputUnit.isValid());
         Object assertion = outputUnit.getErrors().get("type");
-        assertInstanceOf(ValidationMessage.class, assertion);
+        assertInstanceOf(Error.class, assertion);
     }
 }

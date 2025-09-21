@@ -49,7 +49,7 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.JsonSchemaRefs;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 import com.networknt.schema.ValidationResult;
 import com.networknt.schema.ValidatorTypeCode;
 
@@ -100,7 +100,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -118,7 +118,7 @@ class JsonSchemaWalkListenerTest {
                 + "  ]\r\n"
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
         @SuppressWarnings("unchecked")
         List<WalkEvent> propertyKeywords = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("propertyKeywords"); 
         assertEquals(3, propertyKeywords.size());
@@ -180,7 +180,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -198,7 +198,7 @@ class JsonSchemaWalkListenerTest {
                 + "  ]\r\n"
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> properties = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("properties");
@@ -266,7 +266,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
             }
         }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
@@ -283,7 +283,7 @@ class JsonSchemaWalkListenerTest {
                 + "  ]\r\n"
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -339,7 +339,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
             }
         }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
@@ -356,7 +356,7 @@ class JsonSchemaWalkListenerTest {
                 + "  ]\r\n"
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -387,7 +387,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -409,7 +409,7 @@ class JsonSchemaWalkListenerTest {
                 + "  }\r\n"
                 + "}";
         ValidationResult result = schema.walk(inputData, InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> propertyKeywords = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().getCollectorMap().get("propertyKeywords");
@@ -559,7 +559,7 @@ class JsonSchemaWalkListenerTest {
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
     }
 
     @Test
@@ -607,7 +607,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -616,7 +616,7 @@ class JsonSchemaWalkListenerTest {
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
     }
 
     @Test
@@ -664,7 +664,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -673,12 +673,12 @@ class JsonSchemaWalkListenerTest {
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"s\":1,\"ref\":\"REF\"}", inputNode.toString());
-        assertFalse(result.getValidationMessages().isEmpty());
+        assertFalse(result.getErrors().isEmpty());
         
         inputNode = JsonMapperFactory.getInstance().readTree("{}");
         result = schema.walk(inputNode, false);
         assertEquals("{\"s\":1,\"ref\":\"REF\"}", inputNode.toString());
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
     }
 
     @Test
@@ -732,7 +732,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -740,7 +740,7 @@ class JsonSchemaWalkListenerTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
-        assertFalse(result.getValidationMessages().isEmpty());
+        assertFalse(result.getErrors().isEmpty());
         assertEquals("{\"type\":\"integer\"}", missingSchemaNode.get("s").toString());
         assertEquals("{\"type\":\"string\"}", missingSchemaNode.get("ref").toString());
     }
@@ -802,7 +802,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                     }
                 })
                 .build();
@@ -811,7 +811,7 @@ class JsonSchemaWalkListenerTest {
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         ValidationResult result = schema.walk(inputNode, true);
         assertEquals("{\"name\":\"John Doe\",\"email\":\"john.doe@gmail.com\"}", inputNode.toString());
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
     }
 
     /**
@@ -845,7 +845,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -908,7 +908,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()

@@ -1,10 +1,15 @@
 package com.networknt.schema.walk;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.*;
-
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.Error;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonValidator;
+import com.networknt.schema.SchemaValidatorsConfig;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
@@ -32,16 +37,16 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode, JsonNodePath instanceLocation,
-            JsonSchema schema, JsonValidator validator, List<ValidationMessage> validationMessages) {
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator,
+            List<Error> errors) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.
         List<JsonSchemaWalkListener> currentKeywordListeners = keywordWalkListenersMap.get(keyword);
-        runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, validationMessages);
+        runPostWalkListeners(currentKeywordListeners, keywordWalkEvent, errors);
         // Run Listeners that are setup for all keywords.
         List<JsonSchemaWalkListener> allKeywordListeners = keywordWalkListenersMap
                 .get(SchemaValidatorsConfig.ALL_KEYWORD_WALK_LISTENER_KEY);
-        runPostWalkListeners(allKeywordListeners, keywordWalkEvent, validationMessages);
+        runPostWalkListeners(allKeywordListeners, keywordWalkEvent, errors);
     }
-
 }

@@ -24,7 +24,7 @@ import java.util.function.Function;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.ValidationContext;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 /**
  * ListOutputUnitFormatter.
@@ -90,10 +90,10 @@ public class ListOutputUnitFormatter {
         return root;
     }
 
-    public static OutputUnit format(List<ValidationMessage> validationMessages, ExecutionContext executionContext,
-            ValidationContext validationContext, Function<ValidationMessage, Object> assertionMapper) {
+    public static OutputUnit format(List<Error> errors, ExecutionContext executionContext,
+            ValidationContext validationContext, Function<Error, Object> errorMapper) {
         OutputUnit root = new OutputUnit();
-        root.setValid(validationMessages.isEmpty());
-        return format(root, OutputUnitData.from(validationMessages, executionContext, assertionMapper));
+        root.setValid(errors.isEmpty());
+        return format(root, OutputUnitData.from(errors, executionContext, errorMapper));
     }
 }

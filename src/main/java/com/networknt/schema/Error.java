@@ -34,17 +34,18 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * The output format.
+ * Represents an error which could be when parsing a schema or when validating
+ * an instance.
  * 
  * @see <a href=
- *      "https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md">JSON
+ *      "https://github.com/json-schema-org/json-schema-spec/blob/main/specs/output/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
 @JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
 @JsonPropertyOrder({ "keyword", "instanceLocation", "message", "evaluationPath", "schemaLocation",
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
-public class ValidationMessage {
+public class Error {
     private final String keyword;
     @JsonSerialize(using = ToStringSerializer.class)
     private final JsonNodePath evaluationPath;
@@ -59,7 +60,7 @@ public class ValidationMessage {
     private final JsonNode instanceNode;
     private final JsonNode schemaNode;
 
-    ValidationMessage(String keyword, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
+    Error(String keyword, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
             JsonNodePath instanceLocation, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
         super();
@@ -198,7 +199,7 @@ public class ValidationMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ValidationMessage that = (ValidationMessage) o;
+        Error that = (Error) o;
 
         if (keyword != null ? !keyword.equals(that.keyword) : that.keyword != null) return false;
         if (instanceLocation != null ? !instanceLocation.equals(that.instanceLocation) : that.instanceLocation != null) return false;
@@ -365,7 +366,7 @@ public class ValidationMessage {
             return self();
         }
 
-        public ValidationMessage build() {
+        public Error build() {
             Supplier<String> messageSupplier = this.messageSupplier;
             String messageKey = this.messageKey;
             
@@ -385,7 +386,7 @@ public class ValidationMessage {
                     return formatter.format(getMessageArguments());
                 });
             }
-            return new ValidationMessage(keyword, evaluationPath, schemaLocation, instanceLocation,
+            return new Error(keyword, evaluationPath, schemaLocation, instanceLocation,
                     arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
         }
 

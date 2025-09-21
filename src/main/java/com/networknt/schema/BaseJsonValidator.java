@@ -76,7 +76,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
             /* Below from BaseJsonValidator */
             JsonNode schemaNode,
             ValidationContext validationContext,
-            /* Below from ValidationMessageHandler */
             Keyword keyword,
             JsonSchema parentSchema,
             SchemaLocation schemaLocation,
@@ -215,8 +214,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return false;
     }
 
-    protected MessageSourceValidationMessage.Builder message() {
-        return MessageSourceValidationMessage
+    protected MessageSourceError.Builder error() {
+        return MessageSourceError
                 .builder(this.validationContext.getConfig().getMessageSource(), this.errorMessage)
                 .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
                 .keyword(this.keyword != null ? this.keyword.getValue() : null).messageKey(this.getKeyword());

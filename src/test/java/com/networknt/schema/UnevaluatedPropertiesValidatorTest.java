@@ -62,9 +62,9 @@ class UnevaluatedPropertiesValidatorTest {
                 + "    \"key4\": \"value4\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("required", assertions.get(0).getKeyword());
         assertEquals("key1", assertions.get(0).getProperty());
         assertEquals("unevaluatedProperties", assertions.get(1).getKeyword());
@@ -117,9 +117,9 @@ class UnevaluatedPropertiesValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("additionalProperties", assertions.get(0).getKeyword());
         assertEquals("notallowed", assertions.get(0).getProperty());
     }
@@ -145,9 +145,9 @@ class UnevaluatedPropertiesValidatorTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getKeyword());
         assertEquals("$.unevaluatedProperties.type", assertions.get(0).getEvaluationPath().toString());
     }
@@ -190,7 +190,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "}";
         String inputData = "{ \"pontoons\": {}, \"wheels\": {}, \"surfboard\": \"2\" }";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

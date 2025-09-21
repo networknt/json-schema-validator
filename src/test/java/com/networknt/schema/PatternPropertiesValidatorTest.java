@@ -45,7 +45,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
 
             JsonNode node = getJsonNodeFromStringContent("");
-            List<ValidationMessage> errors = schema.validate(node);
+            List<Error> errors = schema.validate(node);
             Assertions.assertEquals(errors.size(), 0);
         });
     }
@@ -60,7 +60,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
             JsonNode node = getJsonNodeFromStringContent("");
-            List<ValidationMessage> errors = schema.validate(node);
+            List<Error> errors = schema.validate(node);
             Assertions.assertEquals(errors.size(), 0);
         });
     }
@@ -87,9 +87,9 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "  \"valid_string\": \"string_value\",\n"
                 + "  \"valid_key\": 5\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/patternProperties/^valid_/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/patternProperties/^valid_/type", message.getSchemaLocation().toString());
         assertEquals("/valid_key", message.getInstanceLocation().toString());

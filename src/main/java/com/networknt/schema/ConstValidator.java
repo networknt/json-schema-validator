@@ -35,13 +35,13 @@ public class ConstValidator extends BaseJsonValidator implements JsonValidator {
 
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
-                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(schemaNode.asText(), node.asText())
                         .build());
             }
         } else if (!schemaNode.equals(node)) {
-            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
         }
     }

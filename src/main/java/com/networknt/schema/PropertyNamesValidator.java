@@ -36,21 +36,21 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> schemaErrors = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> schemaErrors = new ArrayList<>();
         executionContext.setErrors(schemaErrors);
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             final String pname = it.next();
             final TextNode pnameText = TextNode.valueOf(pname);
             innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
-            for (final ValidationMessage schemaError : schemaErrors) {
+            for (final Error schemaError : schemaErrors) {
                 final String path = schemaError.getInstanceLocation().toString();
                 String msg = schemaError.getMessage();
                 if (msg.startsWith(path)) {
                     msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
                 }
                 existingErrors.add(
-                        message().property(pname).instanceNode(node).instanceLocation(instanceLocation)
+                        error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(pname, msg).build());
             }

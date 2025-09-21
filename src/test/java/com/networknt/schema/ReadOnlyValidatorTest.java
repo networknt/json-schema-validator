@@ -19,14 +19,14 @@ class ReadOnlyValidatorTest {
 	@Test
 	void givenConfigWriteFalseWhenReadOnlyTrueThenAllows() throws IOException {
 		ObjectNode node = getJsonNode();
-		List<ValidationMessage> errors = loadJsonSchema(false).validate(node);
+		List<Error> errors = loadJsonSchema(false).validate(node);
 		assertTrue(errors.isEmpty());
 	}
 
 	@Test
 	void givenConfigWriteTrueWhenReadOnlyTrueThenDenies() throws IOException {
 		ObjectNode node = getJsonNode();
-		List<ValidationMessage> errors = loadJsonSchema(true).validate(node);
+		List<Error> errors = loadJsonSchema(true).validate(node);
 		assertFalse(errors.isEmpty());
 		assertEquals("/firstName: is a readonly field, it cannot be changed",
 				errors.stream().map(e -> e.toString()).collect(Collectors.toList()).get(0));

@@ -50,7 +50,7 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode != null) {
-                executionContext.addError(message().property(fieldName).instanceNode(node)
+                executionContext.addError(error().property(fieldName).instanceNode(node)
                         .instanceLocation(instanceLocation.append(fieldName))
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(fieldName).build());

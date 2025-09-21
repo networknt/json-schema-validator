@@ -37,7 +37,7 @@ class DurationFormatValidatorTest {
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).build();
         final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
 
-        List<ValidationMessage> messages = validatorSchema.validate(validTargetNode);
+        List<Error> messages = validatorSchema.validate(validTargetNode);
         assertEquals(0, messages.size());
 
         messages = validatorSchema.validate(invalidTargetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {

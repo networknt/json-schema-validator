@@ -28,7 +28,7 @@ class Issue461Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
         JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
         ValidationResult result = schema.walk(data, true);
-        Assertions.assertTrue(result.getValidationMessages().isEmpty());
+        Assertions.assertTrue(result.getErrors().isEmpty());
     }
 
     /**
@@ -42,7 +42,7 @@ class Issue461Test {
 
         @Override
         public void onWalkEnd(final WalkEvent walkEvent,
-                              final List<ValidationMessage> validationMessages) {
+                              final List<Error> errors) {
         }
     }
 }

@@ -220,7 +220,7 @@ class SchemaLocationTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchema schema = factory.getSchema(SchemaLocation
                 .of("classpath:schema/example-escaped.yaml#/paths/~1users/post/requestBody/application~1json/schema"));
-        List<ValidationMessage> result = schema.validate("1", InputFormat.JSON);
+        List<Error> result = schema.validate("1", InputFormat.JSON);
         assertFalse(result.isEmpty());
         result = schema.validate("{}", InputFormat.JSON);
         assertTrue(result.isEmpty());

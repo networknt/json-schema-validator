@@ -27,7 +27,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 class UriReferenceFormatTest {
     @Test
@@ -38,7 +38,7 @@ class UriReferenceFormatTest {
         
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -51,7 +51,7 @@ class UriReferenceFormatTest {
         
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
                 InputFormat.JSON);
         assertFalse(messages.isEmpty());
     }
@@ -64,7 +64,7 @@ class UriReferenceFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -77,7 +77,7 @@ class UriReferenceFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
+        List<Error> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
                 InputFormat.JSON);
         assertFalse(messages.isEmpty());
     }
@@ -90,7 +90,7 @@ class UriReferenceFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"http://\"", InputFormat.JSON);
+        List<Error> messages = schema.validate("\"http://\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -102,7 +102,7 @@ class UriReferenceFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"//\"", InputFormat.JSON);
+        List<Error> messages = schema.validate("\"//\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -114,7 +114,7 @@ class UriReferenceFormatTest {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"about:\"", InputFormat.JSON);
+        List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 }

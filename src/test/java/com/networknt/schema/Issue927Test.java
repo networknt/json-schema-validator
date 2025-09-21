@@ -127,7 +127,7 @@ class Issue927Test {
                 + "    ]\r\n"
                 + "  }\r\n"
                 + "}";
-        List<ValidationMessage> messages = jsonSchema.validate(input, InputFormat.JSON);
+        List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

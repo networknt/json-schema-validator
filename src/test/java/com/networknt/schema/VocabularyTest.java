@@ -68,7 +68,7 @@ class VocabularyTest {
                 + "  \"numberProperty\": 1\r\n"
                 + "}";
 
-        List<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Set validation vocab
@@ -120,7 +120,7 @@ class VocabularyTest {
                 + "  \"dateProperty\": \"hello\"\r\n"
                 + "}";
 
-        List<ValidationMessage> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
+        List<Error> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(0, messages.size());
 

@@ -56,7 +56,7 @@ public class PatternValidator extends BaseJsonValidator {
 
         try {
             if (!matches(node.asText())) {
-                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.pattern).build());
                 return;

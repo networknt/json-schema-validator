@@ -30,10 +30,10 @@ class Issue426Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
         final JsonNode message = schema.schemaNode.get("message");
-        for(ValidationMessage error : errors) {
+        for(Error error : errors) {
             //validating custom message
             Assertions.assertEquals(message.get(error.getKeyword()).asText(),  error.getMessage());
         }

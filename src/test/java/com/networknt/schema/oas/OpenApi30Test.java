@@ -33,7 +33,7 @@ import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 /**
  * OpenApi30Test.
@@ -54,7 +54,7 @@ class OpenApi30Test {
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"
@@ -63,7 +63,7 @@ class OpenApi30Test {
                 + "}";
         messages = schema.validate(invalid, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
+        List<Error> list = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", list.get(0).getKeyword());
         assertEquals("required", list.get(1).getKeyword());
         assertEquals("bark", list.get(1).getProperty());

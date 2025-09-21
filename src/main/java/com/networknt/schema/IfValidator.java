@@ -71,8 +71,8 @@ public class IfValidator extends BaseJsonValidator {
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> test = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> test = new ArrayList<>();
         executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);
@@ -111,8 +111,8 @@ public class IfValidator extends BaseJsonValidator {
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> test = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> test = new ArrayList<>();
         executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);

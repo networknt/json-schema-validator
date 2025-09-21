@@ -117,7 +117,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
             }
             if (!allowedProperties.contains(pname) && !handledByPatternProperties(pname)) {
                 if (!allowAdditionalProperties) {
-                    executionContext.addError(message().instanceNode(node).property(pname)
+                    executionContext.addError(error().instanceNode(node).property(pname)
                             .instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(pname).build());

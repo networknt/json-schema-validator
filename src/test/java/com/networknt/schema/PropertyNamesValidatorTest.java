@@ -45,9 +45,9 @@ class PropertyNamesValidatorTest {
                 + "  \"foo\": {},\r\n"
                 + "  \"foobar\": {}\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/propertyNames", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/propertyNames", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());

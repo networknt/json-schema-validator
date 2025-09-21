@@ -49,8 +49,8 @@ public class NotValidator extends BaseJsonValidator {
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> test = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> test = new ArrayList<>();
         executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);
@@ -65,7 +65,7 @@ public class NotValidator extends BaseJsonValidator {
             executionContext.setErrors(existingErrors);
         }
         if (test.isEmpty()) {
-            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.schema.toString())
                     .build());

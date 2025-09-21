@@ -68,7 +68,7 @@ class TypeValidatorTest {
                 + "  \"array_of_objects\": {}\r\n"
                 + "}";        
         // Without type loose this has 2 type errors
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
 
@@ -102,7 +102,7 @@ class TypeValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("1", InputFormat.JSON);
+        List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         messages = schema.validate("2.0", InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -131,7 +131,7 @@ class TypeValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("1", InputFormat.JSON);
+        List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         // The logic in JsonNodeUtil specifically excludes V4 from this handling
         messages = schema.validate("2.0", InputFormat.JSON);
@@ -147,7 +147,7 @@ class TypeValidatorTest {
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
         ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
     }
 
     @Test
@@ -178,7 +178,7 @@ class TypeValidatorTest {
             .nullableKeywordEnabled(false)
             .build());
 
-        final List<ValidationMessage> errors = validator.validate(inputData, InputFormat.JSON);
+        final List<Error> errors = validator.validate(inputData, InputFormat.JSON);
         assertEquals(1, errors.size());
     }
 }

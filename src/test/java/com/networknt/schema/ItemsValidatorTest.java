@@ -51,9 +51,9 @@ class ItemsValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/items/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/items/type", message.getSchemaLocation().toString());
         assertEquals("/1", message.getInstanceLocation().toString());
@@ -78,9 +78,9 @@ class ItemsValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalItems/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalItems/type", message.getSchemaLocation().toString());
         assertEquals("/3", message.getInstanceLocation().toString());
@@ -105,9 +105,9 @@ class ItemsValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalItems", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalItems", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
@@ -132,7 +132,7 @@ class ItemsValidatorTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -143,7 +143,7 @@ class ItemsValidatorTest {
         }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -168,7 +168,7 @@ class ItemsValidatorTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -179,7 +179,7 @@ class ItemsValidatorTest {
         }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -210,7 +210,7 @@ class ItemsValidatorTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -221,7 +221,7 @@ class ItemsValidatorTest {
         }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -260,7 +260,7 @@ class ItemsValidatorTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -272,7 +272,7 @@ class ItemsValidatorTest {
         JsonSchema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[\"hello\"]");
         ValidationResult result = schema.walk(input, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -317,7 +317,7 @@ class ItemsValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -330,7 +330,7 @@ class ItemsValidatorTest {
         JsonSchema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null, null, null]");
         ValidationResult result = schema.walk(input, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");

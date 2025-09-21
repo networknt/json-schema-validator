@@ -140,7 +140,7 @@ public interface Format {
      */
     default void validate(ExecutionContext executionContext, ValidationContext validationContext,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled,
-            Supplier<MessageSourceValidationMessage.Builder> message,
+            Supplier<MessageSourceError.Builder> message,
             FormatValidator formatValidator) {
         if (assertionsEnabled) {
             if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,

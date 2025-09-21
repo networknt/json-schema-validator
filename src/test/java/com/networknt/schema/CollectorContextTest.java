@@ -54,10 +54,10 @@ class CollectorContextTest {
     @Test
     void testCollectorContextWithKeyword() throws Exception {
         ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
-        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult.getErrors().size());
         List<String> contextValues = (List<String>) validationResult.getCollectorContext().get(SAMPLE_COLLECTOR);
         contextValues.sort(null);
-        Assertions.assertEquals(0, validationResult.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult.getErrors().size());
         Assertions.assertEquals(2, contextValues.size());
         Assertions.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
         Assertions.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
@@ -90,9 +90,9 @@ class CollectorContextTest {
         ValidationResult validationResult2 = validationRunnable2.getValidationResult();
         ValidationResult validationResult3 = validationRunnable3.getValidationResult();
 
-        Assertions.assertEquals(0, validationResult1.getValidationMessages().size());
-        Assertions.assertEquals(0, validationResult2.getValidationMessages().size());
-        Assertions.assertEquals(0, validationResult3.getValidationMessages().size());
+        Assertions.assertEquals(0, validationResult1.getErrors().size());
+        Assertions.assertEquals(0, validationResult2.getErrors().size());
+        Assertions.assertEquals(0, validationResult3.getErrors().size());
 
         List<String> contextValue1 = (List<String>) validationResult1.getCollectorContext().get(SAMPLE_COLLECTOR);
         List<String> contextValue2 = (List<String>) validationResult2.getCollectorContext().get(SAMPLE_COLLECTOR);

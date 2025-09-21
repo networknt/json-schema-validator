@@ -46,7 +46,7 @@ class Issue650Test {
         JsonNode node = mapper.valueToTree(model);
 
         // validate:
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
 
         // check result:
         Assertions.assertTrue(errors.isEmpty());

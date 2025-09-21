@@ -24,8 +24,8 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema1);
 
-        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
-        for(ValidationMessage error:errors) {
+        List<Error> errors = jsonSchema.validate(jsonNode);
+        for(Error error:errors) {
             System.out.println(error.getMessage());
         }
     }
@@ -38,8 +38,8 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema2);
 
-        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
-        for(ValidationMessage error:errors) {
+        List<Error> errors = jsonSchema.validate(jsonNode);
+        for(Error error:errors) {
             System.out.println(error.getMessage());
         }
     }
@@ -51,8 +51,8 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema3);
 
-        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
-        for(ValidationMessage error:errors) {
+        List<Error> errors = jsonSchema.validate(jsonNode);
+        for(Error error:errors) {
             System.out.println(error.getMessage());
         }
     }

@@ -30,7 +30,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.ValidationContext;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 /**
  * HierarchicalOutputUnitFormatter.
@@ -108,17 +108,17 @@ public class HierarchicalOutputUnitFormatter {
         return root;
     }
 
-    public static OutputUnit format(JsonSchema jsonSchema, List<ValidationMessage> validationMessages,
+    public static OutputUnit format(JsonSchema jsonSchema, List<Error> errors,
             ExecutionContext executionContext, ValidationContext validationContext,
-            Function<ValidationMessage, Object> assertionMapper) {
+            Function<Error, Object> errorMapper) {
         OutputUnit root = new OutputUnit();
-        root.setValid(validationMessages.isEmpty());
+        root.setValid(errors.isEmpty());
         
         root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
         root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
         root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
 
-        OutputUnitData data = OutputUnitData.from(validationMessages, executionContext, assertionMapper);
+        OutputUnitData data = OutputUnitData.from(errors, executionContext, errorMapper);
         
         return format(root, data, new JsonNodePath(validationContext.getConfig().getPathType()));
     }

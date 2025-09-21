@@ -174,7 +174,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                     if (!containsEvaluated.contains(x)) {
                         if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                             // All fails as "unevaluatedItems: false"
-                            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
+                            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
                                     .locale(executionContext.getExecutionConfig().getLocale())
                                     .build());
                         } else {

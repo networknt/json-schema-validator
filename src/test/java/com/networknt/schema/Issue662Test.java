@@ -23,21 +23,21 @@ class Issue662Test extends BaseJsonSchemaValidatorTest {
     @Test
     void testNoErrorsForEmptyObject() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("emptyObject.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         assertTrue(errors.isEmpty(), "No validation errors for empty optional object");
     }
 
     @Test
     void testNoErrorsForValidObject() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("validObject.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         assertTrue(errors.isEmpty(), "No validation errors for a valid optional object");
     }
 
     @Test
     void testCorrectErrorForInvalidValue() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("objectInvalidValue.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         List<String> errorMessages = errors.stream()
             .map(v -> v.getEvaluationPath() + " = " + v.toString())
             .collect(toList());

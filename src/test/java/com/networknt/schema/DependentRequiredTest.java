@@ -35,7 +35,7 @@ class DependentRequiredTest {
     @Test
     void shouldReturnNoErrorMessagesForObjectWithoutOptionalField() throws IOException {
 
-        List<ValidationMessage> messages = whenValidate("{}");
+        List<Error> messages = whenValidate("{}");
 
         assertThat(messages, empty());
     }
@@ -43,23 +43,23 @@ class DependentRequiredTest {
     @Test
     void shouldReturnErrorMessageForObjectWithoutDependentRequiredField() throws IOException {
 
-        List<ValidationMessage> messages = whenValidate("{ \"optional\": \"present\" }");
+        List<Error> messages = whenValidate("{ \"optional\": \"present\" }");
 
         assertThat(
-            messages.stream().map(ValidationMessage::toString).collect(Collectors.toList()),
+            messages.stream().map(Error::toString).collect(Collectors.toList()),
             contains("$: has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
     }
 
     @Test
     void shouldReturnNoErrorMessagesForObjectWithOptionalAndDependentRequiredFieldSet() throws JsonProcessingException {
 
-        List<ValidationMessage> messages =
+        List<Error> messages =
             whenValidate("{ \"optional\": \"present\", \"requiredWhenOptionalPresent\": \"present\" }");
 
         assertThat(messages, empty());
     }
 
-    private static List<ValidationMessage> whenValidate(String content) throws JsonProcessingException {
+    private static List<Error> whenValidate(String content) throws JsonProcessingException {
         return schema.validate(mapper.readTree(content));
     }
 

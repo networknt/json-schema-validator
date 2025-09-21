@@ -56,7 +56,7 @@ class Issue784Test {
     }
 
 
-    private List<ValidationMessage> validate(JsonSchema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
+    private List<Error> validate(JsonSchema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
         return jsonSchema.validate(new ObjectMapper().readTree(" { \"my-date-time\": \"" + myDateTimeContent + "\" } "));
     }
 

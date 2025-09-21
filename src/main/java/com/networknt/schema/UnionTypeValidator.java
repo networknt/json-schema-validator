@@ -74,9 +74,9 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<Error> existingErrors = executionContext.getErrors();
         try {
-            List<ValidationMessage> test = new ArrayList<>();
+            List<Error> test = new ArrayList<>();
             executionContext.setFailFast(false);
             executionContext.setErrors(test);
             for (JsonSchemaValidator schema : schemas) {
@@ -95,7 +95,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         }
 
         if (!valid) {
-            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .keyword("type")
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(nodeType.toString(), error)

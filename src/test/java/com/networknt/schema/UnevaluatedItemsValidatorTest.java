@@ -44,9 +44,9 @@ class UnevaluatedItemsValidatorTest {
                 + "}";
         String inputData = "[1,2,3]";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("unevaluatedItems", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
@@ -70,9 +70,9 @@ class UnevaluatedItemsValidatorTest {
                 + "}";
         String inputData = "[1,2,3]";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getKeyword());
         assertEquals("$[1]", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems.type", assertions.get(0).getEvaluationPath().toString());

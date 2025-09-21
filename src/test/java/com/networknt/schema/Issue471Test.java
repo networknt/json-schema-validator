@@ -69,12 +69,12 @@ class Issue471Test {
         InputStream dataInputStream = Issue471Test.class.getResourceAsStream(DATA_PATH);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
-        List<ValidationMessage> validationMessages = schema.validate(node);
-        return convertValidationMessagesToMap(validationMessages);
+        List<Error> errors = schema.validate(node);
+        return convertErrorsToMap(errors);
     }
 
-    private Map<String, String> convertValidationMessagesToMap(List<ValidationMessage> validationMessages) {
-        return validationMessages.stream().collect(Collectors.toMap(m -> m.getInstanceLocation().toString(), ValidationMessage::getMessage));
+    private Map<String, String> convertErrorsToMap(List<Error> errors) {
+        return errors.stream().collect(Collectors.toMap(m -> m.getInstanceLocation().toString(), Error::getMessage));
     }
 
     private JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {

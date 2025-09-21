@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.networknt.schema.output;
+package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * OutputUnitDataTest.
- */
-class OutputUnitDataTest {
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.networknt.schema.serialization.JsonMapperFactory;
 
+/**
+ * ErrorTest.
+ */
+class ErrorTest {
     @Test
-    void format() {
-        String result = OutputUnitData.formatMessage("hello:");
-        assertEquals("", result);
-        result = OutputUnitData.formatMessage("hello: ");
-        assertEquals("", result);
-        result = OutputUnitData.formatMessage("hello:     ");
-        assertEquals("", result);
-        result = OutputUnitData.formatMessage("hello:     world");
-        assertEquals("world", result);
+    void testSerialization() throws JsonProcessingException {
+        String value = JsonMapperFactory.getInstance()
+                .writeValueAsString(Error.builder().messageSupplier(() -> "hello")
+                        .schemaLocation(SchemaLocation.of("https://www.example.com/#defs/definition")).build());
+        assertEquals("{\"message\":\"hello\",\"schemaLocation\":\"https://www.example.com/#defs/definition\"}", value);
     }
 }

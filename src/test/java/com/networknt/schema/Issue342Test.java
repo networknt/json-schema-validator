@@ -29,9 +29,9 @@ class Issue342Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(1, errors.size());
-        final ValidationMessage error = errors.iterator().next();
+        final Error error = errors.iterator().next();
         Assertions.assertEquals("$", error.getInstanceLocation().toString());
         Assertions.assertEquals("$: property 'z' name is not valid: does not have a value in the enumeration [\"a\", \"b\", \"c\"]", error.toString());
     }

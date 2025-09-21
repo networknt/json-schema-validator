@@ -69,7 +69,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
             try {
                 format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
                         assertionsEnabled,
-                        () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
+                        () -> this.error().instanceNode(node).instanceLocation(instanceLocation)
                                 .messageKey(format.getMessageKey())
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 ,
@@ -99,7 +99,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
          * according to the specification.
          */
         if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
-            executionContext.addError(message().instanceLocation(instanceLocation).instanceNode(node)
+            executionContext.addError(error().instanceLocation(instanceLocation).instanceNode(node)
                     .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
         }
     }

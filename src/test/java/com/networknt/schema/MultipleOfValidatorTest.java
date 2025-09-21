@@ -52,7 +52,7 @@ class MultipleOfValidatorTest {
         String inputData = "{\"value1\":123.892,\"value2\":123456.2934,\"value3\":123.123}";
         String validData = "{\"value1\":123.89,\"value2\":123456,\"value3\":123.010}";
         
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
@@ -69,7 +69,7 @@ class MultipleOfValidatorTest {
         String validTypeLooseInputData = "{\"value1\":\"123.89\",\"value2\":\"123456.29\",\"value3\":123.12}";
         
         // Without type loose this has 2 type and 1 multipleOf errors
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
         assertEquals(1, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());

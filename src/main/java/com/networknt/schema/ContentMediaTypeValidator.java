@@ -30,7 +30,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 /**
  * {@link JsonValidator} for contentMediaType.
  * <p>
- * Note that since 2019-09 this keyword only generates annotations and not assertions.
+ * Note that since 2019-09 this keyword only generates annotations and not errors.
  */
 public class ContentMediaTypeValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentMediaTypeValidator.class);
@@ -102,7 +102,7 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
         }
 
         if (!matches(node.asText())) {
-            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentMediaType)
                     .build());

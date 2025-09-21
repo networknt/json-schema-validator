@@ -26,8 +26,8 @@ class Issue824Test {
                 "}");
 
         // Validate same JSON schema against v2019-09 spec schema twice
-        final List<ValidationMessage> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
-        final List<ValidationMessage> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
+        final List<Error> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
+        final List<Error> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
 
         // Validation errors should be the same
         assertEquals(validationErrors1, validationErrors2);

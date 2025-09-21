@@ -40,7 +40,7 @@ class Issue428Test {
                     configBuilder.discriminatorKeywordEnabled(false);
                     JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
 
-                    List<ValidationMessage> errors = new ArrayList<ValidationMessage>(schema.validate(node));
+                    List<Error> errors = new ArrayList<Error>(schema.validate(node));
 
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
@@ -48,7 +48,7 @@ class Issue428Test {
                             System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
                             System.out.println("errors:");
-                            for (ValidationMessage error : errors) {
+                            for (Error error : errors) {
                                 System.out.println(error);
                             }
                         }
@@ -65,7 +65,7 @@ class Issue428Test {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                for (ValidationMessage error : errors) {
+                                for (Error error : errors) {
                                     System.out.println(error);
                                 }
                                 assertEquals(errorCount.asInt(), errors.size(), "expected error count");

@@ -34,10 +34,10 @@ class Issue877Test {
         JsonSchema schema = jsonSchemaFactory.getSchema(schemaData);
         String input = "{}";
         ValidationResult result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);
-        assertEquals(0, result.getValidationMessages().size());
+        assertEquals(0, result.getErrors().size());
         
         input = "";
         result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);
-        assertEquals(1, result.getValidationMessages().size());
+        assertEquals(1, result.getErrors().size());
     }
 }

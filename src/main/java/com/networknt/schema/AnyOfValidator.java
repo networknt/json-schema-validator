@@ -38,7 +38,7 @@ public class AnyOfValidator extends BaseJsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
-            throw new JsonSchemaException(message().instanceNode(schemaNode)
+            throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
                     .arguments(nodeType.toString(), "array")
@@ -66,9 +66,9 @@ public class AnyOfValidator extends BaseJsonValidator {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
         int numberOfValidSubSchemas = 0;
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> allErrors = null;
-        List<ValidationMessage> errors = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> allErrors = null;
+        List<Error> errors = new ArrayList<>();
         executionContext.setErrors(errors);
         try {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
@@ -120,7 +120,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                                 if (allErrors == null) {
                                     allErrors = new ArrayList<>();
                                 }
-                                allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
+                                allErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
                                         .arguments(DISCRIMINATOR_REMARK)
                                         .build());
@@ -146,7 +146,7 @@ public class AnyOfValidator extends BaseJsonValidator {
             if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()
                     && executionContext.getCurrentDiscriminatorContext().isActive()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
-                existingErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
+                existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")

@@ -88,14 +88,14 @@ public interface OutputFormat<T> {
     /**
      * The Default output format.
      */
-    class Default implements OutputFormat<java.util.List<ValidationMessage>> {
+    class Default implements OutputFormat<java.util.List<Error>> {
         @Override
         public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
         }
 
         @Override
-        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
+        public java.util.List<Error> format(JsonSchema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return executionContext.getErrors();
         }
@@ -139,19 +139,19 @@ public interface OutputFormat<T> {
      * The List output format.
      */
     class List implements OutputFormat<OutputUnit> {
-        private final Function<ValidationMessage, Object> assertionMapper;
+        private final Function<Error, Object> errorMapper;
 
         public List() {
-            this(OutputUnitData::formatAssertion);
+            this(OutputUnitData::formatError);
         }
 
         /**
          * Constructor.
          * 
-         * @param assertionMapper to map the assertion
+         * @param errorMapper to map the error
          */
-        public List(Function<ValidationMessage, Object> assertionMapper) {
-            this.assertionMapper = assertionMapper;
+        public List(Function<Error, Object> errorMapper) {
+            this.errorMapper = errorMapper;
         }
 
         @Override
@@ -162,7 +162,7 @@ public interface OutputFormat<T> {
         public OutputUnit format(JsonSchema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, validationContext,
-                    this.assertionMapper);
+                    this.errorMapper);
         }
     }
 
@@ -170,19 +170,19 @@ public interface OutputFormat<T> {
      * The Hierarchical output format.
      */
     class Hierarchical implements OutputFormat<OutputUnit> {
-        private final Function<ValidationMessage, Object> assertionMapper;
+        private final Function<Error, Object> errorMapper;
 
         public Hierarchical() {
-            this(OutputUnitData::formatAssertion);
+            this(OutputUnitData::formatError);
         }
 
         /**
          * Constructor.
          * 
-         * @param assertionMapper to map the assertion
+         * @param errorMapper to map the error
          */
-        public Hierarchical(Function<ValidationMessage, Object> assertionMapper) {
-            this.assertionMapper = assertionMapper;
+        public Hierarchical(Function<Error, Object> errorMapper) {
+            this.errorMapper = errorMapper;
         }
 
         @Override
@@ -193,7 +193,7 @@ public interface OutputFormat<T> {
         public OutputUnit format(JsonSchema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return HierarchicalOutputUnitFormatter.format(jsonSchema, executionContext.getErrors(), executionContext,
-                    validationContext, this.assertionMapper);
+                    validationContext, this.errorMapper);
         }
     }
 

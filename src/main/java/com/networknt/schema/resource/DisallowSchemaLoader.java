@@ -17,7 +17,7 @@ package com.networknt.schema.resource;
 
 import com.networknt.schema.AbsoluteIri;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 /**
  * {@link SchemaLoader} that disallows loading external resources.
@@ -42,7 +42,7 @@ public class DisallowSchemaLoader implements SchemaLoader {
 
     @Override
     public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
-        throw new InvalidSchemaException(ValidationMessage.builder()
+        throw new InvalidSchemaException(Error.builder()
                 .message("Schema from ''{0}'' is not allowed to be loaded.").arguments(absoluteIri).build());
     }
 }

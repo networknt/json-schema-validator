@@ -36,7 +36,7 @@ public class AllOfValidator extends BaseJsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
-            throw new JsonSchemaException(message().instanceNode(schemaNode)
+            throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
                     .arguments(nodeType.toString(), "array")

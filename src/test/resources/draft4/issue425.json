@@ -34,7 +34,7 @@
           "values": 3
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/values: must be valid to one and only one schema, but 0 are valid",
           "/values: integer found, array expected",
           "/values: integer found, string expected"

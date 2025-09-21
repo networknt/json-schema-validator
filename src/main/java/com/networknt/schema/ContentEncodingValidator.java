@@ -27,7 +27,7 @@ import java.util.Base64;
  * {@link JsonValidator} for contentEncoding.
  * <p>
  * Note that since 2019-09 this keyword only generates annotations and not
- * assertions.
+ * errors.
  */
 public class ContentEncodingValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentEncodingValidator.class);
@@ -79,7 +79,7 @@ public class ContentEncodingValidator extends BaseJsonValidator {
         }
 
         if (!matches(node.asText())) {
-            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentEncoding)
                     .build());

@@ -62,9 +62,9 @@ class RequiredValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
         assertEquals(messages.size(), 2);
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
         assertEquals("amount", message.getProperty());
         message = messages.get(1);
@@ -106,9 +106,9 @@ class RequiredValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
         assertEquals(messages.size(), 2);
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
         assertEquals("description", message.getProperty());
         message = messages.get(1);
@@ -150,7 +150,7 @@ class RequiredValidatorTest {
                 + "  \"amount\":10,\r\n"
                 + "  \"description\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
         assertEquals(messages.size(), 0);
     }
 
@@ -188,7 +188,7 @@ class RequiredValidatorTest {
                 + "  \"description\":\"world\",\r\n"
                 + "  \"name\":\"hello\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
         assertEquals(messages.size(), 0);
     }
 }

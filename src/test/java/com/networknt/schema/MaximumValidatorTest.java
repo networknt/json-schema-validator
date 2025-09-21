@@ -189,13 +189,13 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             // Schema and document parsed with just double
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
 
             // document parsed with BigDecimal
 
             doc = bigDecimalMapper.readTree(value);
-            List<ValidationMessage> messages2 = v.validate(doc);
+            List<Error> messages2 = v.validate(doc);
             if (Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(messages2.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
@@ -205,7 +205,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
             // schema and document parsed with BigDecimal
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
-            List<ValidationMessage> messages3 = v.validate(doc);
+            List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (maximum.toLowerCase().equals(theValue)) {
@@ -228,7 +228,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         JsonNode doc = mapper.readTree(content);
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
-        List<ValidationMessage> messages = v.validate(doc);
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -260,7 +260,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         JsonNode doc = mapper.readTree(content);
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
-        List<ValidationMessage> messages = v.validate(doc);
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -299,7 +299,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
 
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format(MaximumValidatorTest.POSITIVE_TEST_CASE_TEMPLATE, maximum, value));
         }
     }
@@ -319,7 +319,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper2.readTree(value);
 
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertFalse(messages.isEmpty(), format(MaximumValidatorTest.NEGATIVE_TEST_CASE_TEMPLATE, value, maximum));
         }
     }

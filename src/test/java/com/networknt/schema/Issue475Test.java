@@ -55,7 +55,7 @@ class Issue475Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V4), config);
 
-        List<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
+        List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
         
         assertions = schema.validate(JsonMapperFactory.getInstance().readTree(VALID_INPUT));
@@ -69,7 +69,7 @@ class Issue475Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V6), config);
 
-        List<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
+        List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
         
         assertions = schema.validate(JsonMapperFactory.getInstance().readTree(VALID_INPUT));
@@ -83,7 +83,7 @@ class Issue475Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V7), config);
 
-        List<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
+        List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
         
         assertions = schema.validate(JsonMapperFactory.getInstance().readTree(VALID_INPUT));
@@ -97,7 +97,7 @@ class Issue475Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V201909), config);
 
-        List<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
+        List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
         
         assertions = schema.validate(JsonMapperFactory.getInstance().readTree(VALID_INPUT));
@@ -111,7 +111,7 @@ class Issue475Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
 
-        List<ValidationMessage> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
+        List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
         
         assertions = schema.validate(JsonMapperFactory.getInstance().readTree(VALID_INPUT));

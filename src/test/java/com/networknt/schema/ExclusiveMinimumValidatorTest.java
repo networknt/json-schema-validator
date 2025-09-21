@@ -48,7 +48,7 @@ class ExclusiveMinimumValidatorTest {
         String inputData = "{\"value1\":0}";
         String validData = "{\"value1\":0.1}";
         
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals(1, messages.stream().filter(m -> "minimum".equals(m.getKeyword())).count());
         

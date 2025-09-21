@@ -24,12 +24,12 @@ class JsonWalkApplyDefaultsTest {
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
         ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema);
         if (shouldValidateSchema) {
-            assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
+            assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                        Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                    "/outer/badArray/1: integer found, string expected",
                                "/outer/reference/stringValue_missing_with_default_null: null found, string expected"));
         } else {
-            assertThat(result.getValidationMessages(), Matchers.empty());
+            assertThat(result.getErrors(), Matchers.empty());
         }
         // TODO: In Java 14 use text blocks
         assertEquals(
@@ -44,7 +44,7 @@ class JsonWalkApplyDefaultsTest {
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
-        assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
+        assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
                                                "/outer/badArray/1: null found, string expected",
@@ -61,7 +61,7 @@ class JsonWalkApplyDefaultsTest {
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, false, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
-        assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
+        assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_null: null found, integer expected",
                                                "/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
@@ -79,28 +79,28 @@ class JsonWalkApplyDefaultsTest {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
         JsonNode inputNodeOriginal = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        List<ValidationMessage> validationMessages;
+        List<Error> errors;
         switch (method) {
             case "walkWithEmptyStrategy": {
                 JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
-                validationMessages = jsonSchema.walk(inputNode, true).getValidationMessages();
+                errors = jsonSchema.walk(inputNode, true).getErrors();
                 break;
             }
             case "walkWithNoDefaults": {
                 // same empty strategy, but tests for NullPointerException
                 JsonSchema jsonSchema = createSchema(null);
-                validationMessages = jsonSchema.walk(inputNode, true).getValidationMessages();
+                errors = jsonSchema.walk(inputNode, true).getErrors();
                 break;
             }
             case "validateWithApplyAllDefaults": {
                 JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
-                validationMessages = jsonSchema.validate(inputNode);
+                errors = jsonSchema.validate(inputNode);
                 break;
             }
             default:
                 throw new UnsupportedOperationException();
         }
-        assertThat(validationMessages.stream().map(ValidationMessage::toString).collect(Collectors.toList()),
+        assertThat(errors.stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject: required property 'intValue_missing' not found",
                                                "/outer/mixedObject: required property 'intValue_missingButError' not found",
                                                "/outer/mixedObject/intValue_null: null found, integer expected",

@@ -24,16 +24,16 @@ abstract class AbstractJsonSchemaTest {
     private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;
     private static final String ASSERT_MSG_KEYWORD = "Validation result should contain {0} keyword";
 
-    protected List<ValidationMessage> validate(String dataPath) {
+    protected List<Error> validate(String dataPath) {
         JsonNode dataNode = getJsonNodeFromPath(dataPath);
         return getJsonSchemaFromDataNode(dataNode).validate(dataNode);
     }
 
     protected void assertValidatorType(String filename, ValidatorTypeCode validatorTypeCode) {
-        List<ValidationMessage> validationMessages = validate(getDataTestFolder() + filename);
+        List<Error> errors = validate(getDataTestFolder() + filename);
 
         assertTrue(
-                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getKeyword())),
+                errors.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getKeyword())),
                 () -> MessageFormat.format(ASSERT_MSG_KEYWORD, validatorTypeCode.getValue()));
     }
 

@@ -46,7 +46,7 @@ class MetaSchemaValidationTest {
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);
-            List<ValidationMessage> messages = schema.validate(inputData);
+            List<Error> messages = schema.validate(inputData);
             assertEquals(0, messages.size());
         }
     }

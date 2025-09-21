@@ -42,7 +42,7 @@ class FormatValidatorTest {
                 + "  \"format\":\"unknown\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
+        List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertEquals(0, messages.size());
@@ -55,7 +55,7 @@ class FormatValidatorTest {
                 + "}";
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().strict("format", true).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
+        List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertEquals(1, messages.size());
@@ -88,7 +88,7 @@ class FormatValidatorTest {
                         builder -> builder
                                 .schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections.singletonMap("https://www.example.com/format-assertion/schema", metaSchemaData))))
                 .getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"hello\"", InputFormat.JSON);
+        List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("format.unknown", messages.iterator().next().getMessageKey());
     }
@@ -144,7 +144,7 @@ class FormatValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
-        List<ValidationMessage> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
+        List<Error> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(messages.isEmpty());
@@ -173,7 +173,7 @@ class FormatValidatorTest {
                 + "}";
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
-        List<ValidationMessage> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
+        List<Error> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(messages.isEmpty());
@@ -222,7 +222,7 @@ class FormatValidatorTest {
                 + "}";
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(formatSchema, config);
-        List<ValidationMessage> messages = schema.validate("123451", InputFormat.JSON, executionConfiguration -> {
+        List<Error> messages = schema.validate("123451", InputFormat.JSON, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(messages.isEmpty());
@@ -240,7 +240,7 @@ class FormatValidatorTest {
                 + "  \"format\":\"uri\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
+        List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(false);
         });
         assertEquals(0, messages.size());

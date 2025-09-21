@@ -50,7 +50,7 @@ class Issue857Test {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        List<ValidationMessage> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
+        List<Error> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
         assertTrue(result.isEmpty());
     }
 }

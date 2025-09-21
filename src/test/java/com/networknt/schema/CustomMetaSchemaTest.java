@@ -64,12 +64,12 @@ class CustomMetaSchemaTest {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
                 }
                 String valueName = enumNames.get(idx);
-                ValidationMessage validationMessage = ValidationMessage.builder().keyword(keyword)
+                Error error = Error.builder().keyword(keyword)
                         .schemaNode(node)
                         .instanceNode(node)
                         .messageKey("tests.example.enumNames").message("enumName is {0}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
-                executionContext.addError(validationMessage);
+                executionContext.addError(error);
             }
         }
 
@@ -126,10 +126,10 @@ class CustomMetaSchemaTest {
                 "  \"enumNames\": [\"Foo !\", \"Bar !\"]\n" +
                 "}");
 
-        List<ValidationMessage> messages = schema.validate(objectMapper.readTree("\"foo\""));
+        List<Error> messages = schema.validate(objectMapper.readTree("\"foo\""));
         assertEquals(1, messages.size());
 
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("$: enumName is Foo !", message.toString());
     }
 }

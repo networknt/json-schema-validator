@@ -45,9 +45,9 @@ class Issue375Test {
         JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         List<String> errorMessages = new ArrayList<String>();
-        for (ValidationMessage error: errors) {
+        for (Error error: errors) {
             errorMessages.add(error.toString());
         }
 

@@ -57,9 +57,9 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/prefixItems/0/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/prefixItems/0/type", message.getSchemaLocation().toString());
         assertEquals("/0", message.getInstanceLocation().toString());
@@ -83,7 +83,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -102,9 +102,9 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1, 2]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/items", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/items", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
@@ -137,7 +137,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -148,7 +148,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         }).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -193,7 +193,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -206,7 +206,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         JsonSchema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
         ValidationResult result = schema.walk(input, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");

@@ -184,7 +184,7 @@ public class JsonSchema implements JsonSchemaValidator {
             if (validator != null) {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
                     SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getMetaSchema().getIdKeyword());
-                    ValidationMessage validationMessage = ValidationMessage.builder()
+                    Error error = Error.builder()
                             .messageKey(ValidatorTypeCode.ID.getValue()).keyword(ValidatorTypeCode.ID.getValue())
                             .instanceLocation(idSchemaLocation.getFragment())
                             .arguments(id, validationContext.getMetaSchema().getIdKeyword(), idSchemaLocation)
@@ -193,7 +193,7 @@ public class JsonSchema implements JsonSchemaValidator {
                             .messageFormatter(args -> validationContext.getConfig().getMessageSource().getMessage(
                                     ValidatorTypeCode.ID.getValue(), validationContext.getConfig().getLocale(), args))
                             .build();
-                    throw new InvalidSchemaException(validationMessage);
+                    throw new InvalidSchemaException(error);
                 }
             }
             return result;
@@ -286,7 +286,6 @@ public class JsonSchema implements JsonSchemaValidator {
             boolean suppressSubSchemaRetrieval,
             JsonNode schemaNode,
             ValidationContext validationContext,
-            /* Below from ValidationMessageHandler */
             JsonSchema parentSchema,
             SchemaLocation schemaLocation,
             JsonNodePath evaluationPath,
@@ -345,7 +344,6 @@ public class JsonSchema implements JsonSchemaValidator {
                 suppressSubSchemaRetrieval,
                 schemaNode,
                 validationContext,
-                /* Below from ValidationMessageHandler */
                 parentSchema, schemaLocation, evaluationPath,
                 evaluationParentSchema, /* errorMessage */ null);
     }
@@ -378,7 +376,6 @@ public class JsonSchema implements JsonSchemaValidator {
                     suppressSubSchemaRetrieval,
                     schemaNode,
                     validationContext,
-                    /* Below from ValidationMessageHandler */
                     parentSchema,
                     schemaLocation,
                     evaluationPath,
@@ -508,14 +505,14 @@ public class JsonSchema implements JsonSchemaValidator {
                     found = found.getSubSchema(fragment);
                 }
                 if (found == null) {
-                    ValidationMessage validationMessage = ValidationMessage.builder()
+                    Error error = Error.builder()
                             .keyword(ValidatorTypeCode.REF.getValue()).messageKey("internal.unresolvedRef")
                             .message("Reference {0} cannot be resolved")
                             .instanceLocation(schemaLocation.getFragment())
                             .schemaLocation(schemaLocation)
                             .evaluationPath(evaluationPath)
                             .arguments(fragment).build();
-                    throw new InvalidSchemaRefException(validationMessage);
+                    throw new InvalidSchemaRefException(error);
                 }
                 return found;
             }
@@ -627,7 +624,7 @@ public class JsonSchema implements JsonSchemaValidator {
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {
-                        ValidationMessage validationMessage = ValidationMessage.builder().keyword("$recursiveAnchor")
+                        Error error = Error.builder().keyword("$recursiveAnchor")
                                 .messageKey("internal.invalidRecursiveAnchor")
                                 .message(
                                         "The value of a $recursiveAnchor must be a Boolean literal but is {0}")
@@ -636,7 +633,7 @@ public class JsonSchema implements JsonSchemaValidator {
                                 .schemaLocation(schemaPath)
                                 .arguments(nodeToUse.getNodeType().toString())
                                 .build();
-                        throw new JsonSchemaException(validationMessage);
+                        throw new JsonSchemaException(error);
                     }
                     this.recursiveAnchor = nodeToUse.booleanValue();
                 }
@@ -760,10 +757,10 @@ public class JsonSchema implements JsonSchemaValidator {
      * the default.
      * 
      * @param rootNode the root node
-     * @return A list of ValidationMessage if there is any validation error, or an
+     * @return A list of Error if there is any validation error, or an
      *         empty list if there is no error.
      */
-    public List<ValidationMessage> validate(JsonNode rootNode) {
+    public List<Error> validate(JsonNode rootNode) {
         return validate(rootNode, OutputFormat.DEFAULT);
     }
 
@@ -780,7 +777,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public List<ValidationMessage> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
+    public List<Error> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
         return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -797,7 +794,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public List<ValidationMessage> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
+    public List<Error> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
         return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -872,10 +869,10 @@ public class JsonSchema implements JsonSchemaValidator {
      * 
      * @param input       the input
      * @param inputFormat the inputFormat
-     * @return A list of ValidationMessage if there is any validation error, or an
+     * @return A list of Error if there is any validation error, or an
      *         empty list if there is no error.
      */
-    public List<ValidationMessage> validate(String input, InputFormat inputFormat) {
+    public List<Error> validate(String input, InputFormat inputFormat) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT);
     }
 
@@ -894,7 +891,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public List<ValidationMessage> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+    public List<Error> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -913,7 +910,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public List<ValidationMessage> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+    public List<Error> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
     }
 

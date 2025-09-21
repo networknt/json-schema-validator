@@ -16,7 +16,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
         JsonSchema schema = getJsonSchemaFromClasspath("draft7/urn/issue665.json", SpecVersion.VersionFlag.V7);
         Assertions.assertNotNull(schema);
         Assertions.assertDoesNotThrow(schema::initializeValidators);
-        List<ValidationMessage> messages = schema.validate(getJsonNodeFromStringContent(
+        List<Error> messages = schema.validate(getJsonNodeFromStringContent(
                 "{\"myData\": {\"value\": \"hello\"}}"));
         Assertions.assertTrue(messages.isEmpty());
     }
@@ -36,7 +36,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
             JsonSchema schema = factory.getSchema(is);
             Assertions.assertNotNull(schema);
             Assertions.assertDoesNotThrow(schema::initializeValidators);
-            List<ValidationMessage> messages = schema.validate(getJsonNodeFromStringContent(
+            List<Error> messages = schema.validate(getJsonNodeFromStringContent(
                     "{\"myData\": {\"value\": \"hello\"}}"));
             Assertions.assertTrue(messages.isEmpty());
         } catch (IOException e) {

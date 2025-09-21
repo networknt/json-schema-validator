@@ -1,6 +1,6 @@
 package com.networknt.schema.walk;
 
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface JsonSchemaWalkListener {
 
 	WalkFlow onWalkStart(WalkEvent walkEvent);
 
-	void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages);
+	void onWalkEnd(WalkEvent walkEvent, List<Error> errors);
 }

@@ -77,7 +77,7 @@ class Issue724Test {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
             // nothing to do here
         }
     }

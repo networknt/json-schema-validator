@@ -19,7 +19,7 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
         JsonNode node = getJsonNodeFromClasspath("data/issue898.json");
 
         List<String> messages = schema.validate(node).stream()
-                .map(ValidationMessage::toString)
+                .map(Error::toString)
                 .collect(toList());
 
         Assertions.assertEquals(2, messages.size());

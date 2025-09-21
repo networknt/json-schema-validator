@@ -52,9 +52,9 @@ class AdditionalPropertiesValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalProperties", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalProperties", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
@@ -87,9 +87,9 @@ class AdditionalPropertiesValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalProperties/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalProperties/type", message.getSchemaLocation().toString());
         assertEquals("/bar", message.getInstanceLocation().toString());

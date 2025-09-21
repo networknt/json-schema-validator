@@ -32,7 +32,7 @@ public class ExecutionContext {
     private Stack<DiscriminatorContext> discriminatorContexts = null;
     private JsonNodeAnnotations annotations = null;
     private JsonNodeResults results = null;
-    private List<ValidationMessage> errors = new ArrayList<>();
+    private List<Error> errors = new ArrayList<>();
     
     /**
      * This is used during the execution to determine if the validator should fail fast.
@@ -177,18 +177,18 @@ public class ExecutionContext {
         this.discriminatorContexts.pop();
     }
 
-    public List<ValidationMessage> getErrors() {
+    public List<Error> getErrors() {
         return this.errors;
     }
 
-    public void addError(ValidationMessage error) {
+    public void addError(Error error) {
         this.errors.add(error);
         if (this.isFailFast()) {
             throw new FailFastAssertionException(error);
         }
     }
 
-    public void setErrors(List<ValidationMessage> errors) {
+    public void setErrors(List<Error> errors) {
         this.errors = errors;
     }
 }

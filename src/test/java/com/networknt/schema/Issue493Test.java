@@ -37,7 +37,7 @@ class Issue493Test
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-valid-1.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -49,7 +49,7 @@ class Issue493Test
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-valid-2.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -61,7 +61,7 @@ class Issue493Test
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-1.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
 
         Set<String> allErrorMessages = new HashSet<>();
@@ -81,7 +81,7 @@ class Issue493Test
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
         JsonSchema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-2.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
 
         Set<String> allErrorMessages = new HashSet<>();

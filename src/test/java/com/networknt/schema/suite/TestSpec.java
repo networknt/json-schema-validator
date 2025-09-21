@@ -56,7 +56,7 @@ public class TestSpec {
      * This is an extension of the schema used to describe tests in the compliance suite
      * </p>
      */
-    private final Set<String> validationMessages;
+    private final Set<String> errors;
 
     /**
      * Indicates whether this test should be executed
@@ -120,7 +120,7 @@ public class TestSpec {
      * @param data The instance which should be validated against the schema in "schema" (Required)
      * @param valid Whether the validation process of this instance should consider the instance valid or not (Required)
      * @param strictness A mapping of how strict a keyword's validators should be.
-     * @param validationMessages A sequence of validation messages expected from testing data against the schema
+     * @param errors A sequence of validation messages expected from testing data against the schema
      * @param disabled Indicates whether this test should be executed (Defaults to FALSE)
      * @param isTypeLoose Indicates whether the test should consider a strict definition of an enum (Defaults to FALSE)
      */
@@ -132,7 +132,7 @@ public class TestSpec {
         @JsonProperty("data") JsonNode data,
         @JsonProperty("valid") boolean valid,
         @JsonProperty("strictness") Map<String, Boolean> strictness,
-        @JsonProperty("validationMessages") Set<String> validationMessages,
+        @JsonProperty("errors") Set<String> errors,
         @JsonProperty("isTypeLoose") Boolean isTypeLoose,
         @JsonProperty("disabled") Boolean disabled,
         @JsonProperty("reason") String reason,
@@ -143,7 +143,7 @@ public class TestSpec {
         this.config = config;
         this.data = data;
         this.valid = valid;
-        this.validationMessages = validationMessages;
+        this.errors = errors;
         this.disabled = Boolean.TRUE.equals(disabled);
         this.reason = reason;
         this.typeLoose = Boolean.TRUE.equals(isTypeLoose);
@@ -237,8 +237,8 @@ public class TestSpec {
      * 
      * @return a non-null list of expected validation messages
      */
-    public Set<String> getValidationMessages() {
-        return new HashSet<>(null != this.validationMessages ? this.validationMessages : Collections.emptySet());
+    public Set<String> getErrors() {
+        return new HashSet<>(null != this.errors ? this.errors : Collections.emptySet());
     }
 
     /**

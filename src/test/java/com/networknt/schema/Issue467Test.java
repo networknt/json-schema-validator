@@ -54,7 +54,7 @@ class Issue467Test {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> set) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> set) {
                     }
                 })
                 .build();
@@ -63,7 +63,7 @@ class Issue467Test {
         ValidationResult result = schema.walk(data, true);
         assertEquals(new HashSet<>(Arrays.asList("/properties", "/properties/tags/items/0/properties")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
-        assertEquals(1, result.getValidationMessages().size());
+        assertEquals(1, result.getErrors().size());
     }
 
     @Test
@@ -79,7 +79,7 @@ class Issue467Test {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> set) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> set) {
                     }
                 })
                 .build();
@@ -89,7 +89,7 @@ class Issue467Test {
         assertEquals(
                 new HashSet<>(Arrays.asList("/properties/tags", "/properties/tags/items/0/properties/category", "/properties/tags/items/0/properties/value")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
-        assertEquals(1, result.getValidationMessages().size());
+        assertEquals(1, result.getErrors().size());
     }
 
 }

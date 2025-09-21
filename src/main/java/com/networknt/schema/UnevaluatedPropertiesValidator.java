@@ -116,7 +116,7 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                     evaluatedProperties.add(fieldName);
                     if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                         // All fails as "unevaluatedProperties: false"
-                        executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation).property(fieldName)
+                        executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation).property(fieldName)
                                 .arguments(fieldName).locale(executionContext.getExecutionConfig().getLocale())
                                 .build());
                     } else {

@@ -45,7 +45,7 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
             BigDecimal dividend = getDividend(node);
             if (dividend != null) {
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
-                    executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+                    executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(this.divisor)
                             .build());

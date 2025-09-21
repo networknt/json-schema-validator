@@ -43,7 +43,7 @@ class OpenAPI30JsonSchemaTest {
                     configBuilder.discriminatorKeywordEnabled(true);
                     JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
 
-                    List<ValidationMessage> errors = new ArrayList<ValidationMessage>(schema.validate(node));
+                    List<Error> errors = new ArrayList<Error>(schema.validate(node));
 
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
@@ -51,7 +51,7 @@ class OpenAPI30JsonSchemaTest {
                             System.out.println("schema: " + schema);
                             System.out.println("data: " + test.get("data"));
                             System.out.println("errors:");
-                            for (ValidationMessage error : errors) {
+                            for (Error error : errors) {
                                 System.out.println(error);
                             }
                         }
@@ -68,7 +68,7 @@ class OpenAPI30JsonSchemaTest {
                                 System.out.println("schema: " + schema);
                                 System.out.println("data: " + test.get("data"));
                                 System.out.println("errors: " + errors);
-                                for (ValidationMessage error : errors) {
+                                for (Error error : errors) {
                                     System.out.println(error);
                                 }
                                 assertEquals(errorCount.asInt(), errors.size(), "expected error count");

@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
 /**
- * ValidationMessageHandlerTest.
+ * ErrorHandlerTest.
  */
-class ValidationMessageHandlerTest {
+class ErrorHandlerTest {
     @Test
     void errorMessage() {
         String schemaData = "{\r\n"
@@ -53,7 +53,7 @@ class ValidationMessageHandlerTest {
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
         assertEquals("/foo", messages.get(0).getInstanceLocation().toString());
         assertEquals("should be an object", messages.get(0).getMessage());
@@ -83,7 +83,7 @@ class ValidationMessageHandlerTest {
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
         assertEquals("/keyword1", messages.get(0).getInstanceLocation().toString());
         assertEquals("关键字1必须为字符串", messages.get(0).getMessage());

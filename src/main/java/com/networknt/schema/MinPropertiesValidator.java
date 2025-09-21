@@ -43,7 +43,7 @@ public class MinPropertiesValidator extends BaseJsonValidator implements JsonVal
 
         if (node.isObject()) {
             if (node.size() < min) {
-                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(min).build());
             }

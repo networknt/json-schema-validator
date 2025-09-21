@@ -22,7 +22,7 @@ package com.networknt.schema;
 public class DisallowUnknownJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     @Override
     public JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
-        throw new InvalidSchemaException(ValidationMessage.builder()
+        throw new InvalidSchemaException(Error.builder()
                 .message("Unknown meta-schema ''{0}''. Only meta-schemas that are explicitly configured can be used.")
                 .arguments(iri).build());
     }

@@ -40,7 +40,7 @@ class Issue1091Test {
 
         List<String> messages = schema.validate(node)
                 .stream()
-                .map(ValidationMessage::getMessage)
+                .map(Error::getMessage)
                 .collect(Collectors.toList());
 
         assertEquals(0, messages.size());

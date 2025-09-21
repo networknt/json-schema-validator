@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 import com.networknt.schema.AbsoluteIri;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 /**
  * {@link SchemaLoader} that allows loading external resources.
@@ -43,7 +43,7 @@ public class AllowSchemaLoader implements SchemaLoader {
             // Allow to delegate to the next schema loader
             return null;
         }
-        throw new InvalidSchemaException(ValidationMessage.builder()
+        throw new InvalidSchemaException(Error.builder()
                 .message("Schema from ''{0}'' is not allowed to be loaded.").arguments(absoluteIri).build());
     }
 }

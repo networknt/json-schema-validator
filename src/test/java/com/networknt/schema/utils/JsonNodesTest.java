@@ -36,7 +36,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.JsonNodeReader;
 import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
@@ -91,14 +91,14 @@ class JsonNodesTest {
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        ValidationMessage format = list.get(0);
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        Error format = list.get(0);
         JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
         JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
-        ValidationMessage minLength = list.get(1);
+        Error minLength = list.get(1);
         JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
 
@@ -137,14 +137,14 @@ class JsonNodesTest {
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.YAML, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
+        List<Error> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        ValidationMessage format = list.get(0);
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        Error format = list.get(0);
         JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
         JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
-        ValidationMessage minLength = list.get(1);
+        Error minLength = list.get(1);
         JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
 

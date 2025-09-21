@@ -76,7 +76,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     // This handles the case where "items": false as the boolean false schema doesn't
                     // generate a helpful message
                     int x = i;
-                    executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
+                    executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .index(x).arguments(x).build());
                 }

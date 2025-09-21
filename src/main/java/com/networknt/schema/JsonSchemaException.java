@@ -24,9 +24,9 @@ import java.util.List;
  */
 public class JsonSchemaException extends RuntimeException {
     private static final long serialVersionUID = -7805792737596582110L;
-    private final ValidationMessage error;
+    private final Error error;
 
-    public JsonSchemaException(ValidationMessage error) {
+    public JsonSchemaException(Error error) {
         this.error = error;
     }
 
@@ -45,11 +45,11 @@ public class JsonSchemaException extends RuntimeException {
         return this.error != null ? this.error.getMessage() : super.getMessage();
     }
 
-    public ValidationMessage getError() {
+    public Error getError() {
         return this.error;
     }
 
-    public List<ValidationMessage> getErrors() {
+    public List<Error> getErrors() {
         if (error == null) {
             return Collections.emptyList();
         }

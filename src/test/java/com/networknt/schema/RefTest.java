@@ -26,9 +26,9 @@ class RefTest {
                 + "  }\r\n"
                 + "}";
         assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
-        ValidationMessage error = errors.iterator().next();
+        Error error = errors.iterator().next();
         assertEquals("classpath:///schema/ref-ref.json#/definitions/DriverProperties/required",
                 error.getSchemaLocation().toString());
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",
@@ -49,9 +49,9 @@ class RefTest {
                 + "  }\r\n"
                 + "}";
         assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
-        ValidationMessage error = errors.iterator().next();
+        Error error = errors.iterator().next();
         assertEquals("https://www.example.org/common#/definitions/DriverProperties/required",
                 error.getSchemaLocation().toString());
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",

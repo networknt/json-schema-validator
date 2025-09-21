@@ -39,7 +39,7 @@ public class OneOfValidator extends BaseJsonValidator {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ONE_OF, validationContext);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
-            throw new JsonSchemaException(message().instanceNode(schemaNode)
+            throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
                     .arguments(nodeType.toString(), "array")
@@ -65,9 +65,9 @@ public class OneOfValidator extends BaseJsonValidator {
         int numberOfValidSchema = 0;
         int index = 0;
         List<String> indexes = null;
-        List<ValidationMessage> existingErrors = executionContext.getErrors();
-        List<ValidationMessage> childErrors = null;
-        List<ValidationMessage> schemaErrors = new ArrayList<>();
+        List<Error> existingErrors = executionContext.getErrors();
+        List<Error> childErrors = null;
+        List<Error> schemaErrors = new ArrayList<>();
         executionContext.setErrors(schemaErrors);
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
@@ -164,7 +164,7 @@ public class OneOfValidator extends BaseJsonValidator {
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 addMessages = false;
-                existingErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
+                existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(
                                 "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
@@ -183,7 +183,7 @@ public class OneOfValidator extends BaseJsonValidator {
         // is not equal to 1.
         // errors will only not be null in the discriminator case where no match is found
         if (numberOfValidSchema != 1 && addMessages) {
-            ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
+            Error message = error().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(Integer.toString(numberOfValidSchema), numberOfValidSchema > 1 ? String.join(", ", indexes) : "").build();

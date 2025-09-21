@@ -30,10 +30,10 @@ class Issue550Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
-        List<ValidationMessage> errors = schema.validate(node);
-        ValidationMessage validationMessage = errors.stream().findFirst().get();
+        List<Error> errors = schema.validate(node);
+        Error error = errors.stream().findFirst().get();
 
-        Assertions.assertEquals("https://example.com/person.schema.json#/properties/age/minimum", validationMessage.getSchemaLocation().toString());
+        Assertions.assertEquals("https://example.com/person.schema.json#/properties/age/minimum", error.getSchemaLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 
@@ -44,11 +44,11 @@ class Issue550Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
-        List<ValidationMessage> errors = schema.validate(node);
-        ValidationMessage validationMessage = errors.stream().findFirst().get();
+        List<Error> errors = schema.validate(node);
+        Error error = errors.stream().findFirst().get();
 
         // Instead of capturing all subSchema within oneOf, a pointer to oneOf should be provided.
-        Assertions.assertEquals("https://example.com/person.schema.json#/oneOf", validationMessage.getSchemaLocation().toString());
+        Assertions.assertEquals("https://example.com/person.schema.json#/oneOf", error.getSchemaLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 

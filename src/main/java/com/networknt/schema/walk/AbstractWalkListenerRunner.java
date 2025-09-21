@@ -5,7 +5,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonValidator;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 import java.util.List;
 
@@ -35,10 +35,10 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
     }
 
     protected void runPostWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent,
-                                        List<ValidationMessage> validationMessages) {
+                                        List<Error> errors) {
         if (walkListeners != null) {
             for (JsonSchemaWalkListener walkListener : walkListeners) {
-                walkListener.onWalkEnd(walkEvent, validationMessages);
+                walkListener.onWalkEnd(walkEvent, errors);
             }
         }
     }

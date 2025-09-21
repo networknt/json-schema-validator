@@ -197,7 +197,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<Error> errors) {
 
         }
     }
@@ -218,7 +218,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<Error> errors) {
 
         }
     }
@@ -235,7 +235,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<Error> errors) {
 
         }
     }

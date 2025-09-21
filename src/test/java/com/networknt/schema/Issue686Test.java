@@ -59,7 +59,7 @@ class Issue686Test {
     }
 
     private void verify(SchemaValidatorsConfig config, String expectedMessage) throws JsonProcessingException {
-        List<ValidationMessage> messages = getSchema(config).validate(new ObjectMapper().readTree(" { \"foo\": 123 } "));
+        List<Error> messages = getSchema(config).validate(new ObjectMapper().readTree(" { \"foo\": 123 } "));
         assertEquals(1, messages.size());
         assertEquals(expectedMessage, messages.iterator().next().toString());
     }

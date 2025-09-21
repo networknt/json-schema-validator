@@ -24,12 +24,12 @@ import java.util.Objects;
 public class InvalidSchemaException extends JsonSchemaException {
     private static final long serialVersionUID = 1L;
 
-    public InvalidSchemaException(ValidationMessage message, Exception cause) {
+    public InvalidSchemaException(Error message, Exception cause) {
         super(Objects.requireNonNull(message));
         this.initCause(cause);
     }
 
-    public InvalidSchemaException(ValidationMessage message) {
+    public InvalidSchemaException(Error message) {
         super(Objects.requireNonNull(message));
     }
 }

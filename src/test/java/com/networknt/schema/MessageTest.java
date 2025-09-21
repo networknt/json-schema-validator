@@ -42,7 +42,7 @@ class MessageTest {
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
                 JsonNodePath instanceLocation) {
             if (!node.asText().equals(value)) {
-                executionContext.addError(message().message("must be equal to ''{0}''")
+                executionContext.addError(error().message("must be equal to ''{0}''")
                                 .arguments(value)
                                 .instanceLocation(instanceLocation).instanceNode(node).build());
             }
@@ -74,7 +74,7 @@ class MessageTest {
                 + "  \"equals\": \"helloworld\"\r\n"
                 + "}";
         JsonSchema schema = factory.getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
+        List<Error> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("$: must be equal to 'helloworld'", messages.iterator().next().toString());
         

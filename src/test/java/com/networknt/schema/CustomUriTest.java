@@ -24,7 +24,7 @@ class CustomUriTest {
         final JsonNode value = mapper.readTree("{\"customAnyOf\": null,\"customOneOf\": null}");
 
         /* When */
-        final List<ValidationMessage> errors = schema.validate(value);
+        final List<Error> errors = schema.validate(value);
 
         /* Then */
         assertThat(errors.isEmpty(), is(true));

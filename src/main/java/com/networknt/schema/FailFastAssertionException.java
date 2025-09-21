@@ -32,14 +32,14 @@ import java.util.Objects;
 public class FailFastAssertionException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private final ValidationMessage error;
+    private final Error error;
 
     /**
      * Constructor.
      *
      * @param error the validation message
      */
-    public FailFastAssertionException(ValidationMessage error) {
+    public FailFastAssertionException(Error error) {
         this.error = Objects.requireNonNull(error);
     }
 
@@ -48,7 +48,7 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public ValidationMessage getError() {
+    public Error getError() {
         return this.error;
     }
 
@@ -57,7 +57,7 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public List<ValidationMessage> getErrors() {
+    public List<Error> getErrors() {
         return Collections.singletonList(this.error);
     }
 
