@@ -40,8 +40,8 @@ import java.util.function.Supplier;
  *      "https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
-@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid", "error" })
-@JsonPropertyOrder({ "type", "code", "message", "instanceLocation", "property", "evaluationPath", "schemaLocation",
+@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
+@JsonPropertyOrder({ "keyword", "instanceLocation", "message", "evaluationPath", "schemaLocation",
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
 public class ValidationMessage {
@@ -178,31 +178,19 @@ public class ValidationMessage {
         return messageSupplier != null;
     }
 
-    /**
-     * Gets the error.
-     *
-     * @return the error
-     */
-    public String getError() {
-        String message = getMessage();
-        int index = message.indexOf(':');
-        if (index != -1) {
-            int length = message.length();
-            while (index + 1 < length) {
-                if (message.charAt(index + 1) == ' ') {
-                    index++;
-                } else {
-                    break;
-                }
-            }
-            return message.substring(index + 1);
-        }
-        return message;
-    }
-
     @Override
     public String toString() {
-        return messageSupplier.get();
+        StringBuilder builder = new StringBuilder();
+        if (instanceLocation != null) {
+            // Validation Error
+            builder.append(instanceLocation.toString());
+        } else if (schemaLocation != null) {
+            // Parse Error
+            builder.append(schemaLocation.toString());
+        }
+        builder.append(": ");
+        builder.append(messageSupplier.get());
+        return builder.toString();
     }
 
     @Override
@@ -400,14 +388,9 @@ public class ValidationMessage {
             return new ValidationMessage(keyword, evaluationPath, schemaLocation, instanceLocation,
                     arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
         }
-        
+
         protected Object[] getMessageArguments() {
-            Object[] objs = new Object[(arguments == null ? 0 : arguments.length) + 1];
-            objs[0] = instanceLocation;
-            if (arguments != null) {
-	            System.arraycopy(arguments, 0, objs, 1, objs.length - 1);
-            }
-            return objs;
+            return arguments;
         }
 
         protected String getKeyword() {

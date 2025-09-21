@@ -284,7 +284,7 @@ public class JsonMetaSchema {
                             }
                         } else if (Boolean.TRUE.equals(entry.getValue())) {
                             ValidationMessage validationMessage = ValidationMessage.builder()
-                                    .message("Meta-schema ''{1}'' has unknown required vocabulary ''{2}''")
+                                    .message("Meta-schema ''{0}'' has unknown required vocabulary ''{1}''")
                                     .arguments(this.iri, id).build();
                             throw new InvalidSchemaException(validationMessage);
                         }

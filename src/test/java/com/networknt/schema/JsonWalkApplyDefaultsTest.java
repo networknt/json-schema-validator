@@ -24,7 +24,7 @@ class JsonWalkApplyDefaultsTest {
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
         ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema);
         if (shouldValidateSchema) {
-            assertThat(result.getValidationMessages().stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+            assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
                        Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                    "/outer/badArray/1: integer found, string expected",
                                "/outer/reference/stringValue_missing_with_default_null: null found, string expected"));
@@ -44,7 +44,7 @@ class JsonWalkApplyDefaultsTest {
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
-        assertThat(result.getValidationMessages().stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+        assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
                                                "/outer/badArray/1: null found, string expected",
@@ -61,7 +61,7 @@ class JsonWalkApplyDefaultsTest {
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
         JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, false, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
-        assertThat(result.getValidationMessages().stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+        assertThat(result.getValidationMessages().stream().map(ValidationMessage::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_null: null found, integer expected",
                                                "/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
@@ -100,7 +100,7 @@ class JsonWalkApplyDefaultsTest {
             default:
                 throw new UnsupportedOperationException();
         }
-        assertThat(validationMessages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+        assertThat(validationMessages.stream().map(ValidationMessage::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject: required property 'intValue_missing' not found",
                                                "/outer/mixedObject: required property 'intValue_missingButError' not found",
                                                "/outer/mixedObject/intValue_null: null found, integer expected",

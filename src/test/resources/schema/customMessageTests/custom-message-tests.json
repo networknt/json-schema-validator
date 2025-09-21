@@ -51,7 +51,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "Custom Message: Invalid type provided"
+          "/bar: Custom Message: Invalid type provided"
         ]
       },
       {
@@ -65,7 +65,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "Custom Message: Only numbers are supported in 'foo'"
+          "/foo/2: Custom Message: Only numbers are supported in 'foo'"
         ]
       },
       {
@@ -79,7 +79,7 @@
         },
         "valid": false,
         "validationMessages": [
-          "Custom Message: Maximum 3 numbers can be given in 'foo'"
+          "/foo: Custom Message: Maximum 3 numbers can be given in 'foo'"
         ]
       },
       {
@@ -93,8 +93,8 @@
         },
         "valid": false,
         "validationMessages": [
-          "Custom Message: Invalid type provided",
-          "Custom Message: Only numbers are supported in 'foo'"
+          "/bar: Custom Message: Invalid type provided",
+          "/foo/2: Custom Message: Only numbers are supported in 'foo'"
         ]
       },
       {
@@ -108,9 +108,9 @@
         },
         "valid": false,
         "validationMessages": [
-          "Custom Message: Invalid type provided",
-          "Custom Message: Only numbers are supported in 'foo'",
-          "Custom Message: Maximum 3 numbers can be given in 'foo'"
+          "/bar: Custom Message: Invalid type provided",
+          "/foo/2: Custom Message: Only numbers are supported in 'foo'",
+          "/foo: Custom Message: Maximum 3 numbers can be given in 'foo'"
         ]
       }
     ]
@@ -131,8 +131,8 @@
       "message": {
         "type" : "should be an object",
         "required": {
-          "foo" : "{0}: ''foo'' is required",
-          "bar" : "{0}: ''bar'' is required"
+          "foo" : "'foo' is required",
+          "bar" : "'bar' is required"
         }
       }
     },
@@ -192,7 +192,7 @@
                 "type": "string",
                 "minLength": 1,
                 "message": {
-                  "minLength": "{0}: Item should not be empty"
+                  "minLength": "Item should not be empty"
                 }
               }
             }

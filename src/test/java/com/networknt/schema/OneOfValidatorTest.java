@@ -72,7 +72,7 @@ class OneOfValidatorTest {
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
         assertEquals("$: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
-                assertions.get(0).getMessage());
+                assertions.get(0).toString());
     }
 
     @Test
@@ -112,7 +112,7 @@ class OneOfValidatorTest {
         assertEquals("oneOf", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("$: must be valid to one and only one schema, but 0 are valid", assertions.get(0).getMessage());
+        assertEquals("$: must be valid to one and only one schema, but 0 are valid", assertions.get(0).toString());
 
         assertEquals("additionalProperties", assertions.get(1).getKeyword());
         assertEquals("$", assertions.get(1).getInstanceLocation().toString());

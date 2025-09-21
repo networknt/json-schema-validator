@@ -100,7 +100,9 @@ abstract class AbstractJsonSchemaTestSuite {
 
         // Expected Validation Messages need not be exactly same as actual errors.
         // This code checks if expected validation message is subset of actual errors
-        Set<String> actual = errors.stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
+        Set<String> actual = errors.stream()
+                .map(error -> error.getInstanceLocation().toString() + ": " + error.getMessage())
+                .collect(Collectors.toSet());
         Set<String> expected = testSpec.getValidationMessages();
         expected.removeAll(actual);
         if (!expected.isEmpty()) {

@@ -65,7 +65,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         assertEquals("/0", message.getInstanceLocation().toString());
         assertEquals("\"string\"", message.getSchemaNode().toString());
         assertEquals("1", message.getInstanceNode().toString());
-        assertEquals("/0: integer found, string expected", message.getMessage());
+        assertEquals("/0: integer found, string expected", message.toString());
         assertNull(message.getProperty());
     }
 
@@ -110,7 +110,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("false", message.getSchemaNode().toString());
         assertEquals("[\"x\",1,1,2]", message.getInstanceNode().toString());
-        assertEquals(": index '2' is not defined in the schema and the schema does not allow additional items", message.getMessage());
+        assertEquals(": index '2' is not defined in the schema and the schema does not allow additional items", message.toString());
         assertNull(message.getProperty());
     }
 

@@ -46,7 +46,7 @@ class DependentRequiredTest {
         List<ValidationMessage> messages = whenValidate("{ \"optional\": \"present\" }");
 
         assertThat(
-            messages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
+            messages.stream().map(ValidationMessage::toString).collect(Collectors.toList()),
             contains("$: has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
     }
 

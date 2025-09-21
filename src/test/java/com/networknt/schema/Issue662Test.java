@@ -39,7 +39,7 @@ class Issue662Test extends BaseJsonSchemaValidatorTest {
         JsonNode node = getJsonNodeFromClasspath(resource("objectInvalidValue.json"));
         List<ValidationMessage> errors = schema.validate(node);
         List<String> errorMessages = errors.stream()
-            .map(v -> v.getEvaluationPath() + " = " + v.getMessage())
+            .map(v -> v.getEvaluationPath() + " = " + v.toString())
             .collect(toList());
 
         // As this is from an anyOf evaluation both error messages should be present as they didn't match any

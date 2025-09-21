@@ -28,7 +28,7 @@ public class DisallowUnknownKeywordFactory implements KeywordFactory {
     public Keyword getKeyword(String value, ValidationContext validationContext) {
         logger.error("Keyword '{}' is unknown and must be configured on the meta-schema or vocabulary", value);
         throw new InvalidSchemaException(ValidationMessage.builder()
-                .message("Keyword ''{1}'' is unknown and must be configured on the meta-schema or vocabulary")
+                .message("Keyword ''{0}'' is unknown and must be configured on the meta-schema or vocabulary")
                 .arguments(value).build());
     }
 

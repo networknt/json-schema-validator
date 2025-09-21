@@ -44,6 +44,6 @@ public class AllowSchemaLoader implements SchemaLoader {
             return null;
         }
         throw new InvalidSchemaException(ValidationMessage.builder()
-                .message("Schema from ''{1}'' is not allowed to be loaded.").arguments(absoluteIri).build());
+                .message("Schema from ''{0}'' is not allowed to be loaded.").arguments(absoluteIri).build());
     }
 }

@@ -60,7 +60,7 @@ class AdditionalPropertiesValidatorTest {
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("false", message.getSchemaNode().toString());
         assertEquals("{\"foo\":\"hello\",\"bar\":\"world\"}", message.getInstanceNode().toString());
-        assertEquals(": property 'bar' is not defined in the schema and the schema does not allow additional properties", message.getMessage());
+        assertEquals(": property 'bar' is not defined in the schema and the schema does not allow additional properties", message.toString());
         assertEquals("bar", message.getProperty());
     }
     
@@ -95,7 +95,7 @@ class AdditionalPropertiesValidatorTest {
         assertEquals("/bar", message.getInstanceLocation().toString());
         assertEquals("\"number\"", message.getSchemaNode().toString());
         assertEquals("\"world\"", message.getInstanceNode().toString());
-        assertEquals("/bar: string found, number expected", message.getMessage());
+        assertEquals("/bar: string found, number expected", message.toString());
         assertNull(message.getProperty());
     }
 

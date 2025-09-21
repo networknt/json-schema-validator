@@ -95,7 +95,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
         assertEquals("/valid_key", message.getInstanceLocation().toString());
         assertEquals("[\"array\",\"string\"]", message.getSchemaNode().toString());
         assertEquals("5", message.getInstanceNode().toString());
-        assertEquals("/valid_key: integer found, [array, string] expected", message.getMessage());
+        assertEquals("/valid_key: integer found, [array, string] expected", message.toString());
         assertNull(message.getProperty());
         
         String inputData2 = "{\n"
@@ -111,7 +111,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
         assertEquals("/valid_array/0", message.getInstanceLocation().toString());
         assertEquals("\"string\"", message.getSchemaNode().toString());
         assertEquals("999", message.getInstanceNode().toString());
-        assertEquals("/valid_array/0: integer found, string expected", message.getMessage());
+        assertEquals("/valid_array/0: integer found, string expected", message.toString());
         assertNull(message.getProperty());
     }
 

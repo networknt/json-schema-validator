@@ -42,7 +42,7 @@ class OutputFormatTest {
         Assertions.assertEquals(3, errors.size());
 
         Set<String[]> messages = errors.stream().map(m -> new String[] { m.getEvaluationPath().toString(),
-                m.getSchemaLocation().toString(), m.getInstanceLocation().toString(), m.getMessage() })
+                m.getSchemaLocation().toString(), m.getInstanceLocation().toString(), m.toString() })
                 .collect(Collectors.toSet());
         
         assertThat(messages,
@@ -68,7 +68,7 @@ class OutputFormatTest {
                     builder.append("'");
                     builder.append(" ");
                 }
-                builder.append(message.getError());
+                builder.append(message.getMessage());
 
                 return builder.toString();
             };

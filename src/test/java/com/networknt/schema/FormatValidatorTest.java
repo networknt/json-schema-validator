@@ -177,7 +177,7 @@ class FormatValidatorTest {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(messages.isEmpty());
-        assertEquals(": does not match the custom pattern must be test", messages.iterator().next().getMessage());
+        assertEquals(": does not match the custom pattern must be test", messages.iterator().next().toString());
     }
 
     static class CustomNumberFormat implements Format {
@@ -226,7 +226,7 @@ class FormatValidatorTest {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(messages.isEmpty());
-        assertEquals(": does not match the custom-number pattern ", messages.iterator().next().getMessage());
+        assertEquals(": does not match the custom-number pattern ", messages.iterator().next().toString());
         messages = schema.validate("12345", InputFormat.JSON, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
         });

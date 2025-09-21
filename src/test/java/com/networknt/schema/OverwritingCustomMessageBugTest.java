@@ -45,7 +45,7 @@ class OverwritingCustomMessageBugTest {
   private Map<String, String> transferErrorMsg(List<ValidationMessage> validationMessages) {
     Map<String, String> pathToMessage = new HashMap<>();
     validationMessages.forEach(msg -> {
-      pathToMessage.put(msg.getInstanceLocation().toString(), msg.getMessage());
+      pathToMessage.put(msg.getInstanceLocation().toString(), msg.toString());
     });
     return pathToMessage;
   }

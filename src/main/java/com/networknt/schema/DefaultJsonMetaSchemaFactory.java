@@ -46,7 +46,7 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
             throw e;
         } catch (Exception e) {
             ValidationMessage validationMessage = ValidationMessage.builder()
-                    .message("Failed to load meta-schema ''{1}''").arguments(iri).build();
+                    .message("Failed to load meta-schema ''{0}''").arguments(iri).build();
             throw new InvalidSchemaException(validationMessage, e);
         }
     }

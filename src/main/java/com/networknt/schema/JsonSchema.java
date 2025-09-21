@@ -510,7 +510,7 @@ public class JsonSchema implements JsonSchemaValidator {
                 if (found == null) {
                     ValidationMessage validationMessage = ValidationMessage.builder()
                             .keyword(ValidatorTypeCode.REF.getValue()).messageKey("internal.unresolvedRef")
-                            .message("{0}: Reference {1} cannot be resolved")
+                            .message("Reference {0} cannot be resolved")
                             .instanceLocation(schemaLocation.getFragment())
                             .schemaLocation(schemaLocation)
                             .evaluationPath(evaluationPath)
@@ -630,7 +630,7 @@ public class JsonSchema implements JsonSchemaValidator {
                         ValidationMessage validationMessage = ValidationMessage.builder().keyword("$recursiveAnchor")
                                 .messageKey("internal.invalidRecursiveAnchor")
                                 .message(
-                                        "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
+                                        "The value of a $recursiveAnchor must be a Boolean literal but is {0}")
                                 .instanceLocation(path)
                                 .evaluationPath(path)
                                 .schemaLocation(schemaPath)

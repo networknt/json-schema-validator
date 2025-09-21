@@ -37,7 +37,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         if (!"#".equals(refValue)) {
             ValidationMessage validationMessage = message()
                     .keyword(ValidatorTypeCode.RECURSIVE_REF.getValue()).messageKey("internal.invalidRecursiveRef")
-                    .message("{0}: The value of a $recursiveRef must be '#' but is '{1}'").instanceLocation(schemaLocation.getFragment())
+                    .message("The value of a $recursiveRef must be '#' but is '{0}'").instanceLocation(schemaLocation.getFragment())
                     .instanceNode(this.schemaNode)
                     .evaluationPath(evaluationPath).arguments(refValue).build();
             throw new JsonSchemaException(validationMessage);
@@ -90,7 +90,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
-                    .messageKey("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);
@@ -107,7 +107,7 @@ public class RecursiveRefValidator extends BaseJsonValidator {
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
-                    .messageKey("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+                    .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);

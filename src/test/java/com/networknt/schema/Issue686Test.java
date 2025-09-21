@@ -26,8 +26,8 @@ class Issue686Test {
     void testValidationWithDefaultBundleAndLocale() throws JsonProcessingException {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         ResourceBundle resourceBundle = ResourceBundle.getBundle(DefaultMessageSource.BUNDLE_BASE_NAME, Locale.getDefault());
-        String expectedMessage = new MessageFormat(resourceBundle.getString("type")).format(new String[] {"/foo", "integer", "string"});
-        verify(config, expectedMessage);
+        String expectedMessage = new MessageFormat(resourceBundle.getString("type")).format(new String[] {"integer", "string"});
+        verify(config, "/foo: " + expectedMessage);
     }
 
     @Test
@@ -61,7 +61,7 @@ class Issue686Test {
     private void verify(SchemaValidatorsConfig config, String expectedMessage) throws JsonProcessingException {
         List<ValidationMessage> messages = getSchema(config).validate(new ObjectMapper().readTree(" { \"foo\": 123 } "));
         assertEquals(1, messages.size());
-        assertEquals(expectedMessage, messages.iterator().next().getMessage());
+        assertEquals(expectedMessage, messages.iterator().next().toString());
     }
 
 }

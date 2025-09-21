@@ -67,7 +67,7 @@ class CustomMetaSchemaTest {
                 ValidationMessage validationMessage = ValidationMessage.builder().keyword(keyword)
                         .schemaNode(node)
                         .instanceNode(node)
-                        .messageKey("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
+                        .messageKey("tests.example.enumNames").message("enumName is {0}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
                 executionContext.addError(validationMessage);
             }
@@ -130,6 +130,6 @@ class CustomMetaSchemaTest {
         assertEquals(1, messages.size());
 
         ValidationMessage message = messages.iterator().next();
-        assertEquals("$: enumName is Foo !", message.getMessage());
+        assertEquals("$: enumName is Foo !", message.toString());
     }
 }

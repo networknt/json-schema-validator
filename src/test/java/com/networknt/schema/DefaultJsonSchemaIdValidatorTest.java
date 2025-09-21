@@ -39,7 +39,7 @@ class DefaultJsonSchemaIdValidatorTest {
         try {
             JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
         } catch (InvalidSchemaException e) {
-            assertEquals("/$id: '0' is not a valid $id", e.getMessage());
+            assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
     }
 

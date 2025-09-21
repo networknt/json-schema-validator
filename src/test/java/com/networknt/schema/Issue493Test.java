@@ -66,7 +66,7 @@ class Issue493Test
 
         Set<String> allErrorMessages = new HashSet<>();
         errors.forEach(vm -> {
-            allErrorMessages.add(vm.getMessage());
+            allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages,
                    Matchers.containsInAnyOrder("$.parameters[0].value: string found, integer expected",
@@ -86,7 +86,7 @@ class Issue493Test
 
         Set<String> allErrorMessages = new HashSet<>();
         errors.forEach(vm -> {
-            allErrorMessages.add(vm.getMessage());
+            allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages, Matchers.containsInAnyOrder(
             "$.parameters[1].value: string found, integer expected",

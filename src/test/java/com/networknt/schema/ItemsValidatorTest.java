@@ -59,7 +59,7 @@ class ItemsValidatorTest {
         assertEquals("/1", message.getInstanceLocation().toString());
         assertEquals("\"integer\"", message.getSchemaNode().toString());
         assertEquals("\"x\"", message.getInstanceNode().toString());
-        assertEquals("/1: string found, integer expected", message.getMessage());
+        assertEquals("/1: string found, integer expected", message.toString());
         assertNull(message.getProperty());
     }
 
@@ -86,7 +86,7 @@ class ItemsValidatorTest {
         assertEquals("/3", message.getInstanceLocation().toString());
         assertEquals("\"integer\"", message.getSchemaNode().toString());
         assertEquals("\"foo\"", message.getInstanceNode().toString());
-        assertEquals("/3: string found, integer expected", message.getMessage());
+        assertEquals("/3: string found, integer expected", message.toString());
         assertNull(message.getProperty());
     }
 
@@ -113,7 +113,7 @@ class ItemsValidatorTest {
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("false", message.getSchemaNode().toString());
         assertEquals("[null,2,3,\"foo\"]", message.getInstanceNode().toString());
-        assertEquals(": index '1' is not defined in the schema and the schema does not allow additional items", message.getMessage());
+        assertEquals(": index '1' is not defined in the schema and the schema does not allow additional items", message.toString());
         assertNull(message.getProperty());
     }
 

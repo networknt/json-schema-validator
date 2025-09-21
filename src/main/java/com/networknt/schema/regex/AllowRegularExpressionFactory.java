@@ -39,6 +39,6 @@ public class AllowRegularExpressionFactory implements RegularExpressionFactory {
             return this.delegate.getRegularExpression(regex);
         }
         throw new InvalidSchemaException(ValidationMessage.builder()
-                .message("Regular expression ''{1}'' is not allowed to be used.").arguments(regex).build());
+                .message("Regular expression ''{0}'' is not allowed to be used.").arguments(regex).build());
     }
 }

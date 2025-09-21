@@ -23,7 +23,7 @@ public class DisallowUnknownJsonMetaSchemaFactory implements JsonMetaSchemaFacto
     @Override
     public JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         throw new InvalidSchemaException(ValidationMessage.builder()
-                .message("Unknown meta-schema ''{1}''. Only meta-schemas that are explicitly configured can be used.")
+                .message("Unknown meta-schema ''{0}''. Only meta-schemas that are explicitly configured can be used.")
                 .arguments(iri).build());
     }
 

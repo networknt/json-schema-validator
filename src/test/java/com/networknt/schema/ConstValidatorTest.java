@@ -42,7 +42,7 @@ class ConstValidatorTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "\"bb\"";
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
-        assertEquals(": must be the constant value 'aa' but is 'bb'", messages.iterator().next().getMessage());
+        assertEquals(": must be the constant value 'aa' but is 'bb'", messages.iterator().next().toString());
     }
 
     @Test
@@ -56,7 +56,7 @@ class ConstValidatorTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
         String inputData = "2";
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
-        assertEquals(": must be the constant value '1' but is '2'", messages.iterator().next().getMessage());
+        assertEquals(": must be the constant value '1' but is '2'", messages.iterator().next().toString());
     }
 
     @Test

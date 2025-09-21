@@ -48,7 +48,7 @@ class Issue375Test {
         List<ValidationMessage> errors = schema.validate(node);
         List<String> errorMessages = new ArrayList<String>();
         for (ValidationMessage error: errors) {
-            errorMessages.add(error.getMessage());
+            errorMessages.add(error.toString());
         }
 
         List<String> expectedMessages = Arrays.asList(

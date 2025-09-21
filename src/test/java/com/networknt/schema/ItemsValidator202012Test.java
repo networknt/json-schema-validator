@@ -56,7 +56,7 @@ class ItemsValidator202012Test {
         assertEquals("/1", message.getInstanceLocation().toString());
         assertEquals("\"integer\"", message.getSchemaNode().toString());
         assertEquals("\"x\"", message.getInstanceNode().toString());
-        assertEquals("/1: string found, integer expected", message.getMessage());
+        assertEquals("/1: string found, integer expected", message.toString());
         assertNull(message.getProperty());
     }
 
