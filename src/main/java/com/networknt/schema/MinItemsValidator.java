@@ -42,14 +42,14 @@ public class MinItemsValidator extends BaseJsonValidator implements JsonValidato
             if (node.size() < min) {
                 executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(min, node.size())
+                        .arguments(min, node.size())
                         .build());
             }
         } else if (this.validationContext.getConfig().isTypeLoose()) {
             if (1 < min) {
                 executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(min, 1).build());
+                        .arguments(min, 1).build());
             }
         }
     }

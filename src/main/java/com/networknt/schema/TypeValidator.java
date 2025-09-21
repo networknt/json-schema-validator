@@ -61,7 +61,6 @@ public class TypeValidator extends BaseJsonValidator {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());
         }
     }

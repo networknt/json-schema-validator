@@ -116,13 +116,13 @@ public class ContainsValidator extends BaseJsonValidator {
             if (actual < m) {
                 boundsViolated(executionContext, isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
-                        executionContext.isFailFast(), node, instanceLocation, m);
+                        node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
                 boundsViolated(executionContext, isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
-                        executionContext.isFailFast(), node, instanceLocation, this.max);
+                        node, instanceLocation, this.max);
             }
         }
         
@@ -184,7 +184,7 @@ public class ContainsValidator extends BaseJsonValidator {
         collectAnnotations(); // cache the flag
     }
 
-    private void boundsViolated(ExecutionContext executionContext, ValidatorTypeCode validatorTypeCode, Locale locale, boolean failFast,
+    private void boundsViolated(ExecutionContext executionContext, ValidatorTypeCode validatorTypeCode, Locale locale,
             JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
@@ -193,7 +193,7 @@ public class ContainsValidator extends BaseJsonValidator {
             messageKey = CONTAINS_MAX;
         }
         executionContext.addError(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
-                        .locale(locale).failFast(failFast).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
+                        .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .keyword(validatorTypeCode.getValue()).build());
     }
     

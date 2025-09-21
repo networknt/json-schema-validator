@@ -78,7 +78,7 @@ public class ItemsValidator202012 extends BaseJsonValidator {
                     int x = i;
                     executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.isFailFast()).arguments(x).build());
+                            .index(x).arguments(x).build());
                 }
                 evaluated = true;
             }

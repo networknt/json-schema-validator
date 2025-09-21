@@ -113,7 +113,6 @@ public class ExclusiveMinimumValidator extends BaseJsonValidator {
         if (typedMinimum.crossesThreshold(node)) {
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast())
                     .arguments(typedMinimum.thresholdValue()).build());
         }
     }

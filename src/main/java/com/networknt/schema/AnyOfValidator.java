@@ -122,7 +122,7 @@ public class AnyOfValidator extends BaseJsonValidator {
                                 }
                                 allErrors.add(message().instanceNode(node).instanceLocation(instanceLocation)
                                         .locale(executionContext.getExecutionConfig().getLocale())
-                                        .failFast(executionContext.isFailFast()).arguments(DISCRIMINATOR_REMARK)
+                                        .arguments(DISCRIMINATOR_REMARK)
                                         .build());
                             } else {
                                 // Clear all errors. Note that this is checked in finally.

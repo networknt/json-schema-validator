@@ -42,7 +42,7 @@ public class ReadOnlyValidator extends BaseJsonValidator {
         if (this.readOnly) {
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).build());
+                    .build());
         }
         return;
     }

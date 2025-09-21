@@ -120,7 +120,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
                     executionContext.addError(message().instanceNode(node).property(pname)
                             .instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.isFailFast()).arguments(pname).build());
+                            .arguments(pname).build());
                 } else {
                     if (additionalPropertiesSchema != null) {
                         if (!walk) {

@@ -73,7 +73,7 @@ public class RequiredValidator extends BaseJsonValidator implements JsonValidato
                  */
                 executionContext.addError(message().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(fieldName).build());
+                        .arguments(fieldName).build());
             }
         }
     }

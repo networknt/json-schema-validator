@@ -26,7 +26,7 @@ public class WriteOnlyValidator extends BaseJsonValidator {
         if (this.writeOnly) {
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).build());
+                    .build());
         } 
     }
 

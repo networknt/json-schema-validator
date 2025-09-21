@@ -53,7 +53,7 @@ public class NotAllowedValidator extends BaseJsonValidator implements JsonValida
                 executionContext.addError(message().property(fieldName).instanceNode(node)
                         .instanceLocation(instanceLocation.append(fieldName))
                         .locale(executionContext.getExecutionConfig().getLocale())
-                        .failFast(executionContext.isFailFast()).arguments(fieldName).build());
+                        .arguments(fieldName).build());
             }
         }
     }

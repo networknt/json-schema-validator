@@ -67,7 +67,7 @@ public class NotValidator extends BaseJsonValidator {
         if (test.isEmpty()) {
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).arguments(this.schema.toString())
+                    .arguments(this.schema.toString())
                     .build());
         }
     }

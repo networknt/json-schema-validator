@@ -81,7 +81,7 @@ public class ContentEncodingValidator extends BaseJsonValidator {
         if (!matches(node.asText())) {
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).arguments(this.contentEncoding)
+                    .arguments(this.contentEncoding)
                     .build());
         }
     }

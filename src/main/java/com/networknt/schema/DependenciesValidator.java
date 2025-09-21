@@ -73,7 +73,6 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
                     if (node.get(field) == null) {
                         executionContext.addError(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast())
                                 .arguments(propertyDeps.toString()).build());
                     }
                 }

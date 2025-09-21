@@ -186,7 +186,6 @@ public class OneOfValidator extends BaseJsonValidator {
             ValidationMessage message = message().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast())
                     .arguments(Integer.toString(numberOfValidSchema), numberOfValidSchema > 1 ? String.join(", ", indexes) : "").build();
             existingErrors.add(message);
             if (childErrors != null) {

@@ -182,7 +182,8 @@ public class ItemsValidator extends BaseJsonValidator {
                                 .schemaLocation(this.additionalItemsSchemaLocation)
                                 .schemaNode(this.additionalItemsSchemaNode)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast()).arguments(i).build());
+                                .index(i)
+                                .arguments(i).build());
                     }
                 }
             }

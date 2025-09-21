@@ -72,7 +72,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                         () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
                                 .messageKey(format.getMessageKey())
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast()),
+                                ,
                         this);
             } catch (PatternSyntaxException pse) {
                 // String is considered valid if pattern is invalid

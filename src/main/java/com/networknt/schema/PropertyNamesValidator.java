@@ -52,7 +52,7 @@ public class PropertyNamesValidator extends BaseJsonValidator implements JsonVal
                 existingErrors.add(
                         message().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .failFast(executionContext.isFailFast()).arguments(pname, msg).build());
+                                .arguments(pname, msg).build());
             }
             schemaErrors.clear();
         }

@@ -49,7 +49,7 @@ public class UniqueItemsValidator extends BaseJsonValidator implements JsonValid
                 if (!set.add(n)) {
                     executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
-                            .failFast(executionContext.isFailFast()).build());
+                            .build());
                 }
             }
         }

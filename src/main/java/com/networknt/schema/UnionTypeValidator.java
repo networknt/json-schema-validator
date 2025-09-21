@@ -98,7 +98,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .keyword("type")
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .failFast(executionContext.isFailFast()).arguments(nodeType.toString(), error)
+                    .arguments(nodeType.toString(), error)
                     .build());
         }
     }

@@ -216,13 +216,10 @@ public abstract class BaseJsonValidator implements JsonValidator {
     }
 
     protected MessageSourceValidationMessage.Builder message() {
-        return MessageSourceValidationMessage.builder(this.validationContext.getConfig().getMessageSource(), this.errorMessage, (message, failFast) -> {
-            if (failFast) {
-                throw new FailFastAssertionException(message);
-            }
-        }).schemaNode(this.schemaNode).schemaLocation(this.schemaLocation)
-                .evaluationPath(this.evaluationPath).keyword(this.keyword != null ? this.keyword.getValue() : null)
-                .messageKey(this.getKeyword());
+        return MessageSourceValidationMessage
+                .builder(this.validationContext.getConfig().getMessageSource(), this.errorMessage)
+                .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
+                .keyword(this.keyword != null ? this.keyword.getValue() : null).messageKey(this.getKeyword());
     }
 
     /**

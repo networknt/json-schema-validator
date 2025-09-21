@@ -20,7 +20,6 @@ import com.networknt.schema.annotation.JsonNodeAnnotations;
 import com.networknt.schema.result.JsonNodeResults;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -183,11 +182,10 @@ public class ExecutionContext {
     }
 
     public void addError(ValidationMessage error) {
+        this.errors.add(error);
         if (this.isFailFast()) {
-            this.errors = Collections.singletonList(error);
             throw new FailFastAssertionException(error);
         }
-        this.errors.add(error);
     }
 
     public void setErrors(List<ValidationMessage> errors) {

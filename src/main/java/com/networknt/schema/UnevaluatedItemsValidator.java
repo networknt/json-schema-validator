@@ -176,7 +176,7 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
                             // All fails as "unevaluatedItems: false"
                             executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation).arguments(x)
                                     .locale(executionContext.getExecutionConfig().getLocale())
-                                    .failFast(executionContext.isFailFast()).build());
+                                    .build());
                         } else {
                             // Schema errors will be reported as is
                             this.schema.validate(executionContext, node.get(x), node, instanceLocation.append(x));
