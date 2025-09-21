@@ -54,7 +54,7 @@ class MultipleOfValidatorTest {
         
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         messages = schema.validate(validData, InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -71,20 +71,20 @@ class MultipleOfValidatorTest {
         // Without type loose this has 2 type and 1 multipleOf errors
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
-        assertEquals(1, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
+        assertEquals(1, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         // 2 type errors
         messages = schema.validate(validTypeLooseInputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
         
         // With type loose this has 3 multipleOf errors
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
         JsonSchema typeLoose = factory.getSchema(schemaData, config);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         // No errors
         messages = typeLoose.validate(validTypeLooseInputData, InputFormat.JSON);

@@ -29,14 +29,12 @@ import com.networknt.schema.SpecVersion.VersionFlag;
  */
 class MessageTest {
     static class EqualsValidator extends BaseJsonValidator {
-        private static final ErrorMessageType ERROR_MESSAGE_TYPE = () -> "equals";
-        
         private final String value;
 
         EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, Keyword keyword,
                 ValidationContext validationContext) {
-            super(schemaLocation, evaluationPath, schemaNode, parentSchema, ERROR_MESSAGE_TYPE, keyword, validationContext);
+            super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
             this.value = schemaNode.textValue();
         }
 

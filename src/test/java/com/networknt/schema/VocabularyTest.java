@@ -81,7 +81,7 @@ class VocabularyTest {
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals("minimum", messages.iterator().next().getType());
+        assertEquals("minimum", messages.iterator().next().getKeyword());
         assertEquals(VersionFlag.V202012, schema.getValidationContext().activeDialect().get());
     }
 
@@ -134,7 +134,7 @@ class VocabularyTest {
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals("format", messages.iterator().next().getType());
+        assertEquals("format", messages.iterator().next().getKeyword());
     }
     
     @Test

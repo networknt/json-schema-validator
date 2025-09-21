@@ -58,8 +58,8 @@ class OpenApi31Test {
         messages = schema.validate(invalid, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("bark", list.get(1).getProperty());
     }
 
@@ -87,8 +87,8 @@ class OpenApi31Test {
         messages = schema.validate(invalid, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("bark", list.get(1).getProperty());
     }
 
@@ -110,7 +110,7 @@ class OpenApi31Test {
                 + "}";
         List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
     }
 
     /**
@@ -129,8 +129,8 @@ class OpenApi31Test {
                 + "}";
         List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("lovesRocks", list.get(1).getProperty());
     }
 

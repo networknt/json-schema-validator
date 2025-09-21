@@ -65,7 +65,7 @@ public class MinMaxContainsValidator extends BaseJsonValidator {
                     .instanceLocation(instanceLocation)
                     .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast())
-                    .type(analysis.getMessageKey())
+                    .keyword(analysis.getMessageKey())
                     .arguments(parentSchema.getSchemaNode().toString()).build())
             .forEach(executionContext::addError);
         }

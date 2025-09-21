@@ -47,10 +47,10 @@ class UnevaluatedItemsValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("unevaluatedItems", assertions.get(0).getType());
+        assertEquals("unevaluatedItems", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("unevaluatedItems", assertions.get(1).getType());
+        assertEquals("unevaluatedItems", assertions.get(1).getKeyword());
         assertEquals("$", assertions.get(1).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
     }
@@ -73,10 +73,10 @@ class UnevaluatedItemsValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("type", assertions.get(0).getType());
+        assertEquals("type", assertions.get(0).getKeyword());
         assertEquals("$[1]", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems.type", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("type", assertions.get(1).getType());
+        assertEquals("type", assertions.get(1).getKeyword());
         assertEquals("$[2]", assertions.get(1).getInstanceLocation().toString());
         assertEquals("$.unevaluatedItems.type", assertions.get(1).getEvaluationPath().toString());
     }

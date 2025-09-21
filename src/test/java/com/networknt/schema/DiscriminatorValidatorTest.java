@@ -431,8 +431,8 @@ class DiscriminatorValidatorTest {
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("numberOfBeds", list.get(1).getProperty());
     }
 
@@ -527,8 +527,8 @@ class DiscriminatorValidatorTest {
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("numberOfBeds", list.get(1).getProperty());
     }
 
@@ -627,8 +627,8 @@ class DiscriminatorValidatorTest {
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("numberOfBeds", list.get(1).getProperty());
     }
 
@@ -680,9 +680,9 @@ class DiscriminatorValidatorTest {
         List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
-        assertEquals("required", list.get(2).getType());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
+        assertEquals("required", list.get(2).getKeyword());
     }
 
     /**
@@ -775,6 +775,6 @@ class DiscriminatorValidatorTest {
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("required", list.get(0).getType());
+        assertEquals("required", list.get(0).getKeyword());
     }
 }

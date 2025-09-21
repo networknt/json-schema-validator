@@ -22,8 +22,7 @@ abstract class AbstractJsonSchemaTest {
 
     private static final String SCHEMA = "$schema";
     private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;
-    private static final String ASSERT_MSG_ERROR_CODE = "Validation result should contain {0} error code";
-    private static final String ASSERT_MSG_TYPE = "Validation result should contain {0} type";
+    private static final String ASSERT_MSG_KEYWORD = "Validation result should contain {0} keyword";
 
     protected List<ValidationMessage> validate(String dataPath) {
         JsonNode dataNode = getJsonNodeFromPath(dataPath);
@@ -34,11 +33,8 @@ abstract class AbstractJsonSchemaTest {
         List<ValidationMessage> validationMessages = validate(getDataTestFolder() + filename);
 
         assertTrue(
-                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getErrorCode().equals(vm.getCode())),
-                () -> MessageFormat.format(ASSERT_MSG_ERROR_CODE, validatorTypeCode.getErrorCode()));
-        assertTrue(
-                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getType())),
-                () -> MessageFormat.format(ASSERT_MSG_TYPE, validatorTypeCode.getValue()));
+                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getKeyword())),
+                () -> MessageFormat.format(ASSERT_MSG_KEYWORD, validatorTypeCode.getValue()));
     }
 
     protected abstract String getDataTestFolder();

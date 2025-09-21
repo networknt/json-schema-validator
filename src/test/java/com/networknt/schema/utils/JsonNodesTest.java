@@ -102,7 +102,7 @@ class JsonNodesTest {
         JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
 
-        assertEquals("format", format.getType());
+        assertEquals("format", format.getKeyword());
 
         assertEquals("date", format.getSchemaNode().asText());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
@@ -112,7 +112,7 @@ class JsonNodesTest {
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
 
-        assertEquals("minLength", minLength.getType());
+        assertEquals("minLength", minLength.getKeyword());
 
         assertEquals("6", minLength.getSchemaNode().asText());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
@@ -148,7 +148,7 @@ class JsonNodesTest {
         JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
 
-        assertEquals("format", format.getType());
+        assertEquals("format", format.getKeyword());
 
         assertEquals("date", format.getSchemaNode().asText());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
@@ -158,7 +158,7 @@ class JsonNodesTest {
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(12, formatInstanceNodeTokenLocation.getColumnNr());
 
-        assertEquals("minLength", minLength.getType());
+        assertEquals("minLength", minLength.getKeyword());
 
         assertEquals("6", minLength.getSchemaNode().asText());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());

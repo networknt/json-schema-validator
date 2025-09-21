@@ -27,21 +27,19 @@ import java.util.Map;
  */
 public class FormatKeyword implements Keyword {
     private final String value;
-    private final ErrorMessageType errorMessageType;
     private final Map<String, Format> formats;
     
     public FormatKeyword(Map<String, Format> formats) {
         this(ValidatorTypeCode.FORMAT, formats);
     }
 
-    public FormatKeyword(ValidatorTypeCode type, Map<String, Format> formats) {
-        this(type.getValue(), type, formats);
+    public FormatKeyword(Keyword type, Map<String, Format> formats) {
+        this(type.getValue(), formats);
     }
 
-    public FormatKeyword(String value, ErrorMessageType errorMessageType, Map<String, Format> formats) {
+    public FormatKeyword(String value, Map<String, Format> formats) {
         this.value = value;
         this.formats = formats;
-        this.errorMessageType = errorMessageType;
     }
 
     Collection<Format> getFormats() {
@@ -56,7 +54,7 @@ public class FormatKeyword implements Keyword {
             format = this.formats.get(formatName);
         }
         return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format,
-                errorMessageType, this);
+                this);
     }
 
     @Override

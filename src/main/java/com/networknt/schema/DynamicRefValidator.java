@@ -94,8 +94,8 @@ public class DynamicRefValidator extends BaseJsonValidator {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
-                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
+                    .messageKey("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);
@@ -111,8 +111,8 @@ public class DynamicRefValidator extends BaseJsonValidator {
         // with the latest config. Reset the config.
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            ValidationMessage validationMessage = message().type(ValidatorTypeCode.DYNAMIC_REF.getValue())
-                    .code("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
+            ValidationMessage validationMessage = message().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
+                    .messageKey("internal.unresolvedRef").message("{0}: Reference {1} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);

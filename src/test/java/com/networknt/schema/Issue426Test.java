@@ -35,7 +35,7 @@ class Issue426Test {
         final JsonNode message = schema.schemaNode.get("message");
         for(ValidationMessage error : errors) {
             //validating custom message
-            Assertions.assertEquals(message.get(error.getType()).asText(),  error.getMessage());
+            Assertions.assertEquals(message.get(error.getKeyword()).asText(),  error.getMessage());
         }
     }
 }

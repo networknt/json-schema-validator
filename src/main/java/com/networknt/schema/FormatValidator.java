@@ -34,14 +34,9 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
     
     public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext, Format format,
-            ErrorMessageType errorMessageType, Keyword keyword) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, errorMessageType, keyword, validationContext);
+            Keyword keyword) {
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
         this.format = format;
-    }
-
-    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext, Format format, ValidatorTypeCode type) {
-        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format, type, type);
     }
 
     /**

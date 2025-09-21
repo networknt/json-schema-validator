@@ -65,9 +65,9 @@ class UnevaluatedPropertiesValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("required", assertions.get(0).getType());
+        assertEquals("required", assertions.get(0).getKeyword());
         assertEquals("key1", assertions.get(0).getProperty());
-        assertEquals("unevaluatedProperties", assertions.get(1).getType());
+        assertEquals("unevaluatedProperties", assertions.get(1).getKeyword());
         assertEquals("key4", assertions.get(1).getProperty());
     }
 
@@ -120,7 +120,7 @@ class UnevaluatedPropertiesValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("additionalProperties", assertions.get(0).getType());
+        assertEquals("additionalProperties", assertions.get(0).getKeyword());
         assertEquals("notallowed", assertions.get(0).getProperty());
     }
 
@@ -148,7 +148,7 @@ class UnevaluatedPropertiesValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("type", assertions.get(0).getType());
+        assertEquals("type", assertions.get(0).getKeyword());
         assertEquals("$.unevaluatedProperties.type", assertions.get(0).getEvaluationPath().toString());
     }
 

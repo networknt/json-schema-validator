@@ -176,7 +176,7 @@ public class ItemsValidator extends BaseJsonValidator {
                     } else {
                         // no additional item allowed, return error
                         executionContext.addError(message().instanceNode(rootNode).instanceLocation(instanceLocation)
-                                .type("additionalItems")
+                                .keyword("additionalItems")
                                 .messageKey("additionalItems")
                                 .evaluationPath(this.additionalItemsEvaluationPath)
                                 .schemaLocation(this.additionalItemsSchemaLocation)

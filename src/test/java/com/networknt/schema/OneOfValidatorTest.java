@@ -68,7 +68,7 @@ class OneOfValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size()); // even if more than 1 matches the mismatch errors are still reported
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", assertions.get(0).getType());
+        assertEquals("oneOf", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
         assertEquals("$: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
@@ -109,20 +109,20 @@ class OneOfValidatorTest {
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(4, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", assertions.get(0).getType());
+        assertEquals("oneOf", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
         assertEquals("$: must be valid to one and only one schema, but 0 are valid", assertions.get(0).getMessage());
 
-        assertEquals("additionalProperties", assertions.get(1).getType());
+        assertEquals("additionalProperties", assertions.get(1).getKeyword());
         assertEquals("$", assertions.get(1).getInstanceLocation().toString());
         assertEquals("$.oneOf[0].additionalProperties", assertions.get(1).getEvaluationPath().toString());
 
-        assertEquals("type", assertions.get(2).getType());
+        assertEquals("type", assertions.get(2).getKeyword());
         assertEquals("$.test", assertions.get(2).getInstanceLocation().toString());
         assertEquals("$.oneOf[1].additionalProperties.type", assertions.get(2).getEvaluationPath().toString());
 
-        assertEquals("type", assertions.get(3).getType());
+        assertEquals("type", assertions.get(3).getKeyword());
         assertEquals("$.test", assertions.get(3).getInstanceLocation().toString());
         assertEquals("$.oneOf[2].additionalProperties.type", assertions.get(3).getEvaluationPath().toString());
     }

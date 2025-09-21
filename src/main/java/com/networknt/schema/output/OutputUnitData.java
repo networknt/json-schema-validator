@@ -88,9 +88,9 @@ public class OutputUnitData {
                     assertionSchemaLocation, assertion.getInstanceLocation());
             valid.put(key, false);
             Map<String, Object> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
-            Object value = errorMap.get(assertion.getType());
+            Object value = errorMap.get(assertion.getKeyword());
             if (value == null) {
-                errorMap.put(assertion.getType(), assertionMapper.apply(assertion));
+                errorMap.put(assertion.getKeyword(), assertionMapper.apply(assertion));
             } else {
                 // Existing error, make it into a list
                 if (value instanceof List) {
@@ -99,7 +99,7 @@ public class OutputUnitData {
                     List<Object> values = new ArrayList<>();
                     values.add(value.toString());
                     values.add(assertionMapper.apply(assertion));
-                    errorMap.put(assertion.getType(), values);
+                    errorMap.put(assertion.getKeyword(), values);
                 }
             }
         }

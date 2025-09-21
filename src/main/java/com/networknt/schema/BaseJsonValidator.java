@@ -41,16 +41,8 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected final JsonNodePath evaluationPath;
     protected final JsonSchema evaluationParentSchema;
 
-    // Pending removal
-    protected final ErrorMessageType errorMessageType;
-
     public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidatorTypeCode validatorType, ValidationContext validationContext) {
-        this(schemaLocation, evaluationPath, schemaNode, parentSchema, validatorType, validatorType, validationContext);
-    }
-
-    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ErrorMessageType errorMessageType, Keyword keyword,
+            JsonSchema parentSchema, Keyword keyword,
             ValidationContext validationContext) {
         this.validationContext = validationContext;
         this.schemaNode = schemaNode;
@@ -64,8 +56,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
         } else {
             this.errorMessage = null;
         }
-
-        this.errorMessageType = errorMessageType;
         this.evaluationPath = evaluationPath;
         this.evaluationParentSchema = null;
     }
@@ -75,7 +65,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
      *
      * @param schemaNode the schema node
      * @param validationContext the validation context
-     * @param errorMessageType the error message type
      * @param keyword the keyword
      * @param parentSchema the parent schema
      * @param schemaLocation the schema location
@@ -88,7 +77,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
             JsonNode schemaNode,
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
-            ErrorMessageType errorMessageType,
             Keyword keyword,
             JsonSchema parentSchema,
             SchemaLocation schemaLocation,
@@ -103,7 +91,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
         this.schemaLocation = schemaLocation;
         this.errorMessage = errorMessage;
 
-        this.errorMessageType = errorMessageType;
         this.evaluationPath = evaluationPath;
         this.evaluationParentSchema = evaluationParentSchema;
     }
@@ -233,9 +220,9 @@ public abstract class BaseJsonValidator implements JsonValidator {
             if (failFast) {
                 throw new FailFastAssertionException(message);
             }
-        }).code(this.errorMessageType.getErrorCode()).schemaNode(this.schemaNode).schemaLocation(this.schemaLocation)
-                .evaluationPath(this.evaluationPath).type(this.keyword != null ? this.keyword.getValue() : null)
-                .messageKey(this.errorMessageType.getErrorCodeValue());
+        }).schemaNode(this.schemaNode).schemaLocation(this.schemaLocation)
+                .evaluationPath(this.evaluationPath).keyword(this.keyword != null ? this.keyword.getValue() : null)
+                .messageKey(this.getKeyword());
     }
 
     /**

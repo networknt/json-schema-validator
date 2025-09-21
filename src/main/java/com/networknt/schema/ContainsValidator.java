@@ -194,7 +194,7 @@ public class ContainsValidator extends BaseJsonValidator {
         }
         executionContext.addError(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
                         .locale(locale).failFast(failFast).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
-                        .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
+                        .keyword(validatorTypeCode.getValue()).build());
     }
     
     /**

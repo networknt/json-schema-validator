@@ -64,10 +64,10 @@ class CustomMetaSchemaTest {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
                 }
                 String valueName = enumNames.get(idx);
-                ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
+                ValidationMessage validationMessage = ValidationMessage.builder().keyword(keyword)
                         .schemaNode(node)
                         .instanceNode(node)
-                        .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
+                        .messageKey("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
                 executionContext.addError(validationMessage);
             }

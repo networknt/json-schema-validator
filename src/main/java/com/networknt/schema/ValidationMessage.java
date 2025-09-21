@@ -29,6 +29,7 @@ import com.networknt.schema.utils.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -44,15 +45,13 @@ import java.util.function.Supplier;
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
 public class ValidationMessage {
-    private final String type;
-    private final String code;
+    private final String keyword;
     @JsonSerialize(using = ToStringSerializer.class)
     private final JsonNodePath evaluationPath;
     @JsonSerialize(using = ToStringSerializer.class)
     private final SchemaLocation schemaLocation;
     @JsonSerialize(using = ToStringSerializer.class)
     private final JsonNodePath instanceLocation;
-    private final String property;
     private final Object[] arguments;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
@@ -60,26 +59,20 @@ public class ValidationMessage {
     private final JsonNode instanceNode;
     private final JsonNode schemaNode;
 
-    ValidationMessage(String type, String code, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
-            JsonNodePath instanceLocation, String property, Object[] arguments, Map<String, Object> details,
+    ValidationMessage(String keyword, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
+            JsonNodePath instanceLocation, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
         super();
-        this.type = type;
-        this.code = code;
+        this.keyword = keyword;
         this.instanceLocation = instanceLocation;
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
-        this.property = property;
         this.arguments = arguments;
         this.details = details;
         this.messageKey = messageKey;
         this.messageSupplier = messageSupplier;
         this.instanceNode = instanceNode;
         this.schemaNode = schemaNode;
-    }
-
-    public String getCode() {
-        return code;
     }
 
     /**
@@ -147,7 +140,17 @@ public class ValidationMessage {
      * @return the property name
      */
     public String getProperty() {
-        return property;
+        if (details == null) {
+            return null;
+        }
+        return (String) getDetails().get("property");
+    }
+
+    public Integer getIndex() {
+        if (details == null) {
+            return null;
+        }
+        return (Integer) getDetails().get("index");
     }
 
     public Object[] getArguments() {
@@ -209,8 +212,7 @@ public class ValidationMessage {
 
         ValidationMessage that = (ValidationMessage) o;
 
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (code != null ? !code.equals(that.code) : that.code != null) return false;
+        if (keyword != null ? !keyword.equals(that.keyword) : that.keyword != null) return false;
         if (instanceLocation != null ? !instanceLocation.equals(that.instanceLocation) : that.instanceLocation != null) return false;
         if (evaluationPath != null ? !evaluationPath.equals(that.evaluationPath) : that.evaluationPath != null) return false;
         if (details != null ? !details.equals(that.details) : that.details != null) return false;
@@ -220,8 +222,7 @@ public class ValidationMessage {
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
+        int result = keyword != null ? keyword.hashCode() : 0;
         result = 31 * result + (instanceLocation != null ? instanceLocation.hashCode() : 0);
         result = 31 * result + (evaluationPath != null ? evaluationPath.hashCode() : 0);
         result = 31 * result + (details != null ? details.hashCode() : 0);
@@ -230,8 +231,8 @@ public class ValidationMessage {
         return result;
     }
 
-    public String getType() {
-        return type;
+    public String getKeyword() {
+        return keyword;
     }
 
     public static Builder builder() {
@@ -248,12 +249,10 @@ public class ValidationMessage {
     public static abstract class BuilderSupport<S> {
         public abstract S self();
 
-        protected String type;
-        protected String code;
+        protected String keyword;
         protected JsonNodePath evaluationPath;
         protected SchemaLocation schemaLocation;
         protected JsonNodePath instanceLocation;
-        protected String property;
         protected Object[] arguments;
         protected Map<String, Object> details;
         protected MessageFormat format;
@@ -264,15 +263,27 @@ public class ValidationMessage {
         protected JsonNode instanceNode;
         protected JsonNode schemaNode;
 
-        public S type(String type) {
-            this.type = type;
+        public S keyword(String keyword) {
+            this.keyword = keyword;
             return self();
         }
 
-        public S code(String code) {
-            this.code = code;
+        public S property(String properties) {
+            if (this.details == null) {
+                this.details = new HashMap<>();
+            }
+            this.details.put("property", properties);
             return self();
         }
+
+        public S index(Integer index) {
+            if (this.details == null) {
+                this.details = new HashMap<>();
+            }
+            this.details.put("index", index);
+            return self();
+        }
+
 
         /**
          * The instance location is the location of the JSON value within the root
@@ -313,11 +324,6 @@ public class ValidationMessage {
             return self();
         }
         
-        public S property(String property) {
-            this.property = property;
-            return self();
-        }
-
         public S arguments(Object... arguments) {
             this.arguments = arguments;
             return self();
@@ -331,11 +337,6 @@ public class ValidationMessage {
         public S format(MessageFormat format) {
             this.format = format;
             return self();
-        }
-
-        @Deprecated
-        public S customMessage(String message) {
-            return message(message);
         }
 
         /**
@@ -396,8 +397,8 @@ public class ValidationMessage {
                     return formatter.format(getMessageArguments());
                 });
             }
-            return new ValidationMessage(type, code, evaluationPath, schemaLocation, instanceLocation,
-                    property, arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
+            return new ValidationMessage(keyword, evaluationPath, schemaLocation, instanceLocation,
+                    arguments, details, messageKey, messageSupplier, this.instanceNode, this.schemaNode);
         }
         
         protected Object[] getMessageArguments() {
@@ -409,12 +410,8 @@ public class ValidationMessage {
             return objs;
         }
 
-        protected String getType() {
-            return type;
-        }
-
-        protected String getCode() {
-            return code;
+        protected String getKeyword() {
+            return keyword;
         }
 
         protected JsonNodePath getEvaluationPath() {
@@ -427,10 +424,6 @@ public class ValidationMessage {
 
         protected JsonNodePath getInstanceLocation() {
             return instanceLocation;
-        }
-
-        protected String getProperty() {
-            return property;
         }
 
         protected Object[] getArguments() {

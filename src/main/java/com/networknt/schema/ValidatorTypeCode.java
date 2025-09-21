@@ -57,62 +57,62 @@ enum VersionCode {
     }
 }
 
-public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
-    ADDITIONAL_PROPERTIES("additionalProperties", "1001", AdditionalPropertiesValidator::new, VersionCode.MaxV7),
-    ALL_OF("allOf", "1002", AllOfValidator::new, VersionCode.MaxV7),
-    ANY_OF("anyOf", "1003", AnyOfValidator::new, VersionCode.MaxV7),
-    CONST("const", "1042", ConstValidator::new, VersionCode.MinV6MaxV7),
-    CONTAINS("contains", "1043", ContainsValidator::new, VersionCode.MinV6MaxV7),
-    CONTENT_ENCODING("contentEncoding", "1052", ContentEncodingValidator::new, VersionCode.V7),
-    CONTENT_MEDIA_TYPE("contentMediaType", "1053", ContentMediaTypeValidator::new, VersionCode.V7),
-    DEPENDENCIES("dependencies", "1007", DependenciesValidator::new, VersionCode.AllVersions),
-    DEPENDENT_REQUIRED("dependentRequired", "1045", DependentRequired::new, VersionCode.None),
-    DEPENDENT_SCHEMAS("dependentSchemas", "1046", DependentSchemas::new, VersionCode.None),
-    DISCRIMINATOR("discriminator", "2001", DiscriminatorValidator::new, VersionCode.None),
-    DYNAMIC_REF("$dynamicRef", "1051", DynamicRefValidator::new, VersionCode.None),
-    ENUM("enum", "1008", EnumValidator::new, VersionCode.MaxV7),
-    EXCLUSIVE_MAXIMUM("exclusiveMaximum", "1038", ExclusiveMaximumValidator::new, VersionCode.MinV6MaxV7),
-    EXCLUSIVE_MINIMUM("exclusiveMinimum", "1039", ExclusiveMinimumValidator::new, VersionCode.MinV6MaxV7),
-    FALSE("false", "1041", FalseValidator::new, VersionCode.MinV6),
-    FORMAT("format", "1009", null, VersionCode.MaxV7) {
+public enum ValidatorTypeCode implements Keyword {
+    ADDITIONAL_PROPERTIES("additionalProperties", AdditionalPropertiesValidator::new, VersionCode.MaxV7),
+    ALL_OF("allOf", AllOfValidator::new, VersionCode.MaxV7),
+    ANY_OF("anyOf", AnyOfValidator::new, VersionCode.MaxV7),
+    CONST("const", ConstValidator::new, VersionCode.MinV6MaxV7),
+    CONTAINS("contains", ContainsValidator::new, VersionCode.MinV6MaxV7),
+    CONTENT_ENCODING("contentEncoding", ContentEncodingValidator::new, VersionCode.V7),
+    CONTENT_MEDIA_TYPE("contentMediaType", ContentMediaTypeValidator::new, VersionCode.V7),
+    DEPENDENCIES("dependencies", DependenciesValidator::new, VersionCode.AllVersions),
+    DEPENDENT_REQUIRED("dependentRequired", DependentRequired::new, VersionCode.None),
+    DEPENDENT_SCHEMAS("dependentSchemas", DependentSchemas::new, VersionCode.None),
+    DISCRIMINATOR("discriminator", DiscriminatorValidator::new, VersionCode.None),
+    DYNAMIC_REF("$dynamicRef", DynamicRefValidator::new, VersionCode.None),
+    ENUM("enum", EnumValidator::new, VersionCode.MaxV7),
+    EXCLUSIVE_MAXIMUM("exclusiveMaximum", ExclusiveMaximumValidator::new, VersionCode.MinV6MaxV7),
+    EXCLUSIVE_MINIMUM("exclusiveMinimum", ExclusiveMinimumValidator::new, VersionCode.MinV6MaxV7),
+    FALSE("false", FalseValidator::new, VersionCode.MinV6),
+    FORMAT("format", null, VersionCode.MaxV7) {
         @Override public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
-    ID("id", "1036", null, VersionCode.AllVersions),
-    IF_THEN_ELSE("if", "1037", IfValidator::new, VersionCode.V7),
-    ITEMS_202012("items", "1010", ItemsValidator202012::new, VersionCode.None),
-    ITEMS("items", "1010", ItemsValidator::new, VersionCode.MaxV7),
-    MAX_CONTAINS("maxContains", "1006", MinMaxContainsValidator::new, VersionCode.None),
-    MAX_ITEMS("maxItems", "1012", MaxItemsValidator::new, VersionCode.MaxV7),
-    MAX_LENGTH("maxLength", "1013", MaxLengthValidator::new, VersionCode.MaxV7),
-    MAX_PROPERTIES("maxProperties", "1014", MaxPropertiesValidator::new, VersionCode.MaxV7),
-    MAXIMUM("maximum", "1011", MaximumValidator::new, VersionCode.MaxV7),
-    MIN_CONTAINS("minContains", "1049", MinMaxContainsValidator::new, VersionCode.None),
-    MIN_ITEMS("minItems", "1016", MinItemsValidator::new, VersionCode.MaxV7),
-    MIN_LENGTH("minLength", "1017", MinLengthValidator::new, VersionCode.MaxV7),
-    MIN_PROPERTIES("minProperties", "1018", MinPropertiesValidator::new, VersionCode.MaxV7),
-    MINIMUM("minimum", "1015", MinimumValidator::new, VersionCode.MaxV7),
-    MULTIPLE_OF("multipleOf", "1019", MultipleOfValidator::new, VersionCode.MaxV7),
-    NOT_ALLOWED("notAllowed", "1033", NotAllowedValidator::new, VersionCode.AllVersions),
-    NOT("not", "1020", NotValidator::new, VersionCode.MaxV7),
-    ONE_OF("oneOf", "1022", OneOfValidator::new, VersionCode.MaxV7),
-    PATTERN_PROPERTIES("patternProperties", "1024", PatternPropertiesValidator::new, VersionCode.MaxV7),
-    PATTERN("pattern", "1023", PatternValidator::new, VersionCode.MaxV7),
-    PREFIX_ITEMS("prefixItems", "1048", PrefixItemsValidator::new, VersionCode.None),
-    PROPERTIES("properties", "1025", PropertiesValidator::new, VersionCode.MaxV7),
-    PROPERTYNAMES("propertyNames", "1044", PropertyNamesValidator::new, VersionCode.MinV6MaxV7),
-    READ_ONLY("readOnly", "1032", ReadOnlyValidator::new, VersionCode.V7),
-    RECURSIVE_REF("$recursiveRef", "1050", RecursiveRefValidator::new, VersionCode.None),
-    REF("$ref", "1026", RefValidator::new, VersionCode.MaxV7),
-    REQUIRED("required", "1028", RequiredValidator::new, VersionCode.MaxV7),
-    TRUE("true", "1040", TrueValidator::new, VersionCode.MinV6),
-    TYPE("type", "1029", TypeValidator::new, VersionCode.MaxV7),
-    UNEVALUATED_ITEMS("unevaluatedItems", "1021", UnevaluatedItemsValidator::new, VersionCode.None),
-    UNEVALUATED_PROPERTIES("unevaluatedProperties","1047",UnevaluatedPropertiesValidator::new,VersionCode.None),
-    UNION_TYPE("unionType", "1030", UnionTypeValidator::new, VersionCode.None),
-    UNIQUE_ITEMS("uniqueItems", "1031", UniqueItemsValidator::new, VersionCode.MaxV7),
-    WRITE_ONLY("writeOnly", "1027", WriteOnlyValidator::new, VersionCode.V7),
+    ID("id", null, VersionCode.AllVersions),
+    IF_THEN_ELSE("if", IfValidator::new, VersionCode.V7),
+    ITEMS_202012("items", ItemsValidator202012::new, VersionCode.None),
+    ITEMS("items", ItemsValidator::new, VersionCode.MaxV7),
+    MAX_CONTAINS("maxContains",MinMaxContainsValidator::new, VersionCode.None),
+    MAX_ITEMS("maxItems", MaxItemsValidator::new, VersionCode.MaxV7),
+    MAX_LENGTH("maxLength", MaxLengthValidator::new, VersionCode.MaxV7),
+    MAX_PROPERTIES("maxProperties", MaxPropertiesValidator::new, VersionCode.MaxV7),
+    MAXIMUM("maximum", MaximumValidator::new, VersionCode.MaxV7),
+    MIN_CONTAINS("minContains", MinMaxContainsValidator::new, VersionCode.None),
+    MIN_ITEMS("minItems", MinItemsValidator::new, VersionCode.MaxV7),
+    MIN_LENGTH("minLength", MinLengthValidator::new, VersionCode.MaxV7),
+    MIN_PROPERTIES("minProperties", MinPropertiesValidator::new, VersionCode.MaxV7),
+    MINIMUM("minimum", MinimumValidator::new, VersionCode.MaxV7),
+    MULTIPLE_OF("multipleOf", MultipleOfValidator::new, VersionCode.MaxV7),
+    NOT_ALLOWED("notAllowed", NotAllowedValidator::new, VersionCode.AllVersions),
+    NOT("not", NotValidator::new, VersionCode.MaxV7),
+    ONE_OF("oneOf", OneOfValidator::new, VersionCode.MaxV7),
+    PATTERN_PROPERTIES("patternProperties", PatternPropertiesValidator::new, VersionCode.MaxV7),
+    PATTERN("pattern", PatternValidator::new, VersionCode.MaxV7),
+    PREFIX_ITEMS("prefixItems", PrefixItemsValidator::new, VersionCode.None),
+    PROPERTIES("properties", PropertiesValidator::new, VersionCode.MaxV7),
+    PROPERTYNAMES("propertyNames", PropertyNamesValidator::new, VersionCode.MinV6MaxV7),
+    READ_ONLY("readOnly", ReadOnlyValidator::new, VersionCode.V7),
+    RECURSIVE_REF("$recursiveRef", RecursiveRefValidator::new, VersionCode.None),
+    REF("$ref", RefValidator::new, VersionCode.MaxV7),
+    REQUIRED("required", RequiredValidator::new, VersionCode.MaxV7),
+    TRUE("true", TrueValidator::new, VersionCode.MinV6),
+    TYPE("type", TypeValidator::new, VersionCode.MaxV7),
+    UNEVALUATED_ITEMS("unevaluatedItems", UnevaluatedItemsValidator::new, VersionCode.None),
+    UNEVALUATED_PROPERTIES("unevaluatedProperties",UnevaluatedPropertiesValidator::new,VersionCode.None),
+    UNION_TYPE("unionType", UnionTypeValidator::new, VersionCode.None),
+    UNIQUE_ITEMS("uniqueItems", UniqueItemsValidator::new, VersionCode.MaxV7),
+    WRITE_ONLY("writeOnly", WriteOnlyValidator::new, VersionCode.V7),
     ;
 
     private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<>();
@@ -124,13 +124,11 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
     }
 
     private final String value;
-    private final String errorCode;
     private final ValidatorFactory validatorFactory;
     private final VersionCode versionCode;
 
-    ValidatorTypeCode(String value, String errorCode, ValidatorFactory validatorFactory, VersionCode versionCode) {
+    ValidatorTypeCode(String value, ValidatorFactory validatorFactory, VersionCode versionCode) {
         this.value = value;
-        this.errorCode = errorCode;
         this.validatorFactory = validatorFactory;
         this.versionCode = versionCode;
     }
@@ -173,17 +171,7 @@ public enum ValidatorTypeCode implements Keyword, ErrorMessageType {
         return this.value;
     }
 
-    @Override
-    public String getErrorCode() {
-        return this.errorCode;
-    }
-
     public VersionCode getVersionCode() {
         return this.versionCode;
-    }
-
-    @Override
-    public String getErrorCodeValue() {
-        return getValue();
     }
 }

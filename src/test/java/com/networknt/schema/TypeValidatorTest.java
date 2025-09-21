@@ -70,12 +70,12 @@ class TypeValidatorTest {
         // Without type loose this has 2 type errors
         List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
 
         // 1 type error in array_of_integers
         messages = schema.validate(validTypeLooseInputData, InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals(1, messages.stream().filter(m -> "type".equals(m.getType())).count());
+        assertEquals(1, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
 
         // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();

@@ -185,7 +185,7 @@ public class JsonSchema implements JsonSchemaValidator {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
                     SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getMetaSchema().getIdKeyword());
                     ValidationMessage validationMessage = ValidationMessage.builder()
-                            .code(ValidatorTypeCode.ID.getValue()).type(ValidatorTypeCode.ID.getValue())
+                            .messageKey(ValidatorTypeCode.ID.getValue()).keyword(ValidatorTypeCode.ID.getValue())
                             .instanceLocation(idSchemaLocation.getFragment())
                             .arguments(id, validationContext.getMetaSchema().getIdKeyword(), idSchemaLocation)
                             .schemaLocation(idSchemaLocation)
@@ -269,8 +269,6 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param suppressSubSchemaRetrieval to suppress sub schema retrieval
      * @param schemaNode the schema node
      * @param validationContext the validation context
-     * @param errorMessageType the error message type
-     * @param keyword the keyword
      * @param parentSchema the parent schema
      * @param schemaLocation the schema location
      * @param evaluationPath the evaluation path
@@ -289,8 +287,6 @@ public class JsonSchema implements JsonSchemaValidator {
             JsonNode schemaNode,
             ValidationContext validationContext,
             /* Below from ValidationMessageHandler */
-            ErrorMessageType errorMessageType,
-            Keyword keyword,
             JsonSchema parentSchema,
             SchemaLocation schemaLocation,
             JsonNodePath evaluationPath,
@@ -350,8 +346,7 @@ public class JsonSchema implements JsonSchemaValidator {
                 schemaNode,
                 validationContext,
                 /* Below from ValidationMessageHandler */
-                /*errorMessageType*/ null,
-                /*keyword*/ null, parentSchema, schemaLocation, evaluationPath,
+                parentSchema, schemaLocation, evaluationPath,
                 evaluationParentSchema, /* errorMessage */ null);
     }
 
@@ -384,8 +379,6 @@ public class JsonSchema implements JsonSchemaValidator {
                     schemaNode,
                     validationContext,
                     /* Below from ValidationMessageHandler */
-                    /* errorMessageType */ null,
-                    /* keyword */ null,
                     parentSchema,
                     schemaLocation,
                     evaluationPath,
@@ -516,7 +509,7 @@ public class JsonSchema implements JsonSchemaValidator {
                 }
                 if (found == null) {
                     ValidationMessage validationMessage = ValidationMessage.builder()
-                            .type(ValidatorTypeCode.REF.getValue()).code("internal.unresolvedRef")
+                            .keyword(ValidatorTypeCode.REF.getValue()).messageKey("internal.unresolvedRef")
                             .message("{0}: Reference {1} cannot be resolved")
                             .instanceLocation(schemaLocation.getFragment())
                             .schemaLocation(schemaLocation)
@@ -634,8 +627,8 @@ public class JsonSchema implements JsonSchemaValidator {
 
                 if ("$recursiveAnchor".equals(pname)) {
                     if (!nodeToUse.isBoolean()) {
-                        ValidationMessage validationMessage = ValidationMessage.builder().type("$recursiveAnchor")
-                                .code("internal.invalidRecursiveAnchor")
+                        ValidationMessage validationMessage = ValidationMessage.builder().keyword("$recursiveAnchor")
+                                .messageKey("internal.invalidRecursiveAnchor")
                                 .message(
                                         "{0}: The value of a $recursiveAnchor must be a Boolean literal but is {1}")
                                 .instanceLocation(path)
