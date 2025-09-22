@@ -19,8 +19,10 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
+import com.networknt.schema.dialect.DialectRegistry;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.DefaultSchemaLoader;
 import com.networknt.schema.resource.SchemaLoader;
@@ -64,7 +66,7 @@ public class JsonSchemaFactory {
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
         private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableSchemaCache = true;
-        private JsonMetaSchemaFactory metaSchemaFactory = null;
+        private DialectRegistry metaSchemaFactory = null;
 
         /**
          * Sets the json node reader to read the data.
@@ -118,7 +120,7 @@ public class JsonSchemaFactory {
             return this;
         }
 
-        public Builder metaSchemaFactory(final JsonMetaSchemaFactory jsonMetaSchemaFactory) {
+        public Builder metaSchemaFactory(final DialectRegistry jsonMetaSchemaFactory) {
             this.metaSchemaFactory = jsonMetaSchemaFactory;
             return this;
         }
@@ -196,7 +198,7 @@ public class JsonSchemaFactory {
     private final ConcurrentMap<String, Dialect> metaSchemas;
     private final ConcurrentMap<SchemaLocation, JsonSchema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
-    private final JsonMetaSchemaFactory metaSchemaFactory;
+    private final DialectRegistry metaSchemaFactory;
     
     private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
     private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
@@ -210,7 +212,7 @@ public class JsonSchemaFactory {
             SchemaMappers.Builder schemaMappersBuilder,
             ConcurrentMap<String, Dialect> metaSchemas,
             boolean enableSchemaCache,
-            JsonMetaSchemaFactory metaSchemaFactory) {
+            DialectRegistry metaSchemaFactory) {
         this.metaSchemas = metaSchemas;
         if (defaultMetaSchemaIri == null || defaultMetaSchemaIri.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultMetaSchemaIri must not be null or empty");
@@ -468,8 +470,8 @@ public class JsonSchemaFactory {
      * @return the meta-schema
      */
     protected Dialect loadMetaSchema(String iri, SchemaValidatorsConfig config) {
-        return this.metaSchemaFactory != null ? this.metaSchemaFactory.getMetaSchema(iri, this, config)
-                : DefaultJsonMetaSchemaFactory.getInstance().getMetaSchema(iri, this, config);
+        return this.metaSchemaFactory != null ? this.metaSchemaFactory.getDialect(iri, this, config)
+                : DefaultDialectRegistry.getInstance().getDialect(iri, this, config);
     }
 
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {

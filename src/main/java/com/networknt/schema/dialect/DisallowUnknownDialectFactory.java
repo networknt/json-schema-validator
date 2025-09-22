@@ -13,32 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
-import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.Error;
+import com.networknt.schema.InvalidSchemaException;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 
 /**
- * A {@link JsonMetaSchemaFactory} that does not meta-schemas that aren't
+ * A {@link DialectRegistry} that does not meta-schemas that aren't
  * explicitly configured in the {@link JsonSchemaFactory}.
  */
-public class DisallowUnknownJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
+public class DisallowUnknownDialectFactory implements DialectRegistry {
     @Override
-    public Dialect getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         throw new InvalidSchemaException(Error.builder()
-                .message("Unknown meta-schema ''{0}''. Only meta-schemas that are explicitly configured can be used.")
-                .arguments(iri).build());
+                .message("Unknown dialect ''{0}''. Only dialects that are explicitly configured can be used.")
+                .arguments(dialectId).build());
     }
 
     private static class Holder {
-        private static final DisallowUnknownJsonMetaSchemaFactory INSTANCE = new DisallowUnknownJsonMetaSchemaFactory();
+        private static final DisallowUnknownDialectFactory INSTANCE = new DisallowUnknownDialectFactory();
     }
 
     /**
-     * Gets the instance of {@link DisallowUnknownJsonMetaSchemaFactory}.
+     * Gets the instance of {@link DisallowUnknownDialectFactory}.
      * 
      * @return the json meta schema factory
      */
-    public static DisallowUnknownJsonMetaSchemaFactory getInstance() {
+    public static DisallowUnknownDialectFactory getInstance() {
         return Holder.INSTANCE;
     }
 }

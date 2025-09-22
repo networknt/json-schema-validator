@@ -13,45 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.Error;
+import com.networknt.schema.InvalidSchemaException;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.Specification;
 import com.networknt.schema.Specification.Version;
-import com.networknt.schema.dialect.Dialect;
 
 /**
- * Default {@link JsonMetaSchemaFactory}.
+ * Default {@link DialectRegistry}.
  */
-public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
+public class DefaultDialectRegistry implements DialectRegistry {
     @Override
-    public Dialect getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
-        return Specification.Version.fromDialectId(iri)
-                .map(JsonSchemaFactory::checkVersion)
-                .orElseGet(() -> {
-                    // Custom meta schema
-                    return loadMetaSchema(iri, schemaFactory, config);
-                });
+        return Specification.Version.fromDialectId(dialectId).map(JsonSchemaFactory::checkVersion).orElseGet(() -> {
+            // Custom dialect
+            return loadDialect(dialectId, schemaFactory, config);
+        });
     }
 
-    protected Dialect loadMetaSchema(String iri, JsonSchemaFactory schemaFactory,
-            SchemaValidatorsConfig config) {
+    protected Dialect loadDialect(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         try {
-            Dialect result = loadMetaSchemaBuilder(iri, schemaFactory, config).build();
+            Dialect result = loadDialectBuilder(iri, schemaFactory, config).build();
             return result;
         } catch (InvalidSchemaException e) {
             throw e;
         } catch (Exception e) {
-            Error error = Error.builder()
-                    .message("Failed to load meta-schema ''{0}''").arguments(iri).build();
+            Error error = Error.builder().message("Failed to load dialect ''{0}''").arguments(iri).build();
             throw new InvalidSchemaException(error, e);
         }
     }
 
-    protected Dialect.Builder loadMetaSchemaBuilder(String iri, JsonSchemaFactory schemaFactory,
+    protected Dialect.Builder loadDialectBuilder(String iri, JsonSchemaFactory schemaFactory,
             SchemaValidatorsConfig config) {
         JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
         Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getMetaSchema());
@@ -72,10 +74,10 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     }
 
     private static class Holder {
-        private static final DefaultJsonMetaSchemaFactory INSTANCE = new DefaultJsonMetaSchemaFactory();
+        private static final DefaultDialectRegistry INSTANCE = new DefaultDialectRegistry();
     }
 
-    public static DefaultJsonMetaSchemaFactory getInstance() {
+    public static DefaultDialectRegistry getInstance() {
         return Holder.INSTANCE;
     }
 }

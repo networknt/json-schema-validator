@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.DisallowUnknownJsonMetaSchemaFactory;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
@@ -33,6 +32,7 @@ import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.DisallowUnknownDialectFactory;
 import com.networknt.schema.dialect.OpenApi30;
 import com.networknt.schema.Error;
 
@@ -48,7 +48,7 @@ class OpenApi30Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchema(OpenApi30.getInstance())
                         .defaultMetaSchemaIri(OpenApi30.getInstance().getIri())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         JsonSchema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/requestBody/content/application~1json/schema"));
         String input = "{\r\n"

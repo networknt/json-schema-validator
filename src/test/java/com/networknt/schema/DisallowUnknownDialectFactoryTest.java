@@ -21,11 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.DisallowUnknownDialectFactory;
 
 /**
  * Tests for DisallowUnknownJsonMetaSchemaFactory. 
  */
-class DisallowUnknownJsonMetaSchemaFactoryTest {
+class DisallowUnknownDialectFactoryTest {
     private static final String DRAFT_202012_SCHEMA = "{\r\n"
             + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
             + "  \"type\": \"object\"\r\n"
@@ -45,7 +46,7 @@ class DisallowUnknownJsonMetaSchemaFactoryTest {
     @Test
     void draft202012() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                builder -> builder.metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_202012_SCHEMA));
         assertThrows(InvalidSchemaException.class, () -> factory.getSchema(DRAFT_7_SCHEMA));
     }
@@ -53,7 +54,7 @@ class DisallowUnknownJsonMetaSchemaFactoryTest {
     @Test
     void draft7() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
-                builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                builder -> builder.metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_7_SCHEMA));
         assertThrows(InvalidSchemaException.class, () -> factory.getSchema(DRAFT_202012_SCHEMA));
     }

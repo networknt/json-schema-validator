@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.DisallowUnknownJsonMetaSchemaFactory;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.DisallowUnknownDialectFactory;
 import com.networknt.schema.dialect.OpenApi31;
 import com.networknt.schema.Error;
 
@@ -71,7 +71,7 @@ class OpenApi31Test {
     void validateMetaSchema() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         JsonSchema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -101,7 +101,7 @@ class OpenApi31Test {
     void discriminatorOneOfMultipleMatchShouldFail() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         JsonSchema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -121,7 +121,7 @@ class OpenApi31Test {
     void discriminatorOneOfNoMatchShouldFail() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         JsonSchema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -143,7 +143,7 @@ class OpenApi31Test {
     void discriminatorOneOfOneMatchWrongDiscriminatorShouldSucceed() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
+                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
         JsonSchema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
