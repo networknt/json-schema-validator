@@ -87,7 +87,7 @@ class JsonNodesTest {
         String inputData = "{\r\n"
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
@@ -133,7 +133,7 @@ class JsonNodesTest {
                 + "    minLength: 6\r\n";
         String inputData = "---\r\n"
                 + "startDate: '1'\r\n";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, InputFormat.YAML, config);

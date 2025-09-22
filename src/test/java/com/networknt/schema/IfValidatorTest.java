@@ -48,7 +48,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -91,7 +91,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -134,7 +134,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -175,7 +175,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override

@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AnnotationKeyword;
@@ -61,7 +62,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         Schema schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
@@ -76,7 +77,7 @@ class VocabularyTest {
 
         // Set validation vocab
         schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
@@ -113,7 +114,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         Schema schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
@@ -126,10 +127,10 @@ class VocabularyTest {
         List<Error> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
         assertEquals(0, messages.size());
-
+        
         // Set format assertion vocab
         schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
@@ -165,7 +166,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
@@ -204,12 +205,12 @@ class VocabularyTest {
         };
         
         Dialect dialect = Dialect
-                .builder(Dialects.getDraft202012().getIri(), Dialects.getDraft202012())
+                .builder("https://www.example.com/no-validation-no-format/schema", Dialects.getDraft202012())
                 .vocabularyFactory(vocabularyFactory)
                 .build();
         SchemaRegistry factory = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
-                        builder -> builder.metaSchema(dialect).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                .withDefaultDialect(Version.DRAFT_2020_12,
+                        builder -> builder.dialectRegistry(new BasicDialectRegistry(dialect)).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
         Schema schema = factory.getSchema(schemaData);

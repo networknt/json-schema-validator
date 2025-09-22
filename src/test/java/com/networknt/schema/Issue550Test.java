@@ -12,7 +12,7 @@ import java.util.List;
 class Issue550Test {
     protected Schema getJsonSchemaFromStreamContentV7(String schemaPath) {
         InputStream schemaContent = getClass().getResourceAsStream(schemaPath);
-        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 

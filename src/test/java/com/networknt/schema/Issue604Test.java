@@ -11,7 +11,7 @@ class Issue604Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false))
                 .build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         Schema schema = factory.getSchema("{ \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"object\", \"properties\": { \"bar\": { \"type\": \"boolean\", \"default\": false } } } } }", config);
         ObjectMapper objectMapper = new ObjectMapper();
         assertDoesNotThrow(() -> {

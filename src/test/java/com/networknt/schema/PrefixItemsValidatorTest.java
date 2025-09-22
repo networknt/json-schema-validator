@@ -54,7 +54,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
@@ -80,7 +80,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1]";
@@ -99,7 +99,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}],\r\n"
                 + "  \"items\": false"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1, 2]";
@@ -130,7 +130,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -183,7 +183,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
                 .itemWalkListener(new JsonSchemaWalkListener() {

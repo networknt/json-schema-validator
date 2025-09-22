@@ -44,7 +44,7 @@ class ItemsValidator202012Test {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"items\": {\"type\": \"integer\"}"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
@@ -67,7 +67,7 @@ class ItemsValidator202012Test {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -106,7 +106,7 @@ class ItemsValidator202012Test {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {

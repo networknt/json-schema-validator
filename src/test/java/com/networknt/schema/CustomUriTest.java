@@ -31,7 +31,7 @@ class CustomUriTest {
     }
 
     private SchemaRegistry buildJsonSchemaFactory() {
-        return SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09))
+        return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09))
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(new CustomUriFetcher())).build();
     }
 

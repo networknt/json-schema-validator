@@ -45,7 +45,7 @@ class AdditionalPropertiesValidatorTest {
                 + "  },\r\n"
                 + "  \"additionalProperties\": false\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -80,7 +80,7 @@ class AdditionalPropertiesValidatorTest {
                 + "  },\r\n"
                 + "  \"additionalProperties\": { \"type\": \"number\" }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"

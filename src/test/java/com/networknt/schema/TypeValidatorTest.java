@@ -52,7 +52,7 @@ class TypeValidatorTest {
 
     @Test
     void testTypeLoose() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
         String inputData = "{\r\n"
@@ -101,7 +101,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         messages = schema.validate("2.0", InputFormat.JSON);
@@ -130,7 +130,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         // The logic in JsonNodeUtil specifically excludes V4 from this handling
@@ -145,7 +145,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4).getSchema(schemaData);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
     }
@@ -173,7 +173,7 @@ class TypeValidatorTest {
                 + "      \"nested\":null\r\n"
                 + "  }\r\n"
                 + "}";
-        final SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7);
         final Schema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
             .nullableKeywordEnabled(false)
             .build());

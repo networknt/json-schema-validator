@@ -47,7 +47,7 @@ class SchemaRegistryTest {
                 + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);
@@ -63,7 +63,7 @@ class SchemaRegistryTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    Dialect dialect = factory.getMetaSchema("https://www.example.com/no-validation-no-format/schema", config);
+                    Dialect dialect = factory.getDialect("https://www.example.com/no-validation-no-format/schema", config);
                     synchronized(instance) {
                         if (instance[0] == null) {
                             instance[0] = dialect;

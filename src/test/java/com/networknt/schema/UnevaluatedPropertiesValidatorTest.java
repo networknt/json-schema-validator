@@ -61,7 +61,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "    \"key3\": \"value3\",\r\n"
                 + "    \"key4\": \"value4\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -116,7 +116,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "     \"notallowed\": false\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2019_09).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -144,7 +144,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "     \"notallowed\": false\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2019_09).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -189,7 +189,7 @@ class UnevaluatedPropertiesValidatorTest {
                 + "    \"unevaluatedProperties\": false\r\n"
                 + "}";
         String inputData = "{ \"pontoons\": {}, \"wheels\": {}, \"surfboard\": \"2\" }";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2019_09).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
@@ -228,7 +228,7 @@ class UnevaluatedPropertiesValidatorTest {
         schemas.put("https://www.example.org/PrimaryDeviceConfiguration.json", primaryDeviceConfiguration);
         schemas.put("https://www.example.org/DeviceConfiguration.json", deviceConfiguration);
         Schema schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2019_09,
+                .withDefaultDialect(Version.DRAFT_2019_09,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas)))
                 .getSchema(schemaData);
         String inputData = "{ \"isPrimaryDevice\": true, \"roleName\": \"hello\" }";

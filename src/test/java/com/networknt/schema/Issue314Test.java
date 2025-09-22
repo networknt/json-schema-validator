@@ -8,20 +8,18 @@ import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 
 class Issue314Test {
-    private static final SchemaRegistry FACTORY =
-            SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
-                    .metaSchema(
+    private static final SchemaRegistry REGISTRY =
+            SchemaRegistry.withDialect(
                             Dialect.builder(
                                     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
                                     Dialects.getDraft7())
-                                    .build())
-                    .build();
+                                    .build());
 
     @Test
     void testNormalizeHttpOnly() {
         String schemaPath = "/schema/issue314-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        Schema schema = FACTORY.getSchema(schemaInputStream);
+        Schema schema = REGISTRY.getSchema(schemaInputStream);
 
         Assertions.assertNotNull(schema);
     }

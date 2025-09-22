@@ -22,7 +22,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.FormatKeyword;
@@ -45,8 +44,7 @@ class FormatKeywordFactoryTest {
     void shouldUseFormatKeyword() {
         Dialect dialect = Dialect.builder(Dialects.getDraft202012())
                 .formatKeywordFactory(CustomFormatKeyword::new).build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"
                 + "  \"format\": \"hello\"\r\n"
                 + "}";

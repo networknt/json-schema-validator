@@ -27,7 +27,7 @@ class Issue366FailFastTest {
                 .typeLoose(false)
                 .build();
         SchemaRegistry schemaFactory = SchemaRegistry
-                .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7)).build();
+                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7)).build();
         SchemaLocation uri = getSchema();
 
         InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");

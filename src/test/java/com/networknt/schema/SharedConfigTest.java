@@ -30,7 +30,7 @@ class SharedConfigTest {
 
     @Test
     void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
 
         AllKeywordListener allKeywordListener = new AllKeywordListener();
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()

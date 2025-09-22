@@ -120,7 +120,7 @@ class JsonWalkApplyDefaultsTest {
     }
 
     private Schema createSchema(ApplyDefaultsStrategy applyDefaultsStrategy) {
-        SchemaRegistry schemaFactory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().applyDefaultsStrategy(applyDefaultsStrategy).build();
         return schemaFactory.getSchema(getClass().getClassLoader().getResourceAsStream("schema/walk-schema-default.json"), schemaValidatorsConfig);
     }

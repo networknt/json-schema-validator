@@ -34,7 +34,7 @@ class AllowSchemaLoaderTest {
 
     @Test
     void integration() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .add(new AllowSchemaLoader(iri -> iri.toString().startsWith("classpath:")))));
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,

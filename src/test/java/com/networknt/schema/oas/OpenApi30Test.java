@@ -31,9 +31,7 @@ import com.networknt.schema.OutputFormat;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.Specification.Version;
-import com.networknt.schema.dialect.DisallowUnknownDialectFactory;
-import com.networknt.schema.dialect.OpenApi30;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.Error;
 
 /**
@@ -45,10 +43,7 @@ class OpenApi30Test {
      */
     @Test
     void validateMetaSchema() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7,
-                builder -> builder.metaSchema(OpenApi30.getInstance())
-                        .defaultMetaSchemaIri(OpenApi30.getInstance().getIri())
-                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
         Schema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/requestBody/content/application~1json/schema"));
         String input = "{\r\n"
@@ -75,8 +70,7 @@ class OpenApi30Test {
      */
     @Test
     void jsonPointerWithNumberInFragment() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7, builder -> builder
-                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
         Schema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"),
                 SchemaValidatorsConfig.builder().pathType(PathType.JSON_PATH).build());
@@ -96,8 +90,7 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMaximum\": true\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7, builder -> builder
-                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
         Schema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("100", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
@@ -113,8 +106,7 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMinimum\": true\r\n"
                 + "}\r\n";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7, builder -> builder
-                .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi30());
         Schema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("0", InputFormat.JSON, OutputFormat.BOOLEAN));
     }

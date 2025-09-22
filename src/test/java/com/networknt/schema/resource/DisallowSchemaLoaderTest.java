@@ -32,7 +32,7 @@ class DisallowSchemaLoaderTest {
 
     @Test
     void integration() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(DisallowSchemaLoader.getInstance())));
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
                 () -> factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json")));

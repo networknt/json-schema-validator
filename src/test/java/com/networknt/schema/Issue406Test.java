@@ -14,7 +14,7 @@ class Issue406Test {
 
     @Test
     void testPreloadingNotHappening() {
-        final SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         final Schema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         // not breaking - pass
         Assertions.assertNotNull(schema);
@@ -22,7 +22,7 @@ class Issue406Test {
 
     @Test
     void testPreloadingHappening() {
-        final SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         final Schema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         Assertions.assertThrows(JsonSchemaException.class,
                             new Executable() {
@@ -36,7 +36,7 @@ class Issue406Test {
 
     @Test
     void testPreloadingHappeningForCircularDependency() {
-        final SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         final Schema schema = factory.getSchema(CIRCULAR_$REF_SCHEMA);
         schema.initializeValidators();
     }

@@ -17,7 +17,9 @@ package com.networknt.schema;
 
 import java.util.Optional;
 
+import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
+import com.networknt.schema.dialect.Dialects;
 
 /**
  * The JSON Schema specification which defines the standard dialects.
@@ -93,6 +95,58 @@ public class Specification {
                 }
             }
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Gets the dialect given the specification version.
+     * 
+     * @param version the schema specification version
+     * @return the dialect or null if not found
+     */
+    public static Dialect getDialect(Specification.Version version) {
+        if (null == version) {
+            return null;
+        }
+        switch (version) {
+        case DRAFT_2020_12:
+            return Dialects.getDraft202012();
+        case DRAFT_2019_09:
+            return Dialects.getDraft201909();
+        case DRAFT_7:
+            return Dialects.getDraft7();
+        case DRAFT_6:
+            return Dialects.getDraft6();
+        case DRAFT_4:
+            return Dialects.getDraft4();
+        default:
+            return null;
+        }
+    }
+
+    /**
+     * Gets the dialect given the dialect id.
+     * 
+     * @param version the schema specification version
+     * @return the dialect or null if not found
+     */
+    public static Dialect getDialect(String dialectId) {
+        if (null == dialectId) {
+            return null;
+        }
+        switch (dialectId) {
+        case DialectId.DRAFT_2020_12:
+            return Dialects.getDraft202012();
+        case DialectId.DRAFT_2019_09:
+            return Dialects.getDraft201909();
+        case DialectId.DRAFT_7:
+            return Dialects.getDraft7();
+        case DialectId.DRAFT_6:
+            return Dialects.getDraft6();
+        case DialectId.DRAFT_4:
+            return Dialects.getDraft4();
+        default:
+            return null;
         }
     }
 }

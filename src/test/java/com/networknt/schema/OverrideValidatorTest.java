@@ -55,7 +55,7 @@ class OverrideValidatorTest {
                 .builder(URI, Dialects.getDraft201909())
                 .build();
 
-        final SchemaRegistry validatorFactory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(validatorMetaSchema).build();
+        final SchemaRegistry validatorFactory = SchemaRegistry.withDialect(validatorMetaSchema);
         final Schema validatorSchema = validatorFactory.getSchema(schema);
 
         List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
@@ -72,7 +72,7 @@ class OverrideValidatorTest {
                 .format(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 
-        final SchemaRegistry overrideValidatorFactory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(overrideValidatorMetaSchema).build();
+        final SchemaRegistry overrideValidatorFactory = SchemaRegistry.withDialect(overrideValidatorMetaSchema);
         final Schema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
         messages = overrideValidatorSchema.validate(targetNode, executionContext -> {

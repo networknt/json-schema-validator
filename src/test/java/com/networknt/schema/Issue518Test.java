@@ -14,17 +14,14 @@ class Issue518Test {
                     .builder("http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#", Dialects.getDraft7())
                     .build();
 
-    private static final SchemaRegistry FACTORY =
-            SchemaRegistry
-                    .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
-                    .metaSchema(igluMetaSchema)
-                    .build();
+    private static final SchemaRegistry REGISTRY =
+            SchemaRegistry.withDialect(igluMetaSchema);
 
     @Test
     void testPreservingEmptyFragmentSuffix() {
         String schemaPath = "/schema/issue518-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        Schema schema = FACTORY.getSchema(schemaInputStream);
+        Schema schema = REGISTRY.getSchema(schemaInputStream);
 
         Assertions.assertNotNull(schema);
     }

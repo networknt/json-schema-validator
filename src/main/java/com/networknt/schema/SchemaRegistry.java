@@ -17,21 +17,19 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
-import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.DefaultSchemaLoader;
 import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.resource.SchemaLoaders;
 import com.networknt.schema.resource.SchemaMapper;
 import com.networknt.schema.resource.SchemaMappers;
-import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.serialization.BasicJsonNodeReader;
 import com.networknt.schema.serialization.JsonNodeReader;
-import com.networknt.schema.serialization.YamlMapperFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,34 +37,34 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 /**
- * Factory for building {@link Schema} instances. The factory should be
- * typically be created using {@link #getInstance(Version, Consumer)} and
- * should be cached for performance.
+ * Registry for loading and registering {@link Schema} instances.
  * <p>
- * JsonSchemaFactory instances are thread-safe provided its configuration is not
+ * This can be created with {@link #withDefaultDialect(Version)} or
+ * {@link #withDialect(Dialect)}.
+ * <p>
+ * The registry should be cached for performance.
+ * <p>
+ * A different registry should be used when loading unrelated schemas.
+ * <p>
+ * SchemaRegistry instances are thread-safe provided its configuration is not
  * modified.
  */
 public class SchemaRegistry {
     private static final Logger logger = LoggerFactory.getLogger(SchemaRegistry.class);
 
     public static class Builder {
-        private ObjectMapper jsonMapper = null;
-        private ObjectMapper yamlMapper = null;
+        private String defaultDialectId;
+        private DialectRegistry dialectRegistry = null;
         private JsonNodeReader jsonNodeReader = null;
-        private String defaultMetaSchemaIri;
-        private final ConcurrentMap<String, Dialect> metaSchemas = new ConcurrentHashMap<>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
         private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableSchemaCache = true;
-        private DialectRegistry metaSchemaFactory = null;
 
         /**
          * Sets the json node reader to read the data.
@@ -83,62 +81,13 @@ public class SchemaRegistry {
             return this;
         }
 
-        /**
-         * Sets the json mapper to read the data.
-         * <p>
-         * If the object reader is set this will not be used.
-         * <p>
-         * This is deprecated use an object reader instead.
-         * 
-         * @param jsonMapper the json mapper
-         * @return the builder
-         */
-        @Deprecated
-        public Builder jsonMapper(final ObjectMapper jsonMapper) {
-            this.jsonMapper = jsonMapper;
+        public Builder defaultDialectId(final String defaultDialectId) {
+            this.defaultDialectId = defaultDialectId;
             return this;
         }
 
-        /**
-         * Sets the yaml mapper to read the data.
-         * <p>
-         * If the object reader is set this will not be used.
-         * <p>
-         * This is deprecated use an object reader instead.
-         * 
-         * @param yamlMapper the yaml mapper
-         * @return the builder
-         */
-        @Deprecated
-        public Builder yamlMapper(final ObjectMapper yamlMapper) {
-            this.yamlMapper = yamlMapper;
-            return this;
-        }
-
-        public Builder defaultMetaSchemaIri(final String defaultMetaSchemaIri) {
-            this.defaultMetaSchemaIri = defaultMetaSchemaIri;
-            return this;
-        }
-
-        public Builder metaSchemaFactory(final DialectRegistry jsonMetaSchemaFactory) {
-            this.metaSchemaFactory = jsonMetaSchemaFactory;
-            return this;
-        }
-
-        public Builder metaSchema(final Dialect jsonMetaSchema) {
-            this.metaSchemas.put(normalizeMetaSchemaUri(jsonMetaSchema.getIri()), jsonMetaSchema);
-            return this;
-        }
-
-        public Builder metaSchemas(final Collection<? extends Dialect> jsonMetaSchemas) {
-            for (Dialect jsonMetaSchema : jsonMetaSchemas) {
-                metaSchema(jsonMetaSchema);
-            }
-            return this;
-        }
-
-        public Builder metaSchemas(Consumer<Map<String, Dialect>> customizer) {
-            customizer.accept(this.metaSchemas);
+        public Builder dialectRegistry(final DialectRegistry dialectRegistry) {
+            this.dialectRegistry = dialectRegistry;
             return this;
         }
 
@@ -163,75 +112,49 @@ public class SchemaRegistry {
             return this;
         }
 
-        @Deprecated
-        public Builder addMetaSchema(final Dialect jsonMetaSchema) {
-            return metaSchema(jsonMetaSchema);
-        }
-
-        @Deprecated
-        public Builder addMetaSchemas(final Collection<? extends Dialect> jsonMetaSchemas) {
-            return metaSchemas(jsonMetaSchemas);
-        }
-
         public SchemaRegistry build() {
             return new SchemaRegistry(
-                    jsonMapper,
-                    yamlMapper,
-                    jsonNodeReader,
-                    defaultMetaSchemaIri,
+                    jsonNodeReader != null ? jsonNodeReader : BasicJsonNodeReader.getInstance(),
+                    defaultDialectId,
                     schemaLoadersBuilder,
                     schemaMappersBuilder,
-                    metaSchemas,
                     enableSchemaCache,
-                    metaSchemaFactory
+                    dialectRegistry
             );
         }
     }
 
-    private final ObjectMapper jsonMapper;
-    private final ObjectMapper yamlMapper;
     private final JsonNodeReader jsonNodeReader;
-    private final String defaultMetaSchemaIri;
+    private final String defaultDialectId;
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
     private final SchemaLoader schemaLoader;
-    private final ConcurrentMap<String, Dialect> metaSchemas;
     private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
-    private final DialectRegistry metaSchemaFactory;
+    private final DialectRegistry dialectRegistry;
     
     private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
     private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
 
     private SchemaRegistry(
-            ObjectMapper jsonMapper,
-            ObjectMapper yamlMapper,
             JsonNodeReader jsonNodeReader,
-            String defaultMetaSchemaIri,
+            String defaultDialectId,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
-            ConcurrentMap<String, Dialect> metaSchemas,
             boolean enableSchemaCache,
-            DialectRegistry metaSchemaFactory) {
-        this.metaSchemas = metaSchemas;
-        if (defaultMetaSchemaIri == null || defaultMetaSchemaIri.trim().isEmpty()) {
-            throw new IllegalArgumentException("defaultMetaSchemaIri must not be null or empty");
-        } else if (metaSchemas == null || metaSchemas.isEmpty()) {
-            throw new IllegalArgumentException("Json Meta Schemas must not be null or empty");
-        } else if (this.metaSchemas.get(normalizeMetaSchemaUri(defaultMetaSchemaIri)) == null) {
-            throw new IllegalArgumentException("Meta Schema for default Meta Schema URI must be provided");
+            DialectRegistry dialectRegistry) {
+        if (defaultDialectId == null || defaultDialectId.trim().isEmpty()) {
+            throw new IllegalArgumentException("defaultDialectId must not be null or empty");
         }
-        this.jsonMapper = jsonMapper;
-        this.yamlMapper = yamlMapper;
         this.jsonNodeReader = jsonNodeReader;
-        this.defaultMetaSchemaIri = defaultMetaSchemaIri;
+        this.defaultDialectId = defaultDialectId;
         this.schemaLoadersBuilder = schemaLoadersBuilder;
         this.schemaMappersBuilder = schemaMappersBuilder;
         this.schemaLoader = new DefaultSchemaLoader(
                 schemaLoadersBuilder != null ? schemaLoadersBuilder.build() : DEFAULT_SCHEMA_LOADERS,
                 schemaMappersBuilder != null ? schemaMappersBuilder.build() : DEFAULT_SCHEMA_MAPPERS);
         this.enableSchemaCache = enableSchemaCache;
-        this.metaSchemaFactory = metaSchemaFactory;
+        this.dialectRegistry = dialectRegistry != null ? dialectRegistry : new DefaultDialectRegistry();
     }
 
     public SchemaLoader getSchemaLoader() {
@@ -240,39 +163,57 @@ public class SchemaRegistry {
 
     /**
      * Builder without keywords or formats.
+     * <p>
+     * Typically {@link #builder(SchemaRegistry)} or
+     * {@link #withDefaultDialect(Version)} or {@link #withDialect(Dialect)} would be used instead.
      *
-     * Typically {@link #builder(SchemaRegistry)} is what is required.
-     *
-     * @return a builder instance without any keywords or formats - usually not what one needs.
+     * @return a builder instance without any keywords or formats - usually not what
+     *         one needs.
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Creates a factory with a default schema dialect. The schema dialect will only
-     * be used if the input does not specify a $schema.
+     * Creates a new schema registry with a default schema dialect. The schema dialect
+     * will only be used if the input does not specify a $schema.
      * 
-     * @param versionFlag the default dialect
+     * @param specificationVersion the default dialect id corresponding to the
+     *                             specification version used when the schema does
+     *                             not specify the $schema keyword
      * @return the factory
      */
-    public static SchemaRegistry getInstance(Specification.Version versionFlag) {
-        return getInstance(versionFlag, null);
+    public static SchemaRegistry withDefaultDialect(Specification.Version specificationVersion) {
+        return withDefaultDialect(specificationVersion, null);
     }
 
     /**
-     * Creates a factory with a default schema dialect. The schema dialect will only
-     * be used if the input does not specify a $schema.
+     * Creates a new schema registry with a default schema dialect. The schema dialect
+     * will only be used if the input does not specify a $schema.
      * 
-     * @param versionFlag the default dialect
+     * @param specificationVersion the default dialect id corresponding to the
+     *                             specification version used when the schema does
+     *                             not specify the $schema keyword
+     * @param customizer           to customize the factory
+     * @return the factory
+     */
+    public static SchemaRegistry withDefaultDialect(Specification.Version specificationVersion,
+            Consumer<SchemaRegistry.Builder> customizer) {
+        Dialect dialect = Specification.getDialect(specificationVersion);
+        return withDefaultDialectId(dialect.getIri(), customizer);
+    }
+
+    /**
+     * Creates a new schema registry with a default schema dialect. The schema dialect
+     * will only be used if the input does not specify a $schema.
+     * 
+     * @param dialect    the default dialect id used when the schema does not
+     *                   specify the $schema keyword
      * @param customizer to customize the factory
      * @return the factory
      */
-    public static SchemaRegistry getInstance(Specification.Version versionFlag,
-            Consumer<SchemaRegistry.Builder> customizer) {
-        Dialect dialect = checkVersion(versionFlag);
-        SchemaRegistry.Builder builder = builder().defaultMetaSchemaIri(dialect.getIri())
-                .metaSchema(dialect);
+    public static SchemaRegistry withDefaultDialectId(String dialectId, Consumer<SchemaRegistry.Builder> customizer) {
+        SchemaRegistry.Builder builder = builder().defaultDialectId(dialectId);
         if (customizer != null) {
             customizer.accept(builder);
         }
@@ -280,30 +221,24 @@ public class SchemaRegistry {
     }
 
     /**
-     * Gets the json schema version to get the meta schema.
+     * Gets a new schema registry that supports a specific dialect only.
      * <p>
-     * This throws an {@link IllegalArgumentException} for an unsupported value.
+     * Schemas that do not specify dialect using $schema will use the dialect.
      * 
-     * @param version the schema specification version
-     * @return the version
+     * @param dialect the dialect
+     * @return the schema registry
      */
-    public static Dialect checkVersion(Specification.Version version){
-        if (null == version) return null;
-        switch (version) {
-            case DRAFT_2020_12: return Dialects.getDraft202012();
-            case DRAFT_2019_09: return Dialects.getDraft201909();
-            case DRAFT_7: return Dialects.getDraft7();
-            case DRAFT_6: return Dialects.getDraft6();
-            case DRAFT_4: return Dialects.getDraft4();
-            default: throw new IllegalArgumentException("Unsupported value" + version);
-        }
+    public static SchemaRegistry withDialect(Dialect dialect) {
+        SchemaRegistry.Builder builder = builder().defaultDialectId(dialect.getIri())
+                .dialectRegistry(new BasicDialectRegistry(dialect));
+        return builder.build();
     }
 
     /**
      * Builder from an existing {@link SchemaRegistry}.
      * <p>
      * <code>
-     * JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909));
+     * SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09));
      * </code>
      * 
      * @param blueprint the existing factory
@@ -311,10 +246,7 @@ public class SchemaRegistry {
      */
     public static Builder builder(final SchemaRegistry blueprint) {
         Builder builder = builder()
-                .metaSchemas(blueprint.metaSchemas.values())
-                .defaultMetaSchemaIri(blueprint.defaultMetaSchemaIri)
-                .jsonMapper(blueprint.jsonMapper)
-                .yamlMapper(blueprint.yamlMapper)
+                .defaultDialectId(blueprint.defaultDialectId)
                 .jsonNodeReader(blueprint.jsonNodeReader);
         if (blueprint.schemaLoadersBuilder != null) {
             builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
@@ -326,14 +258,14 @@ public class SchemaRegistry {
     }
 
     /**
-     * Creates a json schema from initial input.
+     * Creates a schema from initial input.
      * 
      * @param schemaUri the schema location
      * @param schemaNode the schema data node
      * @param config the config to use
      * @return the schema
      */
-    protected Schema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
+    protected Schema newSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
         Schema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
@@ -344,16 +276,16 @@ public class SchemaRegistry {
     /**
      * Preloads the json schema if the configuration option is set.
      * 
-     * @param jsonSchema the schema to preload
+     * @param schema the schema to preload
      * @param config containing the configuration option
      */
-    private void preload(Schema jsonSchema, SchemaValidatorsConfig config) {
+    private void preload(Schema schema, SchemaValidatorsConfig config) {
         if (config.isPreloadJsonSchema()) {
             try {
                 /*
                  * Attempt to preload and resolve $refs for performance.
                  */
-                jsonSchema.initializeValidators();
+                schema.initializeValidators();
             } catch (Exception e) {
                 /*
                  * Do nothing here to allow the schema to be cached even if the remote $ref
@@ -370,7 +302,7 @@ public class SchemaRegistry {
     }
 
     private Schema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withMetaSchema(validationContext, schemaNode), schemaLocation, evaluationPath,
+        return Schema.from(withDialect(validationContext, schemaNode), schemaLocation, evaluationPath,
                 schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
     
@@ -387,8 +319,8 @@ public class SchemaRegistry {
      * @param schemaNode        the schema node
      * @return the validation context to use
      */
-    private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
-        Dialect dialect = getMetaSchema(schemaNode, validationContext.getConfig());
+    private ValidationContext withDialect(ValidationContext validationContext, JsonNode schemaNode) {
+        Dialect dialect = getDialect(schemaNode, validationContext.getConfig());
         if (dialect != null && !dialect.getIri().equals(validationContext.getMetaSchema().getIri())) {
             SchemaValidatorsConfig config = validationContext.getConfig();
             if (dialect.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
@@ -419,84 +351,52 @@ public class SchemaRegistry {
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
-        final Dialect jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
+        final Dialect dialect = getDialectOrDefault(schemaNode, config);
         SchemaValidatorsConfig configResult = config;
-        if (jsonMetaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
+        if (dialect.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
             configResult = SchemaValidatorsConfig.builder(config)
                     .discriminatorKeywordEnabled(true)
                     .nullableKeywordEnabled(true)
                     .build();
         }
-        return new ValidationContext(jsonMetaSchema, this, configResult);
+        return new ValidationContext(dialect, this, configResult);
     }
 
-    private Dialect getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private Dialect getDialect(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && iriNode.isTextual()) {
-            Dialect result = metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()),
-                    id -> loadMetaSchema(id, config));
-            return result;
+            return getDialect(iriNode.textValue(), config);
         }
         return null;
     }
 
-    private Dialect getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private Dialect getDialectOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && !iriNode.isNull() && !iriNode.isTextual()) {
-            throw new JsonSchemaException("Unknown MetaSchema: " + iriNode);
+            throw new JsonSchemaException("Unknown dialect: " + iriNode);
         }
-        final String iri = iriNode == null || iriNode.isNull() ? defaultMetaSchemaIri : iriNode.textValue();
-        return getMetaSchema(iri, config);
+        final String iri = iriNode == null || iriNode.isNull() ? defaultDialectId : iriNode.textValue();
+        return getDialect(iri, config);
     }
 
     /**
-     * Gets the meta-schema that is available to the factory.
+     * Gets the dialect that is available to the registry.
      * 
-     * @param iri    the IRI of the meta-schema
-     * @param config the schema validators config
+     * @param dialectId the IRI of the meta-schema
+     * @param config    the schema validators config
      * @return the meta-schema
      */
-    public Dialect getMetaSchema(String iri, SchemaValidatorsConfig config) {
-        String key = normalizeMetaSchemaUri(iri);
-        Dialect result =  metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
-        return result;
-    }
-
-    /**
-     * Loads the meta-schema from the configured meta-schema factory.
-     * 
-     * @param iri    the IRI of the meta-schema
-     * @param config the schema validators config
-     * @return the meta-schema
-     */
-    protected Dialect loadMetaSchema(String iri, SchemaValidatorsConfig config) {
-        return this.metaSchemaFactory != null ? this.metaSchemaFactory.getDialect(iri, this, config)
-                : DefaultDialectRegistry.getInstance().getDialect(iri, this, config);
+    public Dialect getDialect(String dialectId, SchemaValidatorsConfig config) {
+        String key = normalizeDialectId(dialectId);
+        return dialectRegistry.getDialect(key, this, config);
     }
 
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeReader == null) {
-            return getObjectMapper(inputFormat).readTree(content);
-        } else {
-            return this.jsonNodeReader.readTree(content, inputFormat);
-        }
+        return this.jsonNodeReader.readTree(content, inputFormat);
     }
 
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
-        if (this.jsonNodeReader == null) {
-            return getObjectMapper(inputFormat).readTree(content);
-        } else {
-            return this.jsonNodeReader.readTree(content, inputFormat);
-        }
-    }
-
-    ObjectMapper getObjectMapper(InputFormat inputFormat) {
-        if (InputFormat.JSON.equals(inputFormat)) {
-            return getJsonMapper();
-        } else if (InputFormat.YAML.equals(inputFormat)) {
-            return getYamlMapper();
-        }
-        throw new IllegalArgumentException("Unsupported input format "+inputFormat); 
+        return this.jsonNodeReader.readTree(content, inputFormat);
     }
 
     /**
@@ -527,7 +427,7 @@ public class SchemaRegistry {
     public Schema getSchema(final String schema, InputFormat inputFormat, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = readTree(schema, inputFormat);
-            return newJsonSchema(null, schemaNode, config);
+            return newSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -590,7 +490,7 @@ public class SchemaRegistry {
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = readTree(schemaStream, inputFormat);
-            return newJsonSchema(null, schemaNode, config);
+            return newSchema(null, schemaNode, config);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
             throw new JsonSchemaException(ioe);
@@ -637,7 +537,7 @@ public class SchemaRegistry {
             // The getMapperSchema potentially recurses to call back to getSchema again
             Schema cachedUriSchema = schemaCache.get(schemaUri);
             if (cachedUriSchema == null) {
-                synchronized (this) { // acquire lock on shared factory object to prevent deadlock
+                synchronized (this) { // acquire lock on shared registry object to prevent deadlock
                     cachedUriSchema = schemaCache.get(schemaUri);
                     if (cachedUriSchema == null) {
                         cachedUriSchema = getMappedSchema(schemaUri, config);
@@ -650,14 +550,6 @@ public class SchemaRegistry {
             return cachedUriSchema.withConfig(config);
         }
         return getMappedSchema(schemaUri, config);
-    }
-
-    ObjectMapper getYamlMapper() {
-        return this.yamlMapper != null ? this.yamlMapper : YamlMapperFactory.getInstance();
-    }
-
-    ObjectMapper getJsonMapper() {
-        return this.jsonMapper != null ? this.jsonMapper : JsonMapperFactory.getInstance();
     }
 
     /**
@@ -682,12 +574,12 @@ public class SchemaRegistry {
                 schemaNode = readTree(inputStream, InputFormat.JSON);
             }
 
-            final Dialect jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
+            final Dialect dialect = getDialectOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {
                 // Schema without fragment
-                ValidationContext validationContext = new ValidationContext(jsonMetaSchema, this, config);
+                ValidationContext validationContext = new ValidationContext(dialect, this, config);
                 return doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
                 // Schema with fragment pointing to sub schema
@@ -723,7 +615,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
-        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
+        return newSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
     }
 
     /**
@@ -734,7 +626,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final URI schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, createSchemaValidatorsConfig());
+        return newSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, createSchemaValidatorsConfig());
     }
 
     /**
@@ -756,7 +648,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
-        return newJsonSchema(schemaUri, jsonNode, config);
+        return newSchema(schemaUri, jsonNode, config);
     }
     
     /**
@@ -767,7 +659,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
-        return newJsonSchema(schemaUri, jsonNode, createSchemaValidatorsConfig());
+        return newSchema(schemaUri, jsonNode, createSchemaValidatorsConfig());
     }
 
     /**
@@ -784,7 +676,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
-        return newJsonSchema(null, jsonNode, config);
+        return newSchema(null, jsonNode, config);
     }
 
     /**
@@ -800,7 +692,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema getSchema(final JsonNode jsonNode) {
-        return newJsonSchema(null, jsonNode, createSchemaValidatorsConfig());
+        return newSchema(null, jsonNode, createSchemaValidatorsConfig());
     }
 
     private boolean isYaml(final SchemaLocation schemaUri) {
@@ -824,7 +716,7 @@ public class SchemaRegistry {
      * @param id the $schema identifier
      * @return the normalized uri
      */
-    static protected String normalizeMetaSchemaUri(String id) {
+    static protected String normalizeDialectId(String id) {
         boolean found = false;
         for (Version flag : Specification.Version.values()) {
             if(flag.getDialectId().equals(id)) {

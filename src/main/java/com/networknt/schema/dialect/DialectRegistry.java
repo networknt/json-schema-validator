@@ -29,12 +29,13 @@ public interface DialectRegistry {
      * Gets the dialect given the dialect id which is the IRI that indicates the
      * meta-schema that can be used to validate the schema conforms to the dialect.
      * 
-     * @param dialectId     the dialect id of the dialect which IRI that indicates
-     *                      the meta-schema that can be used to validate the schema
-     *                      conforms to the dialect
-     * @param schemaFactory the schema factory
-     * @param config        the config
+     * @param dialectId      the dialect id of the dialect which IRI that indicates
+     *                       the meta-schema that can be used to validate the schema
+     *                       conforms to the dialect
+     * @param schemaRegistry the schema registry to fetch and load unknown dialect's
+     *                       meta-schema
+     * @param config         the config
      * @return the dialect
      */
-    Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config);
+    Dialect getDialect(String dialectId, SchemaRegistry schemaRegistry, SchemaValidatorsConfig config);
 }

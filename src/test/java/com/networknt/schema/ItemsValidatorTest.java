@@ -47,7 +47,7 @@ class ItemsValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"items\": {\"type\": \"integer\"}"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
@@ -74,7 +74,7 @@ class ItemsValidatorTest {
                 + "  \"items\": [{}],"
                 + "  \"additionalItems\": {\"type\": \"integer\"}"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
@@ -101,7 +101,7 @@ class ItemsValidatorTest {
                 + "  \"items\": [{}],"
                 + "  \"additionalItems\": false"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
@@ -124,7 +124,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -160,7 +160,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -202,7 +202,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -252,7 +252,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -306,7 +306,7 @@ class ItemsValidatorTest {
                 + "    \"default\": \"additional\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
                 .itemWalkListener(new JsonSchemaWalkListener() {

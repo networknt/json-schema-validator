@@ -27,8 +27,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
-import com.networknt.schema.dialect.DisallowUnknownDialectFactory;
-import com.networknt.schema.dialect.OpenApi31;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.Error;
 
 /**
@@ -40,7 +39,7 @@ class OpenApi31Test {
      */
     @Test
     void validateVocabulary() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
         Schema schema = factory
@@ -69,9 +68,7 @@ class OpenApi31Test {
      */
     @Test
     void validateMetaSchema() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -99,9 +96,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfMultipleMatchShouldFail() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -119,9 +114,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfNoMatchShouldFail() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
@@ -141,9 +134,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfOneMatchWrongDiscriminatorShouldSucceed() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"

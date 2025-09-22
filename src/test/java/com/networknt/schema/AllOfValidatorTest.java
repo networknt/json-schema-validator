@@ -33,7 +33,7 @@ class AllOfValidatorTest {
                 + "    \"$ref\": \"#/defs/User\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
@@ -59,7 +59,7 @@ class AllOfValidatorTest {
 
         String jsonContents = "{}";
 
-        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         Schema schema = factory.getSchema(schemaContents);
         ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
         assertEquals(true, result.getErrors().isEmpty());

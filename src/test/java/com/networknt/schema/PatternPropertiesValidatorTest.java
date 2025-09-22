@@ -41,7 +41,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
     @Test
     void testInvalidPatternPropertiesValidator() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
-            SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
             Schema schema = factory.getSchema("{\"patternProperties\":6}");
 
             JsonNode node = getJsonNodeFromStringContent("");
@@ -56,7 +56,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())
                     .build();
-            SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
             Schema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
             JsonNode node = getJsonNodeFromStringContent("");
@@ -79,7 +79,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
@@ -130,7 +130,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"

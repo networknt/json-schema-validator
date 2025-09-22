@@ -36,12 +36,12 @@ class Issue832Test {
         formats = new ArrayList<>();
         formats.add(new NoMatchFormat());
 
-        Dialect jsonMetaSchema = Dialect.builder(
+        Dialect dialect = Dialect.builder(
                 Dialects.getDraft7().getIri(),
                 Dialects.getDraft7())
                 .formats(formats)
                 .build();
-        return new SchemaRegistry.Builder().defaultMetaSchemaIri(jsonMetaSchema.getIri()).metaSchema(jsonMetaSchema).build();
+        return SchemaRegistry.withDialect(dialect);
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws IOException {

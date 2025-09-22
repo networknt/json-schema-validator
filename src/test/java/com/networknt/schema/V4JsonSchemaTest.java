@@ -37,7 +37,7 @@ class V4JsonSchemaTest {
     void testLoadingWithId() throws Exception {
         try (InputStream inputStream = new FileInputStream("src/test/resources/remotes/self_ref/selfRef.json")) {
             JsonNode schemaJson = mapper.readTree(inputStream);
-            SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
             @SuppressWarnings("unused")
             Schema schema = factory.getSchema(schemaJson);
         }
@@ -90,7 +90,7 @@ class V4JsonSchemaTest {
         final JsonNode dataFile = getJsonNodeFromResource(objectMapper, dataFileName);
         final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
         return SchemaRegistry
-            .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_4))
+            .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4))
             .build()
             .getSchema(schema, config)
             .validate(dataFile);

@@ -24,7 +24,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
     @Test
     void testUrnUriAsLocalRef_ExternalURN() {
         SchemaRegistry factory = SchemaRegistry
-                .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
+                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7))
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mappings(Collections.singletonMap("urn:data",
                             "classpath:draft7/urn/issue665_external_urn_subschema.json"));

@@ -17,6 +17,8 @@ package com.networknt.schema.dialect;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
@@ -32,13 +34,16 @@ import com.networknt.schema.Specification.Version;
  * Default {@link DialectRegistry}.
  */
 public class DefaultDialectRegistry implements DialectRegistry {
+    private final ConcurrentMap<String, Dialect> dialects = new ConcurrentHashMap<>();
+    
     @Override
     public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
-        return Specification.Version.fromDialectId(dialectId).map(SchemaRegistry::checkVersion).orElseGet(() -> {
-            // Custom dialect
-            return loadDialect(dialectId, schemaFactory, config);
-        });
+        Dialect dialect = Specification.getDialect(dialectId);
+        if (dialect != null) {
+            return dialect;
+        }
+        return dialects.computeIfAbsent(dialectId, id -> loadDialect(id, schemaFactory, config));
     }
 
     protected Dialect loadDialect(String iri, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {

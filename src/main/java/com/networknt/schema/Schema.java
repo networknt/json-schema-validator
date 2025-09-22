@@ -40,7 +40,7 @@ import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Used for creating a schema with validators for validating inputs. This is
- * created using {@link SchemaRegistry#getInstance(Version, Consumer)}
+ * created using {@link SchemaRegistry#withDefaultDialect(Version, Consumer)}
  * and should be cached for performance.
  * <p>
  * This is the core of json constraint implementation. It parses json constraint

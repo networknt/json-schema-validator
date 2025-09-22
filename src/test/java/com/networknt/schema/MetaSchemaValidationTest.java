@@ -42,7 +42,7 @@ class MetaSchemaValidationTest {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
             Schema schema = SchemaRegistry
-                    .getInstance(Version.DRAFT_2020_12,
+                    .withDefaultDialect(Version.DRAFT_2020_12,
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);

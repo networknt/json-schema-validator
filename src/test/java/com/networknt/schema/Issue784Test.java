@@ -73,11 +73,7 @@ class Issue784Test {
                 })
                 .build();
 
-        return new SchemaRegistry
-                .Builder()
-                .defaultMetaSchemaIri(overrideDateTimeValidator.getIri())
-                .metaSchema(overrideDateTimeValidator)
-                .build()
+        return SchemaRegistry.withDialect(overrideDateTimeValidator)
                 .getSchema(Issue784Test.class.getResourceAsStream("/issue784/schema.json"));
     }
 }

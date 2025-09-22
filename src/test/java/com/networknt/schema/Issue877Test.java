@@ -30,7 +30,7 @@ class Issue877Test {
                 + "  \"unevaluatedProperties\": false\n"
                 + "}";
         
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = jsonSchemaFactory.getSchema(schemaData);
         String input = "{}";
         ValidationResult result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);

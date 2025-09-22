@@ -47,7 +47,7 @@ class MultipleOfValidatorTest {
 
     @Test
     void test() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":123.892,\"value2\":123456.2934,\"value3\":123.123}";
         String validData = "{\"value1\":123.89,\"value2\":123456,\"value3\":123.010}";
@@ -62,7 +62,7 @@ class MultipleOfValidatorTest {
 
     @Test
     void testTypeLoose() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         
         String inputData = "{\"value1\":\"123.892\",\"value2\":\"123456.2934\",\"value3\":123.123}";

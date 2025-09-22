@@ -9,7 +9,7 @@ class Issue928Test {
 
     private SchemaRegistry factoryFor(Specification.Version version) {
         return SchemaRegistry
-                .builder(SchemaRegistry.getInstance(version))
+                .builder(SchemaRegistry.withDefaultDialect(version))
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }

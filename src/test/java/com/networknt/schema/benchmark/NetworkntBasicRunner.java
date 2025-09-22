@@ -26,7 +26,7 @@ public class NetworkntBasicRunner implements Callable<Object> {
 
     public NetworkntBasicRunner() {
         ObjectMapper objectMapper = new ObjectMapper();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_4);
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ObjectReader reader = objectMapper.reader();

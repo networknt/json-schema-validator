@@ -75,7 +75,7 @@ public final class SpecificationVersionDetector {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
             String schemaTagValue = schemaTag.asText();
-            String schemaUri = SchemaRegistry.normalizeMetaSchemaUri(schemaTagValue);
+            String schemaUri = SchemaRegistry.normalizeDialectId(schemaTagValue);
 
             if (throwIfUnsupported) {
                 return Version.fromDialectId(schemaUri)

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 class OverwritingCustomMessageBugTest {
   private Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-    SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7);
+    SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7);
     return factory.getSchema(schemaContent);
   }
 

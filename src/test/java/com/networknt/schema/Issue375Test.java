@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 class Issue375Test {
     protected Schema getJsonSchemaFromStreamContent(InputStream schemaContent) {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 

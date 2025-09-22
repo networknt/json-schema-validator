@@ -31,7 +31,7 @@ class Issue940Test {
                 + "    \"greeting\": {}\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema jsonSchema = SchemaRegistry.getInstance(Version.DRAFT_7).getSchema(schema);
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
     }
 }

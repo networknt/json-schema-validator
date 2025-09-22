@@ -28,7 +28,7 @@ class DependentRequiredTest {
             "   }" +
             "}";
 
-    private static final SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09);
     private static final Schema schema = factory.getSchema(SCHEMA);
     private static final ObjectMapper mapper = new ObjectMapper();
 

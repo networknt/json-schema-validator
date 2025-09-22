@@ -1,6 +1,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 
@@ -30,8 +31,8 @@ class UrnTest
       is = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/feature/urn-management/src/test/resources/draft7/urn/urn.schema.json").openStream();
       Dialect draftV7 = Dialects.getDraft7();
       SchemaRegistry.Builder builder = SchemaRegistry.builder()
-          .defaultMetaSchemaIri(draftV7.getIri())
-          .metaSchema(draftV7)
+          .defaultDialectId(draftV7.getIri())
+          .dialectRegistry(new BasicDialectRegistry(draftV7))
           .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );
       SchemaRegistry instance = builder.build();

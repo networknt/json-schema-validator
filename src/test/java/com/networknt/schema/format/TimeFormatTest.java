@@ -60,7 +60,7 @@ class TimeFormatTest {
         String inputData = "\""+input.format+"\"";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -89,7 +89,7 @@ class TimeFormatTest {
         String inputData = "\""+input.format+"\"";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
     }

@@ -43,7 +43,7 @@ class FormatValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"format\":\"unknown\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
@@ -56,7 +56,7 @@ class FormatValidatorTest {
                 + "  \"format\":\"unknown\"\r\n"
                 + "}";
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().strict("format", true).build();
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
@@ -86,7 +86,7 @@ class FormatValidatorTest {
                 + "}";
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = SchemaRegistry
-                .getInstance(Version.DRAFT_2020_12,
+                .withDefaultDialect(Version.DRAFT_2020_12,
                         builder -> builder
                                 .schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections.singletonMap("https://www.example.com/format-assertion/schema", metaSchemaData))))
                 .getSchema(schemaData, config);
@@ -100,7 +100,7 @@ class FormatValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"format\":\"unknown\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         OutputUnit outputUnit = schema.validate("\"hello\"", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
@@ -143,7 +143,7 @@ class FormatValidatorTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(formatSchema, config);
         List<Error> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
@@ -159,7 +159,7 @@ class FormatValidatorTest {
     @SuppressWarnings("deprecation")
     @Test
     void patternFormatDeprecated() {
-        Dialect customMetaSchema = Dialect
+        Dialect customDialect = Dialect
                 .builder("https://www.example.com/schema", Dialects.getDraft7())
                 .formats(formats -> {
                     PatternFormat format = new PatternFormat("custom", "test", "must be test");
@@ -167,8 +167,7 @@ class FormatValidatorTest {
                 })
                 .build();
 
-        SchemaRegistry factory = new SchemaRegistry.Builder().defaultMetaSchemaIri(customMetaSchema.getIri())
-                .metaSchema(customMetaSchema).build();
+        SchemaRegistry factory = SchemaRegistry.withDialect(customDialect);
         String formatSchema = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"format\": \"custom\"\r\n"
@@ -208,7 +207,7 @@ class FormatValidatorTest {
 
     @Test
     void shouldAllowNumberFormat() {
-        Dialect customMetaSchema = Dialect
+        Dialect customDialect = Dialect
                 .builder("https://www.example.com/schema", Dialects.getDraft7())
                 .formats(formats -> {
                     CustomNumberFormat format = new CustomNumberFormat(new BigDecimal("12345"));
@@ -216,8 +215,7 @@ class FormatValidatorTest {
                 })
                 .build();
 
-        SchemaRegistry factory = new SchemaRegistry.Builder().defaultMetaSchemaIri(customMetaSchema.getIri())
-                .metaSchema(customMetaSchema).build();
+        SchemaRegistry factory = SchemaRegistry.withDialect(customDialect);
         String formatSchema = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
                 + "  \"format\": \"custom-number\"\r\n"
@@ -241,7 +239,7 @@ class FormatValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"format\":\"uri\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
         List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(false);
         });

@@ -202,7 +202,7 @@ abstract class AbstractJsonSchemaTestSuite {
             }
         };
         Version specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
-        SchemaRegistry base = SchemaRegistry.getInstance(specVersion);
+        SchemaRegistry base = SchemaRegistry.withDefaultDialect(specVersion);
         return SchemaRegistry
                 .builder(base)
                 .schemaMappers(schemaMappers -> schemaMappers

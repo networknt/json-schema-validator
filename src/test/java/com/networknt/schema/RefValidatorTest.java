@@ -40,7 +40,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
@@ -59,7 +59,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
@@ -78,7 +78,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
@@ -97,7 +97,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/hello/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
@@ -107,7 +107,7 @@ class RefValidatorTest {
 
     @Test
     void classPathSlash() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(SchemaLocation.of("classpath:/schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"
@@ -123,7 +123,7 @@ class RefValidatorTest {
 
     @Test
     void classPathNoSlash() {
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(SchemaLocation.of("classpath:schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"

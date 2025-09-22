@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.SchemaLoader;
@@ -45,10 +46,10 @@ class JsonSchemaFactoryUriCacheTest {
     }
 
     private SchemaRegistry buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
-        return SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2020_12))
+        return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12))
                 .enableSchemaCache(enableSchemaCache)
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
-                .metaSchema(Dialects.getDraft202012())
+                .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012()))
                 .build();
     }
 

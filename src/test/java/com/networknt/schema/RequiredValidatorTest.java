@@ -55,7 +55,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -99,7 +99,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -143,7 +143,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -181,7 +181,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"

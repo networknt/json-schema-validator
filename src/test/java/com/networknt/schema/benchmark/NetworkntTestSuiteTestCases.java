@@ -67,7 +67,7 @@ public class NetworkntTestSuiteTestCases {
                     SchemaLocation testCaseFileUri = SchemaLocation
                             .of("classpath:" + toForwardSlashPath(testCase.getSpecification()));
                     Schema schema = SchemaRegistry
-                            .getInstance(defaultVersion,
+                            .withDefaultDialect(defaultVersion,
                                     builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))
                             .getSchema(testCaseFileUri, testCase.getSchema(), SchemaValidatorsConfig.builder()
                                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance()).build());

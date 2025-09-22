@@ -60,7 +60,7 @@ abstract class AbstractJsonSchemaTest {
 
     private Schema getJsonSchema(JsonNode schemaNode) {
         return SchemaRegistry
-                .getInstance(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
+                .withDefaultDialect(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
                 .getSchema(schemaNode);
     }
 

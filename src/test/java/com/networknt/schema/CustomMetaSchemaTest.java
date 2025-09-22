@@ -124,7 +124,7 @@ class CustomMetaSchemaTest {
                 .keyword(new EnumNamesKeyword())
                 .build();
 
-        final SchemaRegistry validatorFactory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_4)).metaSchema(dialect).build();
+        final SchemaRegistry validatorFactory = SchemaRegistry.withDialect(dialect);
         final Schema schema = validatorFactory.getSchema("{\n" +
                 "  \"$schema\":\n" +
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +

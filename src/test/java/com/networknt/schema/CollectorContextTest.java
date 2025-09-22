@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
@@ -156,9 +155,7 @@ class CollectorContextTest {
     private void setupSchema() throws Exception {
         final Dialect dialect = getJsonMetaSchema(
                 "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
-        final SchemaRegistry schemaFactory = SchemaRegistry
-                .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(dialect)
-                .build();
+        final SchemaRegistry schemaFactory = SchemaRegistry.withDialect(dialect);
         SchemaValidatorsConfig schemaValidatorsConfig  = SchemaValidatorsConfig.builder().build();
         this.jsonSchema = schemaFactory.getSchema(getSchemaString(), schemaValidatorsConfig);
         this.jsonSchemaForCombine = schemaFactory.getSchema(getSchemaStringMultipleProperties(), schemaValidatorsConfig);
@@ -458,7 +455,7 @@ class CollectorContextTest {
     void concurrency() throws Exception {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -506,7 +503,7 @@ class CollectorContextTest {
     void iterate() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -524,7 +521,7 @@ class CollectorContextTest {
     void iterateWalk() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -542,7 +539,7 @@ class CollectorContextTest {
     void iterateWalkValidate() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
-        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
