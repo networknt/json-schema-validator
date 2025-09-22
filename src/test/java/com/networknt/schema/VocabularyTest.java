@@ -26,6 +26,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.output.OutputUnit;
 
@@ -201,13 +203,13 @@ class VocabularyTest {
             return null;
         };
         
-        Dialect metaSchema = Dialect
-                .builder(Dialect.getV202012().getIri(), Dialect.getV202012())
+        Dialect dialect = Dialect
+                .builder(Dialects.getDraft202012().getIri(), Dialects.getDraft202012())
                 .vocabularyFactory(vocabularyFactory)
                 .build();
         JsonSchemaFactory factory = JsonSchemaFactory
                 .getInstance(Version.DRAFT_2020_12,
-                        builder -> builder.metaSchema(metaSchema).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.metaSchema(dialect).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
         JsonSchema schema = factory.getSchema(schemaData);

@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
 
 /**
  * Default {@link JsonMetaSchemaFactory}.
@@ -30,7 +31,6 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
         // Is it a well-known dialect?
         return Specification.Version.fromDialectId(iri)
                 .map(JsonSchemaFactory::checkVersion)
-                .map(JsonSchemaVersion::getInstance)
                 .orElseGet(() -> {
                     // Custom meta schema
                     return loadMetaSchema(iri, schemaFactory, config);

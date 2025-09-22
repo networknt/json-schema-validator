@@ -29,6 +29,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.PatternFormat;
 import com.networknt.schema.output.OutputUnit;
 
@@ -158,7 +160,7 @@ class FormatValidatorTest {
     @Test
     void patternFormatDeprecated() {
         Dialect customMetaSchema = Dialect
-                .builder("https://www.example.com/schema", Dialect.getV7())
+                .builder("https://www.example.com/schema", Dialects.getDraft7())
                 .formats(formats -> {
                     PatternFormat format = new PatternFormat("custom", "test", "must be test");
                     formats.put(format.getName(), format);
@@ -207,7 +209,7 @@ class FormatValidatorTest {
     @Test
     void shouldAllowNumberFormat() {
         Dialect customMetaSchema = Dialect
-                .builder("https://www.example.com/schema", Dialect.getV7())
+                .builder("https://www.example.com/schema", Dialects.getDraft7())
                 .formats(formats -> {
                     CustomNumberFormat format = new CustomNumberFormat(new BigDecimal("12345"));
                     formats.put(format.getName(), format);

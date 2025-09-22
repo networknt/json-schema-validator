@@ -1,10 +1,8 @@
-package com.networknt.schema.oas;
+package com.networknt.schema.dialect;
 
 import java.util.Arrays;
 
 import com.networknt.schema.Formats;
-import com.networknt.schema.Dialect;
-import com.networknt.schema.DialectId;
 import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;

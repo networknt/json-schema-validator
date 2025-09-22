@@ -15,6 +15,8 @@
  */
 package com.networknt.schema;
 
+import com.networknt.schema.dialect.Dialect;
+
 /**
  * A {@link JsonMetaSchemaFactory} that does not meta-schemas that aren't
  * explicitly configured in the {@link JsonSchemaFactory}.

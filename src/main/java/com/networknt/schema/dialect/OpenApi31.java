@@ -1,12 +1,10 @@
-package com.networknt.schema.oas;
+package com.networknt.schema.dialect;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.networknt.schema.Formats;
-import com.networknt.schema.Dialect;
-import com.networknt.schema.DialectId;
 import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;

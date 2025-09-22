@@ -22,31 +22,32 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.keyword.KeywordValidator;
 
 public class ValidationContext {
-    private final Dialect metaSchema;
+    private final Dialect dialect;
     private final JsonSchemaFactory jsonSchemaFactory;
     private final SchemaValidatorsConfig config;
     private final ConcurrentMap<String, JsonSchema> schemaReferences;
     private final ConcurrentMap<String, JsonSchema> schemaResources;
     private final ConcurrentMap<String, JsonSchema> dynamicAnchors;
 
-    public ValidationContext(Dialect metaSchema,
+    public ValidationContext(Dialect dialect,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
-        this(metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        this(dialect, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
     
-    public ValidationContext(Dialect metaSchema, JsonSchemaFactory jsonSchemaFactory,
+    public ValidationContext(Dialect dialect, JsonSchemaFactory jsonSchemaFactory,
             SchemaValidatorsConfig config, ConcurrentMap<String, JsonSchema> schemaReferences,
             ConcurrentMap<String, JsonSchema> schemaResources, ConcurrentMap<String, JsonSchema> dynamicAnchors) {
-        if (metaSchema == null) {
+        if (dialect == null) {
             throw new IllegalArgumentException("JsonMetaSchema must not be null");
         }
         if (jsonSchemaFactory == null) {
             throw new IllegalArgumentException("JsonSchemaFactory must not be null");
         }
-        this.metaSchema = metaSchema;
+        this.dialect = dialect;
         this.jsonSchemaFactory = jsonSchemaFactory;
         // The deprecated SchemaValidatorsConfig constructor needs to remain until removed
         this.config = config == null ? new SchemaValidatorsConfig() : config;
@@ -61,11 +62,11 @@ public class ValidationContext {
 
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
             String keyword /* keyword */, JsonNode schemaNode, JsonSchema parentSchema) {
-        return this.metaSchema.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
+        return this.dialect.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {
-        return this.metaSchema.readId(schemaNode);
+        return this.dialect.readId(schemaNode);
     }
 
     public JsonSchemaFactory getJsonSchemaFactory() {
@@ -104,10 +105,10 @@ public class ValidationContext {
     }
 
     public Dialect getMetaSchema() {
-        return this.metaSchema;
+        return this.dialect;
     }
 
     public Optional<Version> activeDialect() {
-        return Optional.of(this.metaSchema.getSpecification());
+        return Optional.of(this.dialect.getSpecification());
     }
 }

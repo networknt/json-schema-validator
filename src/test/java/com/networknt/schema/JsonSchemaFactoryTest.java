@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
 
 /**
  * Tests for JsonSchemaFactory.
@@ -62,13 +63,13 @@ class JsonSchemaFactoryTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    Dialect metaSchema = factory.getMetaSchema("https://www.example.com/no-validation-no-format/schema", config);
+                    Dialect dialect = factory.getMetaSchema("https://www.example.com/no-validation-no-format/schema", config);
                     synchronized(instance) {
                         if (instance[0] == null) {
-                            instance[0] = metaSchema;
+                            instance[0] = dialect;
                         }
                         // Ensure references are the same despite concurrency
-                        if (!(instance[0] == metaSchema)) {
+                        if (!(instance[0] == dialect)) {
                             failed.set(true);
                         }
                     }

@@ -23,6 +23,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.DisallowUnknownKeywordFactory;
 
 /**
@@ -41,10 +43,10 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";        
-        Dialect metaSchema = Dialect.builder(Dialect.getV4())
+        Dialect dialect = Dialect.builder(Dialects.getDraft4())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4,
-                builder -> builder.metaSchema(metaSchema));
+                builder -> builder.metaSchema(dialect));
         JsonSchema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":0}";
         String validData = "{\"value1\":0.1}";
@@ -69,10 +71,10 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        Dialect metaSchema = Dialect.builder(Dialect.getV6())
+        Dialect dialect = Dialect.builder(Dialects.getDraft6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_6,
-                builder -> builder.metaSchema(metaSchema));
+                builder -> builder.metaSchema(dialect));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }
 
@@ -88,10 +90,10 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        Dialect metaSchema = Dialect.builder(Dialect.getV7())
+        Dialect dialect = Dialect.builder(Dialects.getDraft7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
-                builder -> builder.metaSchema(metaSchema));
+                builder -> builder.metaSchema(dialect));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }
 }

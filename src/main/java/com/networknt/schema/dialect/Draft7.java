@@ -1,7 +1,9 @@
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
 import java.util.Arrays;
 
+import com.networknt.schema.Formats;
+import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;
@@ -9,7 +11,7 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
 /**
  * Draft 7 dialect.
  */
-public class Version7 implements JsonSchemaVersion {
+public class Draft7 {
     private static final String IRI = DialectId.DRAFT_7;
     private static final String ID = "$id";
 
@@ -38,8 +40,7 @@ public class Version7 implements JsonSchemaVersion {
         }
     }
 
-    @Override
-    public Dialect getInstance() {
+    public static Dialect getInstance() {
         return Holder.INSTANCE; 
     }
 }

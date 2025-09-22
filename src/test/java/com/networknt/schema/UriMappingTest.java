@@ -29,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory.Builder;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.MapSchemaMapper;
 import com.networknt.schema.resource.SchemaLoader;
@@ -47,7 +49,7 @@ class UriMappingTest {
     @Test
     void testBuilderUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
-        Dialect draftV4 = Dialect.getV4();
+        Dialect draftV4 = Dialects.getDraft4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaIri(draftV4.getIri())
                 .metaSchema(draftV4)
@@ -98,7 +100,7 @@ class UriMappingTest {
             fail("Unexpected exception thrown", ex);
         }
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
-        Dialect draftV4 = Dialect.getV4();
+        Dialect draftV4 = Dialects.getDraft4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaIri(draftV4.getIri())
                 .metaSchema(draftV4)

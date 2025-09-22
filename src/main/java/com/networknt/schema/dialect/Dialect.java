@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.Error;
+import com.networknt.schema.Format;
+import com.networknt.schema.InvalidSchemaException;
+import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.Specification;
+import com.networknt.schema.ValidationContext;
+import com.networknt.schema.Vocabularies;
+import com.networknt.schema.Vocabulary;
+import com.networknt.schema.VocabularyFactory;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
@@ -303,26 +315,6 @@ public class Dialect {
             Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
             return new Dialect(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
         }
-
-        @Deprecated
-        public Builder addKeyword(Keyword keyword) {
-            return keyword(keyword);
-        }
-
-        @Deprecated
-        public Builder addKeywords(Collection<? extends Keyword> keywords) {
-            return keywords(keywords);
-        }
-
-        @Deprecated
-        public Builder addFormat(Format format) {
-            return format(format);
-        }
-
-        @Deprecated
-        public Builder addFormats(Collection<? extends Format> formats) {
-            return formats(formats);
-        }
     }
 
     private final String iri;
@@ -352,34 +344,8 @@ public class Dialect {
         this.builder = builder;
     }
 
-    public static Dialect getV4() {
-        return new Version4().getInstance();
-    }
-
-    public static Dialect getV6() {
-        return new Version6().getInstance();
-    }
-
-    public static Dialect getV7() {
-        return new Version7().getInstance();
-    }
-
-    public static Dialect getV201909() {
-        return new Version201909().getInstance();
-    }
-
-    public static Dialect getV202012() {
-        return new Version202012().getInstance();
-    }
-
     /**
      * Create a builder without keywords or formats.
-     * <p>
-     * Use {@link #getV4()} for the Draft 4 Metaschema, or if you need a builder based on Draft4, use
-     *
-     * <code>
-     * JsonMetaSchema.builder("http://your-metaschema-iri", JsonMetaSchema.getV4()).build();
-     * </code>
      *
      * @param iri the IRI of the metaschema that will be defined via this builder.
      * @return a builder instance without any keywords or formats - usually not what one needs.

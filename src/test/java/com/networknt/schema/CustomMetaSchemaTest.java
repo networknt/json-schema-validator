@@ -18,6 +18,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeyword;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.KeywordValidator;
@@ -116,13 +118,13 @@ class CustomMetaSchemaTest {
     @Test
     void customMetaSchemaWithIgnoredKeyword() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final Dialect metaSchema = Dialect
-                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialect.getV4())
+        final Dialect dialect = Dialect
+                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialects.getDraft4())
                 // Generated UI uses enumNames to render Labels for enum values
                 .keyword(new EnumNamesKeyword())
                 .build();
 
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4)).metaSchema(metaSchema).build();
+        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4)).metaSchema(dialect).build();
         final JsonSchema schema = validatorFactory.getSchema("{\n" +
                 "  \"$schema\":\n" +
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +

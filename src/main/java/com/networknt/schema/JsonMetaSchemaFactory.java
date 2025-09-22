@@ -15,6 +15,8 @@
  */
 package com.networknt.schema;
 
+import com.networknt.schema.dialect.Dialect;
+
 /**
  * Factory for {@link Dialect}.
  */

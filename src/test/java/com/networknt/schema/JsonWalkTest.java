@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
@@ -38,7 +40,7 @@ class JsonWalkTest {
     }
 
     private void setupSchema() {
-        final Dialect metaSchema = getJsonMetaSchema();
+        final Dialect dialect = getJsonMetaSchema();
         // Create Schema.
         SchemaValidatorsConfig.Builder schemaValidatorsConfigBuilder = SchemaValidatorsConfig.builder();
         schemaValidatorsConfigBuilder.keywordWalkListener(new AllKeywordListener());
@@ -46,7 +48,7 @@ class JsonWalkTest {
         schemaValidatorsConfigBuilder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(dialect)
                 .build();
         this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfigBuilder.build());
         // Create another Schema.
@@ -59,7 +61,7 @@ class JsonWalkTest {
 
     private Dialect getJsonMetaSchema() {
         return Dialect.builder(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialect.getV201909())
+                "https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialects.getDraft201909())
                 .keyword(new CustomKeyword()).build();
     }
 

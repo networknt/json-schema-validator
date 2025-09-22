@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.DisallowUnknownKeywordFactory;
 
 class DisallowUnknownKeywordFactoryTest {
@@ -31,10 +33,10 @@ class DisallowUnknownKeywordFactoryTest {
     
     @Test
     void getSchemaShouldThrowForUnknownKeywords() {
-        Dialect metaSchema = Dialect.builder(Dialect.getV202012())
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
-                builder -> builder.metaSchema(metaSchema));
+                builder -> builder.metaSchema(dialect));
         String schemaData = "{\r\n"
                 + "  \"equals\": \"world\"\r\n"
                 + "}";

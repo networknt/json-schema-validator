@@ -2,6 +2,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +37,8 @@ class Issue832Test {
         formats.add(new NoMatchFormat());
 
         Dialect jsonMetaSchema = Dialect.builder(
-                Dialect.getV7().getIri(),
-                Dialect.getV7())
+                Dialects.getDraft7().getIri(),
+                Dialects.getDraft7())
                 .formats(formats)
                 .build();
         return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(jsonMetaSchema.getIri()).metaSchema(jsonMetaSchema).build();

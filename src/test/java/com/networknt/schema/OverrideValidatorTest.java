@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.PatternFormat;
 
 import org.junit.jupiter.api.Test;
@@ -50,7 +52,7 @@ class OverrideValidatorTest {
         "}");
         // Use Default EmailValidator
         final Dialect validatorMetaSchema = Dialect
-                .builder(URI, Dialect.getV201909())
+                .builder(URI, Dialects.getDraft201909())
                 .build();
 
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(validatorMetaSchema).build();
@@ -66,7 +68,7 @@ class OverrideValidatorTest {
 
         // Override EmailValidator
         final Dialect overrideValidatorMetaSchema = Dialect
-                .builder(URI, Dialect.getV201909())
+                .builder(URI, Dialects.getDraft201909())
                 .format(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 

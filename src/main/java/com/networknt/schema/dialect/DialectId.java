@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
 /**
  * The dialect id is an IRI that points to the meta-schema that can be used to

@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import com.networknt.schema.AbsoluteIri;
-import com.networknt.schema.DialectId;
+import com.networknt.schema.dialect.DialectId;
 
 /**
  * MetaSchemaMapperTest.

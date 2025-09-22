@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialects;
 
 class Issue824Test {
     @Test
@@ -18,7 +19,7 @@ class Issue824Test {
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
-                .getSchema(SchemaLocation.of(Dialect.getV201909().getIri()));
+                .getSchema(SchemaLocation.of(Dialects.getDraft201909().getIri()));
         final JsonNode invalidSchema = new ObjectMapper().readTree(
                 "{"+
                 "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\","+

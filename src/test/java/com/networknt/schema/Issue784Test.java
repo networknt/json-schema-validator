@@ -2,6 +2,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 
 import org.junit.jupiter.api.Test;
 
@@ -61,8 +63,8 @@ class Issue784Test {
     }
 
     private JsonSchema createSchema(boolean useCustomDateFormat) {
-        Dialect overrideDateTimeValidator =Dialect
-                .builder(Dialect.getV7().getIri(), Dialect.getV7())
+        Dialect overrideDateTimeValidator = Dialect
+                .builder(Dialects.getDraft7().getIri(), Dialects.getDraft7())
                 .formats(formats -> {
                     if (useCustomDateFormat) {
                         CustomDateTimeFormat format = new CustomDateTimeFormat();

@@ -19,6 +19,9 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.DialectId;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.DefaultSchemaLoader;
 import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.resource.SchemaLoaders;
@@ -265,10 +268,9 @@ public class JsonSchemaFactory {
      */
     public static JsonSchemaFactory getInstance(Specification.Version versionFlag,
             Consumer<JsonSchemaFactory.Builder> customizer) {
-        JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
-        Dialect metaSchema = jsonSchemaVersion.getInstance();
-        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaIri(metaSchema.getIri())
-                .metaSchema(metaSchema);
+        Dialect dialect = checkVersion(versionFlag);
+        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaIri(dialect.getIri())
+                .metaSchema(dialect);
         if (customizer != null) {
             customizer.accept(builder);
         }
@@ -280,18 +282,18 @@ public class JsonSchemaFactory {
      * <p>
      * This throws an {@link IllegalArgumentException} for an unsupported value.
      * 
-     * @param versionFlag the schema dialect
+     * @param version the schema specification version
      * @return the version
      */
-    public static JsonSchemaVersion checkVersion(Specification.Version versionFlag){
-        if (null == versionFlag) return null;
-        switch (versionFlag) {
-            case DRAFT_2020_12: return new Version202012();
-            case DRAFT_2019_09: return new Version201909();
-            case DRAFT_7: return new Version7();
-            case DRAFT_6: return new Version6();
-            case DRAFT_4: return new Version4();
-            default: throw new IllegalArgumentException("Unsupported value" + versionFlag);
+    public static Dialect checkVersion(Specification.Version version){
+        if (null == version) return null;
+        switch (version) {
+            case DRAFT_2020_12: return Dialects.getDraft202012();
+            case DRAFT_2019_09: return Dialects.getDraft201909();
+            case DRAFT_7: return Dialects.getDraft7();
+            case DRAFT_6: return Dialects.getDraft6();
+            case DRAFT_4: return Dialects.getDraft4();
+            default: throw new IllegalArgumentException("Unsupported value" + version);
         }
     }
 
@@ -384,16 +386,16 @@ public class JsonSchemaFactory {
      * @return the validation context to use
      */
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
-        Dialect metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
-        if (metaSchema != null && !metaSchema.getIri().equals(validationContext.getMetaSchema().getIri())) {
+        Dialect dialect = getMetaSchema(schemaNode, validationContext.getConfig());
+        if (dialect != null && !dialect.getIri().equals(validationContext.getMetaSchema().getIri())) {
             SchemaValidatorsConfig config = validationContext.getConfig();
-            if (metaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
+            if (dialect.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
                 config = SchemaValidatorsConfig.builder(config)
                         .discriminatorKeywordEnabled(true)
                         .nullableKeywordEnabled(true)
                         .build();
             }
-            return new ValidationContext(metaSchema, validationContext.getJsonSchemaFactory(), config,
+            return new ValidationContext(dialect, validationContext.getJsonSchemaFactory(), config,
                     validationContext.getSchemaReferences(), validationContext.getSchemaResources(),
                     validationContext.getDynamicAnchors());
         }

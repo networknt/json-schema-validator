@@ -28,6 +28,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.OpenApi31;
 import com.networknt.schema.Error;
 
 /**

@@ -1,6 +1,9 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -25,7 +28,7 @@ class UrnTest
     InputStream is = null;
     try {
       is = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/feature/urn-management/src/test/resources/draft7/urn/urn.schema.json").openStream();
-      Dialect draftV7 = Dialect.getV7();
+      Dialect draftV7 = Dialects.getDraft7();
       JsonSchemaFactory.Builder builder = JsonSchemaFactory.builder()
           .defaultMetaSchemaIri(draftV7.getIri())
           .metaSchema(draftV7)

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.networknt.schema.dialect.DialectId;
 
 class RefTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();

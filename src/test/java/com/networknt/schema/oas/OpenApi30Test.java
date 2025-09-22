@@ -33,6 +33,7 @@ import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.OpenApi30;
 import com.networknt.schema.Error;
 
 /**

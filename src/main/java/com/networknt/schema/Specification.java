@@ -17,6 +17,8 @@ package com.networknt.schema;
 
 import java.util.Optional;
 
+import com.networknt.schema.dialect.DialectId;
+
 /**
  * The JSON Schema specification which defines the standard dialects.
  */

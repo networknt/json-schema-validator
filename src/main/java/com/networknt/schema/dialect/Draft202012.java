@@ -1,16 +1,18 @@
-package com.networknt.schema;
+package com.networknt.schema.dialect;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.networknt.schema.Formats;
+import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;
 
 /**
  * Draft 2020-12 dialect.
  */
-public class Version202012 implements JsonSchemaVersion {
+public class Draft202012 {
     private static final String IRI = DialectId.DRAFT_2020_12;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
@@ -44,8 +46,7 @@ public class Version202012 implements JsonSchemaVersion {
         }
     }
 
-    @Override
-    public Dialect getInstance() {
+    public static Dialect getInstance() {
         return Holder.INSTANCE;
     }
 }
