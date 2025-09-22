@@ -23,7 +23,7 @@ class SampleTest {
         /*
          * This should be cached for performance.
          */
-        JsonSchema schemaFromSchemaLocation = factory
+        Schema schemaFromSchemaLocation = factory
                 .getSchema(SchemaLocation.of("https://www.example.com/schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
@@ -46,7 +46,7 @@ class SampleTest {
         /*
          * This should be cached for performance.
          */
-        JsonSchema schemaFromSchemaLocation = factory
+        Schema schemaFromSchemaLocation = factory
                 .getSchema(SchemaLocation.of("https://www.example.com/schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
@@ -68,7 +68,7 @@ class SampleTest {
          * Loading from using the retrieval IRI is not recommended as it may cause
          * confusing when resolving relative $ref when $id is also used.
          */
-        JsonSchema schemaFromClasspath = factory.getSchema(SchemaLocation.of("classpath:schema/example-ref.json"));
+        Schema schemaFromClasspath = factory.getSchema(SchemaLocation.of("classpath:schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
          * thrown. You check if there are issues with ref resolving using
@@ -89,7 +89,7 @@ class SampleTest {
          * Loading from a String is not recommended as there is no base IRI to use for
          * resolving relative $ref.
          */
-        JsonSchema schemaFromString = factory
+        Schema schemaFromString = factory
                 .getSchema("{\"enum\":[1, 2, 3, 4]}");
         List<Error> errors = schemaFromString.validate("7", InputFormat.JSON,
                 executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
@@ -110,7 +110,7 @@ class SampleTest {
          * Note that the V202012 from the factory is the default version if $schema is not
          * specified. As $schema is specified in the data, V6 is used.
          */
-        JsonSchema schemaFromNode = factory.getSchema(schemaNode);
+        Schema schemaFromNode = factory.getSchema(schemaNode);
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
          * thrown. You check if there are issues with ref resolving using

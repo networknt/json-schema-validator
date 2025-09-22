@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonWalkTest {
 
-    private JsonSchema jsonSchema;
+    private Schema jsonSchema;
 
-    private JsonSchema jsonSchema1;
+    private Schema jsonSchema1;
 
     private static final String SAMPLE_WALK_COLLECTOR_TYPE = "sampleWalkCollectorType";
 
@@ -132,7 +132,7 @@ class JsonWalkTest {
                 + "            }";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
-        JsonSchema schema = factory.getSchema(schemaContents);
+        Schema schema = factory.getSchema(schemaContents);
         JsonNode missingNode = MissingNode.getInstance();
         assertDoesNotThrow(() -> schema.walk(missingNode, true));
     }
@@ -152,7 +152,7 @@ class JsonWalkTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
+                                          Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
             }

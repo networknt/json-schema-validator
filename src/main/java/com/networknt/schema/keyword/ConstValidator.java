@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -32,7 +32,7 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
     private static final Logger logger = LoggerFactory.getLogger(ConstValidator.class);
 
     public ConstValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.CONST, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
     }
 

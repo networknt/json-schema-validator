@@ -41,7 +41,7 @@ class MetaSchemaValidationTest {
         try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/3.1/petstore.json")) {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-            JsonSchema schema = JsonSchemaFactory
+            Schema schema = JsonSchemaFactory
                     .getInstance(Version.DRAFT_2020_12,
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))

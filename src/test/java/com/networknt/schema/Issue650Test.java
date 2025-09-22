@@ -37,7 +37,7 @@ class Issue650Test {
 
         // schema with data property of type string:
         InputStream schemaInputStream = getClass().getResourceAsStream("/draft7/issue650.json");
-        JsonSchema schema = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7).getSchema(schemaInputStream);
+        Schema schema = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7).getSchema(schemaInputStream);
 
         // create model first:
         Issue650Test.Model model = new Issue650Test.Model();

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.networknt.schema.AbsoluteIri;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -66,7 +66,7 @@ public class NetworkntTestSuiteTestCases {
                 for (TestCase testCase : testSource.getTestCases()) {
                     SchemaLocation testCaseFileUri = SchemaLocation
                             .of("classpath:" + toForwardSlashPath(testCase.getSpecification()));
-                    JsonSchema schema = JsonSchemaFactory
+                    Schema schema = JsonSchemaFactory
                             .getInstance(defaultVersion,
                                     builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))
                             .getSchema(testCaseFileUri, testCase.getSchema(), SchemaValidatorsConfig.builder()

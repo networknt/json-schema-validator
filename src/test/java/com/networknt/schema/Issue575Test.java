@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * updated to version 1.7.0 or later.
  */
 class Issue575Test {
-    private static JsonSchema schema;
+    private static Schema schema;
 
     @BeforeAll
     static void init() {

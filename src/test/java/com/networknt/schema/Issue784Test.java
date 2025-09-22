@@ -37,7 +37,7 @@ class Issue784Test {
 
     @Test
     void allowToOverrideDataTime() throws IOException {
-        JsonSchema jsonSchema = createSchema(true);
+        Schema jsonSchema = createSchema(true);
 
         // Custom validator checks for FOO_BAR
         assertEquals(0, validate(jsonSchema, FOO_BAR).size());
@@ -48,7 +48,7 @@ class Issue784Test {
 
     @Test
     void useDefaultValidatorIfNotOverriden() throws IOException {
-        JsonSchema jsonSchema = createSchema(false);
+        Schema jsonSchema = createSchema(false);
 
         // Default validator fails with FOO_BAR
         assertEquals(1, validate(jsonSchema, FOO_BAR).size());
@@ -58,11 +58,11 @@ class Issue784Test {
     }
 
 
-    private List<Error> validate(JsonSchema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
+    private List<Error> validate(Schema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
         return jsonSchema.validate(new ObjectMapper().readTree(" { \"my-date-time\": \"" + myDateTimeContent + "\" } "));
     }
 
-    private JsonSchema createSchema(boolean useCustomDateFormat) {
+    private Schema createSchema(boolean useCustomDateFormat) {
         Dialect overrideDateTimeValidator = Dialect
                 .builder(Dialects.getDraft7().getIri(), Dialects.getDraft7())
                 .formats(formats -> {

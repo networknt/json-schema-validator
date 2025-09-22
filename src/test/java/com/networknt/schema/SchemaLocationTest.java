@@ -218,7 +218,7 @@ class SchemaLocationTest {
     @Test
     void shouldLoadEscapedFragment() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
-        JsonSchema schema = factory.getSchema(SchemaLocation
+        Schema schema = factory.getSchema(SchemaLocation
                 .of("classpath:schema/example-escaped.yaml#/paths/~1users/post/requestBody/application~1json/schema"));
         List<Error> result = schema.validate("1", InputFormat.JSON);
         assertFalse(result.isEmpty());

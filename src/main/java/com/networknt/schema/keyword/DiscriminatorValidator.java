@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -40,7 +40,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     private final Map<String, String> mapping;
 
     public DiscriminatorValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, validationContext,
                 evaluationPath);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
@@ -89,18 +89,18 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     }
 
     /**
-     * Checks based on the current {@link DiscriminatorContext} whether the provided {@link JsonSchema} a match against
+     * Checks based on the current {@link DiscriminatorContext} whether the provided {@link Schema} a match against
      * the current discriminator.
      *
      * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check
      * @param discriminatorPropertyValue  the value of the <code>discriminator/propertyName</code> field
-     * @param jsonSchema                  the {@link JsonSchema} to check
+     * @param jsonSchema                  the {@link Schema} to check
      */
     public static void checkDiscriminatorMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                   final ObjectNode discriminator,
                                                   final String discriminatorPropertyValue,
-                                                  final JsonSchema jsonSchema) {
+                                                  final Schema jsonSchema) {
         if (discriminatorPropertyValue == null) {
             currentDiscriminatorContext.markIgnore();
             return;
@@ -136,7 +136,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
      */
     public static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
-                                                        final JsonSchema schema,
+                                                        final Schema schema,
                                                         final JsonNodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.getSchemaNode().get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
@@ -176,7 +176,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
     private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                                   final String discriminatorPropertyValue,
-                                                                  final JsonSchema schema) {
+                                                                  final Schema schema) {
         if (schema.getSchemaLocation().getFragment().getName(-1).equals(discriminatorPropertyValue)) {
             currentDiscriminatorContext.markMatch();
         }
@@ -185,7 +185,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     private static void checkForExplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
                                                                   final String discriminatorPropertyValue,
                                                                   final JsonNode discriminatorMapping,
-                                                                  final JsonSchema schema) {
+                                                                  final Schema schema) {
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
@@ -199,7 +199,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     }
 
     private static boolean noExplicitDiscriminatorKeyOverride(final JsonNode discriminatorMapping,
-                                                              final JsonSchema parentSchema) {
+                                                              final Schema parentSchema) {
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();

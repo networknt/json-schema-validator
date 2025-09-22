@@ -37,7 +37,7 @@ class MessageTest {
         private final String value;
 
         EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, Keyword keyword,
+                Schema parentSchema, Keyword keyword,
                 ValidationContext validationContext) {
             super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
             this.value = schemaNode.textValue();
@@ -63,7 +63,7 @@ class MessageTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
-                JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
+                JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext)
                 throws JsonSchemaException, Exception {
             return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext);
         }
@@ -78,7 +78,7 @@ class MessageTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"equals\": \"helloworld\"\r\n"
                 + "}";
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("$: must be equal to 'helloworld'", messages.iterator().next().toString());

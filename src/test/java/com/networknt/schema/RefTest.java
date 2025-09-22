@@ -18,7 +18,7 @@ class RefTest {
     void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -41,7 +41,7 @@ class RefTest {
     void shouldLoadSchemaResource() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -58,8 +58,8 @@ class RefTest {
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",
                 error.getEvaluationPath().toString());
         assertEquals("field1", error.getProperty());
-        JsonSchema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
-        JsonSchema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
+        Schema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
+        Schema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
         assertEquals(DialectId.DRAFT_4, driver.getValidationContext().getMetaSchema().getIri());
         assertEquals(DialectId.DRAFT_7, common.getValidationContext().getMetaSchema().getIri());
 

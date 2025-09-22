@@ -46,7 +46,7 @@ class ItemsValidator202012Test {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -84,7 +84,7 @@ class ItemsValidator202012Test {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
         
@@ -123,7 +123,7 @@ class ItemsValidator202012Test {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
         

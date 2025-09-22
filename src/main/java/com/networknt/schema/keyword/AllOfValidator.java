@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 public class AllOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
-    private final List<JsonSchema> schemas;
+    private final List<Schema> schemas;
 
-    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
@@ -67,7 +67,7 @@ public class AllOfValidator extends BaseKeywordValidator {
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean walk) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        for (JsonSchema schema : this.schemas) {
+        for (Schema schema : this.schemas) {
             if (!walk) {
                 schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
@@ -93,7 +93,7 @@ public class AllOfValidator extends BaseKeywordValidator {
                                 final String discriminatorPropertyValue = discriminatorNode == null ? null
                                         : discriminatorNode.textValue();
 
-                                final JsonSchema jsonSchema = this.parentSchema;
+                                final Schema jsonSchema = this.parentSchema;
                                 DiscriminatorValidator.checkDiscriminatorMatch(currentDiscriminatorContext, discriminator,
                                         discriminatorPropertyValue, jsonSchema);
                             }
@@ -110,7 +110,7 @@ public class AllOfValidator extends BaseKeywordValidator {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
         }
-        for (JsonSchema schema : this.schemas) {
+        for (Schema schema : this.schemas) {
             // Walk through the schema
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }

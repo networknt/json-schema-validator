@@ -21,7 +21,7 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults3(boolean shouldValidateSchema) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
+        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
         ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema);
         if (shouldValidateSchema) {
             assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
@@ -42,7 +42,7 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults2() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, false));
+        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
@@ -59,7 +59,7 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults1() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, false, false));
+        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, false, false));
         ValidationResult result = jsonSchema.walk(inputNode, true);
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_null: null found, integer expected",
@@ -82,18 +82,18 @@ class JsonWalkApplyDefaultsTest {
         List<Error> errors;
         switch (method) {
             case "walkWithEmptyStrategy": {
-                JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
+                Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
                 errors = jsonSchema.walk(inputNode, true).getErrors();
                 break;
             }
             case "walkWithNoDefaults": {
                 // same empty strategy, but tests for NullPointerException
-                JsonSchema jsonSchema = createSchema(null);
+                Schema jsonSchema = createSchema(null);
                 errors = jsonSchema.walk(inputNode, true).getErrors();
                 break;
             }
             case "validateWithApplyAllDefaults": {
-                JsonSchema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
+                Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
                 errors = jsonSchema.validate(inputNode);
                 break;
             }
@@ -119,7 +119,7 @@ class JsonWalkApplyDefaultsTest {
         }
     }
 
-    private JsonSchema createSchema(ApplyDefaultsStrategy applyDefaultsStrategy) {
+    private Schema createSchema(ApplyDefaultsStrategy applyDefaultsStrategy) {
         JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().applyDefaultsStrategy(applyDefaultsStrategy).build();
         return schemaFactory.getSchema(getClass().getClassLoader().getResourceAsStream("schema/walk-schema-default.json"), schemaValidatorsConfig);

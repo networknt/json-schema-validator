@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.keyword.KeywordValidator;
 
@@ -21,7 +21,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode,
-            JsonNodePath instanceLocation, JsonSchema schema, KeywordValidator validator) {
+            JsonNodePath instanceLocation, Schema schema, KeywordValidator validator) {
         boolean continueRunningListenersAndWalk = true;
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.
@@ -38,7 +38,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, KeywordValidator validator,
+            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator,
             List<Error> errors) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.

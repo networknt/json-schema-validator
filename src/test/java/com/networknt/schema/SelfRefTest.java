@@ -26,7 +26,7 @@ class SelfRefTest extends BaseJsonSchemaValidatorTest {
     @Disabled("This test currently is failing because of a StackOverflow caused by a recursive $ref.")
     @Test()
     void testSelfRef() throws Exception {
-        JsonSchema node = getJsonSchemaFromClasspath("selfRef.json");
+        Schema node = getJsonSchemaFromClasspath("selfRef.json");
         System.out.println("node = " + node);
     }
 }

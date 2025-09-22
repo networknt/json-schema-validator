@@ -27,14 +27,14 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
 public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
-    private final JsonSchema innerSchema;
-    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    private final Schema innerSchema;
+    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         innerSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }

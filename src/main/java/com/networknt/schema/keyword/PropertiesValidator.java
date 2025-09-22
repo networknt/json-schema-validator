@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -46,11 +46,11 @@ import java.util.Set;
 public class PropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
-    private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
+    private final Map<String, Schema> schemas = new LinkedHashMap<>();
     
     private Boolean hasUnevaluatedPropertiesValidator;
 
-    public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
@@ -72,7 +72,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
 
         Set<String> matchedInstancePropertyNames = null;
         boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
-        for (Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
+        for (Entry<String, Schema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
                 JsonNodePath path = instanceLocation.append(entry.getKey());
@@ -121,7 +121,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
                     instanceLocation, true);
         } else {
             WalkListenerRunner propertyWalkListenerRunner = this.validationContext.getConfig().getPropertyWalkListenerRunner();
-            for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
+            for (Map.Entry<String, Schema> entry : this.schemas.entrySet()) {
                 walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkListenerRunner);
             }
         }
@@ -139,7 +139,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     }
 
     private void applyPropertyDefaults(ObjectNode node) {
-        for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
+        for (Map.Entry<String, Schema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
 
             JsonNode defaultNode = getDefaultNode(entry.getValue());
@@ -154,7 +154,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
+    private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
             JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
@@ -165,9 +165,9 @@ public class PropertiesValidator extends BaseKeywordValidator {
         return result;
     }
 
-    private void walkSchema(ExecutionContext executionContext, Map.Entry<String, JsonSchema> entry, JsonNode node,
+    private void walkSchema(ExecutionContext executionContext, Map.Entry<String, Schema> entry, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema, WalkListenerRunner propertyWalkListenerRunner) {
-        JsonSchema propertySchema = entry.getValue();
+        Schema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         JsonNodePath path = instanceLocation.append(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
@@ -186,7 +186,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
                 executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
     }
 
-    public Map<String, JsonSchema> getSchemas() {
+    public Map<String, Schema> getSchemas() {
         return this.schemas;
     }
 

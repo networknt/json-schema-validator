@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -36,14 +36,14 @@ import org.slf4j.LoggerFactory;
 public class ItemsValidator202012 extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
 
-    private final JsonSchema schema;
+    private final Schema schema;
     private final int prefixCount;
     private final boolean additionalItems;
     
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ITEMS_202012, schemaNode, schemaLocation, parentSchema, validationContext,
                 evaluationPath);
 
@@ -140,7 +140,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
+    private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
             JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
@@ -151,7 +151,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         return result;
     }
 
-    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+    private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
         boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
@@ -178,7 +178,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         //@formatter:on
     }
 
-    public JsonSchema getSchema() {
+    public Schema getSchema() {
         return this.schema;
     }
 

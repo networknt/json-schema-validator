@@ -175,7 +175,7 @@ class MinimumValidatorTest {
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
             List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value));
@@ -218,7 +218,7 @@ class MinimumValidatorTest {
         String content = "-1.7976931348623158e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
         List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
@@ -248,7 +248,7 @@ class MinimumValidatorTest {
         String content = "-1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
         List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
@@ -270,7 +270,7 @@ class MinimumValidatorTest {
             String value = aTestCycle[1];
             String schema = format(number, minimum);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper2.readTree(value);
 
             List<Error> messages = v.validate(doc);
@@ -289,7 +289,7 @@ class MinimumValidatorTest {
             String schema = format(integer, minimum);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             List<Error> messages = v.validate(doc);

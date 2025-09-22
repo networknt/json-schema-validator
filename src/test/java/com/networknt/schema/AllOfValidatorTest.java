@@ -60,7 +60,7 @@ class AllOfValidatorTest {
         String jsonContents = "{}";
 
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
-        JsonSchema schema = factory.getSchema(schemaContents);
+        Schema schema = factory.getSchema(schemaContents);
         ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
         assertEquals(true, result.getErrors().isEmpty());
     }    

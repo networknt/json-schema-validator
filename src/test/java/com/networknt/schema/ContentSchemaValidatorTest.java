@@ -56,7 +56,7 @@ class ContentSchemaValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
 
         String inputData = "\"helloworld\"";
 

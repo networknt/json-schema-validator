@@ -21,7 +21,7 @@ import com.networknt.schema.Error;
 import com.networknt.schema.Format;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
@@ -446,7 +446,7 @@ public class Dialect {
      * @return the validator
      */
     public KeywordValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation,
-            JsonNodePath evaluationPath, String keyword, JsonNode schemaNode, JsonSchema parentSchema) {
+            JsonNodePath evaluationPath, String keyword, JsonNode schemaNode, Schema parentSchema) {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {

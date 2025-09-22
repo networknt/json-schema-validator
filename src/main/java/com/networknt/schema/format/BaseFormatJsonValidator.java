@@ -5,7 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.Specification.Version;
@@ -16,7 +16,7 @@ public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
     protected final boolean assertionsEnabled;
     
     public BaseFormatJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, Keyword keyword,
+            Schema parentSchema, Keyword keyword,
             ValidationContext validationContext) {
         super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         Version dialect = this.validationContext.getMetaSchema().getSpecification();

@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
@@ -44,13 +44,13 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
 
     private final boolean allowAdditionalProperties;
-    private final JsonSchema additionalPropertiesSchema;
+    private final Schema additionalPropertiesSchema;
     private final Set<String> allowedProperties;
     private final List<RegularExpression> patternProperties;
 
     private Boolean hasUnevaluatedPropertiesValidator;
 
-    public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                          ValidationContext validationContext) {
         super(ValidatorTypeCode.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.isBoolean()) {

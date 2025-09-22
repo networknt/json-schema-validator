@@ -187,7 +187,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String schema = format(NUMBER, maximum);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
             List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
@@ -226,7 +226,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String content = "1.7976931348623158e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
         List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
@@ -258,7 +258,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String content = "1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
         List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
@@ -296,7 +296,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String schema = format(schemaTemplate, maximum);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
 
             List<Error> messages = v.validate(doc);
@@ -316,7 +316,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper2.readTree(value);
 
             List<Error> messages = v.validate(doc);

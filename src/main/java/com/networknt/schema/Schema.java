@@ -50,7 +50,7 @@ import com.networknt.schema.utils.JsonNodes;
  * JsonSchema instances are thread-safe provided its configuration is not
  * modified.
  */
-public class JsonSchema implements Validator {
+public class Schema implements Validator {
     private static final long V201909_VALUE = Version.DRAFT_2019_09.getOrder();
     private final String id;
 
@@ -63,13 +63,13 @@ public class JsonSchema implements Validator {
     private TypeValidator typeValidator = null;
 
     protected final JsonNode schemaNode;
-    protected final JsonSchema parentSchema;
+    protected final Schema parentSchema;
     protected final SchemaLocation schemaLocation;
     protected final ValidationContext validationContext;
     protected final boolean suppressSubSchemaRetrieval;
 
     protected final JsonNodePath evaluationPath;
-    protected final JsonSchema evaluationParentSchema;
+    protected final Schema evaluationParentSchema;
     
     public JsonNode getSchemaNode() {
         return this.schemaNode;
@@ -79,7 +79,7 @@ public class JsonSchema implements Validator {
         return this.schemaLocation;
     }
     
-    public JsonSchema getParentSchema() {
+    public Schema getParentSchema() {
         return parentSchema;
     }
 
@@ -91,18 +91,18 @@ public class JsonSchema implements Validator {
         return evaluationPath;
     }
 
-    public JsonSchema getEvaluationParentSchema() {
+    public Schema getEvaluationParentSchema() {
         if (this.evaluationParentSchema != null) {
             return this.evaluationParentSchema;
         }
         return getParentSchema();
     }
 
-    protected JsonSchema fetchSubSchemaNode(ValidationContext validationContext) {
+    protected Schema fetchSubSchemaNode(ValidationContext validationContext) {
         return this.suppressSubSchemaRetrieval ? null : obtainSubSchemaNode(this.schemaNode, validationContext);
     }
     
-    private static JsonSchema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
+    private static Schema obtainSubSchemaNode(final JsonNode schemaNode, final ValidationContext validationContext) {
         final JsonNode node = schemaNode.get("id");
 
         if (node == null) {
@@ -163,8 +163,8 @@ public class JsonSchema implements Validator {
         return new JsonNodePath(this.validationContext.getConfig().getPathType());
     }    
 
-    static JsonSchema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
-        return new JsonSchema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
+    static Schema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
+        return new Schema(validationContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
     }
 
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
@@ -206,8 +206,8 @@ public class JsonSchema implements Validator {
         }
     }
 
-    private JsonSchema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
-            JsonNode schemaNode, JsonSchema parent, boolean suppressSubSchemaRetrieval) {
+    private Schema(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+            JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
         /*
         super(resolve(schemaLocation, schemaNode, parent == null, validationContext), evaluationPath, schemaNode, parent,
                 null, null, validationContext, suppressSubSchemaRetrieval);
@@ -279,7 +279,7 @@ public class JsonSchema implements Validator {
      * @param evaluationParentSchema the evaluation parent schema
      * @param errorMessage the error message
      */
-    protected JsonSchema(
+    protected Schema(
             /* Below from JsonSchema */
             List<KeywordValidator> validators,
             boolean validatorsLoaded,
@@ -290,10 +290,10 @@ public class JsonSchema implements Validator {
             boolean suppressSubSchemaRetrieval,
             JsonNode schemaNode,
             ValidationContext validationContext,
-            JsonSchema parentSchema,
+            Schema parentSchema,
             SchemaLocation schemaLocation,
             JsonNodePath evaluationPath,
-            JsonSchema evaluationParentSchema,
+            Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
 //        super(suppressSubSchemaRetrieval, schemaNode, validationContext, errorMessageType, keyword,
 //                parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
@@ -323,7 +323,7 @@ public class JsonSchema implements Validator {
      * @param refEvaluationPath the ref evaluation path
      * @return the schema
      */
-    public JsonSchema fromRef(JsonSchema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
+    public Schema fromRef(Schema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
         ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
                 this.getValidationContext().getJsonSchemaFactory(),
                 refEvaluationParentSchema.validationContext.getConfig(),
@@ -331,13 +331,13 @@ public class JsonSchema implements Validator {
                 refEvaluationParentSchema.getValidationContext().getSchemaResources(),
                 refEvaluationParentSchema.getValidationContext().getDynamicAnchors());
         JsonNodePath evaluationPath = refEvaluationPath;
-        JsonSchema evaluationParentSchema = refEvaluationParentSchema;
+        Schema evaluationParentSchema = refEvaluationParentSchema;
         // Validator state is reset due to the changes in evaluation path
         boolean validatorsLoaded = false;
         TypeValidator typeValidator = null;
         List<KeywordValidator> validators = null;
 
-        return new JsonSchema(
+        return new Schema(
                 /* Below from JsonSchema */
                 validators,
                 validatorsLoaded,
@@ -352,7 +352,7 @@ public class JsonSchema implements Validator {
                 evaluationParentSchema, /* errorMessage */ null);
     }
 
-    public JsonSchema withConfig(SchemaValidatorsConfig config) {
+    public Schema withConfig(SchemaValidatorsConfig config) {
         if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
                 && !config.isDiscriminatorKeywordEnabled()) {
             config = SchemaValidatorsConfig.builder(config)
@@ -369,7 +369,7 @@ public class JsonSchema implements Validator {
             boolean validatorsLoaded = false;
             TypeValidator typeValidator = null;
             List<KeywordValidator> validators = null;
-            return new JsonSchema(
+            return new Schema(
                     /* Below from JsonSchema */
                     validators,
                     validatorsLoaded,
@@ -401,7 +401,7 @@ public class JsonSchema implements Validator {
      * @return JsonNode
      */
     public JsonNode getRefSchemaNode(String ref) {
-        JsonSchema schema = findSchemaResourceRoot();
+        Schema schema = findSchemaResourceRoot();
         JsonNode node = schema.getSchemaNode();
 
         String jsonPointer = ref;
@@ -428,7 +428,7 @@ public class JsonSchema implements Validator {
         return node;
     }
 
-    public JsonSchema getRefSchema(JsonNodePath fragment) {
+    public Schema getRefSchema(JsonNodePath fragment) {
         if (PathType.JSON_POINTER.equals(fragment.getPathType())) {
             // Json Pointer
             return getSubSchema(fragment);
@@ -436,7 +436,7 @@ public class JsonSchema implements Validator {
             // Anchor
             String base = this.getSchemaLocation().getAbsoluteIri() != null ? this.schemaLocation.getAbsoluteIri().toString() : "";
             String anchor = base + "#" + fragment;
-            JsonSchema result = this.validationContext.getSchemaResources().get(anchor);
+            Schema result = this.validationContext.getSchemaResources().get(anchor);
             if (result == null) {
                 result  = this.validationContext.getDynamicAnchors().get(anchor);
             }
@@ -453,10 +453,10 @@ public class JsonSchema implements Validator {
      * @param fragment the json pointer fragment
      * @return the schema
      */
-    public JsonSchema getSubSchema(JsonNodePath fragment) {
-        JsonSchema document = findSchemaResourceRoot(); 
-        JsonSchema parent = document; 
-        JsonSchema subSchema = null;
+    public Schema getSubSchema(JsonNodePath fragment) {
+        Schema document = findSchemaResourceRoot(); 
+        Schema parent = document; 
+        Schema subSchema = null;
         JsonNode parentNode = parent.getSchemaNode();
         SchemaLocation schemaLocation = document.getSchemaLocation();
         JsonNodePath evaluationPath = document.getEvaluationPath();
@@ -504,7 +504,7 @@ public class JsonSchema implements Validator {
                  * 
                  * See test for draft4\extra\classpath\schema.json
                  */
-                JsonSchema found = document.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
+                Schema found = document.findSchemaResourceRoot().fetchSubSchemaNode(this.validationContext);
                 if (found != null) {
                     found = found.getSubSchema(fragment);
                 }
@@ -532,8 +532,8 @@ public class JsonSchema implements Validator {
         return JsonNodes.get(node, propertyOrIndex);
     }
 
-    public JsonSchema findLexicalRoot() {
-        JsonSchema ancestor = this;
+    public Schema findLexicalRoot() {
+        Schema ancestor = this;
         while (ancestor.getId() == null) {
             if (null == ancestor.getParentSchema()) break;
             ancestor = ancestor.getParentSchema();
@@ -548,8 +548,8 @@ public class JsonSchema implements Validator {
      *
      * @return the root of the schema
      */
-    public JsonSchema findSchemaResourceRoot() {
-        JsonSchema ancestor = this;
+    public Schema findSchemaResourceRoot() {
+        Schema ancestor = this;
         while (!ancestor.isSchemaResourceRoot()) {
             ancestor = ancestor.getParentSchema();
         }
@@ -579,16 +579,16 @@ public class JsonSchema implements Validator {
         return this.id;
     }
 
-    public JsonSchema findAncestor() {
-        JsonSchema ancestor = this;
+    public Schema findAncestor() {
+        Schema ancestor = this;
         if (this.getParentSchema() != null) {
             ancestor = this.getParentSchema().findAncestor();
         }
         return ancestor;
     }
 
-    private JsonNode handleNullNode(String ref, JsonSchema schema) {
-        JsonSchema subSchema = schema.fetchSubSchemaNode(this.validationContext);
+    private JsonNode handleNullNode(String ref, Schema schema) {
+        Schema subSchema = schema.fetchSubSchemaNode(this.validationContext);
         if (subSchema != null) {
             return subSchema.getRefSchemaNode(ref);
         }
@@ -1401,12 +1401,12 @@ public class JsonSchema implements Validator {
     }
 
     /**
-     * Initializes the validators' {@link com.networknt.schema.JsonSchema} instances.
-     * For avoiding issues with concurrency, in 1.0.49 the {@link com.networknt.schema.JsonSchema} instances affiliated with
+     * Initializes the validators' {@link com.networknt.schema.Schema} instances.
+     * For avoiding issues with concurrency, in 1.0.49 the {@link com.networknt.schema.Schema} instances affiliated with
      * validators were modified to no more preload the schema and lazy loading is used instead.
      * <p>This comes with the issue that this way you cannot rely on validating important schema features, in particular
      * <code>$ref</code> resolution at instantiation from {@link com.networknt.schema.JsonSchemaFactory}.</p>
-     * <p>By calling <code>initializeValidators</code> you can enforce preloading of the {@link com.networknt.schema.JsonSchema}
+     * <p>By calling <code>initializeValidators</code> you can enforce preloading of the {@link com.networknt.schema.Schema}
      * instances of the validators.</p>
      */
     public void initializeValidators() {

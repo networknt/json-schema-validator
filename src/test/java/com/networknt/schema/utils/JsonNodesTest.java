@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification.Version;
@@ -90,7 +90,7 @@ class JsonNodesTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
+        Schema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
@@ -136,7 +136,7 @@ class JsonNodesTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, InputFormat.YAML, config);
+        Schema schema = factory.getSchema(schemaData, InputFormat.YAML, config);
         List<Error> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });

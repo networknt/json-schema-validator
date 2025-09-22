@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class TrueValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(TrueValidator.class);
 
-    public TrueValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public TrueValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.TRUE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
     }
 

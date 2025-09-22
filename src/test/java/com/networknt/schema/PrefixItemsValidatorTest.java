@@ -56,7 +56,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -82,7 +82,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -101,7 +101,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1, 2]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -147,7 +147,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
         
@@ -204,7 +204,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
         ValidationResult result = schema.walk(input, true);
         assertTrue(result.getErrors().isEmpty());

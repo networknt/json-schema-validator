@@ -65,7 +65,7 @@ class Issue471Test {
 
     private Map<String, String> validate() throws Exception {
         InputStream schemaInputStream = Issue471Test.class.getResourceAsStream(SCHEMA_PATH);
-        JsonSchema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
         InputStream dataInputStream = Issue471Test.class.getResourceAsStream(DATA_PATH);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
@@ -77,7 +77,7 @@ class Issue471Test {
         return errors.stream().collect(Collectors.toMap(m -> m.getInstanceLocation().toString(), Error::getMessage));
     }
 
-    private JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
+    private Schema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }

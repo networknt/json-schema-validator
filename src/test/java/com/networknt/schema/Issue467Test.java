@@ -59,7 +59,7 @@ class Issue467Test {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaInputStream, config);
+        Schema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
         assertEquals(new HashSet<>(Arrays.asList("/properties", "/properties/tags/items/0/properties")),
@@ -84,7 +84,7 @@ class Issue467Test {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaInputStream, config);
+        Schema schema = factory.getSchema(schemaInputStream, config);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         ValidationResult result = schema.walk(data, true);
         assertEquals(

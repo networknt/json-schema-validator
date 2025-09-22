@@ -21,7 +21,7 @@ import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -40,11 +40,11 @@ public class AnyOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
-    private final List<JsonSchema> schemas;
+    private final List<Schema> schemas;
 
     private Boolean canShortCircuit = null;
 
-    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
@@ -85,7 +85,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
             boolean failFast = executionContext.isFailFast();
             try {
                 executionContext.setFailFast(false);
-                for (JsonSchema schema : this.schemas) {
+                for (Schema schema : this.schemas) {
                     errors.clear();
                     TypeValidator typeValidator = schema.getTypeValidator();
                     if (typeValidator != null) {
@@ -185,7 +185,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
         }
-        for (JsonSchema schema : this.schemas) {
+        for (Schema schema : this.schemas) {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
     }

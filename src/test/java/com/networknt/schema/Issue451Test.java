@@ -20,7 +20,7 @@ class Issue451Test {
 
     private static final String COLLECTOR_ID = "collector-451";
 
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         SchemaValidatorsConfig svc = SchemaValidatorsConfig.builder()
                 .propertyWalkListener(new CountingWalker())
@@ -56,7 +56,7 @@ class Issue451Test {
     private void walk(JsonNode data, boolean shouldValidate) {
         String schemaPath = "/schema/issue451-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
 
         CollectorContext collectorContext = schema.walk(data, shouldValidate).getCollectorContext();
 

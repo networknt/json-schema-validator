@@ -22,7 +22,7 @@ import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
@@ -41,7 +41,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
 
     protected final JsonSchemaRef schema;
 
-    public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         String refValue = schemaNode.asText();
@@ -56,7 +56,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }
 
-    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+    static JsonSchemaRef getRefSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
         return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, validationContext, refValue, evaluationPath), validationContext.getConfig().isCacheRefs()));
     }
@@ -65,11 +65,11 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         return cache ? new CachedSupplier<>(supplier) : supplier;
     }
 
-    static JsonSchema getSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+    static Schema getSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
-        JsonSchema refSchema = parentSchema.findSchemaResourceRoot(); // Get the document
-        JsonSchema current = refSchema;
-        JsonSchema check = null;
+        Schema refSchema = parentSchema.findSchemaResourceRoot(); // Get the document
+        Schema current = refSchema;
+        Schema check = null;
         String base = null;
         String baseCheck = null;
         if (refSchema != null)
@@ -98,7 +98,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-        JsonSchema refSchema = this.schema.getSchema();
+        Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
@@ -115,7 +115,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.
-        JsonSchema refSchema = this.schema.getSchema();
+        Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
@@ -126,7 +126,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         if (node == null) {
             // Check for circular dependency
             SchemaLocation schemaLocation = refSchema.getSchemaLocation();
-            JsonSchema check = refSchema;
+            Schema check = refSchema;
             boolean circularDependency = false;
             while (check.getEvaluationParentSchema() != null) {
                 check = check.getEvaluationParentSchema();
@@ -148,7 +148,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
 
     @Override
     public void preloadJsonSchema() {
-        JsonSchema jsonSchema = null;
+        Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();
         } catch (JsonSchemaException e) {
@@ -161,7 +161,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         // The rest of the cycles will load at execution time depending on the input
         // data
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
-        JsonSchema check = jsonSchema;
+        Schema check = jsonSchema;
         boolean circularDependency = false;
         int depth = 0;
         while (check.getEvaluationParentSchema() != null) {

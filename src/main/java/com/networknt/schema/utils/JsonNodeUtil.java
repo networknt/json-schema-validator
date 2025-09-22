@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -65,7 +65,7 @@ public class JsonNodeUtil {
         return false;
     }
 
-    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, JsonSchema parentSchema, ValidationContext validationContext) {
+    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, Schema parentSchema, ValidationContext validationContext) {
         SchemaValidatorsConfig config = validationContext.getConfig();
         JsonType nodeType = TypeFactory.getValueNodeType(node, config);
         // in the case that node type is not the same as schema type, try to convert node to the
@@ -85,7 +85,7 @@ public class JsonNodeUtil {
 
             if (nodeType == JsonType.NULL) {
                 if (parentSchema != null && config.isNullableKeywordEnabled()) {
-                    JsonSchema grandParentSchema = parentSchema.getParentSchema();
+                    Schema grandParentSchema = parentSchema.getParentSchema();
                     if (grandParentSchema != null && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode())
                             || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode())) {
                         return true;
@@ -142,7 +142,7 @@ public class JsonNodeUtil {
         return false;
     }
 
-    private static boolean isEnumObjectSchema(JsonSchema jsonSchema) {
+    private static boolean isEnumObjectSchema(Schema jsonSchema) {
         // There are three conditions for enum object schema
         // 1. The current schema contains key "type", and the value is object
         // 2. The current schema contains key "enum", and the value is an array

@@ -35,7 +35,7 @@ class DurationFormatValidatorTest {
         final JsonNode invalidTargetNode = objectMapper.readTree("\"INVALID_DURATION\"");
 
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).build();
-        final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
+        final Schema validatorSchema = validatorFactory.getSchema(schema);
 
         List<Error> messages = validatorSchema.validate(validTargetNode);
         assertEquals(0, messages.size());

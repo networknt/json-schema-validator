@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class OverwritingCustomMessageBugTest {
-  private JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+  private Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
     JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
     return factory.getSchema(schemaContent);
   }
@@ -36,7 +36,7 @@ class OverwritingCustomMessageBugTest {
     String schemaPath = "/schema/OverwritingCustomMessageBug.json";
     String dataPath = "/data/OverwritingCustomMessageBug.json";
     InputStream schemaInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(schemaPath);
-    JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+    Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
     InputStream dataInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(dataPath);
     JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
     return schema.validate(node);

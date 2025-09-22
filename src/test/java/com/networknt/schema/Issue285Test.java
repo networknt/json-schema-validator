@@ -56,7 +56,7 @@ class Issue285Test {
     // The result is as expected, and we get a validation error.
     @Test
     void nestedValidation() throws IOException {
-        JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
+        Schema jsonSchema = schemaFactory.getSchema(schemaStr);
         List<Error> errors = jsonSchema.validate(mapper.readTree(person));
 
         System.err.println("\n" + Arrays.toString(errors.toArray()));
@@ -97,7 +97,7 @@ class Issue285Test {
     @Test
     void nestedTypeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
-        JsonSchema jsonSchema = schemaFactory.getSchema(uri);
+        Schema jsonSchema = schemaFactory.getSchema(uri);
         List<Error> errors = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
 
         System.err.println("\n" + Arrays.toString(errors.toArray()));
@@ -120,7 +120,7 @@ class Issue285Test {
     @Test
     void typeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
-        JsonSchema jsonSchema = schemaFactory.getSchema(uri);
+        Schema jsonSchema = schemaFactory.getSchema(uri);
         List<Error> errors = jsonSchema.validate(mapper.readTree(invalidSchema));
 
         System.err.println("\n" + Arrays.toString(errors.toArray()));

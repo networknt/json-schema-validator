@@ -70,7 +70,7 @@ class Issue943Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         assertTrue(schema.validate(inputData, InputFormat.JSON).isEmpty());
 
         String badData = "{\r\n"

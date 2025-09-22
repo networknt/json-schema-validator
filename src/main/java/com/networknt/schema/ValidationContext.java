@@ -29,9 +29,9 @@ public class ValidationContext {
     private final Dialect dialect;
     private final JsonSchemaFactory jsonSchemaFactory;
     private final SchemaValidatorsConfig config;
-    private final ConcurrentMap<String, JsonSchema> schemaReferences;
-    private final ConcurrentMap<String, JsonSchema> schemaResources;
-    private final ConcurrentMap<String, JsonSchema> dynamicAnchors;
+    private final ConcurrentMap<String, Schema> schemaReferences;
+    private final ConcurrentMap<String, Schema> schemaResources;
+    private final ConcurrentMap<String, Schema> dynamicAnchors;
 
     public ValidationContext(Dialect dialect,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
@@ -39,8 +39,8 @@ public class ValidationContext {
     }
     
     public ValidationContext(Dialect dialect, JsonSchemaFactory jsonSchemaFactory,
-            SchemaValidatorsConfig config, ConcurrentMap<String, JsonSchema> schemaReferences,
-            ConcurrentMap<String, JsonSchema> schemaResources, ConcurrentMap<String, JsonSchema> dynamicAnchors) {
+            SchemaValidatorsConfig config, ConcurrentMap<String, Schema> schemaReferences,
+            ConcurrentMap<String, Schema> schemaResources, ConcurrentMap<String, Schema> dynamicAnchors) {
         if (dialect == null) {
             throw new IllegalArgumentException("JsonMetaSchema must not be null");
         }
@@ -56,12 +56,12 @@ public class ValidationContext {
         this.dynamicAnchors = dynamicAnchors;
     }
 
-    public JsonSchema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+    public Schema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
         return getJsonSchemaFactory().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
-            String keyword /* keyword */, JsonNode schemaNode, JsonSchema parentSchema) {
+            String keyword /* keyword */, JsonNode schemaNode, Schema parentSchema) {
         return this.dialect.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
     }
 
@@ -82,7 +82,7 @@ public class ValidationContext {
      *
      * @return the schema references
      */
-    public ConcurrentMap<String, JsonSchema> getSchemaReferences() {
+    public ConcurrentMap<String, Schema> getSchemaReferences() {
         return this.schemaReferences;
     }
 
@@ -91,7 +91,7 @@ public class ValidationContext {
      *
      * @return the schema resources
      */
-    public ConcurrentMap<String, JsonSchema> getSchemaResources() {
+    public ConcurrentMap<String, Schema> getSchemaResources() {
         return this.schemaResources;
     }
 
@@ -100,7 +100,7 @@ public class ValidationContext {
      *
      * @return the dynamic anchors
      */
-    public ConcurrentMap<String, JsonSchema> getDynamicAnchors() {
+    public ConcurrentMap<String, Schema> getDynamicAnchors() {
         return this.dynamicAnchors;
     }
 

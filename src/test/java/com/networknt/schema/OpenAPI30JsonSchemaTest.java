@@ -41,7 +41,7 @@ class OpenAPI30JsonSchemaTest {
                     SchemaValidatorsConfig.Builder configBuilder = SchemaValidatorsConfig.builder();
                     configBuilder.typeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
                     configBuilder.discriminatorKeywordEnabled(true);
-                    JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
+                    Schema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
 
                     List<Error> errors = new ArrayList<Error>(schema.validate(node));
 

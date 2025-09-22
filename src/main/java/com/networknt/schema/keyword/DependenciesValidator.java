@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -34,7 +34,7 @@ import java.util.*;
 public class DependenciesValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
     private final Map<String, List<String>> propertyDeps = new HashMap<>();
-    private final Map<String, JsonSchema> schemaDeps = new HashMap<>();
+    private final Map<String, Schema> schemaDeps = new HashMap<>();
 
     /**
      * Constructor.
@@ -45,7 +45,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
      * @param parentSchema      the parent schema
      * @param validationContext the validation context
      */
-    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
 
         super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
@@ -83,7 +83,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
                     }
                 }
             }
-            JsonSchema schema = schemaDeps.get(pname);
+            Schema schema = schemaDeps.get(pname);
             if (schema != null) {
                 schema.validate(executionContext, node, rootNode, instanceLocation);
             }

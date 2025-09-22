@@ -49,7 +49,7 @@ class ItemsValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -76,7 +76,7 @@ class ItemsValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -103,7 +103,7 @@ class ItemsValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -141,7 +141,7 @@ class ItemsValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true);
         assertTrue(result.getErrors().isEmpty());
         
@@ -177,7 +177,7 @@ class ItemsValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
         
@@ -219,7 +219,7 @@ class ItemsValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
 
@@ -269,7 +269,7 @@ class ItemsValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[\"hello\"]");
         ValidationResult result = schema.walk(input, true);
         assertTrue(result.getErrors().isEmpty());
@@ -327,7 +327,7 @@ class ItemsValidatorTest {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null, null, null]");
         ValidationResult result = schema.walk(input, true);
         assertTrue(result.getErrors().isEmpty());

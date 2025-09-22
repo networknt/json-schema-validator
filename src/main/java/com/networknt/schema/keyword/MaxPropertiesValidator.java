@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -34,7 +34,7 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
 
     private final int max;
 
-    public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                   ValidationContext validationContext) {
         super(ValidatorTypeCode.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {

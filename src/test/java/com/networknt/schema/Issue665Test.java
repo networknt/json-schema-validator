@@ -13,7 +13,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testUrnUriAsLocalRef() throws IOException {
-        JsonSchema schema = getJsonSchemaFromClasspath("draft7/urn/issue665.json", Specification.Version.DRAFT_7);
+        Schema schema = getJsonSchemaFromClasspath("draft7/urn/issue665.json", Specification.Version.DRAFT_7);
         Assertions.assertNotNull(schema);
         Assertions.assertDoesNotThrow(schema::initializeValidators);
         List<Error> messages = schema.validate(getJsonNodeFromStringContent(
@@ -33,7 +33,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
 
         try (InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("draft7/urn/issue665_external_urn_ref.json")) {
-            JsonSchema schema = factory.getSchema(is);
+            Schema schema = factory.getSchema(is);
             Assertions.assertNotNull(schema);
             Assertions.assertDoesNotThrow(schema::initializeValidators);
             List<Error> messages = schema.validate(getJsonNodeFromStringContent(

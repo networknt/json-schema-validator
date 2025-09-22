@@ -10,7 +10,7 @@ import java.util.List;
 
 
 class Issue550Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(String schemaPath) {
+    protected Schema getJsonSchemaFromStreamContentV7(String schemaPath) {
         InputStream schemaContent = getClass().getResourceAsStream(schemaPath);
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
@@ -27,7 +27,7 @@ class Issue550Test {
     void testValidationMessageDoContainSchemaPath() throws Exception {
         String schemaPath = "/schema/issue500_1-v7.json";
         String dataPath = "/data/issue500_1.json";
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
         List<Error> errors = schema.validate(node);
@@ -41,7 +41,7 @@ class Issue550Test {
     void testValidationMessageDoContainSchemaPathForOneOf() throws Exception {
         String schemaPath = "/schema/issue500_2-v7.json";
         String dataPath = "/data/issue500_2.json";
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
         List<Error> errors = schema.validate(node);

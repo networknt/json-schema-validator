@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
@@ -43,7 +43,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
 
-    private final JsonSchema schema;
+    private final Schema schema;
     private final boolean isMinV201909;
 
     private final Integer min;
@@ -51,7 +51,7 @@ public class ContainsValidator extends BaseKeywordValidator {
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.CONTAINS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
@@ -186,7 +186,7 @@ public class ContainsValidator extends BaseKeywordValidator {
 
     @Override
     public void preloadJsonSchema() {
-        Optional.ofNullable(this.schema).ifPresent(JsonSchema::initializeValidators);
+        Optional.ofNullable(this.schema).ifPresent(Schema::initializeValidators);
         collectAnnotations(); // cache the flag
     }
 

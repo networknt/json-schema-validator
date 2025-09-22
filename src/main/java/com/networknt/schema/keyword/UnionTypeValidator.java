@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -43,7 +43,7 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     private final List<Validator> schemas;
     private final String error;
 
-    public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         StringBuilder errorBuilder = new StringBuilder();
 
@@ -119,8 +119,8 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
         for (final Validator validator : schemas) {
             if (validator instanceof KeywordValidator) {
                 ((KeywordValidator) validator).preloadJsonSchema();
-            } else if (validator instanceof JsonSchema) {
-                ((JsonSchema) validator).initializeValidators();
+            } else if (validator instanceof Schema) {
+                ((Schema) validator).initializeValidators();
             }
         }
     }

@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.Specification.Version;
@@ -40,13 +40,13 @@ import java.util.stream.Collectors;
 public class UnevaluatedItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedItemsValidator.class);
 
-    private final JsonSchema schema;
+    private final Schema schema;
 
     private final boolean isMinV202012;
     private static final Version DEFAULT_VERSION = Version.DRAFT_2019_09;
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext,
                 evaluationPath);
         isMinV202012 = MinV202012.getVersions().contains(validationContext.activeDialect().orElse(DEFAULT_VERSION));

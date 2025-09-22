@@ -12,7 +12,7 @@ class Issue604Test {
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false))
                 .build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
-        JsonSchema schema = factory.getSchema("{ \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"object\", \"properties\": { \"bar\": { \"type\": \"boolean\", \"default\": false } } } } }", config);
+        Schema schema = factory.getSchema("{ \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"object\", \"properties\": { \"bar\": { \"type\": \"boolean\", \"default\": false } } } } }", config);
         ObjectMapper objectMapper = new ObjectMapper();
         assertDoesNotThrow(() -> {
             schema.walk(objectMapper.readTree("{}"), false);

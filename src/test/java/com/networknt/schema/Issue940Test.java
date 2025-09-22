@@ -31,7 +31,7 @@ class Issue940Test {
                 + "    \"greeting\": {}\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schema);
+        Schema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
     }
 }

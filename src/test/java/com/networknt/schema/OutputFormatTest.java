@@ -36,7 +36,7 @@ class OutputFormatTest {
     void testInvalidJson() throws Exception {
         InputStream schemaInputStream = OutputFormatTest.class.getResourceAsStream(schemaPath1);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaInputStream, config);
+        Schema schema = factory.getSchema(schemaInputStream, config);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
         List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
@@ -84,7 +84,7 @@ class OutputFormatTest {
         }
 
         @Override
-        public java.util.List<Error> format(JsonSchema jsonSchema,
+        public java.util.List<Error> format(Schema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return executionContext.getErrors().stream().map(this::format).collect(Collectors.toCollection(ArrayList::new));
         }
@@ -107,7 +107,7 @@ class OutputFormatTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12)
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12)
                 .getSchema(schemaData, InputFormat.JSON, SchemaValidatorsConfig.builder().build());
         String inputData = "{\n"
                 + "  \"type\": \"cat\",\n"

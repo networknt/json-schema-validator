@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -37,7 +37,7 @@ public class PatternValidator extends BaseKeywordValidator {
     private final String pattern;
     private final RegularExpression compiledPattern;
 
-    public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.PATTERN, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);

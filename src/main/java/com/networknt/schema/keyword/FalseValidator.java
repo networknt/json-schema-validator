@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -33,7 +33,7 @@ public class FalseValidator extends BaseKeywordValidator implements KeywordValid
 
     private final String reason;
 
-    public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.FALSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.reason = this.evaluationPath.getParent().getName(-1);
     }

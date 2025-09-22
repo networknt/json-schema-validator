@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -37,16 +37,16 @@ public class IfValidator extends BaseKeywordValidator {
 
     private static final List<String> KEYWORDS = Arrays.asList("if", "then", "else");
 
-    private final JsonSchema ifSchema;
-    private final JsonSchema thenSchema;
-    private final JsonSchema elseSchema;
+    private final Schema ifSchema;
+    private final Schema thenSchema;
+    private final Schema elseSchema;
 
-    public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
-        JsonSchema foundIfSchema = null;
-        JsonSchema foundThenSchema = null;
-        JsonSchema foundElseSchema = null;
+        Schema foundIfSchema = null;
+        Schema foundThenSchema = null;
+        Schema foundElseSchema = null;
 
         for (final String keyword : KEYWORDS) {
             final JsonNode node = parentSchema.getSchemaNode().get(keyword);

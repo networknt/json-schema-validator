@@ -14,7 +14,7 @@ import com.networknt.schema.dialect.Dialects;
 class Issue824Test {
     @Test
     void validate() throws JsonProcessingException {
-        final JsonSchema v201909SpecSchema = JsonSchemaFactory
+        final Schema v201909SpecSchema = JsonSchemaFactory
                 .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09))
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mapPrefix("https://json-schema.org", "resource:");

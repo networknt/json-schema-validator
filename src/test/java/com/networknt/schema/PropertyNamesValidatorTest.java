@@ -40,7 +40,7 @@ class PropertyNamesValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"foo\": {},\r\n"
                 + "  \"foobar\": {}\r\n"

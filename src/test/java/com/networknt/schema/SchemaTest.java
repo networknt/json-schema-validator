@@ -30,7 +30,7 @@ import com.networknt.schema.Specification.Version;
 /**
  * Tests for JsonSchemaFactory.
  */
-class JsonSchemaTest {
+class SchemaTest {
     @Test
     void concurrency() throws Exception {
         String schemaData = "{\r\n"
@@ -59,7 +59,7 @@ class JsonSchemaTest {
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().preloadJsonSchema(false).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         Exception[] instance = new Exception[1];
         CountDownLatch latch = new CountDownLatch(1);
         List<Thread> threads = new ArrayList<>();

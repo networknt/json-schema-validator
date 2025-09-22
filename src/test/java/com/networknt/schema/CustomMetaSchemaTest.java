@@ -86,7 +86,7 @@ class CustomMetaSchemaTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                          Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
              */
@@ -125,7 +125,7 @@ class CustomMetaSchemaTest {
                 .build();
 
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4)).metaSchema(dialect).build();
-        final JsonSchema schema = validatorFactory.getSchema("{\n" +
+        final Schema schema = validatorFactory.getSchema("{\n" +
                 "  \"$schema\":\n" +
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +
                 "  \"enum\": [\"foo\", \"bar\"],\n" +

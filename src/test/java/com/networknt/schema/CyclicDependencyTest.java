@@ -33,7 +33,7 @@ class CyclicDependencyTest {
                 "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of("resource:/draft4/issue258/Master.json"), config);
+        Schema schema = schemaFactory.getSchema(SchemaLocation.of("resource:/draft4/issue258/Master.json"), config);
         assertEquals(0, schema.validate(new ObjectMapper().readTree(jsonObject)).size());
     }
 

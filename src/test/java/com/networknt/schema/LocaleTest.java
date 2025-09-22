@@ -33,7 +33,7 @@ import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class LocaleTest {
-    private JsonSchema getSchema(SchemaValidatorsConfig config) {
+    private Schema getSchema(SchemaValidatorsConfig config) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(
                 "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }",
@@ -51,7 +51,7 @@ class LocaleTest {
     void executionContextLocale() throws JsonMappingException, JsonProcessingException {
         JsonNode rootNode = new ObjectMapper().readTree(" { \"foo\": 123 } ");
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema jsonSchema = getSchema(config);
+        Schema jsonSchema = getSchema(config);
 
         Locale locale = Locales.findSupported("it;q=0.9,fr;q=1.0"); // fr
         ExecutionContext executionContext = jsonSchema.createExecutionContext();
@@ -88,7 +88,7 @@ class LocaleTest {
                     + "  \"$id\": \"https://www.example.com\",\r\n"
                     + "  \"type\": \"object\"\r\n"
                     + "}";
-            JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7)
+            Schema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             String input = "1";
             List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
@@ -154,7 +154,7 @@ class LocaleTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"maxLength\": 5\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schemaData);
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
             List<Error> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {

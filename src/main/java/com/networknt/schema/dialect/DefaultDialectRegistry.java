@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
@@ -55,7 +55,7 @@ public class DefaultDialectRegistry implements DialectRegistry {
 
     protected Dialect.Builder loadDialectBuilder(String iri, JsonSchemaFactory schemaFactory,
             SchemaValidatorsConfig config) {
-        JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
+        Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
         Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getMetaSchema());
         Version specification = schema.getValidationContext().getMetaSchema().getSpecification();
         if (specification != null) {

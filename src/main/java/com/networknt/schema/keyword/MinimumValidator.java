@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -48,7 +48,7 @@ public class MinimumValidator extends BaseKeywordValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         if (!schemaNode.isNumber()) {

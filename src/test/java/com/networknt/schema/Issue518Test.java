@@ -24,7 +24,7 @@ class Issue518Test {
     void testPreservingEmptyFragmentSuffix() {
         String schemaPath = "/schema/issue518-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = FACTORY.getSchema(schemaInputStream);
+        Schema schema = FACTORY.getSchema(schemaInputStream);
 
         Assertions.assertNotNull(schema);
     }

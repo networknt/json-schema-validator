@@ -36,7 +36,7 @@ class FormatKeywordFactoryTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
             throw new IllegalArgumentException();
         }
     }

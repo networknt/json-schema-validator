@@ -10,12 +10,12 @@ import java.io.InputStream;
 import java.util.List;
 
 class Issue313Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
-    protected JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
+    protected Schema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
@@ -32,7 +32,7 @@ class Issue313Test {
         String schemaPath = "/schema/issue313-2019-09.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<Error> errors = schema.validate(node);
@@ -44,7 +44,7 @@ class Issue313Test {
         String schemaPath = "/schema/issue313-v7.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<Error> errors = schema.validate(node);

@@ -40,7 +40,7 @@ abstract class AbstractJsonSchemaTest {
 
     protected abstract String getDataTestFolder();
 
-    private JsonSchema getJsonSchemaFromDataNode(JsonNode dataNode) {
+    private Schema getJsonSchemaFromDataNode(JsonNode dataNode) {
         return Optional.ofNullable(dataNode.get(SCHEMA))
                 .map(JsonNode::textValue)
                 .map(this::getJsonNodeFromPath)
@@ -58,7 +58,7 @@ abstract class AbstractJsonSchemaTest {
         }
     }
 
-    private JsonSchema getJsonSchema(JsonNode schemaNode) {
+    private Schema getJsonSchema(JsonNode schemaNode) {
         return JsonSchemaFactory
                 .getInstance(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
                 .getSchema(schemaNode);

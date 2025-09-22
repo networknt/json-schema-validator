@@ -67,7 +67,7 @@ class IfValidatorTest {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, true);
         assertFalse(result.getErrors().isEmpty());
 
@@ -110,7 +110,7 @@ class IfValidatorTest {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"hello\"", InputFormat.JSON, true);
         assertFalse(result.getErrors().isEmpty());
 
@@ -153,7 +153,7 @@ class IfValidatorTest {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
 
@@ -194,7 +194,7 @@ class IfValidatorTest {
                     }
                 })
                 .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, false);
         assertTrue(result.getErrors().isEmpty());
 

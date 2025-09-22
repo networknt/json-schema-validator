@@ -39,7 +39,7 @@ class V4JsonSchemaTest {
             JsonNode schemaJson = mapper.readTree(inputStream);
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
             @SuppressWarnings("unused")
-            JsonSchema schema = factory.getSchema(schemaJson);
+            Schema schema = factory.getSchema(schemaJson);
         }
     }
 

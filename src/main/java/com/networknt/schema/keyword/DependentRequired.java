@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -35,7 +35,7 @@ public class DependentRequired extends BaseKeywordValidator implements KeywordVa
     private static final Logger logger = LoggerFactory.getLogger(DependentRequired.class);
     private final Map<String, List<String>> propertyDependencies = new HashMap<>();
 
-    public DependentRequired(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependentRequired(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
 
         super(ValidatorTypeCode.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 

@@ -47,7 +47,7 @@ class ExclusiveMinimumValidatorTest {
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4,
                 builder -> builder.metaSchema(dialect));
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":0}";
         String validData = "{\"value1\":0.1}";
         

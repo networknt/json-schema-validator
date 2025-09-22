@@ -21,7 +21,7 @@ class Issue314Test {
     void testNormalizeHttpOnly() {
         String schemaPath = "/schema/issue314-v7.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = FACTORY.getSchema(schemaInputStream);
+        Schema schema = FACTORY.getSchema(schemaInputStream);
 
         Assertions.assertNotNull(schema);
     }

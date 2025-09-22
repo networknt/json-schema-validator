@@ -43,7 +43,7 @@ class RefValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
-        JsonSchema jsonSchema = factory.getSchema(mainSchema);
+        Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -62,7 +62,7 @@ class RefValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
-        JsonSchema jsonSchema = factory.getSchema(mainSchema);
+        Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -81,7 +81,7 @@ class RefValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/integer.json", otherSchema))));
-        JsonSchema jsonSchema = factory.getSchema(mainSchema);
+        Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -100,7 +100,7 @@ class RefValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/hello/integer.json", otherSchema))));
-        JsonSchema jsonSchema = factory.getSchema(mainSchema);
+        Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -108,7 +108,7 @@ class RefValidatorTest {
     @Test
     void classPathSlash() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:/schema/main/main.json"));
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:/schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"
                 + "    \"ids\": {\r\n"
@@ -124,7 +124,7 @@ class RefValidatorTest {
     @Test
     void classPathNoSlash() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:schema/main/main.json"));
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"
                 + "    \"ids\": {\r\n"

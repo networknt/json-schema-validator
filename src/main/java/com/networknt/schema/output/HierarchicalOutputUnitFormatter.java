@@ -28,7 +28,7 @@ import java.util.Set;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.Error;
 
@@ -108,7 +108,7 @@ public class HierarchicalOutputUnitFormatter {
         return root;
     }
 
-    public static OutputUnit format(JsonSchema jsonSchema, List<Error> errors,
+    public static OutputUnit format(Schema jsonSchema, List<Error> errors,
             ExecutionContext executionContext, ValidationContext validationContext,
             Function<Error, Object> errorMapper) {
         OutputUnit root = new OutputUnit();

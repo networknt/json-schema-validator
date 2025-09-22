@@ -18,7 +18,7 @@ class CustomUriTest {
     void customUri() throws Exception {
         /* Given */
         final JsonSchemaFactory factory = buildJsonSchemaFactory();
-        final JsonSchema schema = factory.getSchema(
+        final Schema schema = factory.getSchema(
                 "{\"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\"type\": \"object\",\"additionalProperties\": false,\"properties\": {\"customAnyOf\": {\"anyOf\": [{\"type\": \"null\"},{\"$ref\": \"custom:date\"}]},\"customOneOf\": {\"oneOf\": [{\"type\": \"null\"},{\"$ref\": \"custom:date\"}]}}}");
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode value = mapper.readTree("{\"customAnyOf\": null,\"customOneOf\": null}");

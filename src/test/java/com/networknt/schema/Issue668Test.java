@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 
 class Issue668Test {
-    protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) throws Exception {
+    protected Schema getJsonSchemaFromStreamContent(InputStream schemaContent) throws Exception {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         YAMLMapper mapper = new YAMLMapper();
         JsonNode node = mapper.readTree(schemaContent);
@@ -27,7 +27,7 @@ class Issue668Test {
         String schemaPath = "/schema/issue668.yml";
         String dataPath = "/data/issue668.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         MatcherAssert.assertThat(schema.validate(node), Matchers.empty());

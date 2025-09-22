@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -36,11 +36,11 @@ import java.util.*;
 public class PatternPropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
-    private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
+    private final Map<RegularExpression, Schema> schemas = new IdentityHashMap<>();
 
     private Boolean hasUnevaluatedPropertiesValidator = null;
 
-    public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
+    public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                       ValidationContext validationContext) {
         super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isObject()) {
@@ -67,7 +67,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
-            for (Map.Entry<RegularExpression, JsonSchema> entry : schemas.entrySet()) {
+            for (Map.Entry<RegularExpression, Schema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
                     JsonNodePath path = instanceLocation.append(name);
                     int currentErrors = executionContext.getErrors().size();

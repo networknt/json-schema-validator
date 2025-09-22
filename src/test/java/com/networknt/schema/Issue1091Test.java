@@ -33,7 +33,7 @@ class Issue1091Test {
     void testHasAdjacentKeywordInEvaluationPath() throws Exception {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().cacheRefs(false).build();
 
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4)
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4)
                 .getSchema(SchemaLocation.of("classpath:schema/issue1091.json"), config);
         JsonNode node = JsonMapperFactory.getInstance()
                 .readTree(Issue1091Test.class.getClassLoader().getResource("data/issue1091.json"));

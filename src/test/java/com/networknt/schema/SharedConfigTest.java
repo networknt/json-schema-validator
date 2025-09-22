@@ -42,11 +42,11 @@ class SharedConfigTest {
         // depending on this line the test either passes or fails:
         // - if this line is executed, then it passes
         // - if this line is not executed (just comment it) - it fails
-        JsonSchema firstSchema = factory.getSchema(draft07Schema);
+        Schema firstSchema = factory.getSchema(draft07Schema);
         firstSchema.walk(new ObjectMapper().readTree("{ \"id\": 123 }"), true);
 
         // note that only second schema takes overridden schemaValidatorsConfig
-        JsonSchema secondSchema = factory.getSchema(draft07Schema, schemaValidatorsConfig);
+        Schema secondSchema = factory.getSchema(draft07Schema, schemaValidatorsConfig);
 
         secondSchema.walk(new ObjectMapper().readTree("{ \"id\": 123 }"), true);
         Assertions.assertTrue(allKeywordListener.wasCalled);

@@ -54,7 +54,7 @@ abstract class AbstractJsonSchemaTestSuite {
         return file.toString().replace('\\', '/');
     }
 
-    private static void executeTest(JsonSchema schema, TestSpec testSpec) {
+    private static void executeTest(Schema schema, TestSpec testSpec) {
         List<Error> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
                 executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
@@ -241,7 +241,7 @@ abstract class AbstractJsonSchemaTestSuite {
             }
         }
         SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
-        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), configBuilder.build());
+        Schema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), configBuilder.build());
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }
@@ -254,7 +254,7 @@ abstract class AbstractJsonSchemaTestSuite {
         }
     }
 
-    private void executeAndReset(JsonSchema schema, TestSpec testSpec) {
+    private void executeAndReset(Schema schema, TestSpec testSpec) {
         try {
             executeTest(schema, testSpec);
         } finally {

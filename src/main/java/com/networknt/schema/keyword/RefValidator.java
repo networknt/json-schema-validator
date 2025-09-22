@@ -22,7 +22,7 @@ import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
@@ -43,13 +43,13 @@ public class RefValidator extends BaseKeywordValidator {
 
     private static final String REF_CURRENT = "#";
 
-    public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }
 
-    static JsonSchemaRef getRefSchema(JsonSchema parentSchema, ValidationContext validationContext, String refValue,
+    static JsonSchemaRef getRefSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
         // The evaluationPath is used to derive the keywordLocation
         final String refValueOriginal = refValue;
@@ -70,7 +70,7 @@ public class RefValidator extends BaseKeywordValidator {
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
             // This should retrieve schemas regardless of the protocol that is in the uri.
             return new JsonSchemaRef(getSupplier(() -> {
-                JsonSchema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
+                Schema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
                     schemaResource = validationContext.getJsonSchemaFactory().loadSchema(schemaLocation, validationContext.getConfig()); 
                     if (schemaResource != null) {
@@ -85,7 +85,7 @@ public class RefValidator extends BaseKeywordValidator {
                 } else {
                     String newRefValue = refValue.substring(index);
                     String find = schemaLocation.getAbsoluteIri() + newRefValue;
-                    JsonSchema findSchemaResource = validationContext.getSchemaResources().get(find);
+                    Schema findSchemaResource = validationContext.getSchemaResources().get(find);
                     if (findSchemaResource == null) {
                         findSchemaResource = validationContext.getDynamicAnchors().get(find); 
                     }
@@ -106,7 +106,7 @@ public class RefValidator extends BaseKeywordValidator {
             String absoluteIri = resolve(parentSchema, refValue);
             // Schema resource needs to update the parent and evaluation path
             return new JsonSchemaRef(getSupplier(() -> {
-                JsonSchema schemaResource = validationContext.getSchemaResources().get(absoluteIri);
+                Schema schemaResource = validationContext.getSchemaResources().get(absoluteIri);
                 if (schemaResource == null) {
                     schemaResource = validationContext.getDynamicAnchors().get(absoluteIri);
                 }
@@ -134,7 +134,7 @@ public class RefValidator extends BaseKeywordValidator {
         return cache ? new CachedSupplier<>(supplier) : supplier;
     }
 
-    private static void copySchemaResources(ValidationContext validationContext, JsonSchema schemaResource) {
+    private static void copySchemaResources(ValidationContext validationContext, Schema schemaResource) {
         if (!schemaResource.getValidationContext().getSchemaResources().isEmpty()) {
             validationContext.getSchemaResources()
                     .putAll(schemaResource.getValidationContext().getSchemaResources());
@@ -149,16 +149,16 @@ public class RefValidator extends BaseKeywordValidator {
         }
     }
     
-    private static String resolve(JsonSchema parentSchema, String refValue) {
+    private static String resolve(Schema parentSchema, String refValue) {
         // $ref prevents a sibling $id from changing the base uri
-        JsonSchema base = parentSchema;
+        Schema base = parentSchema;
         if (parentSchema.getId() != null && parentSchema.getParentSchema() != null) {
             base = parentSchema.getParentSchema();
         }
         return SchemaLocation.resolve(base.getSchemaLocation(), refValue);
     }
 
-    private static JsonSchema getJsonSchema(JsonSchema parent,
+    private static Schema getJsonSchema(Schema parent,
                                                   ValidationContext validationContext,
                                                   String refValue,
                                                   String refValueOriginal,
@@ -169,7 +169,7 @@ public class RefValidator extends BaseKeywordValidator {
         // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
         // recursive update to the map.
         // The getSubSchema potentially recurses to call back to getJsonSchema again
-        JsonSchema result = validationContext.getSchemaReferences().get(schemaReference);
+        Schema result = validationContext.getSchemaReferences().get(schemaReference);
         if (result == null) {
             synchronized (validationContext.getJsonSchemaFactory()) { // acquire lock on shared factory object to prevent deadlock
                 result = validationContext.getSchemaReferences().get(schemaReference);
@@ -187,7 +187,7 @@ public class RefValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-        JsonSchema refSchema = this.schema.getSchema();
+        Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
@@ -204,7 +204,7 @@ public class RefValidator extends BaseKeywordValidator {
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.
-        JsonSchema refSchema = this.schema.getSchema();
+        Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
@@ -215,7 +215,7 @@ public class RefValidator extends BaseKeywordValidator {
         if (node == null) {
             // Check for circular dependency
             SchemaLocation schemaLocation = refSchema.getSchemaLocation();
-            JsonSchema check = refSchema;
+            Schema check = refSchema;
             boolean circularDependency = false;
             while (check.getEvaluationParentSchema() != null) {
                 check = check.getEvaluationParentSchema();
@@ -237,7 +237,7 @@ public class RefValidator extends BaseKeywordValidator {
 
     @Override
     public void preloadJsonSchema() {
-        JsonSchema jsonSchema = null;
+        Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();
         } catch (JsonSchemaException e) {
@@ -250,7 +250,7 @@ public class RefValidator extends BaseKeywordValidator {
         // The rest of the cycles will load at execution time depending on the input
         // data
         SchemaLocation schemaLocation = jsonSchema.getSchemaLocation();
-        JsonSchema check = jsonSchema;
+        Schema check = jsonSchema;
         boolean circularDependency = false;
         int depth = 0;
         while (check.getEvaluationParentSchema() != null) {

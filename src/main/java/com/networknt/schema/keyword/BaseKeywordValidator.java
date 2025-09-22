@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -36,13 +36,13 @@ import java.util.Map;
 public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
     protected final ValidationContext validationContext;
 
-    protected final JsonSchema parentSchema;
+    protected final Schema parentSchema;
     protected final Map<String, String> errorMessage;
 
-    protected final JsonSchema evaluationParentSchema;
+    protected final Schema evaluationParentSchema;
 
     public BaseKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation,
-            JsonSchema parentSchema, ValidationContext validationContext,
+            Schema parentSchema, ValidationContext validationContext,
             JsonNodePath evaluationPath) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
@@ -73,9 +73,9 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
             JsonNode schemaNode,
             SchemaLocation schemaLocation,
             ValidationContext validationContext,
-            JsonSchema parentSchema,
+            Schema parentSchema,
             JsonNodePath evaluationPath,
-            JsonSchema evaluationParentSchema,
+            Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
@@ -116,7 +116,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * 
      * @return the parent schema
      */
-    public JsonSchema getParentSchema() {
+    public Schema getParentSchema() {
         return this.parentSchema;
     }
 
@@ -125,10 +125,10 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * <p>
      * This is the dynamic parent schema when following references.
      * 
-     * @see JsonSchema#fromRef(JsonSchema, JsonNodePath)
+     * @see Schema#fromRef(Schema, JsonNodePath)
      * @return the evaluation parent schema
      */
-    public JsonSchema getEvaluationParentSchema() {
+    public Schema getEvaluationParentSchema() {
         if (this.evaluationParentSchema != null) {
             return this.evaluationParentSchema;
         }
@@ -143,8 +143,8 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         return null;
     }
 
-    protected void preloadJsonSchemas(final Collection<JsonSchema> schemas) {
-        for (final JsonSchema schema : schemas) {
+    protected void preloadJsonSchemas(final Collection<Schema> schemas) {
+        for (final Schema schema : schemas) {
             schema.initializeValidators();
         }
     }
@@ -163,7 +163,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * @return true if found
      */
     protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
-        JsonSchema schema = getEvaluationParentSchema();
+        Schema schema = getEvaluationParentSchema();
         while (schema != null) {
             for (KeywordValidator validator : schema.getValidators()) {
                 if (keyword.equals(validator.getKeyword())) {

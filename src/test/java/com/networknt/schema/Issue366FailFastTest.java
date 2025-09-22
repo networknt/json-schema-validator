@@ -18,7 +18,7 @@ class Issue366FailFastTest {
         setupSchema();
     }
 
-    JsonSchema jsonSchema;
+    Schema jsonSchema;
     ObjectMapper objectMapper = new ObjectMapper();
 
     private void setupSchema() throws IOException {

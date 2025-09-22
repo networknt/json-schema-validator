@@ -35,7 +35,7 @@ class UrnTest
           .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );
       JsonSchemaFactory instance = builder.build();
-      JsonSchema schema = instance.getSchema(is);
+      Schema schema = instance.getSchema(is);
       assertEquals(0, schema.validate(mapper.readTree(urlTestData)).size());
     } catch( Exception e) {
       e.printStackTrace();

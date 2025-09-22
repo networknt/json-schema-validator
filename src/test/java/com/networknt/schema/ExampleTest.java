@@ -32,7 +32,7 @@ class ExampleTest {
             builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
         );
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
+        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -46,7 +46,7 @@ class ExampleTest {
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
-        JsonSchema refSchema = schema.getValidationContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
+        Schema refSchema = schema.getValidationContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
         assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getMetaSchema().getIri());
     }
 
@@ -55,7 +55,7 @@ class ExampleTest {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"), config);
+        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"), config);
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -69,7 +69,7 @@ class ExampleTest {
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
-        JsonSchema refSchema = schema.getValidationContext().getSchemaResources().get("classpath:schema/example-ref.json#");
+        Schema refSchema = schema.getValidationContext().getSchemaResources().get("classpath:schema/example-ref.json#");
         assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getMetaSchema().getIri());
     }
 }

@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -33,7 +33,7 @@ public class NonValidationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
+                Schema parentSchema, ValidationContext validationContext, Keyword keyword) {
             super(keyword, schemaNode, schemaLocation, evaluationPath);
             String id = validationContext.resolveSchemaId(schemaNode);
             String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
@@ -46,7 +46,7 @@ public class NonValidationKeyword extends AbstractKeyword {
                 for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
                     Entry<String, JsonNode> property = field.next();
                     SchemaLocation location = schemaLocation.append(property.getKey());
-                    JsonSchema schema = validationContext.newSchema(location, evaluationPath.append(property.getKey()),
+                    Schema schema = validationContext.newSchema(location, evaluationPath.append(property.getKey()),
                             property.getValue(), parentSchema);
                     validationContext.getSchemaReferences().put(location.toString(), schema);
                 }
@@ -65,7 +65,7 @@ public class NonValidationKeyword extends AbstractKeyword {
 
     @Override
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                      JsonSchema parentSchema, ValidationContext validationContext) {
+                                      Schema parentSchema, ValidationContext validationContext) {
         return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
     }
 }

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -35,9 +35,9 @@ import java.util.*;
 public class NotValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotValidator.class);
 
-    private final JsonSchema schema;
+    private final Schema schema;
 
-    public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.NOT, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }

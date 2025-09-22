@@ -38,13 +38,13 @@ class Issue928Test {
         String baseUrl = String.format("https://example.org/schema/issue928-v%s.json", versionStr);
         System.out.println("baseUrl: " + baseUrl);
 
-        JsonSchema byPointer = schemaFactory.getSchema(
+        Schema byPointer = schemaFactory.getSchema(
                 SchemaLocation.of(baseUrl + "#/definitions/example"));
 
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("A")).size(), 0);
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("Z")).size(), 1);
 
-        JsonSchema byAnchor = schemaFactory.getSchema(
+        Schema byAnchor = schemaFactory.getSchema(
                 SchemaLocation.of(baseUrl + "#example"));
 
         Assertions.assertEquals(

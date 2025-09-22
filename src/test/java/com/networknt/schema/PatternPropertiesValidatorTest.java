@@ -42,7 +42,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
     void testInvalidPatternPropertiesValidator() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
-            JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
+            Schema schema = factory.getSchema("{\"patternProperties\":6}");
 
             JsonNode node = getJsonNodeFromStringContent("");
             List<Error> errors = schema.validate(node);
@@ -57,7 +57,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())
                     .build();
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
-            JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
+            Schema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
             JsonNode node = getJsonNodeFromStringContent("");
             List<Error> errors = schema.validate(node);
@@ -81,7 +81,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
                 + "  \"valid_array\": [\"array1_value\", \"array2_value\"],\n"
                 + "  \"valid_string\": \"string_value\",\n"
@@ -132,7 +132,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
                 + "  \"test\": 5\n"
                 + "}";

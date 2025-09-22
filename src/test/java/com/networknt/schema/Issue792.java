@@ -30,7 +30,7 @@ class Issue792 {
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(false).failFast(true).build();
 
-        JsonSchema jsonSchema = schemaFactory.getSchema(schemaDef, config);
+        Schema jsonSchema = schemaFactory.getSchema(schemaDef, config);
         JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\"}");
 
         assertEquals(1, jsonSchema.validate(jsonNode).size());

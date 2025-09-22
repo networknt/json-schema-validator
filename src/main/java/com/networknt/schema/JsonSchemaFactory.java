@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 /**
- * Factory for building {@link JsonSchema} instances. The factory should be
+ * Factory for building {@link Schema} instances. The factory should be
  * typically be created using {@link #getInstance(Version, Consumer)} and
  * should be cached for performance.
  * <p>
@@ -196,7 +196,7 @@ public class JsonSchemaFactory {
     private final SchemaMappers.Builder schemaMappersBuilder;
     private final SchemaLoader schemaLoader;
     private final ConcurrentMap<String, Dialect> metaSchemas;
-    private final ConcurrentMap<SchemaLocation, JsonSchema> schemaCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
     private final DialectRegistry metaSchemaFactory;
     
@@ -333,9 +333,9 @@ public class JsonSchemaFactory {
      * @param config the config to use
      * @return the schema
      */
-    protected JsonSchema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
+    protected Schema newJsonSchema(final SchemaLocation schemaUri, final JsonNode schemaNode, final SchemaValidatorsConfig config) {
         final ValidationContext validationContext = createValidationContext(schemaNode, config);
-        JsonSchema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
+        Schema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
                 new JsonNodePath(validationContext.getConfig().getPathType()), schemaNode, null, false);
         preload(jsonSchema, config);
         return jsonSchema;
@@ -347,7 +347,7 @@ public class JsonSchemaFactory {
      * @param jsonSchema the schema to preload
      * @param config containing the configuration option
      */
-    private void preload(JsonSchema jsonSchema, SchemaValidatorsConfig config) {
+    private void preload(Schema jsonSchema, SchemaValidatorsConfig config) {
         if (config.isPreloadJsonSchema()) {
             try {
                 /*
@@ -365,12 +365,12 @@ public class JsonSchemaFactory {
         }
     }
 
-    public JsonSchema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema) {
+    public Schema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
         return doCreate(validationContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
     }
 
-    private JsonSchema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return JsonSchema.from(withMetaSchema(validationContext, schemaNode), schemaLocation, evaluationPath,
+    private Schema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return Schema.from(withMetaSchema(validationContext, schemaNode), schemaLocation, evaluationPath,
                 schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
     
@@ -509,7 +509,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final String schema, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final String schema, final SchemaValidatorsConfig config) {
         return getSchema(schema, InputFormat.JSON, config);
     }
 
@@ -524,7 +524,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final String schema, InputFormat inputFormat, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final String schema, InputFormat inputFormat, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = readTree(schema, inputFormat);
             return newJsonSchema(null, schemaNode, config);
@@ -544,7 +544,7 @@ public class JsonSchemaFactory {
      * @param schema the schema data as a string
      * @return the schema
      */
-    public JsonSchema getSchema(final String schema) {
+    public Schema getSchema(final String schema) {
         return getSchema(schema, createSchemaValidatorsConfig());
     }
 
@@ -558,7 +558,7 @@ public class JsonSchemaFactory {
      * @param inputFormat input format
      * @return the schema
      */
-    public JsonSchema getSchema(final String schema, InputFormat inputFormat) {
+    public Schema getSchema(final String schema, InputFormat inputFormat) {
         return getSchema(schema, inputFormat, createSchemaValidatorsConfig());
     }
 
@@ -572,7 +572,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final InputStream schemaStream, final SchemaValidatorsConfig config) {
         return getSchema(schemaStream, InputFormat.JSON, config);
     }
 
@@ -587,7 +587,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final InputStream schemaStream, InputFormat inputFormat, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat, final SchemaValidatorsConfig config) {
         try {
             final JsonNode schemaNode = readTree(schemaStream, inputFormat);
             return newJsonSchema(null, schemaNode, config);
@@ -606,7 +606,7 @@ public class JsonSchemaFactory {
      * @param schemaStream the input stream with the schema data
      * @return the schema
      */
-    public JsonSchema getSchema(final InputStream schemaStream) {
+    public Schema getSchema(final InputStream schemaStream) {
         return getSchema(schemaStream, createSchemaValidatorsConfig());
     }
     
@@ -617,8 +617,8 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
-        JsonSchema schema = loadSchema(schemaUri, config);
+    public Schema getSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
+        Schema schema = loadSchema(schemaUri, config);
         preload(schema, config);
         return schema;
     }
@@ -630,12 +630,12 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema loadSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
+    public Schema loadSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableSchemaCache) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
             // The getMapperSchema potentially recurses to call back to getSchema again
-            JsonSchema cachedUriSchema = schemaCache.get(schemaUri);
+            Schema cachedUriSchema = schemaCache.get(schemaUri);
             if (cachedUriSchema == null) {
                 synchronized (this) { // acquire lock on shared factory object to prevent deadlock
                     cachedUriSchema = schemaCache.get(schemaUri);
@@ -670,7 +670,7 @@ public class JsonSchemaFactory {
         return new SchemaValidatorsConfig();
     }
 
-    protected JsonSchema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
+    protected Schema getMappedSchema(final SchemaLocation schemaUri, SchemaValidatorsConfig config) {
         try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
             if (inputStream == null) {
                 throw new IOException("Cannot load schema at " + schemaUri);
@@ -693,7 +693,7 @@ public class JsonSchemaFactory {
                 // Schema with fragment pointing to sub schema
                 final ValidationContext validationContext = createValidationContext(schemaNode, config);
                 SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
-                JsonSchema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
+                Schema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
                 return document.getRefSchema(schemaUri.getFragment());
             }
         } catch (IOException e) {
@@ -710,7 +710,7 @@ public class JsonSchemaFactory {
      * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
      * @return the schema
      */
-    public JsonSchema getSchema(final URI schemaUri) {
+    public Schema getSchema(final URI schemaUri) {
         return getSchema(SchemaLocation.of(schemaUri.toString()), createSchemaValidatorsConfig());
     }
 
@@ -722,7 +722,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final URI schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, config);
     }
 
@@ -733,7 +733,7 @@ public class JsonSchemaFactory {
      * @param jsonNode the node
      * @return the schema
      */
-    public JsonSchema getSchema(final URI schemaUri, final JsonNode jsonNode) {
+    public Schema getSchema(final URI schemaUri, final JsonNode jsonNode) {
         return newJsonSchema(SchemaLocation.of(schemaUri.toString()), jsonNode, createSchemaValidatorsConfig());
     }
 
@@ -743,7 +743,7 @@ public class JsonSchemaFactory {
      * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
      * @return the schema
      */
-    public JsonSchema getSchema(final SchemaLocation schemaUri) {
+    public Schema getSchema(final SchemaLocation schemaUri) {
         return getSchema(schemaUri, createSchemaValidatorsConfig());
     }
 
@@ -755,7 +755,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(schemaUri, jsonNode, config);
     }
     
@@ -766,7 +766,7 @@ public class JsonSchemaFactory {
      * @param jsonNode  the node
      * @return the schema
      */
-    public JsonSchema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
+    public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
         return newJsonSchema(schemaUri, jsonNode, createSchemaValidatorsConfig());
     }
 
@@ -783,7 +783,7 @@ public class JsonSchemaFactory {
      * @param config   the config
      * @return the schema
      */
-    public JsonSchema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
+    public Schema getSchema(final JsonNode jsonNode, final SchemaValidatorsConfig config) {
         return newJsonSchema(null, jsonNode, config);
     }
 
@@ -799,7 +799,7 @@ public class JsonSchemaFactory {
      * @param jsonNode the node
      * @return the schema
      */
-    public JsonSchema getSchema(final JsonNode jsonNode) {
+    public Schema getSchema(final JsonNode jsonNode) {
         return newJsonSchema(null, jsonNode, createSchemaValidatorsConfig());
     }
 

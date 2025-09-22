@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Issue662Test extends BaseJsonSchemaValidatorTest {
 
     private static final String RESOURCE_PREFIX = "issues/662/";
-    private static JsonSchema schema;
+    private static Schema schema;
 
     @BeforeAll
     static void setup() {

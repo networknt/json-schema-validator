@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Format;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.format.BaseFormatJsonValidator;
@@ -39,7 +39,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
     private final Format format;
     
     public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext, Format format,
+            Schema parentSchema, ValidationContext validationContext, Format format,
             Keyword keyword) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
         this.format = format;

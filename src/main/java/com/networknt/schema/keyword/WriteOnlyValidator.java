@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -18,7 +18,7 @@ public class WriteOnlyValidator extends BaseKeywordValidator {
 
     private final boolean writeOnly;
 
-    public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.WRITE_ONLY, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         this.writeOnly = validationContext.getConfig().isWriteOnly();

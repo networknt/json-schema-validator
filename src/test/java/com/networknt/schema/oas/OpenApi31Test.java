@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
@@ -43,7 +43,7 @@ class OpenApi31Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
@@ -72,7 +72,7 @@ class OpenApi31Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
@@ -102,7 +102,7 @@ class OpenApi31Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
@@ -122,7 +122,7 @@ class OpenApi31Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"lizard\",\r\n"
@@ -144,7 +144,7 @@ class OpenApi31Test {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"

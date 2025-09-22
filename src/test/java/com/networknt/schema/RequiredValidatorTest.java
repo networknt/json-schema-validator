@@ -57,7 +57,7 @@ class RequiredValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
@@ -101,7 +101,7 @@ class RequiredValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
@@ -145,7 +145,7 @@ class RequiredValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"amount\":10,\r\n"
                 + "  \"description\":\"world\"\r\n"
@@ -183,7 +183,7 @@ class RequiredValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
                 + "  \"description\":\"world\",\r\n"
                 + "  \"name\":\"hello\"\r\n"

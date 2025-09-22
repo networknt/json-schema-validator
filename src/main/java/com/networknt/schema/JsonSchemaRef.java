@@ -22,13 +22,13 @@ import java.util.function.Supplier;
  */
 public class JsonSchemaRef {
 
-    private final Supplier<JsonSchema> schemaSupplier;
+    private final Supplier<Schema> schemaSupplier;
 
-    public JsonSchemaRef(Supplier<JsonSchema> schema) {
+    public JsonSchemaRef(Supplier<Schema> schema) {
         this.schemaSupplier = schema;
     }
 
-    public JsonSchema getSchema() {
+    public Schema getSchema() {
         return this.schemaSupplier.get();
     }
 }

@@ -32,14 +32,14 @@ class ReadOnlyValidatorTest {
 				errors.stream().map(e -> e.toString()).collect(Collectors.toList()).get(0));
 	}
 
-	private JsonSchema loadJsonSchema(Boolean write) {
-		JsonSchema schema = this.getJsonSchema(write);
+	private Schema loadJsonSchema(Boolean write) {
+		Schema schema = this.getJsonSchema(write);
 		schema.initializeValidators();
 		return schema;
 
 	}
 
-	private JsonSchema getJsonSchema(Boolean write) {
+	private Schema getJsonSchema(Boolean write) {
 		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
 		SchemaValidatorsConfig schemaConfig = createSchemaConfig(write);
 		InputStream schema = getClass().getClassLoader().getResourceAsStream("schema/read-only-schema.json");

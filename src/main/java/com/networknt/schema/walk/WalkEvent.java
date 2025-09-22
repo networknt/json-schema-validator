@@ -3,7 +3,7 @@ package com.networknt.schema.walk;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.KeywordValidator;
 
 /**
@@ -12,7 +12,7 @@ import com.networknt.schema.keyword.KeywordValidator;
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private JsonSchema schema;
+    private Schema schema;
     private String keyword;
     private JsonNode rootNode;
     private JsonNode instanceNode;
@@ -38,7 +38,7 @@ public class WalkEvent {
      *
      * @return the schema
      */
-    public JsonSchema getSchema() {
+    public Schema getSchema() {
         return schema;
     }
 
@@ -110,7 +110,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schema(JsonSchema schema) {
+        public WalkEventBuilder schema(Schema schema) {
             walkEvent.schema = schema;
             return this;
         }

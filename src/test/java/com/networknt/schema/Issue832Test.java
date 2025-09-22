@@ -55,7 +55,7 @@ class Issue832Test {
         String dataPath = "/data/issue832.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         JsonSchemaFactory factory = buildV7PlusNoFormatSchemaFactory();
-        JsonSchema schema = factory.getSchema(schemaInputStream);
+        Schema schema = factory.getSchema(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<Error> errors = schema.validate(node);

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -39,11 +39,11 @@ import java.util.List;
 public class PrefixItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
 
-    private final List<JsonSchema> tupleSchema;
+    private final List<Schema> tupleSchema;
     
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
@@ -139,7 +139,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
+    private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
             JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
@@ -156,7 +156,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
                 shouldValidateSchema);
     }
 
-    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+    private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
         boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
@@ -183,7 +183,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
         //@formatter:on
     }
 
-    public List<JsonSchema> getTupleSchema() {
+    public List<Schema> getTupleSchema() {
         return this.tupleSchema;
     }
 

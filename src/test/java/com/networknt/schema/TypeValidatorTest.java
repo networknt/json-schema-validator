@@ -53,7 +53,7 @@ class TypeValidatorTest {
     @Test
     void testTypeLoose() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
 
         String inputData = "{\r\n"
                 + "  \"array_of_integers\": 1,\r\n"
@@ -79,7 +79,7 @@ class TypeValidatorTest {
 
         // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-        JsonSchema typeLoose = factory.getSchema(schemaData, config);
+        Schema typeLoose = factory.getSchema(schemaData, config);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
@@ -101,7 +101,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         messages = schema.validate("2.0", InputFormat.JSON);
@@ -130,7 +130,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         // The logic in JsonNodeUtil specifically excludes V4 from this handling
@@ -145,7 +145,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
     }
@@ -174,7 +174,7 @@ class TypeValidatorTest {
                 + "  }\r\n"
                 + "}";
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
-        final JsonSchema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
+        final Schema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
             .nullableKeywordEnabled(false)
             .build());
 

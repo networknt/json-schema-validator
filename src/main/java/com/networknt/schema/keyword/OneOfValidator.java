@@ -28,7 +28,7 @@ import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -41,11 +41,11 @@ import com.networknt.schema.ValidationContext;
 public class OneOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
-    private final List<JsonSchema> schemas;
+    private final List<Schema> schemas;
 
     private Boolean canShortCircuit = null;
 
-    public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ONE_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
@@ -98,7 +98,7 @@ public class OneOfValidator extends BaseKeywordValidator {
                 }
             }
             executionContext.setFailFast(false);
-            for (JsonSchema schema : this.schemas) {
+            for (Schema schema : this.schemas) {
                 schemaErrors.clear();
                 if (!walk) {
                     schema.validate(executionContext, node, rootNode, instanceLocation);
@@ -237,7 +237,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         if (shouldValidateSchema && node != null) {
             validate(executionContext, node, rootNode, instanceLocation, true);
         } else {
-            for (JsonSchema schema : this.schemas) {
+            for (Schema schema : this.schemas) {
                 schema.walk(executionContext, node, rootNode, instanceLocation, false);
             }
         }
@@ -245,7 +245,7 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     @Override
     public void preloadJsonSchema() {
-        for (JsonSchema schema: this.schemas) {
+        for (Schema schema: this.schemas) {
             schema.initializeValidators();
         }
         canShortCircuit(); // cache the flag

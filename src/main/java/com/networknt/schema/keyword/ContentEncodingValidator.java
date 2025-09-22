@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
@@ -50,7 +50,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
      * @param validationContext the validation context
      */
     public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, validationContext,
                 evaluationPath);
         this.contentEncoding = schemaNode.textValue();

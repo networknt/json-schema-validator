@@ -97,7 +97,7 @@ class OutputUnitTest {
     void annotationCollectionList() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         
         String inputData = inputData1;
         
@@ -114,7 +114,7 @@ class OutputUnitTest {
     void annotationCollectionHierarchical() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
 
         String inputData = inputData1;
         
@@ -131,7 +131,7 @@ class OutputUnitTest {
     void annotationCollectionHierarchical2() throws JsonProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
 
         String inputData = inputData2;
         
@@ -180,7 +180,7 @@ class OutputUnitTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
@@ -199,7 +199,7 @@ class OutputUnitTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
@@ -218,7 +218,7 @@ class OutputUnitTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(typeSchema, config);
+        Schema schema = factory.getSchema(typeSchema, config);
         OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
@@ -268,7 +268,7 @@ class OutputUnitTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         
      // The following checks if the heirarchical output format is correct with multiple unevaluated properties
         String inputData = "{\r\n"
@@ -317,7 +317,7 @@ class OutputUnitTest {
         
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData, config);
         
         String inputData = "{\r\n"
                 + "    \"foo\": \"hello\",\r\n"
@@ -339,7 +339,7 @@ class OutputUnitTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.List(a -> a));
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
@@ -354,7 +354,7 @@ class OutputUnitTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema, config);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
         assertFalse(outputUnit.isValid());
         Object assertion = outputUnit.getErrors().get("type");

@@ -48,7 +48,7 @@ class Issue939Test {
                 + "            }\r\n"
                 + "          }\r\n"
                 + "        }";
-        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schema);
+        Schema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
         List<Error> assertions = jsonSchema
                 .validate("{\"someUuid\":\"invalid\"}", InputFormat.JSON);

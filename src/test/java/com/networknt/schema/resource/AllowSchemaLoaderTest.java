@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
@@ -41,7 +41,7 @@ class AllowSchemaLoaderTest {
                 () -> factory.getSchema(SchemaLocation.of("http://www.example.org/schema")));
         assertEquals("http://www.example.org/schema",
                 invalidSchemaException.getError().getArguments()[0].toString());
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"));
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"));
         assertNotNull(schema);
     }
 

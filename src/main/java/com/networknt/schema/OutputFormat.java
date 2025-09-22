@@ -49,7 +49,7 @@ public interface OutputFormat<T> {
      * 
      * @return the result
      */
-    T format(JsonSchema jsonSchema, 
+    T format(Schema jsonSchema, 
             ExecutionContext executionContext, ValidationContext validationContext);
 
     /**
@@ -95,7 +95,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public java.util.List<Error> format(JsonSchema jsonSchema,
+        public java.util.List<Error> format(Schema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return executionContext.getErrors();
         }
@@ -112,7 +112,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputFlag format(JsonSchema jsonSchema, 
+        public OutputFlag format(Schema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return new OutputFlag(executionContext.getErrors().isEmpty());
         }
@@ -129,7 +129,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public java.lang.Boolean format(JsonSchema jsonSchema, 
+        public java.lang.Boolean format(Schema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return executionContext.getErrors().isEmpty();
         }
@@ -159,7 +159,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema,
+        public OutputUnit format(Schema jsonSchema,
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, validationContext,
                     this.errorMapper);
@@ -190,7 +190,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema, 
+        public OutputUnit format(Schema jsonSchema, 
                 ExecutionContext executionContext, ValidationContext validationContext) {
             return HierarchicalOutputUnitFormatter.format(jsonSchema, executionContext.getErrors(), executionContext,
                     validationContext, this.errorMapper);
@@ -208,7 +208,7 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public ValidationResult format(JsonSchema jsonSchema,ExecutionContext executionContext, ValidationContext validationContext) {
+        public ValidationResult format(Schema jsonSchema,ExecutionContext executionContext, ValidationContext validationContext) {
             return new ValidationResult(executionContext);
         }
     }

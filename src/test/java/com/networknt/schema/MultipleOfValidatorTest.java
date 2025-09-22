@@ -48,7 +48,7 @@ class MultipleOfValidatorTest {
     @Test
     void test() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":123.892,\"value2\":123456.2934,\"value3\":123.123}";
         String validData = "{\"value1\":123.89,\"value2\":123456,\"value3\":123.010}";
         
@@ -63,7 +63,7 @@ class MultipleOfValidatorTest {
     @Test
     void testTypeLoose() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         
         String inputData = "{\"value1\":\"123.892\",\"value2\":\"123456.2934\",\"value3\":123.123}";
         String validTypeLooseInputData = "{\"value1\":\"123.89\",\"value2\":\"123456.29\",\"value3\":123.12}";
@@ -81,7 +81,7 @@ class MultipleOfValidatorTest {
         
         // With type loose this has 3 multipleOf errors
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-        JsonSchema typeLoose = factory.getSchema(schemaData, config);
+        Schema typeLoose = factory.getSchema(schemaData, config);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());

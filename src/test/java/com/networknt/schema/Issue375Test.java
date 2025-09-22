@@ -27,7 +27,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 class Issue375Test {
-    protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) {
+    protected Schema getJsonSchemaFromStreamContent(InputStream schemaContent) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
@@ -42,7 +42,7 @@ class Issue375Test {
         String schemaPath = "/draft2019-09/issue375.json";
         String dataPath = "/data/issue375.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<Error> errors = schema.validate(node);

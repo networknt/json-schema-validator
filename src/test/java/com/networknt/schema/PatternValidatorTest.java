@@ -32,7 +32,7 @@ class PatternValidatorTest {
                 + "  \"pattern\": \"^(\\\\([0-9]{3}\\\\))?[0-9]{3}-[0-9]{4}$\"\r\n"
                 + "}";
         String inputData = "\"hello\"";
-        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
         boolean result = schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN);
         assertFalse(result);
     }

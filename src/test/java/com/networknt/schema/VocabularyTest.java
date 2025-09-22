@@ -60,7 +60,7 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory
+        Schema schema = JsonSchemaFactory
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -112,7 +112,7 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory
+        Schema schema = JsonSchemaFactory
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -212,7 +212,7 @@ class VocabularyTest {
                         builder -> builder.metaSchema(dialect).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         OutputUnit outputUnit = schema.validate("{}", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
             executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
             executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
@@ -55,7 +55,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
      * @param validationContext the validation context
      */
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.contentMediaType = schemaNode.textValue();
     }

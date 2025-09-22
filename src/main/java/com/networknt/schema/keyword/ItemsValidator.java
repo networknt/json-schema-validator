@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
@@ -39,10 +39,10 @@ public class ItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator.class);
     private static final String PROPERTY_ADDITIONAL_ITEMS = "additionalItems";
 
-    private final JsonSchema schema;
-    private final List<JsonSchema> tupleSchema;
+    private final Schema schema;
+    private final List<Schema> tupleSchema;
     private final Boolean additionalItems;
-    private final JsonSchema additionalSchema;
+    private final Schema additionalSchema;
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
@@ -50,13 +50,13 @@ public class ItemsValidator extends BaseKeywordValidator {
     private final SchemaLocation additionalItemsSchemaLocation;
     private final JsonNode additionalItemsSchemaNode;
 
-    public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         Boolean additionalItems = null;
 
-        JsonSchema foundSchema = null;
-        JsonSchema foundAdditionalSchema = null;
+        Schema foundSchema = null;
+        Schema foundAdditionalSchema = null;
         JsonNode additionalItemsSchemaNode = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
@@ -320,7 +320,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(JsonSchema schema) {
+    private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
             JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
@@ -331,7 +331,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         return result;
     }
 
-    private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
+    private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, String keyword) {
         boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, keyword,
                 node, rootNode, instanceLocation, walkSchema, this);
@@ -344,11 +344,11 @@ public class ItemsValidator extends BaseKeywordValidator {
 
     }
 
-    public List<JsonSchema> getTupleSchema() {
+    public List<Schema> getTupleSchema() {
         return this.tupleSchema;
     }
 
-    public JsonSchema getSchema() {
+    public Schema getSchema() {
         return this.schema;
     }
     

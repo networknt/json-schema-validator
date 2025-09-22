@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.OutputFormat;
 import com.networknt.schema.PathType;
@@ -49,7 +49,7 @@ class OpenApi30Test {
                 builder -> builder.metaSchema(OpenApi30.getInstance())
                         .defaultMetaSchemaIri(OpenApi30.getInstance().getIri())
                         .metaSchemaFactory(DisallowUnknownDialectFactory.getInstance()));
-        JsonSchema schema = factory.getSchema(SchemaLocation.of(
+        Schema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/requestBody/content/application~1json/schema"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
@@ -77,7 +77,7 @@ class OpenApi30Test {
     void jsonPointerWithNumberInFragment() {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
-        JsonSchema schema = factory.getSchema(SchemaLocation.of(
+        Schema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"),
                 SchemaValidatorsConfig.builder().pathType(PathType.JSON_PATH).build());
         assertNotNull(schema);
@@ -98,7 +98,7 @@ class OpenApi30Test {
                 + "}\r\n";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("100", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 
@@ -115,7 +115,7 @@ class OpenApi30Test {
                 + "}\r\n";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
-        JsonSchema schema = factory.getSchema(schemaData);
+        Schema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("0", InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 }

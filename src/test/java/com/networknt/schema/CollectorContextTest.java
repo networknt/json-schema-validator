@@ -46,9 +46,9 @@ class CollectorContextTest {
 
     private static final String SAMPLE_COLLECTOR_OTHER = "sampleCollectorOther";
 
-    private JsonSchema jsonSchema;
+    private Schema jsonSchema;
 
-    private JsonSchema jsonSchemaForCombine;
+    private Schema jsonSchemaForCombine;
     
     @BeforeEach
     void setup() throws Exception {
@@ -270,7 +270,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
             }
@@ -340,7 +340,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
             }
@@ -419,7 +419,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isBoolean()) {
                 return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
             }
@@ -459,7 +459,7 @@ class CollectorContextTest {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
-        JsonSchema schema = factory.getSchema("{\n"
+        Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
         Exception[] instance = new Exception[1];
@@ -507,7 +507,7 @@ class CollectorContextTest {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
-        JsonSchema schema = factory.getSchema("{\n"
+        Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
         for (int i = 0; i < 50; ++i) {
@@ -525,7 +525,7 @@ class CollectorContextTest {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
-        JsonSchema schema = factory.getSchema("{\n"
+        Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
         for (int i = 0; i < 50; ++i) {
@@ -543,7 +543,7 @@ class CollectorContextTest {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(new CollectKeyword()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
-        JsonSchema schema = factory.getSchema("{\n"
+        Schema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
         for (int i = 0; i < 50; ++i) {

@@ -56,7 +56,7 @@ class OverrideValidatorTest {
                 .build();
 
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(validatorMetaSchema).build();
-        final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
+        final Schema validatorSchema = validatorFactory.getSchema(schema);
 
         List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
@@ -73,7 +73,7 @@ class OverrideValidatorTest {
                 .build();
 
         final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(overrideValidatorMetaSchema).build();
-        final JsonSchema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
+        final Schema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
         messages = overrideValidatorSchema.validate(targetNode, executionContext -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);

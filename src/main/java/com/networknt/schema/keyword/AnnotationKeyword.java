@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -30,7 +30,7 @@ public class AnnotationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
+                Schema parentSchema, ValidationContext validationContext, Keyword keyword) {
             super(keyword, schemaNode, schemaLocation, evaluationPath);
         }
 
@@ -63,7 +63,7 @@ public class AnnotationKeyword extends AbstractKeyword {
 
     @Override
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                      JsonSchema parentSchema, ValidationContext validationContext) {
+                                      Schema parentSchema, ValidationContext validationContext) {
         return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
     }
 }

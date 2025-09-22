@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
@@ -33,9 +33,9 @@ import java.util.*;
  */
 public class DependentSchemas extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependentSchemas.class);
-    private final Map<String, JsonSchema> schemaDependencies = new HashMap<>();
+    private final Map<String, Schema> schemaDependencies = new HashMap<>();
 
-    public DependentSchemas(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+    public DependentSchemas(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
 
         super(ValidatorTypeCode.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
@@ -61,7 +61,7 @@ public class DependentSchemas extends BaseKeywordValidator {
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
-            JsonSchema schema = this.schemaDependencies.get(pname);
+            Schema schema = this.schemaDependencies.get(pname);
             if (schema != null) {
                 if(!walk) {
                     schema.validate(executionContext, node, rootNode, instanceLocation);
@@ -83,7 +83,7 @@ public class DependentSchemas extends BaseKeywordValidator {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
         }
-        for (JsonSchema schema : this.schemaDependencies.values()) {
+        for (Schema schema : this.schemaDependencies.values()) {
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
     }
