@@ -47,7 +47,7 @@ class UriMappingTest {
     @Test
     void testBuilderUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
-        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
+        Dialect draftV4 = Dialect.getV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaIri(draftV4.getIri())
                 .metaSchema(draftV4)
@@ -98,7 +98,7 @@ class UriMappingTest {
             fail("Unexpected exception thrown", ex);
         }
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
-        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
+        Dialect draftV4 = Dialect.getV4();
         Builder builder = JsonSchemaFactory.builder()
                 .defaultMetaSchemaIri(draftV4.getIri())
                 .metaSchema(draftV4)

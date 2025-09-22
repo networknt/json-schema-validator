@@ -41,7 +41,7 @@ class Issue994Test {
                 + "        }\r\n"
                 + "    }\r\n"
                 + "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).vocabularies(vocabularies -> {
+        Dialect metaSchema = Dialect.builder(Dialect.getV202012()).vocabularies(vocabularies -> {
             vocabularies.remove(Vocabulary.V202012_VALIDATION.getIri());
         }).build();
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(schemaData);

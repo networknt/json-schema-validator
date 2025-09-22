@@ -49,8 +49,8 @@ class OverrideValidatorTest {
         "  \"timestamp\": \"bad\"\n" +
         "}");
         // Use Default EmailValidator
-        final JsonMetaSchema validatorMetaSchema = JsonMetaSchema
-                .builder(URI, JsonMetaSchema.getV201909())
+        final Dialect validatorMetaSchema = Dialect
+                .builder(URI, Dialect.getV201909())
                 .build();
 
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(validatorMetaSchema).build();
@@ -65,8 +65,8 @@ class OverrideValidatorTest {
         assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
 
         // Override EmailValidator
-        final JsonMetaSchema overrideValidatorMetaSchema = JsonMetaSchema
-                .builder(URI, JsonMetaSchema.getV201909())
+        final Dialect overrideValidatorMetaSchema = Dialect
+                .builder(URI, Dialect.getV201909())
                 .format(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 

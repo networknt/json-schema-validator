@@ -201,8 +201,8 @@ class VocabularyTest {
             return null;
         };
         
-        JsonMetaSchema metaSchema = JsonMetaSchema
-                .builder(JsonMetaSchema.getV202012().getIri(), JsonMetaSchema.getV202012())
+        Dialect metaSchema = Dialect
+                .builder(Dialect.getV202012().getIri(), Dialect.getV202012())
                 .vocabularyFactory(vocabularyFactory)
                 .build();
         JsonSchemaFactory factory = JsonSchemaFactory

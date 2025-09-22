@@ -38,7 +38,7 @@ class JsonWalkTest {
     }
 
     private void setupSchema() {
-        final JsonMetaSchema metaSchema = getJsonMetaSchema();
+        final Dialect metaSchema = getJsonMetaSchema();
         // Create Schema.
         SchemaValidatorsConfig.Builder schemaValidatorsConfigBuilder = SchemaValidatorsConfig.builder();
         schemaValidatorsConfigBuilder.keywordWalkListener(new AllKeywordListener());
@@ -57,9 +57,9 @@ class JsonWalkTest {
         this.jsonSchema1 = schemaFactory.getSchema(getSchema(), schemaValidatorsConfig1Builder.build());
     }
 
-    private JsonMetaSchema getJsonMetaSchema() {
-        return JsonMetaSchema.builder(
-                "https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV201909())
+    private Dialect getJsonMetaSchema() {
+        return Dialect.builder(
+                "https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialect.getV201909())
                 .keyword(new CustomKeyword()).build();
     }
 

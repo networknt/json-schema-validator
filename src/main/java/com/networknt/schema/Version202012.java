@@ -28,9 +28,9 @@ public class Version202012 implements JsonSchemaVersion {
     }
 
     private static class Holder {
-        private static final JsonMetaSchema INSTANCE;
+        private static final Dialect INSTANCE;
         static {
-            INSTANCE = JsonMetaSchema.builder(IRI)
+            INSTANCE = Dialect.builder(IRI)
                     .specification(Specification.Version.DRAFT_2020_12)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
@@ -45,7 +45,7 @@ public class Version202012 implements JsonSchemaVersion {
     }
 
     @Override
-    public JsonMetaSchema getInstance() {
+    public Dialect getInstance() {
         return Holder.INSTANCE;
     }
 }

@@ -116,8 +116,8 @@ class CustomMetaSchemaTest {
     @Test
     void customMetaSchemaWithIgnoredKeyword() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonMetaSchema metaSchema = JsonMetaSchema
-                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV4())
+        final Dialect metaSchema = Dialect
+                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialect.getV4())
                 // Generated UI uses enumNames to render Labels for enum values
                 .keyword(new EnumNamesKeyword())
                 .build();

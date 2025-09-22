@@ -8,9 +8,9 @@ class Issue314Test {
     private static final JsonSchemaFactory FACTORY =
             JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
                     .metaSchema(
-                            JsonMetaSchema.builder(
+                            Dialect.builder(
                                     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
-                                    JsonMetaSchema.getV7())
+                                    Dialect.getV7())
                                     .build())
                     .build();
 

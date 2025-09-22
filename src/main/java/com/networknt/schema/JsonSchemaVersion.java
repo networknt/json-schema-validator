@@ -24,5 +24,5 @@ public interface JsonSchemaVersion {
      * 
      * @return the instance
      */
-    JsonMetaSchema getInstance();
+    Dialect getInstance();
 }

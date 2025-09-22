@@ -61,8 +61,8 @@ class Issue784Test {
     }
 
     private JsonSchema createSchema(boolean useCustomDateFormat) {
-        JsonMetaSchema overrideDateTimeValidator =JsonMetaSchema
-                .builder(JsonMetaSchema.getV7().getIri(), JsonMetaSchema.getV7())
+        Dialect overrideDateTimeValidator =Dialect
+                .builder(Dialect.getV7().getIri(), Dialect.getV7())
                 .formats(formats -> {
                     if (useCustomDateFormat) {
                         CustomDateTimeFormat format = new CustomDateTimeFormat();

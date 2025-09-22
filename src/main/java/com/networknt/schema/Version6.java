@@ -15,9 +15,9 @@ public class Version6 implements JsonSchemaVersion {
     private static final String ID = "$id";
 
     private static class Holder {
-        private static final JsonMetaSchema INSTANCE;
+        private static final Dialect INSTANCE;
         static {
-            INSTANCE = JsonMetaSchema.builder(IRI)
+            INSTANCE = Dialect.builder(IRI)
                     .specification(Specification.Version.DRAFT_6)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
@@ -37,7 +37,7 @@ public class Version6 implements JsonSchemaVersion {
         }
     }
 
-    public JsonMetaSchema getInstance() {
+    public Dialect getInstance() {
         return Holder.INSTANCE;
     }
 }

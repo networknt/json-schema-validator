@@ -157,8 +157,8 @@ class FormatValidatorTest {
     @SuppressWarnings("deprecation")
     @Test
     void patternFormatDeprecated() {
-        JsonMetaSchema customMetaSchema = JsonMetaSchema
-                .builder("https://www.example.com/schema", JsonMetaSchema.getV7())
+        Dialect customMetaSchema = Dialect
+                .builder("https://www.example.com/schema", Dialect.getV7())
                 .formats(formats -> {
                     PatternFormat format = new PatternFormat("custom", "test", "must be test");
                     formats.put(format.getName(), format);
@@ -206,8 +206,8 @@ class FormatValidatorTest {
 
     @Test
     void shouldAllowNumberFormat() {
-        JsonMetaSchema customMetaSchema = JsonMetaSchema
-                .builder("https://www.example.com/schema", JsonMetaSchema.getV7())
+        Dialect customMetaSchema = Dialect
+                .builder("https://www.example.com/schema", Dialect.getV7())
                 .formats(formats -> {
                     CustomNumberFormat format = new CustomNumberFormat(new BigDecimal("12345"));
                     formats.put(format.getName(), format);

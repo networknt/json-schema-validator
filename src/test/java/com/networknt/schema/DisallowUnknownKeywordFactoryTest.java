@@ -31,7 +31,7 @@ class DisallowUnknownKeywordFactoryTest {
     
     @Test
     void getSchemaShouldThrowForUnknownKeywords() {
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        Dialect metaSchema = Dialect.builder(Dialect.getV202012())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(metaSchema));

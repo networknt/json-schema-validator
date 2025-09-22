@@ -33,9 +33,9 @@ class Issue832Test {
         formats = new ArrayList<>();
         formats.add(new NoMatchFormat());
 
-        JsonMetaSchema jsonMetaSchema = JsonMetaSchema.builder(
-                JsonMetaSchema.getV7().getIri(),
-                JsonMetaSchema.getV7())
+        Dialect jsonMetaSchema = Dialect.builder(
+                Dialect.getV7().getIri(),
+                Dialect.getV7())
                 .formats(formats)
                 .build();
         return new JsonSchemaFactory.Builder().defaultMetaSchemaIri(jsonMetaSchema.getIri()).metaSchema(jsonMetaSchema).build();

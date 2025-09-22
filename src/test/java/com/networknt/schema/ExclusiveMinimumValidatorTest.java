@@ -41,7 +41,7 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";        
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV4())
+        Dialect metaSchema = Dialect.builder(Dialect.getV4())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4,
                 builder -> builder.metaSchema(metaSchema));
@@ -69,7 +69,7 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV6())
+        Dialect metaSchema = Dialect.builder(Dialect.getV6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_6,
                 builder -> builder.metaSchema(metaSchema));
@@ -88,7 +88,7 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV7())
+        Dialect metaSchema = Dialect.builder(Dialect.getV7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchema(metaSchema));

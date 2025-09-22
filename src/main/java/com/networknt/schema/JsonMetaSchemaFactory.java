@@ -16,7 +16,7 @@
 package com.networknt.schema;
 
 /**
- * Factory for {@link JsonMetaSchema}.
+ * Factory for {@link Dialect}.
  */
 @FunctionalInterface
 public interface JsonMetaSchemaFactory {
@@ -28,5 +28,5 @@ public interface JsonMetaSchemaFactory {
      * @param config the config
      * @return the meta-schema
      */
-    JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config);
+    Dialect getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config);
 }

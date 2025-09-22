@@ -25,19 +25,19 @@ import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.KeywordValidator;
 
 public class ValidationContext {
-    private final JsonMetaSchema metaSchema;
+    private final Dialect metaSchema;
     private final JsonSchemaFactory jsonSchemaFactory;
     private final SchemaValidatorsConfig config;
     private final ConcurrentMap<String, JsonSchema> schemaReferences;
     private final ConcurrentMap<String, JsonSchema> schemaResources;
     private final ConcurrentMap<String, JsonSchema> dynamicAnchors;
 
-    public ValidationContext(JsonMetaSchema metaSchema,
+    public ValidationContext(Dialect metaSchema,
                              JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
         this(metaSchema, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
     
-    public ValidationContext(JsonMetaSchema metaSchema, JsonSchemaFactory jsonSchemaFactory,
+    public ValidationContext(Dialect metaSchema, JsonSchemaFactory jsonSchemaFactory,
             SchemaValidatorsConfig config, ConcurrentMap<String, JsonSchema> schemaReferences,
             ConcurrentMap<String, JsonSchema> schemaResources, ConcurrentMap<String, JsonSchema> dynamicAnchors) {
         if (metaSchema == null) {
@@ -103,7 +103,7 @@ public class ValidationContext {
         return this.dynamicAnchors;
     }
 
-    public JsonMetaSchema getMetaSchema() {
+    public Dialect getMetaSchema() {
         return this.metaSchema;
     }
 

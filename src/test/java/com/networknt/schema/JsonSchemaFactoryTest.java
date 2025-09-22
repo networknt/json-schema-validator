@@ -50,7 +50,7 @@ class JsonSchemaFactoryTest {
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);
-        JsonMetaSchema[] instance = new JsonMetaSchema[1];
+        Dialect[] instance = new Dialect[1];
         CountDownLatch latch = new CountDownLatch(1);
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 50; ++i) {
@@ -62,7 +62,7 @@ class JsonSchemaFactoryTest {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    JsonMetaSchema metaSchema = factory.getMetaSchema("https://www.example.com/no-validation-no-format/schema", config);
+                    Dialect metaSchema = factory.getMetaSchema("https://www.example.com/no-validation-no-format/schema", config);
                     synchronized(instance) {
                         if (instance[0] == null) {
                             instance[0] = metaSchema;

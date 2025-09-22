@@ -57,7 +57,7 @@ public class JsonSchemaFactory {
         private ObjectMapper yamlMapper = null;
         private JsonNodeReader jsonNodeReader = null;
         private String defaultMetaSchemaIri;
-        private final ConcurrentMap<String, JsonMetaSchema> metaSchemas = new ConcurrentHashMap<>();
+        private final ConcurrentMap<String, Dialect> metaSchemas = new ConcurrentHashMap<>();
         private SchemaLoaders.Builder schemaLoadersBuilder = null;
         private SchemaMappers.Builder schemaMappersBuilder = null;
         private boolean enableSchemaCache = true;
@@ -120,19 +120,19 @@ public class JsonSchemaFactory {
             return this;
         }
 
-        public Builder metaSchema(final JsonMetaSchema jsonMetaSchema) {
+        public Builder metaSchema(final Dialect jsonMetaSchema) {
             this.metaSchemas.put(normalizeMetaSchemaUri(jsonMetaSchema.getIri()), jsonMetaSchema);
             return this;
         }
 
-        public Builder metaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
-            for (JsonMetaSchema jsonMetaSchema : jsonMetaSchemas) {
+        public Builder metaSchemas(final Collection<? extends Dialect> jsonMetaSchemas) {
+            for (Dialect jsonMetaSchema : jsonMetaSchemas) {
                 metaSchema(jsonMetaSchema);
             }
             return this;
         }
 
-        public Builder metaSchemas(Consumer<Map<String, JsonMetaSchema>> customizer) {
+        public Builder metaSchemas(Consumer<Map<String, Dialect>> customizer) {
             customizer.accept(this.metaSchemas);
             return this;
         }
@@ -159,12 +159,12 @@ public class JsonSchemaFactory {
         }
 
         @Deprecated
-        public Builder addMetaSchema(final JsonMetaSchema jsonMetaSchema) {
+        public Builder addMetaSchema(final Dialect jsonMetaSchema) {
             return metaSchema(jsonMetaSchema);
         }
 
         @Deprecated
-        public Builder addMetaSchemas(final Collection<? extends JsonMetaSchema> jsonMetaSchemas) {
+        public Builder addMetaSchemas(final Collection<? extends Dialect> jsonMetaSchemas) {
             return metaSchemas(jsonMetaSchemas);
         }
 
@@ -190,7 +190,7 @@ public class JsonSchemaFactory {
     private final SchemaLoaders.Builder schemaLoadersBuilder;
     private final SchemaMappers.Builder schemaMappersBuilder;
     private final SchemaLoader schemaLoader;
-    private final ConcurrentMap<String, JsonMetaSchema> metaSchemas;
+    private final ConcurrentMap<String, Dialect> metaSchemas;
     private final ConcurrentMap<SchemaLocation, JsonSchema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
     private final JsonMetaSchemaFactory metaSchemaFactory;
@@ -205,7 +205,7 @@ public class JsonSchemaFactory {
             String defaultMetaSchemaIri,
             SchemaLoaders.Builder schemaLoadersBuilder,
             SchemaMappers.Builder schemaMappersBuilder,
-            ConcurrentMap<String, JsonMetaSchema> metaSchemas,
+            ConcurrentMap<String, Dialect> metaSchemas,
             boolean enableSchemaCache,
             JsonMetaSchemaFactory metaSchemaFactory) {
         this.metaSchemas = metaSchemas;
@@ -266,7 +266,7 @@ public class JsonSchemaFactory {
     public static JsonSchemaFactory getInstance(Specification.Version versionFlag,
             Consumer<JsonSchemaFactory.Builder> customizer) {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
-        JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
+        Dialect metaSchema = jsonSchemaVersion.getInstance();
         JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaIri(metaSchema.getIri())
                 .metaSchema(metaSchema);
         if (customizer != null) {
@@ -384,7 +384,7 @@ public class JsonSchemaFactory {
      * @return the validation context to use
      */
     private ValidationContext withMetaSchema(ValidationContext validationContext, JsonNode schemaNode) {
-        JsonMetaSchema metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
+        Dialect metaSchema = getMetaSchema(schemaNode, validationContext.getConfig());
         if (metaSchema != null && !metaSchema.getIri().equals(validationContext.getMetaSchema().getIri())) {
             SchemaValidatorsConfig config = validationContext.getConfig();
             if (metaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
@@ -415,7 +415,7 @@ public class JsonSchemaFactory {
     }
 
     protected ValidationContext createValidationContext(final JsonNode schemaNode, SchemaValidatorsConfig config) {
-        final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
+        final Dialect jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
         SchemaValidatorsConfig configResult = config;
         if (jsonMetaSchema.getKeywords().containsKey("discriminator") && !config.isDiscriminatorKeywordEnabled()) {
             configResult = SchemaValidatorsConfig.builder(config)
@@ -426,17 +426,17 @@ public class JsonSchemaFactory {
         return new ValidationContext(jsonMetaSchema, this, configResult);
     }
 
-    private JsonMetaSchema getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private Dialect getMetaSchema(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && iriNode.isTextual()) {
-            JsonMetaSchema result = metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()),
+            Dialect result = metaSchemas.computeIfAbsent(normalizeMetaSchemaUri(iriNode.textValue()),
                     id -> loadMetaSchema(id, config));
             return result;
         }
         return null;
     }
 
-    private JsonMetaSchema getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
+    private Dialect getMetaSchemaOrDefault(final JsonNode schemaNode, SchemaValidatorsConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && !iriNode.isNull() && !iriNode.isTextual()) {
             throw new JsonSchemaException("Unknown MetaSchema: " + iriNode);
@@ -452,9 +452,9 @@ public class JsonSchemaFactory {
      * @param config the schema validators config
      * @return the meta-schema
      */
-    public JsonMetaSchema getMetaSchema(String iri, SchemaValidatorsConfig config) {
+    public Dialect getMetaSchema(String iri, SchemaValidatorsConfig config) {
         String key = normalizeMetaSchemaUri(iri);
-        JsonMetaSchema result =  metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
+        Dialect result =  metaSchemas.computeIfAbsent(key, id -> loadMetaSchema(id, config));
         return result;
     }
 
@@ -465,7 +465,7 @@ public class JsonSchemaFactory {
      * @param config the schema validators config
      * @return the meta-schema
      */
-    protected JsonMetaSchema loadMetaSchema(String iri, SchemaValidatorsConfig config) {
+    protected Dialect loadMetaSchema(String iri, SchemaValidatorsConfig config) {
         return this.metaSchemaFactory != null ? this.metaSchemaFactory.getMetaSchema(iri, this, config)
                 : DefaultJsonMetaSchemaFactory.getInstance().getMetaSchema(iri, this, config);
     }
@@ -678,7 +678,7 @@ public class JsonSchemaFactory {
                 schemaNode = readTree(inputStream, InputFormat.JSON);
             }
 
-            final JsonMetaSchema jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
+            final Dialect jsonMetaSchema = getMetaSchemaOrDefault(schemaNode, config);
             JsonNodePath evaluationPath = new JsonNodePath(config.getPathType());
             if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {

@@ -41,7 +41,7 @@ class FormatKeywordFactoryTest {
     
     @Test
     void shouldUseFormatKeyword() {
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        Dialect metaSchema = Dialect.builder(Dialect.getV202012())
                 .formatKeywordFactory(CustomFormatKeyword::new).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(metaSchema));

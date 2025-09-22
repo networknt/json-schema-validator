@@ -25,7 +25,7 @@ class UrnTest
     InputStream is = null;
     try {
       is = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/feature/urn-management/src/test/resources/draft7/urn/urn.schema.json").openStream();
-      JsonMetaSchema draftV7 = JsonMetaSchema.getV7();
+      Dialect draftV7 = Dialect.getV7();
       JsonSchemaFactory.Builder builder = JsonSchemaFactory.builder()
           .defaultMetaSchemaIri(draftV7.getIri())
           .metaSchema(draftV7)

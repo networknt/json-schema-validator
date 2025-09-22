@@ -37,10 +37,13 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Represents a meta-schema which is uniquely identified by its IRI.
+ * A dialect represents the set of keywords and semantics that can be used to
+ * evaluate a schema. The dialect can be uniquely identified by its IRI which
+ * points to the meta-schema used to validate schemas written for that dialect.
+ * The dialect for a particular schema is indicated using the $schema keyword.
  */
-public class JsonMetaSchema {
-    private static final Logger logger = LoggerFactory.getLogger(JsonMetaSchema.class);
+public class Dialect {
+    private static final Logger logger = LoggerFactory.getLogger(Dialect.class);
 
     /**
      * Factory for creating a format keyword.
@@ -56,7 +59,7 @@ public class JsonMetaSchema {
     }
 
     /**
-     * Builder for {@link JsonMetaSchema}. 
+     * Builder for {@link Dialect}. 
      */
     public static class Builder {
         private String iri;
@@ -269,7 +272,7 @@ public class JsonMetaSchema {
             return this;
         }
 
-        public JsonMetaSchema build() {
+        public Dialect build() {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> keywords = this.keywords;
             if (this.specification != null) {
@@ -298,7 +301,7 @@ public class JsonMetaSchema {
                 }
             }
             Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
-            return new JsonMetaSchema(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
+            return new Dialect(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
         }
 
         @Deprecated
@@ -330,7 +333,7 @@ public class JsonMetaSchema {
 
     private final Builder builder;
 
-    JsonMetaSchema(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
+    Dialect(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
         if (StringUtils.isBlank(iri)) {
             throw new IllegalArgumentException("iri must not be null or blank");
         }
@@ -349,23 +352,23 @@ public class JsonMetaSchema {
         this.builder = builder;
     }
 
-    public static JsonMetaSchema getV4() {
+    public static Dialect getV4() {
         return new Version4().getInstance();
     }
 
-    public static JsonMetaSchema getV6() {
+    public static Dialect getV6() {
         return new Version6().getInstance();
     }
 
-    public static JsonMetaSchema getV7() {
+    public static Dialect getV7() {
         return new Version7().getInstance();
     }
 
-    public static JsonMetaSchema getV201909() {
+    public static Dialect getV201909() {
         return new Version201909().getInstance();
     }
 
-    public static JsonMetaSchema getV202012() {
+    public static Dialect getV202012() {
         return new Version202012().getInstance();
     }
 
@@ -394,7 +397,7 @@ public class JsonMetaSchema {
      * @return a builder instance preconfigured to be the same as blueprint, but
      *         with a different uri.
      */
-    public static Builder builder(String iri, JsonMetaSchema blueprint) {
+    public static Builder builder(String iri, Dialect blueprint) {
         Builder builder = builder(blueprint);
         builder.iri = iri;
         return builder;
@@ -406,7 +409,7 @@ public class JsonMetaSchema {
      * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
      * @return a builder instance preconfigured to be the same as blueprint
      */
-    public static Builder builder(JsonMetaSchema blueprint) {
+    public static Builder builder(Dialect blueprint) {
         Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
         return builder(blueprint.getIri())
                 .idKeyword(blueprint.idKeyword)
@@ -533,7 +536,7 @@ public class JsonMetaSchema {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JsonMetaSchema other = (JsonMetaSchema) obj;
+        Dialect other = (Dialect) obj;
         return Objects.equals(iri, other.iri);
     }
 }

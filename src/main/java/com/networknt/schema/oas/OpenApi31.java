@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.networknt.schema.Formats;
-import com.networknt.schema.JsonMetaSchema;
+import com.networknt.schema.Dialect;
 import com.networknt.schema.DialectId;
 import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.NonValidationKeyword;
@@ -33,9 +33,9 @@ public class OpenApi31 {
     }
 
     private static class Holder {
-        private static final JsonMetaSchema INSTANCE;
+        private static final Dialect INSTANCE;
         static {
-            INSTANCE = JsonMetaSchema.builder(IRI)
+            INSTANCE = Dialect.builder(IRI)
                     .specification(Specification.Version.DRAFT_2020_12)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
@@ -49,7 +49,7 @@ public class OpenApi31 {
         }
     }
 
-    public static JsonMetaSchema getInstance() {
+    public static Dialect getInstance() {
         return Holder.INSTANCE;
     }
 }
