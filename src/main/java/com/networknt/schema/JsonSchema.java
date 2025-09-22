@@ -32,6 +32,10 @@ import java.util.function.Consumer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.DiscriminatorValidator;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.keyword.TypeValidator;
+import com.networknt.schema.keyword.ValidatorTypeCode;
 import com.networknt.schema.utils.JsonNodes;
 
 /**

@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.AbstractKeywordValidator;
+import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.keyword.KeywordValidator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

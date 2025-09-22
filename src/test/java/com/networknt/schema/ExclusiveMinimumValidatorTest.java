@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.DisallowUnknownKeywordFactory;
 
 /**
  * Test ExclusiveMinimumValidator validator.

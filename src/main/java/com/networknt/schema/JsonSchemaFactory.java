@@ -626,7 +626,7 @@ public class JsonSchemaFactory {
      * @param config the config
      * @return the schema
      */
-    protected JsonSchema loadSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
+    public JsonSchema loadSchema(final SchemaLocation schemaUri, final SchemaValidatorsConfig config) {
         if (enableSchemaCache) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.

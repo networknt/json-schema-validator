@@ -18,8 +18,8 @@ package com.networknt.schema.annotation;
 import java.util.Objects;
 
 import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.Keyword;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.keyword.Keyword;
 
 /**
  * The annotation.

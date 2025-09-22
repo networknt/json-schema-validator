@@ -8,8 +8,8 @@ import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.KeywordValidator;
 import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.keyword.KeywordValidator;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 

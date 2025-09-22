@@ -2,6 +2,9 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.keyword.ContainsValidator;
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 /**
  * <p>Test class for issue <a href="https://github.com/networknt/json-schema-validator/issues/769">#769</a></p>
  * <p>This test class asserts that correct messages are returned for contains, minContains et maxContains keywords</p>

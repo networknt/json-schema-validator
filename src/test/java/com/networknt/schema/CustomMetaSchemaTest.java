@@ -18,6 +18,10 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.keyword.AbstractKeyword;
+import com.networknt.schema.keyword.AbstractKeywordValidator;
+import com.networknt.schema.keyword.KeywordValidator;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

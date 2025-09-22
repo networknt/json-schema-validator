@@ -3,14 +3,14 @@ package com.networknt.schema.format;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.BaseKeywordValidator;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.Keyword;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.BaseKeywordValidator;
+import com.networknt.schema.keyword.Keyword;
 
 public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
     protected final boolean assertionsEnabled;

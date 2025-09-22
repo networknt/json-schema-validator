@@ -2,6 +2,9 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.keyword.NotAllowedValidator;
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 
 /**
  * This class test {@link NotAllowedValidator},

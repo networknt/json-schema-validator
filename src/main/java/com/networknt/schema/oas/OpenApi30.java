@@ -2,13 +2,13 @@ package com.networknt.schema.oas;
 
 import java.util.Arrays;
 
-import com.networknt.schema.AnnotationKeyword;
 import com.networknt.schema.Formats;
 import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.NonValidationKeyword;
 import com.networknt.schema.SchemaId;
 import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidatorTypeCode;
+import com.networknt.schema.keyword.AnnotationKeyword;
+import com.networknt.schema.keyword.NonValidationKeyword;
+import com.networknt.schema.keyword.ValidatorTypeCode;
 
 /**
  * OpenAPI 3.0.

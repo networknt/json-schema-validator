@@ -19,6 +19,7 @@ package com.networknt.schema;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.keyword.FormatValidator;
 
 /**
  * Used to implement the various formats for the format keyword.

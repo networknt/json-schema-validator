@@ -35,23 +35,23 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.ItemsValidator;
-import com.networknt.schema.ItemsValidator202012;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
-import com.networknt.schema.PropertiesValidator;
 import com.networknt.schema.SchemaId;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.ItemsValidator;
+import com.networknt.schema.keyword.ItemsValidator202012;
+import com.networknt.schema.keyword.PropertiesValidator;
+import com.networknt.schema.keyword.ValidatorTypeCode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.Error;
 import com.networknt.schema.ValidationResult;
-import com.networknt.schema.ValidatorTypeCode;
 
 /**
  * JsonSchemaWalkListenerTest.

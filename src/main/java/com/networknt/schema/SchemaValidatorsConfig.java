@@ -19,6 +19,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
+import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.regex.ECMAScriptRegularExpressionFactory;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.RegularExpressionFactory;
@@ -325,7 +326,7 @@ public class SchemaValidatorsConfig {
         return formatAssertionsEnabled;
     }
 
-    WalkListenerRunner getItemWalkListenerRunner() {
+    public WalkListenerRunner getItemWalkListenerRunner() {
         return this.itemWalkListenerRunner;
     }
 
@@ -384,7 +385,7 @@ public class SchemaValidatorsConfig {
         return preloadJsonSchemaRefMaxNestingDepth;
     }
 
-    WalkListenerRunner getPropertyWalkListenerRunner() {
+    public WalkListenerRunner getPropertyWalkListenerRunner() {
         return this.propertyWalkListenerRunner;
     }
 
@@ -510,7 +511,7 @@ public class SchemaValidatorsConfig {
         return null != this.readOnly && this.readOnly;
     }
 
-    Boolean getReadOnly() {
+    public Boolean getReadOnly() {
         return this.readOnly;
     }
 
@@ -552,7 +553,7 @@ public class SchemaValidatorsConfig {
         return null != this.writeOnly && this.writeOnly;
     }
 
-    Boolean getWriteOnly() {
+    public Boolean getWriteOnly() {
         return this.writeOnly;
     }
 

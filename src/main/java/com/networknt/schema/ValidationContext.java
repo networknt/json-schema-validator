@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.KeywordValidator;
 
 public class ValidationContext {
     private final JsonMetaSchema metaSchema;

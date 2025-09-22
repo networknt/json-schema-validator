@@ -2,6 +2,10 @@ package com.networknt.schema;
 
 import java.util.Arrays;
 
+import com.networknt.schema.keyword.AnnotationKeyword;
+import com.networknt.schema.keyword.NonValidationKeyword;
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 /**
  * Draft 7 dialect.
  */

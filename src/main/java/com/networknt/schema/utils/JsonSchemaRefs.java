@@ -15,12 +15,12 @@
  */
 package com.networknt.schema.utils;
 
-import com.networknt.schema.DynamicRefValidator;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaRef;
-import com.networknt.schema.KeywordValidator;
-import com.networknt.schema.RecursiveRefValidator;
-import com.networknt.schema.RefValidator;
+import com.networknt.schema.keyword.DynamicRefValidator;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.keyword.RecursiveRefValidator;
+import com.networknt.schema.keyword.RefValidator;
 
 /**
  * Utility methods for JsonSchemaRef.

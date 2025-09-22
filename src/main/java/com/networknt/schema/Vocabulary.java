@@ -20,6 +20,11 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import com.networknt.schema.keyword.AnnotationKeyword;
+import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.keyword.NonValidationKeyword;
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 /**
  * Represents a vocabulary in meta-schema.
  * <p>

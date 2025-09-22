@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.KeywordValidator;
+import com.networknt.schema.keyword.KeywordValidator;
 
 /**
  * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.

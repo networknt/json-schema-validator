@@ -19,6 +19,8 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

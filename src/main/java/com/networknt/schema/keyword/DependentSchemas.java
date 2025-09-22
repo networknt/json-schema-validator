@@ -1,0 +1,91 @@
+/*
+ * Copyright (c) 2016 Network New Technologies Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.networknt.schema.keyword;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.ValidationContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+/**
+ * {@link KeywordValidator} for dependentSchemas.
+ */
+public class DependentSchemas extends BaseKeywordValidator {
+    private static final Logger logger = LoggerFactory.getLogger(DependentSchemas.class);
+    private final Map<String, JsonSchema> schemaDependencies = new HashMap<>();
+
+    public DependentSchemas(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+
+        super(ValidatorTypeCode.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+
+        for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
+            String pname = it.next();
+            JsonNode pvalue = schemaNode.get(pname);
+            if (pvalue.isObject() || pvalue.isBoolean()) {
+                this.schemaDependencies.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+                        evaluationPath.append(pname), pvalue, parentSchema));
+            }
+        }
+    }
+
+    @Override
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation) {
+        validate(executionContext, node, rootNode, instanceLocation, false);
+    }
+
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            JsonNodePath instanceLocation, boolean walk) {
+        debug(logger, executionContext, node, rootNode, instanceLocation);
+
+        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+            String pname = it.next();
+            JsonSchema schema = this.schemaDependencies.get(pname);
+            if (schema != null) {
+                if(!walk) {
+                    schema.validate(executionContext, node, rootNode, instanceLocation);
+                } else {
+                    schema.walk(executionContext, node, rootNode, instanceLocation, true);   
+                }
+            }
+        }
+    }
+
+    @Override
+    public void preloadJsonSchema() {
+        preloadJsonSchemas(this.schemaDependencies.values());
+    }
+
+    @Override
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        if (shouldValidateSchema) {
+            validate(executionContext, node, rootNode, instanceLocation, true);
+            return;
+        }
+        for (JsonSchema schema : this.schemaDependencies.values()) {
+            schema.walk(executionContext, node, rootNode, instanceLocation, false);
+        }
+    }
+
+}

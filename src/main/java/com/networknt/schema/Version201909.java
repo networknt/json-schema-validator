@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.networknt.schema.keyword.NonValidationKeyword;
+import com.networknt.schema.keyword.ValidatorTypeCode;
+
 /**
  * Draft 2019-09 dialect.
  */

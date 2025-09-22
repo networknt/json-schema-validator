@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.BaseKeywordValidator;
+import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.keyword.KeywordValidator;
 
 /**
  * Test for messages.
