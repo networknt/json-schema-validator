@@ -17,12 +17,12 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.walk.JsonSchemaWalker;
+import com.networknt.schema.walk.Walker;
 
 /**
  * Standard json validator interface, implemented by all validators and JsonSchema.
  */
-public interface JsonSchemaValidator extends JsonSchemaWalker {
+public interface JsonSchemaValidator extends Walker {
     /**
      * Validate the given JsonNode, the given node is the child node of the root node at given
      * data path.
