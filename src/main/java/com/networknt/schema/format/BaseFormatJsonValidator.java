@@ -3,7 +3,7 @@ package com.networknt.schema.format;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.BaseJsonValidator;
+import com.networknt.schema.BaseKeywordValidator;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
@@ -12,13 +12,13 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.SpecVersion.VersionFlag;
 
-public abstract class BaseFormatJsonValidator extends BaseJsonValidator {
+public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
     protected final boolean assertionsEnabled;
     
     public BaseFormatJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, Keyword keyword,
             ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
+        super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         VersionFlag dialect = this.validationContext.getMetaSchema().getSpecification();
         if (dialect == null || dialect.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
             assertionsEnabled = true;

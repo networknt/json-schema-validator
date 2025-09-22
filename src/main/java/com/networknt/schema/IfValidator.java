@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for if.
+ * {@link KeywordValidator} for if.
  */
-public class IfValidator extends BaseJsonValidator {
+public class IfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
 
     private static final List<String> KEYWORDS = Arrays.asList("if", "then", "else");
@@ -36,7 +36,7 @@ public class IfValidator extends BaseJsonValidator {
     private final JsonSchema elseSchema;
 
     public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.IF_THEN_ELSE, validationContext);
+        super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         JsonSchema foundIfSchema = null;
         JsonSchema foundThenSchema = null;

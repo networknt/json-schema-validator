@@ -22,15 +22,15 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * {@link JsonValidator} for readOnly.
+ * {@link KeywordValidator} for readOnly.
  */
-public class ReadOnlyValidator extends BaseJsonValidator {
+public class ReadOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
     private final boolean readOnly;
 
     public ReadOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.READ_ONLY, validationContext);
+        super(ValidatorTypeCode.READ_ONLY, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         this.readOnly = validationContext.getConfig().isReadOnly();
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");

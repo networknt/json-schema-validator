@@ -8,7 +8,7 @@ import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonValidator;
+import com.networknt.schema.KeywordValidator;
 import com.networknt.schema.SchemaValidatorsConfig;
 
 public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner {
@@ -21,7 +21,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode, JsonNode rootNode,
-            JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator) {
+            JsonNodePath instanceLocation, JsonSchema schema, KeywordValidator validator) {
         boolean continueRunningListenersAndWalk = true;
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.
@@ -38,7 +38,7 @@ public class DefaultKeywordWalkListenerRunner extends AbstractWalkListenerRunner
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator,
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, KeywordValidator validator,
             List<Error> errors) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation, schema, validator);
         // Run Listeners that are setup only for this keyword.

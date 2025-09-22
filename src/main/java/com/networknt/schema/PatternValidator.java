@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class PatternValidator extends BaseJsonValidator {
+public class PatternValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
     private final String pattern;
     private final RegularExpression compiledPattern;
 
     public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN, validationContext);
+        super(ValidatorTypeCode.PATTERN, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
         try {

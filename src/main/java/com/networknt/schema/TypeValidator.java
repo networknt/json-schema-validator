@@ -22,16 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for type.
+ * {@link KeywordValidator} for type.
  */
-public class TypeValidator extends BaseJsonValidator {
+public class TypeValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
 
     private final JsonType schemaType;
     private final UnionTypeValidator unionTypeValidator;
 
     public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
+        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);

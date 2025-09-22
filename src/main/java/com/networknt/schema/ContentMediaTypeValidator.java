@@ -28,11 +28,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
- * {@link JsonValidator} for contentMediaType.
+ * {@link KeywordValidator} for contentMediaType.
  * <p>
  * Note that since 2019-09 this keyword only generates annotations and not errors.
  */
-public class ContentMediaTypeValidator extends BaseJsonValidator {
+public class ContentMediaTypeValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentMediaTypeValidator.class);
     private static final String PATTERN_STRING = "(application|audio|font|example|image|message|model|multipart|text|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))/([0-9A-Za-z!#$%&'*+.^_`|~-]+)((?:[ \t]*;[ \t]*[0-9A-Za-z!#$%&'*+.^_`|~-]+=(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+|\"(?:[^\"\\\\]|\\.)*\"))*)";
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STRING);
@@ -49,7 +49,7 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
      */
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTENT_MEDIA_TYPE, validationContext);
+        super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.contentMediaType = schemaNode.textValue();
     }
 

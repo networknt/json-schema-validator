@@ -6,18 +6,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * {@link JsonValidator} for {@literal maxContains} and {@literal minContains} in a schema.
+ * {@link KeywordValidator} for {@literal maxContains} and {@literal minContains} in a schema.
  * <p>
  * This validator only checks that the schema is valid. The functionality for
  * testing whether an instance array conforms to the {@literal maxContains}
  * and {@literal minContains} constraints exists within {@code ContainsValidator}.
  */
-public class MinMaxContainsValidator extends BaseJsonValidator {
+public class MinMaxContainsValidator extends BaseKeywordValidator {
     private final Set<Analysis> analysis;
 
     public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
             ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_CONTAINS, validationContext);
+        super(ValidatorTypeCode.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         Set<Analysis> analysis = null;
         int min = 1;

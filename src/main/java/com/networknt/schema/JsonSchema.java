@@ -53,7 +53,7 @@ public class JsonSchema implements Validator {
     /**
      * The validators sorted and indexed by evaluation path.
      */
-    private List<JsonValidator> validators = null;
+    private List<KeywordValidator> validators = null;
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
     private TypeValidator typeValidator = null;
@@ -277,7 +277,7 @@ public class JsonSchema implements Validator {
      */
     protected JsonSchema(
             /* Below from JsonSchema */
-            List<JsonValidator> validators,
+            List<KeywordValidator> validators,
             boolean validatorsLoaded,
             boolean recursiveAnchor,
             TypeValidator typeValidator,
@@ -331,7 +331,7 @@ public class JsonSchema implements Validator {
         // Validator state is reset due to the changes in evaluation path
         boolean validatorsLoaded = false;
         TypeValidator typeValidator = null;
-        List<JsonValidator> validators = null;
+        List<KeywordValidator> validators = null;
 
         return new JsonSchema(
                 /* Below from JsonSchema */
@@ -364,7 +364,7 @@ public class JsonSchema implements Validator {
                     this.getValidationContext().getDynamicAnchors());
             boolean validatorsLoaded = false;
             TypeValidator typeValidator = null;
-            List<JsonValidator> validators = null;
+            List<KeywordValidator> validators = null;
             return new JsonSchema(
                     /* Below from JsonSchema */
                     validators,
@@ -594,23 +594,23 @@ public class JsonSchema implements Validator {
     /**
      * Please note that the key in {@link #validators} map is the evaluation path.
      */
-    private List<JsonValidator> read(JsonNode schemaNode) {
-        List<JsonValidator> validators;
+    private List<KeywordValidator> read(JsonNode schemaNode) {
+        List<KeywordValidator> validators;
         if (schemaNode.isBoolean()) {
             validators = new ArrayList<>(1);
             if (schemaNode.booleanValue()) {
                 JsonNodePath path = getEvaluationPath().append("true");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().append("true"), path,
+                KeywordValidator validator = this.validationContext.newValidator(getSchemaLocation().append("true"), path,
                         "true", schemaNode, this);
                 validators.add(validator);
             } else {
                 JsonNodePath path = getEvaluationPath().append("false");
-                JsonValidator validator = this.validationContext.newValidator(getSchemaLocation().append("false"),
+                KeywordValidator validator = this.validationContext.newValidator(getSchemaLocation().append("false"),
                         path, "false", schemaNode, this);
                 validators.add(validator);
             }
         } else {
-            JsonValidator refValidator = null;
+            KeywordValidator refValidator = null;
 
             Iterator<Entry<String, JsonNode>> iterator = schemaNode.fields();
             validators = new ArrayList<>(schemaNode.size());
@@ -638,7 +638,7 @@ public class JsonSchema implements Validator {
                     this.recursiveAnchor = nodeToUse.booleanValue();
                 }
 
-                JsonValidator validator = this.validationContext.newValidator(schemaPath, path,
+                KeywordValidator validator = this.validationContext.newValidator(schemaPath, path,
                         pname, nodeToUse, this);
                 if (validator != null) {
                     validators.add(validator);
@@ -677,7 +677,7 @@ public class JsonSchema implements Validator {
      * A comparator that sorts validators, such that 'properties' comes before 'required',
      * so that we can apply default values before validating required.
      */
-    private static final Comparator<JsonValidator> VALIDATOR_SORT = (lhs, rhs) -> {
+    private static final Comparator<KeywordValidator> VALIDATOR_SORT = (lhs, rhs) -> {
         String lhsName = lhs.getEvaluationPath().getName(-1);
         String rhsName = rhs.getEvaluationPath().getName(-1);
 
@@ -707,7 +707,7 @@ public class JsonSchema implements Validator {
             }
         }
         int currentErrors = executionContext.getErrors().size();
-        for (JsonValidator v : getValidators()) {
+        for (KeywordValidator v : getValidators()) {
             v.validate(executionContext, jsonNode, rootNode, instanceLocation);
         }
 
@@ -1350,7 +1350,7 @@ public class JsonSchema implements Validator {
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         // Walk through all the JSONWalker's.
         int currentErrors = executionContext.getErrors().size();
-        for (JsonValidator validator : getValidators()) {
+        for (KeywordValidator validator : getValidators()) {
             JsonNodePath evaluationPathWithKeyword = validator.getEvaluationPath();
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
@@ -1389,7 +1389,7 @@ public class JsonSchema implements Validator {
         return this.typeValidator;
     }
 
-    public List<JsonValidator> getValidators() {
+    public List<KeywordValidator> getValidators() {
         if (this.validators == null) {
             this.validators = Collections.unmodifiableList(read(getSchemaNode()));
         }
@@ -1407,7 +1407,7 @@ public class JsonSchema implements Validator {
      */
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
-            for (final JsonValidator validator : getValidators()) {
+            for (final KeywordValidator validator : getValidators()) {
                 validator.preloadJsonSchema();
             }
             /*

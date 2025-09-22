@@ -25,16 +25,16 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 
 /**
- * {@link JsonValidator} for multipleOf.
+ * {@link KeywordValidator} for multipleOf.
  */
-public class MultipleOfValidator extends BaseJsonValidator implements JsonValidator {
+public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(MultipleOfValidator.class);
 
     private final BigDecimal divisor;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MULTIPLE_OF, validationContext);
+        super(ValidatorTypeCode.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.divisor = getDivisor(schemaNode);
     }
 

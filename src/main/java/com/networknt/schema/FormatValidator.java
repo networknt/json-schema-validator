@@ -27,7 +27,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Validator for Format.
  */
-public class FormatValidator extends BaseFormatJsonValidator implements JsonValidator {
+public class FormatValidator extends BaseFormatJsonValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;

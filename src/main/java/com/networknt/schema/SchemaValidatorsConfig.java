@@ -607,7 +607,7 @@ public class SchemaValidatorsConfig {
 
     /**
      * When enabled,
-     * {@link JsonValidator#validate(ExecutionContext, JsonNode, JsonNode, JsonNodePath)}
+     * {@link KeywordValidator#validate(ExecutionContext, JsonNode, JsonNode, JsonNodePath)}
      * doesn't return any {@link java.util.Set}&lt;{@link Error}&gt;,
      * instead a {@link JsonSchemaException} is thrown as soon as a validation
      * errors is discovered.

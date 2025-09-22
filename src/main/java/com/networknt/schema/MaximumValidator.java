@@ -26,9 +26,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * {@link JsonValidator} for maxmimum.
+ * {@link KeywordValidator} for maxmimum.
  */
-public class MaximumValidator extends BaseJsonValidator {
+public class MaximumValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaximumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MAXIMUM = "exclusiveMaximum";
 
@@ -38,7 +38,7 @@ public class MaximumValidator extends BaseJsonValidator {
 
 
     public MaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAXIMUM, validationContext);
+        super(ValidatorTypeCode.MAXIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("maximum value is not a number");
         }

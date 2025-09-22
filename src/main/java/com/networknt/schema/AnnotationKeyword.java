@@ -23,10 +23,10 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class AnnotationKeyword extends AbstractKeyword {
 
-    private static final class Validator extends AbstractJsonValidator {
+    private static final class Validator extends AbstractKeywordValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext, Keyword keyword) {
-            super(schemaLocation, evaluationPath, keyword, schemaNode);
+            super(keyword, schemaNode, schemaLocation, evaluationPath);
         }
 
         @Override
@@ -57,7 +57,7 @@ public class AnnotationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                       JsonSchema parentSchema, ValidationContext validationContext) {
         return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
     }

@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for items from V2012-12.
+ * {@link KeywordValidator} for items from V2012-12.
  */
-public class ItemsValidator202012 extends BaseJsonValidator {
+public class ItemsValidator202012 extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
 
     private final JsonSchema schema;
@@ -38,8 +38,8 @@ public class ItemsValidator202012 extends BaseJsonValidator {
 
     public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS_202012,
-                validationContext);
+        super(ValidatorTypeCode.ITEMS_202012, schemaNode, schemaLocation, parentSchema, validationContext,
+                evaluationPath);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
         if (prefixItems instanceof ArrayNode) {

@@ -27,15 +27,15 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * {@link JsonValidator} for unevaluatedProperties.
+ * {@link KeywordValidator} for unevaluatedProperties.
  */
-public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
+public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
 
     private final JsonSchema schema;
 
     public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_PROPERTIES, validationContext);
+        super(ValidatorTypeCode.UNEVALUATED_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);

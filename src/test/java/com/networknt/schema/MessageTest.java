@@ -28,13 +28,13 @@ import com.networknt.schema.SpecVersion.VersionFlag;
  * Test for messages.
  */
 class MessageTest {
-    static class EqualsValidator extends BaseJsonValidator {
+    static class EqualsValidator extends BaseKeywordValidator {
         private final String value;
 
         EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, Keyword keyword,
                 ValidationContext validationContext) {
-            super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
+            super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
             this.value = schemaNode.textValue();
         }
 
@@ -57,7 +57,7 @@ class MessageTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
                 JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
                 throws JsonSchemaException, Exception {
             return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext);

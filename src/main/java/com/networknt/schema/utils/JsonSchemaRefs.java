@@ -18,7 +18,7 @@ package com.networknt.schema.utils;
 import com.networknt.schema.DynamicRefValidator;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaRef;
-import com.networknt.schema.JsonValidator;
+import com.networknt.schema.KeywordValidator;
 import com.networknt.schema.RecursiveRefValidator;
 import com.networknt.schema.RefValidator;
 
@@ -34,7 +34,7 @@ public class JsonSchemaRefs {
      * @return the ref
      */
     public static JsonSchemaRef from(JsonSchema schema) {
-        for (JsonValidator validator : schema.getValidators()) {
+        for (KeywordValidator validator : schema.getValidators()) {
             if (validator instanceof RefValidator) {
                 return ((RefValidator) validator).getSchemaRef();
             } else if (validator instanceof DynamicRefValidator) {

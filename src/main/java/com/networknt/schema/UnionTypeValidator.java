@@ -24,16 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link JsonValidator} for type union.
+ * {@link KeywordValidator} for type union.
  */
-public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
+public class UnionTypeValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
     private final List<Validator> schemas;
     private final String error;
 
     public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.TYPE, validationContext);
+        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         StringBuilder errorBuilder = new StringBuilder();
 
         String sep = "";
@@ -106,8 +106,8 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
     @Override
     public void preloadJsonSchema() {
         for (final Validator validator : schemas) {
-            if (validator instanceof JsonValidator) {
-                ((JsonValidator) validator).preloadJsonSchema();
+            if (validator instanceof KeywordValidator) {
+                ((KeywordValidator) validator).preloadJsonSchema();
             } else if (validator instanceof JsonSchema) {
                 ((JsonSchema) validator).initializeValidators();
             }

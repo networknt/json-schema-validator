@@ -25,15 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for allOf.
+ * {@link KeywordValidator} for allOf.
  */
-public class AllOfValidator extends BaseJsonValidator {
+public class AllOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AllOfValidator.class);
 
     private final List<JsonSchema> schemas;
 
     public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ALL_OF, validationContext);
+        super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)

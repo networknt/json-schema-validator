@@ -41,6 +41,6 @@ public interface Keyword {
      * @throws JsonSchemaException the exception
      * @throws Exception the exception
      */
-    JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
 }

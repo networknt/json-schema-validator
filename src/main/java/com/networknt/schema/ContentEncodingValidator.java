@@ -24,12 +24,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Base64;
 
 /**
- * {@link JsonValidator} for contentEncoding.
+ * {@link KeywordValidator} for contentEncoding.
  * <p>
  * Note that since 2019-09 this keyword only generates annotations and not
  * errors.
  */
-public class ContentEncodingValidator extends BaseJsonValidator {
+public class ContentEncodingValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContentEncodingValidator.class);
     private final String contentEncoding;
 
@@ -44,8 +44,8 @@ public class ContentEncodingValidator extends BaseJsonValidator {
      */
     public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTENT_ENCODING,
-                validationContext);
+        super(ValidatorTypeCode.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, validationContext,
+                evaluationPath);
         this.contentEncoding = schemaNode.textValue();
     }
 

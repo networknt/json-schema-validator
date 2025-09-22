@@ -22,27 +22,38 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
 /**
- * Base {@link JsonValidator}.
+ * Abstract {@link KeywordValidator}.
  */
-public abstract class AbstractJsonValidator implements JsonValidator {
-    private final SchemaLocation schemaLocation;
-    private final JsonNode schemaNode;
-    private final JsonNodePath evaluationPath;
+public abstract class AbstractKeywordValidator implements KeywordValidator {
     private final String keyword;
+    protected final JsonNode schemaNode;
+    protected final SchemaLocation schemaLocation;
+
+    protected final JsonNodePath evaluationPath;
 
     /**
      * Constructor.
-     * 
-     * @param schemaLocation the schema location
-     * @param evaluationPath the evaluation path
      * @param keyword        the keyword
      * @param schemaNode     the schema node
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
      */
-    public AbstractJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, Keyword keyword, JsonNode schemaNode) {
+    public AbstractKeywordValidator(String keyword, JsonNode schemaNode, SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+        this.keyword = keyword;
+        this.schemaNode = schemaNode;
         this.schemaLocation = schemaLocation;
         this.evaluationPath = evaluationPath;
-        this.keyword = keyword.getValue();
-        this.schemaNode = schemaNode;
+    }
+
+    /**
+     * Constructor.
+     * @param keyword        the keyword
+     * @param schemaNode     the schema node
+     * @param schemaLocation the schema location
+     * @param evaluationPath the evaluation path
+     */
+    public AbstractKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+        this(keyword.getValue(), schemaNode, schemaLocation, evaluationPath);
     }
 
     @Override

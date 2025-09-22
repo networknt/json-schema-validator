@@ -21,16 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for minProperties.
+ * {@link KeywordValidator} for minProperties.
  */
-public class MinPropertiesValidator extends BaseJsonValidator implements JsonValidator {
+public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinPropertiesValidator.class);
 
     protected final int min;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                   ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MIN_PROPERTIES, validationContext);
+        super(ValidatorTypeCode.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         } else {

@@ -21,15 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for maxLength.
+ * {@link KeywordValidator} for maxLength.
  */
-public class MaxLengthValidator extends BaseJsonValidator implements JsonValidator {
+public class MaxLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(MaxLengthValidator.class);
 
     private final int maxLength;
 
     public MaxLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_LENGTH, validationContext);
+        super(ValidatorTypeCode.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             this.maxLength = schemaNode.intValue();
         } else {

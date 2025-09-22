@@ -23,15 +23,15 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for required.
+ * {@link KeywordValidator} for required.
  */
-public class RequiredValidator extends BaseJsonValidator implements JsonValidator {
+public class RequiredValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
 
     private final List<String> fieldNames;
 
     public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REQUIRED, validationContext);
+        super(ValidatorTypeCode.REQUIRED, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.isArray()) {
             this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {

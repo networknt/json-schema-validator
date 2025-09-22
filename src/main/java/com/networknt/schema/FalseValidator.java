@@ -20,15 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for false.
+ * {@link KeywordValidator} for false.
  */
-public class FalseValidator extends BaseJsonValidator implements JsonValidator {
+public class FalseValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
 
     private final String reason;
 
     public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.FALSE, validationContext);
+        super(ValidatorTypeCode.FALSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.reason = this.evaluationPath.getParent().getName(-1);
     }
 

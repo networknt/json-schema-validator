@@ -33,9 +33,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * {@link JsonValidator} for additionalProperties.
+ * {@link KeywordValidator} for additionalProperties.
  */
-public class AdditionalPropertiesValidator extends BaseJsonValidator {
+public class AdditionalPropertiesValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
 
     private final boolean allowAdditionalProperties;
@@ -47,7 +47,7 @@ public class AdditionalPropertiesValidator extends BaseJsonValidator {
 
     public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                          ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ADDITIONAL_PROPERTIES, validationContext);
+        super(ValidatorTypeCode.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
             additionalPropertiesSchema = null;

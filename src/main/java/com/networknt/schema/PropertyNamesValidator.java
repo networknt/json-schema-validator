@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class PropertyNamesValidator extends BaseJsonValidator implements JsonValidator {
+public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
     private final JsonSchema innerSchema;
     public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTYNAMES, validationContext);
+        super(ValidatorTypeCode.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         innerSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 

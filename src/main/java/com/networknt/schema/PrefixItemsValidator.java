@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link JsonValidator} for prefixItems.
+ * {@link KeywordValidator} for prefixItems.
  */
-public class PrefixItemsValidator extends BaseJsonValidator {
+public class PrefixItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
 
     private final List<JsonSchema> tupleSchema;
@@ -38,7 +38,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PREFIX_ITEMS, validationContext);
+        super(ValidatorTypeCode.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
             int i = 0;

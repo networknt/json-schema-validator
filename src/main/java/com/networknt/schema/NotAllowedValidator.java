@@ -23,15 +23,15 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for notAllowed.
+ * {@link KeywordValidator} for notAllowed.
  */
-public class NotAllowedValidator extends BaseJsonValidator implements JsonValidator {
+public class NotAllowedValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotAllowedValidator.class);
 
     private final List<String> fieldNames;
 
     public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT_ALLOWED, validationContext);
+        super(ValidatorTypeCode.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
             this.fieldNames = new ArrayList<>(size);

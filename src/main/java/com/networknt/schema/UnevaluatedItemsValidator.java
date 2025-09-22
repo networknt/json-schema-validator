@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 import static com.networknt.schema.VersionCode.MinV202012;
 
 /**
- * {@link JsonValidator} for unevaluatedItems.
+ * {@link KeywordValidator} for unevaluatedItems.
  */
-public class UnevaluatedItemsValidator extends BaseJsonValidator {
+public class UnevaluatedItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnevaluatedItemsValidator.class);
 
     private final JsonSchema schema;
@@ -42,8 +42,8 @@ public class UnevaluatedItemsValidator extends BaseJsonValidator {
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNEVALUATED_ITEMS,
-                validationContext);
+        super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext,
+                evaluationPath);
         isMinV202012 = MinV202012.getVersions().contains(validationContext.activeDialect().orElse(DEFAULT_VERSION));
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);

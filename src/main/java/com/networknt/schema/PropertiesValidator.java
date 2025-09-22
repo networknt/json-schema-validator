@@ -35,9 +35,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * {@link JsonValidator} for properties.
+ * {@link KeywordValidator} for properties.
  */
-public class PropertiesValidator extends BaseJsonValidator {
+public class PropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "properties";
     private static final Logger logger = LoggerFactory.getLogger(PropertiesValidator.class);
     private final Map<String, JsonSchema> schemas = new LinkedHashMap<>();
@@ -45,7 +45,7 @@ public class PropertiesValidator extends BaseJsonValidator {
     private Boolean hasUnevaluatedPropertiesValidator;
 
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PROPERTIES, validationContext);
+        super(ValidatorTypeCode.PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();

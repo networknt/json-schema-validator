@@ -264,7 +264,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
@@ -279,9 +279,9 @@ class CollectorContextTest {
      * This will be helpful in cases where we don't want to revisit the entire JSON
      * document again just for gathering this kind of information.
      */
-    private class CustomValidator extends AbstractJsonValidator {
+    private class CustomValidator extends AbstractKeywordValidator {
         public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
-            super(schemaLocation, evaluationPath, new CustomKeyword(), schemaNode);
+            super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
         }
 
         @Override
@@ -334,7 +334,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
@@ -351,9 +351,9 @@ class CollectorContextTest {
      * we expect this validator to be called multiple times as the associated
      * keyword has been used multiple times in JSON Schema.
      */
-    private class CustomValidator1 extends AbstractJsonValidator {
+    private class CustomValidator1 extends AbstractKeywordValidator {
         public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
-            super(schemaLocation, evaluationPath,new CustomKeyword(), schemaNode);
+            super(new CustomKeyword(), schemaNode,schemaLocation, evaluationPath);
         }
 
         @SuppressWarnings("unchecked")
@@ -413,7 +413,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
             if (schemaNode != null && schemaNode.isBoolean()) {
                 return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
@@ -422,9 +422,9 @@ class CollectorContextTest {
         }
     }
 
-    private class CollectValidator extends AbstractJsonValidator {
+    private class CollectValidator extends AbstractKeywordValidator {
         CollectValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
-            super(schemaLocation, evaluationPath, new CollectKeyword(), schemaNode);
+            super(new CollectKeyword(), schemaNode, schemaLocation, evaluationPath);
         }
 
         @Override

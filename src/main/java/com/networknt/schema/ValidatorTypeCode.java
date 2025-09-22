@@ -28,7 +28,7 @@ import java.util.Map;
 
 @FunctionalInterface
 interface ValidatorFactory {
-    JsonValidator newInstance(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    KeywordValidator newInstance(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext);
 }
 
@@ -75,7 +75,7 @@ public enum ValidatorTypeCode implements Keyword {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", ExclusiveMinimumValidator::new, VersionCode.MinV6MaxV7),
     FALSE("false", FalseValidator::new, VersionCode.MinV6),
     FORMAT("format", null, VersionCode.MaxV7) {
-        @Override public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
@@ -152,7 +152,7 @@ public enum ValidatorTypeCode implements Keyword {
     }
 
     @Override
-    public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
         if (this.validatorFactory == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());

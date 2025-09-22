@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for items V4 to V2019-09.
+ * {@link KeywordValidator} for items V4 to V2019-09.
  */
-public class ItemsValidator extends BaseJsonValidator {
+public class ItemsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ItemsValidator.class);
     private static final String PROPERTY_ADDITIONAL_ITEMS = "additionalItems";
 
@@ -45,7 +45,7 @@ public class ItemsValidator extends BaseJsonValidator {
     private final JsonNode additionalItemsSchemaNode;
 
     public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ITEMS, validationContext);
+        super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         Boolean additionalItems = null;
 

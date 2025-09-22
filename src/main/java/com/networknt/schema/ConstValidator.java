@@ -20,14 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for const.
+ * {@link KeywordValidator} for const.
  */
-public class ConstValidator extends BaseJsonValidator implements JsonValidator {
+public class ConstValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ConstValidator.class);
 
     public ConstValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONST, validationContext);
+        super(ValidatorTypeCode.CONST, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

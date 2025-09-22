@@ -26,15 +26,15 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * {@link JsonValidator} for exclusiveMaximum.
+ * {@link KeywordValidator} for exclusiveMaximum.
  */
-public class ExclusiveMaximumValidator extends BaseJsonValidator {
+public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ExclusiveMaximumValidator.class);
 
     private final ThresholdMixin typedMaximum;
 
     public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.EXCLUSIVE_MAXIMUM, validationContext);
+        super(ValidatorTypeCode.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMaximum value is not a number");
         }

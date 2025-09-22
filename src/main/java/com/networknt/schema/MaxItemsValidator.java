@@ -21,16 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link JsonValidator} for maxItems.
+ * {@link KeywordValidator} for maxItems.
  */
-public class MaxItemsValidator extends BaseJsonValidator implements JsonValidator {
+public class MaxItemsValidator extends BaseKeywordValidator implements KeywordValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
 
     private final int max;
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MAX_ITEMS, validationContext);
+        super(ValidatorTypeCode.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             this.max = schemaNode.intValue();
         } else {

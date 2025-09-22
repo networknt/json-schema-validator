@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonValidator;
+import com.networknt.schema.KeywordValidator;
 
 /**
  * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
@@ -17,7 +17,7 @@ public class WalkEvent {
     private JsonNode rootNode;
     private JsonNode instanceNode;
     private JsonNodePath instanceLocation;
-    private JsonValidator validator;
+    private KeywordValidator validator;
 
     /**
      * Gets the execution context.
@@ -87,7 +87,7 @@ public class WalkEvent {
      * @return the validator
      */
     @SuppressWarnings("unchecked")
-    public <T extends JsonValidator> T getValidator() {
+    public <T extends KeywordValidator> T getValidator() {
         return (T) this.validator;
     }
 
@@ -135,7 +135,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder validator(JsonValidator validator) {
+        public WalkEventBuilder validator(KeywordValidator validator) {
             walkEvent.validator = validator;
             return this;
         }

@@ -24,15 +24,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * {@link JsonValidator} for uniqueItems.
+ * {@link KeywordValidator} for uniqueItems.
  */
-public class UniqueItemsValidator extends BaseJsonValidator implements JsonValidator {
+public class UniqueItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(UniqueItemsValidator.class);
 
     private final boolean unique;
 
     public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.UNIQUE_ITEMS, validationContext);
+        super(ValidatorTypeCode.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         } else {

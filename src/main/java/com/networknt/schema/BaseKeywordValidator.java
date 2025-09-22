@@ -17,80 +17,65 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
 
 import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
- * Base {@link JsonValidator}. 
+ * Base {@link KeywordValidator}. 
  */
-public abstract class BaseJsonValidator implements JsonValidator {
-    protected final JsonNode schemaNode;
-
+public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
     protected final ValidationContext validationContext;
 
-    protected final Keyword keyword;
     protected final JsonSchema parentSchema;
-    protected final SchemaLocation schemaLocation;
     protected final Map<String, String> errorMessage;
 
-    protected final JsonNodePath evaluationPath;
     protected final JsonSchema evaluationParentSchema;
 
-    public BaseJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            JsonSchema parentSchema, Keyword keyword,
-            ValidationContext validationContext) {
+    public BaseKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation,
+            JsonSchema parentSchema, ValidationContext validationContext,
+            JsonNodePath evaluationPath) {
+        super(keyword, schemaNode, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
-        this.schemaNode = schemaNode;
 
-        this.keyword = keyword;
         this.parentSchema = parentSchema;
-        this.schemaLocation = schemaLocation;
         if (keyword != null && parentSchema != null && validationContext.getConfig().getErrorMessageKeyword() != null) {
             this.errorMessage = ErrorMessages.getErrorMessage(parentSchema,
                     validationContext.getConfig().getErrorMessageKeyword(), keyword.getValue());
         } else {
             this.errorMessage = null;
         }
-        this.evaluationPath = evaluationPath;
         this.evaluationParentSchema = null;
     }
 
     /**
      * Constructor to create a copy using fields.
-     *
-     * @param schemaNode the schema node
-     * @param validationContext the validation context
      * @param keyword the keyword
-     * @param parentSchema the parent schema
+     * @param schemaNode the schema node
      * @param schemaLocation the schema location
+     * @param validationContext the validation context
+     * @param parentSchema the parent schema
      * @param evaluationPath the evaluation path
      * @param evaluationParentSchema the evaluation parent schema
      * @param errorMessage the error message
      */
-    protected BaseJsonValidator(
-            /* Below from BaseJsonValidator */
-            JsonNode schemaNode,
-            ValidationContext validationContext,
+    protected BaseKeywordValidator(
             Keyword keyword,
-            JsonSchema parentSchema,
+            JsonNode schemaNode,
             SchemaLocation schemaLocation,
+            ValidationContext validationContext,
+            JsonSchema parentSchema,
             JsonNodePath evaluationPath,
             JsonSchema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        this.schemaNode = schemaNode;
+        super(keyword, schemaNode, schemaLocation, evaluationPath);
         this.validationContext = validationContext;
         
-        this.keyword = keyword;
         this.parentSchema = parentSchema;
-        this.schemaLocation = schemaLocation;
         this.errorMessage = errorMessage;
 
-        this.evaluationPath = evaluationPath;
         this.evaluationParentSchema = evaluationParentSchema;
     }
 
@@ -115,25 +100,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
             builder.append(")");
             logger.debug(builder.toString());
         }
-    }
-
-    @Override
-    public SchemaLocation getSchemaLocation() {
-        return this.schemaLocation;
-    }
-
-    @Override
-    public JsonNodePath getEvaluationPath() {
-        return this.evaluationPath;
-    }
-
-    @Override
-    public String getKeyword() {
-        return this.keyword.getValue();
-    }
-
-    public JsonNode getSchemaNode() {
-        return this.schemaNode;
     }
 
     /**
@@ -176,13 +142,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
         }
     }
 
-
-
-    @Override
-    public String toString() {
-        return getEvaluationPath().getName(-1);
-    }
-
     /**
      * Determines if the keyword exists adjacent in the evaluation path.
      * <p>
@@ -199,7 +158,7 @@ public abstract class BaseJsonValidator implements JsonValidator {
     protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
         JsonSchema schema = getEvaluationParentSchema();
         while (schema != null) {
-            for (JsonValidator validator : schema.getValidators()) {
+            for (KeywordValidator validator : schema.getValidators()) {
                 if (keyword.equals(validator.getKeyword())) {
                     return true;
                 }
@@ -218,41 +177,6 @@ public abstract class BaseJsonValidator implements JsonValidator {
         return MessageSourceError
                 .builder(this.validationContext.getConfig().getMessageSource(), this.errorMessage)
                 .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
-                .keyword(this.keyword != null ? this.keyword.getValue() : null).messageKey(this.getKeyword());
-    }
-
-    /**
-     * Determine if annotations should be reported.
-     * 
-     * @param executionContext the execution context
-     * @return true if annotations should be reported
-     */
-    protected boolean collectAnnotations(ExecutionContext executionContext) {
-        return collectAnnotations(executionContext, getKeyword());
-    }
-
-    /**
-     * Determine if annotations should be reported.
-     * 
-     * @param executionContext the execution context
-     * @param keyword          the keyword
-     * @return true if annotations should be reported
-     */
-    protected boolean collectAnnotations(ExecutionContext executionContext, String keyword) {
-        return executionContext.getExecutionConfig().isAnnotationCollectionEnabled()
-                && executionContext.getExecutionConfig().getAnnotationCollectionFilter().test(keyword);
-    }
-
-    /**
-     * Puts an annotation.
-     * 
-     * @param executionContext the execution context
-     * @param customizer to customize the annotation
-     */
-    protected void putAnnotation(ExecutionContext executionContext, Consumer<JsonNodeAnnotation.Builder> customizer) {
-        JsonNodeAnnotation.Builder builder = JsonNodeAnnotation.builder().evaluationPath(this.evaluationPath)
-                .schemaLocation(this.schemaLocation).keyword(getKeyword());
-        customizer.accept(builder);
-        executionContext.getAnnotations().put(builder.build());
+                .keyword(this.getKeyword()).messageKey(this.getKeyword());
     }
 }

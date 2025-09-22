@@ -24,15 +24,15 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for not.
+ * {@link KeywordValidator} for not.
  */
-public class NotValidator extends BaseJsonValidator {
+public class NotValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(NotValidator.class);
 
     private final JsonSchema schema;
 
     public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.NOT, validationContext);
+        super(ValidatorTypeCode.NOT, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 

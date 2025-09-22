@@ -30,9 +30,9 @@ import java.util.Optional;
 import static com.networknt.schema.VersionCode.MinV201909;
 
 /**
- * {@link JsonValidator} for contains.
+ * {@link KeywordValidator} for contains.
  */
-public class ContainsValidator extends BaseJsonValidator {
+public class ContainsValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ContainsValidator.class);
     private static final String CONTAINS_MAX = "contains.max";
     private static final String CONTAINS_MIN = "contains.min";
@@ -46,7 +46,7 @@ public class ContainsValidator extends BaseJsonValidator {
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.CONTAINS, validationContext);
+        super(ValidatorTypeCode.CONTAINS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes

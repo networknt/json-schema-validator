@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for dependencies.
+ * {@link KeywordValidator} for dependencies.
  */
-public class DependenciesValidator extends BaseJsonValidator implements JsonValidator {
+public class DependenciesValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
     private final Map<String, List<String>> propertyDeps = new HashMap<>();
     private final Map<String, JsonSchema> schemaDeps = new HashMap<>();
@@ -41,7 +41,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
      */
     public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
 
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DEPENDENCIES, validationContext);
+        super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();

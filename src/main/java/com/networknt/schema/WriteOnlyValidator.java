@@ -6,15 +6,15 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * {@link JsonValidator} for writeOnly.
+ * {@link KeywordValidator} for writeOnly.
  */
-public class WriteOnlyValidator extends BaseJsonValidator {
+public class WriteOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(WriteOnlyValidator.class);
 
     private final boolean writeOnly;
 
     public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.WRITE_ONLY, validationContext);
+        super(ValidatorTypeCode.WRITE_ONLY, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         this.writeOnly = validationContext.getConfig().isWriteOnly();
         logger.debug("Loaded WriteOnlyValidator for property {} as {}", parentSchema, "write mode");

@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for patternProperties.
+ * {@link KeywordValidator} for patternProperties.
  */
-public class PatternPropertiesValidator extends BaseJsonValidator {
+public class PatternPropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "patternProperties";
     private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<RegularExpression, JsonSchema> schemas = new IdentityHashMap<>();
@@ -36,7 +36,7 @@ public class PatternPropertiesValidator extends BaseJsonValidator {
 
     public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema,
                                       ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.PATTERN_PROPERTIES, validationContext);
+        super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isObject()) {
             throw new JsonSchemaException("patternProperties must be an object node");
         }

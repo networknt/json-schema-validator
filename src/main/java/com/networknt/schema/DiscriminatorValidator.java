@@ -26,16 +26,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * {@link JsonValidator} that resolves discriminator.
+ * {@link KeywordValidator} that resolves discriminator.
  */
-public class DiscriminatorValidator extends BaseJsonValidator {
+public class DiscriminatorValidator extends BaseKeywordValidator {
     private final String propertyName;
     private final Map<String, String> mapping;
 
     public DiscriminatorValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DISCRIMINATOR,
-                validationContext);
+        super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, validationContext,
+                evaluationPath);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
         if (discriminator != null) {
             JsonNode propertyName = discriminator.get("propertyName");

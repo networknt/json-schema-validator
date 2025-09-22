@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * {@link JsonValidator} for anyOf.
+ * {@link KeywordValidator} for anyOf.
  */
-public class AnyOfValidator extends BaseJsonValidator {
+public class AnyOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
@@ -35,7 +35,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     private Boolean canShortCircuit = null;
 
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ANY_OF, validationContext);
+        super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
@@ -200,7 +200,7 @@ public class AnyOfValidator extends BaseJsonValidator {
     protected boolean canShortCircuit() {
         if (this.canShortCircuit == null) {
             boolean canShortCircuit = true;
-            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+            for (KeywordValidator validator : getEvaluationParentSchema().getValidators()) {
                 if ("unevaluatedProperties".equals(validator.getKeyword())
                         || "unevaluatedItems".equals(validator.getKeyword())) {
                     canShortCircuit = false;

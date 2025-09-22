@@ -23,15 +23,15 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Supplier;
 
 /**
- * {@link JsonValidator} that resolves $recursiveRef.
+ * {@link KeywordValidator} that resolves $recursiveRef.
  */
-public class RecursiveRefValidator extends BaseJsonValidator {
+public class RecursiveRefValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
 
     protected final JsonSchemaRef schema;
 
     public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.RECURSIVE_REF, validationContext);
+        super(ValidatorTypeCode.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {

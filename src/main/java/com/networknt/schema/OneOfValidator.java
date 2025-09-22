@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * {@link JsonValidator} for oneOf.
+ * {@link KeywordValidator} for oneOf.
  */
-public class OneOfValidator extends BaseJsonValidator {
+public class OneOfValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(OneOfValidator.class);
 
     private final List<JsonSchema> schemas;
@@ -36,7 +36,7 @@ public class OneOfValidator extends BaseJsonValidator {
     private Boolean canShortCircuit = null;
 
     public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ONE_OF, validationContext);
+        super(ValidatorTypeCode.ONE_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
@@ -211,7 +211,7 @@ public class OneOfValidator extends BaseJsonValidator {
     protected boolean canShortCircuit() {
         if (this.canShortCircuit == null) {
             boolean canShortCircuit = true;
-            for (JsonValidator validator : getEvaluationParentSchema().getValidators()) {
+            for (KeywordValidator validator : getEvaluationParentSchema().getValidators()) {
                 if ("unevaluatedProperties".equals(validator.getKeyword())
                         || "unevaluatedItems".equals(validator.getKeyword())) {
                     canShortCircuit = false;

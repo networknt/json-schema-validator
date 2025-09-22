@@ -23,15 +23,15 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Supplier;
 
 /**
- * {@link JsonValidator} that resolves $dynamicRef.
+ * {@link KeywordValidator} that resolves $dynamicRef.
  */
-public class DynamicRefValidator extends BaseJsonValidator {
+public class DynamicRefValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(DynamicRefValidator.class);
 
     protected final JsonSchemaRef schema;
 
     public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.DYNAMIC_REF, validationContext);
+        super(ValidatorTypeCode.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }

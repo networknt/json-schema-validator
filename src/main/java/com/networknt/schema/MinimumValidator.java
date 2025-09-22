@@ -26,9 +26,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * {@link JsonValidator} for minimum.
+ * {@link KeywordValidator} for minimum.
  */
-public class MinimumValidator extends BaseJsonValidator {
+public class MinimumValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(MinimumValidator.class);
     private static final String PROPERTY_EXCLUSIVE_MINIMUM = "exclusiveMinimum";
 
@@ -41,7 +41,7 @@ public class MinimumValidator extends BaseJsonValidator {
     private final ThresholdMixin typedMinimum;
 
     public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.MINIMUM, validationContext);
+        super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
 
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("minimum value is not a number");

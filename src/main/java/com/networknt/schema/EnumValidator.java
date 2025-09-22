@@ -29,9 +29,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * {@link JsonValidator} for enum.
+ * {@link KeywordValidator} for enum.
  */
-public class EnumValidator extends BaseJsonValidator implements JsonValidator {
+public class EnumValidator extends BaseKeywordValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(EnumValidator.class);
 
     private final Set<JsonNode> nodes;
@@ -46,7 +46,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
     }
     
     public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.ENUM, validationContext);
+        super(ValidatorTypeCode.ENUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();

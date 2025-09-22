@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Supplier;
 
 /**
- * {@link JsonValidator} that resolves $ref.
+ * {@link KeywordValidator} that resolves $ref.
  */
-public class RefValidator extends BaseJsonValidator {
+public class RefValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
 
     protected final JsonSchemaRef schema;
@@ -33,7 +33,7 @@ public class RefValidator extends BaseJsonValidator {
     private static final String REF_CURRENT = "#";
 
     public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, ValidatorTypeCode.REF, validationContext);
+        super(ValidatorTypeCode.REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
     }

@@ -145,7 +145,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                                           JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
@@ -159,10 +159,10 @@ class JsonWalkTest {
          * This will be helpful in cases where we don't want to revisit the entire JSON
          * document again just for gathering this kind of information.
          */
-        private static class CustomValidator extends AbstractJsonValidator {
+        private static class CustomValidator extends AbstractKeywordValidator {
 
             CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
-                super(schemaLocation, evaluationPath, new CustomKeyword(), schemaNode);
+                super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
             }
 
             @Override
