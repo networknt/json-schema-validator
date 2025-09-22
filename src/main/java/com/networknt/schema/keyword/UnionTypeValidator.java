@@ -28,9 +28,6 @@ import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.Validator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +35,6 @@ import java.util.List;
  * {@link KeywordValidator} for type union.
  */
 public class UnionTypeValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
-
     private final List<Validator> schemas;
     private final String error;
 
@@ -77,9 +72,9 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getSchemaRegistryConfig());
 
         boolean valid = false;
 

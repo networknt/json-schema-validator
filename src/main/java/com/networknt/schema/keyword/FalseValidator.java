@@ -22,15 +22,10 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * {@link KeywordValidator} for false.
  */
 public class FalseValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(FalseValidator.class);
-
     private final String reason;
 
     public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -39,7 +34,6 @@ public class FalseValidator extends BaseKeywordValidator implements KeywordValid
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
         // For the false validator, it is always not valid
         executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                 .locale(executionContext.getExecutionConfig().getLocale())

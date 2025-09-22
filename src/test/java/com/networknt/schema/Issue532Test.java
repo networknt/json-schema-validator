@@ -11,6 +11,6 @@ class Issue532Test {
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> {
             factory.getSchema("{ \"$schema\": true }");
         });
-        assertEquals("Unknown MetaSchema: true", ex.getMessage());
+        assertEquals("Unknown dialect: true", ex.getMessage());
     }
 }

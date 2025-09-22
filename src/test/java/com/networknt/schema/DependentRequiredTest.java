@@ -47,7 +47,7 @@ class DependentRequiredTest {
 
         assertThat(
             messages.stream().map(Error::toString).collect(Collectors.toList()),
-            contains("$: has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
+            contains(": has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
     }
 
     @Test

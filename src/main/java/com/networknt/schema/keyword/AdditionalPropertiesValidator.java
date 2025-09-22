@@ -25,9 +25,6 @@ import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,8 +38,6 @@ import java.util.Set;
  * {@link KeywordValidator} for additionalProperties.
  */
 public class AdditionalPropertiesValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(AdditionalPropertiesValidator.class);
-
     private final boolean allowAdditionalProperties;
     private final Schema additionalPropertiesSchema;
     private final Set<String> allowedProperties;
@@ -93,7 +88,6 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
         if (!node.isObject()) {
             // ignore no object
             return;

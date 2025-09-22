@@ -25,15 +25,11 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.utils.JsonNodeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@link KeywordValidator} for type.
  */
 public class TypeValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(TypeValidator.class);
-
     private final JsonType schemaType;
     private final UnionTypeValidator unionTypeValidator;
 
@@ -57,7 +53,7 @@ public class TypeValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator.validate(executionContext, node, rootNode, instanceLocation);
@@ -65,7 +61,7 @@ public class TypeValidator extends BaseKeywordValidator {
         }
 
         if (!equalsToSchemaType(node)) {
-            JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());

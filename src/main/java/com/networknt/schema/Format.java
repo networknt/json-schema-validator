@@ -99,7 +99,7 @@ public interface Format {
      * @return true if matches
      */
     default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode value) {
-        JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return true;
         }

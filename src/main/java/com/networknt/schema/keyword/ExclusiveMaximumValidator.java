@@ -27,9 +27,6 @@ import com.networknt.schema.ThresholdMixin;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -37,8 +34,6 @@ import java.math.BigInteger;
  * {@link KeywordValidator} for exclusiveMaximum.
  */
 public class ExclusiveMaximumValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ExclusiveMaximumValidator.class);
-
     private final ThresholdMixin typedMaximum;
 
     public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -104,9 +99,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        if (!JsonNodeUtil.isNumber(node, validationContext.getConfig())) {
+        if (!JsonNodeUtil.isNumber(node, validationContext.getSchemaRegistryConfig())) {
             // maximum only applies to numbers
             return;
         }

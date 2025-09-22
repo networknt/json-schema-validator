@@ -125,7 +125,7 @@ class VocabularyTest {
                 + "}";
 
         List<Error> messages = schema.validate(inputDataNoValidation, InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(0, messages.size());
         
         // Set format assertion vocab
@@ -215,9 +215,9 @@ class VocabularyTest {
                                         metaSchemaData))));
         Schema schema = factory.getSchema(schemaData);
         OutputUnit outputUnit = schema.validate("{}", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
-            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionContext.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         assertNotNull(outputUnit.getAnnotations().get("hello"));
     }
 }

@@ -80,7 +80,7 @@ class MessageTest {
         Schema schema = factory.getSchema(schemaData);
         List<Error> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals("$: must be equal to 'helloworld'", messages.iterator().next().toString());
+        assertEquals(": must be equal to 'helloworld'", messages.iterator().next().toString());
         
         messages = schema.validate("\"helloworld\"", InputFormat.JSON);
         assertEquals(0, messages.size());

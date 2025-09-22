@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) 2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.networknt.schema.walk;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.Schema;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.Error;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * A {@link WalkListenerRunner} for walking items.
+ */
+public class ItemWalkListenerRunner extends AbstractWalkListenerRunner {
+
+    private final List<WalkListener> itemWalkListeners;
+
+    public ItemWalkListenerRunner(List<WalkListener> itemWalkListeners) {
+        this.itemWalkListeners = itemWalkListeners;
+    }
+
+    @Override
+    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator) {
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
+                schema, validator);
+        return runPreWalkListeners(itemWalkListeners, walkEvent);
+    }
+
+    @Override
+    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator, List<Error> errors) {
+        WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
+                schema, validator);
+        runPostWalkListeners(itemWalkListeners, walkEvent, errors);
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private List<WalkListener> itemWalkListeners = new ArrayList<>();
+
+        public Builder itemWalkListener(WalkListener itemWalkListener) {
+            this.itemWalkListeners.add(itemWalkListener);
+            return this;
+        }
+
+        public Builder itemWalkListeners(Consumer<List<WalkListener>> itemWalkListeners) {
+            itemWalkListeners.accept(this.itemWalkListeners);
+            return this;
+        }
+
+        public ItemWalkListenerRunner build() {
+            return new ItemWalkListenerRunner(itemWalkListeners);
+        }
+    }
+
+}

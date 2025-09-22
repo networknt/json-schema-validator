@@ -31,8 +31,7 @@ class ExampleTest {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> 
             builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
         );
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"), config);
+        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -41,21 +40,20 @@ class ExampleTest {
                 + "  }\r\n"
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
-        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getDialect().getIri());
         List<Error> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
         Schema refSchema = schema.getValidationContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
-        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getDialect().getIri());
     }
 
     @Test
     void exampleClasspath() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"), config);
+        Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -64,12 +62,12 @@ class ExampleTest {
                 + "  }\r\n"
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
-        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getDialect().getIri());
         List<Error> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
         Schema refSchema = schema.getValidationContext().getSchemaResources().get("classpath:schema/example-ref.json#");
-        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getDialect().getIri());
     }
 }

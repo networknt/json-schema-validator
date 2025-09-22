@@ -149,7 +149,7 @@ class UnevaluatedPropertiesValidatorTest {
         assertEquals(1, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getKeyword());
-        assertEquals("$.unevaluatedProperties.type", assertions.get(0).getEvaluationPath().toString());
+        assertEquals("/unevaluatedProperties/type", assertions.get(0).getEvaluationPath().toString());
     }
 
     @Test
@@ -234,9 +234,9 @@ class UnevaluatedPropertiesValidatorTest {
         String inputData = "{ \"isPrimaryDevice\": true, \"roleName\": \"hello\" }";
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,
                 executionContext -> {
-                    executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
-                    executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-                });
+                    executionContext.executionConfig(executionConfig -> executionConfig
+        					.annotationCollectionEnabled(false).annotationCollectionFilter(keyword -> true));
+        		});
         assertTrue(outputUnit.isValid());
     }
 }

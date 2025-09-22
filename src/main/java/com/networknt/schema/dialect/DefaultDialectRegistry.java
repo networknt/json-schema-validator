@@ -26,7 +26,6 @@ import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification;
 import com.networknt.schema.Specification.Version;
 
@@ -37,18 +36,18 @@ public class DefaultDialectRegistry implements DialectRegistry {
     private final ConcurrentMap<String, Dialect> dialects = new ConcurrentHashMap<>();
     
     @Override
-    public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory) {
         // Is it a well-known dialect?
         Dialect dialect = Specification.getDialect(dialectId);
         if (dialect != null) {
             return dialect;
         }
-        return dialects.computeIfAbsent(dialectId, id -> loadDialect(id, schemaFactory, config));
+        return dialects.computeIfAbsent(dialectId, id -> loadDialect(id, schemaFactory));
     }
 
-    protected Dialect loadDialect(String iri, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
+    protected Dialect loadDialect(String iri, SchemaRegistry schemaFactory) {
         try {
-            Dialect result = loadDialectBuilder(iri, schemaFactory, config).build();
+            Dialect result = loadDialectBuilder(iri, schemaFactory).build();
             return result;
         } catch (InvalidSchemaException e) {
             throw e;
@@ -58,11 +57,10 @@ public class DefaultDialectRegistry implements DialectRegistry {
         }
     }
 
-    protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory,
-            SchemaValidatorsConfig config) {
-        Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
-        Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getMetaSchema());
-        Version specification = schema.getValidationContext().getMetaSchema().getSpecification();
+    protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory) {
+        Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri));
+        Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getDialect());
+        Version specification = schema.getValidationContext().getDialect().getSpecification();
         if (specification != null) {
             if (specification.getOrder() >= Version.DRAFT_2019_09.getOrder()) {
                 // Process vocabularies

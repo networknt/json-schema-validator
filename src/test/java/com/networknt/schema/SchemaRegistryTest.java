@@ -57,13 +57,12 @@ class SchemaRegistryTest {
         for (int i = 0; i < 50; ++i) {
             Runnable runner = new Runnable() {
                 public void run() {
-                    SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
                     try {
                         latch.await();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    Dialect dialect = factory.getDialect("https://www.example.com/no-validation-no-format/schema", config);
+                    Dialect dialect = factory.getDialect("https://www.example.com/no-validation-no-format/schema");
                     synchronized(instance) {
                         if (instance[0] == null) {
                             instance[0] = dialect;

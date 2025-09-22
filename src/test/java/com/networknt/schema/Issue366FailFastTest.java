@@ -22,17 +22,16 @@ class Issue366FailFastTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     private void setupSchema() throws IOException {
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder()
                 .failFast(true)
                 .typeLoose(false)
                 .build();
-        SchemaRegistry schemaFactory = SchemaRegistry
-                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7)).build();
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
         SchemaLocation uri = getSchema();
 
         InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
         JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
-        this.jsonSchema = schemaFactory.getSchema(uri, testCases, schemaValidatorsConfig);
+        this.jsonSchema = schemaFactory.getSchema(uri, testCases);
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {

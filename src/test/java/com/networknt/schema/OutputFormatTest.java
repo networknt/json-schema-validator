@@ -35,8 +35,7 @@ class OutputFormatTest {
     @DisplayName("Test Validation Messages")
     void testInvalidJson() throws Exception {
         InputStream schemaInputStream = OutputFormatTest.class.getResourceAsStream(schemaPath1);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaInputStream, config);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
         List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
@@ -108,7 +107,7 @@ class OutputFormatTest {
                 + "  }\n"
                 + "}";
         Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12)
-                .getSchema(schemaData, InputFormat.JSON, SchemaValidatorsConfig.builder().build());
+                .getSchema(schemaData, InputFormat.JSON);
         String inputData = "{\n"
                 + "  \"type\": \"cat\",\n"
                 + "  \"id\": 1\n"

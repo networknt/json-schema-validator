@@ -23,16 +23,12 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for dependencies.
  */
 public class DependenciesValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(DependenciesValidator.class);
     private final Map<String, List<String>> propertyDeps = new HashMap<>();
     private final Map<String, Schema> schemaDeps = new HashMap<>();
 
@@ -69,8 +65,6 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             List<String> deps = propertyDeps.get(pname);

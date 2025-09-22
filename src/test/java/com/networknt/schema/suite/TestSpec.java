@@ -3,7 +3,7 @@ package com.networknt.schema.suite;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.SchemaRegistryConfig;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,7 +100,7 @@ public class TestSpec {
     private final RegexKind regex;
 
     /**
-     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     * Config information to be provided for {@link SchemaRegistryConfig} with which schema can be validated
      * <p>
      * This is an extension of the schema used to describe tests in the
      * compliance suite
@@ -186,7 +186,7 @@ public class TestSpec {
 
 
     /**
-     * Config information to be provided for {@link SchemaValidatorsConfig} with which schema can be validated
+     * Config information to be provided for {@link SchemaRegistryConfig} with which schema can be validated
      */
     public Map<String, Object> getConfig() {
         return config;

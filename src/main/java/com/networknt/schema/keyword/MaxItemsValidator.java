@@ -23,16 +23,10 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * {@link KeywordValidator} for maxItems.
  */
 public class MaxItemsValidator extends BaseKeywordValidator implements KeywordValidator {
-
-    private static final Logger logger = LoggerFactory.getLogger(MaxItemsValidator.class);
-
     private final int max;
 
     public MaxItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -45,7 +39,7 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         if (node.isArray()) {
             if (node.size() > this.max) {
@@ -53,7 +47,7 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max, node.size()).build());
             }
-        } else if (this.validationContext.getConfig().isTypeLoose()) {
+        } else if (this.validationContext.getSchemaRegistryConfig().isTypeLoose()) {
             if (1 > this.max) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())

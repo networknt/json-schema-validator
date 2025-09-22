@@ -27,9 +27,6 @@ import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +34,6 @@ import java.util.List;
  * {@link KeywordValidator} for prefixItems.
  */
 public class PrefixItemsValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(PrefixItemsValidator.class);
-
     private final List<Schema> tupleSchema;
     
     private Boolean hasUnevaluatedItemsValidator = null;
@@ -61,7 +56,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         // ignores non-arrays
         if (node.isArray()) {
             int count = Math.min(node.size(), this.tupleSchema.size());
@@ -99,7 +94,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
             int count = this.tupleSchema.size();
             for (int i = 0; i < count; ++i) {
                 JsonNode n = node.get(i);
-                if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
+                if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
                     JsonNode defaultNode = getDefaultNode(this.tupleSchema.get(i));
                     if (n != null) {
                         // Defaults only set if array index is explicitly null
@@ -159,7 +154,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
-        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
+        boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,
@@ -171,7 +166,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
         if (executeWalk) {
             walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
-        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
+        executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.PREFIX_ITEMS.getValue(),
             node,

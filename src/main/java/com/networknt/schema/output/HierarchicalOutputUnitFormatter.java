@@ -114,13 +114,13 @@ public class HierarchicalOutputUnitFormatter {
         OutputUnit root = new OutputUnit();
         root.setValid(errors.isEmpty());
         
-        root.setInstanceLocation(validationContext.getConfig().getPathType().getRoot());
-        root.setEvaluationPath(validationContext.getConfig().getPathType().getRoot());
+        root.setInstanceLocation(validationContext.getSchemaRegistryConfig().getPathType().getRoot());
+        root.setEvaluationPath(validationContext.getSchemaRegistryConfig().getPathType().getRoot());
         root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
 
         OutputUnitData data = OutputUnitData.from(errors, executionContext, errorMapper);
         
-        return format(root, data, new JsonNodePath(validationContext.getConfig().getPathType()));
+        return format(root, data, new JsonNodePath(validationContext.getSchemaRegistryConfig().getPathType()));
     }
     
     /**

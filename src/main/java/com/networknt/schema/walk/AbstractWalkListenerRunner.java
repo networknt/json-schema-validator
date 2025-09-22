@@ -18,10 +18,10 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
                 .rootNode(rootNode).schema(schema).validator(validator).build();
     }
 
-    protected boolean runPreWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent) {
+    protected boolean runPreWalkListeners(List<WalkListener> walkListeners, WalkEvent walkEvent) {
         boolean continueToWalkMethod = true;
         if (walkListeners != null) {
-            for (JsonSchemaWalkListener walkListener : walkListeners) {
+            for (WalkListener walkListener : walkListeners) {
                 WalkFlow walkFlow = walkListener.onWalkStart(walkEvent);
                 if (WalkFlow.SKIP.equals(walkFlow) || WalkFlow.ABORT.equals(walkFlow)) {
                     continueToWalkMethod = false;
@@ -34,10 +34,10 @@ public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
         return continueToWalkMethod;
     }
 
-    protected void runPostWalkListeners(List<JsonSchemaWalkListener> walkListeners, WalkEvent walkEvent,
+    protected void runPostWalkListeners(List<WalkListener> walkListeners, WalkEvent walkEvent,
                                         List<Error> errors) {
         if (walkListeners != null) {
-            for (JsonSchemaWalkListener walkListener : walkListeners) {
+            for (WalkListener walkListener : walkListeners) {
                 walkListener.onWalkEnd(walkEvent, errors);
             }
         }

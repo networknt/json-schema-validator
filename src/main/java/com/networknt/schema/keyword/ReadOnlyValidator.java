@@ -32,19 +32,15 @@ import com.networknt.schema.ValidationContext;
 public class ReadOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
-    private final boolean readOnly;
-
     public ReadOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.READ_ONLY, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-
-        this.readOnly = validationContext.getConfig().isReadOnly();
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
     }
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-        if (this.readOnly) {
+        
+        if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getReadOnly())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .build());

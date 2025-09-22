@@ -13,7 +13,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.Specification.Version;
-import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
@@ -22,7 +24,7 @@ class Issue724Test {
     @Test
     void test() throws JsonProcessingException {
         StringCollector stringCollector = new StringCollector();
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().keywordWalkListener(stringCollector).build();
+        KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder().keywordWalkListener(stringCollector).build();
 
         String schema =
             "{\n"
@@ -49,15 +51,17 @@ class Issue724Test {
                 + "  \"credit_card\" : \"my_credit_card\",\n"
                 + "  \"billing_address\" : \"my_billing_address\"\n"
                 + "}\n";
-
-        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema, config);
-        jsonSchema.walk(new ObjectMapper().readTree(data), /* shouldValidateSchema= */ false);
+        WalkConfig walkConfig = WalkConfig.builder()
+                .keywordWalkListenerRunner(keywordWalkListenerRunner)
+                .build();
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema);
+        jsonSchema.walk(new ObjectMapper().readTree(data), /* shouldValidateSchema= */ false, executionContext -> executionContext.setWalkConfig(walkConfig));
 
         System.out.println(stringCollector.strings);
         assertLinesMatch(Arrays.asList("my_credit_card", "my_billing_address"), stringCollector.strings);
     }
 
-    static class StringCollector implements JsonSchemaWalkListener {
+    static class StringCollector implements WalkListener {
         final List<String> strings = new ArrayList<>();
 
         @Override

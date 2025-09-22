@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.ValidatorTypeCode;
 import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 import org.junit.jupiter.api.Assertions;
@@ -18,24 +20,28 @@ class Issue461Test {
 
     protected Schema getJsonSchemaFromStreamContentV7(SchemaLocation schemaUri) {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
-        SchemaValidatorsConfig svc = SchemaValidatorsConfig.builder()
-                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new Walker())
-                .build();
-        return factory.getSchema(schemaUri, svc);
+        return factory.getSchema(schemaUri);
     }
 
     @Test
     void shouldWalkWithValidation() throws IOException {
+    	KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
+                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new Walker())
+                .build();
+        WalkConfig walkConfig = WalkConfig.builder()
+                .keywordWalkListenerRunner(keywordWalkListenerRunner)
+                .build();
+
         Schema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
         JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
-        ValidationResult result = schema.walk(data, true);
+        ValidationResult result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         Assertions.assertTrue(result.getErrors().isEmpty());
     }
 
     /**
      * Example NOP walker
      */
-    private static class Walker implements JsonSchemaWalkListener {
+    private static class Walker implements WalkListener {
         @Override
         public WalkFlow onWalkStart(final WalkEvent walkEvent) {
             return WalkFlow.CONTINUE;

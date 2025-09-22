@@ -96,15 +96,14 @@ class OutputUnitTest {
     @Test
     void annotationCollectionList() throws JsonProcessingException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         
         String inputData = inputData1;
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be the constant value '1'\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]}},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"}},{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"}}]}";
         assertEquals(expected, output);
@@ -113,15 +112,14 @@ class OutputUnitTest {
     @Test
     void annotationCollectionHierarchical() throws JsonProcessingException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
 
         String inputData = inputData1;
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/0\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/0\",\"instanceLocation\":\"/foo\",\"errors\":{\"required\":\"required property 'unspecified-prop' not found\"}},{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"droppedAnnotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"other-prop\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"errors\":{\"const\":\"must be the constant value '1'\"},\"droppedAnnotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"droppedAnnotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":false,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"errors\":{\"minimum\":\"must have a minimum value of 10\"},\"droppedAnnotations\":{\"title\":\"bar-prop-title\"}}]}]}";
         assertEquals(expected, output);
@@ -130,15 +128,14 @@ class OutputUnitTest {
     @Test
     void annotationCollectionHierarchical2() throws JsonProcessingException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
 
         String inputData = inputData2;
         
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"https://json-schema.org/schemas/example#\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\",\"bar\"],\"title\":\"root\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1\",\"instanceLocation\":\"/foo\",\"annotations\":{\"properties\":[\"foo-prop\"],\"title\":\"foo-title\",\"additionalProperties\":[\"foo-prop\",\"unspecified-prop\"]},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/foo/allOf/1/properties/foo-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/properties/foo/allOf/1/properties/foo-prop\",\"instanceLocation\":\"/foo/foo-prop\",\"annotations\":{\"title\":\"foo-prop-title\"}}]},{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar\",\"instanceLocation\":\"/bar\",\"annotations\":{\"properties\":[\"bar-prop\"],\"title\":\"bar-title\"},\"details\":[{\"valid\":true,\"evaluationPath\":\"/properties/bar/$ref/properties/bar-prop\",\"schemaLocation\":\"https://json-schema.org/schemas/example#/$defs/bar/properties/bar-prop\",\"instanceLocation\":\"/bar/bar-prop\",\"annotations\":{\"title\":\"bar-prop-title\"}}]}]}";
         assertEquals(expected, output);
@@ -179,12 +176,11 @@ class OutputUnitTest {
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         assertTrue(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         assertEquals(formatInput.format, details.getAnnotations().get("format"));
@@ -198,13 +194,12 @@ class OutputUnitTest {
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-            executionConfiguration.getExecutionConfig().setFormatAssertionsEnabled(true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true)
+					.formatAssertionsEnabled(true));
+		});
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         assertEquals(formatInput.format, details.getDroppedAnnotations().get("format"));
@@ -217,12 +212,11 @@ class OutputUnitTest {
                 + "  \"type\": [\"string\",\"array\"]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(typeSchema, config);
+        Schema schema = factory.getSchema(typeSchema);
         OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
         assertNotNull(details.getErrors().get("type"));
@@ -267,8 +261,7 @@ class OutputUnitTest {
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         
      // The following checks if the heirarchical output format is correct with multiple unevaluated properties
         String inputData = "{\r\n"
@@ -278,8 +271,8 @@ class OutputUnitTest {
                 + "  \"coordinates\": [1, 1]\r\n"
                 + "}";
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,
-                executionContext -> executionContext.getExecutionConfig()
-                        .setAnnotationCollectionFilter(keyword -> true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig
+    					.annotationCollectionFilter(keyword -> true)));
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":false,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"errors\":{\"unevaluatedProperties\":[\"property 'hello' is not evaluated and the schema does not allow unevaluated properties\",\"property 'world' is not evaluated and the schema does not allow unevaluated properties\"]},\"droppedAnnotations\":{\"unevaluatedProperties\":[\"hello\",\"world\"]},\"details\":[{\"valid\":false,\"evaluationPath\":\"/$ref\",\"schemaLocation\":\"https://www.example.org/point.json#\",\"instanceLocation\":\"\",\"droppedAnnotations\":{\"properties\":[\"type\",\"coordinates\"]}}]}";
         assertEquals(expected, output);
@@ -316,17 +309,16 @@ class OutputUnitTest {
                 + "}";
         
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         
         String inputData = "{\r\n"
                 + "    \"foo\": \"hello\",\r\n"
                 + "    \"bar\": 1\r\n"
                 + "}";
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
-            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionContext.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
-        });
+            executionContext.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+		});
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"details\":[{\"valid\":true,\"evaluationPath\":\"/anyOf/0\",\"schemaLocation\":\"#/anyOf/0\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"foo\"]}},{\"valid\":true,\"evaluationPath\":\"/anyOf/1\",\"schemaLocation\":\"#/anyOf/1\",\"instanceLocation\":\"\",\"annotations\":{\"properties\":[\"bar\"]}}]}";
         assertEquals(expected, output);
@@ -338,8 +330,7 @@ class OutputUnitTest {
                 + "  \"type\": \"string\"\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.List(a -> a));
         assertFalse(outputUnit.isValid());
         OutputUnit details = outputUnit.getDetails().get(0);
@@ -353,8 +344,7 @@ class OutputUnitTest {
                 + "  \"type\": \"string\"\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(formatSchema, config);
+        Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
         assertFalse(outputUnit.isValid());
         Object assertion = outputUnit.getErrors().get("type");

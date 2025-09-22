@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.walk.WalkConfig;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +23,10 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults3(boolean shouldValidateSchema) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
-        ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema);
+        Schema jsonSchema = createSchema();
+		WalkConfig walkConfig = WalkConfig.builder()
+				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
+        ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema, executionContext -> executionContext.setWalkConfig(walkConfig));
         if (shouldValidateSchema) {
             assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                        Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
@@ -42,8 +46,10 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults2() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, false));
-        ValidationResult result = jsonSchema.walk(inputNode, true);
+        Schema jsonSchema = createSchema();
+		WalkConfig walkConfig = WalkConfig.builder()
+				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, false)).build();
+        ValidationResult result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
@@ -59,8 +65,10 @@ class JsonWalkApplyDefaultsTest {
     void testApplyDefaults1() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode inputNode = objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data-default.json"));
-        Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, false, false));
-        ValidationResult result = jsonSchema.walk(inputNode, true);
+        Schema jsonSchema = createSchema();
+		WalkConfig walkConfig = WalkConfig.builder()
+				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false)).build();
+        ValidationResult result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_null: null found, integer expected",
                                                "/outer/mixedObject/intValue_missingButError: string found, integer expected",
@@ -82,19 +90,25 @@ class JsonWalkApplyDefaultsTest {
         List<Error> errors;
         switch (method) {
             case "walkWithEmptyStrategy": {
-                Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(false, false, false));
-                errors = jsonSchema.walk(inputNode, true).getErrors();
+        		WalkConfig walkConfig = WalkConfig.builder()
+        				.applyDefaultsStrategy(new ApplyDefaultsStrategy(false, false, false)).build();
+                Schema jsonSchema = createSchema();
+                errors = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig)).getErrors();
                 break;
             }
             case "walkWithNoDefaults": {
                 // same empty strategy, but tests for NullPointerException
-                Schema jsonSchema = createSchema(null);
-                errors = jsonSchema.walk(inputNode, true).getErrors();
+        		WalkConfig walkConfig = WalkConfig.builder()
+        				.applyDefaultsStrategy(null).build();
+            	Schema jsonSchema = createSchema();
+                errors = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig)).getErrors();
                 break;
             }
             case "validateWithApplyAllDefaults": {
-                Schema jsonSchema = createSchema(new ApplyDefaultsStrategy(true, true, true));
-                errors = jsonSchema.validate(inputNode);
+        		WalkConfig walkConfig = WalkConfig.builder()
+        				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
+                Schema jsonSchema = createSchema();
+                errors = jsonSchema.validate(inputNode, executionContext -> executionContext.setWalkConfig(walkConfig));
                 break;
             }
             default:
@@ -119,9 +133,9 @@ class JsonWalkApplyDefaultsTest {
         }
     }
 
-    private Schema createSchema(ApplyDefaultsStrategy applyDefaultsStrategy) {
+    private Schema createSchema() {
         SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().applyDefaultsStrategy(applyDefaultsStrategy).build();
-        return schemaFactory.getSchema(getClass().getClassLoader().getResourceAsStream("schema/walk-schema-default.json"), schemaValidatorsConfig);
+        return schemaFactory
+                .getSchema(getClass().getClassLoader().getResourceAsStream("schema/walk-schema-default.json"));
     }
 }

@@ -2,7 +2,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.PropertyWalkListenerRunner;
+import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 import org.junit.jupiter.api.Assertions;
@@ -19,13 +21,11 @@ import java.util.Map;
 class Issue451Test {
 
     private static final String COLLECTOR_ID = "collector-451";
-
+        
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
-        SchemaValidatorsConfig svc = SchemaValidatorsConfig.builder()
-                .propertyWalkListener(new CountingWalker())
-                .build();
-        return factory.getSchema(schemaContent, svc);
+        return factory.getSchema(schemaContent);
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {
@@ -58,7 +58,9 @@ class Issue451Test {
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
 
-        CollectorContext collectorContext = schema.walk(data, shouldValidate).getCollectorContext();
+    	WalkConfig walkConfig = WalkConfig.builder().propertyWalkListenerRunner(
+    			PropertyWalkListenerRunner.builder().propertyWalkListener(new CountingWalker()).build()).build();
+        CollectorContext collectorContext = schema.walk(data, shouldValidate, executionContext -> executionContext.setWalkConfig(walkConfig)).getCollectorContext();
 
         Map<String, Integer> collector = (Map<String, Integer>) collectorContext.get(COLLECTOR_ID);
         Assertions.assertEquals(2,
@@ -68,7 +70,7 @@ class Issue451Test {
     }
 
 
-    private static class CountingWalker implements JsonSchemaWalkListener {
+    private static class CountingWalker implements WalkListener {
         @Override
         public WalkFlow onWalkStart(WalkEvent walkEvent) {
             SchemaLocation path = walkEvent.getSchema().getSchemaLocation();
@@ -86,7 +88,7 @@ class Issue451Test {
             Map<String, Integer> collector = (Map<String, Integer>) executionContext.getCollectorContext().get(COLLECTOR_ID);
             if(collector == null) {
                 collector = new HashMap<>();
-                executionContext.getCollectorContext().add(COLLECTOR_ID, collector);
+                executionContext.getCollectorContext().put(COLLECTOR_ID, collector);
             }
 
             return collector;

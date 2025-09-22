@@ -23,17 +23,12 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for required.
  */
 public class RequiredValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RequiredValidator.class);
-
     private final List<String> fieldNames;
 
     public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -49,7 +44,7 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         if (!node.isObject()) {
             return;
@@ -59,8 +54,8 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
             JsonNode propertyNode = node.get(fieldName);
 
             if (propertyNode == null) {
-                Boolean readOnly = this.validationContext.getConfig().getReadOnly();
-                Boolean writeOnly = this.validationContext.getConfig().getWriteOnly();
+                Boolean readOnly = executionContext.getExecutionConfig().getReadOnly();
+                Boolean writeOnly = executionContext.getExecutionConfig().getWriteOnly();
                 if (Boolean.TRUE.equals(readOnly)) {
                     JsonNode readOnlyNode = getFieldKeyword(fieldName, "readOnly");
                     if (readOnlyNode != null && readOnlyNode.booleanValue()) {

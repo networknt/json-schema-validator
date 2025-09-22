@@ -20,9 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
@@ -40,7 +37,6 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  * Note that since 2019-09 this keyword only generates annotations and not errors.
  */
 public class ContentMediaTypeValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ContentMediaTypeValidator.class);
     private static final String PATTERN_STRING = "(application|audio|font|example|image|message|model|multipart|text|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))/([0-9A-Za-z!#$%&'*+.^_`|~-]+)((?:[ \t]*;[ \t]*[0-9A-Za-z!#$%&'*+.^_`|~-]+=(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+|\"(?:[^\"\\\\]|\\.)*\"))*)";
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STRING);
     private final String contentMediaType;
@@ -95,10 +91,8 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
         // Ignore non-strings
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return;
         }

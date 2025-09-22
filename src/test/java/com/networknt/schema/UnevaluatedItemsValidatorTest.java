@@ -48,11 +48,11 @@ class UnevaluatedItemsValidatorTest {
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("unevaluatedItems", assertions.get(0).getKeyword());
-        assertEquals("$", assertions.get(0).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
+        assertEquals("", assertions.get(0).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
         assertEquals("unevaluatedItems", assertions.get(1).getKeyword());
-        assertEquals("$", assertions.get(1).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
+        assertEquals("", assertions.get(1).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
     }
 
     @Test
@@ -74,10 +74,10 @@ class UnevaluatedItemsValidatorTest {
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getKeyword());
-        assertEquals("$[1]", assertions.get(0).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems.type", assertions.get(0).getEvaluationPath().toString());
+        assertEquals("/1", assertions.get(0).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems/type", assertions.get(0).getEvaluationPath().toString());
         assertEquals("type", assertions.get(1).getKeyword());
-        assertEquals("$[2]", assertions.get(1).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems.type", assertions.get(1).getEvaluationPath().toString());
+        assertEquals("/2", assertions.get(1).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems/type", assertions.get(1).getEvaluationPath().toString());
     }
 }

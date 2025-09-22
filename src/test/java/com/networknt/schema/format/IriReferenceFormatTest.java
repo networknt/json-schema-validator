@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 
@@ -36,8 +36,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -49,8 +51,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
                 InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -62,8 +66,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -75,8 +81,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -88,8 +96,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"http://\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -100,8 +110,10 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate("\"//\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -112,9 +124,8 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
-        List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 

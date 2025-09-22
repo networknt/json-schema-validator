@@ -7,6 +7,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.networknt.schema.dialect.Dialects;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class OpenAPI30JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
-    protected SchemaRegistry validatorFactory = SchemaRegistry
-            .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4)).build();
 
     OpenAPI30JsonSchemaTest() {
     }
@@ -38,10 +38,12 @@ class OpenAPI30JsonSchemaTest {
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
                     // if test file do not contains typeLoose flag, use default value: true.
-                    SchemaValidatorsConfig.Builder configBuilder = SchemaValidatorsConfig.builder();
+                    SchemaRegistryConfig.Builder configBuilder = SchemaRegistryConfig.builder();
                     configBuilder.typeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
-                    configBuilder.discriminatorKeywordEnabled(true);
-                    Schema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"), configBuilder.build());
+                    SchemaRegistry validatorFactory = SchemaRegistry.withDialect(Dialects.getOpenApi30(),
+                            builder -> builder.schemaRegistryConfig(configBuilder.build()));
+
+                    Schema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"));
 
                     List<Error> errors = new ArrayList<Error>(schema.validate(node));
 

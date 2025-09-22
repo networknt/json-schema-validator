@@ -36,8 +36,8 @@ public class NonValidationKeyword extends AbstractKeyword {
                 Schema parentSchema, ValidationContext validationContext, Keyword keyword) {
             super(keyword, schemaNode, schemaLocation, evaluationPath);
             String id = validationContext.resolveSchemaId(schemaNode);
-            String anchor = validationContext.getMetaSchema().readAnchor(schemaNode);
-            String dynamicAnchor = validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
+            String anchor = validationContext.getDialect().readAnchor(schemaNode);
+            String dynamicAnchor = validationContext.getDialect().readDynamicAnchor(schemaNode);
             if (id != null || anchor != null || dynamicAnchor != null) {
                 // Used to register schema resources with $id
                 validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);

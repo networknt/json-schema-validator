@@ -25,9 +25,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
@@ -35,7 +32,6 @@ import java.util.*;
  */
 public class PatternPropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "patternProperties";
-    private static final Logger logger = LoggerFactory.getLogger(PatternPropertiesValidator.class);
     private final Map<RegularExpression, Schema> schemas = new IdentityHashMap<>();
 
     private Boolean hasUnevaluatedPropertiesValidator = null;
@@ -56,7 +52,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         if (!node.isObject()) {
             return;

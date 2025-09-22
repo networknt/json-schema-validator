@@ -31,13 +31,13 @@ class DefaultJsonSchemaIdValidatorTest {
     void givenRelativeIdShouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema, config));
+                () -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
         try {
-            SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema, config);
+            SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema);
         } catch (InvalidSchemaException e) {
             assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
@@ -47,28 +47,28 @@ class DefaultJsonSchemaIdValidatorTest {
     void givenFragmentWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"#0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
     
     @Test
     void givenSlashWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"/base\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
 
     @Test
     void givenRelativeIdWithClasspathBaseShouldNotThrowInvalidSchemaException() {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12)
-                .getSchema(SchemaLocation.of("classpath:schema/id-relative.json"), config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(SchemaLocation.of("classpath:schema/id-relative.json")));
     }
 }

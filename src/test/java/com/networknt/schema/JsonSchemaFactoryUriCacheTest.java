@@ -37,12 +37,12 @@ class JsonSchemaFactoryUriCacheTest {
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
         String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
-        assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri, SchemaValidatorsConfig.builder().build()).schemaNode);
+        assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri).schemaNode);
 
         String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), modifiedSchema);
 
-        assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, SchemaValidatorsConfig.builder().build()).schemaNode);
+        assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri).schemaNode);
     }
 
     private SchemaRegistry buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {

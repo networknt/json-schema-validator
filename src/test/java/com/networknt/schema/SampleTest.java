@@ -32,7 +32,7 @@ class SampleTest {
          */
         schemaFromSchemaLocation.initializeValidators();
         List<Error> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
@@ -55,7 +55,7 @@ class SampleTest {
          */
         schemaFromSchemaLocation.initializeValidators();
         List<Error> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
@@ -76,7 +76,7 @@ class SampleTest {
          */
         schemaFromClasspath.initializeValidators();
         List<Error> errors = schemaFromClasspath.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
@@ -92,7 +92,7 @@ class SampleTest {
         Schema schemaFromString = factory
                 .getSchema("{\"enum\":[1, 2, 3, 4]}");
         List<Error> errors = schemaFromString.validate("7", InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
@@ -118,7 +118,7 @@ class SampleTest {
          */
         schemaFromNode.initializeValidators();
         List<Error> errors = schemaFromNode.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.getExecutionConfig().setFormatAssertionsEnabled(true));
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 }

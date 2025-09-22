@@ -152,11 +152,10 @@ class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
         SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))).build();
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
-            Schema schema = instance.getSchema(example, config);
+            Schema schema = instance.getSchema(example);
             schema.validate(mapper.createObjectNode());
             fail("Expected exception not thrown");
         } catch (JsonSchemaException ex) {
@@ -170,7 +169,7 @@ class UriMappingTest {
         }
         instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
-        Schema schema = instance.getSchema(example, config);
+        Schema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
 
@@ -179,9 +178,8 @@ class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/schema-with-ref-mapping.json");
         SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = instance.getSchema(SchemaLocation.of("resource:uri_mapping/schema-with-ref.json"),
-                config);
+        Schema schema = instance.getSchema(SchemaLocation.of("resource:uri_mapping/schema-with-ref.json")
+                );
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }
 

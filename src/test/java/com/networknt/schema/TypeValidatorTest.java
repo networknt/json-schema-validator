@@ -78,8 +78,9 @@ class TypeValidatorTest {
         assertEquals(1, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
 
         // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-        Schema typeLoose = factory.getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        Schema typeLoose = factory.getSchema(schemaData);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
@@ -173,10 +174,9 @@ class TypeValidatorTest {
                 + "      \"nested\":null\r\n"
                 + "  }\r\n"
                 + "}";
-        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7);
-        final Schema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
-            .nullableKeywordEnabled(false)
-            .build());
+        // nullable keyword enabled false
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7); 
+        final Schema validator = factory.getSchema(schemaData);
 
         final List<Error> errors = validator.validate(inputData, InputFormat.JSON);
         assertEquals(1, errors.size());

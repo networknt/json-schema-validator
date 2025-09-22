@@ -19,19 +19,19 @@ public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
             Schema parentSchema, Keyword keyword,
             ValidationContext validationContext) {
         super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-        Version dialect = this.validationContext.getMetaSchema().getSpecification();
+        Version dialect = this.validationContext.getDialect().getSpecification();
         if (dialect == null || dialect.getOrder() < Version.DRAFT_2019_09.getOrder()) {
             assertionsEnabled = true;
         } else {
             // Check vocabulary
             assertionsEnabled = isFormatAssertionVocabularyEnabled(dialect,
-                    this.validationContext.getMetaSchema().getVocabularies());
+                    this.validationContext.getDialect().getVocabularies());
         }
     }
 
     protected boolean isFormatAssertionVocabularyEnabled() {
-        return isFormatAssertionVocabularyEnabled(this.validationContext.getMetaSchema().getSpecification(),
-                this.validationContext.getMetaSchema().getVocabularies());
+        return isFormatAssertionVocabularyEnabled(this.validationContext.getDialect().getSpecification(),
+                this.validationContext.getDialect().getVocabularies());
     }
 
     protected boolean isFormatAssertionVocabularyEnabled(Version specification, Map<String, Boolean> vocabularies) {

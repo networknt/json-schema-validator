@@ -181,13 +181,16 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"1.000000000000000000000001E+400", "\"1.0000000000000000000000011E+400\""},
         };
 
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, maximum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
+
             // Schema and document parsed with just double
-            Schema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
             List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
@@ -204,7 +207,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
+            v = factory.getSchema(bigDecimalMapper.readTree(schema));
             List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
@@ -294,9 +297,9 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-
-            Schema v = factory.getSchema(mapper.readTree(schema), config);
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
 
             List<Error> messages = v.validate(doc);

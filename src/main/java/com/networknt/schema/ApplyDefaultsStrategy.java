@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
 public class ApplyDefaultsStrategy {
-    static final ApplyDefaultsStrategy EMPTY_APPLY_DEFAULTS_STRATEGY = new ApplyDefaultsStrategy(false, false, false);
+    public static final ApplyDefaultsStrategy EMPTY_APPLY_DEFAULTS_STRATEGY = new ApplyDefaultsStrategy(false, false, false);
 
     private final boolean applyPropertyDefaults;
     private final boolean applyPropertyDefaultsIfNull;

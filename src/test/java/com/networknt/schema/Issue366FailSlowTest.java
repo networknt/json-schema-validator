@@ -24,16 +24,14 @@ class Issue366FailSlowTest {
 
     private void setupSchema() throws IOException {
 
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().typeLoose(false).build();
-        SchemaRegistry schemaFactory = SchemaRegistry
-                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7))
-                .build();
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().typeLoose(false).build();
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
         SchemaLocation uri = getSchema();
 
         InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
         JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
-        this.jsonSchema = schemaFactory.getSchema(uri, testCases, schemaValidatorsConfig);
+        this.jsonSchema = schemaFactory.getSchema(uri, testCases);
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {

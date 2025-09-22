@@ -19,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.Error;
@@ -32,7 +29,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
 public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(PropertyNamesValidator.class);
     private final Schema innerSchema;
     public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
@@ -40,7 +36,7 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         List<Error> existingErrors = executionContext.getErrors();
         List<Error> schemaErrors = new ArrayList<>();

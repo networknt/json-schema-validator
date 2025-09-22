@@ -88,11 +88,9 @@ class V4JsonSchemaTest {
         final ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode schema = getJsonNodeFromResource(objectMapper, schemaFileName);
         final JsonNode dataFile = getJsonNodeFromResource(objectMapper, dataFileName);
-        final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
-        return SchemaRegistry
-            .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4))
-            .build()
-            .getSchema(schema, config)
+        final SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        return SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config))
+            .getSchema(schema)
             .validate(dataFile);
     }
 

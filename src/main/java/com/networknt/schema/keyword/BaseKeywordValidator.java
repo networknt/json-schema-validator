@@ -18,14 +18,11 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
-import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
-
-import org.slf4j.Logger;
 
 import java.util.Collection;
 import java.util.Map;
@@ -48,9 +45,9 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         this.validationContext = validationContext;
 
         this.parentSchema = parentSchema;
-        if (keyword != null && parentSchema != null && validationContext.getConfig().getErrorMessageKeyword() != null) {
+        if (keyword != null && parentSchema != null && validationContext.getSchemaRegistryConfig().getErrorMessageKeyword() != null) {
             this.errorMessage = ErrorMessages.getErrorMessage(parentSchema,
-                    validationContext.getConfig().getErrorMessageKeyword(), keyword.getValue());
+                    validationContext.getSchemaRegistryConfig().getErrorMessageKeyword(), keyword.getValue());
         } else {
             this.errorMessage = null;
         }
@@ -84,29 +81,6 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         this.errorMessage = errorMessage;
 
         this.evaluationParentSchema = evaluationParentSchema;
-    }
-
-    protected static boolean equals(double n1, double n2) {
-        return Math.abs(n1 - n2) < 1e-12;
-    }
-
-    public static void debug(Logger logger, ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
-        //logger.debug("validate( {}, {}, {})", node, rootNode, instanceLocation);
-        // The below is equivalent to the above but as there are more than 2 arguments
-        // the var-arg method is used and an array needs to be allocated even if debug
-        // is not enabled
-        if (executionContext.getExecutionConfig().isDebugEnabled() && logger.isDebugEnabled()) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("validate( ");
-            builder.append(node.toString());
-            builder.append(", ");
-            builder.append(rootNode.toString());
-            builder.append(", ");
-            builder.append(instanceLocation.toString());
-            builder.append(")");
-            logger.debug(builder.toString());
-        }
     }
 
     /**
@@ -182,7 +156,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
 
     protected MessageSourceError.Builder error() {
         return MessageSourceError
-                .builder(this.validationContext.getConfig().getMessageSource(), this.errorMessage)
+                .builder(this.validationContext.getSchemaRegistryConfig().getMessageSource(), this.errorMessage)
                 .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
                 .keyword(this.getKeyword()).messageKey(this.getKeyword());
     }

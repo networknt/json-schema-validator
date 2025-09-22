@@ -85,8 +85,7 @@ class EnumValidatorTest {
                 + "   \"name\": \"FOO\",\r\n"
                 + "   \"cardinality\": 50\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().build());
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertEquals(1, messages.size());
         Error message = messages.get(0);
@@ -105,8 +104,7 @@ class EnumValidatorTest {
                 + "   \"name\": \"FOO\",\r\n"
                 + "   \"cardinality\": 50\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().build());
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertEquals(1, messages.size());
         Error message = messages.get(0);

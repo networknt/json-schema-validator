@@ -27,16 +27,12 @@ import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for items V4 to V2019-09.
  */
 public class ItemsValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ItemsValidator.class);
     private static final String PROPERTY_ADDITIONAL_ITEMS = "additionalItems";
 
     private final Schema schema;
@@ -93,9 +89,9 @@ public class ItemsValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
-        if (!node.isArray() && !this.validationContext.getConfig().isTypeLoose()) {
+        if (!node.isArray() && !this.validationContext.getSchemaRegistryConfig().isTypeLoose()) {
             // ignores non-arrays
             return;
         }
@@ -235,7 +231,7 @@ public class ItemsValidator extends BaseKeywordValidator {
                 int count = Math.max(1, node.size());
                 ArrayNode arrayNode = (ArrayNode) node;
                 JsonNode defaultNode = null;
-                if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
+                if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
                     defaultNode = getDefaultNode(this.schema);
                 }
                 for (int i = 0; i < count; i++) {
@@ -260,7 +256,7 @@ public class ItemsValidator extends BaseKeywordValidator {
                     ArrayNode arrayNode = (ArrayNode) node;
                     JsonNode defaultNode = null;
                     JsonNode n = arrayNode.get(i);
-                    if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
+                    if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
                         defaultNode = getDefaultNode(this.tupleSchema.get(i));
                     }
                     if (n != null) {
@@ -287,7 +283,7 @@ public class ItemsValidator extends BaseKeywordValidator {
                         ArrayNode arrayNode = (ArrayNode) node;
                         JsonNode defaultNode = null;
                         JsonNode n = arrayNode.get(i);
-                        if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
+                        if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()) {
                             defaultNode = getDefaultNode(this.additionalSchema);
                         }
                         if (n != null) {
@@ -333,13 +329,13 @@ public class ItemsValidator extends BaseKeywordValidator {
 
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema, String keyword) {
-        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, keyword,
+        boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, keyword,
                 node, rootNode, instanceLocation, walkSchema, this);
         int currentErrors = executionContext.getErrors().size();
         if (executeWalk) {
             walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
-        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(executionContext, keyword, node, rootNode,
+        executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(executionContext, keyword, node, rootNode,
                 instanceLocation, walkSchema, this, executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
 
     }

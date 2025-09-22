@@ -127,7 +127,7 @@ public class Specification {
     /**
      * Gets the dialect given the dialect id.
      * 
-     * @param version the schema specification version
+     * @param dialectId the schema specification version
      * @return the dialect or null if not found
      */
     public static Dialect getDialect(String dialectId) {

@@ -13,7 +13,8 @@ import java.util.List;
  */
 class Issue426Test {
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("message").build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(schemaContent);
     }
 

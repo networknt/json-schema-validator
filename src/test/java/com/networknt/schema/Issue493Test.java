@@ -69,8 +69,8 @@ class Issue493Test
             allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages,
-                   Matchers.containsInAnyOrder("$.parameters[0].value: string found, integer expected",
-                                               "$.parameters[0].value: does not match the regex pattern ^\\{\\{.+\\}\\}$"));
+                   Matchers.containsInAnyOrder("/parameters/0/value: string found, integer expected",
+                                               "/parameters/0/value: does not match the regex pattern ^\\{\\{.+\\}\\}$"));
     }
 
     @Test
@@ -89,9 +89,9 @@ class Issue493Test
             allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages, Matchers.containsInAnyOrder(
-            "$.parameters[1].value: string found, integer expected",
-            "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
-            "$.parameters[1]: must be valid to one and only one schema, but 0 are valid"
+            "/parameters/1/value: string found, integer expected",
+            "/parameters/1/value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
+            "/parameters/1: must be valid to one and only one schema, but 0 are valid"
         ));
     }
 }

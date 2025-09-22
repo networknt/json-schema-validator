@@ -80,9 +80,9 @@ class Issue687Test {
     @ParameterizedTest
     @MethodSource("errors")
     void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09);
-        Schema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath), config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(pathType).build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
+        Schema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath));
         List<Error> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
         for (String expectedPath: expectedMessagePaths) {
@@ -113,8 +113,8 @@ class Issue687Test {
     @MethodSource("specialCharacterTests")
     void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09)
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().pathType(pathType).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig))
                 .getSchema(mapper.readTree("{\n" +
                         "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
                         "    \"type\": \"object\",\n" +
@@ -123,7 +123,7 @@ class Issue687Test {
                         "            \"type\": \"boolean\"\n" +
                         "        }\n" +
                         "    }\n" +
-                        "}"), schemaValidatorsConfig);
+                        "}"));
         List<Error> errors = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
         assertEquals(1, errors.size());
         assertEquals(expectedPath, errors.iterator().next().getInstanceLocation().toString());

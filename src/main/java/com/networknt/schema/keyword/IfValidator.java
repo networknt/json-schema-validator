@@ -24,17 +24,12 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for if.
  */
 public class IfValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(IfValidator.class);
-
     private static final List<String> KEYWORDS = Arrays.asList("if", "then", "else");
 
     private final Schema ifSchema;
@@ -71,7 +66,7 @@ public class IfValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         boolean ifConditionPassed = false;
 

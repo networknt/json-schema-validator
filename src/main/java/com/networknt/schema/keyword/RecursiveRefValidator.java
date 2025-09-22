@@ -28,17 +28,12 @@ import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.function.Supplier;
 
 /**
  * {@link KeywordValidator} that resolves $recursiveRef.
  */
 public class RecursiveRefValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RecursiveRefValidator.class);
-
     protected final JsonSchemaRef schema;
 
     public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -58,7 +53,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
 
     static JsonSchemaRef getRefSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
             JsonNodePath evaluationPath) {
-        return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, validationContext, refValue, evaluationPath), validationContext.getConfig().isCacheRefs()));
+        return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, validationContext, refValue, evaluationPath), validationContext.getSchemaRegistryConfig().isCacheRefs()));
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
@@ -97,7 +92,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
@@ -111,7 +106,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
 
     @Override
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.
@@ -172,8 +167,8 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
                 break;
             }
         }
-        if (this.validationContext.getConfig().isCacheRefs() && !circularDependency
-                && depth < this.validationContext.getConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
+        if (this.validationContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
+                && depth < this.validationContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

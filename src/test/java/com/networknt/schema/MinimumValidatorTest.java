@@ -172,10 +172,11 @@ class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, minimum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
 
             // Schema and document parsed with just double
-            Schema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
             List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value));
@@ -196,7 +197,8 @@ class MinimumValidatorTest {
             }
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
+            
+            v = factory.getSchema(bigDecimalMapper.readTree(schema));
             List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
@@ -287,9 +289,9 @@ class MinimumValidatorTest {
             String minimum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(integer, minimum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-
-            Schema v = factory.getSchema(mapper.readTree(schema), config);
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = bigIntegerMapper.readTree(value);
 
             List<Error> messages = v.validate(doc);

@@ -27,7 +27,7 @@ public interface ExecutionContextCustomizer {
      * The validation context should only be used for reference as it is shared.
      * 
      * @param executionContext  the execution context
-     * @param validationContext the validation context for reference
+     * @param schemaContext the schema context for reference
      */
-    void customize(ExecutionContext executionContext, ValidationContext validationContext);
+    void customize(ExecutionContext executionContext, ValidationContext schemaContext);
 }

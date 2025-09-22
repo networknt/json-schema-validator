@@ -25,9 +25,6 @@ import com.networknt.schema.ValidationContext;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static com.networknt.schema.keyword.VersionCode.MinV202012;
 
 import java.util.*;
@@ -38,8 +35,6 @@ import java.util.stream.Collectors;
  * {@link KeywordValidator} for unevaluatedItems.
  */
 public class UnevaluatedItemsValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(UnevaluatedItemsValidator.class);
-
     private final Schema schema;
 
     private final boolean isMinV202012;
@@ -63,7 +58,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
             return;
         }
 
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         /*
          * Keywords renamed in 2020-12
          * 

@@ -36,10 +36,10 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": \"aa\"\r\n"
                 + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .messageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"))
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         String inputData = "\"bb\"";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(": must be the constant value 'aa' but is 'bb'", messages.iterator().next().toString());
@@ -50,10 +50,10 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1\r\n"
                 + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .messageSource(new ResourceBundleMessageSource("const-messages-override", "jsv-messages"))
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         String inputData = "2";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(": must be the constant value '1' but is '2'", messages.iterator().next().toString());
@@ -64,8 +64,8 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": \"aa\"\r\n"
                 + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         String inputData = "\"aa\"";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -76,8 +76,7 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1234.56789\r\n"
                 + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         String inputData = "1234.56789";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -88,8 +87,7 @@ class ConstValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"const\": 1234.56789\r\n"
                 + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
         String inputData = "\"1234.56789\"";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());

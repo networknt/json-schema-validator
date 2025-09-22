@@ -11,7 +11,7 @@ public interface RegularExpression {
 
     static RegularExpression compile(String regex, ValidationContext validationContext) {
         if (null == regex) return s -> true;
-        return validationContext.getConfig().getRegularExpressionFactory().getRegularExpression(regex);
+        return validationContext.getSchemaRegistryConfig().getRegularExpressionFactory().getRegularExpression(regex);
     }
 
 }

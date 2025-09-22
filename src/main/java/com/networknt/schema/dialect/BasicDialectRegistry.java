@@ -20,7 +20,6 @@ import java.util.function.Function;
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.SchemaValidatorsConfig;
 
 public class BasicDialectRegistry implements DialectRegistry {
     private Function<String, Dialect> dialects;
@@ -34,7 +33,7 @@ public class BasicDialectRegistry implements DialectRegistry {
     }
 
     @Override
-    public Dialect getDialect(String dialectId, SchemaRegistry schemaRegistry, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, SchemaRegistry schemaRegistry) {
         Dialect dialect = dialects.apply(dialectId);
         if (dialect != null) {
             return dialect;

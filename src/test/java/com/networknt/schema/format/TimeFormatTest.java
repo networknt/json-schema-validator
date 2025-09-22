@@ -25,7 +25,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 
@@ -59,9 +58,9 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
-        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -88,9 +87,9 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData, config);
-        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertFalse(messages.isEmpty());
     }
 }

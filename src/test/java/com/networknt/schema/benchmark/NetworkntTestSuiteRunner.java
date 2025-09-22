@@ -21,13 +21,15 @@ public class NetworkntTestSuiteRunner implements Callable<Object> {
     public Object call() {
         List<Object> results = new ArrayList<>();
         for (NetworkntTestSuiteTestCase testCase : testCases) {
-            for (TestSpec testSpec : testCase.getTestCase().getTests()) {
-                results.add(
-                        testCase.getSchema().validate(testSpec.getData(), OutputFormat.DEFAULT, executionContext -> {
-                            executionContext.getExecutionConfig()
-                                    .setFormatAssertionsEnabled(testCase.getFormatAssertionsEnabled());
-                        }));
-            }
+			for (TestSpec testSpec : testCase.getTestCase().getTests()) {
+				results.add(
+						testCase.getSchema().validate(testSpec.getData(), OutputFormat.DEFAULT, executionContext -> {
+							if (testCase.getFormatAssertionsEnabled() != null) {
+								executionContext.executionConfig(executionConfig -> executionConfig
+										.formatAssertionsEnabled(testCase.getFormatAssertionsEnabled()));
+							}
+						}));
+			}
         }
         return results;
     }

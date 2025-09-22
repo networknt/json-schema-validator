@@ -9,7 +9,7 @@ import java.util.List;
  * Listener class that captures walkStart and walkEnd events.
  *
  */
-public interface JsonSchemaWalkListener {
+public interface WalkListener {
 
 	WalkFlow onWalkStart(WalkEvent walkEvent);
 

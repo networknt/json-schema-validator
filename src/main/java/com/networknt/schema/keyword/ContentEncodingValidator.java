@@ -25,9 +25,6 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Base64;
 
 /**
@@ -37,7 +34,6 @@ import java.util.Base64;
  * errors.
  */
 public class ContentEncodingValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ContentEncodingValidator.class);
     private final String contentEncoding;
 
     /**
@@ -72,10 +68,8 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
         // Ignore non-strings
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return;
         }

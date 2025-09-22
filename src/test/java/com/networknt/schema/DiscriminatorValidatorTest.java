@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialects;
 
 /**
  * Test for discriminator.
@@ -115,9 +115,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
         
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -147,9 +146,8 @@ class DiscriminatorValidatorTest {
                 + "                   \"intOrStringType\": 4\r\n"
                 + "               }";
         
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -240,9 +238,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -333,9 +330,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
     }
@@ -423,9 +419,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
@@ -519,9 +514,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
@@ -619,9 +613,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
@@ -674,9 +667,8 @@ class DiscriminatorValidatorTest {
 
         String inputData = "{}";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         List<Error> list = messages.stream().collect(Collectors.toList());
@@ -770,9 +762,8 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         List<Error> list = messages.stream().collect(Collectors.toList());
         assertEquals("required", list.get(0).getKeyword());

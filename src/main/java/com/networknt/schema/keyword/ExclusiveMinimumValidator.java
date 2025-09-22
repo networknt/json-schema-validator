@@ -27,9 +27,6 @@ import com.networknt.schema.ThresholdMixin;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -37,8 +34,6 @@ import java.math.BigInteger;
  * {@link KeywordValidator} for exclusiveMinimum.
  */
 public class ExclusiveMinimumValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ExclusiveMinimumValidator.class);
-
     /**
      * In order to limit number of `if` statements in `validate` method, all the
      * logic of picking the right comparison is abstracted into a mixin.
@@ -111,9 +106,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        if (!JsonNodeUtil.isNumber(node, this.validationContext.getConfig())) {
+        if (!JsonNodeUtil.isNumber(node, this.validationContext.getSchemaRegistryConfig())) {
             // minimum only applies to numbers
             return;
         }

@@ -32,7 +32,7 @@ public class DurationFormat implements Format {
     }
 
     protected boolean isStrictValidation(ValidationContext validationContext) {
-        return validationContext.getConfig().isStrict(DURATION);
+        return validationContext.getSchemaRegistryConfig().isStrict(DURATION);
     }
 
     @Override

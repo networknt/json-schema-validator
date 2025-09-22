@@ -32,7 +32,7 @@ class Issue342Test {
         List<Error> errors = schema.validate(node);
         Assertions.assertEquals(1, errors.size());
         final Error error = errors.iterator().next();
-        Assertions.assertEquals("$", error.getInstanceLocation().toString());
-        Assertions.assertEquals("$: property 'z' name is not valid: does not have a value in the enumeration [\"a\", \"b\", \"c\"]", error.toString());
+        Assertions.assertEquals("", error.getInstanceLocation().toString());
+        Assertions.assertEquals(": property 'z' name is not valid: does not have a value in the enumeration [\"a\", \"b\", \"c\"]", error.toString());
     }
 }

@@ -55,14 +55,13 @@ class ContentSchemaValidatorTest {
                 + "    }\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
 
         String inputData = "\"helloworld\"";
 
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"details\":[{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"annotations\":{\"contentMediaType\":\"application/jwt\",\"contentSchema\":{\"type\":\"array\",\"minItems\":2,\"prefixItems\":[{\"const\":{\"typ\":\"JWT\",\"alg\":\"HS256\"}},{\"type\":\"object\",\"required\":[\"iss\",\"exp\"],\"properties\":{\"iss\":{\"type\":\"string\"},\"exp\":{\"type\":\"integer\"}}}]}}}]}";

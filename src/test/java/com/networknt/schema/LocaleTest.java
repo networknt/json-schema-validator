@@ -33,11 +33,11 @@ import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class LocaleTest {
-    private Schema getSchema(SchemaValidatorsConfig config) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09);
+    private Schema getSchema(SchemaRegistryConfig config) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(
-                "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }",
-                config);
+                "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }"
+                );
     }
 
     /**
@@ -50,21 +50,21 @@ class LocaleTest {
     @Test
     void executionContextLocale() throws JsonMappingException, JsonProcessingException {
         JsonNode rootNode = new ObjectMapper().readTree(" { \"foo\": 123 } ");
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
         Schema jsonSchema = getSchema(config);
 
         Locale locale = Locales.findSupported("it;q=0.9,fr;q=1.0"); // fr
         ExecutionContext executionContext = jsonSchema.createExecutionContext();
         assertEquals(config.getLocale(), executionContext.getExecutionConfig().getLocale());
-        executionContext.getExecutionConfig().setLocale(locale);
+        executionContext.executionConfig(executionConfig -> executionConfig.locale(locale));
         List<Error> messages = jsonSchema.validate(executionContext, rootNode, OutputFormat.DEFAULT);
         assertEquals(1, messages.size());
         assertEquals("/foo: integer trouvé, string attendu", messages.iterator().next().toString());
 
-        locale = Locales.findSupported("it;q=1.0,fr;q=0.9"); // it
+        Locale locale2 = Locales.findSupported("it;q=1.0,fr;q=0.9"); // it
         executionContext = jsonSchema.createExecutionContext();
         assertEquals(config.getLocale(), executionContext.getExecutionConfig().getLocale());
-        executionContext.getExecutionConfig().setLocale(locale);
+        executionContext.executionConfig(executionConfig -> executionConfig.locale(locale2));
         messages = jsonSchema.validate(executionContext, rootNode, OutputFormat.DEFAULT);
         assertEquals(1, messages.size());
         assertEquals("/foo: integer trovato, string previsto", messages.iterator().next().toString());
@@ -93,11 +93,11 @@ class LocaleTest {
             String input = "1";
             List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
-            assertEquals("$: integer gefunden, object erwartet", messages.iterator().next().toString());
+            assertEquals(": integer gefunden, object erwartet", messages.iterator().next().toString());
             
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.ENGLISH).build();
-            jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7)
-                    .getSchema(JsonMapperFactory.getInstance().readTree(schema), config);
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().locale(Locale.ENGLISH).build();
+            jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config))
+                    .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
             assertEquals(": integer found, object expected", messages.iterator().next().toString());
@@ -115,40 +115,40 @@ class LocaleTest {
     @Test
     void encoding() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("ar","$: يجب أن يكون طوله 5 حرفًا على الأكثر");
-        expected.put("cs","$: musí mít maximálně 5 znaků");
-        expected.put("da","$: må højst være på 5 tegn");
-        expected.put("de","$: darf höchstens 5 Zeichen lang sein");
-        expected.put("es","$: debe tener como máximo 5 caracteres");
-        expected.put("fa","$: باید حداکثر 5 کاراکتر باشد");
-        expected.put("fi","$: saa olla enintään 5 merkkiä pitkä");
-        expected.put("fr","$: doit contenir au plus 5 caractères");
-        expected.put("iw","$: חייב להיות באורך של 5 תווים לכל היותר");
-        expected.put("he","$: חייב להיות באורך של 5 תווים לכל היותר");
-        expected.put("hr","$: mora imati najviše 5 znakova");
-        expected.put("hu","$: legfeljebb 5 karakter hosszúságú lehet");
-        expected.put("it","$: deve contenere al massimo 5 caratteri");
-        expected.put("ja","$: 長さは最大 5 文字でなければなりません");
-        expected.put("ko","$: 길이는 최대 5자여야 합니다.");
-        expected.put("nb","$: må bestå av maksimalt 5 tegn");
-        expected.put("nl","$: mag maximaal 5 tekens lang zijn");
-        expected.put("pl","$: musi mieć maksymalnie 5 znaków");
-        expected.put("pt","$: deve ter no máximo 5 caracteres");
-        expected.put("ro","$: trebuie să aibă cel mult 5 caractere");
-        expected.put("ru","$: длина должна быть не более 5 символов.");
-        expected.put("sk","$: musí mať maximálne 5 znakov");
-        expected.put("sv","$: får vara högst 5 tecken lång");
-        expected.put("th","$: ต้องมีความยาวสูงสุด 5 อักขระ");
-        expected.put("tr","$: en fazla 5 karakter uzunluğunda olmalıdır");
-        expected.put("uk","$: не більше ніж 5 символів");
-        expected.put("vi","$: phải dài tối đa 5 ký tự");
-        expected.put("zh_CN","$: 长度不得超过 5 个字符");
-        expected.put("zh_TW","$: 長度不得超過 5 個字元");
+        expected.put("ar",": يجب أن يكون طوله 5 حرفًا على الأكثر");
+        expected.put("cs",": musí mít maximálně 5 znaků");
+        expected.put("da",": må højst være på 5 tegn");
+        expected.put("de",": darf höchstens 5 Zeichen lang sein");
+        expected.put("es",": debe tener como máximo 5 caracteres");
+        expected.put("fa",": باید حداکثر 5 کاراکتر باشد");
+        expected.put("fi",": saa olla enintään 5 merkkiä pitkä");
+        expected.put("fr",": doit contenir au plus 5 caractères");
+        expected.put("iw",": חייב להיות באורך של 5 תווים לכל היותר");
+        expected.put("he",": חייב להיות באורך של 5 תווים לכל היותר");
+        expected.put("hr",": mora imati najviše 5 znakova");
+        expected.put("hu",": legfeljebb 5 karakter hosszúságú lehet");
+        expected.put("it",": deve contenere al massimo 5 caratteri");
+        expected.put("ja",": 長さは最大 5 文字でなければなりません");
+        expected.put("ko",": 길이는 최대 5자여야 합니다.");
+        expected.put("nb",": må bestå av maksimalt 5 tegn");
+        expected.put("nl",": mag maximaal 5 tekens lang zijn");
+        expected.put("pl",": musi mieć maksymalnie 5 znaków");
+        expected.put("pt",": deve ter no máximo 5 caracteres");
+        expected.put("ro",": trebuie să aibă cel mult 5 caractere");
+        expected.put("ru",": длина должна быть не более 5 символов.");
+        expected.put("sk",": musí mať maximálne 5 znakov");
+        expected.put("sv",": får vara högst 5 tecken lång");
+        expected.put("th",": ต้องมีความยาวสูงสุด 5 อักขระ");
+        expected.put("tr",": en fazla 5 karakter uzunluğunda olmalıdır");
+        expected.put("uk",": не більше ніж 5 символів");
+        expected.put("vi",": phải dài tối đa 5 ký tự");
+        expected.put("zh_CN",": 长度不得超过 5 个字符");
+        expected.put("zh_TW",": 長度不得超過 5 個字元");
 
         // In later JDK versions the numbers will be formatted
         Map<String, String> expectedAlternate = new HashMap<>();
-        expectedAlternate.put("ar","$: يجب أن يكون طوله ٥ حرفًا على الأكثر");
-        expectedAlternate.put("fa","$: باید حداکثر ۵ کاراکتر باشد");
+        expectedAlternate.put("ar",": يجب أن يكون طوله ٥ حرفًا على الأكثر");
+        expectedAlternate.put("fa",": باید حداکثر ۵ کاراکتر باشد");
 
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
@@ -158,7 +158,7 @@ class LocaleTest {
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
             List<Error> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {
-                executionContext.getExecutionConfig().setLocale(locale);
+                executionContext.executionConfig(executionConfig -> executionConfig.locale(locale));
             });
             String msg = messages.iterator().next().toString();
             String expectedMsg = expected.get(locale.toString());

@@ -7,7 +7,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.KeywordValidator;
 
 /**
- * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
+ * Encapsulation of Walk data that is passed into the {@link WalkListener}.
  */
 public class WalkEvent {
 

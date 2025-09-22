@@ -51,8 +51,10 @@ class ErrorHandlerTest {
                 + "  \"foo\": \"a\",\r\n"
                 + "  \"bar\": 2\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("errorMessage").build();
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
         assertEquals("/foo", messages.get(0).getInstanceLocation().toString());
@@ -81,8 +83,8 @@ class ErrorHandlerTest {
         String inputData = "{\r\n"
                 + "  \"keyword1\": 2\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("errorMessage").build();
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
         assertEquals("/keyword1", messages.get(0).getInstanceLocation().toString());

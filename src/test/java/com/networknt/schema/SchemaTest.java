@@ -55,11 +55,12 @@ class SchemaTest {
         String inputData = "{\r\n"
                 + "  \"name\": 1\r\n"
                 + "}";
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().preloadJsonSchema(false).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
+                builder -> builder.schemaRegistryConfig(config)
+                        .schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().preloadJsonSchema(false).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         Exception[] instance = new Exception[1];
         CountDownLatch latch = new CountDownLatch(1);
         List<Thread> threads = new ArrayList<>();

@@ -28,16 +28,12 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for anyOf.
  */
 public class AnyOfValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(AnyOfValidator.class);
     private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
 
     private final List<Schema> schemas;
@@ -47,7 +43,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
     public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
         if (!schemaNode.isArray()) {
-            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getSchemaRegistryConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
@@ -70,9 +66,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+        if (this.validationContext.isDiscriminatorKeywordEnabled()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
         int numberOfValidSubSchemas = 0;
@@ -113,13 +107,13 @@ public class AnyOfValidator extends BaseKeywordValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.getConfig().isDiscriminatorKeywordEnabled())
+                    if (errors.isEmpty() && (!this.validationContext.isDiscriminatorKeywordEnabled())
                             && canShortCircuit() && canShortCircuit(executionContext)) {
                         // Clear all errors. Note that this is checked in finally.
                         allErrors = null;
                         executionContext.setErrors(existingErrors);
                         return;
-                    } else if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+                    } else if (this.validationContext.isDiscriminatorKeywordEnabled()) {
                         DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
                         if (currentDiscriminatorContext.isDiscriminatorMatchFound()
                                 || currentDiscriminatorContext.isDiscriminatorIgnore()) {
@@ -153,7 +147,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 executionContext.setFailFast(failFast);
             }
 
-            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()
+            if (this.validationContext.isDiscriminatorKeywordEnabled()
                     && executionContext.getCurrentDiscriminatorContext().isActive()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
@@ -165,7 +159,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 return;
             }
         } finally {
-            if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+            if (this.validationContext.isDiscriminatorKeywordEnabled()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
         }

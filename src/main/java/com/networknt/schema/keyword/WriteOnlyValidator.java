@@ -16,19 +16,15 @@ import com.networknt.schema.ValidationContext;
 public class WriteOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(WriteOnlyValidator.class);
 
-    private final boolean writeOnly;
-
     public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
         super(ValidatorTypeCode.WRITE_ONLY, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-
-        this.writeOnly = validationContext.getConfig().isWriteOnly();
         logger.debug("Loaded WriteOnlyValidator for property {} as {}", parentSchema, "write mode");
     }
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
-        if (this.writeOnly) {
+        
+        if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getWriteOnly())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .build());

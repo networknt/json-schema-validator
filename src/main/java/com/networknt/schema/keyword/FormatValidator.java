@@ -58,7 +58,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
     }
     
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         /*
          * Annotations must be collected even if the format is unknown according to the specification.
          */
@@ -137,6 +137,6 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
      * @return whether to perform strict handling
      */
     protected boolean isStrict(ExecutionContext executionContext) {
-        return this.validationContext.getConfig().isStrict(getKeyword(), Boolean.FALSE);
+        return this.validationContext.getSchemaRegistryConfig().isStrict(getKeyword(), Boolean.FALSE);
     }
 }

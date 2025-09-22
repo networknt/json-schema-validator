@@ -450,14 +450,14 @@ public class Dialect {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
-                if (keyword.equals(validationContext.getConfig().getErrorMessageKeyword())) {
+                if (keyword.equals(validationContext.getSchemaRegistryConfig().getErrorMessageKeyword())) {
                     return null;
                 }
-                if (validationContext.getConfig().isNullableKeywordEnabled() && "nullable".equals(keyword)) {
+                if (validationContext.isNullableKeywordEnabled() && "nullable".equals(keyword)) {
                     return null;
                 }
                 if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)
-                        && validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+                        && validationContext.isDiscriminatorKeywordEnabled()) {
                     return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
                             parentSchema, validationContext);
                 }

@@ -54,14 +54,11 @@ public class BaseJsonSchemaValidatorTest {
         return getJsonSchemaFromClasspath(name, schemaVersion, null);
     }
 
-    public static Schema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion, SchemaValidatorsConfig config) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(schemaVersion);
+    public static Schema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion, SchemaRegistryConfig config) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(schemaVersion, builder -> builder.schemaRegistryConfig(config));
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
-        if (config == null) {
-            return factory.getSchema(is);
-        }
-        return factory.getSchema(is, config);
+        return factory.getSchema(is);
     }
 
     public static Schema getJsonSchemaFromStringContent(String schemaContent) {

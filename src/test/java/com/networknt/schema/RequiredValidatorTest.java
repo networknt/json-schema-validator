@@ -56,13 +56,14 @@ class RequiredValidatorTest {
                 + "  ]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.readOnly(true))));
         assertEquals(messages.size(), 2);
         Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
@@ -100,13 +101,14 @@ class RequiredValidatorTest {
                 + "  ]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.writeOnly(true))));
         assertEquals(messages.size(), 2);
         Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
@@ -144,13 +146,14 @@ class RequiredValidatorTest {
                 + "  ]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"amount\":10,\r\n"
                 + "  \"description\":\"world\"\r\n"
                 + "}";
-        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.readOnly(true))));
         assertEquals(messages.size(), 0);
     }
 
@@ -182,13 +185,14 @@ class RequiredValidatorTest {
                 + "  ]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        Schema schema = factory.getSchema(schemaData, config);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"description\":\"world\",\r\n"
                 + "  \"name\":\"hello\"\r\n"
                 + "}";
-        List<Error> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.writeOnly(true))));
         assertEquals(messages.size(), 0);
     }
 }

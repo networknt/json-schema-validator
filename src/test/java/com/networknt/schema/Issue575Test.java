@@ -122,7 +122,7 @@ class Issue575Test {
     @MethodSource("invalidTimeRepresentations")
     void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
         List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         Assertions.assertFalse(errors.isEmpty());
     }

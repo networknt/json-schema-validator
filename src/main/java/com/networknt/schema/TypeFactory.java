@@ -74,7 +74,7 @@ public class TypeFactory {
      * @param config the config
      * @return the json type
      */
-    public static JsonType getValueNodeType(JsonNode node, SchemaValidatorsConfig config) {
+    public static JsonType getValueNodeType(JsonNode node, SchemaRegistryConfig config) {
         if (node == null) {
             // This returns JsonType.UNKNOWN to be consistent with the behavior when
             // JsonNodeType.MISSING

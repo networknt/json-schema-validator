@@ -48,9 +48,9 @@ class Issue662Test extends BaseJsonSchemaValidatorTest {
         // Omitting the 'object found, null expected' message also provides the misleading impression that the
         // object is required when leaving it empty is a possible option
         assertTrue(errorMessages
-                .contains("$.properties.optionalObject.anyOf[0].type = $.optionalObject: object found, null expected"));
+                .contains("/properties/optionalObject/anyOf/0/type = /optionalObject: object found, null expected"));
         assertTrue(errorMessages.contains(
-                "$.properties.optionalObject.anyOf[1].properties.value.enum = $.optionalObject.value: does not have a value in the enumeration [\"one\", \"two\"]"));
+                "/properties/optionalObject/anyOf/1/properties/value/enum = /optionalObject/value: does not have a value in the enumeration [\"one\", \"two\"]"));
     }
 
     private static String resource(String name) {

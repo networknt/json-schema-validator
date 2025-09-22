@@ -17,8 +17,7 @@ class RefTest {
     @Test
     void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -26,7 +25,7 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(DialectId.DRAFT_4, schema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_4, schema.getValidationContext().getDialect().getIri());
         List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         Error error = errors.iterator().next();
@@ -40,8 +39,7 @@ class RefTest {
     @Test
     void shouldLoadSchemaResource() throws JsonProcessingException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -49,7 +47,7 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(DialectId.DRAFT_4, schema.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_4, schema.getValidationContext().getDialect().getIri());
         List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         Error error = errors.iterator().next();
@@ -60,8 +58,8 @@ class RefTest {
         assertEquals("field1", error.getProperty());
         Schema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
         Schema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
-        assertEquals(DialectId.DRAFT_4, driver.getValidationContext().getMetaSchema().getIri());
-        assertEquals(DialectId.DRAFT_7, common.getValidationContext().getMetaSchema().getIri());
+        assertEquals(DialectId.DRAFT_4, driver.getValidationContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_7, common.getValidationContext().getDialect().getIri());
 
     }
 }

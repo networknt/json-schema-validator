@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.Specification.Version;
+import com.networknt.schema.dialect.Dialects;
 
 /**
  * OneOfValidatorTest.
@@ -64,7 +65,8 @@ class OneOfValidatorTest {
                 + "  \"fox\" : \"test\",\r\n"
                 + "  \"world\" : \"test\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size()); // even if more than 1 matches the mismatch errors are still reported
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -105,7 +107,8 @@ class OneOfValidatorTest {
         String inputData = "{\r\n"
                 + "  \"test\" : 1\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(4, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -301,8 +304,7 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  ]\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         String inputData = "{}";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
@@ -355,8 +357,7 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         // Valid
         String inputData = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
@@ -374,8 +375,7 @@ class OneOfValidatorTest {
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
-        Schema schema2 = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
+        Schema schema2 = SchemaRegistry.withDialect(Dialects.getDraft202012()).getSchema(schemaData);
         List<Error> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }
@@ -443,8 +443,7 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         // Valid
         String inputData = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
@@ -462,8 +461,7 @@ class OneOfValidatorTest {
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
-        Schema schema2 = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
+        Schema schema2 = SchemaRegistry.withDialect(Dialects.getDraft202012()).getSchema(schemaData);
         List<Error> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }

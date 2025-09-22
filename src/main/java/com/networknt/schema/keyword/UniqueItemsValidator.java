@@ -23,9 +23,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,8 +30,6 @@ import java.util.Set;
  * {@link KeywordValidator} for uniqueItems.
  */
 public class UniqueItemsValidator extends BaseKeywordValidator implements KeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(UniqueItemsValidator.class);
-
     private final boolean unique;
 
     public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -47,7 +42,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         if (unique) {
             Set<JsonNode> set = new HashSet<>();

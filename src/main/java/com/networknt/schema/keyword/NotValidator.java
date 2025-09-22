@@ -24,17 +24,12 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 /**
  * {@link KeywordValidator} for not.
  */
 public class NotValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(NotValidator.class);
-
     private final Schema schema;
 
     public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -51,7 +46,7 @@ public class NotValidator extends BaseKeywordValidator {
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
         
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();

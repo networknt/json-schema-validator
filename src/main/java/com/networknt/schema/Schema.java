@@ -40,8 +40,8 @@ import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Used for creating a schema with validators for validating inputs. This is
- * created using {@link SchemaRegistry#withDefaultDialect(Version, Consumer)}
- * and should be cached for performance.
+ * created using SchemaRegistry#withDefaultDialect(Version, Consumer) and should
+ * be cached for performance.
  * <p>
  * This is the core of json constraint implementation. It parses json constraint
  * file and generates JsonValidators. The class is thread safe, once it is
@@ -117,10 +117,8 @@ public class Schema implements Validator {
         if (text == null) {
             return null;
         }
-
         final SchemaLocation schemaLocation = SchemaLocation.of(node.textValue());
-
-        return validationContext.getJsonSchemaFactory().getSchema(schemaLocation, validationContext.getConfig());
+        return validationContext.getSchemaRegistry().getSchema(schemaLocation);
     }
     public static class JsonNodePathLegacy {
         private static final JsonNodePath INSTANCE = new JsonNodePath(PathType.LEGACY);
@@ -153,14 +151,14 @@ public class Schema implements Validator {
      * @return The path.
      */
     protected JsonNodePath atRoot() {
-        if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_POINTER)) {
+        if (this.validationContext.getSchemaRegistryConfig().getPathType().equals(PathType.JSON_POINTER)) {
             return JsonNodePathJsonPointer.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.LEGACY)) {
+        } else if (this.validationContext.getSchemaRegistryConfig().getPathType().equals(PathType.LEGACY)) {
             return JsonNodePathLegacy.getInstance();
-        } else if (this.validationContext.getConfig().getPathType().equals(PathType.JSON_PATH)) {
+        } else if (this.validationContext.getSchemaRegistryConfig().getPathType().equals(PathType.JSON_PATH)) {
             return JsonNodePathJsonPath.getInstance();
         }
-        return new JsonNodePath(this.validationContext.getConfig().getPathType());
+        return new JsonNodePath(this.validationContext.getSchemaRegistryConfig().getPathType());
     }    
 
     static Schema from(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
@@ -184,18 +182,18 @@ public class Schema implements Validator {
                 resolve = id.substring(0, fragment);
             }
             SchemaLocation result = !"".equals(resolve) ? schemaLocation.resolve(resolve) : schemaLocation;
-            JsonSchemaIdValidator validator = validationContext.getConfig().getSchemaIdValidator();
+            JsonSchemaIdValidator validator = validationContext.getSchemaRegistryConfig().getSchemaIdValidator();
             if (validator != null) {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, validationContext)) {
-                    SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getMetaSchema().getIdKeyword());
+                    SchemaLocation idSchemaLocation = schemaLocation.append(validationContext.getDialect().getIdKeyword());
                     Error error = Error.builder()
                             .messageKey(ValidatorTypeCode.ID.getValue()).keyword(ValidatorTypeCode.ID.getValue())
                             .instanceLocation(idSchemaLocation.getFragment())
-                            .arguments(id, validationContext.getMetaSchema().getIdKeyword(), idSchemaLocation)
+                            .arguments(id, validationContext.getDialect().getIdKeyword(), idSchemaLocation)
                             .schemaLocation(idSchemaLocation)
                             .schemaNode(schemaNode)
-                            .messageFormatter(args -> validationContext.getConfig().getMessageSource().getMessage(
-                                    ValidatorTypeCode.ID.getValue(), validationContext.getConfig().getLocale(), args))
+                            .messageFormatter(args -> validationContext.getSchemaRegistryConfig().getMessageSource().getMessage(
+                                    ValidatorTypeCode.ID.getValue(), validationContext.getSchemaRegistryConfig().getLocale(), args))
                             .build();
                     throw new InvalidSchemaException(error);
                 }
@@ -243,7 +241,7 @@ public class Schema implements Validator {
                 this.id = null;
             }
         }
-        String anchor = this.validationContext.getMetaSchema().readAnchor(this.schemaNode);
+        String anchor = this.validationContext.getDialect().readAnchor(this.schemaNode);
         if (anchor != null) {
             String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
                     ? this.schemaLocation.getAbsoluteIri().toString()
@@ -251,7 +249,7 @@ public class Schema implements Validator {
             this.validationContext.getSchemaResources()
                     .putIfAbsent(absoluteIri + "#" + anchor, this);
         }
-        String dynamicAnchor = this.validationContext.getMetaSchema().readDynamicAnchor(schemaNode);
+        String dynamicAnchor = this.validationContext.getDialect().readDynamicAnchor(schemaNode);
         if (dynamicAnchor != null) {
             String absoluteIri = this.schemaLocation.getAbsoluteIri() != null
                     ? this.schemaLocation.getAbsoluteIri().toString()
@@ -324,9 +322,8 @@ public class Schema implements Validator {
      * @return the schema
      */
     public Schema fromRef(Schema refEvaluationParentSchema, JsonNodePath refEvaluationPath) {
-        ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
-                this.getValidationContext().getJsonSchemaFactory(),
-                refEvaluationParentSchema.validationContext.getConfig(),
+        ValidationContext validationContext = new ValidationContext(this.getValidationContext().getDialect(),
+                this.getValidationContext().getSchemaRegistry(),
                 refEvaluationParentSchema.getValidationContext().getSchemaReferences(),
                 refEvaluationParentSchema.getValidationContext().getSchemaResources(),
                 refEvaluationParentSchema.getValidationContext().getDynamicAnchors());
@@ -352,43 +349,43 @@ public class Schema implements Validator {
                 evaluationParentSchema, /* errorMessage */ null);
     }
 
-    public Schema withConfig(SchemaValidatorsConfig config) {
-        if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
-                && !config.isDiscriminatorKeywordEnabled()) {
-            config = SchemaValidatorsConfig.builder(config)
-                    .discriminatorKeywordEnabled(true)
-                    .nullableKeywordEnabled(true)
-                    .build();
-        }
-        if (!this.getValidationContext().getConfig().equals(config)) {
-            ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
-                    this.getValidationContext().getJsonSchemaFactory(), config,
-                    this.getValidationContext().getSchemaReferences(),
-                    this.getValidationContext().getSchemaResources(),
-                    this.getValidationContext().getDynamicAnchors());
-            boolean validatorsLoaded = false;
-            TypeValidator typeValidator = null;
-            List<KeywordValidator> validators = null;
-            return new Schema(
-                    /* Below from JsonSchema */
-                    validators,
-                    validatorsLoaded,
-                    recursiveAnchor,
-                    typeValidator,
-                    id,            
-                    /* Below from BaseJsonValidator */
-                    suppressSubSchemaRetrieval,
-                    schemaNode,
-                    validationContext,
-                    parentSchema,
-                    schemaLocation,
-                    evaluationPath,
-                    evaluationParentSchema,
-                    /* errorMessage */ null);
-
-        }
-        return this;
-    }
+//    public Schema withConfig(SchemaValidatorsConfig config) {
+//        if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
+//                && !config.isDiscriminatorKeywordEnabled()) {
+//            config = SchemaValidatorsConfig.builder(config)
+//                    .discriminatorKeywordEnabled(true)
+//                    .nullableKeywordEnabled(true)
+//                    .build();
+//        }
+//        if (!this.getValidationContext().getSchemaRegistryConfig().equals(config)) {
+//            ValidationContext validationContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
+//                    this.getValidationContext().getSchemaRegistry(), config,
+//                    this.getValidationContext().getSchemaReferences(),
+//                    this.getValidationContext().getSchemaResources(),
+//                    this.getValidationContext().getDynamicAnchors());
+//            boolean validatorsLoaded = false;
+//            TypeValidator typeValidator = null;
+//            List<KeywordValidator> validators = null;
+//            return new Schema(
+//                    /* Below from JsonSchema */
+//                    validators,
+//                    validatorsLoaded,
+//                    recursiveAnchor,
+//                    typeValidator,
+//                    id,            
+//                    /* Below from BaseJsonValidator */
+//                    suppressSubSchemaRetrieval,
+//                    schemaNode,
+//                    validationContext,
+//                    parentSchema,
+//                    schemaLocation,
+//                    evaluationPath,
+//                    evaluationParentSchema,
+//                    /* errorMessage */ null);
+//
+//        }
+//        return this;
+//    }
 
     public ValidationContext getValidationContext() {
         return this.validationContext;
@@ -703,7 +700,7 @@ public class Schema implements Validator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+        if (this.validationContext.isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
                 executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
@@ -715,7 +712,7 @@ public class Schema implements Validator {
             v.validate(executionContext, jsonNode, rootNode, instanceLocation);
         }
 
-        if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
+        if (this.validationContext.isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
             if (null != discriminator) {
                 final DiscriminatorContext discriminatorContext = executionContext
@@ -757,7 +754,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param rootNode the root node
@@ -774,7 +771,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      *
      * @param rootNode            the root node
@@ -791,7 +788,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param rootNode            the root node
@@ -809,7 +806,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>      the result type
@@ -828,7 +825,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>                 the result type
@@ -848,7 +845,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>                 the result type
@@ -868,7 +865,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param input       the input
@@ -887,7 +884,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      *
      * @param input               the input
@@ -906,7 +903,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param input               the input
@@ -925,7 +922,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>         the result type
@@ -945,7 +942,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>                 the result type
@@ -966,7 +963,7 @@ public class Schema implements Validator {
      * Note that since Draft 2019-09 by default format generates only annotations
      * and not assertions.
      * <p>
-     * Use {@link ExecutionConfig#setFormatAssertionsEnabled(Boolean)} to override
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
      * the default.
      * 
      * @param <T>                 the result type
@@ -1026,66 +1023,10 @@ public class Schema implements Validator {
      */
     private JsonNode deserialize(String input, InputFormat inputFormat) {
         try {
-            return this.getValidationContext().getJsonSchemaFactory().readTree(input, inputFormat);
+            return this.getValidationContext().getSchemaRegistry().readTree(input, inputFormat);
         } catch (IOException e) {
             throw new IllegalArgumentException("Invalid input", e);
         }
-    }
-
-    /**
-     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
-     * <p>
-     * @param executionContext ExecutionContext
-     * @param node JsonNode
-     * @return ValidationResult
-     */
-    @Deprecated
-    public ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode node) {
-        return validateAndCollect(executionContext, node, node, atRoot());
-    }
-
-    /**
-     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
-     * <p>
-     * This method both validates and collects the data in a CollectorContext.
-     * Unlike others this methods cleans and removes everything from collector
-     * context before returning.
-     * @param executionContext ExecutionContext
-     * @param jsonNode JsonNode
-     * @param rootNode JsonNode
-     * @param instanceLocation JsonNodePath
-     *
-     * @return ValidationResult
-     */
-    @Deprecated
-    private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
-        // Validate.
-        validate(executionContext, jsonNode, rootNode, instanceLocation);
-
-        // Get the config.
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
-
-        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-        if (config.doLoadCollectors()) {
-            // Get the collector context.
-            CollectorContext collectorContext = executionContext.getCollectorContext();
-
-            // Load all the data from collectors into the context.
-            collectorContext.loadCollectors();
-        }
-        // Collect errors and collector context into validation result.
-        return new ValidationResult(executionContext);
-    }
-
-    /**
-     * Deprecated. Initialize the CollectorContext externally and call loadCollectors when done.
-     *
-     * @param node JsonNode
-     * @return ValidationResult
-     */
-    @Deprecated
-    public ValidationResult validateAndCollect(JsonNode node) {
-        return validateAndCollect(createExecutionContext(), node, node, atRoot());
     }
 
     /************************ END OF VALIDATE METHODS **********************************/
@@ -1254,6 +1195,30 @@ public class Schema implements Validator {
     /**
      * Walk the JSON node.
      * 
+     * @param node     the input
+     * @param validate true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public ValidationResult walk(JsonNode node, boolean validate, ExecutionContextCustomizer executionCustomizer) {
+        return walk(createExecutionContext(), node, validate, executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
+     * @param node     the input
+     * @param validate true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public ValidationResult walk(JsonNode node, boolean validate, Consumer<ExecutionContext> executionCustomizer) {
+        return walk(createExecutionContext(), node, validate, executionCustomizer);
+    }
+
+    /**
+     * Walk the JSON node.
+     * 
      * @param <T>         the result type
      * @param node     the input
      * @param validate true to validate the input against the schema
@@ -1263,7 +1228,7 @@ public class Schema implements Validator {
     public <T> T walk(JsonNode node, OutputFormat<T> outputFormat, boolean validate) {
         return walk(createExecutionContext(), node, outputFormat, validate, (ExecutionContextCustomizer) null);
     }
-
+    
     /**
      * Walk the input.
      * 
@@ -1333,19 +1298,7 @@ public class Schema implements Validator {
             executionCustomizer.customize(executionContext, this.validationContext);
         }
         // Walk through the schema.
-         walk(executionContext, node, rootNode, instanceLocation, validate);
-
-        // Get the config.
-        SchemaValidatorsConfig config = this.validationContext.getConfig();
-        // When walk is called in series of nested call we don't want to load the collectors every time. Leave to the API to decide when to call collectors.
-        /* When doLoadCollectors is removed after the deprecation period the following block should be removed */
-        if (config.doLoadCollectors()) {
-            // Get the collector context.
-            CollectorContext collectorContext = executionContext.getCollectorContext();
-
-            // Load all the data from collectors into the context.
-            collectorContext.loadCollectors();
-        }
+        walk(executionContext, node, rootNode, instanceLocation, validate);
         return format.format(this, executionContext, this.validationContext);
     }
 
@@ -1359,14 +1312,14 @@ public class Schema implements Validator {
             try {
                 // Call all the pre-walk listeners. If at least one of the pre walk listeners
                 // returns SKIP, then skip the walk.
-                if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
+                if (executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         this, validator)) {
                     validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
                 }
             } finally {
                 // Call all the post-walk listeners.
-                this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
+                executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         this, validator,
                         executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
@@ -1433,13 +1386,12 @@ public class Schema implements Validator {
      * @return the execution context
      */
     public ExecutionContext createExecutionContext() {
-        SchemaValidatorsConfig config = validationContext.getConfig();
+        SchemaRegistryConfig config = validationContext.getSchemaRegistryConfig();
         // Copy execution config defaults from validation config
-        ExecutionConfig executionConfig = new ExecutionConfig();
-        executionConfig.setLocale(config.getLocale());
-        executionConfig.setFormatAssertionsEnabled(config.getFormatAssertionsEnabled());
-        executionConfig.setFailFast(config.isFailFast());
-
+		ExecutionConfig executionConfig = ExecutionConfig.builder()
+				.locale(config.getLocale())
+				.formatAssertionsEnabled(config.getFormatAssertionsEnabled())
+				.failFast(config.isFailFast()).build();
         ExecutionContext executionContext = new ExecutionContext(executionConfig);
         if(config.getExecutionContextCustomizer() != null) {
             config.getExecutionContextCustomizer().customize(executionContext, validationContext);

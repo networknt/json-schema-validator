@@ -28,17 +28,12 @@ import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.function.Supplier;
 
 /**
  * {@link KeywordValidator} that resolves $ref.
  */
 public class RefValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(RefValidator.class);
-
     protected final JsonSchemaRef schema;
 
     private static final String REF_CURRENT = "#";
@@ -72,7 +67,7 @@ public class RefValidator extends BaseKeywordValidator {
             return new JsonSchemaRef(getSupplier(() -> {
                 Schema schemaResource = validationContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
-                    schemaResource = validationContext.getJsonSchemaFactory().loadSchema(schemaLocation, validationContext.getConfig()); 
+                    schemaResource = validationContext.getSchemaRegistry().loadSchema(schemaLocation); 
                     if (schemaResource != null) {
                         copySchemaResources(validationContext, schemaResource);
                     }
@@ -100,7 +95,7 @@ public class RefValidator extends BaseKeywordValidator {
                     }
                     return schemaResource.fromRef(parentSchema, evaluationPath);
                 }
-            }, validationContext.getConfig().isCacheRefs()));
+            }, validationContext.getSchemaRegistryConfig().isCacheRefs()));
             
         } else if (SchemaLocation.Fragment.isAnchorFragment(refValue)) {
             String absoluteIri = resolve(parentSchema, refValue);
@@ -117,17 +112,17 @@ public class RefValidator extends BaseKeywordValidator {
                     return null;
                 }
                 return schemaResource.fromRef(parentSchema, evaluationPath);
-            }, validationContext.getConfig().isCacheRefs()));
+            }, validationContext.getSchemaRegistryConfig().isCacheRefs()));
         }
         if (refValue.equals(REF_CURRENT)) {
             return new JsonSchemaRef(
                     getSupplier(() -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath),
-                            validationContext.getConfig().isCacheRefs()));
+                            validationContext.getSchemaRegistryConfig().isCacheRefs()));
         }
         return new JsonSchemaRef(getSupplier(
                 () -> getJsonSchema(parentSchema, validationContext, refValue, refValueOriginal, evaluationPath)
                         .fromRef(parentSchema, evaluationPath),
-                validationContext.getConfig().isCacheRefs()));
+                validationContext.getSchemaRegistryConfig().isCacheRefs()));
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
@@ -171,7 +166,7 @@ public class RefValidator extends BaseKeywordValidator {
         // The getSubSchema potentially recurses to call back to getJsonSchema again
         Schema result = validationContext.getSchemaReferences().get(schemaReference);
         if (result == null) {
-            synchronized (validationContext.getJsonSchemaFactory()) { // acquire lock on shared factory object to prevent deadlock
+            synchronized (validationContext.getSchemaRegistry()) { // acquire lock on shared factory object to prevent deadlock
                 result = validationContext.getSchemaReferences().get(schemaReference);
                 if (result == null) {
                     result = parent.getSubSchema(fragment);
@@ -186,7 +181,7 @@ public class RefValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.REF.getValue())
@@ -200,7 +195,7 @@ public class RefValidator extends BaseKeywordValidator {
 
     @Override
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.
@@ -261,8 +256,8 @@ public class RefValidator extends BaseKeywordValidator {
                 break;
             }
         }
-        if (this.validationContext.getConfig().isCacheRefs() && !circularDependency
-                && depth < this.validationContext.getConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
+        if (this.validationContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
+                && depth < this.validationContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

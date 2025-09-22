@@ -136,6 +136,6 @@ class CustomMetaSchemaTest {
         assertEquals(1, messages.size());
 
         Error message = messages.iterator().next();
-        assertEquals("$: enumName is Foo !", message.toString());
+        assertEquals(": enumName is Foo !", message.toString());
     }
 }

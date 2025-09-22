@@ -16,7 +16,6 @@
 package com.networknt.schema.dialect;
 
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.SchemaValidatorsConfig;
 
 /**
  * Registry for {@link Dialect} that can be retrieved using the dialect id which
@@ -34,8 +33,7 @@ public interface DialectRegistry {
      *                       conforms to the dialect
      * @param schemaRegistry the schema registry to fetch and load unknown dialect's
      *                       meta-schema
-     * @param config         the config
      * @return the dialect
      */
-    Dialect getDialect(String dialectId, SchemaRegistry schemaRegistry, SchemaValidatorsConfig config);
+    Dialect getDialect(String dialectId, SchemaRegistry schemaRegistry);
 }

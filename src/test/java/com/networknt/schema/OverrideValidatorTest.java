@@ -59,7 +59,7 @@ class OverrideValidatorTest {
         final Schema validatorSchema = validatorFactory.getSchema(schema);
 
         List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
 
         assertEquals(2, messages.size(), Arrays.toString(messages.toArray()));
@@ -76,7 +76,7 @@ class OverrideValidatorTest {
         final Schema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
         messages = overrideValidatorSchema.validate(targetNode, executionContext -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
         assertEquals(1, messages.size());

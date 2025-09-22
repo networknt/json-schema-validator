@@ -16,6 +16,14 @@
 
 package com.networknt.schema.keyword;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
@@ -24,19 +32,10 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 /**
  * {@link KeywordValidator} for unevaluatedProperties.
  */
 public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(UnevaluatedPropertiesValidator.class);
-
     private final Schema schema;
 
     public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
@@ -55,7 +54,7 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
             return;
         }
 
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
         // Get all the valid adjacent annotations
         Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
 

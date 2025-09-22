@@ -27,15 +27,10 @@ import com.networknt.schema.ValidationContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * {@link KeywordValidator} for items from V2012-12.
  */
 public class ItemsValidator202012 extends BaseKeywordValidator {
-    private static final Logger logger = LoggerFactory.getLogger(ItemsValidator202012.class);
-
     private final Schema schema;
     private final int prefixCount;
     private final boolean additionalItems;
@@ -68,7 +63,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        debug(logger, executionContext, node, rootNode, instanceLocation);
+        
 
         // ignores non-arrays
         if (node.isArray()) {
@@ -106,7 +101,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             JsonNode defaultNode = null;
-            if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
+            if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
                     && this.schema != null) {
                 defaultNode = getDefaultNode(this.schema);
             }
@@ -154,7 +149,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
-        boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
+        boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,
@@ -166,7 +161,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         if (executeWalk) {
             walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
-        this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
+        executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
             ValidatorTypeCode.ITEMS.getValue(),
             node,

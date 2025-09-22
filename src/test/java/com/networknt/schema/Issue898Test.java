@@ -13,7 +13,7 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testMessagesWithSingleQuotes() throws Exception {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.FRENCH).build();
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().locale(Locale.FRENCH).build();
 
         Schema schema = getJsonSchemaFromClasspath("schema/issue898.json", Specification.Version.DRAFT_2020_12, config);
         JsonNode node = getJsonNodeFromClasspath("data/issue898.json");
