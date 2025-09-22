@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.Specification.Version;
 
 /**
@@ -26,7 +26,7 @@ public class NetworkntBasicRunner implements Callable<Object> {
 
     public NetworkntBasicRunner() {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_4);
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ObjectReader reader = objectMapper.reader();

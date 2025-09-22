@@ -67,7 +67,7 @@ class Issue943Test {
                 + "  \"type\": \"Point\",\r\n"
                 + "  \"coordinates\": [1, 1]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);

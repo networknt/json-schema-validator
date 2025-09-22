@@ -27,18 +27,18 @@ import com.networknt.schema.keyword.KeywordValidator;
 
 public class ValidationContext {
     private final Dialect dialect;
-    private final JsonSchemaFactory jsonSchemaFactory;
+    private final SchemaRegistry jsonSchemaFactory;
     private final SchemaValidatorsConfig config;
     private final ConcurrentMap<String, Schema> schemaReferences;
     private final ConcurrentMap<String, Schema> schemaResources;
     private final ConcurrentMap<String, Schema> dynamicAnchors;
 
     public ValidationContext(Dialect dialect,
-                             JsonSchemaFactory jsonSchemaFactory, SchemaValidatorsConfig config) {
+                             SchemaRegistry jsonSchemaFactory, SchemaValidatorsConfig config) {
         this(dialect, jsonSchemaFactory, config, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
     
-    public ValidationContext(Dialect dialect, JsonSchemaFactory jsonSchemaFactory,
+    public ValidationContext(Dialect dialect, SchemaRegistry jsonSchemaFactory,
             SchemaValidatorsConfig config, ConcurrentMap<String, Schema> schemaReferences,
             ConcurrentMap<String, Schema> schemaResources, ConcurrentMap<String, Schema> dynamicAnchors) {
         if (dialect == null) {
@@ -69,7 +69,7 @@ public class ValidationContext {
         return this.dialect.readId(schemaNode);
     }
 
-    public JsonSchemaFactory getJsonSchemaFactory() {
+    public SchemaRegistry getJsonSchemaFactory() {
         return this.jsonSchemaFactory;
     }
 

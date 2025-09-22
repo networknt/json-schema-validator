@@ -40,7 +40,7 @@ import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Used for creating a schema with validators for validating inputs. This is
- * created using {@link JsonSchemaFactory#getInstance(Version, Consumer)}
+ * created using {@link SchemaRegistry#getInstance(Version, Consumer)}
  * and should be cached for performance.
  * <p>
  * This is the core of json constraint implementation. It parses json constraint
@@ -1405,7 +1405,7 @@ public class Schema implements Validator {
      * For avoiding issues with concurrency, in 1.0.49 the {@link com.networknt.schema.Schema} instances affiliated with
      * validators were modified to no more preload the schema and lazy loading is used instead.
      * <p>This comes with the issue that this way you cannot rely on validating important schema features, in particular
-     * <code>$ref</code> resolution at instantiation from {@link com.networknt.schema.JsonSchemaFactory}.</p>
+     * <code>$ref</code> resolution at instantiation from {@link com.networknt.schema.SchemaRegistry}.</p>
      * <p>By calling <code>initializeValidators</code> you can enforce preloading of the {@link com.networknt.schema.Schema}
      * instances of the validators.</p>
      */

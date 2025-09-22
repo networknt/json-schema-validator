@@ -8,8 +8,8 @@ import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 
 class Issue314Test {
-    private static final JsonSchemaFactory FACTORY =
-            JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
+    private static final SchemaRegistry FACTORY =
+            SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
                     .metaSchema(
                             Dialect.builder(
                                     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",

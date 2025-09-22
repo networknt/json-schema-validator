@@ -32,7 +32,7 @@ class JsonSchemaFactoryUriCacheTest {
 
     private void runCacheTest(boolean enableCache) throws JsonProcessingException {
         CustomURIFetcher fetcher = new CustomURIFetcher();
-        JsonSchemaFactory factory = buildJsonSchemaFactory(fetcher, enableCache);
+        SchemaRegistry factory = buildJsonSchemaFactory(fetcher, enableCache);
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
         String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
@@ -44,8 +44,8 @@ class JsonSchemaFactoryUriCacheTest {
         assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, SchemaValidatorsConfig.builder().build()).schemaNode);
     }
 
-    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
-        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12))
+    private SchemaRegistry buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
+        return SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2020_12))
                 .enableSchemaCache(enableSchemaCache)
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
                 .metaSchema(Dialects.getDraft202012())

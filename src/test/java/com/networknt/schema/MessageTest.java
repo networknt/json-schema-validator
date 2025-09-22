@@ -73,7 +73,7 @@ class MessageTest {
     void message() {
         Dialect dialect = Dialect.builder(Dialects.getDraft202012().getIri(), Dialects.getDraft202012())
                 .keyword(new EqualsKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect));
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"equals\": \"helloworld\"\r\n"

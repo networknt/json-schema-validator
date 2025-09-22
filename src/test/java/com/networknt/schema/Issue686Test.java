@@ -54,7 +54,7 @@ class Issue686Test {
     }
 
     private Schema getSchema(SchemaValidatorsConfig config) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema("{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }", config);
     }
 

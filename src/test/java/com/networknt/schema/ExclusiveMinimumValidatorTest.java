@@ -45,7 +45,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";        
         Dialect dialect = Dialect.builder(Dialects.getDraft4())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_4,
                 builder -> builder.metaSchema(dialect));
         Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":0}";
@@ -73,7 +73,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";
         Dialect dialect = Dialect.builder(Dialects.getDraft6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_6,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_6,
                 builder -> builder.metaSchema(dialect));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }
@@ -92,7 +92,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";
         Dialect dialect = Dialect.builder(Dialects.getDraft7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchema(dialect));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }

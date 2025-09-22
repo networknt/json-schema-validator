@@ -25,8 +25,8 @@ class Issue366FailSlowTest {
     private void setupSchema() throws IOException {
 
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().typeLoose(false).build();
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
+        SchemaRegistry schemaFactory = SchemaRegistry
+                .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
                 .build();
 
         SchemaLocation uri = getSchema();

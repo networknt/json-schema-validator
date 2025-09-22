@@ -11,7 +11,7 @@ import java.util.List;
 class Issue456Test {
 
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 

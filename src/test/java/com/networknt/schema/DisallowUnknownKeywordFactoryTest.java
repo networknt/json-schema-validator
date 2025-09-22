@@ -35,7 +35,7 @@ class DisallowUnknownKeywordFactoryTest {
     void getSchemaShouldThrowForUnknownKeywords() {
         Dialect dialect = Dialect.builder(Dialects.getDraft202012())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(dialect));
         String schemaData = "{\r\n"
                 + "  \"equals\": \"world\"\r\n"

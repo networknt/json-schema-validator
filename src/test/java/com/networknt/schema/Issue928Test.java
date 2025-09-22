@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 class Issue928Test {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private JsonSchemaFactory factoryFor(Specification.Version version) {
-        return JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(version))
+    private SchemaRegistry factoryFor(Specification.Version version) {
+        return SchemaRegistry
+                .builder(SchemaRegistry.getInstance(version))
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }
@@ -30,7 +30,7 @@ class Issue928Test {
     }
 
     void test_spec(Specification.Version specVersion) {
-        JsonSchemaFactory schemaFactory = factoryFor(specVersion);
+        SchemaRegistry schemaFactory = factoryFor(specVersion);
 
         String versionId = specVersion.getDialectId();
         String versionStr = versionId.substring(versionId.indexOf("draft") + 6, versionId.indexOf("/schema"));

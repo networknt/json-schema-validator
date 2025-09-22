@@ -31,7 +31,7 @@ import com.networknt.schema.dialect.Dialect;
 /**
  * Tests for JsonSchemaFactory.
  */
-class JsonSchemaFactoryTest {
+class SchemaRegistryTest {
     @Test
     void concurrency() {
         String metaSchemaData = "{\r\n"
@@ -47,7 +47,7 @@ class JsonSchemaFactoryTest {
                 + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);

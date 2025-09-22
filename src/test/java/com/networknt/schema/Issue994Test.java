@@ -47,7 +47,7 @@ class Issue994Test {
             vocabularies.remove(Vocabulary.V202012_VALIDATION.getIri());
         }).build();
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(schemaData);
-        Schema schema = JsonSchemaFactory
+        Schema schema = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(dialect)).getSchema(schemaNode);
         String inputData = "{\r\n"
                 + "  \"textValue\": \"hello\"\r\n"

@@ -45,7 +45,7 @@ class FormatKeywordFactoryTest {
     void shouldUseFormatKeyword() {
         Dialect dialect = Dialect.builder(Dialects.getDraft202012())
                 .formatKeywordFactory(CustomFormatKeyword::new).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(dialect));
         String schemaData = "{\r\n"
                 + "  \"format\": \"hello\"\r\n"

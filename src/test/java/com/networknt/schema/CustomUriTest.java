@@ -17,7 +17,7 @@ class CustomUriTest {
     @Test
     void customUri() throws Exception {
         /* Given */
-        final JsonSchemaFactory factory = buildJsonSchemaFactory();
+        final SchemaRegistry factory = buildJsonSchemaFactory();
         final Schema schema = factory.getSchema(
                 "{\"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\"type\": \"object\",\"additionalProperties\": false,\"properties\": {\"customAnyOf\": {\"anyOf\": [{\"type\": \"null\"},{\"$ref\": \"custom:date\"}]},\"customOneOf\": {\"oneOf\": [{\"type\": \"null\"},{\"$ref\": \"custom:date\"}]}}}");
         final ObjectMapper mapper = new ObjectMapper();
@@ -30,8 +30,8 @@ class CustomUriTest {
         assertThat(errors.isEmpty(), is(true));
     }
 
-    private JsonSchemaFactory buildJsonSchemaFactory() {
-        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09))
+    private SchemaRegistry buildJsonSchemaFactory() {
+        return SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_2019_09))
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(new CustomUriFetcher())).build();
     }
 

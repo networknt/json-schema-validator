@@ -55,7 +55,7 @@ class SchemaTest {
         String inputData = "{\r\n"
                 + "  \"name\": 1\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().preloadJsonSchema(false).build();

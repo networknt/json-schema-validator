@@ -12,7 +12,7 @@ class Issue792 {
 
     @Test
     void test() throws JsonProcessingException {
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry schemaFactory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
 
         String schemaDef =
                 "{\n" +

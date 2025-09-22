@@ -55,7 +55,7 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static Schema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion, SchemaValidatorsConfig config) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
+        SchemaRegistry factory = SchemaRegistry.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
         if (config == null) {
@@ -65,23 +65,23 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static Schema getJsonSchemaFromStringContent(String schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(schemaContent);
     }
 
     public static Schema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(SchemaLocation.of(uri));
     }
 
     public static Schema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(jsonNode);
     }
 
     // Automatically detect version for given JsonNode
     public static Schema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecificationVersionDetector.detect(jsonNode));
+        SchemaRegistry factory = SchemaRegistry.getInstance(SpecificationVersionDetector.detect(jsonNode));
         return factory.getSchema(jsonNode);
     }
 

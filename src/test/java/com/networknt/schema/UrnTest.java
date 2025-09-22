@@ -29,12 +29,12 @@ class UrnTest
     try {
       is = new URL("https://raw.githubusercontent.com/francesc79/json-schema-validator/feature/urn-management/src/test/resources/draft7/urn/urn.schema.json").openStream();
       Dialect draftV7 = Dialects.getDraft7();
-      JsonSchemaFactory.Builder builder = JsonSchemaFactory.builder()
+      SchemaRegistry.Builder builder = SchemaRegistry.builder()
           .defaultMetaSchemaIri(draftV7.getIri())
           .metaSchema(draftV7)
           .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );
-      JsonSchemaFactory instance = builder.build();
+      SchemaRegistry instance = builder.build();
       Schema schema = instance.getSchema(is);
       assertEquals(0, schema.validate(mapper.readTree(urlTestData)).size());
     } catch( Exception e) {

@@ -32,7 +32,7 @@ import java.io.FileInputStream;
 
 class Issue619Test {
 
-    private JsonSchemaFactory factory;
+    private SchemaRegistry factory;
     private JsonNode one;
     private JsonNode two;
     private JsonNode three;
@@ -53,7 +53,7 @@ class Issue619Test {
             }
         };
 
-        factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4,
+        factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_4,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");

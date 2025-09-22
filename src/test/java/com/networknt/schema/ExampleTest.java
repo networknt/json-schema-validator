@@ -28,7 +28,7 @@ class ExampleTest {
     @Test
     void exampleSchemaLocation() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> 
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> 
             builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
         );
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
@@ -53,7 +53,7 @@ class ExampleTest {
     @Test
     void exampleClasspath() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"), config);
         String input = "{\r\n"

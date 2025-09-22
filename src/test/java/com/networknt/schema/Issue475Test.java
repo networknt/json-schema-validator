@@ -51,7 +51,7 @@ class Issue475Test {
 
     @Test
     void draft4() throws Exception {
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_4, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_4, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_4), config);
@@ -65,7 +65,7 @@ class Issue475Test {
     
     @Test
     void draft6() throws Exception {
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_6, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_6, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_6), config);
@@ -79,7 +79,7 @@ class Issue475Test {
 
     @Test
     void draft7() throws Exception {
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_7, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_7), config);
@@ -93,7 +93,7 @@ class Issue475Test {
     
     @Test
     void draft201909() throws Exception {
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_2019_09, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09), config);
@@ -107,7 +107,7 @@ class Issue475Test {
 
     @Test
     void draft202012() throws Exception {
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.getInstance(Version.DRAFT_2020_12, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2020_12), config);

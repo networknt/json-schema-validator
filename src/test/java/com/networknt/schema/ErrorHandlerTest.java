@@ -51,7 +51,7 @@ class ErrorHandlerTest {
                 + "  \"foo\": \"a\",\r\n"
                 + "  \"bar\": 2\r\n"
                 + "}";
-        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData,
+        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
@@ -81,7 +81,7 @@ class ErrorHandlerTest {
         String inputData = "{\r\n"
                 + "  \"keyword1\": 2\r\n"
                 + "}";
-        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData,
+        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().errorMessageKeyword("errorMessage").build());
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());

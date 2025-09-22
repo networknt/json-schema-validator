@@ -49,7 +49,7 @@ class Issue857Test {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
         List<Error> result = factory.getSchema(schema, config).validate(input, InputFormat.JSON);
         assertTrue(result.isEmpty());
     }

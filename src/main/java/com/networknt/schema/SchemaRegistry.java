@@ -54,8 +54,8 @@ import java.util.function.Consumer;
  * JsonSchemaFactory instances are thread-safe provided its configuration is not
  * modified.
  */
-public class JsonSchemaFactory {
-    private static final Logger logger = LoggerFactory.getLogger(JsonSchemaFactory.class);
+public class SchemaRegistry {
+    private static final Logger logger = LoggerFactory.getLogger(SchemaRegistry.class);
 
     public static class Builder {
         private ObjectMapper jsonMapper = null;
@@ -173,8 +173,8 @@ public class JsonSchemaFactory {
             return metaSchemas(jsonMetaSchemas);
         }
 
-        public JsonSchemaFactory build() {
-            return new JsonSchemaFactory(
+        public SchemaRegistry build() {
+            return new SchemaRegistry(
                     jsonMapper,
                     yamlMapper,
                     jsonNodeReader,
@@ -203,7 +203,7 @@ public class JsonSchemaFactory {
     private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
     private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
 
-    private JsonSchemaFactory(
+    private SchemaRegistry(
             ObjectMapper jsonMapper,
             ObjectMapper yamlMapper,
             JsonNodeReader jsonNodeReader,
@@ -241,7 +241,7 @@ public class JsonSchemaFactory {
     /**
      * Builder without keywords or formats.
      *
-     * Typically {@link #builder(JsonSchemaFactory)} is what is required.
+     * Typically {@link #builder(SchemaRegistry)} is what is required.
      *
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
@@ -256,7 +256,7 @@ public class JsonSchemaFactory {
      * @param versionFlag the default dialect
      * @return the factory
      */
-    public static JsonSchemaFactory getInstance(Specification.Version versionFlag) {
+    public static SchemaRegistry getInstance(Specification.Version versionFlag) {
         return getInstance(versionFlag, null);
     }
 
@@ -268,10 +268,10 @@ public class JsonSchemaFactory {
      * @param customizer to customize the factory
      * @return the factory
      */
-    public static JsonSchemaFactory getInstance(Specification.Version versionFlag,
-            Consumer<JsonSchemaFactory.Builder> customizer) {
+    public static SchemaRegistry getInstance(Specification.Version versionFlag,
+            Consumer<SchemaRegistry.Builder> customizer) {
         Dialect dialect = checkVersion(versionFlag);
-        JsonSchemaFactory.Builder builder = builder().defaultMetaSchemaIri(dialect.getIri())
+        SchemaRegistry.Builder builder = builder().defaultMetaSchemaIri(dialect.getIri())
                 .metaSchema(dialect);
         if (customizer != null) {
             customizer.accept(builder);
@@ -300,7 +300,7 @@ public class JsonSchemaFactory {
     }
 
     /**
-     * Builder from an existing {@link JsonSchemaFactory}.
+     * Builder from an existing {@link SchemaRegistry}.
      * <p>
      * <code>
      * JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909));
@@ -309,7 +309,7 @@ public class JsonSchemaFactory {
      * @param blueprint the existing factory
      * @return the builder
      */
-    public static Builder builder(final JsonSchemaFactory blueprint) {
+    public static Builder builder(final SchemaRegistry blueprint) {
         Builder builder = builder()
                 .metaSchemas(blueprint.metaSchemas.values())
                 .defaultMetaSchemaIri(blueprint.defaultMetaSchemaIri)

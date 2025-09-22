@@ -22,7 +22,7 @@ import com.networknt.schema.utils.CachingSupplier;
 
 class OutputFormatTest {
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
+    private static final SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_2020_12);
     private static final String schemaPath1 = "/schema/output-format-schema.json";
 
     private JsonNode getJsonNodeFromJsonData(String jsonFilePath) throws Exception {
@@ -107,7 +107,7 @@ class OutputFormatTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12)
+        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12)
                 .getSchema(schemaData, InputFormat.JSON, SchemaValidatorsConfig.builder().build());
         String inputData = "{\n"
                 + "  \"type\": \"cat\",\n"

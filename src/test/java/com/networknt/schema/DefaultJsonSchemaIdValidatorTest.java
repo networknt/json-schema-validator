@@ -35,9 +35,9 @@ class DefaultJsonSchemaIdValidatorTest {
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
+                () -> SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
         try {
-            JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config);
+            SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schema, config);
         } catch (InvalidSchemaException e) {
             assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
@@ -50,7 +50,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
     }
     
     @Test
@@ -60,7 +60,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
     }
 
     @Test
@@ -68,7 +68,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(Version.DRAFT_2020_12)
+        assertDoesNotThrow(() -> SchemaRegistry.getInstance(Version.DRAFT_2020_12)
                 .getSchema(SchemaLocation.of("classpath:schema/id-relative.json"), config));
     }
 }

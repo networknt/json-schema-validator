@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class Issue664Test {
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 

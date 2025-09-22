@@ -10,8 +10,8 @@ class CyclicDependencyTest {
     @Test
     void whenDependencyBetweenSchemaThenValidationSuccessful() throws Exception {
 
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4))
+        SchemaRegistry schemaFactory = SchemaRegistry
+            .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_4))
             .build();
         String jsonObject = "{\n" +
                 "  \"element\": {\n" +

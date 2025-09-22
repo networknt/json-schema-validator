@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class Issue532Test {
     @Test
     void failure() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Specification.Version.DRAFT_7);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> {
             factory.getSchema("{ \"$schema\": true }");
         });

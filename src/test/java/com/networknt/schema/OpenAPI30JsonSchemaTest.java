@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class OpenAPI30JsonSchemaTest {
     protected ObjectMapper mapper = new ObjectMapper();
-    protected JsonSchemaFactory validatorFactory = JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4)).build();
+    protected SchemaRegistry validatorFactory = SchemaRegistry
+            .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_4)).build();
 
     OpenAPI30JsonSchemaTest() {
     }

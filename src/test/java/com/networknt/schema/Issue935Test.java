@@ -26,6 +26,6 @@ class Issue935Test {
     void shouldThrowInvalidSchemaException() {
         String schema = "{ \"$schema\": \"0\" }";
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(Version.DRAFT_2019_09).getSchema(schema));
+                () -> SchemaRegistry.getInstance(Version.DRAFT_2019_09).getSchema(schema));
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.networknt.schema.dialect;
 
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaValidatorsConfig;
 
 /**
@@ -36,5 +36,5 @@ public interface DialectRegistry {
      * @param config        the config
      * @return the dialect
      */
-    Dialect getDialect(String dialectId, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config);
+    Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config);
 }

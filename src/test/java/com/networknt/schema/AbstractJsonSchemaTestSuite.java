@@ -168,7 +168,7 @@ abstract class AbstractJsonSchemaTestSuite {
 
     private DynamicNode buildContainer(Version defaultVersion, TestCase testCase) {
         try {
-            JsonSchemaFactory validatorFactory = buildValidatorFactory(defaultVersion, testCase);
+            SchemaRegistry validatorFactory = buildValidatorFactory(defaultVersion, testCase);
 
             return dynamicContainer(testCase.getDisplayName(), testCase.getTests().stream().map(testSpec -> {
                 return buildTest(validatorFactory, testSpec);
@@ -182,7 +182,7 @@ abstract class AbstractJsonSchemaTestSuite {
         }
     }
 
-    private JsonSchemaFactory buildValidatorFactory(Version defaultVersion, TestCase testCase) {
+    private SchemaRegistry buildValidatorFactory(Version defaultVersion, TestCase testCase) {
         if (testCase.isDisabled()) return null;
         SchemaLoader schemaLoader = new SchemaLoader() {
             @Override
@@ -202,8 +202,8 @@ abstract class AbstractJsonSchemaTestSuite {
             }
         };
         Version specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
-        JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
-        return JsonSchemaFactory
+        SchemaRegistry base = SchemaRegistry.getInstance(specVersion);
+        return SchemaRegistry
                 .builder(base)
                 .schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://", "http://")
@@ -212,7 +212,7 @@ abstract class AbstractJsonSchemaTestSuite {
                 .build();
     }
 
-    private DynamicNode buildTest(JsonSchemaFactory validatorFactory, TestSpec testSpec) {
+    private DynamicNode buildTest(SchemaRegistry validatorFactory, TestSpec testSpec) {
         if (testSpec.isDisabled()) {
             return dynamicTest(testSpec.getDescription(), () -> abortAndReset(testSpec.getReason()));
         }

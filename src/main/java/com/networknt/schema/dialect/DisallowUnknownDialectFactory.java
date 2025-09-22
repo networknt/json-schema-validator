@@ -17,16 +17,16 @@ package com.networknt.schema.dialect;
 
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaValidatorsConfig;
 
 /**
  * A {@link DialectRegistry} that does not meta-schemas that aren't
- * explicitly configured in the {@link JsonSchemaFactory}.
+ * explicitly configured in the {@link SchemaRegistry}.
  */
 public class DisallowUnknownDialectFactory implements DialectRegistry {
     @Override
-    public Dialect getDialect(String dialectId, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
         throw new InvalidSchemaException(Error.builder()
                 .message("Unknown dialect ''{0}''. Only dialects that are explicitly configured can be used.")
                 .arguments(dialectId).build());

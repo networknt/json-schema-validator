@@ -73,7 +73,7 @@ class Issue784Test {
                 })
                 .build();
 
-        return new JsonSchemaFactory
+        return new SchemaRegistry
                 .Builder()
                 .defaultMetaSchemaIri(overrideDateTimeValidator.getIri())
                 .metaSchema(overrideDateTimeValidator)

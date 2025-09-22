@@ -38,7 +38,7 @@ class PropertyNamesValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"propertyNames\": {\"maxLength\": 3}\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         Schema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"

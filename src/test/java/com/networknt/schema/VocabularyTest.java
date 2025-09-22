@@ -60,7 +60,7 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = JsonSchemaFactory
+        Schema schema = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -75,7 +75,7 @@ class VocabularyTest {
         assertEquals(0, messages.size());
 
         // Set validation vocab
-        schema = JsonSchemaFactory
+        schema = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -112,7 +112,7 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema schema = JsonSchemaFactory
+        Schema schema = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -128,7 +128,7 @@ class VocabularyTest {
         assertEquals(0, messages.size());
 
         // Set format assertion vocab
-        schema = JsonSchemaFactory
+        schema = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -164,7 +164,7 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory
+        SchemaRegistry factory = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
@@ -207,7 +207,7 @@ class VocabularyTest {
                 .builder(Dialects.getDraft202012().getIri(), Dialects.getDraft202012())
                 .vocabularyFactory(vocabularyFactory)
                 .build();
-        JsonSchemaFactory factory = JsonSchemaFactory
+        SchemaRegistry factory = SchemaRegistry
                 .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.metaSchema(dialect).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",

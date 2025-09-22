@@ -23,7 +23,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
+        SchemaRegistry factory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7)).build();
         Schema jsonSchema = factory.getSchema(schema1);
 
         List<Error> errors = jsonSchema.validate(jsonNode);
@@ -37,7 +37,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
+        SchemaRegistry factory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7)).build();
         Schema jsonSchema = factory.getSchema(schema2);
 
         List<Error> errors = jsonSchema.validate(jsonNode);
@@ -50,7 +50,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
+        SchemaRegistry factory = SchemaRegistry.builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7)).build();
         Schema jsonSchema = factory.getSchema(schema3);
 
         List<Error> errors = jsonSchema.validate(jsonNode);
@@ -68,10 +68,10 @@ class UnknownMetaSchemaTest {
         String uri04 = "http://json-schema.org/draft-07/schema?key=value&key2=value2";
         String expected = DialectId.DRAFT_7;
 
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri03));
-        Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri04));
+        Assertions.assertEquals(expected, SchemaRegistry.normalizeMetaSchemaUri(uri01));
+        Assertions.assertEquals(expected, SchemaRegistry.normalizeMetaSchemaUri(uri02));
+        Assertions.assertEquals(expected, SchemaRegistry.normalizeMetaSchemaUri(uri03));
+        Assertions.assertEquals(expected, SchemaRegistry.normalizeMetaSchemaUri(uri04));
 
     }
 }

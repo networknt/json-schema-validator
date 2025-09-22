@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification;
@@ -33,15 +33,15 @@ import com.networknt.schema.Specification.Version;
  */
 public class DefaultDialectRegistry implements DialectRegistry {
     @Override
-    public Dialect getDialect(String dialectId, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
+    public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
-        return Specification.Version.fromDialectId(dialectId).map(JsonSchemaFactory::checkVersion).orElseGet(() -> {
+        return Specification.Version.fromDialectId(dialectId).map(SchemaRegistry::checkVersion).orElseGet(() -> {
             // Custom dialect
             return loadDialect(dialectId, schemaFactory, config);
         });
     }
 
-    protected Dialect loadDialect(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
+    protected Dialect loadDialect(String iri, SchemaRegistry schemaFactory, SchemaValidatorsConfig config) {
         try {
             Dialect result = loadDialectBuilder(iri, schemaFactory, config).build();
             return result;
@@ -53,7 +53,7 @@ public class DefaultDialectRegistry implements DialectRegistry {
         }
     }
 
-    protected Dialect.Builder loadDialectBuilder(String iri, JsonSchemaFactory schemaFactory,
+    protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory,
             SchemaValidatorsConfig config) {
         Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
         Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getMetaSchema());

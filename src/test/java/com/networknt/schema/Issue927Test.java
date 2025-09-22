@@ -105,7 +105,7 @@ class Issue927Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7)
+        Schema jsonSchema = SchemaRegistry.getInstance(Version.DRAFT_7)
                 .getSchema(SchemaLocation.of("http://www.example.org"), JsonMapperFactory.getInstance().readTree(schema));
         
         String input = "{\r\n"

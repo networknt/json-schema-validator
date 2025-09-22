@@ -43,7 +43,7 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : false\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -69,7 +69,7 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : { \"type\" : \"string\" }\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        Schema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());

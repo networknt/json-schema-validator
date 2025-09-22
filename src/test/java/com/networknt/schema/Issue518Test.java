@@ -14,9 +14,9 @@ class Issue518Test {
                     .builder("http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#", Dialects.getDraft7())
                     .build();
 
-    private static final JsonSchemaFactory FACTORY =
-            JsonSchemaFactory
-                    .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
+    private static final SchemaRegistry FACTORY =
+            SchemaRegistry
+                    .builder(SchemaRegistry.getInstance(Specification.Version.DRAFT_7))
                     .metaSchema(igluMetaSchema)
                     .build();
 
