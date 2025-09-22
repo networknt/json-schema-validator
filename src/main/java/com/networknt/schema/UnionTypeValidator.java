@@ -29,7 +29,7 @@ import java.util.List;
 public class UnionTypeValidator extends BaseJsonValidator implements JsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(UnionTypeValidator.class);
 
-    private final List<JsonSchemaValidator> schemas;
+    private final List<Validator> schemas;
     private final String error;
 
     public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
@@ -79,7 +79,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
             List<Error> test = new ArrayList<>();
             executionContext.setFailFast(false);
             executionContext.setErrors(test);
-            for (JsonSchemaValidator schema : schemas) {
+            for (Validator schema : schemas) {
                 schema.validate(executionContext, node, rootNode, instanceLocation);
                 if (test.isEmpty()) {
                     valid = true;
@@ -105,7 +105,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
     @Override
     public void preloadJsonSchema() {
-        for (final JsonSchemaValidator validator : schemas) {
+        for (final Validator validator : schemas) {
             if (validator instanceof JsonValidator) {
                 ((JsonValidator) validator).preloadJsonSchema();
             } else if (validator instanceof JsonSchema) {

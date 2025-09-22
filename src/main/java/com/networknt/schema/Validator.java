@@ -20,18 +20,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.walk.Walker;
 
 /**
- * Standard json validator interface, implemented by all validators and JsonSchema.
+ * A processor that checks an instance node belonging to an instance document
+ * against a schema.
  */
-public interface JsonSchemaValidator extends Walker {
+public interface Validator extends Walker {
     /**
-     * Validate the given JsonNode, the given node is the child node of the root node at given
-     * data path.
-     * @param executionContext  ExecutionContext
-     * @param node     JsonNode
-     * @param rootNode JsonNode
-     * @param instanceLocation JsonNodePath
+     * Validate the instance node which belongs to the instance document at the
+     * instance location.
+     * 
+     * @param executionContext the execution context
+     * @param instanceNode     the instance node being processed
+     * @param instance         the instance document that the instance node belongs
+     *                         to
+     * @param instanceLocation the location of the instance node being processed
      */
-    void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    void validate(ExecutionContext executionContext, JsonNode instanceNode, JsonNode instance,
             JsonNodePath instanceLocation);
 
     /**
@@ -39,14 +42,14 @@ public interface JsonSchemaValidator extends Walker {
      * validate method if shouldValidateSchema is enabled.
      */
     @Override
-    default void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    default void walk(ExecutionContext executionContext, JsonNode instanceNode, JsonNode instance,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        if (node == null) {
+        if (instanceNode == null) {
             // Note that null is not the same as NullNode
             return;
         }
         if (shouldValidateSchema) {
-            validate(executionContext, node, rootNode, instanceLocation);
+            validate(executionContext, instanceNode, instance, instanceLocation);
         }
     }
 

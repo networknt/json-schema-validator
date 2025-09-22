@@ -19,7 +19,7 @@ package com.networknt.schema;
 /**
  * KeywordValidator interface implemented by all keyword validators.
  */
-public interface JsonValidator extends JsonSchemaValidator {
+public interface JsonValidator extends Validator {
     /**
      * In case the {@link com.networknt.schema.JsonValidator} has a related {@link com.networknt.schema.JsonSchema} or several
      * ones, calling preloadJsonSchema will actually load the schema document(s) eagerly.

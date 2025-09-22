@@ -46,7 +46,7 @@ import com.networknt.schema.utils.JsonNodes;
  * JsonSchema instances are thread-safe provided its configuration is not
  * modified.
  */
-public class JsonSchema implements JsonSchemaValidator {
+public class JsonSchema implements Validator {
     private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
     private final String id;
 
