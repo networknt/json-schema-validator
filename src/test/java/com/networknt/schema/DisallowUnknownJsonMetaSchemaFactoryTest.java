@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Tests for DisallowUnknownJsonMetaSchemaFactory. 
@@ -37,14 +37,14 @@ class DisallowUnknownJsonMetaSchemaFactoryTest {
             + "}";
     @Test
     void defaultHandling() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_202012_SCHEMA));
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_7_SCHEMA));
     }
 
     @Test
     void draft202012() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_202012_SCHEMA));
         assertThrows(InvalidSchemaException.class, () -> factory.getSchema(DRAFT_7_SCHEMA));
@@ -52,7 +52,7 @@ class DisallowUnknownJsonMetaSchemaFactoryTest {
 
     @Test
     void draft7() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         assertDoesNotThrow(() -> factory.getSchema(DRAFT_7_SCHEMA));
         assertThrows(InvalidSchemaException.class, () -> factory.getSchema(DRAFT_202012_SCHEMA));

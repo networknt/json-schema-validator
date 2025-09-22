@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 class Issue375Test {
     protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 

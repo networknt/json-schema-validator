@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * PropertyNamesValidatorTest.
@@ -38,7 +38,7 @@ class PropertyNamesValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"propertyNames\": {\"maxLength\": 3}\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"

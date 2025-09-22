@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -18,7 +18,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 class SampleTest {
     @Test
     void schemaFromSchemaLocationMapping() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.schemaMappers(
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.schemaMappers(
                 schemaMappers -> schemaMappers.mapPrefix("https://www.example.com/schema", "classpath:schema")));
         /*
          * This should be cached for performance.
@@ -40,7 +40,7 @@ class SampleTest {
     void schemaFromSchemaLocationContent() {
         String schemaData = "{\"enum\":[1, 2, 3, 4]}";
         
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/example-ref.json", schemaData))));
         /*
@@ -61,7 +61,7 @@ class SampleTest {
 
     @Test
     void schemaFromClasspath() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
@@ -82,7 +82,7 @@ class SampleTest {
 
     @Test
     void schemaFromString() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
@@ -98,7 +98,7 @@ class SampleTest {
 
     @Test
     void schemaFromJsonNode() throws JsonProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(
                 "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
         /*

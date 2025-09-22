@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Test MultipleOfValidator validator.
@@ -47,7 +47,7 @@ class MultipleOfValidatorTest {
 
     @Test
     void test() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonSchema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":123.892,\"value2\":123456.2934,\"value3\":123.123}";
         String validData = "{\"value1\":123.89,\"value2\":123456,\"value3\":123.010}";
@@ -62,7 +62,7 @@ class MultipleOfValidatorTest {
 
     @Test
     void testTypeLoose() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonSchema schema = factory.getSchema(schemaData);
         
         String inputData = "{\"value1\":\"123.892\",\"value2\":\"123456.2934\",\"value3\":123.123}";

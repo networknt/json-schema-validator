@@ -32,7 +32,7 @@ import com.networknt.schema.OutputFormat;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 
 /**
@@ -44,7 +44,7 @@ class OpenApi30Test {
      */
     @Test
     void validateMetaSchema() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchema(OpenApi30.getInstance())
                         .defaultMetaSchemaIri(OpenApi30.getInstance().getIri())
                         .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
@@ -74,7 +74,7 @@ class OpenApi30Test {
      */
     @Test
     void jsonPointerWithNumberInFragment() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(SchemaLocation.of(
                 "classpath:schema/oas/3.0/petstore.yaml#/paths/~1pet/post/responses/200/content/application~1json/schema"),
@@ -95,7 +95,7 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMaximum\": true\r\n"
                 + "}\r\n";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("100", InputFormat.JSON, OutputFormat.BOOLEAN));
@@ -112,7 +112,7 @@ class OpenApi30Test {
                 + "  \"maximum\": 100,\r\n"
                 + "  \"exclusiveMinimum\": true\r\n"
                 + "}\r\n";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7, builder -> builder
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .metaSchema(OpenApi30.getInstance()).defaultMetaSchemaIri(OpenApi30.getInstance().getIri()));
         JsonSchema schema = factory.getSchema(schemaData);
         assertFalse(schema.validate("0", InputFormat.JSON, OutputFormat.BOOLEAN));

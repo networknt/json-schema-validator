@@ -40,7 +40,7 @@ class ReadOnlyValidatorTest {
 	}
 
 	private JsonSchema getJsonSchema(Boolean write) {
-		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
 		SchemaValidatorsConfig schemaConfig = createSchemaConfig(write);
 		InputStream schema = getClass().getClassLoader().getResourceAsStream("schema/read-only-schema.json");
 		return factory.getSchema(schema, schemaConfig);

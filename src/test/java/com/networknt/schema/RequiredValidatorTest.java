@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * RequiredValidatorTest.
@@ -55,7 +55,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -99,7 +99,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -143,7 +143,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"
@@ -181,7 +181,7 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\r\n"

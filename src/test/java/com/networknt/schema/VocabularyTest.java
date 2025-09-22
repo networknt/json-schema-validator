@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.output.OutputUnit;
 
@@ -59,7 +59,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
@@ -74,7 +74,7 @@ class VocabularyTest {
 
         // Set validation vocab
         schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
@@ -83,7 +83,7 @@ class VocabularyTest {
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("minimum", messages.iterator().next().getKeyword());
-        assertEquals(VersionFlag.V202012, schema.getValidationContext().activeDialect().get());
+        assertEquals(Version.DRAFT_2020_12, schema.getValidationContext().activeDialect().get());
     }
 
     @Test
@@ -111,7 +111,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
@@ -127,7 +127,7 @@ class VocabularyTest {
 
         // Set format assertion vocab
         schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
@@ -163,7 +163,7 @@ class VocabularyTest {
                 + "  }\r\n"
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
@@ -206,7 +206,7 @@ class VocabularyTest {
                 .vocabularyFactory(vocabularyFactory)
                 .build();
         JsonSchemaFactory factory = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
+                .getInstance(Version.DRAFT_2020_12,
                         builder -> builder.metaSchema(metaSchema).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));

@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicNode;
@@ -14,7 +14,7 @@ class UnevaluatedPropertiesTest extends AbstractJsonSchemaTestSuite {
     @TestFactory
     @DisplayName("Draft 2019-09")
     Stream<DynamicNode> draft201909() {
-        return createTests(VersionFlag.V201909, "src/test/resources/schema/unevaluatedTests/unevaluated-tests.json");
+        return createTests(Version.DRAFT_2019_09, "src/test/resources/schema/unevaluatedTests/unevaluated-tests.json");
     }
 
 }

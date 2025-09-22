@@ -47,14 +47,14 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static JsonSchema getJsonSchemaFromClasspath(String name) {
-        return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4, null);
+        return getJsonSchemaFromClasspath(name, Specification.Version.DRAFT_4, null);
     }
 
-    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
+    public static JsonSchema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion) {
         return getJsonSchemaFromClasspath(name, schemaVersion, null);
     }
 
-    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion, SchemaValidatorsConfig config) {
+    public static JsonSchema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion, SchemaValidatorsConfig config) {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
@@ -65,23 +65,23 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(schemaContent);
     }
 
     public static JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(SchemaLocation.of(uri));
     }
 
     public static JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
         return factory.getSchema(jsonNode);
     }
 
     // Automatically detect version for given JsonNode
     public static JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecificationVersionDetector.detect(jsonNode));
         return factory.getSchema(jsonNode);
     }
 

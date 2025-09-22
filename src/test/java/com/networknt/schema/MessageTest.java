@@ -22,7 +22,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
@@ -71,7 +71,7 @@ class MessageTest {
     void message() {
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012().getIri(), JsonMetaSchema.getV202012())
                 .keyword(new EqualsKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema));
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"equals\": \"helloworld\"\r\n"

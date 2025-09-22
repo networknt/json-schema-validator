@@ -25,7 +25,7 @@ class Issue575Test {
 
     @BeforeAll
     static void init() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         String schemaPath = "/schema/issue575-2019-09.json";
         InputStream schemaInputStream = Issue575Test.class.getResourceAsStream(schemaPath);
         schema = factory.getSchema(schemaInputStream);

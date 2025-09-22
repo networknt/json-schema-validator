@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 class OverwritingCustomMessageBugTest {
   private JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
     return factory.getSchema(schemaContent);
   }
 

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
@@ -47,7 +47,7 @@ class ItemsValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"items\": {\"type\": \"integer\"}"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
@@ -74,7 +74,7 @@ class ItemsValidatorTest {
                 + "  \"items\": [{}],"
                 + "  \"additionalItems\": {\"type\": \"integer\"}"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
@@ -101,7 +101,7 @@ class ItemsValidatorTest {
                 + "  \"items\": [{}],"
                 + "  \"additionalItems\": false"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[ null, 2, 3, \"foo\" ]";
@@ -124,7 +124,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -160,7 +160,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -202,7 +202,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -252,7 +252,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -306,7 +306,7 @@ class ItemsValidatorTest {
                 + "    \"default\": \"additional\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
                 .itemWalkListener(new JsonSchemaWalkListener() {

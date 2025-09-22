@@ -27,7 +27,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 
 /**
@@ -39,7 +39,7 @@ class OpenApi31Test {
      */
     @Test
     void validateVocabulary() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
         JsonSchema schema = factory
@@ -68,7 +68,7 @@ class OpenApi31Test {
      */
     @Test
     void validateMetaSchema() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         JsonSchema schema = factory
@@ -98,7 +98,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfMultipleMatchShouldFail() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         JsonSchema schema = factory
@@ -118,7 +118,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfNoMatchShouldFail() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         JsonSchema schema = factory
@@ -140,7 +140,7 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfOneMatchWrongDiscriminatorShouldSucceed() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(OpenApi31.getInstance())
                         .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
         JsonSchema schema = factory

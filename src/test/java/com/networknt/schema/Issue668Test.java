@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 class Issue668Test {
     protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         YAMLMapper mapper = new YAMLMapper();
         JsonNode node = mapper.readTree(schemaContent);
         return factory.getSchema(node);

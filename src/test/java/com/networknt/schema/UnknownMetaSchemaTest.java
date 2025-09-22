@@ -21,7 +21,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema1);
 
         List<Error> errors = jsonSchema.validate(jsonNode);
@@ -35,7 +35,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema2);
 
         List<Error> errors = jsonSchema.validate(jsonNode);
@@ -48,7 +48,7 @@ class UnknownMetaSchemaTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(this.json);
 
-        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
+        JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema3);
 
         List<Error> errors = jsonSchema.validate(jsonNode);

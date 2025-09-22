@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 abstract class AbstractJsonSchemaTest {
 
     private static final String SCHEMA = "$schema";
-    private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;
+    private static final Specification.Version DEFAULT_VERSION_FLAG = Specification.Version.DRAFT_2020_12;
     private static final String ASSERT_MSG_KEYWORD = "Validation result should contain {0} keyword";
 
     protected List<Error> validate(String dataPath) {
@@ -60,7 +60,7 @@ abstract class AbstractJsonSchemaTest {
 
     private JsonSchema getJsonSchema(JsonNode schemaNode) {
         return JsonSchemaFactory
-                .getInstance(SpecVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
+                .getInstance(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
                 .getSchema(schemaNode);
     }
 

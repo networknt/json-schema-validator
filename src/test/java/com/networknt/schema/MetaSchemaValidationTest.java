@@ -24,7 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -42,7 +42,7 @@ class MetaSchemaValidationTest {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
             JsonSchema schema = JsonSchemaFactory
-                    .getInstance(VersionFlag.V202012,
+                    .getInstance(Version.DRAFT_2020_12,
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);

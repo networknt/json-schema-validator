@@ -31,10 +31,10 @@ public class Version202012 implements JsonSchemaVersion {
         private static final JsonMetaSchema INSTANCE;
         static {
             INSTANCE = JsonMetaSchema.builder(IRI)
-                    .specification(SpecVersion.VersionFlag.V202012)
+                    .specification(Specification.Version.DRAFT_2020_12)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V202012))
+                    .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_2020_12))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Collections.singletonList(
 		                    new NonValidationKeyword("definitions")

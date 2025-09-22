@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.PrefixItemsValidator;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
@@ -33,7 +33,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
      */
     @Test
     void testEmptyPrefixItemsException() {
-        Stream<DynamicNode> dynamicNodeStream = createTests(SpecVersion.VersionFlag.V7, "src/test/resources/prefixItemsException");
+        Stream<DynamicNode> dynamicNodeStream = createTests(Specification.Version.DRAFT_7, "src/test/resources/prefixItemsException");
         dynamicNodeStream.forEach(
                 dynamicNode -> {
                     assertThrows(JsonSchemaException.class, () -> {
@@ -54,7 +54,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
@@ -80,7 +80,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1]";
@@ -99,7 +99,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}],\r\n"
                 + "  \"items\": false"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1, 2]";
@@ -130,7 +130,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -183,7 +183,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
                 .itemWalkListener(new JsonSchemaWalkListener() {

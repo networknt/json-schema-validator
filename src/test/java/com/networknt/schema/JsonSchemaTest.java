@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Tests for JsonSchemaFactory.
@@ -55,7 +55,7 @@ class JsonSchemaTest {
         String inputData = "{\r\n"
                 + "  \"name\": 1\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().preloadJsonSchema(false).build();

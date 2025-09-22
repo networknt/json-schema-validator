@@ -46,7 +46,7 @@ class JsonWalkTest {
         schemaValidatorsConfigBuilder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(metaSchema)
                 .build();
         this.jsonSchema = schemaFactory.getSchema(getSchema(), schemaValidatorsConfigBuilder.build());
         // Create another Schema.
@@ -129,7 +129,7 @@ class JsonWalkTest {
                 + "                }\n"
                 + "            }";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         JsonSchema schema = factory.getSchema(schemaContents);
         JsonNode missingNode = MissingNode.getInstance();
         assertDoesNotThrow(() -> schema.walk(missingNode, true));

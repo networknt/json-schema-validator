@@ -26,7 +26,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 
 class UriReferenceFormatTest {
@@ -37,7 +37,7 @@ class UriReferenceFormatTest {
                 + "}";
         
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -50,7 +50,7 @@ class UriReferenceFormatTest {
                 + "}";
         
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
                 InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -63,7 +63,7 @@ class UriReferenceFormatTest {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
                 InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -76,7 +76,7 @@ class UriReferenceFormatTest {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
                 InputFormat.JSON);
         assertFalse(messages.isEmpty());
@@ -89,7 +89,7 @@ class UriReferenceFormatTest {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"http://\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -101,7 +101,7 @@ class UriReferenceFormatTest {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"//\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
@@ -113,7 +113,7 @@ class UriReferenceFormatTest {
                 + "}";
 
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData, config);
         List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }

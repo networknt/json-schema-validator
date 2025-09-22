@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.KeywordValidator;
 
@@ -43,7 +43,7 @@ class FormatKeywordFactoryTest {
     void shouldUseFormatKeyword() {
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
                 .formatKeywordFactory(CustomFormatKeyword::new).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.metaSchema(metaSchema));
         String schemaData = "{\r\n"
                 + "  \"format\": \"hello\"\r\n"

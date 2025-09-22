@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 @DisplayName("JSON Schema Test Suite")
 class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
@@ -30,31 +30,31 @@ class JsonSchemaTestSuiteTest extends AbstractJsonSchemaTestSuite {
     @TestFactory
     @DisplayName("Draft 2020-12")
     Stream<DynamicNode> draft2022012() {
-        return createTests(VersionFlag.V202012, "src/test/suite/tests/draft2020-12");
+        return createTests(Version.DRAFT_2020_12, "src/test/suite/tests/draft2020-12");
     }
 
     @TestFactory
     @DisplayName("Draft 2019-09")
     Stream<DynamicNode> draft201909() {
-        return createTests(VersionFlag.V201909, "src/test/suite/tests/draft2019-09");
+        return createTests(Version.DRAFT_2019_09, "src/test/suite/tests/draft2019-09");
     }
 
     @TestFactory
     @DisplayName("Draft 7")
     Stream<DynamicNode> draft7() {
-        return createTests(VersionFlag.V7, "src/test/suite/tests/draft7");
+        return createTests(Version.DRAFT_7, "src/test/suite/tests/draft7");
     }
 
     @TestFactory
     @DisplayName("Draft 6")
     Stream<DynamicNode> draft6() {
-        return createTests(VersionFlag.V6, "src/test/suite/tests/draft6");
+        return createTests(Version.DRAFT_6, "src/test/suite/tests/draft6");
     }
 
     @TestFactory
     @DisplayName("Draft 4")
     Stream<DynamicNode> draft4() {
-        return createTests(VersionFlag.V4, "src/test/suite/tests/draft4");
+        return createTests(Version.DRAFT_4, "src/test/suite/tests/draft4");
     }
 
     @Override

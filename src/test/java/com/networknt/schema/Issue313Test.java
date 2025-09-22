@@ -11,12 +11,12 @@ import java.util.List;
 
 class Issue313Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
     protected JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 

@@ -35,7 +35,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.Error;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.JsonNodeReader;
@@ -87,7 +87,7 @@ class JsonNodesTest {
         String inputData = "{\r\n"
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
@@ -133,7 +133,7 @@ class JsonNodesTest {
                 + "    minLength: 6\r\n";
         String inputData = "---\r\n"
                 + "startDate: '1'\r\n";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, InputFormat.YAML, config);

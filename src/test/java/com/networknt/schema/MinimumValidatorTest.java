@@ -38,7 +38,7 @@ class MinimumValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }";
     private static final String NEGATIVE_MESSAGE_TEMPLATE = "Expecting validation errors, value %s is smaller than minimum %s";
     private static final String POSITIVT_MESSAGE_TEMPLATE = "Expecting no validation errors, value %s is greater than minimum %s";
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
 
     private static ObjectMapper mapper;
     private static ObjectMapper bigDecimalMapper;

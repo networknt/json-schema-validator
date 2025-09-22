@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class Issue314Test {
     private static final JsonSchemaFactory FACTORY =
-            JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+            JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
                     .metaSchema(
                             JsonMetaSchema.builder(
                                     "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",

@@ -28,13 +28,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class LocaleTest {
     private JsonSchema getSchema(SchemaValidatorsConfig config) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(
                 "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }",
                 config);
@@ -88,7 +88,7 @@ class LocaleTest {
                     + "  \"$id\": \"https://www.example.com\",\r\n"
                     + "  \"type\": \"object\"\r\n"
                     + "}";
-            JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
+            JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             String input = "1";
             List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
@@ -96,7 +96,7 @@ class LocaleTest {
             assertEquals("$: integer gefunden, object erwartet", messages.iterator().next().toString());
             
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.ENGLISH).build();
-            jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7)
+            jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema), config);
             messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
@@ -154,7 +154,7 @@ class LocaleTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"maxLength\": 5\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schemaData);
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
             List<Error> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {

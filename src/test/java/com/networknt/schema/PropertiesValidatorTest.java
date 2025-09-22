@@ -12,7 +12,7 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
     @Test
     void testDoesNotThrowWhenApplyingDefaultPropertiesToNonObjects() throws Exception {
         Assertions.assertDoesNotThrow(() -> {
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
 
             SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
                     .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))

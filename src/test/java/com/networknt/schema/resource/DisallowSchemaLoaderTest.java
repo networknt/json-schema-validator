@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Test for DisallowSchemaLoader.
@@ -32,7 +32,7 @@ class DisallowSchemaLoaderTest {
 
     @Test
     void integration() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(DisallowSchemaLoader.getInstance())));
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
                 () -> factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json")));

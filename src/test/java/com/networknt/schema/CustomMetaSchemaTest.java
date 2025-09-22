@@ -122,7 +122,7 @@ class CustomMetaSchemaTest {
                 .keyword(new EnumNamesKeyword())
                 .build();
 
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).metaSchema(metaSchema).build();
+        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4)).metaSchema(metaSchema).build();
         final JsonSchema schema = validatorFactory.getSchema("{\n" +
                 "  \"$schema\":\n" +
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +

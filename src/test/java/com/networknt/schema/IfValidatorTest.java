@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.ValidatorTypeCode;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
@@ -48,7 +48,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -91,7 +91,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -134,7 +134,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override
@@ -175,7 +175,7 @@ class IfValidatorTest {
                 + "    \"type\": \"number\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .keywordWalkListener(ValidatorTypeCode.TYPE.getValue(), new JsonSchemaWalkListener() {
                     @Override

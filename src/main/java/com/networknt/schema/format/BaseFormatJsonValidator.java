@@ -8,7 +8,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 
@@ -19,8 +19,8 @@ public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
             JsonSchema parentSchema, Keyword keyword,
             ValidationContext validationContext) {
         super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-        VersionFlag dialect = this.validationContext.getMetaSchema().getSpecification();
-        if (dialect == null || dialect.getVersionFlagValue() < VersionFlag.V201909.getVersionFlagValue()) {
+        Version dialect = this.validationContext.getMetaSchema().getSpecification();
+        if (dialect == null || dialect.getOrder() < Version.DRAFT_2019_09.getOrder()) {
             assertionsEnabled = true;
         } else {
             // Check vocabulary
@@ -34,11 +34,11 @@ public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
                 this.validationContext.getMetaSchema().getVocabularies());
     }
 
-    protected boolean isFormatAssertionVocabularyEnabled(VersionFlag specification, Map<String, Boolean> vocabularies) {
-        if (VersionFlag.V202012.equals(specification)) {
+    protected boolean isFormatAssertionVocabularyEnabled(Version specification, Map<String, Boolean> vocabularies) {
+        if (Version.DRAFT_2020_12.equals(specification)) {
             String vocabulary = "https://json-schema.org/draft/2020-12/vocab/format-assertion";
             return vocabularies.containsKey(vocabulary); // doesn't matter if it is true or false
-        } else if (VersionFlag.V201909.equals(specification)) {
+        } else if (Version.DRAFT_2019_09.equals(specification)) {
             String vocabulary = "https://json-schema.org/draft/2019-09/vocab/format";
             return vocabularies.getOrDefault(vocabulary, false);
         }

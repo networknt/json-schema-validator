@@ -53,7 +53,7 @@ class Issue619Test {
             }
         };
 
-        factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
+        factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");

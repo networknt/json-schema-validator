@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Tests for RefValidator.
@@ -40,7 +40,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
@@ -59,7 +59,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
@@ -78,7 +78,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
@@ -97,7 +97,7 @@ class RefValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/hello/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
@@ -107,7 +107,7 @@ class RefValidatorTest {
 
     @Test
     void classPathSlash() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:/schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"
@@ -123,7 +123,7 @@ class RefValidatorTest {
 
     @Test
     void classPathNoSlash() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09);
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:schema/main/main.json"));
         String inputData = "{\r\n"
                 + "  \"fields\": {\r\n"

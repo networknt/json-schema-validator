@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Tests for JsonSchemaFactory.
@@ -46,7 +46,7 @@ class JsonSchemaFactoryTest {
                 + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);

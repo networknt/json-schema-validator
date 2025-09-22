@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.KeywordValidator;
 
 public class ValidationContext {
@@ -107,7 +107,7 @@ public class ValidationContext {
         return this.metaSchema;
     }
 
-    public Optional<VersionFlag> activeDialect() {
+    public Optional<Version> activeDialect() {
         return Optional.of(this.metaSchema.getSpecification());
     }
 }

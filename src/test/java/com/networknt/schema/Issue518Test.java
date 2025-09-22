@@ -13,7 +13,7 @@ class Issue518Test {
 
     private static final JsonSchemaFactory FACTORY =
             JsonSchemaFactory
-                    .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+                    .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7))
                     .metaSchema(igluMetaSchema)
                     .build();
 

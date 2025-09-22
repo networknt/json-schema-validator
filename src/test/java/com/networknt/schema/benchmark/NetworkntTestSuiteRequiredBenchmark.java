@@ -18,7 +18,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 public class NetworkntTestSuiteRequiredBenchmark {
     public static final String VERSION_202012 = "2020-12";
@@ -33,15 +33,15 @@ public class NetworkntTestSuiteRequiredBenchmark {
         private String specification;
 
         private Callable<Object> draft202012 = new NetworkntTestSuiteRunner(NetworkntTestSuiteTestCases.findTestCases(
-                VersionFlag.V202012, "src/test/suite/tests/draft2020-12", TestCaseFilter.requiredType()));
+                Version.DRAFT_2020_12, "src/test/suite/tests/draft2020-12", TestCaseFilter.requiredType()));
         private Callable<Object> draft201909 = new NetworkntTestSuiteRunner(NetworkntTestSuiteTestCases.findTestCases(
-                VersionFlag.V201909, "src/test/suite/tests/draft2019-09", TestCaseFilter.requiredType()));
+                Version.DRAFT_2019_09, "src/test/suite/tests/draft2019-09", TestCaseFilter.requiredType()));
         private Callable<Object> draft7 = new NetworkntTestSuiteRunner(NetworkntTestSuiteTestCases
-                .findTestCases(VersionFlag.V7, "src/test/suite/tests/draft7", TestCaseFilter.requiredType()));
+                .findTestCases(Version.DRAFT_7, "src/test/suite/tests/draft7", TestCaseFilter.requiredType()));
         private Callable<Object> draft6 = new NetworkntTestSuiteRunner(NetworkntTestSuiteTestCases
-                .findTestCases(VersionFlag.V6, "src/test/suite/tests/draft6", TestCaseFilter.requiredType()));
+                .findTestCases(Version.DRAFT_6, "src/test/suite/tests/draft6", TestCaseFilter.requiredType()));
         private Callable<Object> draft4 = new NetworkntTestSuiteRunner(NetworkntTestSuiteTestCases
-                .findTestCases(VersionFlag.V4, "src/test/suite/tests/draft4", TestCaseFilter.requiredType()));
+                .findTestCases(Version.DRAFT_4, "src/test/suite/tests/draft4", TestCaseFilter.requiredType()));
 
         private Callable<Object> getTestSuite() {
             switch (specification) {

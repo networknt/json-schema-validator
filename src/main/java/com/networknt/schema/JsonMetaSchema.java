@@ -17,7 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;
@@ -61,7 +61,7 @@ public class JsonMetaSchema {
     public static class Builder {
         private String iri;
         private String idKeyword = "$id";
-        private VersionFlag specification = null;
+        private Version specification = null;
         private final Map<String, Keyword> keywords = new HashMap<>();
         private final Map<String, Format> formats = new HashMap<>();
         private final Map<String, Boolean> vocabularies = new HashMap<>();
@@ -253,7 +253,7 @@ public class JsonMetaSchema {
          * @param specification the specification
          * @return the builder
          */
-        public Builder specification(VersionFlag specification) {
+        public Builder specification(Version specification) {
             this.specification = specification;
             return this;
         }
@@ -273,7 +273,7 @@ public class JsonMetaSchema {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> keywords = this.keywords;
             if (this.specification != null) {
-                if (this.specification.getVersionFlagValue() >= SpecVersion.VersionFlag.V201909.getVersionFlagValue()) {
+                if (this.specification.getOrder() >= Specification.Version.DRAFT_2019_09.getOrder()) {
                     keywords = new HashMap<>(this.keywords);
                     for(Entry<String, Boolean> entry : this.vocabularies.entrySet()) {
                         Vocabulary vocabulary = null;
@@ -326,11 +326,11 @@ public class JsonMetaSchema {
     private final String idKeyword;
     private final Map<String, Keyword> keywords;
     private final Map<String, Boolean> vocabularies;
-    private final VersionFlag specification;
+    private final Version specification;
 
     private final Builder builder;
 
-    JsonMetaSchema(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, VersionFlag specification, Builder builder) {
+    JsonMetaSchema(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
         if (StringUtils.isBlank(iri)) {
             throw new IllegalArgumentException("iri must not be null or blank");
         }
@@ -461,7 +461,7 @@ public class JsonMetaSchema {
         return this.vocabularies;
     }
     
-    public VersionFlag getSpecification() {
+    public Version getSpecification() {
         return this.specification;
     }
 

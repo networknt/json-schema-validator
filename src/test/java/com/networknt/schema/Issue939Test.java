@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 class Issue939Test {
     @Test
@@ -48,7 +48,7 @@ class Issue939Test {
                 + "            }\r\n"
                 + "          }\r\n"
                 + "        }";
-        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schema);
+        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
         List<Error> assertions = jsonSchema
                 .validate("{\"someUuid\":\"invalid\"}", InputFormat.JSON);

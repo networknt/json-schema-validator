@@ -53,7 +53,7 @@ class OverrideValidatorTest {
                 .builder(URI, JsonMetaSchema.getV201909())
                 .build();
 
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(validatorMetaSchema).build();
+        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(validatorMetaSchema).build();
         final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
 
         List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
@@ -70,7 +70,7 @@ class OverrideValidatorTest {
                 .format(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 
-        final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(overrideValidatorMetaSchema).build();
+        final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(overrideValidatorMetaSchema).build();
         final JsonSchema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
         messages = overrideValidatorSchema.validate(targetNode, executionContext -> {

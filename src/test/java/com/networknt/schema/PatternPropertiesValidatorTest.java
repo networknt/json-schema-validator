@@ -17,7 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 
@@ -41,7 +41,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
     @Test
     void testInvalidPatternPropertiesValidator() throws Exception {
         Assertions.assertThrows(JsonSchemaException.class, () -> {
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
 
             JsonNode node = getJsonNodeFromStringContent("");
@@ -56,7 +56,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())
                     .build();
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_4);
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
             JsonNode node = getJsonNodeFromStringContent("");
@@ -79,7 +79,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"
@@ -130,7 +130,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "{\n"

@@ -78,7 +78,7 @@ class Issue471Test {
     }
 
     private JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 

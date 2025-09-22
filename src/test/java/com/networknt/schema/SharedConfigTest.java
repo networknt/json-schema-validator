@@ -30,7 +30,7 @@ class SharedConfigTest {
 
     @Test
     void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
 
         AllKeywordListener allKeywordListener = new AllKeywordListener();
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()

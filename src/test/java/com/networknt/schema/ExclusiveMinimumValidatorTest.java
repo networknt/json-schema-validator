@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.DisallowUnknownKeywordFactory;
 
 /**
@@ -43,7 +43,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";        
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV4())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V4,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_4,
                 builder -> builder.metaSchema(metaSchema));
         JsonSchema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":0}";
@@ -71,7 +71,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V6,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_6,
                 builder -> builder.metaSchema(metaSchema));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }
@@ -90,7 +90,7 @@ class ExclusiveMinimumValidatorTest {
                 "}";
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7,
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7,
                 builder -> builder.metaSchema(metaSchema));
         assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
     }

@@ -81,7 +81,7 @@ class Issue687Test {
     @MethodSource("errors")
     void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
         JsonSchema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath), config);
         List<Error> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
@@ -114,7 +114,7 @@ class Issue687Test {
     void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+        JsonSchema schema = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)
                 .getSchema(mapper.readTree("{\n" +
                         "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
                         "    \"type\": \"object\",\n" +

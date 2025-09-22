@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Default {@link JsonMetaSchemaFactory}.
@@ -28,7 +28,7 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
     @Override
     public JsonMetaSchema getMetaSchema(String iri, JsonSchemaFactory schemaFactory, SchemaValidatorsConfig config) {
         // Is it a well-known dialect?
-        return SpecVersionDetector.detectOptionalVersion(iri)
+        return Specification.Version.fromDialectId(iri)
                 .map(JsonSchemaFactory::checkVersion)
                 .map(JsonSchemaVersion::getInstance)
                 .orElseGet(() -> {
@@ -55,9 +55,9 @@ public class DefaultJsonMetaSchemaFactory implements JsonMetaSchemaFactory {
             SchemaValidatorsConfig config) {
         JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of(iri), config);
         JsonMetaSchema.Builder builder = JsonMetaSchema.builder(iri, schema.getValidationContext().getMetaSchema());
-        VersionFlag specification = schema.getValidationContext().getMetaSchema().getSpecification();
+        Version specification = schema.getValidationContext().getMetaSchema().getSpecification();
         if (specification != null) {
-            if (specification.getVersionFlagValue() >= VersionFlag.V201909.getVersionFlagValue()) {
+            if (specification.getOrder() >= Version.DRAFT_2019_09.getOrder()) {
                 // Process vocabularies
                 JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
                 if (vocabulary != null) {

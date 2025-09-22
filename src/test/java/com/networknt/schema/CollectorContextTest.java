@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
@@ -155,7 +155,7 @@ class CollectorContextTest {
         final JsonMetaSchema metaSchema = getJsonMetaSchema(
                 "https://github.com/networknt/json-schema-validator/tests/schemas/example01");
         final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(metaSchema)
+                .builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09)).metaSchema(metaSchema)
                 .build();
         SchemaValidatorsConfig schemaValidatorsConfig  = SchemaValidatorsConfig.builder().build();
         this.jsonSchema = schemaFactory.getSchema(getSchemaString(), schemaValidatorsConfig);
@@ -456,7 +456,7 @@ class CollectorContextTest {
     void concurrency() throws Exception {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema));
         JsonSchema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -504,7 +504,7 @@ class CollectorContextTest {
     void iterate() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema));
         JsonSchema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -522,7 +522,7 @@ class CollectorContextTest {
     void iterateWalk() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema));
         JsonSchema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");
@@ -540,7 +540,7 @@ class CollectorContextTest {
     void iterateWalkValidate() {
         CollectorContext collectorContext = new CollectorContext(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).keyword(new CollectKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema));
         JsonSchema schema = factory.getSchema("{\n"
                 + "  \"collect\": true\n"
                 + "}");

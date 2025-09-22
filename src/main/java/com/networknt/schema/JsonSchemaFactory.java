@@ -18,7 +18,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.resource.DefaultSchemaLoader;
 import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.resource.SchemaLoaders;
@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 
 /**
  * Factory for building {@link JsonSchema} instances. The factory should be
- * typically be created using {@link #getInstance(VersionFlag, Consumer)} and
+ * typically be created using {@link #getInstance(Version, Consumer)} and
  * should be cached for performance.
  * <p>
  * JsonSchemaFactory instances are thread-safe provided its configuration is not
@@ -251,7 +251,7 @@ public class JsonSchemaFactory {
      * @param versionFlag the default dialect
      * @return the factory
      */
-    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag) {
+    public static JsonSchemaFactory getInstance(Specification.Version versionFlag) {
         return getInstance(versionFlag, null);
     }
 
@@ -263,7 +263,7 @@ public class JsonSchemaFactory {
      * @param customizer to customize the factory
      * @return the factory
      */
-    public static JsonSchemaFactory getInstance(SpecVersion.VersionFlag versionFlag,
+    public static JsonSchemaFactory getInstance(Specification.Version versionFlag,
             Consumer<JsonSchemaFactory.Builder> customizer) {
         JsonSchemaVersion jsonSchemaVersion = checkVersion(versionFlag);
         JsonMetaSchema metaSchema = jsonSchemaVersion.getInstance();
@@ -283,14 +283,14 @@ public class JsonSchemaFactory {
      * @param versionFlag the schema dialect
      * @return the version
      */
-    public static JsonSchemaVersion checkVersion(SpecVersion.VersionFlag versionFlag){
+    public static JsonSchemaVersion checkVersion(Specification.Version versionFlag){
         if (null == versionFlag) return null;
         switch (versionFlag) {
-            case V202012: return new Version202012();
-            case V201909: return new Version201909();
-            case V7: return new Version7();
-            case V6: return new Version6();
-            case V4: return new Version4();
+            case DRAFT_2020_12: return new Version202012();
+            case DRAFT_2019_09: return new Version201909();
+            case DRAFT_7: return new Version7();
+            case DRAFT_6: return new Version6();
+            case DRAFT_4: return new Version4();
             default: throw new IllegalArgumentException("Unsupported value" + versionFlag);
         }
     }
@@ -822,8 +822,8 @@ public class JsonSchemaFactory {
      */
     static protected String normalizeMetaSchemaUri(String id) {
         boolean found = false;
-        for (VersionFlag flag : SpecVersion.VersionFlag.values()) {
-            if(flag.getId().equals(id)) {
+        for (Version flag : Specification.Version.values()) {
+            if(flag.getDialectId().equals(id)) {
                 found = true;
                 break;
             }

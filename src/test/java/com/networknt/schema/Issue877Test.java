@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class Issue877Test {
@@ -30,7 +30,7 @@ class Issue877Test {
                 + "  \"unevaluatedProperties\": false\n"
                 + "}";
         
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonSchema schema = jsonSchemaFactory.getSchema(schemaData);
         String input = "{}";
         ValidationResult result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);

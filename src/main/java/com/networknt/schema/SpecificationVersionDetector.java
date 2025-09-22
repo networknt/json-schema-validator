@@ -17,7 +17,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -33,20 +33,20 @@ import java.util.stream.StreamSupport;
  * @author Subhajitdas298
  * @since 25/06/20
  */
-public final class SpecVersionDetector {
+public final class SpecificationVersionDetector {
 
-    private static final Map<String, VersionFlag> supportedVersions = new HashMap<>();
+    private static final Map<String, Version> supportedVersions = new HashMap<>();
     private static final String SCHEMA_TAG = "$schema";
 
     static {
-        supportedVersions.put("draft2019-09", VersionFlag.V201909);
-        supportedVersions.put("draft2020-12", VersionFlag.V202012);
-        supportedVersions.put("draft4", VersionFlag.V4);
-        supportedVersions.put("draft6", VersionFlag.V6);
-        supportedVersions.put("draft7", VersionFlag.V7);
+        supportedVersions.put("draft2019-09", Version.DRAFT_2019_09);
+        supportedVersions.put("draft2020-12", Version.DRAFT_2020_12);
+        supportedVersions.put("draft4", Version.DRAFT_4);
+        supportedVersions.put("draft6", Version.DRAFT_6);
+        supportedVersions.put("draft7", Version.DRAFT_7);
     }
 
-    private SpecVersionDetector() {
+    private SpecificationVersionDetector() {
         // Prevent instantiation of this utility class
     }
 
@@ -57,7 +57,7 @@ public final class SpecVersionDetector {
      * @param jsonNode JSON Node to read from
      * @return Spec version if present, otherwise throws an exception
      */
-    public static VersionFlag detect(JsonNode jsonNode) {
+    public static Version detect(JsonNode jsonNode) {
         return detectOptionalVersion(jsonNode, true).orElseThrow(
                 () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
         );
@@ -71,17 +71,17 @@ public final class SpecVersionDetector {
      * @param throwIfUnsupported whether to throw an exception if the version is not supported
      * @return Spec version if present, otherwise empty
      */
-    public static Optional<VersionFlag> detectOptionalVersion(JsonNode jsonNode, boolean throwIfUnsupported) {
+    public static Optional<Version> detectOptionalVersion(JsonNode jsonNode, boolean throwIfUnsupported) {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
             String schemaTagValue = schemaTag.asText();
             String schemaUri = JsonSchemaFactory.normalizeMetaSchemaUri(schemaTagValue);
 
             if (throwIfUnsupported) {
-                return VersionFlag.fromId(schemaUri)
+                return Version.fromDialectId(schemaUri)
                         .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
             } else {
-                return VersionFlag.fromId(schemaUri).orElse(null);
+                return Version.fromDialectId(schemaUri).orElse(null);
             }
         });
     }
@@ -89,7 +89,7 @@ public final class SpecVersionDetector {
 
     // For 2019-09 and later published drafts, implementations that are able to
     // detect the draft of each schema via $schema SHOULD be configured to do so
-    public static VersionFlag detectVersion(JsonNode jsonNode, Path specification, VersionFlag defaultVersion, boolean throwIfUnsupported) {
+    public static Version detectVersion(JsonNode jsonNode, Path specification, Version defaultVersion, boolean throwIfUnsupported) {
         return Stream.of(
                         detectOptionalVersion(jsonNode, throwIfUnsupported),
                         detectVersionFromPath(specification)
@@ -103,16 +103,11 @@ public final class SpecVersionDetector {
     // For draft-07 and earlier, draft-next, and implementations unable to
     // detect via $schema, implementations MUST be configured to expect the
     // draft matching the test directory name
-    public static Optional<VersionFlag> detectVersionFromPath(Path path) {
+    public static Optional<Version> detectVersionFromPath(Path path) {
         return StreamSupport.stream(path.spliterator(), false)
                 .map(Path::toString)
-                .map(supportedVersions::get)
+                .map(supportedVersions::get) 
                 .filter(Objects::nonNull)
                 .findAny();
     }
-
-    public static Optional<VersionFlag> detectOptionalVersion(String schemaUri) {
-        return VersionFlag.fromId(schemaUri);
-    }
-
 }

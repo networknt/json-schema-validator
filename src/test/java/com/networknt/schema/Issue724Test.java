@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.walk.JsonSchemaWalkListener;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -50,7 +50,7 @@ class Issue724Test {
                 + "  \"billing_address\" : \"my_billing_address\"\n"
                 + "}\n";
 
-        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
+        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config);
         jsonSchema.walk(new ObjectMapper().readTree(data), /* shouldValidateSchema= */ false);
 
         System.out.println(stringCollector.strings);

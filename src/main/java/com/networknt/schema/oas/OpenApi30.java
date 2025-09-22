@@ -5,7 +5,7 @@ import java.util.Arrays;
 import com.networknt.schema.Formats;
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.SchemaId;
-import com.networknt.schema.SpecVersion;
+import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;
@@ -21,7 +21,7 @@ public class OpenApi30 {
         private static final JsonMetaSchema INSTANCE;
         static {
             INSTANCE = JsonMetaSchema.builder(IRI)
-                    .specification(SpecVersion.VersionFlag.V4)
+                    .specification(Specification.Version.DRAFT_4)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
                     .keywords(Arrays.asList(

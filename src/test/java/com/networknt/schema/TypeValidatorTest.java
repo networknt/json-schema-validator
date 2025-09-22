@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Test TypeValidator validator.
@@ -52,7 +52,7 @@ class TypeValidatorTest {
 
     @Test
     void testTypeLoose() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonSchema schema = factory.getSchema(schemaData);
 
         String inputData = "{\r\n"
@@ -101,7 +101,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         messages = schema.validate("2.0", InputFormat.JSON);
@@ -130,7 +130,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         // The logic in JsonNodeUtil specifically excludes V4 from this handling
@@ -145,7 +145,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V4).getSchema(schemaData);
+        JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_4).getSchema(schemaData);
         ValidationResult result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
     }
@@ -173,7 +173,7 @@ class TypeValidatorTest {
                 + "      \"nested\":null\r\n"
                 + "  }\r\n"
                 + "}";
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
         final JsonSchema validator = factory.getSchema(schemaData, SchemaValidatorsConfig.builder()
             .nullableKeywordEnabled(false)
             .build());

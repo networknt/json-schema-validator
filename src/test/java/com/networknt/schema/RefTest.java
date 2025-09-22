@@ -15,7 +15,7 @@ class RefTest {
     
     @Test
     void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
         String input = "{\r\n"
@@ -38,7 +38,7 @@ class RefTest {
     
     @Test
     void shouldLoadSchemaResource() throws JsonProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
         String input = "{\r\n"

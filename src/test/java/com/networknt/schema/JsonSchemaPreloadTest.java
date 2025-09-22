@@ -18,7 +18,7 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Test to control preloading of schemas.
@@ -26,14 +26,14 @@ import com.networknt.schema.SpecVersion.VersionFlag;
 class JsonSchemaPreloadTest {
     @Test
     void cacheRefsFalse() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().cacheRefs(false).build();
         factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"), config);
     }
 
     @Test
     void preloadSchemaRefMaxNestingDepth() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_7);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
                 .preloadJsonSchemaRefMaxNestingDepth(20)
                 .build();

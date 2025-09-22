@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class Issue493Test
 {
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09);
     private static final String schemaPath1 = "/schema/issue493.json";
 
     private JsonNode getJsonNodeFromJsonData (String jsonFilePath)

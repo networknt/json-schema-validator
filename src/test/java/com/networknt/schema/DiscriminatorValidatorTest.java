@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 /**
  * Test for discriminator.
@@ -115,7 +115,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
         
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -147,7 +147,7 @@ class DiscriminatorValidatorTest {
                 + "                   \"intOrStringType\": 4\r\n"
                 + "               }";
         
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -240,7 +240,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -333,7 +333,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -423,7 +423,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -519,7 +519,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -619,7 +619,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -674,7 +674,7 @@ class DiscriminatorValidatorTest {
 
         String inputData = "{}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
@@ -770,7 +770,7 @@ class DiscriminatorValidatorTest {
                 + "  }\r\n"
                 + "]";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);

@@ -17,10 +17,10 @@ public class Version4 implements JsonSchemaVersion {
         private static final JsonMetaSchema INSTANCE;
         static {
             INSTANCE = JsonMetaSchema.builder(IRI)
-                    .specification(SpecVersion.VersionFlag.V4)
+                    .specification(Specification.Version.DRAFT_4)
                     .idKeyword(ID)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(SpecVersion.VersionFlag.V4))
+                    .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_4))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Arrays.asList(
                             new NonValidationKeyword("$schema"),

@@ -17,7 +17,7 @@ class Issue662Test extends BaseJsonSchemaValidatorTest {
 
     @BeforeAll
     static void setup() {
-        schema = getJsonSchemaFromClasspath(resource("schema.json"), SpecVersion.VersionFlag.V7);
+        schema = getJsonSchemaFromClasspath(resource("schema.json"), Specification.Version.DRAFT_7);
     }
 
     @Test

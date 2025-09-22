@@ -22,7 +22,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationContext;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
     private final JsonSchema schema;
 
     private final boolean isMinV202012;
-    private static final VersionFlag DEFAULT_VERSION = VersionFlag.V201909;
+    private static final Version DEFAULT_VERSION = Version.DRAFT_2019_09;
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             JsonSchema parentSchema, ValidationContext validationContext) {

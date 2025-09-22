@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 class AllOfValidatorTest {
     @Test
@@ -33,7 +33,7 @@ class AllOfValidatorTest {
                 + "    \"$ref\": \"#/defs/User\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
@@ -59,7 +59,7 @@ class AllOfValidatorTest {
 
         String jsonContents = "{}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         JsonSchema schema = factory.getSchema(schemaContents);
         ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
         assertEquals(true, result.getErrors().isEmpty());

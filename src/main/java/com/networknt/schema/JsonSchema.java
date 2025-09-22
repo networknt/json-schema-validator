@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.DiscriminatorValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
@@ -40,7 +40,7 @@ import com.networknt.schema.utils.JsonNodes;
 
 /**
  * Used for creating a schema with validators for validating inputs. This is
- * created using {@link JsonSchemaFactory#getInstance(VersionFlag, Consumer)}
+ * created using {@link JsonSchemaFactory#getInstance(Version, Consumer)}
  * and should be cached for performance.
  * <p>
  * This is the core of json constraint implementation. It parses json constraint
@@ -51,7 +51,7 @@ import com.networknt.schema.utils.JsonNodes;
  * modified.
  */
 public class JsonSchema implements Validator {
-    private static final long V201909_VALUE = VersionFlag.V201909.getVersionFlagValue();
+    private static final long V201909_VALUE = Version.DRAFT_2019_09.getOrder();
     private final String id;
 
     /**
@@ -673,8 +673,8 @@ public class JsonSchema implements Validator {
     private long activeDialect() {
         return this.validationContext
             .activeDialect()
-            .map(VersionFlag::getVersionFlagValue)
-            .orElse(Long.MAX_VALUE);
+            .map(Version::getOrder)
+            .orElse(Integer.MAX_VALUE);
     }
 
     /**

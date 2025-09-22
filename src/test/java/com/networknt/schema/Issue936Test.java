@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 
 class Issue936Test {
     @Test
@@ -31,9 +31,9 @@ class Issue936Test {
                 .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
+                () -> JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config));
         try {
-            JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
+            JsonSchemaFactory.getInstance(Version.DRAFT_2020_12).getSchema(schema, config);
         } catch (InvalidSchemaException e) {
             assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }

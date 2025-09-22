@@ -10,7 +10,7 @@ import java.util.List;
 
 class Issue295Test {
     protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(Specification.Version.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 

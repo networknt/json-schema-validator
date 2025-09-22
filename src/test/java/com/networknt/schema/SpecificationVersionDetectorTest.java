@@ -13,23 +13,23 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SpecVersionDetectorTest {
+class SpecificationVersionDetectorTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @ParameterizedTest
     @CsvSource({
-            "draft4,       V4",
-            "draft6,       V6",
-            "draft7,       V7",
-            "draft2019-09, V201909",
-            "draft2020-12, V202012"
+            "draft4,       DRAFT_4",
+            "draft6,       DRAFT_6",
+            "draft7,       DRAFT_7",
+            "draft2019-09, DRAFT_2019_09",
+            "draft2020-12, DRAFT_2020_12"
     })
-    void detectVersion(String resourceDirectory, SpecVersion.VersionFlag expectedFlag) throws IOException {
+    void detectVersion(String resourceDirectory, Specification.Version expectedFlag) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(resourceDirectory + "/schemaTag.json");
         JsonNode node = mapper.readTree(in);
-        SpecVersion.VersionFlag flag = SpecVersionDetector.detect(node);
+        Specification.Version flag = SpecificationVersionDetector.detect(node);
         assertEquals(expectedFlag, flag);
     }
 
@@ -41,7 +41,7 @@ class SpecVersionDetectorTest {
     void detectInvalidSchemaVersion(String schemaPath, String expectedError) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaPath);
         JsonNode node = mapper.readTree(in);
-        JsonSchemaException exception = assertThrows(JsonSchemaException.class, () -> SpecVersionDetector.detect(node));
+        JsonSchemaException exception = assertThrows(JsonSchemaException.class, () -> SpecificationVersionDetector.detect(node));
         assertEquals(expectedError, exception.getMessage());
     }
 
@@ -50,7 +50,7 @@ class SpecVersionDetectorTest {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "data/schemaTagMissing.json");
         JsonNode node = mapper.readTree(in);
-        Optional<SpecVersion.VersionFlag> flag = SpecVersionDetector.detectOptionalVersion(node, true);
+        Optional<Specification.Version> flag = SpecificationVersionDetector.detectOptionalVersion(node, true);
         assertEquals(Optional.empty(), flag);
     }
 }

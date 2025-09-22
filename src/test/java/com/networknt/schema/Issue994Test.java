@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class Issue994Test {
@@ -46,7 +46,7 @@ class Issue994Test {
         }).build();
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(schemaData);
         JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema)).getSchema(schemaNode);
+                .getInstance(Version.DRAFT_2020_12, builder -> builder.metaSchema(metaSchema)).getSchema(schemaNode);
         String inputData = "{\r\n"
                 + "  \"textValue\": \"hello\"\r\n"
                 + "}";

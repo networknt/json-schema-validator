@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class Issue285Test {
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
+		.builder(JsonSchemaFactory.getInstance(Specification.Version.DRAFT_2019_09))
             .schemaMappers(schemaMappers -> schemaMappers
                     .mapPrefix("http://json-schema.org", "resource:")
                     .mapPrefix("https://json-schema.org", "resource:"))
