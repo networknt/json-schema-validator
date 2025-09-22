@@ -16,33 +16,35 @@
 package com.networknt.schema;
 
 /**
- * Schema Identifier used in $schema.
+ * The dialect id is an IRI that points to the meta-schema that can be used to
+ * validate schemas written for that dialect. The dialect used for a particular
+ * schema is indicated using the $schema keyword.
  */
-public class SchemaId {
+public class DialectId {
     /**
      * Draft 4.
      */
-    public static final String V4 = "http://json-schema.org/draft-04/schema#";
+    public static final String DRAFT_4 = "http://json-schema.org/draft-04/schema#";
 
     /**
      * Draft 6.
      */
-    public static final String V6 = "http://json-schema.org/draft-06/schema#";
+    public static final String DRAFT_6 = "http://json-schema.org/draft-06/schema#";
 
     /**
      * Draft 7.
      */
-    public static final String V7 = "http://json-schema.org/draft-07/schema#";
+    public static final String DRAFT_7 = "http://json-schema.org/draft-07/schema#";
 
     /**
      * Draft 2019-09.
      */
-    public static final String V201909 = "https://json-schema.org/draft/2019-09/schema";
+    public static final String DRAFT_2019_09 = "https://json-schema.org/draft/2019-09/schema";
 
     /**
      * Draft 2020-12.
      */
-    public static final String V202012 = "https://json-schema.org/draft/2020-12/schema";
+    public static final String DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema";
 
     /**
      * OpenAPI 3.0.

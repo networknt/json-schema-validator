@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import com.networknt.schema.Formats;
 import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.SchemaId;
+import com.networknt.schema.DialectId;
 import com.networknt.schema.Specification;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
@@ -14,7 +14,7 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * OpenAPI 3.0.
  */
 public class OpenApi30 {
-    private static final String IRI = SchemaId.OPENAPI_3_0;
+    private static final String IRI = DialectId.OPENAPI_3_0;
     private static final String ID = "id";
     
     private static class Holder {

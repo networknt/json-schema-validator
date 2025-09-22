@@ -53,7 +53,7 @@ class Issue475Test {
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_4, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V4), config);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_4), config);
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
@@ -67,7 +67,7 @@ class Issue475Test {
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_6, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V6), config);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_6), config);
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
@@ -81,7 +81,7 @@ class Issue475Test {
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_7, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V7), config);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_7), config);
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
@@ -95,7 +95,7 @@ class Issue475Test {
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V201909), config);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09), config);
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());
@@ -109,7 +109,7 @@ class Issue475Test {
         JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(Version.DRAFT_2020_12, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(SchemaId.V202012), config);
+        JsonSchema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2020_12), config);
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
         assertEquals(2, assertions.size());

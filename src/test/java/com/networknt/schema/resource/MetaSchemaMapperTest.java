@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import com.networknt.schema.AbsoluteIri;
-import com.networknt.schema.SchemaId;
+import com.networknt.schema.DialectId;
 
 /**
  * MetaSchemaMapperTest.
@@ -33,11 +33,11 @@ import com.networknt.schema.SchemaId;
 class MetaSchemaMapperTest {
 
     enum MapInput {
-        V4(SchemaId.V4),
-        V6(SchemaId.V6),
-        V7(SchemaId.V7),
-        V201909(SchemaId.V201909),
-        V202012(SchemaId.V202012);
+        V4(DialectId.DRAFT_4),
+        V6(DialectId.DRAFT_6),
+        V7(DialectId.DRAFT_7),
+        V201909(DialectId.DRAFT_2019_09),
+        V202012(DialectId.DRAFT_2020_12);
 
         String iri;
 

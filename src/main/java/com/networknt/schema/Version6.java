@@ -10,7 +10,7 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * Draft 6 dialect.
  */
 public class Version6 implements JsonSchemaVersion {
-    private static final String IRI = SchemaId.V6;
+    private static final String IRI = DialectId.DRAFT_6;
     // Draft 6 uses "$id"
     private static final String ID = "$id";
 

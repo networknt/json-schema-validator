@@ -29,23 +29,23 @@ public class Specification {
         /**
          * Draft 4.
          */
-        DRAFT_4(4, SchemaId.V4),
+        DRAFT_4(4, DialectId.DRAFT_4),
         /**
          * Draft 6.
          */
-        DRAFT_6(6, SchemaId.V6),
+        DRAFT_6(6, DialectId.DRAFT_6),
         /**
          * Draft 7.
          */
-        DRAFT_7(7, SchemaId.V7),
+        DRAFT_7(7, DialectId.DRAFT_7),
         /**
          * Draft 2019-09.
          */
-        DRAFT_2019_09(8, SchemaId.V201909),
+        DRAFT_2019_09(8, DialectId.DRAFT_2019_09),
         /**
          * Draft 2020-12.
          */
-        DRAFT_2020_12(9, SchemaId.V202012);
+        DRAFT_2020_12(9, DialectId.DRAFT_2020_12);
 
         private final int order;
         private final String dialectId;

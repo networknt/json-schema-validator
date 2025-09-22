@@ -64,7 +64,7 @@ class UnknownMetaSchemaTest {
         String uri02 = "http://json-schema.org/draft-07/schema#";
         String uri03 = "http://json-schema.org/draft-07/schema?key=value";
         String uri04 = "http://json-schema.org/draft-07/schema?key=value&key2=value2";
-        String expected = SchemaId.V7;
+        String expected = DialectId.DRAFT_7;
 
         Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri01));
         Assertions.assertEquals(expected, JsonSchemaFactory.normalizeMetaSchemaUri(uri02));

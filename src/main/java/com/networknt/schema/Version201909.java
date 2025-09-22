@@ -11,7 +11,7 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * Draft 2019-09 dialect.
  */
 public class Version201909 implements JsonSchemaVersion {
-    private static final String IRI = SchemaId.V201909;
+    private static final String IRI = DialectId.DRAFT_2019_09;
     private static final String ID = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 

@@ -832,15 +832,15 @@ public class JsonSchemaFactory {
             if (id.contains("://json-schema.org/draft")) {
                 // unnormalized $schema
                 if (id.contains("/draft-07/")) {
-                    id = SchemaId.V7;
+                    id = DialectId.DRAFT_7;
                 } else if (id.contains("/draft/2019-09/")) {
-                    id = SchemaId.V201909;
+                    id = DialectId.DRAFT_2019_09;
                 } else if (id.contains("/draft/2020-12/")) {
-                    id = SchemaId.V202012;
+                    id = DialectId.DRAFT_2020_12;
                 } else if (id.contains("/draft-04/")) {
-                    id = SchemaId.V4;
+                    id = DialectId.DRAFT_4;
                 } else if (id.contains("/draft-06/")) {
-                    id = SchemaId.V6;
+                    id = DialectId.DRAFT_6;
                 } 
             }
         }

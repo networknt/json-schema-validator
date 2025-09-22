@@ -39,7 +39,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonSchemaRef;
-import com.networknt.schema.SchemaId;
+import com.networknt.schema.DialectId;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.Specification.Version;
@@ -392,7 +392,7 @@ class JsonSchemaWalkListenerTest {
                 })
                 .build();
         JsonSchema schema = JsonSchemaFactory.getInstance(Version.DRAFT_2019_09)
-                .getSchema(SchemaLocation.of(SchemaId.V201909), config);
+                .getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09), config);
         String inputData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\r\n"
                 + "  \"type\": \"object\",\r\n"
