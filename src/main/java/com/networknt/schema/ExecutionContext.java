@@ -17,7 +17,7 @@
 package com.networknt.schema;
 
 import com.networknt.schema.annotation.Annotations;
-import com.networknt.schema.result.JsonNodeResults;
+import com.networknt.schema.result.SchemaResults;
 import com.networknt.schema.walk.WalkConfig;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class ExecutionContext {
 
     private Stack<DiscriminatorContext> discriminatorContexts = null;
     private Annotations annotations = null;
-    private JsonNodeResults results = null;
+    private SchemaResults results = null;
     private List<Error> errors = new ArrayList<>();
     
     /**
@@ -148,9 +148,9 @@ public class ExecutionContext {
         return annotations;
     }
 
-    public JsonNodeResults getResults() {
+    public SchemaResults getResults() {
         if (this.results == null) {
-            this.results = new JsonNodeResults();
+            this.results = new SchemaResults();
         }
         return results;
     }

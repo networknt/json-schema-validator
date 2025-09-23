@@ -26,24 +26,24 @@ import com.networknt.schema.SchemaLocation;
 /**
  * Sub schema results.
  */
-public class JsonNodeResults {
+public class SchemaResults {
 
     /**
      * Stores the invalid results.
      */
-    private final Map<NodePath, List<JsonNodeResult>> values = new HashMap<>();
+    private final Map<NodePath, List<SchemaResult>> values = new HashMap<>();
 
     public void setResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
-        JsonNodeResult result = new JsonNodeResult(instanceLocation, schemaLocation, evaluationPath, valid);
-        List<JsonNodeResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
+        SchemaResult result = new SchemaResult(instanceLocation, schemaLocation, evaluationPath, valid);
+        List<SchemaResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
         v.add(result);
     }
 
     public boolean isValid(NodePath instanceLocation, NodePath evaluationPath) {
-        List<JsonNodeResult> instance = values.get(instanceLocation);
+        List<SchemaResult> instance = values.get(instanceLocation);
         if (instance != null) {
-            for (JsonNodeResult result : instance) {
+            for (SchemaResult result : instance) {
                 if (evaluationPath.startsWith(result.getEvaluationPath())) {
                     if(!result.isValid()) {
                         return false;

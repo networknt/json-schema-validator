@@ -23,13 +23,13 @@ import com.networknt.schema.SchemaLocation;
 /**
  * Sub schema results.
  */
-public class JsonNodeResult {
+public class SchemaResult {
     private final NodePath instanceLocation;
     private final SchemaLocation schemaLocation;
     private final NodePath evaluationPath;
     private final boolean valid;
 
-    public JsonNodeResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
+    public SchemaResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
         super();
         this.instanceLocation = instanceLocation;
@@ -73,7 +73,7 @@ public class JsonNodeResult {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JsonNodeResult other = (JsonNodeResult) obj;
+        SchemaResult other = (SchemaResult) obj;
         return Objects.equals(evaluationPath, other.evaluationPath)
                 && Objects.equals(instanceLocation, other.instanceLocation)
                 && Objects.equals(schemaLocation, other.schemaLocation) && valid == other.valid;
