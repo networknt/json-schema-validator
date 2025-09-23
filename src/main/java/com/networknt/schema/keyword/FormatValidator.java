@@ -23,7 +23,7 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.format.BaseFormatJsonValidator;
+import com.networknt.schema.format.BaseFormatValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Validator for Format.
  */
-public class FormatValidator extends BaseFormatJsonValidator implements KeywordValidator {
+public class FormatValidator extends BaseFormatValidator implements KeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(FormatValidator.class);
 
     private final Format format;

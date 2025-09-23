@@ -12,10 +12,10 @@ import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 
-public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
+public abstract class BaseFormatValidator extends BaseKeywordValidator {
     protected final boolean assertionsEnabled;
     
-    public BaseFormatJsonValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public BaseFormatValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, Keyword keyword,
             SchemaContext schemaContext) {
         super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
