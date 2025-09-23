@@ -45,7 +45,7 @@ public class SchemaRegistryConfig {
         return Holder.INSTANCE;
     }
     
-    public static final int DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH = 40;
+    public static final int DEFAULT_PRELOAD_SCHEMA_REF_MAX_NESTING_DEPTH = 40;
 
     /**
      * The execution context customizer that runs by default for all schemas.
@@ -103,12 +103,12 @@ public class SchemaRegistryConfig {
     /**
      * Controls if the schema will automatically be preloaded.
      */
-    private final boolean preloadJsonSchema;
+    private final boolean preloadSchema;
 
     /**
      * Controls the max depth of the evaluation path to preload when preloading refs.
      */
-    private final int preloadJsonSchemaRefMaxNestingDepth;
+    private final int preloadSchemaRefMaxNestingDepth;
 
     /**
      * Used to create {@link com.networknt.schema.regex.RegularExpression}.
@@ -141,7 +141,7 @@ public class SchemaRegistryConfig {
             boolean javaSemantics,
             Locale locale, boolean losslessNarrowing,
             MessageSource messageSource, PathType pathType,
-            boolean preloadJsonSchema, int preloadJsonSchemaRefMaxNestingDepth,
+            boolean preloadSchema, int preloadSchemaRefMaxNestingDepth,
             RegularExpressionFactory regularExpressionFactory, SchemaIdValidator schemaIdValidator,
             Map<String, Boolean> strictness, boolean typeLoose) {
         super();
@@ -155,8 +155,8 @@ public class SchemaRegistryConfig {
         this.losslessNarrowing = losslessNarrowing;
         this.messageSource = messageSource;
         this.pathType = pathType;
-        this.preloadJsonSchema = preloadJsonSchema;
-        this.preloadJsonSchemaRefMaxNestingDepth = preloadJsonSchemaRefMaxNestingDepth;
+        this.preloadSchema = preloadSchema;
+        this.preloadSchemaRefMaxNestingDepth = preloadSchemaRefMaxNestingDepth;
         this.regularExpressionFactory = regularExpressionFactory;
         this.schemaIdValidator = schemaIdValidator;
         this.strictness = strictness;
@@ -225,8 +225,8 @@ public class SchemaRegistryConfig {
      *
      * @return the max depth to preload
      */
-    public int getPreloadJsonSchemaRefMaxNestingDepth() {
-        return preloadJsonSchemaRefMaxNestingDepth;
+    public int getPreloadSchemaRefMaxNestingDepth() {
+        return preloadSchemaRefMaxNestingDepth;
     }
 
     /**
@@ -282,7 +282,7 @@ public class SchemaRegistryConfig {
      * @return true if it should be preloaded
      */
     public boolean isPreloadJsonSchema() {
-        return preloadJsonSchema;
+        return preloadSchema;
     }
 
     /**
@@ -350,8 +350,8 @@ public class SchemaRegistryConfig {
         builder.losslessNarrowing = config.losslessNarrowing;
         builder.messageSource = config.messageSource;
         builder.pathType = config.pathType;
-        builder.preloadJsonSchema = config.preloadJsonSchema;
-        builder.preloadJsonSchemaRefMaxNestingDepth = config.preloadJsonSchemaRefMaxNestingDepth;
+        builder.preloadSchema = config.preloadSchema;
+        builder.preloadSchemaRefMaxNestingDepth = config.preloadSchemaRefMaxNestingDepth;
         builder.regularExpressionFactory = config.regularExpressionFactory;
         builder.schemaIdValidator = config.schemaIdValidator;
         builder.strictness = config.strictness;
@@ -383,8 +383,8 @@ public class SchemaRegistryConfig {
         protected boolean losslessNarrowing = false;
         protected MessageSource messageSource = null;
         protected PathType pathType = PathType.JSON_POINTER;
-        protected boolean preloadJsonSchema = true;
-        protected int preloadJsonSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH;
+        protected boolean preloadSchema = true;
+        protected int preloadSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_SCHEMA_REF_MAX_NESTING_DEPTH;
         protected RegularExpressionFactory regularExpressionFactory = JDKRegularExpressionFactory.getInstance();
         protected SchemaIdValidator schemaIdValidator = SchemaIdValidator.DEFAULT;
         protected Map<String, Boolean> strictness = new HashMap<>(0);
@@ -515,7 +515,7 @@ public class SchemaRegistryConfig {
          * @return the builder
          */
         public T preloadJsonSchema(boolean preloadJsonSchema) {
-            this.preloadJsonSchema = preloadJsonSchema;
+            this.preloadSchema = preloadJsonSchema;
             return self();
         }
         /**
@@ -523,11 +523,11 @@ public class SchemaRegistryConfig {
          * <p>
          * Defaults to 40.
          *
-         * @param preloadJsonSchemaRefMaxNestingDepth to preload
+         * @param preloadSchemaRefMaxNestingDepth to preload
          * @return the builder
          */
-        public T preloadJsonSchemaRefMaxNestingDepth(int preloadJsonSchemaRefMaxNestingDepth) {
-            this.preloadJsonSchemaRefMaxNestingDepth = preloadJsonSchemaRefMaxNestingDepth;
+        public T preloadSchemaRefMaxNestingDepth(int preloadSchemaRefMaxNestingDepth) {
+            this.preloadSchemaRefMaxNestingDepth = preloadSchemaRefMaxNestingDepth;
             return self();
         }
         /**
@@ -575,7 +575,7 @@ public class SchemaRegistryConfig {
             return new SchemaRegistryConfig(cacheRefs, errorMessageKeyword,
                     executionContextCustomizer, failFast, formatAssertionsEnabled, 
                     javaSemantics, locale, losslessNarrowing, messageSource,
-                    pathType, preloadJsonSchema, preloadJsonSchemaRefMaxNestingDepth,
+                    pathType, preloadSchema, preloadSchemaRefMaxNestingDepth,
                     regularExpressionFactory, schemaIdValidator, strictness, typeLoose
                     );
         }

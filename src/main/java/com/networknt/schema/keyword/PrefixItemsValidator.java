@@ -21,11 +21,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaRef;
+import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.JsonSchemaRefs;
+import com.networknt.schema.utils.SchemaRefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +137,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+            SchemaRef schemaRef = SchemaRefs.from(schema);
             if (schemaRef != null) {
                 result = getDefaultNode(schemaRef.getSchema());
             }

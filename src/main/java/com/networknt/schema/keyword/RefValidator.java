@@ -24,7 +24,7 @@ import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
-import com.networknt.schema.JsonSchemaRef;
+import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 
@@ -34,7 +34,7 @@ import java.util.function.Supplier;
  * {@link KeywordValidator} that resolves $ref.
  */
 public class RefValidator extends BaseKeywordValidator {
-    protected final JsonSchemaRef schema;
+    protected final SchemaRef schema;
 
     private static final String REF_CURRENT = "#";
 
@@ -44,7 +44,7 @@ public class RefValidator extends BaseKeywordValidator {
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
 
-    static JsonSchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
+    static SchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
             JsonNodePath evaluationPath) {
         // The evaluationPath is used to derive the keywordLocation
         final String refValueOriginal = refValue;
@@ -64,7 +64,7 @@ public class RefValidator extends BaseKeywordValidator {
             String schemaUriFinal = resolve(parentSchema, refUri);
             SchemaLocation schemaLocation = SchemaLocation.of(schemaUriFinal);
             // This should retrieve schemas regardless of the protocol that is in the uri.
-            return new JsonSchemaRef(getSupplier(() -> {
+            return new SchemaRef(getSupplier(() -> {
                 Schema schemaResource = schemaContext.getSchemaResources().get(schemaUriFinal);
                 if (schemaResource == null) {
                     schemaResource = schemaContext.getSchemaRegistry().loadSchema(schemaLocation); 
@@ -100,7 +100,7 @@ public class RefValidator extends BaseKeywordValidator {
         } else if (SchemaLocation.Fragment.isAnchorFragment(refValue)) {
             String absoluteIri = resolve(parentSchema, refValue);
             // Schema resource needs to update the parent and evaluation path
-            return new JsonSchemaRef(getSupplier(() -> {
+            return new SchemaRef(getSupplier(() -> {
                 Schema schemaResource = schemaContext.getSchemaResources().get(absoluteIri);
                 if (schemaResource == null) {
                     schemaResource = schemaContext.getDynamicAnchors().get(absoluteIri);
@@ -115,11 +115,11 @@ public class RefValidator extends BaseKeywordValidator {
             }, schemaContext.getSchemaRegistryConfig().isCacheRefs()));
         }
         if (refValue.equals(REF_CURRENT)) {
-            return new JsonSchemaRef(
+            return new SchemaRef(
                     getSupplier(() -> parentSchema.findSchemaResourceRoot().fromRef(parentSchema, evaluationPath),
                             schemaContext.getSchemaRegistryConfig().isCacheRefs()));
         }
-        return new JsonSchemaRef(getSupplier(
+        return new SchemaRef(getSupplier(
                 () -> getJsonSchema(parentSchema, schemaContext, refValue, refValueOriginal, evaluationPath)
                         .fromRef(parentSchema, evaluationPath),
                 schemaContext.getSchemaRegistryConfig().isCacheRefs()));
@@ -226,7 +226,7 @@ public class RefValidator extends BaseKeywordValidator {
         refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 
-	public JsonSchemaRef getSchemaRef() {
+	public SchemaRef getSchemaRef() {
 		return this.schema;
 	}
 
@@ -257,7 +257,7 @@ public class RefValidator extends BaseKeywordValidator {
             }
         }
         if (this.schemaContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
-                && depth < this.schemaContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
+                && depth < this.schemaContext.getSchemaRegistryConfig().getPreloadSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

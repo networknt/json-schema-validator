@@ -34,7 +34,7 @@ class JsonSchemaPreloadTest {
     @Test
     void preloadSchemaRefMaxNestingDepth() {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder()
-                .preloadJsonSchemaRefMaxNestingDepth(20)
+                .preloadSchemaRefMaxNestingDepth(20)
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"));

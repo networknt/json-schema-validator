@@ -16,16 +16,16 @@
 package com.networknt.schema.utils;
 
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaRef;
+import com.networknt.schema.SchemaRef;
 import com.networknt.schema.keyword.DynamicRefValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.RecursiveRefValidator;
 import com.networknt.schema.keyword.RefValidator;
 
 /**
- * Utility methods for JsonSchemaRef.
+ * Utility methods for SchemaRef.
  */
-public class JsonSchemaRefs {
+public class SchemaRefs {
 
     /**
      * Gets the ref.
@@ -33,7 +33,7 @@ public class JsonSchemaRefs {
      * @param schema the schema
      * @return the ref
      */
-    public static JsonSchemaRef from(Schema schema) {
+    public static SchemaRef from(Schema schema) {
         for (KeywordValidator validator : schema.getValidators()) {
             if (validator instanceof RefValidator) {
                 return ((RefValidator) validator).getSchemaRef();

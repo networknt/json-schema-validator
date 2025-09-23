@@ -23,11 +23,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaRef;
+import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.utils.JsonSchemaRefs;
+import com.networknt.schema.utils.SchemaRefs;
 import com.networknt.schema.walk.WalkListenerRunner;
 import java.util.Collections;
 import java.util.Iterator;
@@ -153,7 +153,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     private static JsonNode getDefaultNode(Schema schema) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
-            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+            SchemaRef schemaRef = SchemaRefs.from(schema);
             if (schemaRef != null) {
                 result = getDefaultNode(schemaRef.getSchema());
             }

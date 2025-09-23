@@ -18,13 +18,13 @@ package com.networknt.schema;
 import java.util.function.Supplier;
 
 /**
- * Use this object instead a JsonSchema for references.
+ * Use this object instead a Schema for references.
  */
-public class JsonSchemaRef {
+public class SchemaRef {
 
     private final Supplier<Schema> schemaSupplier;
 
-    public JsonSchemaRef(Supplier<Schema> schema) {
+    public SchemaRef(Supplier<Schema> schema) {
         this.schemaSupplier = schema;
     }
 

@@ -38,7 +38,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.JsonSchemaRef;
+import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.DialectId;
@@ -48,7 +48,7 @@ import com.networknt.schema.keyword.PropertiesValidator;
 import com.networknt.schema.keyword.ValidatorTypeCode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
-import com.networknt.schema.utils.JsonSchemaRefs;
+import com.networknt.schema.utils.SchemaRefs;
 import com.networknt.schema.Error;
 import com.networknt.schema.ValidationResult;
 
@@ -606,7 +606,7 @@ class WalkListenerTest {
                         if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                                 || walkEvent.getInstanceNode().isNull()) {
                             Schema schema = walkEvent.getSchema();
-                            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                            SchemaRef schemaRef = SchemaRefs.from(schema);
                             if (schemaRef != null) {
                                 schema = schemaRef.getSchema();
                             }
@@ -666,7 +666,7 @@ class WalkListenerTest {
                         if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                                 || walkEvent.getInstanceNode().isNull()) {
                             Schema schema = walkEvent.getSchema();
-                            JsonSchemaRef schemaRef = JsonSchemaRefs.from(schema);
+                            SchemaRef schemaRef = SchemaRefs.from(schema);
                             if (schemaRef != null) {
                                 schema = schemaRef.getSchema();
                             }
@@ -741,7 +741,7 @@ class WalkListenerTest {
                                 // Get the schema
                                 PropertiesValidator propertiesValidator = walkEvent.getValidator();
                                 Schema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
-                                JsonSchemaRef schemaRef = JsonSchemaRefs.from(propertySchema);
+                                SchemaRef schemaRef = SchemaRefs.from(propertySchema);
                                 if (schemaRef != null) {
                                     propertySchema = schemaRef.getSchema();
                                 }
@@ -804,9 +804,9 @@ class WalkListenerTest {
                         if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                                 || walkEvent.getInstanceNode().isNull()) {
                             Schema schema = walkEvent.getSchema();
-                            JsonSchemaRef schemaRef = null;
+                            SchemaRef schemaRef = null;
                             do {
-                                schemaRef = JsonSchemaRefs.from(schema);
+                                schemaRef = SchemaRefs.from(schema);
                                 if (schemaRef != null) {
                                     schema = schemaRef.getSchema();
                                 }
