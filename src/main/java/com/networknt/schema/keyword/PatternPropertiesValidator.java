@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
@@ -40,7 +40,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
                                       SchemaContext schemaContext) {
         super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isObject()) {
-            throw new JsonSchemaException("patternProperties must be an object node");
+            throw new SchemaException("patternProperties must be an object node");
         }
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {

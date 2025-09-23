@@ -438,7 +438,7 @@ public class Schema implements Validator {
                 result  = this.schemaContext.getDynamicAnchors().get(anchor);
             }
             if (result == null) {
-                throw new JsonSchemaException("Unable to find anchor "+anchor);
+                throw new SchemaException("Unable to find anchor "+anchor);
             }
             return result;
         }
@@ -634,7 +634,7 @@ public class Schema implements Validator {
                                 .schemaLocation(schemaPath)
                                 .arguments(nodeToUse.getNodeType().toString())
                                 .build();
-                        throw new JsonSchemaException(error);
+                        throw new SchemaException(error);
                     }
                     this.recursiveAnchor = nodeToUse.booleanValue();
                 }

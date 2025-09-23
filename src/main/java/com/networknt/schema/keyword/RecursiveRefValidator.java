@@ -23,7 +23,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -46,7 +46,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
                     .message("The value of a $recursiveRef must be '#' but is '{0}'").instanceLocation(schemaLocation.getFragment())
                     .instanceNode(this.schemaNode)
                     .evaluationPath(evaluationPath).arguments(refValue).build();
-            throw new JsonSchemaException(error);
+            throw new SchemaException(error);
         }
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
@@ -146,10 +146,10 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();
-        } catch (JsonSchemaException e) {
+        } catch (SchemaException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new JsonSchemaException(e);
+            throw new SchemaException(e);
         }
         // Check for circular dependency
         // Only one cycle is pre-loaded

@@ -199,7 +199,7 @@ abstract class AbstractJsonSchemaTestSuite {
                 SchemaRegistry schemaRegistry = buildSchemaRegistry(defaultVersion, testCase, configBuilder.build());
                 return buildTest(schemaRegistry, testSpec);
             }));
-        } catch (JsonSchemaException e) {
+        } catch (SchemaException e) {
             String msg = e.getMessage();
             if (msg.endsWith("' is unrecognizable schema")) {
                 return dynamicContainer(testCase.getDisplayName(), unsupportedMetaSchema(testCase));

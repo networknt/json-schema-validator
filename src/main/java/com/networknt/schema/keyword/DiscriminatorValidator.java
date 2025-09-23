@@ -28,7 +28,7 @@ import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 
@@ -144,7 +144,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
-                throw new JsonSchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
+                throw new SchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
             }
             final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
             final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
@@ -163,7 +163,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
                     if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
-                        throw new JsonSchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
+                        throw new SchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
                                 + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {
                         mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);

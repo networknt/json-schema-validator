@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ThresholdMixin;
@@ -44,7 +44,7 @@ public class MaximumValidator extends BaseKeywordValidator {
     public MaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
-            throw new JsonSchemaException("maximum value is not a number");
+            throw new SchemaException("maximum value is not a number");
         }
 
         JsonNode exclusiveMaximumNode = getParentSchema().getSchemaNode().get(PROPERTY_EXCLUSIVE_MAXIMUM);

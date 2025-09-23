@@ -60,7 +60,7 @@ class UnknownMetaSchemaTest {
     }
 
     @Test
-    void testNormalize() throws JsonSchemaException {
+    void testNormalize() throws SchemaException {
 
         String uri01 = "http://json-schema.org/draft-07/schema";
         String uri02 = "http://json-schema.org/draft-07/schema#";

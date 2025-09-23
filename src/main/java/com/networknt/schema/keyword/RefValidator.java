@@ -23,7 +23,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -235,10 +235,10 @@ public class RefValidator extends BaseKeywordValidator {
         Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();
-        } catch (JsonSchemaException e) {
+        } catch (SchemaException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new JsonSchemaException(e);
+            throw new SchemaException(e);
         }
         // Check for circular dependency
         // Only one cycle is pre-loaded

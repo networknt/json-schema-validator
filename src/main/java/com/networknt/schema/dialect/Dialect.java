@@ -22,7 +22,7 @@ import com.networknt.schema.Format;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
 import com.networknt.schema.SchemaContext;
@@ -470,17 +470,17 @@ public class Dialect {
             }
             return kw.newValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);
         } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof JsonSchemaException) {
+            if (e.getTargetException() instanceof SchemaException) {
                 logger.error("Error:", e);
-                throw (JsonSchemaException) e.getTargetException();
+                throw (SchemaException) e.getTargetException();
             }
             logger.warn("Could not load validator {}", keyword);
-            throw new JsonSchemaException(e.getTargetException());
-        } catch (JsonSchemaException e) {
+            throw new SchemaException(e.getTargetException());
+        } catch (SchemaException e) {
             throw e;
         } catch (Exception e) {
             logger.warn("Could not load validator {}", keyword);
-            throw new JsonSchemaException(e);
+            throw new SchemaException(e);
         }
     }
 

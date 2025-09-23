@@ -41,7 +41,7 @@ class SpecificationVersionDetectorTest {
     void detectInvalidSchemaVersion(String schemaPath, String expectedError) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaPath);
         JsonNode node = mapper.readTree(in);
-        JsonSchemaException exception = assertThrows(JsonSchemaException.class, () -> SpecificationVersionDetector.detect(node));
+        SchemaException exception = assertThrows(SchemaException.class, () -> SpecificationVersionDetector.detect(node));
         assertEquals(expectedError, exception.getMessage());
     }
 

@@ -8,7 +8,7 @@ class Issue532Test {
     @Test
     void failure() {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> {
+        SchemaException ex = assertThrows(SchemaException.class, () -> {
             factory.getSchema("{ \"$schema\": true }");
         });
         assertEquals("Unknown dialect: true", ex.getMessage());

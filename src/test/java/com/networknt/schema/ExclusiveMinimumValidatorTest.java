@@ -72,7 +72,7 @@ class ExclusiveMinimumValidatorTest {
         Dialect dialect = Dialect.builder(Dialects.getDraft6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
 
     @Test
@@ -90,6 +90,6 @@ class ExclusiveMinimumValidatorTest {
         Dialect dialect = Dialect.builder(Dialects.getDraft7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
         SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
 }

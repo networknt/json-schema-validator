@@ -24,7 +24,7 @@ import com.networknt.schema.Specification.Version;
 
 class AllOfValidatorTest {
     @Test
-    void invalidTypeShouldThrowJsonSchemaException() {
+    void invalidTypeShouldThrowSchemaException() {
         String schemaData = "{\r\n"
                 + "  \"$defs\": {\r\n"
                 + "    \"User\": true\r\n"
@@ -34,7 +34,7 @@ class AllOfValidatorTest {
                 + "  }\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaException ex = assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
 

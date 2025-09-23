@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ThresholdMixin;
@@ -48,7 +48,7 @@ public class MinimumValidator extends BaseKeywordValidator {
         super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (!schemaNode.isNumber()) {
-            throw new JsonSchemaException("minimum value is not a number");
+            throw new SchemaException("minimum value is not a number");
         }
 
         JsonNode exclusiveMinimumNode = getParentSchema().getSchemaNode().get(PROPERTY_EXCLUSIVE_MINIMUM);

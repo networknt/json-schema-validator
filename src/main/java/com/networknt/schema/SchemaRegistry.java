@@ -383,7 +383,7 @@ public class SchemaRegistry {
     private Dialect getDialectOrDefault(final JsonNode schemaNode) {
         final JsonNode iriNode = schemaNode.get("$schema");
         if (iriNode != null && !iriNode.isNull() && !iriNode.isTextual()) {
-            throw new JsonSchemaException("Unknown dialect: " + iriNode);
+            throw new SchemaException("Unknown dialect: " + iriNode);
         }
         final String iri = iriNode == null || iriNode.isNull() ? defaultDialectId : iriNode.textValue();
         return getDialect(iri);
@@ -437,7 +437,7 @@ public class SchemaRegistry {
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
-            throw new JsonSchemaException(ioe);
+            throw new SchemaException(ioe);
         }
     }
 
@@ -470,7 +470,7 @@ public class SchemaRegistry {
             return newSchema(null, schemaNode);
         } catch (IOException ioe) {
             logger.error("Failed to load json schema!", ioe);
-            throw new JsonSchemaException(ioe);
+            throw new SchemaException(ioe);
         }
     }
 
@@ -542,7 +542,7 @@ public class SchemaRegistry {
             }
         } catch (IOException e) {
             logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
-            JsonSchemaException exception = new JsonSchemaException("Failed to load json schema from "+schemaUri.getAbsoluteIri());
+            SchemaException exception = new SchemaException("Failed to load json schema from "+schemaUri.getAbsoluteIri());
             exception.initCause(e);
             throw exception;
         }

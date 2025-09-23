@@ -52,14 +52,14 @@ public final class SpecificationVersionDetector {
 
     /**
      * Detects schema version based on the schema tag: if the schema tag is not present, throws
-     * {@link JsonSchemaException} with the corresponding message, otherwise - returns the detected spec version.
+     * {@link SchemaException} with the corresponding message, otherwise - returns the detected spec version.
      *
      * @param jsonNode JSON Node to read from
      * @return Spec version if present, otherwise throws an exception
      */
     public static Version detect(JsonNode jsonNode) {
         return detectOptionalVersion(jsonNode, true).orElseThrow(
-                () -> new JsonSchemaException("'" + SCHEMA_TAG + "' tag is not present")
+                () -> new SchemaException("'" + SCHEMA_TAG + "' tag is not present")
         );
     }
 
@@ -79,7 +79,7 @@ public final class SpecificationVersionDetector {
 
             if (throwIfUnsupported) {
                 return Version.fromDialectId(schemaUri)
-                        .orElseThrow(() -> new JsonSchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
+                        .orElseThrow(() -> new SchemaException("'" + schemaTagValue + "' is unrecognizable schema"));
             } else {
                 return Version.fromDialectId(schemaUri).orElse(null);
             }

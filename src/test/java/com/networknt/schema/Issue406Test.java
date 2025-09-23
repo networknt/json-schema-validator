@@ -24,7 +24,7 @@ class Issue406Test {
     void testPreloadingHappening() {
         final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         final Schema schema = factory.getSchema(INVALID_$REF_SCHEMA);
-        Assertions.assertThrows(JsonSchemaException.class,
+        Assertions.assertThrows(SchemaException.class,
                             new Executable() {
                                 @Override
                                 public void execute() {

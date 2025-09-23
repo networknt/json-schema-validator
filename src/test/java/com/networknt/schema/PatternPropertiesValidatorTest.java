@@ -40,7 +40,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testInvalidPatternPropertiesValidator() throws Exception {
-        Assertions.assertThrows(JsonSchemaException.class, () -> {
+        Assertions.assertThrows(SchemaException.class, () -> {
             SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
             Schema schema = factory.getSchema("{\"patternProperties\":6}");
 
@@ -52,7 +52,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testInvalidPatternPropertiesValidatorECMA262() throws Exception {
-        Assertions.assertThrows(JsonSchemaException.class, () -> {
+        Assertions.assertThrows(SchemaException.class, () -> {
             SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                     .regularExpressionFactory(JoniRegularExpressionFactory.getInstance())
                     .build();

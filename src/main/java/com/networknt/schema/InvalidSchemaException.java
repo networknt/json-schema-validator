@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Thrown when an invalid schema is used.
  */
-public class InvalidSchemaException extends JsonSchemaException {
+public class InvalidSchemaException extends SchemaException {
     private static final long serialVersionUID = 1L;
 
     public InvalidSchemaException(Error message, Exception cause) {

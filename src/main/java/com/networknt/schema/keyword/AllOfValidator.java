@@ -24,7 +24,7 @@ import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
@@ -40,7 +40,7 @@ public class AllOfValidator extends BaseKeywordValidator {
         super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
-            throw new JsonSchemaException(error().instanceNode(schemaNode)
+            throw new SchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
                     .arguments(nodeType.toString(), "array")

@@ -77,7 +77,7 @@ class Issue428Test {
                 }
 
 
-            } catch (JsonSchemaException e) {
+            } catch (SchemaException e) {
                 throw new IllegalStateException(String.format("Current schema should not be invalid: %s", testCaseFile), e);
             }
         }

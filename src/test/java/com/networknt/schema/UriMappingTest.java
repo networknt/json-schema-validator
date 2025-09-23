@@ -91,7 +91,7 @@ class UriMappingTest {
             Schema schema = instance.getSchema(example);
             schema.validate(mapper.createObjectNode());
             fail("Expected exception not thrown");
-        } catch (JsonSchemaException ex) {
+        } catch (SchemaException ex) {
             Throwable cause = ex.getCause();
             if (!(cause instanceof IOException )) {
                 fail("Unexpected cause for JsonSchemaException", ex);
@@ -158,7 +158,7 @@ class UriMappingTest {
             Schema schema = instance.getSchema(example);
             schema.validate(mapper.createObjectNode());
             fail("Expected exception not thrown");
-        } catch (JsonSchemaException ex) {
+        } catch (SchemaException ex) {
             Throwable cause = ex.getCause();
             if (!(cause instanceof IOException)) {
                 fail("Unexpected cause for JsonSchemaException");

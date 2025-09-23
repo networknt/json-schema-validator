@@ -63,7 +63,7 @@ class MessageTest {
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
                 JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext)
-                throws JsonSchemaException, Exception {
+                throws SchemaException, Exception {
             return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, schemaContext);
         }
     }

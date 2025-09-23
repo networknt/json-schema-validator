@@ -21,7 +21,7 @@ import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
@@ -46,7 +46,7 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
         errorBuilder.append('[');
 
         if (!schemaNode.isArray()) {
-            throw new JsonSchemaException("Expected array for type property on Union Type Definition.");
+            throw new SchemaException("Expected array for type property on Union Type Definition.");
         }
 
         int i = 0;

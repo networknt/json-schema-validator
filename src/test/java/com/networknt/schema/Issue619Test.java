@@ -156,19 +156,19 @@ class Issue619Test {
     void uriThatPointsToSchemaThatDoesNotExistShouldFail_Ref() {
         Schema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:data/schema-that-does-not-exist.json#/definitions/something\" }");
 
-        assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
+        assertThrows(SchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
     void uriThatPointsToSchemaThatDoesNotExistShouldFail_Uri() {
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
+        assertThrows(SchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
     }
 
     @Test
     void uriThatPointsToNodeThatDoesNotExistShouldFail_Ref() {
         Schema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/node-that-does-not-exist\" }");
 
-        assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
+        assertThrows(SchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
@@ -180,6 +180,6 @@ class Issue619Test {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
+        assertThrows(SchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
     }
 }

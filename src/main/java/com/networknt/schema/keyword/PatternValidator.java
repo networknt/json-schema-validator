@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
@@ -70,7 +70,7 @@ public class PatternValidator extends BaseKeywordValidator {
                         .arguments(this.pattern).build());
                 return;
             }
-        } catch (JsonSchemaException | FailFastAssertionException e) {
+        } catch (SchemaException | FailFastAssertionException e) {
             throw e;
         } catch (RuntimeException e) {
             logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, instanceLocation, e.getMessage());

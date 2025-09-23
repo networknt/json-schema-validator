@@ -86,16 +86,16 @@ class CustomMetaSchemaTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception {
+                                          Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
              */
             if (!schemaNode.isArray()) {
-                throw new JsonSchemaException("Keyword enumNames needs to receive an array");
+                throw new SchemaException("Keyword enumNames needs to receive an array");
             }
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             if (!parentSchemaNode.has("enum")) {
-                throw new JsonSchemaException("Keyword enumNames needs to have a sibling enum keyword");
+                throw new SchemaException("Keyword enumNames needs to have a sibling enum keyword");
             }
             JsonNode enumSchemaNode = parentSchemaNode.get("enum");
 
@@ -105,7 +105,7 @@ class CustomMetaSchemaTest {
 
         private List<String> readStringList(JsonNode node) {
             if (!node.isArray()) {
-                throw new JsonSchemaException("Keyword enum needs to receive an array");
+                throw new SchemaException("Keyword enum needs to receive an array");
             }
             ArrayList<String> result = new ArrayList<String>(node.size());
             for (JsonNode child : node) {

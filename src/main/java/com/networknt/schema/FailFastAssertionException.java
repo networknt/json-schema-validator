@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * Thrown when an assertion happens and the evaluation can fail fast.
  * <p>
- * This doesn't extend off JsonSchemaException as it is used for flow control
+ * This doesn't extend off SchemaException as it is used for flow control
  * and is intended to be caught in a specific place.
  * <p>
  * This will be caught in the JsonSchema validate method to be passed to the

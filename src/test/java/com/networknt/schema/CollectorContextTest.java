@@ -265,7 +265,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
             }
@@ -355,7 +355,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
             }
@@ -431,7 +431,7 @@ class CollectorContextTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception {
+                Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isBoolean()) {
                 return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
             }

@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.Validator;
 
 /**
@@ -27,11 +27,11 @@ public interface KeywordValidator extends Validator {
      * In case the {@link com.networknt.schema.keyword.KeywordValidator} has a related {@link com.networknt.schema.Schema} or several
      * ones, calling preloadJsonSchema will actually load the schema document(s) eagerly.
      *
-     * @throws JsonSchemaException (a {@link java.lang.RuntimeException}) in case the {@link com.networknt.schema.Schema} or nested schemas
+     * @throws SchemaException (a {@link java.lang.RuntimeException}) in case the {@link com.networknt.schema.Schema} or nested schemas
      * are invalid (like <code>$ref</code> not resolving)
      * @since 1.0.54
      */
-    default void preloadJsonSchema() throws JsonSchemaException {
+    default void preloadJsonSchema() throws SchemaException {
         // do nothing by default - to be overridden in subclasses
     }
 

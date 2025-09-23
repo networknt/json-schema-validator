@@ -38,7 +38,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         Stream<DynamicNode> dynamicNodeStream = createTests(Specification.Version.DRAFT_7, "src/test/resources/prefixItemsException");
         dynamicNodeStream.forEach(
                 dynamicNode -> {
-                    assertThrows(JsonSchemaException.class, () -> {
+                    assertThrows(SchemaException.class, () -> {
                         ((DynamicContainer) dynamicNode).getChildren().forEach(dynamicNode1 -> {
                         });
                     });

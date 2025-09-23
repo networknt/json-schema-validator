@@ -141,7 +141,7 @@ class OneOfValidatorTest {
                 + "  }\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaException ex = assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
 

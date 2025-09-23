@@ -20,22 +20,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represents an error when processing the JsonSchema.
+ * Represents an error when processing the Schema.
  */
-public class JsonSchemaException extends RuntimeException {
+public class SchemaException extends RuntimeException {
     private static final long serialVersionUID = -7805792737596582110L;
     private final Error error;
 
-    public JsonSchemaException(Error error) {
+    public SchemaException(Error error) {
         this.error = error;
     }
 
-    public JsonSchemaException(String message) {
+    public SchemaException(String message) {
         super(message);
         this.error = null;
     }
 
-    public JsonSchemaException(Throwable throwable) {
+    public SchemaException(Throwable throwable) {
         super(throwable);
         this.error = null;
     }
