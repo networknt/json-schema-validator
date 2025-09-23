@@ -118,7 +118,7 @@ public class SchemaRegistryConfig {
     /**
      * Used to validate the acceptable $id values.
      */
-    private final JsonSchemaIdValidator schemaIdValidator;
+    private final SchemaIdValidator schemaIdValidator;
     
     /**
      * Contains a mapping of how strict a keyword's validators should be.
@@ -142,7 +142,7 @@ public class SchemaRegistryConfig {
             Locale locale, boolean losslessNarrowing,
             MessageSource messageSource, PathType pathType,
             boolean preloadJsonSchema, int preloadJsonSchemaRefMaxNestingDepth,
-            RegularExpressionFactory regularExpressionFactory, JsonSchemaIdValidator schemaIdValidator,
+            RegularExpressionFactory regularExpressionFactory, SchemaIdValidator schemaIdValidator,
             Map<String, Boolean> strictness, boolean typeLoose) {
         super();
         this.cacheRefs = cacheRefs;
@@ -246,7 +246,7 @@ public class SchemaRegistryConfig {
      * 
      * @return the validator
      */
-    public JsonSchemaIdValidator getSchemaIdValidator() {
+    public SchemaIdValidator getSchemaIdValidator() {
         return schemaIdValidator;
     }
 
@@ -386,7 +386,7 @@ public class SchemaRegistryConfig {
         protected boolean preloadJsonSchema = true;
         protected int preloadJsonSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_JSON_SCHEMA_REF_MAX_NESTING_DEPTH;
         protected RegularExpressionFactory regularExpressionFactory = JDKRegularExpressionFactory.getInstance();
-        protected JsonSchemaIdValidator schemaIdValidator = JsonSchemaIdValidator.DEFAULT;
+        protected SchemaIdValidator schemaIdValidator = SchemaIdValidator.DEFAULT;
         protected Map<String, Boolean> strictness = new HashMap<>(0);
         protected boolean typeLoose = false;
 
@@ -550,12 +550,12 @@ public class SchemaRegistryConfig {
         /**
          * Sets the schema id validator to use.
          * <p>
-         * Defaults to {@link JsonSchemaIdValidator#DEFAULT}.
+         * Defaults to {@link SchemaIdValidator#DEFAULT}.
          *
          * @param schemaIdValidator the builder
          * @return the builder
          */
-        public T schemaIdValidator(JsonSchemaIdValidator schemaIdValidator) {
+        public T schemaIdValidator(SchemaIdValidator schemaIdValidator) {
             this.schemaIdValidator = schemaIdValidator;
             return self();
         }

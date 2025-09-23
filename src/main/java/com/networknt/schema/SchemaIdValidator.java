@@ -21,7 +21,7 @@ import java.net.URISyntaxException;
 /**
  * Validator for validating the correctness of $id.
  */
-public interface JsonSchemaIdValidator {
+public interface SchemaIdValidator {
     /**
      * Validates if the $id value is valid.
      * 
@@ -36,10 +36,10 @@ public interface JsonSchemaIdValidator {
     boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
             SchemaLocation resolvedSchemaLocation, SchemaContext schemaContext);
 
-    JsonSchemaIdValidator DEFAULT = new DefaultJsonSchemaIdValidator();
+    SchemaIdValidator DEFAULT = new DefaultSchemaIdValidator();
 
     /**
-     * Implementation of {@link JsonSchemaIdValidator}.
+     * Implementation of {@link SchemaIdValidator}.
      * <p>
      * Note that this does not strictly follow the specification.
      * <p>
@@ -48,7 +48,7 @@ public interface JsonSchemaIdValidator {
      * <p>
      * This also allows non-empty fragments.
      */
-    class DefaultJsonSchemaIdValidator implements JsonSchemaIdValidator {
+    class DefaultSchemaIdValidator implements SchemaIdValidator {
         @Override
         public boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
                 SchemaLocation resolvedSchemaLocation, SchemaContext schemaContext) {

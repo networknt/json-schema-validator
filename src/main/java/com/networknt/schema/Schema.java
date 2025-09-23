@@ -182,7 +182,7 @@ public class Schema implements Validator {
                 resolve = id.substring(0, fragment);
             }
             SchemaLocation result = !"".equals(resolve) ? schemaLocation.resolve(resolve) : schemaLocation;
-            JsonSchemaIdValidator validator = schemaContext.getSchemaRegistryConfig().getSchemaIdValidator();
+            SchemaIdValidator validator = schemaContext.getSchemaRegistryConfig().getSchemaIdValidator();
             if (validator != null) {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, schemaContext)) {
                     SchemaLocation idSchemaLocation = schemaLocation.append(schemaContext.getDialect().getIdKeyword());
