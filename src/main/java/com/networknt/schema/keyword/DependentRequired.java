@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -31,9 +31,9 @@ import java.util.*;
 public class DependentRequired extends BaseKeywordValidator implements KeywordValidator {
     private final Map<String, List<String>> propertyDependencies = new HashMap<>();
 
-    public DependentRequired(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
+    public DependentRequired(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(ValidatorTypeCode.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+        super(ValidatorTypeCode.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();

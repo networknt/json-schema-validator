@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Unknown keyword factory.
@@ -34,7 +34,7 @@ public class UnknownKeywordFactory implements KeywordFactory {
     private final Map<String, Keyword> keywords = new ConcurrentHashMap<>();
 
     @Override
-    public Keyword getKeyword(String value, ValidationContext validationContext) {
+    public Keyword getKeyword(String value, SchemaContext schemaContext) {
         return this.keywords.computeIfAbsent(value, keyword -> {
             logger.warn(
                     "Unknown keyword {} - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword or if it should generate annotations AnnotationKeyword",

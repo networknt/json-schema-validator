@@ -22,7 +22,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
 import java.util.*;
@@ -37,16 +37,16 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
     private Boolean hasUnevaluatedPropertiesValidator = null;
 
     public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
-                                      ValidationContext validationContext) {
-        super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+                                      SchemaContext schemaContext) {
+        super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isObject()) {
             throw new JsonSchemaException("patternProperties must be an object node");
         }
         Iterator<String> names = schemaNode.fieldNames();
         while (names.hasNext()) {
             String name = names.next();
-            RegularExpression pattern = RegularExpression.compile(name, validationContext);
-            schemas.put(pattern, validationContext.newSchema(schemaLocation.append(name), evaluationPath.append(name),
+            RegularExpression pattern = RegularExpression.compile(name, schemaContext);
+            schemas.put(pattern, schemaContext.newSchema(schemaLocation.append(name), evaluationPath.append(name),
                     schemaNode.get(name), parentSchema));
         }
     }

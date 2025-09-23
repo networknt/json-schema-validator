@@ -165,7 +165,7 @@ class JsonWalkTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException {
+                                          Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
             }

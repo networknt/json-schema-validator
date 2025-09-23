@@ -55,7 +55,7 @@ abstract class AbstractJsonSchemaTestSuite {
     }
 
     private static void executeTest(Schema schema, TestSpec testSpec) {
-        List<Error> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<Error> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
         	executionContext.executionConfig(executionConfig -> {
         		if (testSpec.getConfig() != null) {
                 	if (testSpec.getConfig().containsKey("readOnly")) {

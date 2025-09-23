@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Format;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Format for duration.
@@ -17,7 +17,7 @@ public class DurationFormat implements Format {
     private static final Pattern LAX = Pattern.compile("^(?:[-+]?)P(?:[-+]?[0-9]+Y)?(?:[-+]?[0-9]+M)?(?:[-+]?[0-9]+W)?(?:[-+]?[0-9]+D)?(?:T(?:[-+]?[0-9]+H)?(?:[-+]?[0-9]+M)?(?:[-+]?[0-9]+(?:[.,][0-9]{0,9})?S)?)?$", Pattern.CASE_INSENSITIVE);
 
     @Override
-    public boolean matches(ExecutionContext executionContext, ValidationContext validationContext, String duration) {
+    public boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, String duration) {
         if (null == duration) {
             return true;
         }
@@ -26,13 +26,13 @@ public class DurationFormat implements Format {
             return false;
         }
 
-        Pattern pattern = isStrictValidation(validationContext) ? STRICT : LAX;
+        Pattern pattern = isStrictValidation(schemaContext) ? STRICT : LAX;
         Matcher matcher = pattern.matcher(duration);
         return matcher.matches();
     }
 
-    protected boolean isStrictValidation(ValidationContext validationContext) {
-        return validationContext.getSchemaRegistryConfig().isStrict(DURATION);
+    protected boolean isStrictValidation(SchemaContext schemaContext) {
+        return schemaContext.getSchemaRegistryConfig().isStrict(DURATION);
     }
 
     @Override

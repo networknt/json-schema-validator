@@ -21,7 +21,7 @@ import com.networknt.schema.Format;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,13 +52,13 @@ public class FormatKeyword implements Keyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         Format format = null;
         if (schemaNode != null && schemaNode.isTextual()) {
             String formatName = schemaNode.textValue();
             format = this.formats.get(formatName);
         }
-        return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, format,
+        return new FormatValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext, format,
                 this);
     }
 

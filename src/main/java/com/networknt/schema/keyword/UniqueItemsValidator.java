@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,8 +32,8 @@ import java.util.Set;
 public class UniqueItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private final boolean unique;
 
-    public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         } else {

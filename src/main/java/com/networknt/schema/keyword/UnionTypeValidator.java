@@ -25,7 +25,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Validator;
 
 import java.util.ArrayList;
@@ -38,8 +38,8 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     private final List<Validator> schemas;
     private final String error;
 
-    public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public UnionTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         StringBuilder errorBuilder = new StringBuilder();
 
         String sep = "";
@@ -57,11 +57,11 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
             sep = ", ";
 
             if (n.isObject()) {
-                schemas.add(validationContext.newSchema(schemaLocation.append(ValidatorTypeCode.TYPE.getValue()),
+                schemas.add(schemaContext.newSchema(schemaLocation.append(ValidatorTypeCode.TYPE.getValue()),
                         evaluationPath.append(ValidatorTypeCode.TRUE.getValue()), n, parentSchema));
             } else {
                 schemas.add(new TypeValidator(schemaLocation.append(i), evaluationPath.append(i), n, parentSchema,
-                        validationContext));
+                        schemaContext));
             }
             i++;
         }
@@ -74,7 +74,7 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getSchemaRegistryConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, schemaContext.getSchemaRegistryConfig());
 
         boolean valid = false;
 

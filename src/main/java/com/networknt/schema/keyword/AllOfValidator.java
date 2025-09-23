@@ -28,7 +28,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for allOf.
@@ -36,10 +36,10 @@ import com.networknt.schema.ValidationContext;
 public class AllOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
-    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
-            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getSchemaRegistryConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
@@ -49,7 +49,7 @@ public class AllOfValidator extends BaseKeywordValidator {
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                     schemaNode.get(i), parentSchema));
         }
     }
@@ -66,7 +66,7 @@ public class AllOfValidator extends BaseKeywordValidator {
             } else {
                 schema.walk(executionContext, node, rootNode, instanceLocation, true);
             }
-            if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                 final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
                 while (arrayElements.hasNext()) {
                     final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();

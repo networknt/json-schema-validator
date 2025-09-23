@@ -24,12 +24,12 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
         Schema jsonSchema = jsonSchemaFactory.getSchema(invalidSchemaJson);
         JsonNode schemaNode = jsonSchema.getSchemaNode();
-        ValidationContext validationContext = new ValidationContext(jsonSchema.getValidationContext().getDialect(),
+        SchemaContext schemaContext = new SchemaContext(jsonSchema.getSchemaContext().getDialect(),
                 jsonSchemaFactory);
 
         // Act and Assert
         assertThrows(JsonSchemaException.class, () -> {
-            new RecursiveRefValidator(SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER), schemaNode, null, validationContext);
+            new RecursiveRefValidator(SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER), schemaNode, null, schemaContext);
         });
     }
 

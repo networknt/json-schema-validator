@@ -25,7 +25,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 import com.networknt.schema.walk.WalkListenerRunner;
@@ -46,12 +46,12 @@ public class PropertiesValidator extends BaseKeywordValidator {
     
     private Boolean hasUnevaluatedPropertiesValidator;
 
-    public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
-            this.schemas.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+            this.schemas.put(pname, schemaContext.newSchema(schemaLocation.append(pname),
                     evaluationPath.append(pname), entry.getValue(), parentSchema));
         }
     }

@@ -25,7 +25,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.regex.RegularExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,12 @@ public class PatternValidator extends BaseKeywordValidator {
     private final String pattern;
     private final RegularExpression compiledPattern;
 
-    public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.PATTERN, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public PatternValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.PATTERN, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
         try {
-            this.compiledPattern = RegularExpression.compile(this.pattern, validationContext);
+            this.compiledPattern = RegularExpression.compile(this.pattern, schemaContext);
         } catch (RuntimeException e) {
             e.setStackTrace(new StackTraceElement[0]);
             logger.error("Failed to compile pattern '{}': {}", this.pattern, e.getMessage());
@@ -58,7 +58,7 @@ public class PatternValidator extends BaseKeywordValidator {
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return;
         }

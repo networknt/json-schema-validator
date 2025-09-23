@@ -23,7 +23,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
@@ -38,8 +38,8 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public ItemsValidator202012(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ITEMS_202012, schemaNode, schemaLocation, parentSchema, validationContext,
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ITEMS_202012, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
@@ -52,7 +52,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         }
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'items' MUST be a valid JSON Schema.");
         }

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Unknown keyword factory that rejects unknown keywords.
@@ -29,7 +29,7 @@ public class DisallowUnknownKeywordFactory implements KeywordFactory {
     private static final Logger logger = LoggerFactory.getLogger(DisallowUnknownKeywordFactory.class);
 
     @Override
-    public Keyword getKeyword(String value, ValidationContext validationContext) {
+    public Keyword getKeyword(String value, SchemaContext schemaContext) {
         logger.error("Keyword '{}' is unknown and must be configured on the meta-schema or vocabulary", value);
         throw new InvalidSchemaException(Error.builder()
                 .message("Keyword ''{0}'' is unknown and must be configured on the meta-schema or vocabulary")

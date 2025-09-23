@@ -7,7 +7,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
@@ -17,21 +17,21 @@ public abstract class BaseFormatJsonValidator extends BaseKeywordValidator {
     
     public BaseFormatJsonValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, Keyword keyword,
-            ValidationContext validationContext) {
-        super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-        Version dialect = this.validationContext.getDialect().getSpecification();
+            SchemaContext schemaContext) {
+        super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        Version dialect = this.schemaContext.getDialect().getSpecification();
         if (dialect == null || dialect.getOrder() < Version.DRAFT_2019_09.getOrder()) {
             assertionsEnabled = true;
         } else {
             // Check vocabulary
             assertionsEnabled = isFormatAssertionVocabularyEnabled(dialect,
-                    this.validationContext.getDialect().getVocabularies());
+                    this.schemaContext.getDialect().getVocabularies());
         }
     }
 
     protected boolean isFormatAssertionVocabularyEnabled() {
-        return isFormatAssertionVocabularyEnabled(this.validationContext.getDialect().getSpecification(),
-                this.validationContext.getDialect().getVocabularies());
+        return isFormatAssertionVocabularyEnabled(this.schemaContext.getDialect().getSpecification(),
+                this.schemaContext.getDialect().getVocabularies());
     }
 
     protected boolean isFormatAssertionVocabularyEnabled(Version specification, Map<String, Boolean> vocabularies) {

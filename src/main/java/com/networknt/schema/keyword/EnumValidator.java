@@ -26,7 +26,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -48,8 +48,8 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         return node.asText();
     }
     
-    public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ENUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();
@@ -74,7 +74,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
             }
 
             // check if the parent schema declares the fields as nullable
-            if (validationContext.isNullableKeywordEnabled()) {
+            if (schemaContext.isNullableKeywordEnabled()) {
                 JsonNode nullable = parentSchema.getSchemaNode().get("nullable");
                 if (nullable != null && nullable.asBoolean()) {
                     nodes.add(NullNode.getInstance());
@@ -98,7 +98,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         } else if (node.isArray()) {
             node = processArrayNode((ArrayNode) node);
         }
-        if (!nodes.contains(node) && !( this.validationContext.getSchemaRegistryConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
+        if (!nodes.contains(node) && !( this.schemaContext.getSchemaRegistryConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(error).build());
@@ -111,7 +111,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      * @param node JsonNode to check
      */
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
-        if (TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig()) == JsonType.STRING) {
+        if (TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig()) == JsonType.STRING) {
             String nodeText = node.textValue();
             for (JsonNode n : nodes) {
                 String value = n.asText();

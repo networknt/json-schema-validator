@@ -10,7 +10,7 @@ import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 public class JsonNodeUtil {
     private static final long V6_VALUE = Version.DRAFT_6.getOrder();
@@ -57,16 +57,16 @@ public class JsonNodeUtil {
     }
 
     //Check to see if a JsonNode is nullable with checking the isHandleNullableField
-    public static boolean isNodeNullable(JsonNode schema, ValidationContext validationContext) {
+    public static boolean isNodeNullable(JsonNode schema, SchemaContext schemaContext) {
         // check if the parent schema declares the fields as nullable
-        if (validationContext.isNullableKeywordEnabled()) {
+        if (schemaContext.isNullableKeywordEnabled()) {
             return isNodeNullable(schema);
         }
         return false;
     }
 
-    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, Schema parentSchema, ValidationContext validationContext) {
-        SchemaRegistryConfig config = validationContext.getSchemaRegistryConfig();
+    public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, Schema parentSchema, SchemaContext schemaContext) {
+        SchemaRegistryConfig config = schemaContext.getSchemaRegistryConfig();
         JsonType nodeType = TypeFactory.getValueNodeType(node, config);
         // in the case that node type is not the same as schema type, try to convert node to the
         // same type of schema. In REST API, query parameters, path parameters and headers are all
@@ -79,12 +79,12 @@ public class JsonNodeUtil {
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
-            if (schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && node.canConvertToExactIntegral() && V6_VALUE <= detectVersion(validationContext)) {
+            if (schemaType == JsonType.INTEGER && nodeType == JsonType.NUMBER && node.canConvertToExactIntegral() && V6_VALUE <= detectVersion(schemaContext)) {
                 return true;
             }
 
             if (nodeType == JsonType.NULL) {
-                if (parentSchema != null && validationContext.isNullableKeywordEnabled()) {
+                if (parentSchema != null && schemaContext.isNullableKeywordEnabled()) {
                     Schema grandParentSchema = parentSchema.getParentSchema();
                     if (grandParentSchema != null && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode())
                             || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode())) {
@@ -119,8 +119,8 @@ public class JsonNodeUtil {
         return true;
     }
 
-    private static long detectVersion(ValidationContext validationContext) {
-        return validationContext.activeDialect().orElse(Version.DRAFT_4).getOrder();
+    private static long detectVersion(SchemaContext schemaContext) {
+        return schemaContext.activeDialect().orElse(Version.DRAFT_4).getOrder();
     }
 
     /**

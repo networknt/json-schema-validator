@@ -26,7 +26,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -40,10 +40,10 @@ public class AnyOfValidator extends BaseKeywordValidator {
 
     private Boolean canShortCircuit = null;
 
-    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public AnyOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
-            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getSchemaRegistryConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
@@ -53,7 +53,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            this.schemas.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                     schemaNode.get(i), parentSchema));
         }
     }
@@ -66,7 +66,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
-        if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+        if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
             executionContext.enterDiscriminatorContext(new DiscriminatorContext(), instanceLocation);
         }
         int numberOfValidSubSchemas = 0;
@@ -107,13 +107,13 @@ public class AnyOfValidator extends BaseKeywordValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.validationContext.isDiscriminatorKeywordEnabled())
+                    if (errors.isEmpty() && (!this.schemaContext.isDiscriminatorKeywordEnabled())
                             && canShortCircuit() && canShortCircuit(executionContext)) {
                         // Clear all errors. Note that this is checked in finally.
                         allErrors = null;
                         executionContext.setErrors(existingErrors);
                         return;
-                    } else if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+                    } else if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                         DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
                         if (currentDiscriminatorContext.isDiscriminatorMatchFound()
                                 || currentDiscriminatorContext.isDiscriminatorIgnore()) {
@@ -147,7 +147,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 executionContext.setFailFast(failFast);
             }
 
-            if (this.validationContext.isDiscriminatorKeywordEnabled()
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()
                     && executionContext.getCurrentDiscriminatorContext().isActive()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
                 existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
@@ -159,7 +159,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 return;
             }
         } finally {
-            if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
         }

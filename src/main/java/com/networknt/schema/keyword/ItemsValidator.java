@@ -23,7 +23,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
@@ -46,8 +46,8 @@ public class ItemsValidator extends BaseKeywordValidator {
     private final SchemaLocation additionalItemsSchemaLocation;
     private final JsonNode additionalItemsSchemaNode;
 
-    public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Boolean additionalItems = null;
 
@@ -56,13 +56,13 @@ public class ItemsValidator extends BaseKeywordValidator {
         JsonNode additionalItemsSchemaNode = null;
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            foundSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            foundSchema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             this.tupleSchema = Collections.emptyList();
         } else {
             int i = 0;
             this.tupleSchema = new ArrayList<>(schemaNode.size());
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+                this.tupleSchema.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
                         s, parentSchema));
                 i++;
             }
@@ -73,7 +73,7 @@ public class ItemsValidator extends BaseKeywordValidator {
                 if (addItemNode.isBoolean()) {
                     additionalItems = addItemNode.asBoolean();
                 } else if (addItemNode.isObject()) {
-                    foundAdditionalSchema = validationContext.newSchema(
+                    foundAdditionalSchema = schemaContext.newSchema(
                             parentSchema.getSchemaLocation().append(PROPERTY_ADDITIONAL_ITEMS),
                             parentSchema.getEvaluationPath().append(PROPERTY_ADDITIONAL_ITEMS), addItemNode, parentSchema);
                 }
@@ -91,7 +91,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        if (!node.isArray() && !this.validationContext.getSchemaRegistryConfig().isTypeLoose()) {
+        if (!node.isArray() && !this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
             // ignores non-arrays
             return;
         }

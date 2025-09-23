@@ -5,7 +5,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -21,8 +21,8 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
     private final Set<Analysis> analysis;
 
     public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
-            ValidationContext validationContext) {
-        super(ValidatorTypeCode.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+            SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Set<Analysis> analysis = null;
         int min = 1;

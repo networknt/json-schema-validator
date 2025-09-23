@@ -24,7 +24,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ThresholdMixin;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
 import java.math.BigDecimal;
@@ -44,8 +44,8 @@ public class MinimumValidator extends BaseKeywordValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public MinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("minimum value is not a number");
@@ -121,7 +121,7 @@ public class MinimumValidator extends BaseKeywordValidator {
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        if (!JsonNodeUtil.isNumber(node, this.validationContext.getSchemaRegistryConfig())) {
+        if (!JsonNodeUtil.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // minimum only applies to numbers
             return;
         }

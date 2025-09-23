@@ -25,7 +25,10 @@ import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.keyword.KeywordValidator;
 
-public class ValidationContext {
+/**
+ * The schema context associated with a schema and all its validators.
+ */
+public class SchemaContext {
     private final Dialect dialect;
     private final SchemaRegistry schemaRegistry;
     private final ConcurrentMap<String, Schema> schemaReferences;
@@ -83,12 +86,12 @@ public class ValidationContext {
      */
     private final boolean nullableKeywordEnabled;
 
-    public ValidationContext(Dialect dialect,
+    public SchemaContext(Dialect dialect,
                              SchemaRegistry schemaRegistry) {
         this(dialect, schemaRegistry, new ConcurrentHashMap<>(), new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
 
-    public ValidationContext(Dialect dialect, SchemaRegistry schemaRegistry,
+    public SchemaContext(Dialect dialect, SchemaRegistry schemaRegistry,
             ConcurrentMap<String, Schema> schemaReferences,
             ConcurrentMap<String, Schema> schemaResources, ConcurrentMap<String, Schema> dynamicAnchors) {
         if (dialect == null) {

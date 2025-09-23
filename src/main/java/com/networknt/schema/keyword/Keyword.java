@@ -21,7 +21,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Represents a keyword.
@@ -41,11 +41,11 @@ public interface Keyword {
      * @param evaluationPath the evaluation path
      * @param schemaNode the schema node
      * @param parentSchema the parent schema
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @return the validation
      * @throws JsonSchemaException the exception
      * @throws Exception the exception
      */
     KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception;
+            Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception;
 }

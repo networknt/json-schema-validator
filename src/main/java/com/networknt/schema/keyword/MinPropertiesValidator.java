@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for minProperties.
@@ -30,8 +30,8 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
     protected final int min;
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
-                                  ValidationContext validationContext) {
-        super(ValidatorTypeCode.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+                                  SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         } else {

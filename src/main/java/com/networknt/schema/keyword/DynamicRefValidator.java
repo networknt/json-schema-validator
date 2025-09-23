@@ -26,7 +26,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.function.Supplier;
 
@@ -36,22 +36,22 @@ import java.util.function.Supplier;
 public class DynamicRefValidator extends BaseKeywordValidator {
     protected final JsonSchemaRef schema;
 
-    public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         String refValue = schemaNode.asText();
-        this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
+        this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
 
-    static JsonSchemaRef getRefSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
+    static JsonSchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
             JsonNodePath evaluationPath) {
         String ref = resolve(parentSchema, refValue);
         return new JsonSchemaRef(getSupplier(() -> {
-            Schema refSchema = validationContext.getDynamicAnchors().get(ref);
+            Schema refSchema = schemaContext.getDynamicAnchors().get(ref);
             if (refSchema == null) { // This is a $dynamicRef without a matching $dynamicAnchor
                 // A $dynamicRef without a matching $dynamicAnchor in the same schema resource
                 // behaves like a normal $ref to $anchor
                 // A $dynamicRef without anchor in fragment behaves identical to $ref
-                JsonSchemaRef r = RefValidator.getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
+                JsonSchemaRef r = RefValidator.getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
                 if (r != null) {
                     refSchema = r.getSchema();
                 }
@@ -67,7 +67,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
                     if (!baseAbsoluteIri.equals(absoluteIri)) {
                         absoluteIri = baseAbsoluteIri;
                         String parentRef = SchemaLocation.resolve(base.getSchemaLocation(), anchor);
-                        Schema parentRefSchema = validationContext.getDynamicAnchors().get(parentRef);
+                        Schema parentRefSchema = schemaContext.getDynamicAnchors().get(parentRef);
                         if (parentRefSchema != null) {
                             refSchema = parentRefSchema;
                         }
@@ -79,7 +79,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
                 refSchema = refSchema.fromRef(parentSchema, evaluationPath);
             }
             return refSchema;
-        }, validationContext.getSchemaRegistryConfig().isCacheRefs()));
+        }, schemaContext.getSchemaRegistryConfig().isCacheRefs()));
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
@@ -170,8 +170,8 @@ public class DynamicRefValidator extends BaseKeywordValidator {
                 break;
             }
         }
-        if (this.validationContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
-                && depth < this.validationContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
+        if (this.schemaContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
+                && depth < this.schemaContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

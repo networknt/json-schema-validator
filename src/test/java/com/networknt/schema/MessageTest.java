@@ -37,8 +37,8 @@ class MessageTest {
 
         EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, Keyword keyword,
-                ValidationContext validationContext) {
-            super(keyword, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+                SchemaContext schemaContext) {
+            super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
             this.value = schemaNode.textValue();
         }
 
@@ -62,9 +62,9 @@ class MessageTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
-                JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext)
+                JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext)
                 throws JsonSchemaException, Exception {
-            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext);
+            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, schemaContext);
         }
     }
 

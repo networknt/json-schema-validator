@@ -26,7 +26,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.function.Supplier;
 
@@ -36,8 +36,8 @@ import java.util.function.Supplier;
 public class RecursiveRefValidator extends BaseKeywordValidator {
     protected final JsonSchemaRef schema;
 
-    public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {
@@ -48,19 +48,19 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
                     .evaluationPath(evaluationPath).arguments(refValue).build();
             throw new JsonSchemaException(error);
         }
-        this.schema = getRefSchema(parentSchema, validationContext, refValue, evaluationPath);
+        this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
 
-    static JsonSchemaRef getRefSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
+    static JsonSchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
             JsonNodePath evaluationPath) {
-        return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, validationContext, refValue, evaluationPath), validationContext.getSchemaRegistryConfig().isCacheRefs()));
+        return new JsonSchemaRef(getSupplier(() -> getSchema(parentSchema, schemaContext, refValue, evaluationPath), schemaContext.getSchemaRegistryConfig().isCacheRefs()));
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
         return cache ? new CachedSupplier<>(supplier) : supplier;
     }
 
-    static Schema getSchema(Schema parentSchema, ValidationContext validationContext, String refValue,
+    static Schema getSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
             JsonNodePath evaluationPath) {
         Schema refSchema = parentSchema.findSchemaResourceRoot(); // Get the document
         Schema current = refSchema;
@@ -167,8 +167,8 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
                 break;
             }
         }
-        if (this.validationContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
-                && depth < this.validationContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
+        if (this.schemaContext.getSchemaRegistryConfig().isCacheRefs() && !circularDependency
+                && depth < this.schemaContext.getSchemaRegistryConfig().getPreloadJsonSchemaRefMaxNestingDepth()) {
             jsonSchema.initializeValidators();
         }
     }

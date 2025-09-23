@@ -30,7 +30,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for oneOf.
@@ -40,10 +40,10 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     private Boolean canShortCircuit = null;
 
-    public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.ONE_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ONE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
-            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.validationContext.getSchemaRegistryConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new JsonSchemaException(error().instanceNode(schemaNode)
                     .instanceLocation(schemaLocation.getFragment())
                     .messageKey("type")
@@ -54,7 +54,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
-            this.schemas.add(validationContext.newSchema( schemaLocation.append(i), evaluationPath.append(i), childNode, parentSchema));
+            this.schemas.add(schemaContext.newSchema( schemaLocation.append(i), evaluationPath.append(i), childNode, parentSchema));
         }
     }
 
@@ -79,7 +79,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         boolean addMessages = true;
         try {
             DiscriminatorValidator discriminator = null;
-            if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                 DiscriminatorContext discriminatorContext = new DiscriminatorContext();
                 executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
 
@@ -116,7 +116,7 @@ public class OneOfValidator extends BaseKeywordValidator {
                     break;
                 }
                 
-                if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+                if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                     // The discriminator will cause all messages other than the one with the
                     // matching discriminator to be discarded. Note that the discriminator cannot
                     // affect the actual validation result.
@@ -164,7 +164,7 @@ public class OneOfValidator extends BaseKeywordValidator {
                 index++;
             }
 
-            if (this.validationContext.isDiscriminatorKeywordEnabled()
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()
                     && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
                     && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
@@ -179,7 +179,7 @@ public class OneOfValidator extends BaseKeywordValidator {
             // Restore flag
             executionContext.setFailFast(failFast);
 
-            if (this.validationContext.isDiscriminatorKeywordEnabled()) {
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                 executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
             }
         }

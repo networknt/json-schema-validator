@@ -40,7 +40,7 @@ class DurationFormatValidatorTest {
         List<Error> messages = validatorSchema.validate(validTargetNode);
         assertEquals(0, messages.size());
 
-        messages = validatorSchema.validate(invalidTargetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        messages = validatorSchema.validate(invalidTargetNode, OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         assertEquals(1, messages.size());

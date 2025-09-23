@@ -58,7 +58,7 @@ class OverrideValidatorTest {
         final SchemaRegistry validatorFactory = SchemaRegistry.withDialect(validatorMetaSchema);
         final Schema validatorSchema = validatorFactory.getSchema(schema);
 
-        List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
 

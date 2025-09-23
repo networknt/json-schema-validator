@@ -29,7 +29,7 @@ import java.util.Set;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Error;
 
 /**
@@ -109,18 +109,18 @@ public class HierarchicalOutputUnitFormatter {
     }
 
     public static OutputUnit format(Schema jsonSchema, List<Error> errors,
-            ExecutionContext executionContext, ValidationContext validationContext,
+            ExecutionContext executionContext, SchemaContext schemaContext,
             Function<Error, Object> errorMapper) {
         OutputUnit root = new OutputUnit();
         root.setValid(errors.isEmpty());
         
-        root.setInstanceLocation(validationContext.getSchemaRegistryConfig().getPathType().getRoot());
-        root.setEvaluationPath(validationContext.getSchemaRegistryConfig().getPathType().getRoot());
+        root.setInstanceLocation(schemaContext.getSchemaRegistryConfig().getPathType().getRoot());
+        root.setEvaluationPath(schemaContext.getSchemaRegistryConfig().getPathType().getRoot());
         root.setSchemaLocation(jsonSchema.getSchemaLocation().toString());
 
         OutputUnitData data = OutputUnitData.from(errors, executionContext, errorMapper);
         
-        return format(root, data, new JsonNodePath(validationContext.getSchemaRegistryConfig().getPathType()));
+        return format(root, data, new JsonNodePath(schemaContext.getSchemaRegistryConfig().getPathType()));
     }
     
     /**

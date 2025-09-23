@@ -25,7 +25,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Vocabularies;
 import com.networknt.schema.Vocabulary;
 import com.networknt.schema.VocabularyFactory;
@@ -437,7 +437,7 @@ public class Dialect {
     /**
      * Creates a new validator of the keyword.
      *
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param schemaLocation the schema location
      * @param evaluationPath the evaluation path
      * @param keyword the keyword
@@ -445,30 +445,30 @@ public class Dialect {
      * @param parentSchema the parent schema
      * @return the validator
      */
-    public KeywordValidator newValidator(ValidationContext validationContext, SchemaLocation schemaLocation,
+    public KeywordValidator newValidator(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNodePath evaluationPath, String keyword, JsonNode schemaNode, Schema parentSchema) {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
-                if (keyword.equals(validationContext.getSchemaRegistryConfig().getErrorMessageKeyword())) {
+                if (keyword.equals(schemaContext.getSchemaRegistryConfig().getErrorMessageKeyword())) {
                     return null;
                 }
-                if (validationContext.isNullableKeywordEnabled() && "nullable".equals(keyword)) {
+                if (schemaContext.isNullableKeywordEnabled() && "nullable".equals(keyword)) {
                     return null;
                 }
                 if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)
-                        && validationContext.isDiscriminatorKeywordEnabled()) {
+                        && schemaContext.isDiscriminatorKeywordEnabled()) {
                     return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
-                            parentSchema, validationContext);
+                            parentSchema, schemaContext);
                 }
                 kw = this.builder.unknownKeywordFactory != null
-                        ? this.builder.unknownKeywordFactory.getKeyword(keyword, validationContext)
-                        : UnknownKeywordFactory.getInstance().getKeyword(keyword, validationContext);
+                        ? this.builder.unknownKeywordFactory.getKeyword(keyword, schemaContext)
+                        : UnknownKeywordFactory.getInstance().getKeyword(keyword, schemaContext);
                 if (kw == null) {
                     return null;
                 }
             }
-            return kw.newValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
+            return kw.newValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof JsonSchemaException) {
                 logger.error("Error:", e);

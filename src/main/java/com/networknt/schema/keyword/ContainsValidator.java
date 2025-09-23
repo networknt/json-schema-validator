@@ -22,7 +22,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
 import static com.networknt.schema.keyword.VersionCode.MinV201909;
@@ -47,18 +47,18 @@ public class ContainsValidator extends BaseKeywordValidator {
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.CONTAINS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
-        this.isMinV201909 = MinV201909.getVersions().contains(this.validationContext.getDialect().getSpecification());
+        this.isMinV201909 = MinV201909.getVersions().contains(this.schemaContext.getDialect().getSpecification());
 
         Integer currentMax = null;
         Integer currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional<JsonNode> maxNode = Optional
                     .ofNullable(parentSchemaNode.get(ValidatorTypeCode.MAX_CONTAINS.getValue()))

@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Error;
 
 /**
@@ -91,7 +91,7 @@ public class ListOutputUnitFormatter {
     }
 
     public static OutputUnit format(List<Error> errors, ExecutionContext executionContext,
-            ValidationContext validationContext, Function<Error, Object> errorMapper) {
+            SchemaContext schemaContext, Function<Error, Object> errorMapper) {
         OutputUnit root = new OutputUnit();
         root.setValid(errors.isEmpty());
         return format(root, OutputUnitData.from(errors, executionContext, errorMapper));

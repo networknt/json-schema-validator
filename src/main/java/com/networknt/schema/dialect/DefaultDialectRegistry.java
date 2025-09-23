@@ -59,8 +59,8 @@ public class DefaultDialectRegistry implements DialectRegistry {
 
     protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory) {
         Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri));
-        Dialect.Builder builder = Dialect.builder(iri, schema.getValidationContext().getDialect());
-        Version specification = schema.getValidationContext().getDialect().getSpecification();
+        Dialect.Builder builder = Dialect.builder(iri, schema.getSchemaContext().getDialect());
+        Version specification = schema.getSchemaContext().getDialect().getSpecification();
         if (specification != null) {
             if (specification.getOrder() >= Version.DRAFT_2019_09.getOrder()) {
                 // Process vocabularies

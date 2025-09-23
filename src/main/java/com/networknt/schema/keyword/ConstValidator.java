@@ -20,15 +20,15 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for const.
  */
 public class ConstValidator extends BaseKeywordValidator implements KeywordValidator {
     public ConstValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.CONST, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.CONST, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

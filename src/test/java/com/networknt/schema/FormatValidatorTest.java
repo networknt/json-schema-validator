@@ -187,8 +187,8 @@ class FormatValidatorTest {
         }
 
         @Override
-        public boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode value) {
-            JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getSchemaRegistryConfig());
+        public boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, JsonNode value) {
+            JsonType nodeType = TypeFactory.getValueNodeType(value, schemaContext.getSchemaRegistryConfig());
             if (nodeType != JsonType.NUMBER && nodeType != JsonType.INTEGER) {
                 return true;
             }

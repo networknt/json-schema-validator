@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.regex.RegularExpression;
 
@@ -46,14 +46,14 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
     private Boolean hasUnevaluatedPropertiesValidator;
 
     public AdditionalPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
-                                         ValidationContext validationContext) {
-        super(ValidatorTypeCode.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+                                         SchemaContext schemaContext) {
+        super(ValidatorTypeCode.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
             additionalPropertiesSchema = null;
         } else if (schemaNode.isObject()) {
             allowAdditionalProperties = true;
-            additionalPropertiesSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            additionalPropertiesSchema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             allowAdditionalProperties = false;
             additionalPropertiesSchema = null;
@@ -73,7 +73,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         if (patternPropertiesNode != null) {
             this.patternProperties = new ArrayList<>(patternPropertiesNode.size());
             for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
-                patternProperties.add(RegularExpression.compile(it.next(), validationContext));
+                patternProperties.add(RegularExpression.compile(it.next(), schemaContext));
             }
         } else {
             this.patternProperties = Collections.emptyList();

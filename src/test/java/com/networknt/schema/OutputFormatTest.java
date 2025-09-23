@@ -84,7 +84,7 @@ class OutputFormatTest {
 
         @Override
         public java.util.List<Error> format(Schema jsonSchema,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors().stream().map(this::format).collect(Collectors.toCollection(ArrayList::new));
         }
     }

@@ -82,11 +82,11 @@ public interface Format {
      * Determines if the value matches the format.
      *
      * @param executionContext  the execution context
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param value             to match
      * @return true if matches
      */
-    default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, String value) {
+    default boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, String value) {
         return matches(executionContext, value);
     }
     
@@ -94,16 +94,16 @@ public interface Format {
      * Determines if the value matches the format.
      * 
      * @param executionContext  the execution context
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param value             to match
      * @return true if matches
      */
-    default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode value) {
-        JsonType nodeType = TypeFactory.getValueNodeType(value, validationContext.getSchemaRegistryConfig());
+    default boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, JsonNode value) {
+        JsonType nodeType = TypeFactory.getValueNodeType(value, schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return true;
         }
-        return matches(executionContext, validationContext, value.textValue());
+        return matches(executionContext, schemaContext, value.textValue());
     }
 
     /**
@@ -112,7 +112,7 @@ public interface Format {
      * This can be implemented for non-string node types.
      *
      * @param executionContext the execution context
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param node the node
      * @param rootNode the root node
      * @param instanceLocation the instance location
@@ -120,9 +120,9 @@ public interface Format {
      * @param formatValidator the format validator
      * @return true if matches
      */
-    default boolean matches(ExecutionContext executionContext, ValidationContext validationContext, JsonNode node,
+    default boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, JsonNode node,
             JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled, FormatValidator formatValidator) {
-        return matches(executionContext, validationContext, node);
+        return matches(executionContext, schemaContext, node);
     }
 
     /**
@@ -131,7 +131,7 @@ public interface Format {
      * This is the most flexible method to implement.
      *
      * @param executionContext the execution context
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param node the node
      * @param rootNode the root node
      * @param instanceLocation the instance locaiton
@@ -139,12 +139,12 @@ public interface Format {
      * @param message the message builder
      * @param formatValidator the format validator
      */
-    default void validate(ExecutionContext executionContext, ValidationContext validationContext,
+    default void validate(ExecutionContext executionContext, SchemaContext schemaContext,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled,
             Supplier<MessageSourceError.Builder> message,
             FormatValidator formatValidator) {
         if (assertionsEnabled) {
-            if (!matches(executionContext, validationContext, node, rootNode, instanceLocation, assertionsEnabled,
+            if (!matches(executionContext, schemaContext, node, rootNode, instanceLocation, assertionsEnabled,
                     formatValidator)) {
                 executionContext.addError(message.get()
                                 .arguments(this.getName(), this.getErrorMessageDescription(), node.asText()).build());

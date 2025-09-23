@@ -22,7 +22,7 @@ import com.networknt.schema.Format;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.format.BaseFormatJsonValidator;
 
 import org.slf4j.Logger;
@@ -39,9 +39,9 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
     private final Format format;
     
     public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext, Format format,
+            Schema parentSchema, SchemaContext schemaContext, Format format,
             Keyword keyword) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, validationContext);
+        super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, schemaContext);
         this.format = format;
     }
 
@@ -73,7 +73,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
         if (this.format != null) {
             try {
-                format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
+                format.validate(executionContext, schemaContext, node, rootNode, instanceLocation,
                         assertionsEnabled,
                         () -> this.error().instanceNode(node).instanceLocation(instanceLocation)
                                 .messageKey(format.getMessageKey())
@@ -137,6 +137,6 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
      * @return whether to perform strict handling
      */
     protected boolean isStrict(ExecutionContext executionContext) {
-        return this.validationContext.getSchemaRegistryConfig().isStrict(getKeyword(), Boolean.FALSE);
+        return this.schemaContext.getSchemaRegistryConfig().isStrict(getKeyword(), Boolean.FALSE);
     }
 }

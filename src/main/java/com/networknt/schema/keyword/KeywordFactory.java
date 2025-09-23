@@ -15,7 +15,7 @@
  */
 package com.networknt.schema.keyword;
 
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Factory for {@link Keyword}.
@@ -26,8 +26,8 @@ public interface KeywordFactory {
      * Gets the keyword given the keyword value.
      * 
      * @param value the keyword value
-     * @param validationContext the validationContext
+     * @param schemaContext the schemaContext
      * @return the keyword
      */
-    Keyword getKeyword(String value, ValidationContext validationContext);
+    Keyword getKeyword(String value, SchemaContext schemaContext);
 }

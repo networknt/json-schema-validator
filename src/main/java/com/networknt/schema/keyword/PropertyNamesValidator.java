@@ -26,13 +26,13 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
     private final Schema innerSchema;
-    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-        innerSchema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        innerSchema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {

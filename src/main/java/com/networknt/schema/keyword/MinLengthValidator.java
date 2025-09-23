@@ -23,7 +23,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for minLength.
@@ -31,8 +31,8 @@ import com.networknt.schema.ValidationContext;
 public class MinLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private int minLength;
 
-    public MinLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public MinLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();
@@ -42,7 +42,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             // ignore non-string types
             return;

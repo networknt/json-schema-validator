@@ -28,7 +28,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -48,11 +48,11 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
      * @param evaluationPath    the evaluation path
      * @param schemaNode        the schema node
      * @param parentSchema      the parent schema
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      */
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.contentMediaType = schemaNode.textValue();
     }
 
@@ -92,7 +92,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         // Ignore non-strings
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             return;
         }

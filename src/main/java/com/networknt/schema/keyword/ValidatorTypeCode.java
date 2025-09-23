@@ -21,7 +21,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Specification.Version;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.Map;
 @FunctionalInterface
 interface ValidatorFactory {
     KeywordValidator newInstance(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext);
+            Schema parentSchema, SchemaContext schemaContext);
 }
 
 enum VersionCode {
@@ -80,7 +80,7 @@ public enum ValidatorTypeCode implements Keyword {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", ExclusiveMinimumValidator::new, VersionCode.MinV6MaxV7),
     FALSE("false", FalseValidator::new, VersionCode.MinV6),
     FORMAT("format", null, VersionCode.MaxV7) {
-        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
+        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
@@ -158,12 +158,12 @@ public enum ValidatorTypeCode implements Keyword {
 
     @Override
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
+            Schema parentSchema, SchemaContext schemaContext) {
         if (this.validatorFactory == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());
         }
         return validatorFactory.newInstance(schemaLocation, evaluationPath, schemaNode, parentSchema,
-                validationContext);
+                schemaContext);
     }
 
     @Override

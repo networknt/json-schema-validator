@@ -29,12 +29,12 @@ public interface JsonSchemaIdValidator {
      * @param rootSchema             true if this is a root schema
      * @param schemaLocation         the schema location
      * @param resolvedSchemaLocation the schema location after resolving with the id
-     * @param validationContext      the validation context for instance to get the
+     * @param schemaContext      the schema context for instance to get the
      *                               meta schema
      * @return true if valid
      */
     boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
-            SchemaLocation resolvedSchemaLocation, ValidationContext validationContext);
+            SchemaLocation resolvedSchemaLocation, SchemaContext schemaContext);
 
     JsonSchemaIdValidator DEFAULT = new DefaultJsonSchemaIdValidator();
 
@@ -51,7 +51,7 @@ public interface JsonSchemaIdValidator {
     class DefaultJsonSchemaIdValidator implements JsonSchemaIdValidator {
         @Override
         public boolean validate(String id, boolean rootSchema, SchemaLocation schemaLocation,
-                SchemaLocation resolvedSchemaLocation, ValidationContext validationContext) {
+                SchemaLocation resolvedSchemaLocation, SchemaContext schemaContext) {
             if (hasNoContext(schemaLocation)) {
                 // The following are non-standard
                 if (isFragment(id) || startsWithSlash(id)) {

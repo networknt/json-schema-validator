@@ -30,7 +30,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} that resolves discriminator.
@@ -40,8 +40,8 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     private final Map<String, String> mapping;
 
     public DiscriminatorValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, validationContext,
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
         if (discriminator != null) {

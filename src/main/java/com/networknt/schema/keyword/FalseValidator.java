@@ -20,7 +20,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for false.
@@ -28,8 +28,8 @@ import com.networknt.schema.ValidationContext;
 public class FalseValidator extends BaseKeywordValidator implements KeywordValidator {
     private final String reason;
 
-    public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.FALSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public FalseValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.FALSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.reason = this.evaluationPath.getParent().getName(-1);
     }
 

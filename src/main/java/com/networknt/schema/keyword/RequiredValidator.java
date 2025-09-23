@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -31,8 +31,8 @@ import java.util.*;
 public class RequiredValidator extends BaseKeywordValidator implements KeywordValidator {
     private final List<String> fieldNames;
 
-    public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.REQUIRED, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public RequiredValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isArray()) {
             this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {

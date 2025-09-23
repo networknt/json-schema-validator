@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -39,11 +39,11 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
      * @param evaluationPath    the evaluation path
      * @param schemaNode        the schema node
      * @param parentSchema      the parent schema
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      */
-    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
+    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+        super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -58,7 +58,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
                     depsProps.add(pvalue.get(i).asText());
                 }
             } else if (pvalue.isObject() || pvalue.isBoolean()) {
-                schemaDeps.put(pname, validationContext.newSchema(schemaLocation.append(pname),
+                schemaDeps.put(pname, schemaContext.newSchema(schemaLocation.append(pname),
                         evaluationPath.append(pname), pvalue, parentSchema));
             }
         }

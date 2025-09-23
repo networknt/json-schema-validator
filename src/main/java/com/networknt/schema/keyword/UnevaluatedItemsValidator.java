@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Specification.Version;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
@@ -41,12 +41,12 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
     private static final Version DEFAULT_VERSION = Version.DRAFT_2019_09;
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext,
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
-        isMinV202012 = MinV202012.getVersions().contains(validationContext.activeDialect().orElse(DEFAULT_VERSION));
+        isMinV202012 = MinV202012.getVersions().contains(schemaContext.activeDialect().orElse(DEFAULT_VERSION));
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedItems' MUST be a valid JSON Schema.");
         }

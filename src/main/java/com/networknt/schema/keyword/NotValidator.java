@@ -22,7 +22,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -32,9 +32,9 @@ import java.util.*;
 public class NotValidator extends BaseKeywordValidator {
     private final Schema schema;
 
-    public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.NOT, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
-        this.schema = validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+    public NotValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.NOT, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
     @Override

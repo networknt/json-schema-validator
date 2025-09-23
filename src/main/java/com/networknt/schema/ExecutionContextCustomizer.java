@@ -24,10 +24,10 @@ public interface ExecutionContextCustomizer {
     /**
      * Customize the execution context before validation.
      * <p>
-     * The validation context should only be used for reference as it is shared.
+     * The schema context should only be used for reference as it is shared.
      * 
      * @param executionContext  the execution context
      * @param schemaContext the schema context for reference
      */
-    void customize(ExecutionContext executionContext, ValidationContext schemaContext);
+    void customize(ExecutionContext executionContext, SchemaContext schemaContext);
 }

@@ -22,7 +22,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.Collection;
 import java.util.Map;
@@ -31,7 +31,7 @@ import java.util.Map;
  * Base {@link KeywordValidator}. 
  */
 public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
-    protected final ValidationContext validationContext;
+    protected final SchemaContext schemaContext;
 
     protected final Schema parentSchema;
     protected final Map<String, String> errorMessage;
@@ -39,15 +39,15 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
     protected final Schema evaluationParentSchema;
 
     public BaseKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation,
-            Schema parentSchema, ValidationContext validationContext,
+            Schema parentSchema, SchemaContext schemaContext,
             JsonNodePath evaluationPath) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
-        this.validationContext = validationContext;
+        this.schemaContext = schemaContext;
 
         this.parentSchema = parentSchema;
-        if (keyword != null && parentSchema != null && validationContext.getSchemaRegistryConfig().getErrorMessageKeyword() != null) {
+        if (keyword != null && parentSchema != null && schemaContext.getSchemaRegistryConfig().getErrorMessageKeyword() != null) {
             this.errorMessage = ErrorMessages.getErrorMessage(parentSchema,
-                    validationContext.getSchemaRegistryConfig().getErrorMessageKeyword(), keyword.getValue());
+                    schemaContext.getSchemaRegistryConfig().getErrorMessageKeyword(), keyword.getValue());
         } else {
             this.errorMessage = null;
         }
@@ -59,7 +59,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * @param keyword the keyword
      * @param schemaNode the schema node
      * @param schemaLocation the schema location
-     * @param validationContext the validation context
+     * @param schemaContext the schema context
      * @param parentSchema the parent schema
      * @param evaluationPath the evaluation path
      * @param evaluationParentSchema the evaluation parent schema
@@ -69,13 +69,13 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
             Keyword keyword,
             JsonNode schemaNode,
             SchemaLocation schemaLocation,
-            ValidationContext validationContext,
+            SchemaContext schemaContext,
             Schema parentSchema,
             JsonNodePath evaluationPath,
             Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
-        this.validationContext = validationContext;
+        this.schemaContext = schemaContext;
         
         this.parentSchema = parentSchema;
         this.errorMessage = errorMessage;
@@ -156,7 +156,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
 
     protected MessageSourceError.Builder error() {
         return MessageSourceError
-                .builder(this.validationContext.getSchemaRegistryConfig().getMessageSource(), this.errorMessage)
+                .builder(this.schemaContext.getSchemaRegistryConfig().getMessageSource(), this.errorMessage)
                 .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
                 .keyword(this.getKeyword()).messageKey(this.getKeyword());
     }

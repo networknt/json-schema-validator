@@ -32,12 +32,12 @@ public interface OutputFormat<T> {
     /**
      * Customize the execution context before validation.
      * <p>
-     * The validation context should only be used for reference as it is shared.
+     * The schema context should only be used for reference as it is shared.
      * 
      * @param executionContext  the execution context
      * @param schemaContext     the schema context for reference
      */
-    default void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+    default void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
     }
 
     /**
@@ -50,7 +50,7 @@ public interface OutputFormat<T> {
      * @return the result
      */
     T format(Schema jsonSchema, 
-            ExecutionContext executionContext, ValidationContext schemaContext);
+            ExecutionContext executionContext, SchemaContext schemaContext);
 
     /**
      * The Default output format.
@@ -90,13 +90,13 @@ public interface OutputFormat<T> {
      */
     class Default implements OutputFormat<java.util.List<Error>> {
         @Override
-		public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+		public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
 			executionContext.executionConfig(executionConfig -> executionConfig.annotationCollectionEnabled(false));
 		}
 
         @Override
         public java.util.List<Error> format(Schema jsonSchema,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors();
         }
     }
@@ -106,14 +106,14 @@ public interface OutputFormat<T> {
      */
     class Flag implements OutputFormat<OutputFlag> {
         @Override
-		public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+		public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
 			executionContext.executionConfig(
 					executionConfig -> executionConfig.annotationCollectionEnabled(false).failFast(true));
 		}
 
         @Override
         public OutputFlag format(Schema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext validationContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return new OutputFlag(executionContext.getErrors().isEmpty());
         }
     }
@@ -123,14 +123,14 @@ public interface OutputFormat<T> {
      */
     class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
 			executionContext.executionConfig(
 					executionConfig -> executionConfig.annotationCollectionEnabled(false).failFast(true));
         }
 
         @Override
         public java.lang.Boolean format(Schema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext schemaContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors().isEmpty();
         }
     }
@@ -155,12 +155,12 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
         public OutputUnit format(Schema jsonSchema,
-                ExecutionContext executionContext, ValidationContext schemaContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, schemaContext,
                     this.errorMapper);
         }
@@ -186,12 +186,12 @@ public interface OutputFormat<T> {
         }
 
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
         public OutputUnit format(Schema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext schemaContext) {
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return HierarchicalOutputUnitFormatter.format(jsonSchema, executionContext.getErrors(), executionContext,
             		schemaContext, this.errorMapper);
         }
@@ -204,11 +204,11 @@ public interface OutputFormat<T> {
      */
     class Result implements OutputFormat<ValidationResult> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext schemaContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
-        public ValidationResult format(Schema jsonSchema,ExecutionContext executionContext, ValidationContext schemaContext) {
+        public ValidationResult format(Schema jsonSchema,ExecutionContext executionContext, SchemaContext schemaContext) {
             return new ValidationResult(executionContext);
         }
     }

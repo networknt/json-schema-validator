@@ -40,13 +40,13 @@ class ExampleTest {
                 + "  }\r\n"
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
-        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_7, schema.getSchemaContext().getDialect().getIri());
         List<Error> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
-        Schema refSchema = schema.getValidationContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
-        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getDialect().getIri());
+        Schema refSchema = schema.getSchemaContext().getSchemaResources().get("https://www.example.org/example-ref.json#");
+        assertEquals(DialectId.DRAFT_2019_09, refSchema.getSchemaContext().getDialect().getIri());
     }
 
     @Test
@@ -62,12 +62,12 @@ class ExampleTest {
                 + "  }\r\n"
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
-        assertEquals(DialectId.DRAFT_7, schema.getValidationContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_7, schema.getSchemaContext().getDialect().getIri());
         List<Error> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
-        Schema refSchema = schema.getValidationContext().getSchemaResources().get("classpath:schema/example-ref.json#");
-        assertEquals(DialectId.DRAFT_2019_09, refSchema.getValidationContext().getDialect().getIri());
+        Schema refSchema = schema.getSchemaContext().getSchemaResources().get("classpath:schema/example-ref.json#");
+        assertEquals(DialectId.DRAFT_2019_09, refSchema.getSchemaContext().getDialect().getIri());
     }
 }

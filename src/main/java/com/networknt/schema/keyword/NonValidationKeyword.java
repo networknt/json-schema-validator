@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -33,22 +33,22 @@ public class NonValidationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
         public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                Schema parentSchema, ValidationContext validationContext, Keyword keyword) {
+                Schema parentSchema, SchemaContext schemaContext, Keyword keyword) {
             super(keyword, schemaNode, schemaLocation, evaluationPath);
-            String id = validationContext.resolveSchemaId(schemaNode);
-            String anchor = validationContext.getDialect().readAnchor(schemaNode);
-            String dynamicAnchor = validationContext.getDialect().readDynamicAnchor(schemaNode);
+            String id = schemaContext.resolveSchemaId(schemaNode);
+            String anchor = schemaContext.getDialect().readAnchor(schemaNode);
+            String dynamicAnchor = schemaContext.getDialect().readDynamicAnchor(schemaNode);
             if (id != null || anchor != null || dynamicAnchor != null) {
                 // Used to register schema resources with $id
-                validationContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+                schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             }
             if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
                 for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
                     Entry<String, JsonNode> property = field.next();
                     SchemaLocation location = schemaLocation.append(property.getKey());
-                    Schema schema = validationContext.newSchema(location, evaluationPath.append(property.getKey()),
+                    Schema schema = schemaContext.newSchema(location, evaluationPath.append(property.getKey()),
                             property.getValue(), parentSchema);
-                    validationContext.getSchemaReferences().put(location.toString(), schema);
+                    schemaContext.getSchemaReferences().put(location.toString(), schema);
                 }
             }
         }
@@ -65,7 +65,7 @@ public class NonValidationKeyword extends AbstractKeyword {
 
     @Override
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                      Schema parentSchema, ValidationContext validationContext) {
-        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext, this);
+                                      Schema parentSchema, SchemaContext schemaContext) {
+        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext, this);
     }
 }

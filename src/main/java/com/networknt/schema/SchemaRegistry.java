@@ -290,9 +290,9 @@ public class SchemaRegistry {
      * @return the schema
      */
     protected Schema newSchema(final SchemaLocation schemaUri, final JsonNode schemaNode) {
-        final ValidationContext validationContext = createValidationContext(schemaNode);
-        Schema jsonSchema = doCreate(validationContext, getSchemaLocation(schemaUri),
-                new JsonNodePath(validationContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
+        final SchemaContext schemaContext = createSchemaContext(schemaNode);
+        Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
+                new JsonNodePath(schemaContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
     }
@@ -321,36 +321,36 @@ public class SchemaRegistry {
         }
     }
 
-    public Schema create(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
-        return doCreate(validationContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
+    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
+        return doCreate(schemaContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
     }
 
-    private Schema doCreate(ValidationContext validationContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withDialect(validationContext, schemaNode), schemaLocation, evaluationPath,
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, evaluationPath,
                 schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
     
     /**
-     * Determines the validation context to use for the schema given the parent
-     * validation context.
+     * Determines the schema context to use for the schema given the parent
+     * schema context.
      * <p>
-     * This is typically the same validation context unless the schema has a
+     * This is typically the same schema context unless the schema has a
      * different $schema from the parent.
      * <p>
      * If the schema does not define a $schema, the parent should be used.
      * 
-     * @param validationContext the parent validation context
+     * @param schemaContext the parent schema context
      * @param schemaNode        the schema node
-     * @return the validation context to use
+     * @return the schema context to use
      */
-    private ValidationContext withDialect(ValidationContext validationContext, JsonNode schemaNode) {
-        Dialect dialect = getDialect(schemaNode, validationContext.getSchemaRegistryConfig());
-        if (dialect != null && !dialect.getIri().equals(validationContext.getDialect().getIri())) {
-            return new ValidationContext(dialect, validationContext.getSchemaRegistry(),
-                    validationContext.getSchemaReferences(), validationContext.getSchemaResources(),
-                    validationContext.getDynamicAnchors());
+    private SchemaContext withDialect(SchemaContext schemaContext, JsonNode schemaNode) {
+        Dialect dialect = getDialect(schemaNode, schemaContext.getSchemaRegistryConfig());
+        if (dialect != null && !dialect.getIri().equals(schemaContext.getDialect().getIri())) {
+            return new SchemaContext(dialect, schemaContext.getSchemaRegistry(),
+                    schemaContext.getSchemaReferences(), schemaContext.getSchemaResources(),
+                    schemaContext.getDynamicAnchors());
         }
-        return validationContext;
+        return schemaContext;
     }
 
     /**
@@ -367,9 +367,9 @@ public class SchemaRegistry {
         return schemaLocation != null ? schemaLocation : SchemaLocation.DOCUMENT;
     }
 
-    protected ValidationContext createValidationContext(final JsonNode schemaNode) {
+    protected SchemaContext createSchemaContext(final JsonNode schemaNode) {
         final Dialect dialect = getDialectOrDefault(schemaNode);
-        return new ValidationContext(dialect, this);
+        return new SchemaContext(dialect, this);
     }
 
     private Dialect getDialect(final JsonNode schemaNode, SchemaRegistryConfig config) {
@@ -531,13 +531,13 @@ public class SchemaRegistry {
             if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {
                 // Schema without fragment
-                ValidationContext validationContext = new ValidationContext(dialect, this);
-                return doCreate(validationContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                SchemaContext schemaContext = new SchemaContext(dialect, this);
+                return doCreate(schemaContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
             } else {
                 // Schema with fragment pointing to sub schema
-                final ValidationContext validationContext = createValidationContext(schemaNode);
+                final SchemaContext schemaContext = createSchemaContext(schemaNode);
                 SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
-                Schema document = doCreate(validationContext, documentLocation, evaluationPath, schemaNode, null, false);
+                Schema document = doCreate(schemaContext, documentLocation, evaluationPath, schemaNode, null, false);
                 return document.getRefSchema(schemaUri.getFragment());
             }
         } catch (IOException e) {

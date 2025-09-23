@@ -86,7 +86,7 @@ class CustomMetaSchemaTest {
 
         @Override
         public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          Schema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+                                          Schema parentSchema, SchemaContext schemaContext) throws JsonSchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
              */

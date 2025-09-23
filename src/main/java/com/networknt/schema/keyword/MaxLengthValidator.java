@@ -23,7 +23,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for maxLength.
@@ -31,8 +31,8 @@ import com.networknt.schema.ValidationContext;
 public class MaxLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int maxLength;
 
-    public MaxLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public MaxLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             this.maxLength = schemaNode.intValue();
         } else {
@@ -43,7 +43,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         
 
-        JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
+        JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {
             // ignore no-string typs
             return;

@@ -22,7 +22,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 import java.util.*;
 
@@ -36,8 +36,8 @@ public class IfValidator extends BaseKeywordValidator {
     private final Schema thenSchema;
     private final Schema elseSchema;
 
-    public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Schema foundIfSchema = null;
         Schema foundThenSchema = null;
@@ -48,13 +48,13 @@ public class IfValidator extends BaseKeywordValidator {
             final SchemaLocation schemaLocationOfSchema = parentSchema.getSchemaLocation().append(keyword);
             final JsonNodePath evaluationPathOfSchema = parentSchema.getEvaluationPath().append(keyword);
             if (keyword.equals("if")) {
-                foundIfSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundIfSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
                         parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundThenSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
                         parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = validationContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundElseSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
                         parentSchema);
             }
         }

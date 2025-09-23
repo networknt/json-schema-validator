@@ -1,6 +1,6 @@
 package com.networknt.schema.regex;
 
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * Regular expression.
@@ -9,9 +9,9 @@ import com.networknt.schema.ValidationContext;
 public interface RegularExpression {
     boolean matches(String value);
 
-    static RegularExpression compile(String regex, ValidationContext validationContext) {
+    static RegularExpression compile(String regex, SchemaContext schemaContext) {
         if (null == regex) return s -> true;
-        return validationContext.getSchemaRegistryConfig().getRegularExpressionFactory().getRegularExpression(regex);
+        return schemaContext.getSchemaRegistryConfig().getRegularExpressionFactory().getRegularExpression(regex);
     }
 
 }

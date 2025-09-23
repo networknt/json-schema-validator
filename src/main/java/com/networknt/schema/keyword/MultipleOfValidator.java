@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
 import java.math.BigDecimal;
@@ -33,8 +33,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
     private final BigDecimal divisor;
 
     public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-            Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.divisor = getDivisor(schemaNode);
     }
 
@@ -83,8 +83,8 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             // convert to BigDecimal since double type is not accurate enough to do the
             // division and multiple
             return node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
-        } else if (this.validationContext.getSchemaRegistryConfig().isTypeLoose()
-                && JsonNodeUtil.isNumber(node, this.validationContext.getSchemaRegistryConfig())) {
+        } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
+                && JsonNodeUtil.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
             return new BigDecimal(node.textValue());
         }

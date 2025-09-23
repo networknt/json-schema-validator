@@ -23,7 +23,7 @@ import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonSchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
 
@@ -38,14 +38,14 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
             int i = 0;
             this.tupleSchema = new ArrayList<>(schemaNode.size());
             for (JsonNode s : schemaNode) {
-                this.tupleSchema.add(validationContext.newSchema(schemaLocation.append(i), evaluationPath.append(i), s,
+                this.tupleSchema.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i), s,
                         parentSchema));
                 i++;
             }

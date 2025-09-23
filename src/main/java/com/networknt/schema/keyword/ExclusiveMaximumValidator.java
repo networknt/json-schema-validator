@@ -24,7 +24,7 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ThresholdMixin;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
 import java.math.BigDecimal;
@@ -36,8 +36,8 @@ import java.math.BigInteger;
 public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
-    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new JsonSchemaException("exclusiveMaximum value is not a number");
         }
@@ -99,7 +99,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        if (!JsonNodeUtil.isNumber(node, validationContext.getSchemaRegistryConfig())) {
+        if (!JsonNodeUtil.isNumber(node, schemaContext.getSchemaRegistryConfig())) {
             // maximum only applies to numbers
             return;
         }

@@ -21,7 +21,7 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for minItems.
@@ -29,8 +29,8 @@ import com.networknt.schema.ValidationContext;
 public class MinItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private int min = 0;
 
-    public MinItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public MinItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }
@@ -46,7 +46,7 @@ public class MinItemsValidator extends BaseKeywordValidator implements KeywordVa
                         .arguments(min, node.size())
                         .build());
             }
-        } else if (this.validationContext.getSchemaRegistryConfig().isTypeLoose()) {
+        } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
             if (1 < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())

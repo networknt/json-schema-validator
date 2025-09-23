@@ -23,7 +23,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.ValidationContext;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
 /**
@@ -33,11 +33,11 @@ public class TypeValidator extends BaseKeywordValidator {
     private final JsonType schemaType;
     private final UnionTypeValidator unionTypeValidator;
 
-    public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, ValidationContext validationContext) {
-        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, validationContext, evaluationPath);
+    public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         if (this.schemaType == JsonType.UNION) {
-            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, validationContext);
+            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);
         } else {
             this.unionTypeValidator = null;
         }
@@ -48,7 +48,7 @@ public class TypeValidator extends BaseKeywordValidator {
     }
 
     public boolean equalsToSchemaType(JsonNode node) {
-        return JsonNodeUtil.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.validationContext);
+        return JsonNodeUtil.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.schemaContext);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TypeValidator extends BaseKeywordValidator {
         }
 
         if (!equalsToSchemaType(node)) {
-            JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getSchemaRegistryConfig());
+            JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());
