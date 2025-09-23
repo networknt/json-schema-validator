@@ -37,7 +37,7 @@ class Issue832Test {
         formats.add(new NoMatchFormat());
 
         Dialect dialect = Dialect.builder(
-                Dialects.getDraft7().getIri(),
+                Dialects.getDraft7().getId(),
                 Dialects.getDraft7())
                 .formats(formats)
                 .build();

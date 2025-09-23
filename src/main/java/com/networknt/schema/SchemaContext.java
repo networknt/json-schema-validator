@@ -171,10 +171,6 @@ public class SchemaContext {
         return this.dialect;
     }
 
-    public Optional<Version> activeDialect() {
-        return Optional.of(this.dialect.getSpecification());
-    }
-
     public boolean isDiscriminatorKeywordEnabled() {
         return discriminatorKeywordEnabled;
     }

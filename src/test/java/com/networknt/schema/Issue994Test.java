@@ -43,7 +43,7 @@ class Issue994Test {
                 + "    }\r\n"
                 + "}";
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).vocabularies(vocabularies -> {
-            vocabularies.remove(Vocabulary.V202012_VALIDATION.getIri());
+            vocabularies.remove(Vocabulary.DRAFT_2020_12_VALIDATION.getIri());
         }).build();
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(schemaData);
         Schema schema = SchemaRegistry

@@ -29,7 +29,7 @@ public class BasicDialectRegistry implements DialectRegistry {
     }
 
     public BasicDialectRegistry(Dialect dialect) {
-        this.dialects = dialectId -> dialect.getIri().equals(dialectId) ? dialect : null;
+        this.dialects = dialectId -> dialect.getId().equals(dialectId) ? dialect : null;
     }
 
     @Override

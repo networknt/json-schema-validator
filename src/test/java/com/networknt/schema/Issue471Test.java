@@ -20,7 +20,7 @@ class Issue471Test {
 
     @Test
     @Disabled
-    void shouldFailV201909_with_enUS() throws Exception {
+    void shouldFailDRAFT_2019_09_with_enUS() throws Exception {
         Locale.setDefault(Locale.US);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title: may only be 10 characters long", errorsMap.get("$.title"));
@@ -29,7 +29,7 @@ class Issue471Test {
 
     @Test
     @Disabled
-    void shouldFailV201909_with_zhCN() throws Exception {
+    void shouldFailDRAFT_2019_09_with_zhCN() throws Exception {
         Locale.setDefault(Locale.CHINA);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title：可能只有 10 个字符长", errorsMap.get("$.title"));
@@ -38,7 +38,7 @@ class Issue471Test {
 
     @Test
     @Disabled
-    void shouldFailV201909_with_deDE() throws Exception {
+    void shouldFailDRAFT_2019_09_with_deDE() throws Exception {
         Locale.setDefault(Locale.GERMANY);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title darf höchstens 10 Zeichen lang sein", errorsMap.get("$.title"));
@@ -47,7 +47,7 @@ class Issue471Test {
 
     @Test
     @Disabled
-    void shouldFailV201909_with_frFR() throws Exception {
+    void shouldFailDRAFT_2019_09_with_frFR() throws Exception {
         Locale.setDefault(Locale.FRANCE);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title: ne doit pas dépasser 10 caractères", errorsMap.get("$.title"));
@@ -56,7 +56,7 @@ class Issue471Test {
 
     @Test
     @Disabled
-    void shouldFailV201909_with_frIT() throws Exception {
+    void shouldFailDRAFT_2019_09_with_frIT() throws Exception {
         Locale.setDefault(Locale.ITALIAN);
         Map<String, String> errorsMap = validate();
         Assertions.assertEquals("$.title: può avere lunghezza massima di 10", errorsMap.get("$.title"));

@@ -120,7 +120,7 @@ public class JsonNodeUtil {
     }
 
     private static long detectVersion(SchemaContext schemaContext) {
-        return schemaContext.activeDialect().orElse(Version.DRAFT_4).getOrder();
+        return schemaContext.getDialect().getSpecification().getOrder();
     }
 
     /**

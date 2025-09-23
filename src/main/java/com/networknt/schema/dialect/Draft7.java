@@ -12,15 +12,15 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * Draft 7 dialect.
  */
 public class Draft7 {
-    private static final String IRI = DialectId.DRAFT_7;
-    private static final String ID = "$id";
+    private static final String ID = DialectId.DRAFT_7;
+    private static final String ID_KEYWORD = "$id";
 
     private static class Holder {
         private static final Dialect INSTANCE;
         static {
-            INSTANCE = Dialect.builder(IRI)
+            INSTANCE = Dialect.builder(ID)
                     .specification(Specification.Version.DRAFT_7)
-                    .idKeyword(ID)
+                    .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
                     .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_7))
                     // keywords that may validly exist, but have no validation aspect to them

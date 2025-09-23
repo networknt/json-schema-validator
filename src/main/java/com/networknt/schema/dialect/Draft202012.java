@@ -13,8 +13,8 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * Draft 2020-12 dialect.
  */
 public class Draft202012 {
-    private static final String IRI = DialectId.DRAFT_2020_12;
-    private static final String ID = "$id";
+    private static final String ID = DialectId.DRAFT_2020_12;
+    private static final String ID_KEYWORD = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 
     static {
@@ -32,9 +32,9 @@ public class Draft202012 {
     private static class Holder {
         private static final Dialect INSTANCE;
         static {
-            INSTANCE = Dialect.builder(IRI)
+            INSTANCE = Dialect.builder(ID)
                     .specification(Specification.Version.DRAFT_2020_12)
-                    .idKeyword(ID)
+                    .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
                     .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_2020_12))
                     // keywords that may validly exist, but have no validation aspect to them

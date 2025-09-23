@@ -209,7 +209,7 @@ public class SchemaRegistry {
     public static SchemaRegistry withDefaultDialect(Specification.Version specificationVersion,
             Consumer<SchemaRegistry.Builder> customizer) {
         Dialect dialect = Specification.getDialect(specificationVersion);
-        return withDefaultDialectId(dialect.getIri(), customizer);
+        return withDefaultDialectId(dialect.getId(), customizer);
     }
 
     /**
@@ -251,7 +251,7 @@ public class SchemaRegistry {
      * @return the schema registry
      */
     public static SchemaRegistry withDialect(Dialect dialect, Consumer<SchemaRegistry.Builder> customizer) {
-        SchemaRegistry.Builder builder = builder().defaultDialectId(dialect.getIri())
+        SchemaRegistry.Builder builder = builder().defaultDialectId(dialect.getId())
                 .dialectRegistry(new BasicDialectRegistry(dialect));
         if (customizer != null) {
             customizer.accept(builder);
@@ -345,7 +345,7 @@ public class SchemaRegistry {
      */
     private SchemaContext withDialect(SchemaContext schemaContext, JsonNode schemaNode) {
         Dialect dialect = getDialect(schemaNode, schemaContext.getSchemaRegistryConfig());
-        if (dialect != null && !dialect.getIri().equals(schemaContext.getDialect().getIri())) {
+        if (dialect != null && !dialect.getId().equals(schemaContext.getDialect().getId())) {
             return new SchemaContext(dialect, schemaContext.getSchemaRegistry(),
                     schemaContext.getSchemaReferences(), schemaContext.getSchemaResources(),
                     schemaContext.getDynamicAnchors());

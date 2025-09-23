@@ -81,12 +81,12 @@ class VocabularyTest {
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
-                                                Vocabulary.V202012_VALIDATION.getIri())))))
+                                                Vocabulary.DRAFT_2020_12_VALIDATION.getIri())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("minimum", messages.iterator().next().getKeyword());
-        assertEquals(Version.DRAFT_2020_12, schema.getSchemaContext().activeDialect().get());
+        assertEquals(Version.DRAFT_2020_12, schema.getSchemaContext().getDialect().getSpecification());
     }
 
     @Test
@@ -134,7 +134,7 @@ class VocabularyTest {
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
-                                                Vocabulary.V202012_FORMAT_ASSERTION.getIri())))))
+                                                Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getIri())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());

@@ -64,7 +64,7 @@ class Issue784Test {
 
     private Schema createSchema(boolean useCustomDateFormat) {
         Dialect overrideDateTimeValidator = Dialect
-                .builder(Dialects.getDraft7().getIri(), Dialects.getDraft7())
+                .builder(Dialects.getDraft7().getId(), Dialects.getDraft7())
                 .formats(formats -> {
                     if (useCustomDateFormat) {
                         CustomDateTimeFormat format = new CustomDateTimeFormat();

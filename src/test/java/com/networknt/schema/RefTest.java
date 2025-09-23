@@ -25,7 +25,7 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getId());
         List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         Error error = errors.iterator().next();
@@ -47,7 +47,7 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getId());
         List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
         Error error = errors.iterator().next();
@@ -58,8 +58,8 @@ class RefTest {
         assertEquals("field1", error.getProperty());
         Schema driver = schema.getSchemaContext().getSchemaResources().get("https://www.example.org/driver#");
         Schema common = schema.getSchemaContext().getSchemaResources().get("https://www.example.org/common#");
-        assertEquals(DialectId.DRAFT_4, driver.getSchemaContext().getDialect().getIri());
-        assertEquals(DialectId.DRAFT_7, common.getSchemaContext().getDialect().getIri());
+        assertEquals(DialectId.DRAFT_4, driver.getSchemaContext().getDialect().getId());
+        assertEquals(DialectId.DRAFT_7, common.getSchemaContext().getDialect().getId());
 
     }
 }

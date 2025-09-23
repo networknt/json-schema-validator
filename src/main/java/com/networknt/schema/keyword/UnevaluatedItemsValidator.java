@@ -38,13 +38,12 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
     private final Schema schema;
 
     private final boolean isMinV202012;
-    private static final Version DEFAULT_VERSION = Version.DRAFT_2019_09;
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
-        isMinV202012 = MinV202012.getVersions().contains(schemaContext.activeDialect().orElse(DEFAULT_VERSION));
+        isMinV202012 = MinV202012.getVersions().contains(schemaContext.getDialect().getSpecification());
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {

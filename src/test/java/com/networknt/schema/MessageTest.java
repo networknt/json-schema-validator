@@ -70,7 +70,7 @@ class MessageTest {
 
     @Test
     void message() {
-        Dialect dialect = Dialect.builder(Dialects.getDraft202012().getIri(), Dialects.getDraft202012())
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012().getId(), Dialects.getDraft202012())
                 .keyword(new EqualsKeyword()).build();
         SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"

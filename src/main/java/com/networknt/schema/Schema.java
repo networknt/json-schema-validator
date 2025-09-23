@@ -51,7 +51,7 @@ import com.networknt.schema.utils.JsonNodes;
  * modified.
  */
 public class Schema implements Validator {
-    private static final long V201909_VALUE = Version.DRAFT_2019_09.getOrder();
+    private static final long DRAFT_2019_09_VALUE = Version.DRAFT_2019_09.getOrder();
     private final String id;
 
     /**
@@ -656,7 +656,7 @@ public class Schema implements Validator {
             }
 
             // Ignore siblings for older drafts
-            if (null != refValidator && activeDialect() < V201909_VALUE) {
+            if (null != refValidator && getSchemaContext().getDialect().getSpecification().getOrder() < DRAFT_2019_09_VALUE) {
                 validators.clear();
                 validators.add(refValidator);
             }
@@ -665,13 +665,6 @@ public class Schema implements Validator {
             Collections.sort(validators, VALIDATOR_SORT);
         }
         return validators;
-    }
-
-    private long activeDialect() {
-        return this.schemaContext
-            .activeDialect()
-            .map(Version::getOrder)
-            .orElse(Integer.MAX_VALUE);
     }
 
     /**

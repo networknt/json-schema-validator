@@ -13,8 +13,8 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * OpenAPI 3.1.
  */
 public class OpenApi31 {
-    private static final String IRI = DialectId.OPENAPI_3_1;
-    private static final String ID = "$id";
+    private static final String ID = DialectId.OPENAPI_3_1;
+    private static final String ID_KEYWORD = "$id";
     private static final Map<String, Boolean> VOCABULARY;
 
     static {
@@ -33,9 +33,9 @@ public class OpenApi31 {
     private static class Holder {
         private static final Dialect INSTANCE;
         static {
-            INSTANCE = Dialect.builder(IRI)
+            INSTANCE = Dialect.builder(ID)
                     .specification(Specification.Version.DRAFT_2020_12)
-                    .idKeyword(ID)
+                    .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
                     .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_2020_12))
                     // keywords that may validly exist, but have no validation aspect to them

@@ -52,7 +52,7 @@ class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
         Dialect draftV4 = Dialects.getDraft4();
         Builder builder = SchemaRegistry.builder()
-                .defaultDialectId(draftV4.getIri())
+                .defaultDialectId(draftV4.getId())
                 .dialectRegistry(new BasicDialectRegistry(draftV4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         SchemaRegistry instance = builder.build();
@@ -103,7 +103,7 @@ class UriMappingTest {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
         Dialect draftV4 = Dialects.getDraft4();
         Builder builder = SchemaRegistry.builder()
-                .defaultDialectId(draftV4.getIri())
+                .defaultDialectId(draftV4.getId())
                 .dialectRegistry(new BasicDialectRegistry(draftV4))
                 .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
         instance = builder.build();

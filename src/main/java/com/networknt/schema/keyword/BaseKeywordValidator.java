@@ -18,7 +18,6 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
-import com.networknt.schema.JsonNodePath;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;

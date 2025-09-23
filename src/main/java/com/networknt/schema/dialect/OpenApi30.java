@@ -12,15 +12,15 @@ import com.networknt.schema.keyword.ValidatorTypeCode;
  * OpenAPI 3.0.
  */
 public class OpenApi30 {
-    private static final String IRI = DialectId.OPENAPI_3_0;
-    private static final String ID = "id";
+    private static final String ID = DialectId.OPENAPI_3_0;
+    private static final String ID_KEYWORD = "id";
     
     private static class Holder {
         private static final Dialect INSTANCE;
         static {
-            INSTANCE = Dialect.builder(IRI)
+            INSTANCE = Dialect.builder(ID)
                     .specification(Specification.Version.DRAFT_4)
-                    .idKeyword(ID)
+                    .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
                     .keywords(Arrays.asList(
                             new AnnotationKeyword("title"),

@@ -74,7 +74,7 @@ public class Dialect {
      * Builder for {@link Dialect}. 
      */
     public static class Builder {
-        private String iri;
+        private String id;
         private String idKeyword = "$id";
         private Version specification = null;
         private final Map<String, Keyword> keywords = new HashMap<>();
@@ -84,8 +84,8 @@ public class Dialect {
         private VocabularyFactory vocabularyFactory = null;
         private KeywordFactory unknownKeywordFactory = null;
 
-        public Builder(String iri) {
-            this.iri = iri;
+        public Builder(String id) {
+            this.id = id;
         }
 
         private Map<String, Keyword> createKeywordsMap(Map<String, Keyword> kwords, Map<String, Format> formats) {
@@ -306,18 +306,18 @@ public class Dialect {
                         } else if (Boolean.TRUE.equals(entry.getValue())) {
                             Error error = Error.builder()
                                     .message("Meta-schema ''{0}'' has unknown required vocabulary ''{1}''")
-                                    .arguments(this.iri, id).build();
+                                    .arguments(this.id, id).build();
                             throw new InvalidSchemaException(error);
                         }
                     }
                 }
             }
             Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
-            return new Dialect(this.iri, this.idKeyword, result, this.vocabularies, this.specification, this);
+            return new Dialect(this.id, this.idKeyword, result, this.vocabularies, this.specification, this);
         }
     }
 
-    private final String iri;
+    private final String id;
     private final String idKeyword;
     private final Map<String, Keyword> keywords;
     private final Map<String, Boolean> vocabularies;
@@ -325,9 +325,9 @@ public class Dialect {
 
     private final Builder builder;
 
-    Dialect(String iri, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
-        if (StringUtils.isBlank(iri)) {
-            throw new IllegalArgumentException("iri must not be null or blank");
+    Dialect(String dialectId, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
+        if (StringUtils.isBlank(dialectId)) {
+            throw new IllegalArgumentException("dialect id must not be null or blank");
         }
         if (StringUtils.isBlank(idKeyword)) {
             throw new IllegalArgumentException("idKeyword must not be null or blank");
@@ -336,7 +336,7 @@ public class Dialect {
             throw new IllegalArgumentException("keywords must not be null ");
         }
 
-        this.iri = iri;
+        this.id = dialectId;
         this.idKeyword = idKeyword;
         this.keywords = keywords;
         this.specification = specification;
@@ -347,37 +347,37 @@ public class Dialect {
     /**
      * Create a builder without keywords or formats.
      *
-     * @param iri the IRI of the metaschema that will be defined via this builder.
+     * @param id the IRI of the dialect that will be defined via this builder.
      * @return a builder instance without any keywords or formats - usually not what one needs.
      */
-    public static Builder builder(String iri) {
-        return new Builder(iri);
+    public static Builder builder(String id) {
+        return new Builder(id);
     }
 
     /**
      * Create a builder.
      * 
-     * @param iri       the IRI of your new JsonMetaSchema that will be defined via
+     * @param id       the IRI of your new Dialect that will be defined via
      *                  this builder.
-     * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
+     * @param blueprint the Dialect to base your custom Dialect on.
      * @return a builder instance preconfigured to be the same as blueprint, but
      *         with a different uri.
      */
-    public static Builder builder(String iri, Dialect blueprint) {
+    public static Builder builder(String id, Dialect blueprint) {
         Builder builder = builder(blueprint);
-        builder.iri = iri;
+        builder.id = id;
         return builder;
     }
 
     /**
      * Create a builder.
      * 
-     * @param blueprint the JsonMetaSchema to base your custom JsonMetaSchema on.
+     * @param blueprint the Dialect to base your custom Dialect on.
      * @return a builder instance preconfigured to be the same as blueprint
      */
     public static Builder builder(Dialect blueprint) {
         Map<String, Boolean> vocabularies = new HashMap<>(blueprint.getVocabularies());
-        return builder(blueprint.getIri())
+        return builder(blueprint.getId())
                 .idKeyword(blueprint.idKeyword)
                 .keywords(blueprint.builder.keywords.values())
                 .formats(blueprint.builder.formats.values())
@@ -418,8 +418,8 @@ public class Dialect {
         return fieldNode == null ? null : fieldNode.textValue();
     }
 
-    public String getIri() {
-        return this.iri;
+    public String getId() {
+        return this.id;
     }
 
     public Map<String, Keyword> getKeywords() {
@@ -486,12 +486,12 @@ public class Dialect {
 
     @Override
     public String toString() {
-        return this.iri;
+        return this.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(iri);
+        return id.hashCode();
     }
 
     @Override
@@ -503,6 +503,6 @@ public class Dialect {
         if (getClass() != obj.getClass())
             return false;
         Dialect other = (Dialect) obj;
-        return Objects.equals(iri, other.iri);
+        return Objects.equals(id, other.id);
     }
 }
