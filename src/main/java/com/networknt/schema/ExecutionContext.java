@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import com.networknt.schema.annotation.JsonNodeAnnotations;
+import com.networknt.schema.annotation.Annotations;
 import com.networknt.schema.result.JsonNodeResults;
 import com.networknt.schema.walk.WalkConfig;
 
@@ -34,7 +34,7 @@ public class ExecutionContext {
     private CollectorContext collectorContext = null;
 
     private Stack<DiscriminatorContext> discriminatorContexts = null;
-    private JsonNodeAnnotations annotations = null;
+    private Annotations annotations = null;
     private JsonNodeResults results = null;
     private List<Error> errors = new ArrayList<>();
     
@@ -141,9 +141,9 @@ public class ExecutionContext {
         this.executionConfig = executionConfig;
     }
 
-    public JsonNodeAnnotations getAnnotations() {
+    public Annotations getAnnotations() {
         if (this.annotations == null) {
-            this.annotations = new JsonNodeAnnotations();
+            this.annotations = new Annotations();
         }
         return annotations;
     }

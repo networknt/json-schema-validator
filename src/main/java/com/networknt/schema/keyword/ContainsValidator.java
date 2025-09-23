@@ -23,7 +23,7 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 
 import static com.networknt.schema.keyword.VersionCode.MinV201909;
 
@@ -139,12 +139,12 @@ public class ContainsValidator extends BaseKeywordValidator {
                 if (actual == i) {
                     // evaluated all
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword("contains").value(true).build());
                 } else {
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword("contains").value(indexes).build());
                 }
@@ -158,7 +158,7 @@ public class ContainsValidator extends BaseKeywordValidator {
                     // in the section for contains, the absence of this keyword's annotation causes
                     // contains to assume a minimum value of 1.
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath.append(minContainsKeyword))
                                     .schemaLocation(this.schemaLocation.append(minContainsKeyword))
                                     .keyword(minContainsKeyword).value(this.min).build());
@@ -169,7 +169,7 @@ public class ContainsValidator extends BaseKeywordValidator {
                 String maxContainsKeyword = "maxContains";
                 if (collectAnnotations || collectAnnotations(executionContext, maxContainsKeyword)) {
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
                                     .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
                                     .keyword(maxContainsKeyword).value(this.max).build());

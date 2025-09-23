@@ -26,7 +26,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.utils.SchemaRefs;
 import com.networknt.schema.walk.WalkListenerRunner;
 import java.util.Collections;
@@ -98,7 +98,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         }
         if (collectAnnotations) {
             executionContext.getAnnotations()
-                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                    .put(Annotation.builder().instanceLocation(instanceLocation)
                             .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                             .keyword(getKeyword()).value(matchedInstancePropertyNames == null ? Collections.emptySet()
                                     : matchedInstancePropertyNames)

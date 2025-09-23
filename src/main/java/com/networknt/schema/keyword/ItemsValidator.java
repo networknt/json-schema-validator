@@ -24,7 +24,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.utils.SchemaRefs;
 
 import java.util.*;
@@ -102,7 +102,7 @@ public class ItemsValidator extends BaseKeywordValidator {
             if (this.schema != null) {
                 // Applies to all
                 executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                        .put(Annotation.builder().instanceLocation(instanceLocation)
                                 .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                 .keyword(getKeyword()).value(true).build());
             } else if (this.tupleSchema != null) {
@@ -112,13 +112,13 @@ public class ItemsValidator extends BaseKeywordValidator {
                 if (items > schemas) {
                     // More items than schemas so the keyword only applied to the number of schemas
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(schemas).build());
                 } else {
                     // Applies to all
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }
@@ -143,7 +143,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         if (hasAdditionalItem) {
             if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
                 executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                        .put(Annotation.builder().instanceLocation(instanceLocation)
                                 .evaluationPath(this.additionalItemsEvaluationPath)
                                 .schemaLocation(this.additionalItemsSchemaLocation)
                                 .keyword("additionalItems").value(true).build());
@@ -202,7 +202,7 @@ public class ItemsValidator extends BaseKeywordValidator {
             if (this.schema != null) {
                 // Applies to all
                 executionContext.getAnnotations()
-                        .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                        .put(Annotation.builder().instanceLocation(instanceLocation)
                                 .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                 .keyword(getKeyword()).value(true).build());
             } else if (this.tupleSchema != null) {
@@ -212,13 +212,13 @@ public class ItemsValidator extends BaseKeywordValidator {
                 if (items > schemas) {
                     // More items than schemas so the keyword only applied to the number of schemas
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(schemas).build());
                 } else {
                     // Applies to all
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }
@@ -306,7 +306,7 @@ public class ItemsValidator extends BaseKeywordValidator {
                 if (hasAdditionalItem) {
                     if (collectAnnotations || collectAnnotations(executionContext, "additionalItems")) {
                         executionContext.getAnnotations()
-                                .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                                .put(Annotation.builder().instanceLocation(instanceLocation)
                                         .evaluationPath(this.additionalItemsEvaluationPath)
                                         .schemaLocation(this.additionalItemsSchemaLocation)
                                         .keyword("additionalItems").value(true).build());

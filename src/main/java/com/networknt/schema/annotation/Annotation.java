@@ -24,14 +24,14 @@ import com.networknt.schema.keyword.Keyword;
 /**
  * The annotation.
  */
-public class JsonNodeAnnotation {
+public class Annotation {
     private final String keyword;
     private final NodePath instanceLocation;
     private final SchemaLocation schemaLocation;
     private final NodePath evaluationPath;
     private final Object value;
 
-    public JsonNodeAnnotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
+    public Annotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
             NodePath evaluationPath, Object value) {
         super();
         this.keyword = keyword;
@@ -92,7 +92,7 @@ public class JsonNodeAnnotation {
 
     @Override
     public String toString() {
-        return "JsonNodeAnnotation [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
+        return "Annotation [evaluationPath=" + evaluationPath + ", schemaLocation=" + schemaLocation
                 + ", instanceLocation=" + instanceLocation + ", keyword=" + keyword + ", value=" + value + "]";
     }
 
@@ -109,7 +109,7 @@ public class JsonNodeAnnotation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JsonNodeAnnotation other = (JsonNodeAnnotation) obj;
+        Annotation other = (Annotation) obj;
         return Objects.equals(evaluationPath, other.evaluationPath)
                 && Objects.equals(instanceLocation, other.instanceLocation) && Objects.equals(keyword, other.keyword)
                 && Objects.equals(schemaLocation, other.schemaLocation) && Objects.equals(value, other.value);
@@ -156,8 +156,8 @@ public class JsonNodeAnnotation {
             return this;
         }
 
-        public JsonNodeAnnotation build() {
-            return new JsonNodeAnnotation(keyword, instanceLocation, schemaLocation, evaluationPath, value);
+        public Annotation build() {
+            return new Annotation(keyword, instanceLocation, schemaLocation, evaluationPath, value);
         }
     }
 

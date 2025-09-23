@@ -23,7 +23,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Specification.Version;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 
 import static com.networknt.schema.keyword.VersionCode.MinV202012;
 
@@ -75,12 +75,12 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
         boolean evaluated = false;
 
         // Get all the valid adjacent annotations
-        Predicate<JsonNodeAnnotation> validEvaluationPathFilter = a -> executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
+        Predicate<Annotation> validEvaluationPathFilter = a -> executionContext.getResults().isValid(instanceLocation, a.getEvaluationPath());
 
-        Predicate<JsonNodeAnnotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
+        Predicate<Annotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
                 .startsWith(this.evaluationPath.getParent());
 
-        List<JsonNodeAnnotation> instanceLocationAnnotations = executionContext.getAnnotations().asMap()
+        List<Annotation> instanceLocationAnnotations = executionContext.getAnnotations().asMap()
                 .getOrDefault(instanceLocation, Collections.emptyList());
 
         // If schema is "unevaluatedItems: true" this is valid
@@ -93,7 +93,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
             }
         } else {
             // Get all the "items" for the instanceLocation
-            List<JsonNodeAnnotation> items = instanceLocationAnnotations.stream()
+            List<Annotation> items = instanceLocationAnnotations.stream()
                     .filter(a -> itemsKeyword.equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
                     .filter(validEvaluationPathFilter).collect(Collectors.toList());
             if (items.isEmpty()) {
@@ -104,7 +104,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
                 // same instance location are combined by setting the combined result to true if
                 // any of the values are true, and otherwise retaining the largest numerical
                 // value.
-                for (JsonNodeAnnotation annotation : items) {
+                for (Annotation annotation : items) {
                     if (annotation.getValue() instanceof Number) {
                         Number value = annotation.getValue();
                         int existing = value.intValue();
@@ -125,10 +125,10 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
                 // from any subschema applied to the same instance location produces an
                 // annotation value of true, then the combined result from these keywords is
                 // also true.
-                List<JsonNodeAnnotation> additionalItems = instanceLocationAnnotations.stream()
+                List<Annotation> additionalItems = instanceLocationAnnotations.stream()
                         .filter(a -> additionalItemsKeyword.equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
                         .filter(validEvaluationPathFilter).collect(Collectors.toList());
-                for (JsonNodeAnnotation annotation : additionalItems) {
+                for (Annotation annotation : additionalItems) {
                     if (annotation.getValue() instanceof Boolean && Boolean.TRUE.equals(annotation.getValue())) {
                         // The annotation "additionalItems: true"
                         valid = true;
@@ -138,10 +138,10 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
             if (!valid) {
                 // Unevaluated
                 // Check if there are any "unevaluatedItems" annotations
-                List<JsonNodeAnnotation> unevaluatedItems = instanceLocationAnnotations.stream()
+                List<Annotation> unevaluatedItems = instanceLocationAnnotations.stream()
                         .filter(a -> "unevaluatedItems".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
                         .filter(validEvaluationPathFilter).collect(Collectors.toList());
-                for (JsonNodeAnnotation annotation : unevaluatedItems) {
+                for (Annotation annotation : unevaluatedItems) {
                     if (annotation.getValue() instanceof Boolean && Boolean.TRUE.equals(annotation.getValue())) {
                         // The annotation "unevaluatedItems: true"
                         valid = true;
@@ -152,13 +152,13 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
         if (!valid) {
             int currentErrors = executionContext.getErrors().size();
             // Get all the "contains" for the instanceLocation
-            List<JsonNodeAnnotation> contains = instanceLocationAnnotations.stream()
+            List<Annotation> contains = instanceLocationAnnotations.stream()
                     .filter(a -> "contains".equals(a.getKeyword())).filter(adjacentEvaluationPathFilter)
                     .filter(validEvaluationPathFilter).collect(Collectors.toList());
 
             Set<Integer> containsEvaluated = new HashSet<>();
             boolean containsEvaluatedAll = false;
-            for (JsonNodeAnnotation a : contains) {
+            for (Annotation a : contains) {
                 if (a.getValue() instanceof List) {
                     List<Integer> values = a.getValue();
                     containsEvaluated.addAll(values);
@@ -197,7 +197,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
         // also true.
         if (evaluated) {
             executionContext.getAnnotations()
-                    .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                    .put(Annotation.builder().instanceLocation(instanceLocation)
                             .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                             .keyword("unevaluatedItems").value(true).build());
         }

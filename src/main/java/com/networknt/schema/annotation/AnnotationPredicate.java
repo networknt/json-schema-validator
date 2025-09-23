@@ -23,7 +23,7 @@ import com.networknt.schema.SchemaLocation;
 /**
  * A predicate for filtering annotations.
  */
-public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation> {
+public class AnnotationPredicate implements Predicate<Annotation> {
     final Predicate<NodePath> instanceLocationPredicate;
     final Predicate<NodePath> evaluationPathPredicate;
     final Predicate<SchemaLocation> schemaLocationPredicate;
@@ -39,7 +39,7 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
      * @param keywordPredicate          for keyword
      * @param valuePredicate            for value
      */
-    protected JsonNodeAnnotationPredicate(Predicate<NodePath> instanceLocationPredicate,
+    protected AnnotationPredicate(Predicate<NodePath> instanceLocationPredicate,
             Predicate<NodePath> evaluationPathPredicate, Predicate<SchemaLocation> schemaLocationPredicate,
             Predicate<String> keywordPredicate, Predicate<Object> valuePredicate) {
         super();
@@ -51,7 +51,7 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
     }
 
     @Override
-    public boolean test(JsonNodeAnnotation t) {
+    public boolean test(Annotation t) {
         return ((valuePredicate == null || valuePredicate.test(t.getValue()))
                 && (keywordPredicate == null || keywordPredicate.test(t.getKeyword()))
                 && (instanceLocationPredicate == null || instanceLocationPredicate.test(t.getInstanceLocation()))
@@ -114,7 +114,7 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
     }
 
     /**
-     * Builder for building a {@link JsonNodeAnnotationPredicate}.
+     * Builder for building a {@link AnnotationPredicate}.
      */
     public static class Builder {
         Predicate<NodePath> instanceLocationPredicate;
@@ -148,8 +148,8 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
             return this;
         }
 
-        public JsonNodeAnnotationPredicate build() {
-            return new JsonNodeAnnotationPredicate(instanceLocationPredicate, evaluationPathPredicate,
+        public AnnotationPredicate build() {
+            return new AnnotationPredicate(instanceLocationPredicate, evaluationPathPredicate,
                     schemaLocationPredicate, keywordPredicate, valuePredicate);
         }
     }

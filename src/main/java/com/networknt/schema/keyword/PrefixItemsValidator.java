@@ -24,7 +24,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.utils.SchemaRefs;
 
 import java.util.ArrayList;
@@ -73,13 +73,13 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
                 if (items > schemas) {
                     // More items than schemas so the keyword only applied to the number of schemas
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(schemas).build());
                 } else {
                     // Applies to all
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }
@@ -115,13 +115,13 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
                 if (items > schemas) {
                     // More items than schemas so the keyword only applied to the number of schemas
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(schemas).build());
                 } else {
                     // Applies to all
                     executionContext.getAnnotations()
-                            .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation)
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
                                     .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }

@@ -31,14 +31,14 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  *      "https://github.com/json-schema-org/json-schema-spec/issues/530">Details
  *      of annotation collection</a>
  */
-public class JsonNodeAnnotations {
+public class Annotations {
 
     /**
      * Stores the annotations.
      * <p>
      * instancePath to annotation
      */
-    private final Map<NodePath, List<JsonNodeAnnotation>> values = new LinkedHashMap<>();
+    private final Map<NodePath, List<Annotation>> values = new LinkedHashMap<>();
 
     /**
      * Gets the annotations.
@@ -47,7 +47,7 @@ public class JsonNodeAnnotations {
      * 
      * @return the annotations
      */
-    public Map<NodePath, List<JsonNodeAnnotation>> asMap() {
+    public Map<NodePath, List<Annotation>> asMap() {
         return this.values;
     }
 
@@ -56,7 +56,7 @@ public class JsonNodeAnnotations {
      * 
      * @param annotation the annotation
      */
-    public void put(JsonNodeAnnotation annotation) {
+    public void put(Annotation annotation) {
         this.values.computeIfAbsent(annotation.getInstanceLocation(), (k) -> new ArrayList<>()).add(annotation);
 
     }
@@ -76,10 +76,10 @@ public class JsonNodeAnnotations {
          * @param annotations the annotations
          * @return the formatted JSON
          */
-        public static String format(Map<NodePath, List<JsonNodeAnnotation>> annotations) {
+        public static String format(Map<NodePath, List<Annotation>> annotations) {
             Map<String, Map<String, Map<String, Object>>> results = new LinkedHashMap<>();
-            for (List<JsonNodeAnnotation> list : annotations.values()) {
-                for (JsonNodeAnnotation annotation : list) {
+            for (List<Annotation> list : annotations.values()) {
+                for (Annotation annotation : list) {
                     String keyword = annotation.getKeyword();
                     String instancePath = annotation.getInstanceLocation().toString();
                     String evaluationPath = annotation.getEvaluationPath().toString();

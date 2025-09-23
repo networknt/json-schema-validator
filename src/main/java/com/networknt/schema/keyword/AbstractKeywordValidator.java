@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 
 /**
  * Abstract {@link KeywordValidator}.
@@ -116,8 +116,8 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
      * @param executionContext the execution context
      * @param customizer to customize the annotation
      */
-    protected void putAnnotation(ExecutionContext executionContext, Consumer<JsonNodeAnnotation.Builder> customizer) {
-        JsonNodeAnnotation.Builder builder = JsonNodeAnnotation.builder().evaluationPath(this.evaluationPath)
+    protected void putAnnotation(ExecutionContext executionContext, Consumer<Annotation.Builder> customizer) {
+        Annotation.Builder builder = Annotation.builder().evaluationPath(this.evaluationPath)
                 .schemaLocation(this.schemaLocation).keyword(getKeyword());
         customizer.accept(builder);
         executionContext.getAnnotations().put(builder.build());

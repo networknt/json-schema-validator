@@ -19,17 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.annotation.JsonNodeAnnotation;
-import com.networknt.schema.annotation.JsonNodeAnnotations;
+import com.networknt.schema.annotation.Annotation;
+import com.networknt.schema.annotation.Annotations;
 
 /**
- * JsonNodeAnnotationsTest.
+ * AnnotationsTest.
  */
-class JsonNodeAnnotationsTest {
+class AnnotationsTest {
     @Test
     void put() {
-        JsonNodeAnnotations annotations = new JsonNodeAnnotations();
-        JsonNodeAnnotation annotation = new JsonNodeAnnotation("unevaluatedProperties",
+        Annotations annotations = new Annotations();
+        Annotation annotation = new Annotation("unevaluatedProperties",
                 new NodePath(PathType.JSON_POINTER), SchemaLocation.of(""), new NodePath(PathType.JSON_POINTER),
                 "test");
         annotations.put(annotation);

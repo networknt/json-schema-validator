@@ -24,7 +24,7 @@ import java.util.function.Function;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Error;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.annotation.Annotation;
 
 /**
  * Output Unit Data.
@@ -88,8 +88,8 @@ public class OutputUnitData {
             }
         }
 
-        for (List<JsonNodeAnnotation> annotationsResult : executionContext.getAnnotations().asMap().values()) {
-            for (JsonNodeAnnotation annotation : annotationsResult) {
+        for (List<Annotation> annotationsResult : executionContext.getAnnotations().asMap().values()) {
+            for (Annotation annotation : annotationsResult) {
                 // As some annotations are required for computation, filter those that are not
                 // required for reporting
                 if (executionContext.getExecutionConfig().getAnnotationCollectionFilter()
