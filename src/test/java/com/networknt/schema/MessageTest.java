@@ -36,9 +36,8 @@ class MessageTest {
 
         EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
                 JsonSchema parentSchema, Keyword keyword,
-                ValidationContext validationContext, boolean suppressSubSchemaRetrieval) {
-            super(schemaLocation, evaluationPath, schemaNode, parentSchema, ERROR_MESSAGE_TYPE, keyword, validationContext,
-                    suppressSubSchemaRetrieval);
+                ValidationContext validationContext) {
+            super(schemaLocation, evaluationPath, schemaNode, parentSchema, ERROR_MESSAGE_TYPE, keyword, validationContext);
             this.value = schemaNode.textValue();
         }
 
@@ -66,7 +65,7 @@ class MessageTest {
         public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
                 JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
                 throws JsonSchemaException, Exception {
-            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext, false);
+            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext);
         }
     }
 
