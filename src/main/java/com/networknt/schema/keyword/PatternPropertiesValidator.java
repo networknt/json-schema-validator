@@ -102,8 +102,8 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(schemas.values());
+    public void preloadSchema() {
+        preloadSchemas(schemas.values());
         collectAnnotations(); // cache the flag
     }
 }

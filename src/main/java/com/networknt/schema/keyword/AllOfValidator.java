@@ -110,7 +110,7 @@ public class AllOfValidator extends BaseKeywordValidator {
    }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(this.schemas);
+    public void preloadSchema() {
+        preloadSchemas(this.schemas);
     }
 }

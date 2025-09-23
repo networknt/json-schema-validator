@@ -26,7 +26,7 @@ import java.util.Objects;
  * This doesn't extend off SchemaException as it is used for flow control
  * and is intended to be caught in a specific place.
  * <p>
- * This will be caught in the JsonSchema validate method to be passed to the
+ * This will be caught in the Schema validate method to be passed to the
  * output formatter.
  */
 public class FailFastAssertionException extends RuntimeException {

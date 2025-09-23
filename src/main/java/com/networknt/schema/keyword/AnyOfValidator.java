@@ -216,8 +216,8 @@ public class AnyOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(this.schemas);
+    public void preloadSchema() {
+        preloadSchemas(this.schemas);
         canShortCircuit(); // cache flag
     }
 }

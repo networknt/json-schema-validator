@@ -93,7 +93,7 @@ public class IfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         if (null != this.ifSchema) {
             this.ifSchema.initializeValidators();
         }

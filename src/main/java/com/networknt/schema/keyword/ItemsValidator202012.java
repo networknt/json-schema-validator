@@ -178,7 +178,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         this.schema.initializeValidators();
         collectAnnotations(); // cache the flag
     }

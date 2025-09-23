@@ -304,7 +304,7 @@ public class SchemaRegistry {
      * @param config containing the configuration option
      */
     private void preload(Schema schema) {
-        if (this.getSchemaRegistryConfig().isPreloadJsonSchema()) {
+        if (this.getSchemaRegistryConfig().isPreloadSchema()) {
             try {
                 /*
                  * Attempt to preload and resolve $refs for performance.
@@ -358,7 +358,7 @@ public class SchemaRegistry {
      * one with a null base IRI.
      * <p>
      * Note that the resolving of the $id or id in the schema node will take place
-     * in the JsonSchema constructor.
+     * in the Schema constructor.
      *
      * @param schemaLocation the schema retrieval uri
      * @return the schema location

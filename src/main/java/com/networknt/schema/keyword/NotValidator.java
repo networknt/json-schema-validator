@@ -84,7 +84,7 @@ public class NotValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         if (null != this.schema) {
             this.schema.initializeValidators();
         }

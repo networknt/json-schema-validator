@@ -67,8 +67,8 @@ public class DependentSchemas extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(this.schemaDependencies.values());
+    public void preloadSchema() {
+        preloadSchemas(this.schemaDependencies.values());
     }
 
     @Override

@@ -142,7 +142,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();

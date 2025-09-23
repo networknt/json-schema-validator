@@ -194,8 +194,8 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(this.tupleSchema);
+    public void preloadSchema() {
+        preloadSchemas(this.tupleSchema);
         collectAnnotations(); // cache the flag
     }
 

@@ -85,7 +85,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(schemaDeps.values());
+    public void preloadSchema() {
+        preloadSchemas(schemaDeps.values());
     }
 }

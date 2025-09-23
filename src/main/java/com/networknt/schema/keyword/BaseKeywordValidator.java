@@ -118,7 +118,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         return null;
     }
 
-    protected void preloadJsonSchemas(final Collection<Schema> schemas) {
+    protected void preloadSchemas(final Collection<Schema> schemas) {
         for (final Schema schema : schemas) {
             schema.initializeValidators();
         }

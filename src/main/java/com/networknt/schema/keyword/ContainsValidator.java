@@ -179,7 +179,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         Optional.ofNullable(this.schema).ifPresent(Schema::initializeValidators);
         collectAnnotations(); // cache the flag
     }

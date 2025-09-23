@@ -63,7 +63,7 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
 
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         innerSchema.initializeValidators();
     }
 }

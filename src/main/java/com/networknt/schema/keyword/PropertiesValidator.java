@@ -187,8 +187,8 @@ public class PropertiesValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
-        preloadJsonSchemas(this.schemas.values());
+    public void preloadSchema() {
+        preloadSchemas(this.schemas.values());
         collectAnnotations(); // cache the flag
     }
 }

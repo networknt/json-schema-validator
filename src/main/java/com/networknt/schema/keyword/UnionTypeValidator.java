@@ -110,10 +110,10 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         for (final Validator validator : schemas) {
             if (validator instanceof KeywordValidator) {
-                ((KeywordValidator) validator).preloadJsonSchema();
+                ((KeywordValidator) validator).preloadSchema();
             } else if (validator instanceof Schema) {
                 ((Schema) validator).initializeValidators();
             }

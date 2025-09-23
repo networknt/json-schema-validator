@@ -87,7 +87,7 @@ public class RefValidator extends BaseKeywordValidator {
                     if (findSchemaResource != null) {
                         schemaResource = findSchemaResource;   
                     } else {
-                        schemaResource = getJsonSchema(schemaResource, schemaContext, newRefValue, refValueOriginal,
+                        schemaResource = getSchema(schemaResource, schemaContext, newRefValue, refValueOriginal,
                                 evaluationPath);
                     }
                     if (schemaResource == null) {
@@ -106,7 +106,7 @@ public class RefValidator extends BaseKeywordValidator {
                     schemaResource = schemaContext.getDynamicAnchors().get(absoluteIri);
                 }
                 if (schemaResource == null) {
-                    schemaResource = getJsonSchema(parentSchema, schemaContext, refValue, refValueOriginal, evaluationPath);
+                    schemaResource = getSchema(parentSchema, schemaContext, refValue, refValueOriginal, evaluationPath);
                 }
                 if (schemaResource == null) {
                     return null;
@@ -120,7 +120,7 @@ public class RefValidator extends BaseKeywordValidator {
                             schemaContext.getSchemaRegistryConfig().isCacheRefs()));
         }
         return new SchemaRef(getSupplier(
-                () -> getJsonSchema(parentSchema, schemaContext, refValue, refValueOriginal, evaluationPath)
+                () -> getSchema(parentSchema, schemaContext, refValue, refValueOriginal, evaluationPath)
                         .fromRef(parentSchema, evaluationPath),
                 schemaContext.getSchemaRegistryConfig().isCacheRefs()));
     }
@@ -153,7 +153,7 @@ public class RefValidator extends BaseKeywordValidator {
         return SchemaLocation.resolve(base.getSchemaLocation(), refValue);
     }
 
-    private static Schema getJsonSchema(Schema parent,
+    private static Schema getSchema(Schema parent,
                                                   SchemaContext schemaContext,
                                                   String refValue,
                                                   String refValueOriginal,
@@ -231,7 +231,7 @@ public class RefValidator extends BaseKeywordValidator {
 	}
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         Schema jsonSchema = null;
         try {
             jsonSchema = this.schema.getSchema();

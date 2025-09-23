@@ -44,10 +44,10 @@ import com.networknt.schema.utils.JsonNodes;
  * be cached for performance.
  * <p>
  * This is the core of json constraint implementation. It parses json constraint
- * file and generates JsonValidators. The class is thread safe, once it is
+ * file and generates KeywordValidators. The class is thread safe, once it is
  * constructed, it can be used to validate multiple json data concurrently.
  * <p>
- * JsonSchema instances are thread-safe provided its configuration is not
+ * Schema instances are thread-safe provided its configuration is not
  * modified.
  */
 public class Schema implements Validator {
@@ -1365,7 +1365,7 @@ public class Schema implements Validator {
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
             for (final KeywordValidator validator : getValidators()) {
-                validator.preloadJsonSchema();
+                validator.preloadSchema();
             }
             /*
              * This is only set to true after the preload as it may throw an exception for

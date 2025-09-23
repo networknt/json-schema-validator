@@ -281,7 +281,7 @@ public class SchemaRegistryConfig {
      * 
      * @return true if it should be preloaded
      */
-    public boolean isPreloadJsonSchema() {
+    public boolean isPreloadSchema() {
         return preloadSchema;
     }
 
@@ -511,11 +511,11 @@ public class SchemaRegistryConfig {
          * <p>
          * Defaults to true.
          *
-         * @param preloadJsonSchema true to preload
+         * @param preloadSchema true to preload
          * @return the builder
          */
-        public T preloadJsonSchema(boolean preloadJsonSchema) {
-            this.preloadSchema = preloadJsonSchema;
+        public T preloadSchema(boolean preloadSchema) {
+            this.preloadSchema = preloadSchema;
             return self();
         }
         /**

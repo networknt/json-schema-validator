@@ -360,11 +360,11 @@ public class ItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         if (null != this.schema) {
             this.schema.initializeValidators();
         }
-        preloadJsonSchemas(this.tupleSchema);
+        preloadSchemas(this.tupleSchema);
         if (null != this.additionalSchema) {
             this.additionalSchema.initializeValidators();
         }

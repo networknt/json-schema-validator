@@ -192,7 +192,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         if(additionalPropertiesSchema != null) {
             additionalPropertiesSchema.initializeValidators();
         }

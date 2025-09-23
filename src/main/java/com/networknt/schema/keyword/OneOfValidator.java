@@ -239,7 +239,7 @@ public class OneOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void preloadJsonSchema() {
+    public void preloadSchema() {
         for (Schema schema: this.schemas) {
             schema.initializeValidators();
         }
