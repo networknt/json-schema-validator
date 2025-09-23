@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 public class NonValidationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
-        public Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public Validator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext, Keyword keyword) {
             super(keyword, schemaNode, schemaLocation, evaluationPath);
             String id = schemaContext.resolveSchemaId(schemaNode);
@@ -54,7 +54,7 @@ public class NonValidationKeyword extends AbstractKeyword {
         }
 
         @Override
-        public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
             // Do nothing
         }
     }
@@ -64,7 +64,7 @@ public class NonValidationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                                       Schema parentSchema, SchemaContext schemaContext) {
         return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext, this);
     }

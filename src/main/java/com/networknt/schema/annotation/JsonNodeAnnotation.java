@@ -17,7 +17,7 @@ package com.networknt.schema.annotation;
 
 import java.util.Objects;
 
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.keyword.Keyword;
 
@@ -26,13 +26,13 @@ import com.networknt.schema.keyword.Keyword;
  */
 public class JsonNodeAnnotation {
     private final String keyword;
-    private final JsonNodePath instanceLocation;
+    private final NodePath instanceLocation;
     private final SchemaLocation schemaLocation;
-    private final JsonNodePath evaluationPath;
+    private final NodePath evaluationPath;
     private final Object value;
 
-    public JsonNodeAnnotation(String keyword, JsonNodePath instanceLocation, SchemaLocation schemaLocation,
-            JsonNodePath evaluationPath, Object value) {
+    public JsonNodeAnnotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
+            NodePath evaluationPath, Object value) {
         super();
         this.keyword = keyword;
         this.instanceLocation = instanceLocation;
@@ -55,7 +55,7 @@ public class JsonNodeAnnotation {
      * 
      * @return the instance location
      */
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 
@@ -75,7 +75,7 @@ public class JsonNodeAnnotation {
      * 
      * @return the evaluation path
      */
-    public JsonNodePath getEvaluationPath() {
+    public NodePath getEvaluationPath() {
         return evaluationPath;
     }
 
@@ -121,9 +121,9 @@ public class JsonNodeAnnotation {
 
     public static class Builder {
         private String keyword;
-        private JsonNodePath instanceLocation;
+        private NodePath instanceLocation;
         private SchemaLocation schemaLocation;
-        private JsonNodePath evaluationPath;
+        private NodePath evaluationPath;
         private Object value;
 
         public Builder keyword(Keyword keyword) {
@@ -136,7 +136,7 @@ public class JsonNodeAnnotation {
             return this;
         }
 
-        public Builder instanceLocation(JsonNodePath instanceLocation) {
+        public Builder instanceLocation(NodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
             return this;
         }
@@ -146,7 +146,7 @@ public class JsonNodeAnnotation {
             return this;
         }
 
-        public Builder evaluationPath(JsonNodePath evaluationPath) {
+        public Builder evaluationPath(NodePath evaluationPath) {
             this.evaluationPath = evaluationPath;
             return this;
         }

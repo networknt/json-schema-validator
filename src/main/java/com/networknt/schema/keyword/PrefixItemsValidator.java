@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
@@ -38,7 +38,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public PrefixItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public PrefixItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
@@ -55,13 +55,13 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
         // ignores non-arrays
         if (node.isArray()) {
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
-                JsonNodePath path = instanceLocation.append(i);
+                NodePath path = instanceLocation.append(i);
                 this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
             }
 
@@ -88,7 +88,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         if (node instanceof ArrayNode) {
             ArrayNode array = (ArrayNode) node;
             int count = this.tupleSchema.size();
@@ -146,13 +146,13 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     }
 
     private void doWalk(ExecutionContext executionContext, int i,
-            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+            JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.append(i),
                 shouldValidateSchema);
     }
 
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+            NodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
         boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,

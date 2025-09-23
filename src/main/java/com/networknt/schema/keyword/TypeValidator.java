@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -33,7 +33,7 @@ public class TypeValidator extends BaseKeywordValidator {
     private final JsonType schemaType;
     private final UnionTypeValidator unionTypeValidator;
 
-    public TypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public TypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         if (this.schemaType == JsonType.UNION) {
@@ -52,7 +52,7 @@ public class TypeValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (this.schemaType == JsonType.UNION) {

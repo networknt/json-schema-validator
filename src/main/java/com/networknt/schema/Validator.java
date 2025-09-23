@@ -35,7 +35,7 @@ public interface Validator extends Walker {
      * @param instanceLocation the location of the instance node being processed
      */
     void validate(ExecutionContext executionContext, JsonNode instanceNode, JsonNode instance,
-            JsonNodePath instanceLocation);
+            NodePath instanceLocation);
 
     /**
      * This is default implementation of walk method. Its job is to call the
@@ -43,7 +43,7 @@ public interface Validator extends Walker {
      */
     @Override
     default void walk(ExecutionContext executionContext, JsonNode instanceNode, JsonNode instance,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+            NodePath instanceLocation, boolean shouldValidateSchema) {
         if (instanceNode == null) {
             // Note that null is not the same as NullNode
             return;
@@ -70,5 +70,5 @@ public interface Validator extends Walker {
      * 
      * @return the evaluation path
      */
-    JsonNodePath getEvaluationPath();
+    NodePath getEvaluationPath();
 }

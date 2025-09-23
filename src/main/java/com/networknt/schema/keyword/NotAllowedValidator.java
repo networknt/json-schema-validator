@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -31,7 +31,7 @@ import java.util.*;
 public class NotAllowedValidator extends BaseKeywordValidator implements KeywordValidator {
     private final List<String> fieldNames;
 
-    public NotAllowedValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public NotAllowedValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
@@ -44,7 +44,7 @@ public class NotAllowedValidator extends BaseKeywordValidator implements Keyword
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         for (String fieldName : fieldNames) {

@@ -24,19 +24,19 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-class JsonNodePathTest {
+class NodePathTest {
 
     @Test
     void getNameCount() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath path = root.append("hello").append("world");
+        NodePath root = new NodePath(PathType.JSON_POINTER);
+        NodePath path = root.append("hello").append("world");
         assertEquals(2, path.getNameCount());
     }
 
     @Test
     void getName() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath path = root.append("hello").append("world");
+        NodePath root = new NodePath(PathType.JSON_POINTER);
+        NodePath path = root.append("hello").append("world");
         assertEquals("hello", path.getName(0));
         assertEquals("world", path.getName(1));
         assertEquals("world", path.getName(-1));
@@ -45,19 +45,19 @@ class JsonNodePathTest {
 
     @Test
     void compareTo() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a = root.append("a");
-        JsonNodePath aa = a.append("a");
+        NodePath root = new NodePath(PathType.JSON_POINTER);
+        NodePath a = root.append("a");
+        NodePath aa = a.append("a");
 
-        JsonNodePath b = root.append("b");
-        JsonNodePath bb = b.append("b");
-        JsonNodePath b1 = b.append(1);
-        JsonNodePath bbb = bb.append("b");
+        NodePath b = root.append("b");
+        NodePath bb = b.append("b");
+        NodePath b1 = b.append(1);
+        NodePath bbb = bb.append("b");
 
-        JsonNodePath c = root.append("c");
-        JsonNodePath cc = c.append("c");
+        NodePath c = root.append("c");
+        NodePath cc = c.append("c");
 
-        List<JsonNodePath> paths = new ArrayList<>();
+        List<NodePath> paths = new ArrayList<>();
         paths.add(cc);
         paths.add(aa);
         paths.add(bb);
@@ -79,30 +79,30 @@ class JsonNodePathTest {
 
     @Test
     void equalsEquals() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a1 = root.append("a");
-        JsonNodePath a2 = root.append("a");
+        NodePath root = new NodePath(PathType.JSON_POINTER);
+        NodePath a1 = root.append("a");
+        NodePath a2 = root.append("a");
         assertEquals(a1, a2);
     }
 
     @Test
     void hashCodeEquals() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
-        JsonNodePath a1 = root.append("a");
-        JsonNodePath a2 = root.append("a");
+        NodePath root = new NodePath(PathType.JSON_POINTER);
+        NodePath a1 = root.append("a");
+        NodePath a2 = root.append("a");
         assertEquals(a1.hashCode(), a2.hashCode());
     }
 
     @Test
     void getPathType() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_POINTER);
+        NodePath root = new NodePath(PathType.JSON_POINTER);
         assertEquals(PathType.JSON_POINTER, root.getPathType());
     }
 
     @Test
     void getElement() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_PATH);
-        JsonNodePath path = root.append("hello").append(1).append("world");
+        NodePath root = new NodePath(PathType.JSON_PATH);
+        NodePath path = root.append("hello").append(1).append("world");
         assertEquals("hello", path.getElement(0));
         assertEquals(Integer.valueOf(1), path.getElement(1));
         assertEquals("world", path.getElement(2));
@@ -113,9 +113,9 @@ class JsonNodePathTest {
     
     @Test
     void startsWith() {
-        JsonNodePath root = new JsonNodePath(PathType.JSON_PATH);
-        JsonNodePath path = root.append("items");
-        JsonNodePath other = root.append("unevaluatedItems");
+        NodePath root = new NodePath(PathType.JSON_PATH);
+        NodePath path = root.append("items");
+        NodePath other = root.append("unevaluatedItems");
         assertTrue(path.startsWith(other.getParent()));
 
         path = root.append("allOf").append(0).append("items");

@@ -47,7 +47,7 @@ class Issue467Test {
     @Test
     void shouldWalkKeywordWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
-        final Set<JsonNodePath> properties = new LinkedHashSet<>();
+        final Set<NodePath> properties = new LinkedHashSet<>();
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
                 .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new WalkListener() {
                     @Override
@@ -76,7 +76,7 @@ class Issue467Test {
     @Test
     void shouldWalkPropertiesWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
-        final Set<JsonNodePath> properties = new LinkedHashSet<>();
+        final Set<NodePath> properties = new LinkedHashSet<>();
         PropertyWalkListenerRunner propertyWalkListenerRunner = PropertyWalkListenerRunner.builder()
                 .propertyWalkListener(new WalkListener() {
                     @Override

@@ -121,7 +121,7 @@ public interface Format {
      * @return true if matches
      */
     default boolean matches(ExecutionContext executionContext, SchemaContext schemaContext, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled, FormatValidator formatValidator) {
+            JsonNode rootNode, NodePath instanceLocation, boolean assertionsEnabled, FormatValidator formatValidator) {
         return matches(executionContext, schemaContext, node);
     }
 
@@ -140,7 +140,7 @@ public interface Format {
      * @param formatValidator the format validator
      */
     default void validate(ExecutionContext executionContext, SchemaContext schemaContext,
-            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean assertionsEnabled,
+            JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean assertionsEnabled,
             Supplier<MessageSourceError.Builder> message,
             FormatValidator formatValidator) {
         if (assertionsEnabled) {

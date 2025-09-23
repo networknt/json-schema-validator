@@ -17,19 +17,19 @@ package com.networknt.schema.result;
 
 import java.util.Objects;
 
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 
 /**
  * Sub schema results.
  */
 public class JsonNodeResult {
-    private final JsonNodePath instanceLocation;
+    private final NodePath instanceLocation;
     private final SchemaLocation schemaLocation;
-    private final JsonNodePath evaluationPath;
+    private final NodePath evaluationPath;
     private final boolean valid;
 
-    public JsonNodeResult(JsonNodePath instanceLocation, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+    public JsonNodeResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
         super();
         this.instanceLocation = instanceLocation;
@@ -38,7 +38,7 @@ public class JsonNodeResult {
         this.valid = valid;
     }
 
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 
@@ -46,7 +46,7 @@ public class JsonNodeResult {
         return schemaLocation;
     }
 
-    public JsonNodePath getEvaluationPath() {
+    public NodePath getEvaluationPath() {
         return evaluationPath;
     }
 

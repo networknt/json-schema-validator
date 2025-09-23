@@ -17,7 +17,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -26,11 +26,11 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for true.
  */
 public class TrueValidator extends BaseKeywordValidator implements KeywordValidator {
-    public TrueValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public TrueValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.TRUE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
         // For the true validator, it is always valid which means there is no Error.
     }

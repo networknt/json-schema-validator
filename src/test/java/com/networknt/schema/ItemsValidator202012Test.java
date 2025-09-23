@@ -80,7 +80,7 @@ class ItemsValidator202012Test {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -122,7 +122,7 @@ class ItemsValidator202012Test {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();

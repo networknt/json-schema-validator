@@ -228,7 +228,7 @@ class SchemaLocationTest {
 
     @Test
     void escapedJsonPointerFragment() {
-        JsonNodePath fragment = SchemaLocation.Fragment.of("/paths/~1users/post/requestBody/application~1json/schema");
+        NodePath fragment = SchemaLocation.Fragment.of("/paths/~1users/post/requestBody/application~1json/schema");
         assertEquals("/paths/~1users/post/requestBody/application~1json/schema", fragment.toString());
         assertEquals(6, fragment.getNameCount());
         assertEquals("paths", fragment.getName(0));

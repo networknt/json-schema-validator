@@ -3,7 +3,7 @@ package com.networknt.schema.walk;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Validator;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 
 public interface Walker {
     /**
@@ -12,7 +12,7 @@ public interface Walker {
      * cross-cutting concerns like logging or instrumentation. This method also
      * performs the validation if {@code shouldValidateSchema} is set to true. <br>
      * <br>
-     * {@link Validator#walk(ExecutionContext, JsonNode, JsonNode, JsonNodePath, boolean)}
+     * {@link Validator#walk(ExecutionContext, JsonNode, JsonNode, NodePath, boolean)}
      * provides a default implementation of this method. However, validators that
      * parse sub-schemas should override this method to call walk method on those
      * sub-schemas.
@@ -25,5 +25,5 @@ public interface Walker {
      * @param shouldValidateSchema true to validate the schema while walking
      */
     void walk(ExecutionContext executionContext, JsonNode instanceNode, JsonNode instance,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema);
+            NodePath instanceLocation, boolean shouldValidateSchema);
 }

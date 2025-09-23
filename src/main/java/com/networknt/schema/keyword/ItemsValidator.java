@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
@@ -42,11 +42,11 @@ public class ItemsValidator extends BaseKeywordValidator {
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    private final JsonNodePath additionalItemsEvaluationPath;
+    private final NodePath additionalItemsEvaluationPath;
     private final SchemaLocation additionalItemsSchemaLocation;
     private final JsonNode additionalItemsSchemaNode;
 
-    public ItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public ItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Boolean additionalItems = null;
@@ -88,7 +88,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (!node.isArray() && !this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
@@ -152,9 +152,9 @@ public class ItemsValidator extends BaseKeywordValidator {
     }
 
     private boolean doValidate(ExecutionContext executionContext, int i, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation) {
+            JsonNode rootNode, NodePath instanceLocation) {
         boolean isAdditionalItem = false;
-        JsonNodePath path = instanceLocation.append(i);
+        NodePath path = instanceLocation.append(i);
 
         if (this.schema != null) {
             // validate with item schema (the whole array has the same item
@@ -194,7 +194,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         boolean collectAnnotations = collectAnnotations();
 
         // Add items annotation
@@ -328,7 +328,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema, String keyword) {
+            NodePath instanceLocation, boolean shouldValidateSchema, String keyword) {
         boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(executionContext, keyword,
                 node, rootNode, instanceLocation, walkSchema, this);
         int currentErrors = executionContext.getErrors().size();

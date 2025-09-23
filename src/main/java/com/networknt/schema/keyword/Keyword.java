@@ -17,7 +17,7 @@
 package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
@@ -46,6 +46,6 @@ public interface Keyword {
      * @throws SchemaException the exception
      * @throws Exception the exception
      */
-    KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception;
 }

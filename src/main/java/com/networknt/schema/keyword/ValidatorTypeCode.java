@@ -17,7 +17,7 @@
 package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 @FunctionalInterface
 interface ValidatorFactory {
-    KeywordValidator newInstance(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    KeywordValidator newInstance(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext);
 }
 
@@ -80,7 +80,7 @@ public enum ValidatorTypeCode implements Keyword {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", ExclusiveMinimumValidator::new, VersionCode.MinV6MaxV7),
     FALSE("false", FalseValidator::new, VersionCode.MinV6),
     FORMAT("format", null, VersionCode.MaxV7) {
-        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
@@ -157,7 +157,7 @@ public enum ValidatorTypeCode implements Keyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         if (this.validatorFactory == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRef;
@@ -876,7 +876,7 @@ class WalkListenerTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }; 
@@ -942,7 +942,7 @@ class WalkListenerTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         };

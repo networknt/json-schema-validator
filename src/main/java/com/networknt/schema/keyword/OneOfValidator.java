@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
@@ -40,7 +40,7 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     private Boolean canShortCircuit = null;
 
-    public OneOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public OneOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.ONE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
@@ -60,12 +60,12 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean walk) {
+            NodePath instanceLocation, boolean walk) {
         
         int numberOfValidSchema = 0;
         int index = 0;
@@ -228,7 +228,7 @@ public class OneOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
             validate(executionContext, node, rootNode, instanceLocation, true);
         } else {

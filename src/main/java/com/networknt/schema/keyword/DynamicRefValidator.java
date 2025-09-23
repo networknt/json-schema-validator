@@ -21,7 +21,7 @@ import com.networknt.schema.CachedSupplier;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
@@ -36,14 +36,14 @@ import java.util.function.Supplier;
 public class DynamicRefValidator extends BaseKeywordValidator {
     protected final SchemaRef schema;
 
-    public DynamicRefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public DynamicRefValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
 
     static SchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
-            JsonNodePath evaluationPath) {
+            NodePath evaluationPath) {
         String ref = resolve(parentSchema, refValue);
         return new SchemaRef(getSupplier(() -> {
             Schema refSchema = schemaContext.getDynamicAnchors().get(ref);
@@ -96,7 +96,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
             Error error = error().keyword(ValidatorTypeCode.DYNAMIC_REF.getValue())
@@ -109,7 +109,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
         // with the latest config. Reset the config.

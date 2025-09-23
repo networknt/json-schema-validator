@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -38,7 +38,7 @@ public class JsonNodeAnnotations {
      * <p>
      * instancePath to annotation
      */
-    private final Map<JsonNodePath, List<JsonNodeAnnotation>> values = new LinkedHashMap<>();
+    private final Map<NodePath, List<JsonNodeAnnotation>> values = new LinkedHashMap<>();
 
     /**
      * Gets the annotations.
@@ -47,7 +47,7 @@ public class JsonNodeAnnotations {
      * 
      * @return the annotations
      */
-    public Map<JsonNodePath, List<JsonNodeAnnotation>> asMap() {
+    public Map<NodePath, List<JsonNodeAnnotation>> asMap() {
         return this.values;
     }
 
@@ -76,7 +76,7 @@ public class JsonNodeAnnotations {
          * @param annotations the annotations
          * @return the formatted JSON
          */
-        public static String format(Map<JsonNodePath, List<JsonNodeAnnotation>> annotations) {
+        public static String format(Map<NodePath, List<JsonNodeAnnotation>> annotations) {
             Map<String, Map<String, Map<String, Object>>> results = new LinkedHashMap<>();
             for (List<JsonNodeAnnotation> list : annotations.values()) {
                 for (JsonNodeAnnotation annotation : list) {

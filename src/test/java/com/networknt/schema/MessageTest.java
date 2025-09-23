@@ -35,7 +35,7 @@ class MessageTest {
     static class EqualsValidator extends BaseKeywordValidator {
         private final String value;
 
-        EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        EqualsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, Keyword keyword,
                 SchemaContext schemaContext) {
             super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
@@ -44,7 +44,7 @@ class MessageTest {
 
         @Override
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                JsonNodePath instanceLocation) {
+                NodePath instanceLocation) {
             if (!node.asText().equals(value)) {
                 executionContext.addError(error().message("must be equal to ''{0}''")
                                 .arguments(value)
@@ -61,7 +61,7 @@ class MessageTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath,
                 JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext)
                 throws SchemaException, Exception {
             return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, schemaContext);

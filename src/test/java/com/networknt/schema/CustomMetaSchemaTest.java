@@ -51,7 +51,7 @@ class CustomMetaSchemaTest {
             private final List<String> enumNames;
             private final String keyword;
 
-            private Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword,
+            private Validator(SchemaLocation schemaLocation, NodePath evaluationPath, String keyword,
                     List<String> enumValues, List<String> enumNames, JsonNode schemaNode) {
                 super(new EnumNamesKeyword(), schemaNode, schemaLocation, evaluationPath);
                 if (enumNames.size() != enumValues.size()) {
@@ -63,7 +63,7 @@ class CustomMetaSchemaTest {
             }
 
             @Override
-            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
                 String value = node.asText();
                 int idx = enumValues.indexOf(value);
                 if (idx < 0) {
@@ -85,7 +85,7 @@ class CustomMetaSchemaTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                                           Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword

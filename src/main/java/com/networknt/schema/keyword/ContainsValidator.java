@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -47,7 +47,7 @@ public class ContainsValidator extends BaseKeywordValidator {
 
     private Boolean hasUnevaluatedItemsValidator = null;
 
-    public ContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public ContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
@@ -81,7 +81,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         // ignores non-arrays
         int actual = 0, i = 0;
         List<Integer> indexes = new ArrayList<>(); // for the annotation
@@ -94,7 +94,7 @@ public class ContainsValidator extends BaseKeywordValidator {
                 List<Error> test = new ArrayList<>();
                 executionContext.setErrors(test);
                 for (JsonNode n : node) {
-                    JsonNodePath path = instanceLocation.append(i);
+                    NodePath path = instanceLocation.append(i);
                     this.schema.validate(executionContext, n, rootNode, path);
                     if (test.isEmpty()) {
                         ++actual;
@@ -185,7 +185,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     }
 
     private void boundsViolated(ExecutionContext executionContext, ValidatorTypeCode validatorTypeCode, Locale locale,
-            JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
+            JsonNode instanceNode, NodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MIN;

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
@@ -36,7 +36,7 @@ import com.networknt.schema.SchemaContext;
 public class AllOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
-    public AllOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public AllOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
@@ -55,11 +55,11 @@ public class AllOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean walk) {
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean walk) {
         for (Schema schema : this.schemas) {
             if (!walk) {
                 schema.validate(executionContext, node, rootNode, instanceLocation);
@@ -98,7 +98,7 @@ public class AllOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;

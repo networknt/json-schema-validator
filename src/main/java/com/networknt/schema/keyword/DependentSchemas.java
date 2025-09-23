@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -31,7 +31,7 @@ import java.util.*;
 public class DependentSchemas extends BaseKeywordValidator {
     private final Map<String, Schema> schemaDependencies = new HashMap<>();
 
-    public DependentSchemas(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public DependentSchemas(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
         super(ValidatorTypeCode.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
@@ -47,12 +47,12 @@ public class DependentSchemas extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean walk) {
+            NodePath instanceLocation, boolean walk) {
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             Schema schema = this.schemaDependencies.get(pname);
@@ -72,7 +72,7 @@ public class DependentSchemas extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema) {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;

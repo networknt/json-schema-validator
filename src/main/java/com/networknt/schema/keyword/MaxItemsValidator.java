@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -29,7 +29,7 @@ import com.networknt.schema.SchemaContext;
 public class MaxItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int max;
 
-    public MaxItemsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public MaxItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             this.max = schemaNode.intValue();
@@ -38,7 +38,7 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (node.isArray()) {

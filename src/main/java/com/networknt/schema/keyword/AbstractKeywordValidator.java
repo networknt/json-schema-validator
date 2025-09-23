@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 
@@ -32,7 +32,7 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
     protected final JsonNode schemaNode;
     protected final SchemaLocation schemaLocation;
 
-    protected final JsonNodePath evaluationPath;
+    protected final NodePath evaluationPath;
 
     /**
      * Constructor.
@@ -41,7 +41,7 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
      * @param schemaLocation the schema location
      * @param evaluationPath the evaluation path
      */
-    public AbstractKeywordValidator(String keyword, JsonNode schemaNode, SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+    public AbstractKeywordValidator(String keyword, JsonNode schemaNode, SchemaLocation schemaLocation, NodePath evaluationPath) {
         this.keyword = keyword;
         this.schemaNode = schemaNode;
         this.schemaLocation = schemaLocation;
@@ -55,7 +55,7 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
      * @param schemaLocation the schema location
      * @param evaluationPath the evaluation path
      */
-    public AbstractKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation, JsonNodePath evaluationPath) {
+    public AbstractKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation, NodePath evaluationPath) {
         this(keyword.getValue(), schemaNode, schemaLocation, evaluationPath);
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractKeywordValidator implements KeywordValidator {
     }
 
     @Override
-    public JsonNodePath getEvaluationPath() {
+    public NodePath getEvaluationPath() {
         return evaluationPath;
     }
 

@@ -20,7 +20,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -29,20 +29,20 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  */
 public class OutputUnitKey {
     @JsonSerialize(using = ToStringSerializer.class)
-    final JsonNodePath evaluationPath;
+    final NodePath evaluationPath;
     @JsonSerialize(using = ToStringSerializer.class)
     final SchemaLocation schemaLocation;
     @JsonSerialize(using = ToStringSerializer.class)
-    final JsonNodePath instanceLocation;
+    final NodePath instanceLocation;
 
-    public OutputUnitKey(JsonNodePath evaluationPath, SchemaLocation schemaLocation, JsonNodePath instanceLocation) {
+    public OutputUnitKey(NodePath evaluationPath, SchemaLocation schemaLocation, NodePath instanceLocation) {
         super();
         this.evaluationPath = evaluationPath;
         this.schemaLocation = schemaLocation;
         this.instanceLocation = instanceLocation;
     }
 
-    public JsonNodePath getEvaluationPath() {
+    public NodePath getEvaluationPath() {
         return evaluationPath;
     }
 
@@ -50,7 +50,7 @@ public class OutputUnitKey {
         return schemaLocation;
     }
 
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 

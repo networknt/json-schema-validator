@@ -191,14 +191,14 @@ public class ExecutionContext {
         return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
     }
 
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
+    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") NodePath instanceLocation) {
         if (this.discriminatorContexts == null) {
             this.discriminatorContexts = new Stack<>();
         }
         this.discriminatorContexts.push(ctx);
     }
 
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
+    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") NodePath instanceLocation) {
         this.discriminatorContexts.pop();
     }
 

@@ -292,7 +292,7 @@ public class SchemaRegistry {
     protected Schema newSchema(final SchemaLocation schemaUri, final JsonNode schemaNode) {
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
         Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
-                new JsonNodePath(schemaContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
+                new NodePath(schemaContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
     }
@@ -321,11 +321,11 @@ public class SchemaRegistry {
         }
     }
 
-    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
+    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
         return doCreate(schemaContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
     }
 
-    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
         return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, evaluationPath,
                 schemaNode, parentSchema, suppressSubSchemaRetrieval);
     }
@@ -527,7 +527,7 @@ public class SchemaRegistry {
             }
 
             final Dialect dialect = getDialectOrDefault(schemaNode);
-            JsonNodePath evaluationPath = new JsonNodePath(getSchemaRegistryConfig().getPathType());
+            NodePath evaluationPath = new NodePath(getSchemaRegistryConfig().getPathType());
             if (schemaUri.getFragment() == null
                     || schemaUri.getFragment().getNameCount() == 0) {
                 // Schema without fragment

@@ -17,15 +17,15 @@ package com.networknt.schema.annotation;
 
 import java.util.function.Predicate;
 
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 
 /**
  * A predicate for filtering annotations.
  */
 public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation> {
-    final Predicate<JsonNodePath> instanceLocationPredicate;
-    final Predicate<JsonNodePath> evaluationPathPredicate;
+    final Predicate<NodePath> instanceLocationPredicate;
+    final Predicate<NodePath> evaluationPathPredicate;
     final Predicate<SchemaLocation> schemaLocationPredicate;
     final Predicate<String> keywordPredicate;
     final Predicate<Object> valuePredicate;
@@ -39,8 +39,8 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
      * @param keywordPredicate          for keyword
      * @param valuePredicate            for value
      */
-    protected JsonNodeAnnotationPredicate(Predicate<JsonNodePath> instanceLocationPredicate,
-            Predicate<JsonNodePath> evaluationPathPredicate, Predicate<SchemaLocation> schemaLocationPredicate,
+    protected JsonNodeAnnotationPredicate(Predicate<NodePath> instanceLocationPredicate,
+            Predicate<NodePath> evaluationPathPredicate, Predicate<SchemaLocation> schemaLocationPredicate,
             Predicate<String> keywordPredicate, Predicate<Object> valuePredicate) {
         super();
         this.instanceLocationPredicate = instanceLocationPredicate;
@@ -64,7 +64,7 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
      * 
      * @return the predicate
      */
-    public Predicate<JsonNodePath> getInstanceLocationPredicate() {
+    public Predicate<NodePath> getInstanceLocationPredicate() {
         return instanceLocationPredicate;
     }
 
@@ -73,7 +73,7 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
      * 
      * @return the predicate
      */
-    public Predicate<JsonNodePath> getEvaluationPathPredicate() {
+    public Predicate<NodePath> getEvaluationPathPredicate() {
         return evaluationPathPredicate;
     }
 
@@ -117,18 +117,18 @@ public class JsonNodeAnnotationPredicate implements Predicate<JsonNodeAnnotation
      * Builder for building a {@link JsonNodeAnnotationPredicate}.
      */
     public static class Builder {
-        Predicate<JsonNodePath> instanceLocationPredicate;
-        Predicate<JsonNodePath> evaluationPathPredicate;
+        Predicate<NodePath> instanceLocationPredicate;
+        Predicate<NodePath> evaluationPathPredicate;
         Predicate<SchemaLocation> schemaLocationPredicate;
         Predicate<String> keywordPredicate;
         Predicate<Object> valuePredicate;
 
-        public Builder instanceLocation(Predicate<JsonNodePath> instanceLocationPredicate) {
+        public Builder instanceLocation(Predicate<NodePath> instanceLocationPredicate) {
             this.instanceLocationPredicate = instanceLocationPredicate;
             return this;
         }
 
-        public Builder evaluationPath(Predicate<JsonNodePath> evaluationPathPredicate) {
+        public Builder evaluationPath(Predicate<NodePath> evaluationPathPredicate) {
             this.evaluationPathPredicate = evaluationPathPredicate;
             return this;
         }

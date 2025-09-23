@@ -136,7 +136,7 @@ class ItemsValidatorTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -174,7 +174,7 @@ class ItemsValidatorTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -218,7 +218,7 @@ class ItemsValidatorTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -270,7 +270,7 @@ class ItemsValidatorTest {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -326,7 +326,7 @@ class ItemsValidatorTest {
 					public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
 						@SuppressWarnings("unchecked")
 						List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-								.getData().computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+								.getData().computeIfAbsent("items", key -> new ArrayList<NodePath>());
 						items.add(walkEvent);
 					}
 				}).build();

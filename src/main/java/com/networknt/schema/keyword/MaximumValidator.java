@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
@@ -41,7 +41,7 @@ public class MaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
 
-    public MaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public MaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("maximum value is not a number");
@@ -111,7 +111,7 @@ public class MaximumValidator extends BaseKeywordValidator {
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (!JsonNodeUtil.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {

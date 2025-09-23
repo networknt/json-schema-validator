@@ -119,11 +119,11 @@ public class SchemaContext {
         }
     }
 
-    public Schema newSchema(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
+    public Schema newSchema(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
         return getSchemaRegistry().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath,
             String keyword /* keyword */, JsonNode schemaNode, Schema parentSchema) {
         return this.dialect.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
     }

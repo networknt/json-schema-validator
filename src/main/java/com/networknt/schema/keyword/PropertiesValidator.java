@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
@@ -46,7 +46,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     
     private Boolean hasUnevaluatedPropertiesValidator;
 
-    public PropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public PropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
@@ -58,12 +58,12 @@ public class PropertiesValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean walk) {
+            NodePath instanceLocation, boolean walk) {
         
 
         Set<String> matchedInstancePropertyNames = null;
@@ -71,7 +71,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         for (Entry<String, Schema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
-                JsonNodePath path = instanceLocation.append(entry.getKey());
+                NodePath path = instanceLocation.append(entry.getKey());
                 if (collectAnnotations) {
                     if (matchedInstancePropertyNames == null) {
                         matchedInstancePropertyNames = new LinkedHashSet<>();
@@ -107,7 +107,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyPropertyDefaults() && null != node
                 && node.getNodeType() == JsonNodeType.OBJECT) {
             applyPropertyDefaults((ObjectNode) node, executionContext);
@@ -162,10 +162,10 @@ public class PropertiesValidator extends BaseKeywordValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, Map.Entry<String, Schema> entry, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema, WalkListenerRunner propertyWalkListenerRunner) {
+            JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema, WalkListenerRunner propertyWalkListenerRunner) {
         Schema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
-        JsonNodePath path = instanceLocation.append(entry.getKey());
+        NodePath path = instanceLocation.append(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
                 ValidatorTypeCode.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema, this);

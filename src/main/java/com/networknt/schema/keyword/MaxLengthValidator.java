@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -31,7 +31,7 @@ import com.networknt.schema.SchemaContext;
 public class MaxLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int maxLength;
 
-    public MaxLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public MaxLengthValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             this.maxLength = schemaNode.intValue();
@@ -40,7 +40,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());

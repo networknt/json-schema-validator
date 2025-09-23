@@ -48,11 +48,11 @@ import java.util.function.Supplier;
 public class Error {
     private final String keyword;
     @JsonSerialize(using = ToStringSerializer.class)
-    private final JsonNodePath evaluationPath;
+    private final NodePath evaluationPath;
     @JsonSerialize(using = ToStringSerializer.class)
     private final SchemaLocation schemaLocation;
     @JsonSerialize(using = ToStringSerializer.class)
-    private final JsonNodePath instanceLocation;
+    private final NodePath instanceLocation;
     private final Object[] arguments;
     private final String messageKey;
     private final Supplier<String> messageSupplier;
@@ -60,8 +60,8 @@ public class Error {
     private final JsonNode instanceNode;
     private final JsonNode schemaNode;
 
-    Error(String keyword, JsonNodePath evaluationPath, SchemaLocation schemaLocation,
-            JsonNodePath instanceLocation, Object[] arguments, Map<String, Object> details,
+    Error(String keyword, NodePath evaluationPath, SchemaLocation schemaLocation,
+            NodePath instanceLocation, Object[] arguments, Map<String, Object> details,
             String messageKey, Supplier<String> messageSupplier, JsonNode instanceNode, JsonNode schemaNode) {
         super();
         this.keyword = keyword;
@@ -82,7 +82,7 @@ public class Error {
      * 
      * @return The path to the input json
      */
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 
@@ -93,7 +93,7 @@ public class Error {
      * 
      * @return the evaluation path
      */
-    public JsonNodePath getEvaluationPath() {
+    public NodePath getEvaluationPath() {
         return evaluationPath;
     }
     
@@ -239,9 +239,9 @@ public class Error {
         public abstract S self();
 
         protected String keyword;
-        protected JsonNodePath evaluationPath;
+        protected NodePath evaluationPath;
         protected SchemaLocation schemaLocation;
-        protected JsonNodePath instanceLocation;
+        protected NodePath instanceLocation;
         protected Object[] arguments;
         protected Map<String, Object> details;
         protected MessageFormat format;
@@ -281,7 +281,7 @@ public class Error {
          * @param instanceLocation the instance location
          * @return the builder
          */
-        public S instanceLocation(JsonNodePath instanceLocation) {
+        public S instanceLocation(NodePath instanceLocation) {
             this.instanceLocation = instanceLocation;
             return self();
         }
@@ -308,7 +308,7 @@ public class Error {
          * @param evaluationPath the evaluation path
          * @return the builder
          */
-        public S evaluationPath(JsonNodePath evaluationPath) {
+        public S evaluationPath(NodePath evaluationPath) {
             this.evaluationPath = evaluationPath;
             return self();
         }
@@ -398,7 +398,7 @@ public class Error {
             return keyword;
         }
 
-        protected JsonNodePath getEvaluationPath() {
+        protected NodePath getEvaluationPath() {
             return evaluationPath;
         }
 
@@ -406,7 +406,7 @@ public class Error {
             return schemaLocation;
         }
 
-        protected JsonNodePath getInstanceLocation() {
+        protected NodePath getInstanceLocation() {
             return instanceLocation;
         }
 

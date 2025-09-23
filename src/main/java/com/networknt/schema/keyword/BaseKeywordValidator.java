@@ -19,6 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
 import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
@@ -40,7 +41,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
 
     public BaseKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation,
             Schema parentSchema, SchemaContext schemaContext,
-            JsonNodePath evaluationPath) {
+            NodePath evaluationPath) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
         this.schemaContext = schemaContext;
 
@@ -71,7 +72,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
             SchemaLocation schemaLocation,
             SchemaContext schemaContext,
             Schema parentSchema,
-            JsonNodePath evaluationPath,
+            NodePath evaluationPath,
             Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
         super(keyword, schemaNode, schemaLocation, evaluationPath);
@@ -99,7 +100,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * <p>
      * This is the dynamic parent schema when following references.
      * 
-     * @see Schema#fromRef(Schema, JsonNodePath)
+     * @see Schema#fromRef(Schema, NodePath)
      * @return the evaluation parent schema
      */
     public Schema getEvaluationParentSchema() {

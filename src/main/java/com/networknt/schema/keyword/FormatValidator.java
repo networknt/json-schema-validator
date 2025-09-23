@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Format;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -38,7 +38,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
 
     private final Format format;
     
-    public FormatValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public FormatValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext, Format format,
             Keyword keyword) {
         super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, schemaContext);
@@ -57,7 +57,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
         return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
     }
     
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
         /*
          * Annotations must be collected even if the format is unknown according to the specification.
@@ -99,7 +99,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements KeywordV
      * @param instanceLocation the instance location
      */
     protected void validateUnknownFormat(ExecutionContext executionContext,
-            JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         /*
          * Unknown formats should create an assertion if the vocab is specified
          * according to the specification.

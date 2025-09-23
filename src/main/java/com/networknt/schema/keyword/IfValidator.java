@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -36,7 +36,7 @@ public class IfValidator extends BaseKeywordValidator {
     private final Schema thenSchema;
     private final Schema elseSchema;
 
-    public IfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public IfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Schema foundIfSchema = null;
@@ -46,7 +46,7 @@ public class IfValidator extends BaseKeywordValidator {
         for (final String keyword : KEYWORDS) {
             final JsonNode node = parentSchema.getSchemaNode().get(keyword);
             final SchemaLocation schemaLocationOfSchema = parentSchema.getSchemaLocation().append(keyword);
-            final JsonNodePath evaluationPathOfSchema = parentSchema.getEvaluationPath().append(keyword);
+            final NodePath evaluationPathOfSchema = parentSchema.getEvaluationPath().append(keyword);
             if (keyword.equals("if")) {
                 foundIfSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
                         parentSchema);
@@ -65,7 +65,7 @@ public class IfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         boolean ifConditionPassed = false;
@@ -106,7 +106,7 @@ public class IfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         boolean checkCondition = node != null && shouldValidateSchema;
         boolean ifConditionPassed = false;
 

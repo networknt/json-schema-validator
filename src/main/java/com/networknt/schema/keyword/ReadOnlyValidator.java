@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -32,13 +32,13 @@ import com.networknt.schema.SchemaContext;
 public class ReadOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
-    public ReadOnlyValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public ReadOnlyValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.READ_ONLY, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
         if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getReadOnly())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)

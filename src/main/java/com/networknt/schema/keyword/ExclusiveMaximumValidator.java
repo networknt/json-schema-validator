@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
@@ -36,7 +36,7 @@ import java.math.BigInteger;
 public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
-    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMaximum value is not a number");
@@ -98,7 +98,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         if (!JsonNodeUtil.isNumber(node, schemaContext.getSchemaRegistryConfig())) {
             // maximum only applies to numbers
             return;

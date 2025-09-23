@@ -30,7 +30,7 @@ class JsonNodeAnnotationsTest {
     void put() {
         JsonNodeAnnotations annotations = new JsonNodeAnnotations();
         JsonNodeAnnotation annotation = new JsonNodeAnnotation("unevaluatedProperties",
-                new JsonNodePath(PathType.JSON_POINTER), SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER),
+                new NodePath(PathType.JSON_POINTER), SchemaLocation.of(""), new NodePath(PathType.JSON_POINTER),
                 "test");
         annotations.put(annotation);
         assertTrue(annotations.asMap().get(annotation.getInstanceLocation()).contains(annotation));

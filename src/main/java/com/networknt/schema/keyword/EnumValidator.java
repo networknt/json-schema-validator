@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -48,7 +48,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         return node.asText();
     }
     
-    public EnumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public EnumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
@@ -92,7 +92,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         if (node.isNumber()) {
             node = processNumberNode(node);
         } else if (node.isArray()) {

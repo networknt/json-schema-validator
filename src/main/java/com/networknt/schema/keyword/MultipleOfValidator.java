@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -32,14 +32,14 @@ import java.math.BigDecimal;
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private final BigDecimal divisor;
 
-    public MultipleOfValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public MultipleOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.divisor = getDivisor(schemaNode);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         
         if (this.divisor != null) {
             BigDecimal dividend = getDividend(node);

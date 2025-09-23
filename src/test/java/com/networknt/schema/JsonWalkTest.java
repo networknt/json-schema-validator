@@ -164,7 +164,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                                           Schema parentSchema, SchemaContext schemaContext) throws SchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
@@ -180,18 +180,18 @@ class JsonWalkTest {
          */
         private static class CustomValidator extends AbstractKeywordValidator {
 
-            CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+            CustomValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
                 super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
             }
 
             @Override
-            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
                 return;
             }
 
             @Override
             public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                    JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+                    NodePath instanceLocation, boolean shouldValidateSchema) {
                 return;
             }
         }

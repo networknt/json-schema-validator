@@ -2,7 +2,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class MinMaxContainsValidator extends BaseKeywordValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public MinMaxContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
             SchemaContext schemaContext) {
         super(ValidatorTypeCode.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
@@ -63,7 +63,7 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         if (this.analysis != null) {
             this.analysis.stream()
             .map(analysis -> error().instanceNode(node)

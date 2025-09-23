@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -50,7 +50,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
      * @param parentSchema      the parent schema
      * @param schemaContext the schema context
      */
-    public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public ContentMediaTypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.contentMediaType = schemaNode.textValue();
@@ -90,7 +90,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         // Ignore non-strings
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {

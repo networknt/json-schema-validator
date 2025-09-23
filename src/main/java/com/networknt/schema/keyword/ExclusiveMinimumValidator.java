@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
@@ -40,7 +40,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public ExclusiveMinimumValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public ExclusiveMinimumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.EXCLUSIVE_MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMinimum value is not a number");
@@ -105,7 +105,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         if (!JsonNodeUtil.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // minimum only applies to numbers
             return;

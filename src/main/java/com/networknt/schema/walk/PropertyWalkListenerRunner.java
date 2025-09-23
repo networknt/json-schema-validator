@@ -18,7 +18,7 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.Error;
@@ -40,7 +40,7 @@ public class PropertyWalkListenerRunner extends AbstractWalkListenerRunner {
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator) {
+            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
                 schema, validator);
         return runPreWalkListeners(propertyWalkListeners, walkEvent);
@@ -48,7 +48,7 @@ public class PropertyWalkListenerRunner extends AbstractWalkListenerRunner {
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator,
+            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator,
             List<Error> errors) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
                 schema, validator);

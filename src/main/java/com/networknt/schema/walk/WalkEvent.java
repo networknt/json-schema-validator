@@ -2,7 +2,7 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.KeywordValidator;
 
@@ -16,7 +16,7 @@ public class WalkEvent {
     private String keyword;
     private JsonNode rootNode;
     private JsonNode instanceNode;
-    private JsonNodePath instanceLocation;
+    private NodePath instanceLocation;
     private KeywordValidator validator;
 
     /**
@@ -77,7 +77,7 @@ public class WalkEvent {
      * 
      * @return the instance location of the instance node
      */
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 
@@ -130,7 +130,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
+        public WalkEventBuilder instanceLocation(NodePath instanceLocation) {
             walkEvent.instanceLocation = instanceLocation;
             return this;
         }

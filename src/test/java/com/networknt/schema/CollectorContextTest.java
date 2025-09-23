@@ -264,7 +264,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
@@ -281,13 +281,13 @@ class CollectorContextTest {
      */
     private class CustomValidator extends AbstractKeywordValidator {
     	private final CustomCollector customCollector = new CustomCollector();
-        public CustomValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+        public CustomValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
             super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
         }
 
 		@Override
 		public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-				JsonNodePath instanceLocation) {
+				NodePath instanceLocation) {
 			CollectorContext collectorContext = executionContext.getCollectorContext();
 			List<String> result = collectorContext.computeIfAbsent(Data.SAMPLE_COLLECTOR,
 					key -> customCollector.supplier().get());
@@ -295,7 +295,7 @@ class CollectorContextTest {
 		}
 
         @Override
-        public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
         }
     }
@@ -354,7 +354,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
                 return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
@@ -372,13 +372,13 @@ class CollectorContextTest {
      * keyword has been used multiple times in JSON Schema.
      */
     private class CustomValidator1 extends AbstractKeywordValidator {
-        public CustomValidator1(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+        public CustomValidator1(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
             super(new CustomKeyword(), schemaNode,schemaLocation, evaluationPath);
         }
 
         @Override
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                JsonNodePath instanceLocation) {
+                NodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             // If collector type is not added to context add one.
@@ -390,7 +390,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+        public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
             // Ignore this method for testing.
         }
     }
@@ -430,7 +430,7 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isBoolean()) {
                 return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
@@ -440,12 +440,12 @@ class CollectorContextTest {
     }
 
     private class CollectValidator extends AbstractKeywordValidator {
-        CollectValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode) {
+        CollectValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
             super(new CollectKeyword(), schemaNode, schemaLocation, evaluationPath);
         }
 
         @Override
-        public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
             // Get an instance of collector context.
             CollectorContext collectorContext = executionContext.getCollectorContext();
             AtomicInteger count = collectorContext.computeIfAbsent("collect",
@@ -455,7 +455,7 @@ class CollectorContextTest {
 
         @Override
         public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+                NodePath instanceLocation, boolean shouldValidateSchema) {
             if (!shouldValidateSchema) {
                 CollectorContext collectorContext = executionContext.getCollectorContext();
                 AtomicInteger count = (AtomicInteger) collectorContext.getData().computeIfAbsent("collect",

@@ -21,7 +21,7 @@ import com.networknt.schema.CachedSupplier;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
@@ -38,14 +38,14 @@ public class RefValidator extends BaseKeywordValidator {
 
     private static final String REF_CURRENT = "#";
 
-    public RefValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public RefValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
 
     static SchemaRef getRefSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
-            JsonNodePath evaluationPath) {
+            NodePath evaluationPath) {
         // The evaluationPath is used to derive the keywordLocation
         final String refValueOriginal = refValue;
 
@@ -157,9 +157,9 @@ public class RefValidator extends BaseKeywordValidator {
                                                   SchemaContext schemaContext,
                                                   String refValue,
                                                   String refValueOriginal,
-                                                  JsonNodePath evaluationPath) {
+                                                  NodePath evaluationPath) {
         // This should be processing json pointer fragments only
-        JsonNodePath fragment = SchemaLocation.Fragment.of(refValue);
+        NodePath fragment = SchemaLocation.Fragment.of(refValue);
         String schemaReference = resolve(parent, refValueOriginal);
         // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
         // recursive update to the map.
@@ -180,7 +180,7 @@ public class RefValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
@@ -194,7 +194,7 @@ public class RefValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
         
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references

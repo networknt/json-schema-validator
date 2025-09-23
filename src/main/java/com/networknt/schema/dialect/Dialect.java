@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.Format;
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
@@ -446,7 +446,7 @@ public class Dialect {
      * @return the validator
      */
     public KeywordValidator newValidator(SchemaContext schemaContext, SchemaLocation schemaLocation,
-            JsonNodePath evaluationPath, String keyword, JsonNode schemaNode, Schema parentSchema) {
+            NodePath evaluationPath, String keyword, JsonNode schemaNode, Schema parentSchema) {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {

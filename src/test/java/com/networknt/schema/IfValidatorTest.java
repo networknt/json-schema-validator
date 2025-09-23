@@ -63,7 +63,7 @@ class IfValidatorTest {
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
                                 .getData()
-                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                                .computeIfAbsent("types", key -> new ArrayList<NodePath>());
                         types.add(walkEvent);
                     }
                 })
@@ -108,7 +108,7 @@ class IfValidatorTest {
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
                                 .getData()
-                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                                .computeIfAbsent("types", key -> new ArrayList<NodePath>());
                         types.add(walkEvent);
                     }
                 })
@@ -154,7 +154,7 @@ class IfValidatorTest {
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
                                 .getData()
-                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                                .computeIfAbsent("types", key -> new ArrayList<NodePath>());
                         types.add(walkEvent);
                     }
                 })
@@ -198,7 +198,7 @@ class IfValidatorTest {
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
                                 .getData()
-                                .computeIfAbsent("types", key -> new ArrayList<JsonNodePath>());
+                                .computeIfAbsent("types", key -> new ArrayList<NodePath>());
                         types.add(walkEvent);
                     }
                 })

@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
@@ -41,7 +41,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
      * @param parentSchema      the parent schema
      * @param schemaContext the schema context
      */
-    public DependenciesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public DependenciesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
         super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
@@ -64,7 +64,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
             List<String> deps = propertyDeps.get(pname);

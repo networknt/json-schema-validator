@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
@@ -36,7 +36,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
 
     private Boolean hasUnevaluatedPropertiesValidator = null;
 
-    public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public PatternPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                       SchemaContext schemaContext) {
         super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isObject()) {
@@ -51,7 +51,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         if (!node.isObject()) {
@@ -65,7 +65,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
             JsonNode n = node.get(name);
             for (Map.Entry<RegularExpression, Schema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
-                    JsonNodePath path = instanceLocation.append(name);
+                    NodePath path = instanceLocation.append(name);
                     int currentErrors = executionContext.getErrors().size();
                     entry.getValue().validate(executionContext, n, rootNode, path);
                     if (currentErrors == executionContext.getErrors().size()) { // No new errors

@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
@@ -39,7 +39,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     private final String propertyName;
     private final Map<String, String> mapping;
 
-    public DiscriminatorValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public DiscriminatorValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
@@ -66,7 +66,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         // Do nothing
     }
 
@@ -137,7 +137,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     public static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
                                                         final ObjectNode discriminator,
                                                         final Schema schema,
-                                                        final JsonNodePath instanceLocation) {
+                                                        final NodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.getSchemaNode().get("discriminator");
         if (null != discriminatorOnSchema && null != currentDiscriminatorContext
                 .getDiscriminatorForPath(schema.getSchemaLocation())) {

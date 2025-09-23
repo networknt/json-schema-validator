@@ -144,7 +144,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
                         .getData()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
@@ -200,7 +200,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                     public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
-                                .getData().computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                                .getData().computeIfAbsent("items", key -> new ArrayList<NodePath>());
                         items.add(walkEvent);
                     }
                 }).build();

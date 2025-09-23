@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -31,7 +31,7 @@ import com.networknt.schema.SchemaContext;
 public class MinLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private int minLength;
 
-    public MinLengthValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public MinLengthValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
@@ -39,7 +39,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
         }
     }
 
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());

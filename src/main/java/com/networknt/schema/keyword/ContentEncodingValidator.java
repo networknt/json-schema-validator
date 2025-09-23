@@ -18,7 +18,7 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
@@ -45,7 +45,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
      * @param parentSchema      the parent schema
      * @param schemaContext the schema context
      */
-    public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
+    public ContentEncodingValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
@@ -67,7 +67,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation) {
+            NodePath instanceLocation) {
         // Ignore non-strings
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
         if (nodeType != JsonType.STRING) {

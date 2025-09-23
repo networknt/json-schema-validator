@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
@@ -45,7 +45,7 @@ public class KeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
     @Override
     public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator) {
+            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {
         boolean continueRunningListenersAndWalk = true;
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode,
                 instanceLocation, schema, validator);
@@ -61,7 +61,7 @@ public class KeywordWalkListenerRunner extends AbstractWalkListenerRunner {
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, Schema schema, KeywordValidator validator,
+            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator,
             List<Error> errors) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode,
                 instanceLocation, schema, validator);

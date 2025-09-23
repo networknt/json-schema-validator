@@ -20,9 +20,9 @@ import java.util.Objects;
 /**
  * Represents a path to a JSON node.
  */
-public class JsonNodePath implements Comparable<JsonNodePath> {
+public class NodePath implements Comparable<NodePath> {
     private final PathType type;
-    private final JsonNodePath parent;
+    private final NodePath parent;
 
     private final String pathSegment;
     private final int pathSegmentIndex;
@@ -30,21 +30,21 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
     private volatile String value = null; // computed lazily
     private int hash = 0; // computed lazily
 
-    public JsonNodePath(PathType type) {
+    public NodePath(PathType type) {
         this.type = type;
         this.parent = null;
         this.pathSegment = null;
         this.pathSegmentIndex = -1;
     }
 
-    private JsonNodePath(JsonNodePath parent, String pathSegment) {
+    private NodePath(NodePath parent, String pathSegment) {
         this.parent = parent;
         this.type = parent.type;
         this.pathSegment = pathSegment;
         this.pathSegmentIndex = -1;
     }
 
-    private JsonNodePath(JsonNodePath parent, int pathSegmentIndex) {
+    private NodePath(NodePath parent, int pathSegmentIndex) {
         this.parent = parent;
         this.type = parent.type;
         this.pathSegment = null;
@@ -56,7 +56,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      *
      * @return the parent
      */
-    public JsonNodePath getParent() {
+    public NodePath getParent() {
         return this.parent;
     }
 
@@ -66,8 +66,8 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      * @param token the child token
      * @return the path
      */
-    public JsonNodePath append(String token) {
-        return new JsonNodePath(this, token);
+    public NodePath append(String token) {
+        return new NodePath(this, token);
     }
 
     /**
@@ -76,8 +76,8 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      * @param index the index
      * @return the path
      */
-    public JsonNodePath append(int index) {
-        return new JsonNodePath(this, index);
+    public NodePath append(int index) {
+        return new NodePath(this, index);
     }
 
     /**
@@ -133,7 +133,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
         if (count < 0) {
             throw new IllegalArgumentException("");
         }
-        JsonNodePath current = this;
+        NodePath current = this;
         for (int x = 0; x < count; x++) {
             current = current.parent;
         }
@@ -157,7 +157,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
      * @param other the other path
      * @return true if the path starts with the other path
      */
-    public boolean startsWith(JsonNodePath other) {
+    public boolean startsWith(NodePath other) {
         int count = getNameCount();
         int otherCount = other.getNameCount();
 
@@ -166,7 +166,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
         } else if (otherCount == count) {
             return this.equals(other);
         } else {
-            JsonNodePath compare = this;
+            NodePath compare = this;
             int x = count - otherCount;
             while (x > 0) {
                 compare = compare.getParent();
@@ -189,7 +189,7 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
         if (result) {
             return true;
         }
-        JsonNodePath path = this.getParent();
+        NodePath path = this.getParent();
         while (path != null) {
             if (segment.equals(path.pathSegment)) {
                 return true;
@@ -232,13 +232,13 @@ public class JsonNodePath implements Comparable<JsonNodePath> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JsonNodePath other = (JsonNodePath) obj;
+        NodePath other = (NodePath) obj;
         return Objects.equals(pathSegment, other.pathSegment) && pathSegmentIndex == other.pathSegmentIndex
                 && type == other.type && Objects.equals(parent, other.parent);
     }
 
     @Override
-    public int compareTo(JsonNodePath other) {
+    public int compareTo(NodePath other) {
         if (this.parent != null && other.parent == null) {
             return 1;
         } else if (this.parent == null && other.parent != null) {

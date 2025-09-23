@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 
 /**
@@ -31,16 +31,16 @@ public class JsonNodeResults {
     /**
      * Stores the invalid results.
      */
-    private final Map<JsonNodePath, List<JsonNodeResult>> values = new HashMap<>();
+    private final Map<NodePath, List<JsonNodeResult>> values = new HashMap<>();
 
-    public void setResult(JsonNodePath instanceLocation, SchemaLocation schemaLocation, JsonNodePath evaluationPath,
+    public void setResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
         JsonNodeResult result = new JsonNodeResult(instanceLocation, schemaLocation, evaluationPath, valid);
         List<JsonNodeResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
         v.add(result);
     }
 
-    public boolean isValid(JsonNodePath instanceLocation, JsonNodePath evaluationPath) {
+    public boolean isValid(NodePath instanceLocation, NodePath evaluationPath) {
         List<JsonNodeResult> instance = values.get(instanceLocation);
         if (instance != null) {
             for (JsonNodeResult result : instance) {

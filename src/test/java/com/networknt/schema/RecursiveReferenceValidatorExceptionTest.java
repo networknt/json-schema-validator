@@ -29,7 +29,7 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
 
         // Act and Assert
         assertThrows(SchemaException.class, () -> {
-            new RecursiveRefValidator(SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER), schemaNode, null, schemaContext);
+            new RecursiveRefValidator(SchemaLocation.of(""), new NodePath(PathType.JSON_POINTER), schemaNode, null, schemaContext);
         });
     }
 

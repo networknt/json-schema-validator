@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.Set;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
+import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Error;
@@ -36,21 +36,21 @@ import com.networknt.schema.Error;
  * HierarchicalOutputUnitFormatter.
  */
 public class HierarchicalOutputUnitFormatter {
-    public static OutputUnit format(OutputUnit root, OutputUnitData data, JsonNodePath rootPath) {
+    public static OutputUnit format(OutputUnit root, OutputUnitData data, NodePath rootPath) {
         Map<OutputUnitKey, Boolean> valid = data.getValid();
         Map<OutputUnitKey, Map<String, Object>> errors = data.getErrors();
         Map<OutputUnitKey, Map<String, Object>> annotations = data.getAnnotations();
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.getDroppedAnnotations();
         
         // Evaluation path to output unit
-        Map<JsonNodePath, Map<JsonNodePath, OutputUnit>> index = new LinkedHashMap<>();
-        Map<JsonNodePath, OutputUnit> r = new LinkedHashMap<>();
+        Map<NodePath, Map<NodePath, OutputUnit>> index = new LinkedHashMap<>();
+        Map<NodePath, OutputUnit> r = new LinkedHashMap<>();
         r.put(rootPath, root);
         index.put(rootPath, r);
         
         // Get all the evaluation paths with data
         // This is a map of evaluation path to instance location
-        Map<JsonNodePath, Set<JsonNodePath>> keys = new LinkedHashMap<>();
+        Map<NodePath, Set<NodePath>> keys = new LinkedHashMap<>();
         errors.keySet().stream().forEach(k -> keys.computeIfAbsent(k.getEvaluationPath(), a -> new LinkedHashSet<>())
                 .add(k.getInstanceLocation()));
         annotations.keySet().stream().forEach(k -> keys
@@ -120,7 +120,7 @@ public class HierarchicalOutputUnitFormatter {
 
         OutputUnitData data = OutputUnitData.from(errors, executionContext, errorMapper);
         
-        return format(root, data, new JsonNodePath(schemaContext.getSchemaRegistryConfig().getPathType()));
+        return format(root, data, new NodePath(schemaContext.getSchemaRegistryConfig().getPathType()));
     }
     
     /**
@@ -132,14 +132,14 @@ public class HierarchicalOutputUnitFormatter {
      * @param keys  that contain all the evaluation paths with instance data
      * @param root  the root output unit
      */
-    protected static void buildIndex(OutputUnitKey key, Map<JsonNodePath, Map<JsonNodePath, OutputUnit>> index,
-            Map<JsonNodePath, Set<JsonNodePath>> keys, OutputUnit root) {
+    protected static void buildIndex(OutputUnitKey key, Map<NodePath, Map<NodePath, OutputUnit>> index,
+            Map<NodePath, Set<NodePath>> keys, OutputUnit root) {
         if (index.containsKey(key.getEvaluationPath())) {
             return;
         }
         // Ensure the path is created
-        JsonNodePath path = key.getEvaluationPath();
-        Deque<JsonNodePath> stack = new ArrayDeque<>();
+        NodePath path = key.getEvaluationPath();
+        Deque<NodePath> stack = new ArrayDeque<>();
         while (path != null && path.getElement(-1) != null) {
             stack.push(path);
             path = path.getParent();
@@ -147,10 +147,10 @@ public class HierarchicalOutputUnitFormatter {
 
         OutputUnit parent = root;
         while (!stack.isEmpty()) {
-            JsonNodePath current = stack.pop();
+            NodePath current = stack.pop();
             if (!index.containsKey(current) && keys.containsKey(current)) {
                 // the index doesn't contain this path but this is a path with data
-                for (JsonNodePath instanceLocation : keys.get(current)) {
+                for (NodePath instanceLocation : keys.get(current)) {
                     OutputUnit child = new OutputUnit();
                     child.setValid(true);
                     child.setEvaluationPath(current.toString());
@@ -166,9 +166,9 @@ public class HierarchicalOutputUnitFormatter {
             // If exists in the index this is the new parent
             // Otherwise this is an evaluation path with no data and hence should be skipped
             // InstanceLocation to OutputUnit
-            Map<JsonNodePath, OutputUnit> result = index.get(current);
+            Map<NodePath, OutputUnit> result = index.get(current);
             if (result != null) {
-                for (Entry<JsonNodePath, OutputUnit> entry : result.entrySet()) {
+                for (Entry<NodePath, OutputUnit> entry : result.entrySet()) {
                     if (key.getInstanceLocation().startsWith(entry.getKey())) {
                         parent = entry.getValue();
                         break;
