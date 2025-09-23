@@ -202,14 +202,15 @@ public interface OutputFormat<T> {
      * <p>
      * This is currently not exposed to consumers.
      */
-    class Result implements OutputFormat<ValidationResult> {
+    class Result implements OutputFormat<com.networknt.schema.Result> {
         @Override
         public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
-        public ValidationResult format(Schema jsonSchema,ExecutionContext executionContext, SchemaContext schemaContext) {
-            return new ValidationResult(executionContext);
+        public com.networknt.schema.Result format(Schema jsonSchema, ExecutionContext executionContext,
+                SchemaContext schemaContext) {
+            return new com.networknt.schema.Result(executionContext);
         }
     }
 }

@@ -61,7 +61,7 @@ class CollectorContextTest {
 
     @Test
     void testCollectorContextWithKeyword() throws Exception {
-        ValidationResult validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
+        Result validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
         Assertions.assertEquals(0, validationResult.getErrors().size());
         List<String> contextValues = validationResult.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
         contextValues.sort(null);
@@ -93,9 +93,9 @@ class CollectorContextTest {
         thread2.join();
         thread3.join();
 
-        ValidationResult validationResult1 = validationRunnable1.getValidationResult();
-        ValidationResult validationResult2 = validationRunnable2.getValidationResult();
-        ValidationResult validationResult3 = validationRunnable3.getValidationResult();
+        Result validationResult1 = validationRunnable1.getValidationResult();
+        Result validationResult2 = validationRunnable2.getValidationResult();
+        Result validationResult3 = validationRunnable3.getValidationResult();
 
         Assertions.assertEquals(0, validationResult1.getErrors().size());
         Assertions.assertEquals(0, validationResult2.getErrors().size());
@@ -117,7 +117,7 @@ class CollectorContextTest {
         executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         jsonSchemaForCombine.validate(executionContext, objectMapper
                 .readTree("{\"property1\":\"sample1\",\"property2\":\"sample2\",\"property3\":\"sample3\" }"));
-        ValidationResult validationResult = new ValidationResult(executionContext);
+        Result validationResult = new Result(executionContext);
         CollectorContext collectorContext = validationResult.getCollectorContext();
         List<String> sampleCollector = collectorContext.get(Data.SAMPLE_COLLECTOR);
         List<String> sampleCollectorOther = collectorContext.get(Data.SAMPLE_COLLECTOR_OTHER);
@@ -222,7 +222,7 @@ class CollectorContextTest {
 
         private final String name;
 
-        private ValidationResult validationResult;
+        private Result validationResult;
         
         ValidationThread(String data, String name) {
             this.name = name;
@@ -242,7 +242,7 @@ class CollectorContextTest {
             }
         }
 
-        ValidationResult getValidationResult() {
+        Result getValidationResult() {
             return this.validationResult;
         }
 
@@ -395,11 +395,11 @@ class CollectorContextTest {
         }
     }
 
-    private ValidationResult validate(String jsonData) throws Exception {
+    private Result validate(String jsonData) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ExecutionContext executionContext = this.jsonSchema.createExecutionContext();
         this.jsonSchema.validate(executionContext, objectMapper.readTree(jsonData));
-        return new ValidationResult(executionContext);
+        return new Result(executionContext);
     }
 
     protected static Map<String, String> getDatasourceMap() {

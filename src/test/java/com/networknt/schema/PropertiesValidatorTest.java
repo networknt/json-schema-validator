@@ -18,7 +18,7 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
             Schema schema = factory.getSchema("{\"type\":\"object\",\"properties\":{\"foo\":{\"type\":\"object\", \"properties\": {} },\"i-have-default\":{\"type\":\"string\",\"default\":\"foo\"}}}");
             JsonNode node = getJsonNodeFromStringContent("{\"foo\": \"bar\"}");
-            ValidationResult result = schema.walk(node, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+            Result result = schema.walk(node, true, executionContext -> executionContext.setWalkConfig(walkConfig));
             Assertions.assertEquals(result.getErrors().size(), 1);
         });
     }

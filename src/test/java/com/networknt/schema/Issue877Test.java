@@ -33,7 +33,7 @@ class Issue877Test {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = jsonSchemaFactory.getSchema(schemaData);
         String input = "{}";
-        ValidationResult result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);
+        Result result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);
         assertEquals(0, result.getErrors().size());
         
         input = "";

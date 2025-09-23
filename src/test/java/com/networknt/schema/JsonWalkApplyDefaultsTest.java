@@ -26,7 +26,7 @@ class JsonWalkApplyDefaultsTest {
         Schema jsonSchema = createSchema();
 		WalkConfig walkConfig = WalkConfig.builder()
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
-        ValidationResult result = jsonSchema.walk(inputNode, shouldValidateSchema, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = jsonSchema.walk(inputNode, shouldValidateSchema, executionContext -> executionContext.setWalkConfig(walkConfig));
         if (shouldValidateSchema) {
             assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                        Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
@@ -49,7 +49,7 @@ class JsonWalkApplyDefaultsTest {
         Schema jsonSchema = createSchema();
 		WalkConfig walkConfig = WalkConfig.builder()
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, false)).build();
-        ValidationResult result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_missingButError: string found, integer expected",
                                                "/outer/goodArray/1: null found, string expected",
@@ -68,7 +68,7 @@ class JsonWalkApplyDefaultsTest {
         Schema jsonSchema = createSchema();
 		WalkConfig walkConfig = WalkConfig.builder()
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false)).build();
-        ValidationResult result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertThat(result.getErrors().stream().map(Error::toString).collect(Collectors.toList()),
                    Matchers.containsInAnyOrder("/outer/mixedObject/intValue_null: null found, integer expected",
                                                "/outer/mixedObject/intValue_missingButError: string found, integer expected",

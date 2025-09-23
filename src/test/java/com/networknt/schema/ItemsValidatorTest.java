@@ -143,7 +143,7 @@ class ItemsValidatorTest {
         WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
@@ -181,7 +181,7 @@ class ItemsValidatorTest {
         WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
@@ -225,7 +225,7 @@ class ItemsValidatorTest {
         WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
@@ -279,7 +279,7 @@ class ItemsValidatorTest {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[\"hello\"]");
-        ValidationResult result = schema.walk(input, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(input, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
@@ -335,7 +335,7 @@ class ItemsValidatorTest {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null, null, null]");
-        ValidationResult result = schema.walk(input, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(input, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")

@@ -34,7 +34,7 @@ class Issue461Test {
 
         Schema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
         JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
-        ValidationResult result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         Assertions.assertTrue(result.getErrors().isEmpty());
     }
 

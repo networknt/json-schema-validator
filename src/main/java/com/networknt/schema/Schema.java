@@ -1043,7 +1043,7 @@ public class Schema implements Validator {
      *
      * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate,
+    public Result walk(ExecutionContext executionContext, JsonNode node, boolean validate,
             ExecutionContextCustomizer executionCustomizer) {
         return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
                 executionCustomizer);
@@ -1076,7 +1076,7 @@ public class Schema implements Validator {
      *
      * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate,
+    public Result walk(ExecutionContext executionContext, JsonNode node, boolean validate,
             Consumer<ExecutionContext> executionCustomizer) {
         return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
                 executionCustomizer);
@@ -1108,7 +1108,7 @@ public class Schema implements Validator {
      *
      * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, JsonNode node, boolean validate) {
+    public Result walk(ExecutionContext executionContext, JsonNode node, boolean validate) {
         return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
                 (ExecutionContextCustomizer) null);
     }
@@ -1122,7 +1122,7 @@ public class Schema implements Validator {
      * @param validate         true to validate the input against the schema
      * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+    public Result walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
             boolean validate) {
         JsonNode node = deserialize(input, inputFormat);
         return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT,
@@ -1157,7 +1157,7 @@ public class Schema implements Validator {
      * @param executionCustomizer the customizer
      * @return the validation result
      */
-    public ValidationResult walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
+    public Result walk(ExecutionContext executionContext, String input, InputFormat inputFormat,
             boolean validate, ExecutionContextCustomizer executionCustomizer) {
         JsonNode node = deserialize(input, inputFormat);
         return walkAtNodeInternal(executionContext, node, node, atRoot(), validate, OutputFormat.RESULT, executionCustomizer);
@@ -1188,7 +1188,7 @@ public class Schema implements Validator {
      * @param validate true to validate the input against the schema
      * @return the validation result
      */
-    public ValidationResult walk(JsonNode node, boolean validate) {
+    public Result walk(JsonNode node, boolean validate) {
         return walk(createExecutionContext(), node, validate);
     }
 
@@ -1200,7 +1200,7 @@ public class Schema implements Validator {
      * @param executionCustomizer the customizer
      * @return the validation result
      */
-    public ValidationResult walk(JsonNode node, boolean validate, ExecutionContextCustomizer executionCustomizer) {
+    public Result walk(JsonNode node, boolean validate, ExecutionContextCustomizer executionCustomizer) {
         return walk(createExecutionContext(), node, validate, executionCustomizer);
     }
 
@@ -1212,7 +1212,7 @@ public class Schema implements Validator {
      * @param executionCustomizer the customizer
      * @return the validation result
      */
-    public ValidationResult walk(JsonNode node, boolean validate, Consumer<ExecutionContext> executionCustomizer) {
+    public Result walk(JsonNode node, boolean validate, Consumer<ExecutionContext> executionCustomizer) {
         return walk(createExecutionContext(), node, validate, executionCustomizer);
     }
 
@@ -1237,7 +1237,7 @@ public class Schema implements Validator {
      * @param validate    true to validate the input against the schema
      * @return the validation result
      */
-    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate) {
+    public Result walk(String input, InputFormat inputFormat, boolean validate) {
         return walk(createExecutionContext(), deserialize(input, inputFormat), validate);
     }
 
@@ -1250,7 +1250,7 @@ public class Schema implements Validator {
      * @param executionCustomizer the customizer
      * @return the validation result
      */
-    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate,
+    public Result walk(String input, InputFormat inputFormat, boolean validate,
             ExecutionContextCustomizer executionCustomizer) {
         return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
     }
@@ -1264,7 +1264,7 @@ public class Schema implements Validator {
      * @param executionCustomizer the customizer
      * @return the validation result
      */
-    public ValidationResult walk(String input, InputFormat inputFormat, boolean validate,
+    public Result walk(String input, InputFormat inputFormat, boolean validate,
             Consumer<ExecutionContext> executionCustomizer) {
         return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
     }
@@ -1279,7 +1279,7 @@ public class Schema implements Validator {
      * @param validate         true to validate the input against the schema
      * @return the validation result
      */
-    public ValidationResult walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public Result walkAtNode(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean validate) {
         return walkAtNodeInternal(executionContext, node, rootNode, instanceLocation, validate, OutputFormat.RESULT,
                 (ExecutionContextCustomizer) null);

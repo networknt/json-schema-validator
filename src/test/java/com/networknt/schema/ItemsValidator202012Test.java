@@ -89,7 +89,7 @@ class ItemsValidator202012Test {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
@@ -131,7 +131,7 @@ class ItemsValidator202012Test {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")

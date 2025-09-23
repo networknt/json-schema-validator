@@ -152,7 +152,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, 
+        Result result = schema.walk(null, true, 
                 executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         
@@ -210,7 +210,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
-        ValidationResult result = schema.walk(input, true,
+        Result result = schema.walk(input, true,
                 executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
         

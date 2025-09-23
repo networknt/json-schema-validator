@@ -20,10 +20,10 @@ import java.util.List;
 /**
  * Represents a validation result.
  */
-public class ValidationResult {
+public class Result {
     private final ExecutionContext executionContext;
 
-    public ValidationResult(ExecutionContext executionContext) {
+    public Result(ExecutionContext executionContext) {
         super();
         this.executionContext = executionContext;
     }

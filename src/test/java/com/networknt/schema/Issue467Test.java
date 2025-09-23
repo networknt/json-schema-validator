@@ -67,7 +67,7 @@ class Issue467Test {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
-        ValidationResult result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertEquals(new HashSet<>(Arrays.asList("/properties", "/properties/tags/items/0/properties")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
         assertEquals(1, result.getErrors().size());
@@ -96,7 +96,7 @@ class Issue467Test {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
-        ValidationResult result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertEquals(
                 new HashSet<>(Arrays.asList("/properties/tags", "/properties/tags/items/0/properties/category", "/properties/tags/items/0/properties/value")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));

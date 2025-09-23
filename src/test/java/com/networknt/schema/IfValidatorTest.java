@@ -73,7 +73,7 @@ class IfValidatorTest {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk("\"false\"", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertFalse(result.getErrors().isEmpty());
 
         List<WalkEvent> types = result.getExecutionContext().getCollectorContext().get("types");
@@ -118,7 +118,7 @@ class IfValidatorTest {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk("\"hello\"", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk("\"hello\"", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertFalse(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
@@ -164,7 +164,7 @@ class IfValidatorTest {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")
@@ -208,7 +208,7 @@ class IfValidatorTest {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
-        ValidationResult result = schema.walk("\"false\"", InputFormat.JSON, false, executionContext -> executionContext.setWalkConfig(walkConfig));
+        Result result = schema.walk("\"false\"", InputFormat.JSON, false, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
 
         @SuppressWarnings("unchecked")

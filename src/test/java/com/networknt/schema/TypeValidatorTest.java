@@ -147,7 +147,7 @@ class TypeValidatorTest {
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
         Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4).getSchema(schemaData);
-        ValidationResult result = schema.walk(null, true);
+        Result result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
     }
 

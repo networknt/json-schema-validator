@@ -489,7 +489,7 @@ class OneOfValidatorTest {
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
         Schema schema = factory.getSchema(schemaContents);
-        ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
+        Result result = schema.walk(jsonContents, InputFormat.JSON, true);
         result.getErrors().forEach(m -> System.out.println(m));
         assertEquals(true, result.getErrors().isEmpty());
     }

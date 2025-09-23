@@ -77,7 +77,7 @@ class JsonWalkTest {
     @Test
     void testWalk() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        ValidationResult result = jsonSchema.walk(
+        Result result = jsonSchema.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false,
                 executionContext -> executionContext.setWalkConfig(walkConfig));
         JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
@@ -98,7 +98,7 @@ class JsonWalkTest {
     void testWalkWithDifferentListeners() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         // This instance of schema contains all listeners.
-        ValidationResult result = jsonSchema.walk(
+        Result result = jsonSchema.walk(
                 objectMapper.readTree(getClass().getClassLoader().getResourceAsStream("data/walk-data.json")), false,
                 executionContext -> executionContext.setWalkConfig(walkConfig));
         JsonNode collectedNode = (JsonNode) result.getCollectorContext().get(SAMPLE_WALK_COLLECTOR_TYPE);
