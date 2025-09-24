@@ -18,15 +18,15 @@ package com.networknt.schema.utils;
 import java.util.function.Supplier;
 
 /**
- * Supplier that caches the output.
+ * {@link Supplier} that caches the value.
  * 
- * @param <T> the type cached
+ * @param <T> the type of results cached by this supplier
  */
-public class CachedSupplier<T> implements Supplier<T> {
+public class ThreadSafeCachingSupplier<T> implements Supplier<T> {
     private volatile Supplier<T> delegate;
     private volatile T cache = null;
 
-    public CachedSupplier(Supplier<T> delegate) {
+    public ThreadSafeCachingSupplier(Supplier<T> delegate) {
         this.delegate = delegate;
     }
 

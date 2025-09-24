@@ -28,10 +28,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test for CachedSupplier.
  */
-class CachedSupplierTest {
+class ThreadSafeCachingSupplierTest {
     @Test
     void nullValue() {
-        CachedSupplier<String> supplier = new CachedSupplier<>(null);
+        ThreadSafeCachingSupplier<String> supplier = new ThreadSafeCachingSupplier<>(null);
         assertNull(supplier.get());
     }
 
@@ -39,7 +39,7 @@ class CachedSupplierTest {
     void concurrency() throws Exception {
         AtomicInteger value = new AtomicInteger(0);
         
-        CachedSupplier<Integer> supplier = new CachedSupplier<>(() -> {
+        ThreadSafeCachingSupplier<Integer> supplier = new ThreadSafeCachingSupplier<>(() -> {
             return value.addAndGet(1);
         });
         Exception[] instance = new Exception[1];

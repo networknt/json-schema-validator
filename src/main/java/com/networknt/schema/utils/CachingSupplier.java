@@ -22,22 +22,23 @@ import java.util.function.Supplier;
  * {@link Supplier} that caches the value.
  * <p>
  * This is not threadsafe.
- * 
- * @param <T> the type of results supplied by this supplier
+ *
+ * @param <T> the type of results cached by this supplier
  */
 public class CachingSupplier<T> implements Supplier<T> {
-    private final Supplier<T> delegate;
-    private T cached = null;
+    private Supplier<T> delegate;
+    private T cache = null;
 
-    public CachingSupplier(Supplier<T> supplier) {
-        this.delegate = supplier;
+    public CachingSupplier(Supplier<T> delegate) {
+        this.delegate = delegate;
     }
 
     @Override
     public T get() {
-        if (this.cached == null) {
-            this.cached = this.delegate.get();
+        if (this.cache == null && this.delegate != null) {
+            this.cache = this.delegate.get();
+            this.delegate = null;
         }
-        return this.cached;
+        return this.cache;
     }
 }

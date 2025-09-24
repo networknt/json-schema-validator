@@ -24,7 +24,7 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
-import com.networknt.schema.utils.CachedSupplier;
+import com.networknt.schema.utils.ThreadSafeCachingSupplier;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 
@@ -57,7 +57,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     }
 
     static <T> Supplier<T> getSupplier(Supplier<T> supplier, boolean cache) {
-        return cache ? new CachedSupplier<>(supplier) : supplier;
+        return cache ? new ThreadSafeCachingSupplier<>(supplier) : supplier;
     }
 
     static Schema getSchema(Schema parentSchema, SchemaContext schemaContext, String refValue,
