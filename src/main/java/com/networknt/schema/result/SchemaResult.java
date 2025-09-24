@@ -17,8 +17,8 @@ package com.networknt.schema.result;
 
 import java.util.Objects;
 
-import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Sub schema results.

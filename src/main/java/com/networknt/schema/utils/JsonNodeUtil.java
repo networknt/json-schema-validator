@@ -6,10 +6,10 @@ import java.util.Collection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
-import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.TypeFactory;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.SchemaContext;
 
 public class JsonNodeUtil {

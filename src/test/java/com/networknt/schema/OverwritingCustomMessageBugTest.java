@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 
 import java.io.InputStream;

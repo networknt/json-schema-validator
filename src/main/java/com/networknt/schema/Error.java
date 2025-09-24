@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.networknt.schema.i18n.MessageFormatter;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.utils.CachingSupplier;
 import com.networknt.schema.utils.StringUtils;
 

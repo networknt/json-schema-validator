@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.networknt.schema.NodePath;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.node.JsonLocationAware;
 import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
 

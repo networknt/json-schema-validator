@@ -28,10 +28,10 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.OutputFormat;
-import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.Error;
 
 /**

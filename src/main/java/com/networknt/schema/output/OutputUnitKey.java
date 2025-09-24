@@ -20,8 +20,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**

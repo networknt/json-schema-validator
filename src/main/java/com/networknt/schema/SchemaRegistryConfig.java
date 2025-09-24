@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import com.networknt.schema.i18n.DefaultMessageSource;
 import com.networknt.schema.i18n.MessageSource;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.regex.ECMAScriptRegularExpressionFactory;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.RegularExpressionFactory;

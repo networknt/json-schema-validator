@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.path;
 
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;

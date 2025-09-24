@@ -34,6 +34,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.keyword.DiscriminatorValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.JsonNodes;
 

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.walk.ItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;

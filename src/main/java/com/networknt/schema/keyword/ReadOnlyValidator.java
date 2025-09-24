@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 /**

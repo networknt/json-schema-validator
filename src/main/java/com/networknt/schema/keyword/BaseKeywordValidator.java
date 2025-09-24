@@ -18,10 +18,10 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 import java.util.Collection;

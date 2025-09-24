@@ -2,9 +2,9 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Encapsulation of Walk data that is passed into the {@link WalkListener}.

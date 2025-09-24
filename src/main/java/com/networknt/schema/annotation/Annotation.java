@@ -17,9 +17,9 @@ package com.networknt.schema.annotation;
 
 import java.util.Objects;
 
-import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.path.NodePath;
 
 /**
  * The annotation.

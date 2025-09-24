@@ -27,6 +27,7 @@ import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Test for messages.

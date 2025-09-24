@@ -17,8 +17,8 @@ package com.networknt.schema.annotation;
 
 import java.util.function.Predicate;
 
-import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 
 /**
  * A predicate for filtering annotations.

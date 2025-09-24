@@ -21,11 +21,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 import java.math.BigDecimal;

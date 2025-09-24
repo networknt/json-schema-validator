@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 /**
  * The schema context associated with a schema and all its validators.

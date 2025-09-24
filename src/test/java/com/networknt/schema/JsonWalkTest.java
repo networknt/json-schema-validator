@@ -9,6 +9,7 @@ import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;

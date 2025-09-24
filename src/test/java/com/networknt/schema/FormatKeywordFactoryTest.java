@@ -27,6 +27,7 @@ import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.Format;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 class FormatKeywordFactoryTest {
     

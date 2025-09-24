@@ -2,6 +2,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.RecursiveRefValidator;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 
 import org.junit.jupiter.api.Test;
 

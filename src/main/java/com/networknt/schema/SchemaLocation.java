@@ -20,6 +20,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
+
 /**
  * The schema location is the canonical IRI of the schema object plus a JSON
  * Pointer fragment indicating the subschema that produced a result. In contrast

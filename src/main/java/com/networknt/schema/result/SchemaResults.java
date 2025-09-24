@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Sub schema results.

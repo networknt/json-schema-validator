@@ -27,9 +27,9 @@ import java.util.function.Function;
 import java.util.Set;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.Error;
 
 /**

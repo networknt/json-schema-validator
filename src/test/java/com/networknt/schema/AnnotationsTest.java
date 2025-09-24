@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.annotation.Annotations;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
 
 /**
  * AnnotationsTest.

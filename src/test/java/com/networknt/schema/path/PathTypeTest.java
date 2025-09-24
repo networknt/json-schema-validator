@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.path;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -2,8 +2,8 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Validator;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.NodePath;
 
 public interface Walker {
     /**

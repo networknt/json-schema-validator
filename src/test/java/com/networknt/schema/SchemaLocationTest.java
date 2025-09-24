@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.path.NodePath;
+
 class SchemaLocationTest {
 
     @Test

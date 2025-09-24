@@ -23,6 +23,7 @@ import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeyword;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 import org.junit.jupiter.api.Test;
 

@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
+
 class NodePathTest {
 
     @Test

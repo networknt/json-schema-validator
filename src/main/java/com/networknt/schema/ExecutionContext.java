@@ -17,6 +17,7 @@
 package com.networknt.schema;
 
 import com.networknt.schema.annotation.Annotations;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.result.SchemaResults;
 import com.networknt.schema.walk.WalkConfig;
 

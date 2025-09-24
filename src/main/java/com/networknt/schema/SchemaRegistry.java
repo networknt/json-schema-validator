@@ -22,6 +22,7 @@ import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.resource.DefaultSchemaLoader;
 import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.resource.SchemaLoaders;
