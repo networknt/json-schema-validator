@@ -33,7 +33,7 @@ public class NotValidator extends BaseKeywordValidator {
     private final Schema schema;
 
     public NotValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.NOT, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.NOT, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 

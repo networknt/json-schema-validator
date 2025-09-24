@@ -29,7 +29,7 @@ public class FalseValidator extends BaseKeywordValidator implements KeywordValid
     private final String reason;
 
     public FalseValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.FALSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.FALSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.reason = this.evaluationPath.getParent().getName(-1);
     }
 

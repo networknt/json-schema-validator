@@ -49,7 +49,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     }
     
     public EnumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();

@@ -35,7 +35,7 @@ interface ValidatorFactory {
             Schema parentSchema, SchemaContext schemaContext);
 }
 
-public enum Keywords implements Keyword {
+public enum KeywordType implements Keyword {
     ADDITIONAL_PROPERTIES("additionalProperties", AdditionalPropertiesValidator::new, SpecificationVersionRange.MaxV7),
     ALL_OF("allOf", AllOfValidator::new, SpecificationVersionRange.MaxV7),
     ANY_OF("anyOf", AnyOfValidator::new, SpecificationVersionRange.MaxV7),
@@ -93,10 +93,10 @@ public enum Keywords implements Keyword {
     WRITE_ONLY("writeOnly", WriteOnlyValidator::new, SpecificationVersionRange.V7),
     ;
 
-    private static final Map<String, Keywords> CONSTANTS = new HashMap<>();
+    private static final Map<String, KeywordType> CONSTANTS = new HashMap<>();
 
     static {
-        for (Keywords c : values()) {
+        for (KeywordType c : values()) {
             CONSTANTS.put(c.value, c);
         }
     }
@@ -105,15 +105,15 @@ public enum Keywords implements Keyword {
     private final ValidatorFactory validatorFactory;
     private final SpecificationVersionRange versionCode;
 
-    Keywords(String value, ValidatorFactory validatorFactory, SpecificationVersionRange versionCode) {
+    KeywordType(String value, ValidatorFactory validatorFactory, SpecificationVersionRange versionCode) {
         this.value = value;
         this.validatorFactory = validatorFactory;
         this.versionCode = versionCode;
     }
 
-    public static List<Keywords> getKeywords(SpecificationVersion versionFlag) {
-        final List<Keywords> result = new ArrayList<>();
-        for (Keywords keyword : values()) {
+    public static List<KeywordType> getKeywords(SpecificationVersion versionFlag) {
+        final List<KeywordType> result = new ArrayList<>();
+        for (KeywordType keyword : values()) {
             if (keyword.getVersionCode().getVersions().contains(versionFlag)) {
                 result.add(keyword);
             }
@@ -121,8 +121,8 @@ public enum Keywords implements Keyword {
         return result;
     }
 
-    public static Keywords fromValue(String value) {
-        Keywords constant = CONSTANTS.get(value);
+    public static KeywordType fromValue(String value) {
+        KeywordType constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         }

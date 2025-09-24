@@ -47,7 +47,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     private Boolean hasUnevaluatedPropertiesValidator;
 
     public PropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
@@ -167,7 +167,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         NodePath path = instanceLocation.append(entry.getKey());
         boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
-                Keywords.PROPERTIES.getValue(), propertyNode, rootNode, path,
+                KeywordType.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema, this);
         if (propertyNode == null && node != null) {
             // Attempt to get the property node again in case the propertyNode was updated
@@ -177,7 +177,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         if (executeWalk) {
             propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema);
         }
-        propertyWalkListenerRunner.runPostWalkListeners(executionContext, Keywords.PROPERTIES.getValue(),
+        propertyWalkListenerRunner.runPostWalkListeners(executionContext, KeywordType.PROPERTIES.getValue(),
                 propertyNode, rootNode, path, propertySchema, this,
                 executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
     }

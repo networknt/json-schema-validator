@@ -37,7 +37,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
     protected final SchemaRef schema;
 
     public DynamicRefValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.DYNAMIC_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
@@ -99,7 +99,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(Keywords.DYNAMIC_REF.getValue())
+            Error error = error().keyword(KeywordType.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
@@ -115,7 +115,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
         // with the latest config. Reset the config.
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(Keywords.DYNAMIC_REF.getValue())
+            Error error = error().keyword(KeywordType.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();

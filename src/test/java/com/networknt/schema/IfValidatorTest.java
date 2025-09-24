@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkConfig;
@@ -50,7 +50,7 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(Keywords.TYPE.getValue(), new WalkListener() {
+                .keywordWalkListener(KeywordType.TYPE.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         return WalkFlow.CONTINUE;
@@ -95,7 +95,7 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(Keywords.TYPE.getValue(), new WalkListener() {
+                .keywordWalkListener(KeywordType.TYPE.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         return WalkFlow.CONTINUE;
@@ -141,7 +141,7 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(Keywords.TYPE.getValue(), new WalkListener() {
+                .keywordWalkListener(KeywordType.TYPE.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         return WalkFlow.CONTINUE;
@@ -185,7 +185,7 @@ class IfValidatorTest {
                 + "  }\r\n"
                 + "}";
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(Keywords.TYPE.getValue(), new WalkListener() {
+                .keywordWalkListener(KeywordType.TYPE.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         return WalkFlow.CONTINUE;

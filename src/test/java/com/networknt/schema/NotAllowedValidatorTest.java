@@ -3,7 +3,7 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.keyword.NotAllowedValidator;
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 
 
 /**
@@ -23,6 +23,6 @@ class NotAllowedValidatorTest extends AbstractJsonSchemaTest {
      */
     @Test
     void testNotAllowedValidatorWorks() {
-        assertValidatorType("notAllowedJson.json", Keywords.NOT_ALLOWED);
+        assertValidatorType("notAllowedJson.json", KeywordType.NOT_ALLOWED);
     }
 }

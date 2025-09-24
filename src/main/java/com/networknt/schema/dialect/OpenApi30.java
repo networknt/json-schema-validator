@@ -6,7 +6,7 @@ import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 
 /**
  * OpenAPI 3.0.
@@ -24,42 +24,42 @@ public class OpenApi30 {
                     .formats(Formats.DEFAULT)
                     .keywords(Arrays.asList(
                             new AnnotationKeyword("title"),
-                            Keywords.PATTERN,
-                            Keywords.REQUIRED,
-                            Keywords.ENUM,
-                            Keywords.MINIMUM,
-                            Keywords.MAXIMUM,
-                            Keywords.MULTIPLE_OF,
-                            Keywords.MIN_LENGTH,
-                            Keywords.MAX_LENGTH,
-                            Keywords.MIN_ITEMS,
-                            Keywords.MAX_ITEMS,
-                            Keywords.UNIQUE_ITEMS,
-                            Keywords.MIN_PROPERTIES,
-                            Keywords.MAX_PROPERTIES,
+                            KeywordType.PATTERN,
+                            KeywordType.REQUIRED,
+                            KeywordType.ENUM,
+                            KeywordType.MINIMUM,
+                            KeywordType.MAXIMUM,
+                            KeywordType.MULTIPLE_OF,
+                            KeywordType.MIN_LENGTH,
+                            KeywordType.MAX_LENGTH,
+                            KeywordType.MIN_ITEMS,
+                            KeywordType.MAX_ITEMS,
+                            KeywordType.UNIQUE_ITEMS,
+                            KeywordType.MIN_PROPERTIES,
+                            KeywordType.MAX_PROPERTIES,
                             
-                            Keywords.TYPE,
-                            Keywords.FORMAT,
+                            KeywordType.TYPE,
+                            KeywordType.FORMAT,
                             new AnnotationKeyword("description"),
-                            Keywords.ITEMS,
-                            Keywords.PROPERTIES,
-                            Keywords.ADDITIONAL_PROPERTIES,
+                            KeywordType.ITEMS,
+                            KeywordType.PROPERTIES,
+                            KeywordType.ADDITIONAL_PROPERTIES,
                             new AnnotationKeyword("default"),
-                            Keywords.ALL_OF,
-                            Keywords.ONE_OF,
-                            Keywords.ANY_OF,
-                            Keywords.NOT,
+                            KeywordType.ALL_OF,
+                            KeywordType.ONE_OF,
+                            KeywordType.ANY_OF,
+                            KeywordType.NOT,
 
                             new AnnotationKeyword("deprecated"),
-                            Keywords.DISCRIMINATOR,
+                            KeywordType.DISCRIMINATOR,
                             new AnnotationKeyword("example"),
                             new AnnotationKeyword("externalDocs"),
                             new NonValidationKeyword("nullable"),
-                            Keywords.READ_ONLY,
-                            Keywords.WRITE_ONLY,
+                            KeywordType.READ_ONLY,
+                            KeywordType.WRITE_ONLY,
                             new AnnotationKeyword("xml"),
                             
-                            Keywords.REF
+                            KeywordType.REF
                     ))
                     .build(); 
         }

@@ -48,7 +48,7 @@ public class ContainsValidator extends BaseKeywordValidator {
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public ContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
@@ -61,14 +61,14 @@ public class ContainsValidator extends BaseKeywordValidator {
             this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional<JsonNode> maxNode = Optional
-                    .ofNullable(parentSchemaNode.get(Keywords.MAX_CONTAINS.getValue()))
+                    .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
                     .filter(JsonNode::canConvertToExactIntegral);
             if (maxNode.isPresent()) {
                 currentMax = maxNode.get().intValue();
             }
 
             Optional<JsonNode> minNode = Optional
-                    .ofNullable(parentSchemaNode.get(Keywords.MIN_CONTAINS.getValue()))
+                    .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
                     .filter(JsonNode::canConvertToExactIntegral);
             if (minNode.isPresent()) {
                 currentMin = minNode.get().intValue();
@@ -114,13 +114,13 @@ public class ContainsValidator extends BaseKeywordValidator {
                 m = this.min;
             }
             if (actual < m) {
-                boundsViolated(executionContext, isMinV201909 ? Keywords.MIN_CONTAINS : Keywords.CONTAINS,
+                boundsViolated(executionContext, isMinV201909 ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
-                boundsViolated(executionContext, isMinV201909 ? Keywords.MAX_CONTAINS : Keywords.CONTAINS,
+                boundsViolated(executionContext, isMinV201909 ? KeywordType.MAX_CONTAINS : KeywordType.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         node, instanceLocation, this.max);
             }
@@ -184,12 +184,12 @@ public class ContainsValidator extends BaseKeywordValidator {
         collectAnnotations(); // cache the flag
     }
 
-    private void boundsViolated(ExecutionContext executionContext, Keywords validatorTypeCode, Locale locale,
+    private void boundsViolated(ExecutionContext executionContext, KeywordType validatorTypeCode, Locale locale,
             JsonNode instanceNode, NodePath instanceLocation, int bounds) {
         String messageKey = "contains";
-        if (Keywords.MIN_CONTAINS.equals(validatorTypeCode)) {
+        if (KeywordType.MIN_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MIN;
-        } else if (Keywords.MAX_CONTAINS.equals(validatorTypeCode)) {
+        } else if (KeywordType.MAX_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MAX;
         }
         executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)

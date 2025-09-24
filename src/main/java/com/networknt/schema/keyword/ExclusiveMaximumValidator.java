@@ -37,7 +37,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
     public ExclusiveMaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMaximum value is not a number");
         }

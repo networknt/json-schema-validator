@@ -7,7 +7,7 @@ import java.util.Map;
 import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 
 /**
  * OpenAPI 3.1.
@@ -37,7 +37,7 @@ public class OpenApi31 {
                     .specificationVersion(SpecificationVersion.DRAFT_2020_12)
                     .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
-                    .keywords(Keywords.getKeywords(SpecificationVersion.DRAFT_2020_12))
+                    .keywords(KeywordType.getKeywords(SpecificationVersion.DRAFT_2020_12))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Collections.singletonList(
                         new NonValidationKeyword("definitions")

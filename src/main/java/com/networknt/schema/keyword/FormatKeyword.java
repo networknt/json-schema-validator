@@ -35,7 +35,7 @@ public class FormatKeyword implements Keyword {
     private final Map<String, Format> formats;
     
     public FormatKeyword(Map<String, Format> formats) {
-        this(Keywords.FORMAT, formats);
+        this(KeywordType.FORMAT, formats);
     }
 
     public FormatKeyword(Keyword type, Map<String, Format> formats) {

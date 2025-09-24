@@ -34,7 +34,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
 
     public MultipleOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.divisor = getDivisor(schemaNode);
     }
 

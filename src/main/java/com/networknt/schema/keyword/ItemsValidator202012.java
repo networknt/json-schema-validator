@@ -39,7 +39,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
 
     public ItemsValidator202012(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.ITEMS_202012, schemaNode, schemaLocation, parentSchema, schemaContext,
+        super(KeywordType.ITEMS_202012, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
@@ -151,7 +151,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         //@formatter:off
         boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
-            Keywords.ITEMS.getValue(),
+            KeywordType.ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,
@@ -163,7 +163,7 @@ public class ItemsValidator202012 extends BaseKeywordValidator {
         }
         executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
-            Keywords.ITEMS.getValue(),
+            KeywordType.ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,

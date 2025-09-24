@@ -23,7 +23,7 @@ import java.util.Set;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 
 /**
  * Represents a vocabulary in meta-schema.
@@ -35,75 +35,75 @@ public class Vocabulary {
     // 2019-09
     public static final Vocabulary DRAFT_2019_09_CORE = new Vocabulary("https://json-schema.org/draft/2019-09/vocab/core",
             new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), new NonValidationKeyword("$anchor"),
-            Keywords.REF, Keywords.RECURSIVE_REF, new NonValidationKeyword("$recursiveAnchor"),
+            KeywordType.REF, KeywordType.RECURSIVE_REF, new NonValidationKeyword("$recursiveAnchor"),
             new NonValidationKeyword("$vocabulary"), new NonValidationKeyword("$comment"),
             new NonValidationKeyword("$defs"));
     public static final Vocabulary DRAFT_2019_09_APPLICATOR = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/applicator", new NonValidationKeyword("additionalItems"),
-            Keywords.UNEVALUATED_ITEMS, Keywords.ITEMS, Keywords.CONTAINS,
-            Keywords.ADDITIONAL_PROPERTIES, Keywords.UNEVALUATED_PROPERTIES,
-            Keywords.PROPERTIES, Keywords.PATTERN_PROPERTIES, Keywords.DEPENDENT_SCHEMAS,
-            Keywords.PROPERTYNAMES, Keywords.IF_THEN_ELSE, new NonValidationKeyword("then"),
-            new NonValidationKeyword("else"), Keywords.ALL_OF, Keywords.ANY_OF,
-            Keywords.ONE_OF, Keywords.NOT);
+            KeywordType.UNEVALUATED_ITEMS, KeywordType.ITEMS, KeywordType.CONTAINS,
+            KeywordType.ADDITIONAL_PROPERTIES, KeywordType.UNEVALUATED_PROPERTIES,
+            KeywordType.PROPERTIES, KeywordType.PATTERN_PROPERTIES, KeywordType.DEPENDENT_SCHEMAS,
+            KeywordType.PROPERTYNAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            new NonValidationKeyword("else"), KeywordType.ALL_OF, KeywordType.ANY_OF,
+            KeywordType.ONE_OF, KeywordType.NOT);
     public static final Vocabulary DRAFT_2019_09_VALIDATION = new Vocabulary(
-            "https://json-schema.org/draft/2019-09/vocab/validation", Keywords.MULTIPLE_OF,
-            Keywords.MAXIMUM, Keywords.EXCLUSIVE_MAXIMUM, Keywords.MINIMUM,
-            Keywords.EXCLUSIVE_MINIMUM, Keywords.MAX_LENGTH, Keywords.MIN_LENGTH,
-            Keywords.PATTERN, Keywords.MAX_ITEMS, Keywords.MIN_ITEMS,
-            Keywords.UNIQUE_ITEMS, Keywords.MAX_CONTAINS, Keywords.MIN_CONTAINS,
-            Keywords.MAX_PROPERTIES, Keywords.MIN_PROPERTIES, Keywords.REQUIRED,
-            Keywords.DEPENDENT_REQUIRED, Keywords.CONST, Keywords.ENUM,
-            Keywords.TYPE);
+            "https://json-schema.org/draft/2019-09/vocab/validation", KeywordType.MULTIPLE_OF,
+            KeywordType.MAXIMUM, KeywordType.EXCLUSIVE_MAXIMUM, KeywordType.MINIMUM,
+            KeywordType.EXCLUSIVE_MINIMUM, KeywordType.MAX_LENGTH, KeywordType.MIN_LENGTH,
+            KeywordType.PATTERN, KeywordType.MAX_ITEMS, KeywordType.MIN_ITEMS,
+            KeywordType.UNIQUE_ITEMS, KeywordType.MAX_CONTAINS, KeywordType.MIN_CONTAINS,
+            KeywordType.MAX_PROPERTIES, KeywordType.MIN_PROPERTIES, KeywordType.REQUIRED,
+            KeywordType.DEPENDENT_REQUIRED, KeywordType.CONST, KeywordType.ENUM,
+            KeywordType.TYPE);
     public static final Vocabulary DRAFT_2019_09_META_DATA = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/meta-data", new AnnotationKeyword("title"),
             new AnnotationKeyword("description"), new AnnotationKeyword("default"), new AnnotationKeyword("deprecated"),
-            Keywords.READ_ONLY, Keywords.WRITE_ONLY, new AnnotationKeyword("examples"));
+            KeywordType.READ_ONLY, KeywordType.WRITE_ONLY, new AnnotationKeyword("examples"));
     public static final Vocabulary DRAFT_2019_09_FORMAT = new Vocabulary("https://json-schema.org/draft/2019-09/vocab/format",
-            Keywords.FORMAT);
+            KeywordType.FORMAT);
     public static final Vocabulary DRAFT_2019_09_CONTENT = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/content", new AnnotationKeyword("contentMediaType"),
             new AnnotationKeyword("contentEncoding"), new AnnotationKeyword("contentSchema"));
 
     // 2020-12
     public static final Vocabulary DRAFT_2020_12_CORE = new Vocabulary("https://json-schema.org/draft/2020-12/vocab/core",
-            new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), Keywords.REF,
-            new NonValidationKeyword("$anchor"), Keywords.DYNAMIC_REF,
+            new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), KeywordType.REF,
+            new NonValidationKeyword("$anchor"), KeywordType.DYNAMIC_REF,
             new NonValidationKeyword("$dynamicAnchor"), new NonValidationKeyword("$vocabulary"),
             new NonValidationKeyword("$comment"), new NonValidationKeyword("$defs"));
     public static final Vocabulary DRAFT_2020_12_APPLICATOR = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/applicator", Keywords.PREFIX_ITEMS,
-            Keywords.ITEMS_202012, Keywords.CONTAINS, Keywords.ADDITIONAL_PROPERTIES,
-            Keywords.PROPERTIES, Keywords.PATTERN_PROPERTIES, Keywords.DEPENDENT_SCHEMAS,
-            Keywords.PROPERTYNAMES, Keywords.IF_THEN_ELSE, new NonValidationKeyword("then"),
-            new NonValidationKeyword("else"), Keywords.ALL_OF, Keywords.ANY_OF,
-            Keywords.ONE_OF, Keywords.NOT);
+            "https://json-schema.org/draft/2020-12/vocab/applicator", KeywordType.PREFIX_ITEMS,
+            KeywordType.ITEMS_202012, KeywordType.CONTAINS, KeywordType.ADDITIONAL_PROPERTIES,
+            KeywordType.PROPERTIES, KeywordType.PATTERN_PROPERTIES, KeywordType.DEPENDENT_SCHEMAS,
+            KeywordType.PROPERTYNAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            new NonValidationKeyword("else"), KeywordType.ALL_OF, KeywordType.ANY_OF,
+            KeywordType.ONE_OF, KeywordType.NOT);
     public static final Vocabulary DRAFT_2020_12_UNEVALUATED = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/unevaluated", Keywords.UNEVALUATED_ITEMS,
-            Keywords.UNEVALUATED_PROPERTIES);
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated", KeywordType.UNEVALUATED_ITEMS,
+            KeywordType.UNEVALUATED_PROPERTIES);
     public static final Vocabulary DRAFT_2020_12_VALIDATION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/validation", Keywords.TYPE, Keywords.CONST,
-            Keywords.ENUM, Keywords.MULTIPLE_OF, Keywords.MAXIMUM,
-            Keywords.EXCLUSIVE_MAXIMUM, Keywords.MINIMUM, Keywords.EXCLUSIVE_MINIMUM,
-            Keywords.MAX_LENGTH, Keywords.MIN_LENGTH, Keywords.PATTERN,
-            Keywords.MAX_ITEMS, Keywords.MIN_ITEMS, Keywords.UNIQUE_ITEMS,
-            Keywords.MAX_CONTAINS, Keywords.MIN_CONTAINS, Keywords.MAX_PROPERTIES,
-            Keywords.MIN_PROPERTIES, Keywords.REQUIRED, Keywords.DEPENDENT_REQUIRED);
+            "https://json-schema.org/draft/2020-12/vocab/validation", KeywordType.TYPE, KeywordType.CONST,
+            KeywordType.ENUM, KeywordType.MULTIPLE_OF, KeywordType.MAXIMUM,
+            KeywordType.EXCLUSIVE_MAXIMUM, KeywordType.MINIMUM, KeywordType.EXCLUSIVE_MINIMUM,
+            KeywordType.MAX_LENGTH, KeywordType.MIN_LENGTH, KeywordType.PATTERN,
+            KeywordType.MAX_ITEMS, KeywordType.MIN_ITEMS, KeywordType.UNIQUE_ITEMS,
+            KeywordType.MAX_CONTAINS, KeywordType.MIN_CONTAINS, KeywordType.MAX_PROPERTIES,
+            KeywordType.MIN_PROPERTIES, KeywordType.REQUIRED, KeywordType.DEPENDENT_REQUIRED);
     public static final Vocabulary DRAFT_2020_12_META_DATA = new Vocabulary(
             "https://json-schema.org/draft/2020-12/vocab/meta-data", new AnnotationKeyword("title"),
             new AnnotationKeyword("description"), new AnnotationKeyword("default"), new AnnotationKeyword("deprecated"),
-            Keywords.READ_ONLY, Keywords.WRITE_ONLY, new AnnotationKeyword("examples"));
+            KeywordType.READ_ONLY, KeywordType.WRITE_ONLY, new AnnotationKeyword("examples"));
     public static final Vocabulary DRAFT_2020_12_FORMAT_ANNOTATION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/format-annotation", Keywords.FORMAT);
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation", KeywordType.FORMAT);
     public static final Vocabulary DRAFT_2020_12_FORMAT_ASSERTION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/format-assertion", Keywords.FORMAT);
+            "https://json-schema.org/draft/2020-12/vocab/format-assertion", KeywordType.FORMAT);
     public static final Vocabulary DRAFT_2020_12_CONTENT = new Vocabulary(
             "https://json-schema.org/draft/2020-12/vocab/content", new AnnotationKeyword("contentEncoding"),
             new AnnotationKeyword("contentMediaType"), new AnnotationKeyword("contentSchema"));
 
     // OpenAPI 3.1
     public static final Vocabulary OPENAPI_3_1_BASE = new Vocabulary("https://spec.openapis.org/oas/3.1/vocab/base",
-            new AnnotationKeyword("example"), Keywords.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
+            new AnnotationKeyword("example"), KeywordType.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
             new AnnotationKeyword("xml"));
 
     private final String iri;

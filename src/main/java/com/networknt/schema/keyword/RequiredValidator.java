@@ -32,7 +32,7 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
     private final List<String> fieldNames;
 
     public RequiredValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isArray()) {
             this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {

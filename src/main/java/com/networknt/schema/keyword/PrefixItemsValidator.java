@@ -39,7 +39,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
     private Boolean hasUnevaluatedItemsValidator = null;
 
     public PrefixItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.PREFIX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (schemaNode instanceof ArrayNode && !schemaNode.isEmpty()) {
             int i = 0;
@@ -156,7 +156,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
         //@formatter:off
         boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
-            Keywords.PREFIX_ITEMS.getValue(),
+            KeywordType.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,
@@ -168,7 +168,7 @@ public class PrefixItemsValidator extends BaseKeywordValidator {
         }
         executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
-            Keywords.PREFIX_ITEMS.getValue(),
+            KeywordType.PREFIX_ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,

@@ -39,7 +39,7 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
     private final String error;
 
     public UnionTypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         StringBuilder errorBuilder = new StringBuilder();
 
         String sep = "";
@@ -57,8 +57,8 @@ public class UnionTypeValidator extends BaseKeywordValidator implements KeywordV
             sep = ", ";
 
             if (n.isObject()) {
-                schemas.add(schemaContext.newSchema(schemaLocation.append(Keywords.TYPE.getValue()),
-                        evaluationPath.append(Keywords.TRUE.getValue()), n, parentSchema));
+                schemas.add(schemaContext.newSchema(schemaLocation.append(KeywordType.TYPE.getValue()),
+                        evaluationPath.append(KeywordType.TRUE.getValue()), n, parentSchema));
             } else {
                 schemas.add(new TypeValidator(schemaLocation.append(i), evaluationPath.append(i), n, parentSchema,
                         schemaContext));

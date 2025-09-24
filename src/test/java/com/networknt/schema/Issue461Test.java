@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
@@ -26,7 +26,7 @@ class Issue461Test {
     @Test
     void shouldWalkWithValidation() throws IOException {
     	KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(Keywords.PROPERTIES.getValue(), new Walker())
+                .keywordWalkListener(KeywordType.PROPERTIES.getValue(), new Walker())
                 .build();
         WalkConfig walkConfig = WalkConfig.builder()
                 .keywordWalkListenerRunner(keywordWalkListenerRunner)

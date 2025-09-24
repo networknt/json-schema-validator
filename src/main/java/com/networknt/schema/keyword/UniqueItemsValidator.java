@@ -33,7 +33,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
     private final boolean unique;
 
     public UniqueItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         } else {

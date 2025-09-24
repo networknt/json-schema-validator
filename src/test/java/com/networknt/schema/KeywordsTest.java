@@ -19,7 +19,7 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.keyword.Keywords;
+import com.networknt.schema.keyword.KeywordType;
 
 import java.util.List;
 
@@ -29,24 +29,24 @@ class KeywordsTest {
 
     @Test
     void testFromValueString() {
-        assertEquals(Keywords.ADDITIONAL_PROPERTIES, Keywords.fromValue("additionalProperties"));
+        assertEquals(KeywordType.ADDITIONAL_PROPERTIES, KeywordType.fromValue("additionalProperties"));
     }
 
     @Test
     void testFromValueMissing() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(Keywords.ADDITIONAL_PROPERTIES, Keywords.fromValue("missing")));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(KeywordType.ADDITIONAL_PROPERTIES, KeywordType.fromValue("missing")));
     }
 
     @Test
     void testIfThenElseNotInV4() {
-        List<Keywords> list = Keywords.getKeywords(SpecificationVersion.DRAFT_4);
-        Assertions.assertFalse(list.contains(Keywords.fromValue("if")));
+        List<KeywordType> list = KeywordType.getKeywords(SpecificationVersion.DRAFT_4);
+        Assertions.assertFalse(list.contains(KeywordType.fromValue("if")));
     }
 
     @Test
     void testExclusiveMaximumNotInV4() {
-        List<Keywords> list = Keywords.getKeywords(SpecificationVersion.DRAFT_4);
-        Assertions.assertFalse(list.contains(Keywords.fromValue("exclusiveMaximum")));
+        List<KeywordType> list = KeywordType.getKeywords(SpecificationVersion.DRAFT_4);
+        Assertions.assertFalse(list.contains(KeywordType.fromValue("exclusiveMaximum")));
     }
 
 }

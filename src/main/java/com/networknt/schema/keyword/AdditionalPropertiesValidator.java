@@ -47,7 +47,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
 
     public AdditionalPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                          SchemaContext schemaContext) {
-        super(Keywords.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.ADDITIONAL_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isBoolean()) {
             allowAdditionalProperties = schemaNode.booleanValue();
             additionalPropertiesSchema = null;

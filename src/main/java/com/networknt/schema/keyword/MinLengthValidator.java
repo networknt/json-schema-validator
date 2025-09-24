@@ -32,7 +32,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
     private int minLength;
 
     public MinLengthValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(Keywords.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();
