@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.Error;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.serialization.JsonNodeReader;
@@ -86,7 +86,7 @@ class JsonNodesTest {
         String inputData = "{\r\n"
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         Schema schema = factory.getSchema(schemaData, InputFormat.JSON);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
@@ -131,7 +131,7 @@ class JsonNodesTest {
                 + "    minLength: 6\r\n";
         String inputData = "---\r\n"
                 + "startDate: '1'\r\n";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
         Schema schema = factory.getSchema(schemaData, InputFormat.YAML);
         List<Error> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {

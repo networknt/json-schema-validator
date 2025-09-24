@@ -34,7 +34,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
-    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
 
     private static final ObjectMapper mapper = new ObjectMapper();
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
@@ -182,7 +182,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         };
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
 
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
@@ -298,7 +298,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
-            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
             Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
 

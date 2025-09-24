@@ -14,7 +14,7 @@ import java.util.List;
 class Issue426Test {
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("message").build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(schemaContent);
     }
 

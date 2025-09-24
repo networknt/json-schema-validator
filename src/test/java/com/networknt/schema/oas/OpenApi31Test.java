@@ -26,7 +26,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.Error;
 
@@ -39,7 +39,7 @@ class OpenApi31Test {
      */
     @Test
     void validateVocabulary() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
         Schema schema = factory

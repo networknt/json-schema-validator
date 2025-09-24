@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -54,7 +53,7 @@ class ContentSchemaValidatorTest {
                 + "        ]\r\n"
                 + "    }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
         String inputData = "\"helloworld\"";

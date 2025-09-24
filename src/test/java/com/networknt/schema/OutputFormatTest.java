@@ -17,12 +17,11 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.utils.CachingSupplier;
 
 class OutputFormatTest {
 
-    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
     private static final String schemaPath1 = "/schema/output-format-schema.json";
 
     private JsonNode getJsonNodeFromJsonData(String jsonFilePath) throws Exception {
@@ -106,7 +105,7 @@ class OutputFormatTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12)
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
                 .getSchema(schemaData, InputFormat.JSON);
         String inputData = "{\n"
                 + "  \"type\": \"cat\",\n"

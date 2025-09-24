@@ -46,7 +46,7 @@ class JsonSchemaFactoryUriCacheTest {
     }
 
     private SchemaRegistry buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
-        return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12))
+        return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12))
                 .enableSchemaCache(enableSchemaCache)
                 .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
                 .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012()))

@@ -14,7 +14,7 @@ class Issue792 {
     void test() throws JsonProcessingException {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).failFast(true).build();
 
-        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
 
         String schemaDef =
                 "{\n" +

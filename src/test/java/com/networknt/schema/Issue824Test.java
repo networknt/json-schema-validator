@@ -15,7 +15,7 @@ class Issue824Test {
     @Test
     void validate() throws JsonProcessingException {
         final Schema v201909SpecSchema = SchemaRegistry
-                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09))
+                .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()

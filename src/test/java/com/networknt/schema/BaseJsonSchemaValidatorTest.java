@@ -47,14 +47,14 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static Schema getJsonSchemaFromClasspath(String name) {
-        return getJsonSchemaFromClasspath(name, Specification.Version.DRAFT_4, null);
+        return getJsonSchemaFromClasspath(name, SpecificationVersion.DRAFT_4, null);
     }
 
-    public static Schema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion) {
+    public static Schema getJsonSchemaFromClasspath(String name, SpecificationVersion schemaVersion) {
         return getJsonSchemaFromClasspath(name, schemaVersion, null);
     }
 
-    public static Schema getJsonSchemaFromClasspath(String name, Specification.Version schemaVersion, SchemaRegistryConfig config) {
+    public static Schema getJsonSchemaFromClasspath(String name, SpecificationVersion schemaVersion, SchemaRegistryConfig config) {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(schemaVersion, builder -> builder.schemaRegistryConfig(config));
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
@@ -62,17 +62,17 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static Schema getJsonSchemaFromStringContent(String schemaContent) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(schemaContent);
     }
 
     public static Schema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(SchemaLocation.of(uri));
     }
 
     public static Schema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(jsonNode);
     }
 

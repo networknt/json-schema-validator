@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * ErrorHandlerTest.
  */
@@ -53,7 +51,7 @@ class ErrorHandlerTest {
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("errorMessage").build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
@@ -84,7 +82,7 @@ class ErrorHandlerTest {
                 + "  \"keyword1\": 2\r\n"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("errorMessage").build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertFalse(messages.isEmpty());
         assertEquals("/keyword1", messages.get(0).getInstanceLocation().toString());

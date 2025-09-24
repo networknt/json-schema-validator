@@ -21,7 +21,7 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
     void testInvalidRecursiveReference() {
         // Arrange
         String invalidSchemaJson = "{ \"$recursiveRef\": \"invalid\" }";
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema jsonSchema = jsonSchemaFactory.getSchema(invalidSchemaJson);
         JsonNode schemaNode = jsonSchema.getSchemaNode();
         SchemaContext schemaContext = new SchemaContext(jsonSchema.getSchemaContext().getDialect(),

@@ -144,7 +144,7 @@ class JsonWalkTest {
                 + "                }\n"
                 + "            }";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaContents);
         JsonNode missingNode = MissingNode.getInstance();
         assertDoesNotThrow(() -> schema.walk(missingNode, true));

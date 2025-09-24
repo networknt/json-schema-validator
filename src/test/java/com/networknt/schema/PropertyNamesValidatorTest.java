@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * PropertyNamesValidatorTest.
  */
@@ -38,7 +36,7 @@ class PropertyNamesValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"propertyNames\": {\"maxLength\": 3}\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\": {},\r\n"

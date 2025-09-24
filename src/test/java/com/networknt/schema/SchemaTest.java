@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * Tests for JsonSchemaFactory.
  */
@@ -56,7 +54,7 @@ class SchemaTest {
                 + "  \"name\": 1\r\n"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().preloadSchema(false).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaRegistryConfig(config)
                         .schemaLoaders(schemaLoaders -> schemaLoaders
                         .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));

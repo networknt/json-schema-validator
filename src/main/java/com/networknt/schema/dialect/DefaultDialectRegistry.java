@@ -27,7 +27,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 
 /**
  * Default {@link DialectRegistry}.
@@ -60,9 +60,9 @@ public class DefaultDialectRegistry implements DialectRegistry {
     protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory) {
         Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri));
         Dialect.Builder builder = Dialect.builder(iri, schema.getSchemaContext().getDialect());
-        Version specification = schema.getSchemaContext().getDialect().getSpecification();
+        SpecificationVersion specification = schema.getSchemaContext().getDialect().getSpecificationVersion();
         if (specification != null) {
-            if (specification.getOrder() >= Version.DRAFT_2019_09.getOrder()) {
+            if (specification.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder()) {
                 // Process vocabularies
                 JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
                 if (vocabulary != null) {

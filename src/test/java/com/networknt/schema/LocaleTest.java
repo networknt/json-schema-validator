@@ -28,13 +28,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class LocaleTest {
     private Schema getSchema(SchemaRegistryConfig config) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(
                 "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }"
                 );
@@ -88,7 +87,7 @@ class LocaleTest {
                     + "  \"$id\": \"https://www.example.com\",\r\n"
                     + "  \"type\": \"object\"\r\n"
                     + "}";
-            Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7)
+            Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7)
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             String input = "1";
             List<Error> messages = jsonSchema.validate(input, InputFormat.JSON);
@@ -96,7 +95,7 @@ class LocaleTest {
             assertEquals(": integer gefunden, object erwartet", messages.iterator().next().toString());
             
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().locale(Locale.ENGLISH).build();
-            jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config))
+            jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config))
                     .getSchema(JsonMapperFactory.getInstance().readTree(schema));
             messages = jsonSchema.validate(input, InputFormat.JSON);
             assertEquals(1, messages.size());
@@ -154,7 +153,7 @@ class LocaleTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"maxLength\": 5\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schemaData);
         List<Locale> locales = Locales.getSupportedLocales();
         for (Locale locale : locales) {
             List<Error> messages = schema.validate("\"aaaaaa\"", InputFormat.JSON, executionContext -> {

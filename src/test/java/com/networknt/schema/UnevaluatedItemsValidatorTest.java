@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * UnevaluatedItemsValidatorTest.
  */
@@ -43,7 +41,7 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : false\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -69,7 +67,7 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : { \"type\" : \"string\" }\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());

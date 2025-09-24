@@ -22,7 +22,6 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.annotation.Annotation;
 
 import static com.networknt.schema.keyword.VersionCode.MinV202012;
@@ -43,7 +42,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
             Schema parentSchema, SchemaContext schemaContext) {
         super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
-        isMinV202012 = MinV202012.getVersions().contains(schemaContext.getDialect().getSpecification());
+        isMinV202012 = MinV202012.getVersions().contains(schemaContext.getDialect().getSpecificationVersion());
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
         } else {

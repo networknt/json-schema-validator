@@ -17,7 +17,6 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
@@ -174,7 +173,7 @@ public class SchemaRegistry {
      * Builder without keywords or formats.
      * <p>
      * Typically {@link #builder(SchemaRegistry)} or
-     * {@link #withDefaultDialect(Version)} or {@link #withDialect(Dialect)} would be used instead.
+     * {@link #withDefaultDialect(SpecificationVersion)} or {@link #withDialect(Dialect)} would be used instead.
      *
      * @return a builder instance without any keywords or formats - usually not what
      *         one needs.
@@ -192,7 +191,7 @@ public class SchemaRegistry {
      *                             not specify the $schema keyword
      * @return the factory
      */
-    public static SchemaRegistry withDefaultDialect(Specification.Version specificationVersion) {
+    public static SchemaRegistry withDefaultDialect(SpecificationVersion specificationVersion) {
         return withDefaultDialect(specificationVersion, null);
     }
 
@@ -206,7 +205,7 @@ public class SchemaRegistry {
      * @param customizer           to customize the registry
      * @return the factory
      */
-    public static SchemaRegistry withDefaultDialect(Specification.Version specificationVersion,
+    public static SchemaRegistry withDefaultDialect(SpecificationVersion specificationVersion,
             Consumer<SchemaRegistry.Builder> customizer) {
         Dialect dialect = Specification.getDialect(specificationVersion);
         return withDefaultDialectId(dialect.getId(), customizer);
@@ -628,7 +627,7 @@ public class SchemaRegistry {
      */
     static protected String normalizeDialectId(String id) {
         boolean found = false;
-        for (Version flag : Specification.Version.values()) {
+        for (SpecificationVersion flag : SpecificationVersion.values()) {
             if(flag.getDialectId().equals(id)) {
                 found = true;
                 break;

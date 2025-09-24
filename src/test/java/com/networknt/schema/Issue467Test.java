@@ -64,7 +64,7 @@ class Issue467Test {
         WalkConfig walkConfig = WalkConfig.builder()
                 .keywordWalkListenerRunner(keywordWalkListenerRunner)
                 .build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -93,7 +93,7 @@ class Issue467Test {
         WalkConfig walkConfig = WalkConfig.builder()
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
                 .build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
         JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
         Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));

@@ -42,7 +42,7 @@ class ReadOnlyValidatorTest {
 	}
 
 	private Schema getJsonSchema() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
 		InputStream schema = getClass().getClassLoader().getResourceAsStream("schema/read-only-schema.json");
 		return factory.getSchema(schema);
 	}

@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * Test TypeValidator validator.
  */
@@ -52,7 +50,7 @@ class TypeValidatorTest {
 
     @Test
     void testTypeLoose() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
         String inputData = "{\r\n"
@@ -79,7 +77,7 @@ class TypeValidatorTest {
 
         // With type loose this has 0 type errors as any item can also be interpreted as an array of 1 item
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
-        factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
         Schema typeLoose = factory.getSchema(schemaData);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -102,7 +100,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         messages = schema.validate("2.0", InputFormat.JSON);
@@ -131,7 +129,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4).getSchema(schemaData);
         List<Error> messages = schema.validate("1", InputFormat.JSON);
         assertEquals(0, messages.size());
         // The logic in JsonNodeUtil specifically excludes V4 from this handling
@@ -146,7 +144,7 @@ class TypeValidatorTest {
         String schemaData = "{\r\n"
                 + "  \"type\": \"integer\"\r\n"
                 + "}";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4).getSchema(schemaData);
         Result result = schema.walk(null, true);
         assertTrue(result.getErrors().isEmpty());
     }
@@ -175,7 +173,7 @@ class TypeValidatorTest {
                 + "  }\r\n"
                 + "}";
         // nullable keyword enabled false
-        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7); 
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7); 
         final Schema validator = factory.getSchema(schemaData);
 
         final List<Error> errors = validator.validate(inputData, InputFormat.JSON);

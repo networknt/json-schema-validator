@@ -15,7 +15,7 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
     void testDoesNotThrowWhenApplyingDefaultPropertiesToNonObjects() throws Exception {
         Assertions.assertDoesNotThrow(() -> {
             WalkConfig walkConfig = WalkConfig.builder().applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
-            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
             Schema schema = factory.getSchema("{\"type\":\"object\",\"properties\":{\"foo\":{\"type\":\"object\", \"properties\": {} },\"i-have-default\":{\"type\":\"string\",\"default\":\"foo\"}}}");
             JsonNode node = getJsonNodeFromStringContent("{\"foo\": \"bar\"}");
             Result result = schema.walk(node, true, executionContext -> executionContext.setWalkConfig(walkConfig));

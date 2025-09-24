@@ -25,7 +25,7 @@ import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 
 /**
  * Test for AllowSchemaLoader.
@@ -34,7 +34,7 @@ class AllowSchemaLoaderTest {
 
     @Test
     void integration() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                         .add(new AllowSchemaLoader(iri -> iri.toString().startsWith("classpath:")))));
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,

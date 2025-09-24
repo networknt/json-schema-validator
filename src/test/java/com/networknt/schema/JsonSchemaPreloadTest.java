@@ -18,8 +18,6 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * Test to control preloading of schemas.
  */
@@ -27,7 +25,7 @@ class JsonSchemaPreloadTest {
     @Test
     void cacheRefsFalse() {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().cacheRefs(false).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"));
     }
 
@@ -36,7 +34,7 @@ class JsonSchemaPreloadTest {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .preloadSchemaRefMaxNestingDepth(20)
                 .build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"));
     }
 }

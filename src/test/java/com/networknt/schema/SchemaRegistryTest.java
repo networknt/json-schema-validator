@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.Dialect;
 
 /**
@@ -47,7 +46,7 @@ class SchemaRegistryTest {
                 + "    { \"$ref\": \"https://json-schema.org/draft/2020-12/meta/core\" }\r\n"
                 + "  ]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                         metaSchemaData))));
         AtomicBoolean failed = new AtomicBoolean(false);

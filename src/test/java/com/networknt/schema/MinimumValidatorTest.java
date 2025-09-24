@@ -38,7 +38,7 @@ class MinimumValidatorTest {
     private static final String INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"minimum\": %s }";
     private static final String NEGATIVE_MESSAGE_TEMPLATE = "Expecting validation errors, value %s is smaller than minimum %s";
     private static final String POSITIVT_MESSAGE_TEMPLATE = "Expecting no validation errors, value %s is greater than minimum %s";
-    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
 
     private static ObjectMapper mapper;
     private static ObjectMapper bigDecimalMapper;
@@ -173,7 +173,7 @@ class MinimumValidatorTest {
             String value = aTestCycle[1];
             String schema = format(NUMBER, minimum);
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
-            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
 
             // Schema and document parsed with just double
             Schema v = factory.getSchema(mapper.readTree(schema));
@@ -290,7 +290,7 @@ class MinimumValidatorTest {
             String value = aTestCycle[1];
             String schema = format(integer, minimum);
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
-            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
             Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = bigIntegerMapper.readTree(value);
 

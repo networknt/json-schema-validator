@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 class SchemaLocationTest {
 
     @Test
@@ -217,7 +215,7 @@ class SchemaLocationTest {
 
     @Test
     void shouldLoadEscapedFragment() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(SchemaLocation
                 .of("classpath:schema/example-escaped.yaml#/paths/~1users/post/requestBody/application~1json/schema"));
         List<Error> result = schema.validate("1", InputFormat.JSON);

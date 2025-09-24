@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.Dialects;
 
 /**
@@ -66,7 +65,7 @@ class OneOfValidatorTest {
                 + "  \"world\" : \"test\"\r\n"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size()); // even if more than 1 matches the mismatch errors are still reported
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -108,7 +107,7 @@ class OneOfValidatorTest {
                 + "  \"test\" : 1\r\n"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(4, messages.size());
         List<Error> assertions = messages.stream().collect(Collectors.toList());
@@ -140,7 +139,7 @@ class OneOfValidatorTest {
                 + "    \"$ref\": \"#/defs/User\"\r\n"
                 + "  }\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         SchemaException ex = assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
@@ -188,7 +187,7 @@ class OneOfValidatorTest {
                 + "          type: integer";
         
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12,
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                                 .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
@@ -262,7 +261,7 @@ class OneOfValidatorTest {
                 + "        - age";
         
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12,
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                         builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
                                 .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
@@ -487,7 +486,7 @@ class OneOfValidatorTest {
 
         String jsonContents = "{}";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaContents);
         Result result = schema.walk(jsonContents, InputFormat.JSON, true);
         result.getErrors().forEach(m -> System.out.println(m));

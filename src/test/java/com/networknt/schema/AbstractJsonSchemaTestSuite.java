@@ -16,7 +16,6 @@
 
 package com.networknt.schema;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 import com.networknt.schema.resource.InputStreamSource;
@@ -149,7 +148,7 @@ abstract class AbstractJsonSchemaTestSuite {
         );
     }
 
-    protected Stream<DynamicNode> createTests(Version defaultVersion, String basePath) {
+    protected Stream<DynamicNode> createTests(SpecificationVersion defaultVersion, String basePath) {
         return findTestCases(basePath)
                 .stream()
                 .peek(System.out::println)
@@ -164,7 +163,7 @@ abstract class AbstractJsonSchemaTestSuite {
         return Optional.empty();
     }
 
-    private Stream<DynamicNode> buildContainers(Version defaultVersion, Path path) {
+    private Stream<DynamicNode> buildContainers(SpecificationVersion defaultVersion, Path path) {
         boolean disabled = !enabled(path);
         String reason = reason(path).orElse("Unknown");
         return TestSource.loadFrom(path, disabled, reason)
@@ -172,11 +171,11 @@ abstract class AbstractJsonSchemaTestSuite {
                 .orElse(Stream.empty());
     }
 
-    private Stream<DynamicNode> buildContainer(Version defaultVersion, TestSource testSource) {
+    private Stream<DynamicNode> buildContainer(SpecificationVersion defaultVersion, TestSource testSource) {
         return testSource.getTestCases().stream().map(testCase -> buildContainer(defaultVersion, testCase));
     }
 
-    private DynamicNode buildContainer(Version defaultVersion, TestCase testCase) {
+    private DynamicNode buildContainer(SpecificationVersion defaultVersion, TestCase testCase) {
         try {
             return dynamicContainer(testCase.getDisplayName(), testCase.getTests().stream().map(testSpec -> {
                 // Configure the schemaValidator to set typeLoose's value based on the test file,
@@ -208,7 +207,7 @@ abstract class AbstractJsonSchemaTestSuite {
         }
     }
 
-    private SchemaRegistry buildSchemaRegistry(Version defaultVersion, TestCase testCase, SchemaRegistryConfig schemaRegistryConfig) {
+    private SchemaRegistry buildSchemaRegistry(SpecificationVersion defaultVersion, TestCase testCase, SchemaRegistryConfig schemaRegistryConfig) {
         if (testCase.isDisabled()) return null;
         SchemaLoader schemaLoader = new SchemaLoader() {
             @Override
@@ -227,7 +226,7 @@ abstract class AbstractJsonSchemaTestSuite {
                 return null;
             }
         };
-        Version specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
+        SpecificationVersion specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
         SchemaRegistry base = SchemaRegistry.withDefaultDialect(specVersion);
         return SchemaRegistry
                 .builder(base)

@@ -15,96 +15,26 @@
  */
 package com.networknt.schema;
 
-import java.util.Optional;
-
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.Dialects;
 
 /**
- * The JSON Schema specification which defines the standard dialects.
+ * The version of the JSON Schema specification that defines the standard
+ * dialects.
  */
 public class Specification {
 
     /**
-     * The JSON Schema specification version.
-     */
-    public enum Version {
-        /**
-         * Draft 4.
-         */
-        DRAFT_4(4, DialectId.DRAFT_4),
-        /**
-         * Draft 6.
-         */
-        DRAFT_6(6, DialectId.DRAFT_6),
-        /**
-         * Draft 7.
-         */
-        DRAFT_7(7, DialectId.DRAFT_7),
-        /**
-         * Draft 2019-09.
-         */
-        DRAFT_2019_09(8, DialectId.DRAFT_2019_09),
-        /**
-         * Draft 2020-12.
-         */
-        DRAFT_2020_12(9, DialectId.DRAFT_2020_12);
-
-        private final int order;
-        private final String dialectId;
-
-        Version(int order, String dialectId) {
-            this.order = order;
-            this.dialectId = dialectId;
-        }
-
-        /**
-         * Gets the dialect id used for the $schema keyword. The dialect id is an IRI
-         * that identifies the meta schema used to validate the dialect.
-         * 
-         * @return the dialect id
-         */
-        public String getDialectId() {
-            return this.dialectId;
-        }
-
-        /**
-         * Gets the unique release order of the specification version used that
-         * indicates when the specification was released. Lower numbers indicate the
-         * specification was released earlier.
-         *
-         * @return the order when the specification was released
-         */
-        public int getOrder() {
-            return this.order;
-        }
-
-        /**
-         * Gets the specification version that matches the dialect id indicated by
-         * $schema keyword. The dialect id is an IRI that identifies the meta schema
-         * used to validate the dialect.
-         *
-         * @param dialectId the dialect id specified by $schema keyword
-         * @return the specification version if it matches the dialect id
-         */
-        public static Optional<Version> fromDialectId(String dialectId) {
-            for (Version version : Version.values()) {
-                if (version.dialectId.equals(dialectId)) {
-                    return Optional.of(version);
-                }
-            }
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Gets the dialect given the specification version.
+     * Gets the standard dialect given the specification version.
+     * <p>
+     * This should only be used if the standard dialect is required, otherwise the
+     * dialect should be retrieved from the dialect registry.
      * 
      * @param version the schema specification version
      * @return the dialect or null if not found
      */
-    public static Dialect getDialect(Specification.Version version) {
+    public static Dialect getDialect(SpecificationVersion version) {
         if (null == version) {
             return null;
         }
@@ -125,7 +55,10 @@ public class Specification {
     }
 
     /**
-     * Gets the dialect given the dialect id.
+     * Gets the standard dialect given the dialect id.
+     * <p>
+     * This should only be used if the standard dialect is required, otherwise the
+     * dialect should be retrieved from the dialect registry.
      * 
      * @param dialectId the schema specification version
      * @return the dialect or null if not found

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkConfig;
@@ -54,7 +53,7 @@ class Issue724Test {
         WalkConfig walkConfig = WalkConfig.builder()
                 .keywordWalkListenerRunner(keywordWalkListenerRunner)
                 .build();
-        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schema);
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schema);
         jsonSchema.walk(new ObjectMapper().readTree(data), /* shouldValidateSchema= */ false, executionContext -> executionContext.setWalkConfig(walkConfig));
 
         System.out.println(stringCollector.strings);

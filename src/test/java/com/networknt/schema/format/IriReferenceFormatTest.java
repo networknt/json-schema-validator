@@ -26,7 +26,7 @@ import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.Error;
 
 class IriReferenceFormatTest {
@@ -38,7 +38,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
                 InputFormat.JSON);
@@ -53,7 +53,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
                 InputFormat.JSON);
@@ -68,7 +68,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
                 InputFormat.JSON);
@@ -83,7 +83,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
                 InputFormat.JSON);
@@ -98,7 +98,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"http://\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -112,7 +112,7 @@ class IriReferenceFormatTest {
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().formatAssertionsEnabled(true).build();
         Schema schema = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"//\"", InputFormat.JSON);
         assertTrue(messages.isEmpty());
@@ -124,7 +124,7 @@ class IriReferenceFormatTest {
                 + "  \"format\": \"iri-reference\"\r\n"
                 + "}";
 
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }

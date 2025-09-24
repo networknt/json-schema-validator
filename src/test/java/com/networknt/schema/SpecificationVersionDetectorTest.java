@@ -25,11 +25,11 @@ class SpecificationVersionDetectorTest {
             "draft2019-09, DRAFT_2019_09",
             "draft2020-12, DRAFT_2020_12"
     })
-    void detectVersion(String resourceDirectory, Specification.Version expectedFlag) throws IOException {
+    void detectVersion(String resourceDirectory, SpecificationVersion expectedFlag) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(resourceDirectory + "/schemaTag.json");
         JsonNode node = mapper.readTree(in);
-        Specification.Version flag = SpecificationVersionDetector.detect(node);
+        SpecificationVersion flag = SpecificationVersionDetector.detect(node);
         assertEquals(expectedFlag, flag);
     }
 
@@ -50,7 +50,7 @@ class SpecificationVersionDetectorTest {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
                 "data/schemaTagMissing.json");
         JsonNode node = mapper.readTree(in);
-        Optional<Specification.Version> flag = SpecificationVersionDetector.detectOptionalVersion(node, true);
+        Optional<SpecificationVersion> flag = SpecificationVersionDetector.detectOptionalVersion(node, true);
         assertEquals(Optional.empty(), flag);
     }
 }

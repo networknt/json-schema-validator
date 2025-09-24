@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
@@ -86,7 +85,7 @@ class VocabularyTest {
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("minimum", messages.iterator().next().getKeyword());
-        assertEquals(Version.DRAFT_2020_12, schema.getSchemaContext().getDialect().getSpecification());
+        assertEquals(SpecificationVersion.DRAFT_2020_12, schema.getSchemaContext().getDialect().getSpecificationVersion());
     }
 
     @Test
@@ -209,7 +208,7 @@ class VocabularyTest {
                 .vocabularyFactory(vocabularyFactory)
                 .build();
         SchemaRegistry factory = SchemaRegistry
-                .withDefaultDialect(Version.DRAFT_2020_12,
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                         builder -> builder.dialectRegistry(new BasicDialectRegistry(dialect)).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));

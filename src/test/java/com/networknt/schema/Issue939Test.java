@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 class Issue939Test {
     @Test
     void shouldNotThrowException() {
@@ -48,7 +46,7 @@ class Issue939Test {
                 + "            }\r\n"
                 + "          }\r\n"
                 + "        }";
-        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schema);
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
         List<Error> assertions = jsonSchema
                 .validate("{\"someUuid\":\"invalid\"}", InputFormat.JSON);

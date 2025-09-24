@@ -134,7 +134,7 @@ class JsonWalkApplyDefaultsTest {
     }
 
     private Schema createSchema() {
-        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4);
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return schemaFactory
                 .getSchema(getClass().getClassLoader().getResourceAsStream("schema/walk-schema-default.json"));
     }

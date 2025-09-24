@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class Issue877Test {
@@ -30,7 +29,7 @@ class Issue877Test {
                 + "  \"unevaluatedProperties\": false\n"
                 + "}";
         
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = jsonSchemaFactory.getSchema(schemaData);
         String input = "{}";
         Result result = schema.walk(JsonMapperFactory.getInstance().readTree(input), true);

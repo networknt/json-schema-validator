@@ -20,9 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.Specification;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.Specification.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,26 +37,26 @@ interface ValidatorFactory {
 }
 
 enum VersionCode {
-    None(new Specification.Version[] { }),
-    AllVersions(new Specification.Version[] { Specification.Version.DRAFT_4, Specification.Version.DRAFT_6, Specification.Version.DRAFT_7, Specification.Version.DRAFT_2019_09, Specification.Version.DRAFT_2020_12 }),
-    MinV6(new Specification.Version[] { Specification.Version.DRAFT_6, Specification.Version.DRAFT_7, Specification.Version.DRAFT_2019_09, Specification.Version.DRAFT_2020_12 }),
-    MinV6MaxV7(new Specification.Version[] { Specification.Version.DRAFT_6, Specification.Version.DRAFT_7 }),
-    MinV7(new Specification.Version[] { Specification.Version.DRAFT_7, Specification.Version.DRAFT_2019_09, Specification.Version.DRAFT_2020_12 }),
-    MaxV7(new Specification.Version[] { Specification.Version.DRAFT_4, Specification.Version.DRAFT_6, Specification.Version.DRAFT_7 }),
-    MaxV201909(new Specification.Version[] { Specification.Version.DRAFT_4, Specification.Version.DRAFT_6, Specification.Version.DRAFT_7, Specification.Version.DRAFT_2019_09 }),
-    MinV201909(new Specification.Version[] { Specification.Version.DRAFT_2019_09, Specification.Version.DRAFT_2020_12 }),
-    MinV202012(new Specification.Version[] { Specification.Version.DRAFT_2020_12 }),
-    V201909(new Specification.Version[] { Specification.Version.DRAFT_2019_09 }),
-    V7(new Specification.Version[] { Specification.Version.DRAFT_7 });
+    None(new SpecificationVersion[] { }),
+    AllVersions(new SpecificationVersion[] { SpecificationVersion.DRAFT_4, SpecificationVersion.DRAFT_6, SpecificationVersion.DRAFT_7, SpecificationVersion.DRAFT_2019_09, SpecificationVersion.DRAFT_2020_12 }),
+    MinV6(new SpecificationVersion[] { SpecificationVersion.DRAFT_6, SpecificationVersion.DRAFT_7, SpecificationVersion.DRAFT_2019_09, SpecificationVersion.DRAFT_2020_12 }),
+    MinV6MaxV7(new SpecificationVersion[] { SpecificationVersion.DRAFT_6, SpecificationVersion.DRAFT_7 }),
+    MinV7(new SpecificationVersion[] { SpecificationVersion.DRAFT_7, SpecificationVersion.DRAFT_2019_09, SpecificationVersion.DRAFT_2020_12 }),
+    MaxV7(new SpecificationVersion[] { SpecificationVersion.DRAFT_4, SpecificationVersion.DRAFT_6, SpecificationVersion.DRAFT_7 }),
+    MaxV201909(new SpecificationVersion[] { SpecificationVersion.DRAFT_4, SpecificationVersion.DRAFT_6, SpecificationVersion.DRAFT_7, SpecificationVersion.DRAFT_2019_09 }),
+    MinV201909(new SpecificationVersion[] { SpecificationVersion.DRAFT_2019_09, SpecificationVersion.DRAFT_2020_12 }),
+    MinV202012(new SpecificationVersion[] { SpecificationVersion.DRAFT_2020_12 }),
+    V201909(new SpecificationVersion[] { SpecificationVersion.DRAFT_2019_09 }),
+    V7(new SpecificationVersion[] { SpecificationVersion.DRAFT_7 });
 
-    private final EnumSet<Version> versions;
+    private final EnumSet<SpecificationVersion> versions;
 
-    VersionCode(Specification.Version[] versionFlags) {
-        this.versions = EnumSet.noneOf(Version.class);
+    VersionCode(SpecificationVersion[] versionFlags) {
+        this.versions = EnumSet.noneOf(SpecificationVersion.class);
 	      this.versions.addAll(Arrays.asList(versionFlags));
     }
 
-    EnumSet<Version> getVersions() {
+    EnumSet<SpecificationVersion> getVersions() {
         return this.versions;
     }
 }
@@ -138,7 +137,7 @@ public enum ValidatorTypeCode implements Keyword {
         this.versionCode = versionCode;
     }
 
-    public static List<ValidatorTypeCode> getKeywords(Specification.Version versionFlag) {
+    public static List<ValidatorTypeCode> getKeywords(SpecificationVersion versionFlag) {
         final List<ValidatorTypeCode> result = new ArrayList<>();
         for (ValidatorTypeCode keyword : values()) {
             if (keyword.getVersionCode().getVersions().contains(versionFlag)) {

@@ -19,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * PatternValidatorTest.
  */
@@ -32,7 +30,7 @@ class PatternValidatorTest {
                 + "  \"pattern\": \"^(\\\\([0-9]{3}\\\\))?[0-9]{3}-[0-9]{4}$\"\r\n"
                 + "}";
         String inputData = "\"hello\"";
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         boolean result = schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN);
         assertFalse(result);
     }

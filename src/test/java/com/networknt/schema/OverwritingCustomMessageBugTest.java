@@ -2,7 +2,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 
 import java.io.InputStream;
@@ -17,7 +16,7 @@ class OverwritingCustomMessageBugTest {
       SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY)
               .errorMessageKeyword("message")
               .regularExpressionFactory(JDKRegularExpressionFactory.getInstance()).build();
-      SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+      SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
     return factory.getSchema(schemaContent);
   }
 

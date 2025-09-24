@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 class Issue857Test {
     @Test
     void test() {
@@ -49,7 +47,7 @@ class Issue857Test {
                 + "}";
 
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
         List<Error> result = factory.getSchema(schema).validate(input, InputFormat.JSON);
         assertTrue(result.isEmpty());
     }

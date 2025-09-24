@@ -25,7 +25,7 @@ class Issue366FailSlowTest {
     private void setupSchema() throws IOException {
 
         SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().typeLoose(false).build();
-        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
         SchemaLocation uri = getSchema();
 

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 class Issue1091Test {
@@ -33,7 +32,7 @@ class Issue1091Test {
     void testHasAdjacentKeywordInEvaluationPath() throws Exception {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().cacheRefs(false).build();
 
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config))
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(SchemaLocation.of("classpath:schema/issue1091.json"));
         JsonNode node = JsonMapperFactory.getInstance()
                 .readTree(Issue1091Test.class.getClassLoader().getResource("data/issue1091.json"));

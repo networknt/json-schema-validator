@@ -40,7 +40,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.keyword.ItemsValidator;
 import com.networknt.schema.keyword.ItemsValidator202012;
@@ -103,7 +103,7 @@ class WalkListenerTest {
                     }
                 })
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
                 + "    {\r\n"
@@ -186,7 +186,7 @@ class WalkListenerTest {
                     }
                 })
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
                 + "    {\r\n"
@@ -274,7 +274,7 @@ class WalkListenerTest {
             public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
             }
         }).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
                 + "    {\r\n"
@@ -351,7 +351,7 @@ class WalkListenerTest {
             public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
             }
         }).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"tags\": [\r\n"
                 + "    {\r\n"
@@ -403,7 +403,7 @@ class WalkListenerTest {
                     }
                 })
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09)
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09)
                 .getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09));
 
         String inputData = "{\r\n"
@@ -569,7 +569,7 @@ class WalkListenerTest {
 
 		WalkConfig walkConfig = WalkConfig.builder()
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         Result result = schema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertEquals("{\"s\":\"S\",\"ref\":\"REF\"}", inputNode.toString());
@@ -626,7 +626,7 @@ class WalkListenerTest {
                 })
                 .build();
 
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         WalkConfig walkConfig = WalkConfig.builder()
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
                 .build();
@@ -686,7 +686,7 @@ class WalkListenerTest {
                 })
                 .build();
         
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         WalkConfig walkConfig = WalkConfig.builder()
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
@@ -759,7 +759,7 @@ class WalkListenerTest {
         WalkConfig walkConfig = WalkConfig.builder()
                 .keywordWalkListenerRunner(keywordWalkListenerRunner)
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
 
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         Result result = schema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -832,7 +832,7 @@ class WalkListenerTest {
         WalkConfig walkConfig = WalkConfig.builder()
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
 
         JsonNode inputNode = JsonMapperFactory.getInstance().readTree("{}");
         Result result = schema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -886,7 +886,7 @@ class WalkListenerTest {
                 .itemWalkListenerRunner(itemWalkListenerRunner)
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09).getSchema(schemaData);
 
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         @SuppressWarnings("unchecked")
@@ -952,7 +952,7 @@ class WalkListenerTest {
                 .itemWalkListenerRunner(itemWalkListenerRunner)
                 .propertyWalkListenerRunner(propertyWalkListenerRunner)
                 .build();
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
 
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         List<WalkEvent> items = result.getExecutionContext().getCollectorContext().get("items");

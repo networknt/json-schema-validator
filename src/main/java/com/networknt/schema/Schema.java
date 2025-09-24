@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.DiscriminatorValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
@@ -51,7 +50,7 @@ import com.networknt.schema.utils.JsonNodes;
  * modified.
  */
 public class Schema implements Validator {
-    private static final long DRAFT_2019_09_VALUE = Version.DRAFT_2019_09.getOrder();
+    private static final long DRAFT_2019_09_VALUE = SpecificationVersion.DRAFT_2019_09.getOrder();
     private final String id;
 
     /**
@@ -656,7 +655,7 @@ public class Schema implements Validator {
             }
 
             // Ignore siblings for older drafts
-            if (null != refValidator && getSchemaContext().getDialect().getSpecification().getOrder() < DRAFT_2019_09_VALUE) {
+            if (null != refValidator && getSchemaContext().getDialect().getSpecificationVersion().getOrder() < DRAFT_2019_09_VALUE) {
                 validators.clear();
                 validators.add(refValidator);
             }

@@ -21,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
-
 /**
  * Tests for the non-standard DefaultJsonSchemaIdValidator.
  */
@@ -35,9 +33,9 @@ class DefaultJsonSchemaIdValidatorTest {
                 .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
+                () -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
         try {
-            SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema);
+            SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema);
         } catch (InvalidSchemaException e) {
             assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
@@ -50,7 +48,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
     
     @Test
@@ -60,7 +58,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
 
     @Test
@@ -68,7 +66,7 @@ class DefaultJsonSchemaIdValidatorTest {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder()
                 .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
                 .getSchema(SchemaLocation.of("classpath:schema/id-relative.json")));
     }
 }

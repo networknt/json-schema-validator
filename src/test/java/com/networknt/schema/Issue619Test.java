@@ -53,7 +53,7 @@ class Issue619Test {
             }
         };
 
-        factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4,
+        factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");

@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.walk.ItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;
@@ -46,7 +45,7 @@ class ItemsValidator202012Test {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"items\": {\"type\": \"integer\"}"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         String inputData = "[1, \"x\"]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
@@ -87,7 +86,7 @@ class ItemsValidator202012Test {
         WalkConfig walkConfig = WalkConfig.builder()
                 .itemWalkListenerRunner(itemWalkListenerRunner)
                 .build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());
@@ -129,7 +128,7 @@ class ItemsValidator202012Test {
         WalkConfig walkConfig = WalkConfig.builder()
                 .itemWalkListenerRunner(itemWalkListenerRunner)
                 .build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertTrue(result.getErrors().isEmpty());

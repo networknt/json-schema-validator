@@ -13,7 +13,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testUrnUriAsLocalRef() throws IOException {
-        Schema schema = getJsonSchemaFromClasspath("draft7/urn/issue665.json", Specification.Version.DRAFT_7);
+        Schema schema = getJsonSchemaFromClasspath("draft7/urn/issue665.json", SpecificationVersion.DRAFT_7);
         Assertions.assertNotNull(schema);
         Assertions.assertDoesNotThrow(schema::initializeValidators);
         List<Error> messages = schema.validate(getJsonNodeFromStringContent(
@@ -24,7 +24,7 @@ class Issue665Test extends BaseJsonSchemaValidatorTest {
     @Test
     void testUrnUriAsLocalRef_ExternalURN() {
         SchemaRegistry factory = SchemaRegistry
-                .builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7))
+                .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7))
                 .schemaMappers(schemaMappers -> {
                     schemaMappers.mappings(Collections.singletonMap("urn:data",
                             "classpath:draft7/urn/issue665_external_urn_subschema.json"));

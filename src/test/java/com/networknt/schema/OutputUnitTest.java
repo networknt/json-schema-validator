@@ -29,7 +29,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -95,7 +94,7 @@ class OutputUnitTest {
             + "}";
     @Test
     void annotationCollectionList() throws JsonProcessingException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         
         String inputData = inputData1;
@@ -111,7 +110,7 @@ class OutputUnitTest {
 
     @Test
     void annotationCollectionHierarchical() throws JsonProcessingException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
         String inputData = inputData1;
@@ -127,7 +126,7 @@ class OutputUnitTest {
 
     @Test
     void annotationCollectionHierarchical2() throws JsonProcessingException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
         String inputData = inputData2;
@@ -175,7 +174,7 @@ class OutputUnitTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.executionConfig(executionConfig -> executionConfig
@@ -193,7 +192,7 @@ class OutputUnitTest {
                 + "  \"type\": \"string\",\r\n"
                 + "  \"format\": \""+formatInput.format+"\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.executionConfig(executionConfig -> executionConfig
@@ -211,7 +210,7 @@ class OutputUnitTest {
         String typeSchema = "{\r\n"
                 + "  \"type\": [\"string\",\"array\"]\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(typeSchema);
         OutputUnit outputUnit = schema.validate("1", InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
             executionConfiguration.executionConfig(executionConfig -> executionConfig
@@ -259,7 +258,7 @@ class OutputUnitTest {
                 + "  \"unevaluatedProperties\": false\r\n"
                 + "}";
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
         Schema schema = factory.getSchema(schemaData);
         
@@ -308,7 +307,7 @@ class OutputUnitTest {
                 + "  ]\r\n"
                 + "}";
         
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         
         String inputData = "{\r\n"
@@ -329,7 +328,7 @@ class OutputUnitTest {
         String formatSchema = "{\r\n"
                 + "  \"type\": \"string\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.List(a -> a));
         assertFalse(outputUnit.isValid());
@@ -343,7 +342,7 @@ class OutputUnitTest {
         String formatSchema = "{\r\n"
                 + "  \"type\": \"string\"\r\n"
                 + "}";
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(formatSchema);
         OutputUnit outputUnit = schema.validate("1234", InputFormat.JSON, new OutputFormat.Hierarchical(a -> a));
         assertFalse(outputUnit.isValid());

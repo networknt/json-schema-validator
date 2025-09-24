@@ -22,7 +22,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -105,7 +104,7 @@ class Issue927Test {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        Schema jsonSchema = SchemaRegistry.withDefaultDialect(Version.DRAFT_7)
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7)
                 .getSchema(SchemaLocation.of("http://www.example.org"), JsonMapperFactory.getInstance().readTree(schema));
         
         String input = "{\r\n"

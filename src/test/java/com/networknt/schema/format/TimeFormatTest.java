@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.Error;
 
 class TimeFormatTest {
@@ -58,7 +58,7 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON,
                 executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
@@ -87,7 +87,7 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        Schema schema = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12).getSchema(schemaData);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON,
                 executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertFalse(messages.isEmpty());

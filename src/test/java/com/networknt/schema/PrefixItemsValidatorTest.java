@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.keyword.PrefixItemsValidator;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.ItemWalkListenerRunner;
@@ -35,7 +34,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
      */
     @Test
     void testEmptyPrefixItemsException() {
-        Stream<DynamicNode> dynamicNodeStream = createTests(Specification.Version.DRAFT_7, "src/test/resources/prefixItemsException");
+        Stream<DynamicNode> dynamicNodeStream = createTests(SpecificationVersion.DRAFT_7, "src/test/resources/prefixItemsException");
         dynamicNodeStream.forEach(
                 dynamicNode -> {
                     assertThrows(SchemaException.class, () -> {
@@ -57,7 +56,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
         Schema schema = factory.getSchema(schemaData);
         String inputData = "[1, \"x\"]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
@@ -83,7 +82,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
         Schema schema = factory.getSchema(schemaData);
         String inputData = "[\"x\", 1, 1]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
@@ -102,7 +101,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"items\": false"
                 + "}";
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
         Schema schema = factory.getSchema(schemaData);
         String inputData = "[\"x\", 1, 1, 2]";
         List<Error> messages = schema.validate(inputData, InputFormat.JSON);
@@ -150,7 +149,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         }).build();
         WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk(null, true, 
                 executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -207,7 +206,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         WalkConfig walkConfig = WalkConfig.builder().applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
                 .itemWalkListenerRunner(itemWalkListenerRunner).build();
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
         Result result = schema.walk(input, true,

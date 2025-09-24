@@ -3,7 +3,7 @@ package com.networknt.schema.dialect;
 import java.util.Arrays;
 
 import com.networknt.schema.Formats;
-import com.networknt.schema.Specification;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;
@@ -20,10 +20,10 @@ public class Draft6 {
         private static final Dialect INSTANCE;
         static {
             INSTANCE = Dialect.builder(ID)
-                    .specification(Specification.Version.DRAFT_6)
+                    .specificationVersion(SpecificationVersion.DRAFT_6)
                     .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_6))
+                    .keywords(ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_6))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Arrays.asList(
                             new NonValidationKeyword("$schema"),

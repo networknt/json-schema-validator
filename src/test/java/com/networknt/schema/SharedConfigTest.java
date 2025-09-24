@@ -38,7 +38,7 @@ class SharedConfigTest {
                 .keywordWalkListener(allKeywordListener).build();
         WalkConfig walkConfig = WalkConfig.builder().keywordWalkListenerRunner(keywordWalkListenerRunner).build();
 
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
 
         SchemaLocation draft07Schema = SchemaLocation.of("resource:/draft-07/schema#");
 

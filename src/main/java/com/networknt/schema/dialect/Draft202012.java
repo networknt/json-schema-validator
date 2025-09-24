@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.networknt.schema.Formats;
-import com.networknt.schema.Specification;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.ValidatorTypeCode;
 
@@ -33,10 +33,10 @@ public class Draft202012 {
         private static final Dialect INSTANCE;
         static {
             INSTANCE = Dialect.builder(ID)
-                    .specification(Specification.Version.DRAFT_2020_12)
+                    .specificationVersion(SpecificationVersion.DRAFT_2020_12)
                     .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_2020_12))
+                    .keywords(ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_2020_12))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Collections.singletonList(
 		                    new NonValidationKeyword("definitions")

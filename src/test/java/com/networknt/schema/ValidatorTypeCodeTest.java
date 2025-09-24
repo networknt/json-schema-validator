@@ -39,13 +39,13 @@ class ValidatorTypeCodeTest {
 
     @Test
     void testIfThenElseNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_4);
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
     }
 
     @Test
     void testExclusiveMaximumNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(Specification.Version.DRAFT_4);
+        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_4);
         Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
     }
 

@@ -25,7 +25,7 @@ import java.util.List;
 
 class Issue255Test {
     protected Schema getJsonSchemaFromStreamContent(InputStream schemaContent) {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 

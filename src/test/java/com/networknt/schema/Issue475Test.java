@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -51,7 +50,7 @@ class Issue475Test {
 
     @Test
     void draft4() throws Exception {
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_4, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_4));
 
@@ -64,7 +63,7 @@ class Issue475Test {
     
     @Test
     void draft6() throws Exception {
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_6, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_6, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_6));
 
@@ -77,7 +76,7 @@ class Issue475Test {
 
     @Test
     void draft7() throws Exception {
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_7, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_7));
 
@@ -90,7 +89,7 @@ class Issue475Test {
     
     @Test
     void draft201909() throws Exception {
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2019_09, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09));
 
@@ -103,7 +102,7 @@ class Issue475Test {
 
     @Test
     void draft202012() throws Exception {
-        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder
                 .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2020_12));
 

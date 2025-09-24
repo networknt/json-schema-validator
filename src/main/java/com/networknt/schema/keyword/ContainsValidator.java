@@ -53,7 +53,7 @@ public class ContainsValidator extends BaseKeywordValidator {
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
-        this.isMinV201909 = MinV201909.getVersions().contains(this.schemaContext.getDialect().getSpecification());
+        this.isMinV201909 = MinV201909.getVersions().contains(this.schemaContext.getDialect().getSpecificationVersion());
 
         Integer currentMax = null;
         Integer currentMin = null;

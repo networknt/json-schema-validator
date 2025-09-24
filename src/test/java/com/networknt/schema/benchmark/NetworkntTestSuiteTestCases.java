@@ -18,7 +18,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistryConfig;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.SchemaLoader;
@@ -38,11 +38,11 @@ public class NetworkntTestSuiteTestCases {
         }
     }
 
-    public static List<NetworkntTestSuiteTestCase> findTestCases(Version defaultVersion, String basePath) {
+    public static List<NetworkntTestSuiteTestCase> findTestCases(SpecificationVersion defaultVersion, String basePath) {
         return findTestCases(defaultVersion, basePath, path -> true);
     }
 
-    public static List<NetworkntTestSuiteTestCase> findTestCases(Version defaultVersion, String basePath,
+    public static List<NetworkntTestSuiteTestCase> findTestCases(SpecificationVersion defaultVersion, String basePath,
             Predicate<? super Path> filter) {
         SchemaLoader schemaLoader = new SchemaLoader() {
             @Override

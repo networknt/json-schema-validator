@@ -37,7 +37,7 @@ class Issue428Test {
                     configBuilder.typeLoose(typeLooseNode != null && typeLooseNode.asBoolean());
                     SchemaRegistryConfig config = configBuilder.build();
 
-                    SchemaRegistry validatorFactory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+                    SchemaRegistry validatorFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
                     Schema schema = validatorFactory.getSchema(testCaseFileUri, testCase.get("schema"));
 
                     List<Error> errors = new ArrayList<Error>(schema.validate(node));

@@ -24,12 +24,11 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.Specification;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.Vocabularies;
 import com.networknt.schema.Vocabulary;
 import com.networknt.schema.VocabularyFactory;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;
@@ -76,7 +75,7 @@ public class Dialect {
     public static class Builder {
         private String id;
         private String idKeyword = "$id";
-        private Version specification = null;
+        private SpecificationVersion specificationVersion = null;
         private final Map<String, Keyword> keywords = new HashMap<>();
         private final Map<String, Format> formats = new HashMap<>();
         private final Map<String, Boolean> vocabularies = new HashMap<>();
@@ -263,13 +262,13 @@ public class Dialect {
         }
 
         /**
-         * Sets the specification.
+         * Sets the specification version.
          * 
-         * @param specification the specification
+         * @param specification the specification version
          * @return the builder
          */
-        public Builder specification(Version specification) {
-            this.specification = specification;
+        public Builder specificationVersion(SpecificationVersion specification) {
+            this.specificationVersion = specification;
             return this;
         }
 
@@ -287,8 +286,8 @@ public class Dialect {
         public Dialect build() {
             // create builtin keywords with (custom) formats.
             Map<String, Keyword> keywords = this.keywords;
-            if (this.specification != null) {
-                if (this.specification.getOrder() >= Specification.Version.DRAFT_2019_09.getOrder()) {
+            if (this.specificationVersion != null) {
+                if (this.specificationVersion.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder()) {
                     keywords = new HashMap<>(this.keywords);
                     for(Entry<String, Boolean> entry : this.vocabularies.entrySet()) {
                         Vocabulary vocabulary = null;
@@ -313,7 +312,7 @@ public class Dialect {
                 }
             }
             Map<String, Keyword> result = createKeywordsMap(keywords, this.formats);
-            return new Dialect(this.id, this.idKeyword, result, this.vocabularies, this.specification, this);
+            return new Dialect(this.id, this.idKeyword, result, this.vocabularies, this.specificationVersion, this);
         }
     }
 
@@ -321,11 +320,11 @@ public class Dialect {
     private final String idKeyword;
     private final Map<String, Keyword> keywords;
     private final Map<String, Boolean> vocabularies;
-    private final Version specification;
+    private final SpecificationVersion specificationVersion;
 
     private final Builder builder;
 
-    Dialect(String dialectId, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, Version specification, Builder builder) {
+    Dialect(String dialectId, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, SpecificationVersion specification, Builder builder) {
         if (StringUtils.isBlank(dialectId)) {
             throw new IllegalArgumentException("dialect id must not be null or blank");
         }
@@ -339,7 +338,7 @@ public class Dialect {
         this.id = dialectId;
         this.idKeyword = idKeyword;
         this.keywords = keywords;
-        this.specification = specification;
+        this.specificationVersion = specification;
         this.vocabularies = vocabularies;
         this.builder = builder;
     }
@@ -381,7 +380,7 @@ public class Dialect {
                 .idKeyword(blueprint.idKeyword)
                 .keywords(blueprint.builder.keywords.values())
                 .formats(blueprint.builder.formats.values())
-                .specification(blueprint.getSpecification())
+                .specificationVersion(blueprint.getSpecificationVersion())
                 .vocabularies(vocabularies)
                 .vocabularyFactory(blueprint.builder.vocabularyFactory)
                 .formatKeywordFactory(blueprint.builder.formatKeywordFactory)
@@ -430,8 +429,8 @@ public class Dialect {
         return this.vocabularies;
     }
     
-    public Version getSpecification() {
-        return this.specification;
+    public SpecificationVersion getSpecificationVersion() {
+        return this.specificationVersion;
     }
 
     /**

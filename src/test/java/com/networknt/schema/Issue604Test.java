@@ -12,7 +12,7 @@ class Issue604Test {
     void failure() {
 		WalkConfig walkConfig = WalkConfig.builder()
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, false, false)).build();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema("{ \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"object\", \"properties\": { \"bar\": { \"type\": \"boolean\", \"default\": false } } } } }");
         ObjectMapper objectMapper = new ObjectMapper();
         assertDoesNotThrow(() -> {

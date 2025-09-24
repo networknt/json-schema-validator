@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Specification.Version;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -18,7 +17,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 class SampleTest {
     @Test
     void schemaFromSchemaLocationMapping() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12, builder -> builder.schemaMappers(
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaMappers(
                 schemaMappers -> schemaMappers.mapPrefix("https://www.example.com/schema", "classpath:schema")));
         /*
          * This should be cached for performance.
@@ -40,7 +39,7 @@ class SampleTest {
     void schemaFromSchemaLocationContent() {
         String schemaData = "{\"enum\":[1, 2, 3, 4]}";
         
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12,
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/example-ref.json", schemaData))));
         /*
@@ -61,7 +60,7 @@ class SampleTest {
 
     @Test
     void schemaFromClasspath() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
@@ -82,7 +81,7 @@ class SampleTest {
 
     @Test
     void schemaFromString() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
@@ -98,7 +97,7 @@ class SampleTest {
 
     @Test
     void schemaFromJsonNode() throws JsonProcessingException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_2020_12);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(
                 "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
         /*

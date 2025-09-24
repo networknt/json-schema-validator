@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 
 /**
  * Basic Benchmark.
@@ -26,7 +26,7 @@ public class NetworkntBasicRunner implements Callable<Object> {
 
     public NetworkntBasicRunner() {
         ObjectMapper objectMapper = new ObjectMapper();
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(Version.DRAFT_4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ObjectReader reader = objectMapper.reader();

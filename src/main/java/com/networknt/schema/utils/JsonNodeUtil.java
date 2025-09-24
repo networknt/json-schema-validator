@@ -8,12 +8,12 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaRegistryConfig;
-import com.networknt.schema.Specification.Version;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.SchemaContext;
 
 public class JsonNodeUtil {
-    private static final long V6_VALUE = Version.DRAFT_6.getOrder();
+    private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
 
     private static final String TYPE = "type";
     private static final String ENUM = "enum";
@@ -120,7 +120,7 @@ public class JsonNodeUtil {
     }
 
     private static long detectVersion(SchemaContext schemaContext) {
-        return schemaContext.getDialect().getSpecification().getOrder();
+        return schemaContext.getDialect().getSpecificationVersion().getOrder();
     }
 
     /**
