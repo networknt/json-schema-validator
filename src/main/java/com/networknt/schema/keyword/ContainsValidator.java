@@ -25,7 +25,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.Annotation;
 
-import static com.networknt.schema.keyword.VersionCode.MinV201909;
+import static com.networknt.schema.SpecificationVersionRange.MinV201909;
 
 import java.util.ArrayList;
 import java.util.List;
