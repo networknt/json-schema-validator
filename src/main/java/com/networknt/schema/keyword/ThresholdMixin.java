@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

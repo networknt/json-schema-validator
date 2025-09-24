@@ -23,7 +23,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ThresholdMixin;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.utils.JsonNodeUtil;
 
