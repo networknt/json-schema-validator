@@ -34,8 +34,6 @@ import java.util.*;
  * {@link KeywordValidator} for anyOf.
  */
 public class AnyOfValidator extends BaseKeywordValidator {
-    private static final String DISCRIMINATOR_REMARK = "and the discriminator-selected candidate schema didn't pass validation";
-
     private final List<Schema> schemas;
 
     private Boolean canShortCircuit = null;
@@ -71,7 +69,8 @@ public class AnyOfValidator extends BaseKeywordValidator {
         }
         int numberOfValidSubSchemas = 0;
         List<Error> existingErrors = executionContext.getErrors();
-        List<Error> allErrors = null;
+        List<Error> allErrors = null; // Keeps track of all the errors for reporting if in the end none of the schemas match
+        List<Error> discriminatorErrors = null;
         List<Error> errors = new ArrayList<>();
         executionContext.setErrors(errors);
         try {
@@ -109,54 +108,82 @@ public class AnyOfValidator extends BaseKeywordValidator {
 
                     if (errors.isEmpty() && (!this.schemaContext.isDiscriminatorKeywordEnabled())
                             && canShortCircuit() && canShortCircuit(executionContext)) {
-                        // Clear all errors. Note that this is checked in finally.
-                        allErrors = null;
+                        // Successful so return only the existing errors, ie. no new errors
                         executionContext.setErrors(existingErrors);
                         return;
                     } else if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                        DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
-                        if (currentDiscriminatorContext.isDiscriminatorMatchFound()
-                                || currentDiscriminatorContext.isDiscriminatorIgnore()) {
-                            if (!errors.isEmpty()) {
-                                // The following is to match the previous logic adding to all errors
-                                // which is generally discarded as it returns errors but the allErrors
-                                // is getting processed in finally
-                                if (allErrors == null) {
-                                    allErrors = new ArrayList<>();
-                                }
-                                allErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
-                                        .locale(executionContext.getExecutionConfig().getLocale())
-                                        .arguments(DISCRIMINATOR_REMARK)
-                                        .build());
-                            } else {
-                                // Clear all errors. Note that this is checked in finally.
-                                allErrors = null;
-                            }
-                            existingErrors.addAll(errors);
-                            executionContext.setErrors(existingErrors);
-                            return;
+                    	JsonNode refNode = schema.getSchemaNode().get("$ref");
+                    	DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+						boolean discriminatorMatchFound = false;
+						if (refNode != null) {
+							// Check if there is a match
+							String discriminatingValue = state.getDiscriminatingValue();
+							if (discriminatingValue != null) {
+								String ref = refNode.asText();
+								if (state.isExplicitMapping() && ref.equals(discriminatingValue)) {
+									// Explicit matching
+									discriminatorMatchFound = true;
+									state.setMatch(ref);
+								} else if (!state.isExplicitMapping() && ref.endsWith(discriminatingValue)) {
+									// Implicit matching
+									discriminatorMatchFound = true;
+									state.setMatch(ref);
+								}
+							}
+						}
+                        if (discriminatorMatchFound) {
+                        	/*
+                        	 * Note that discriminator cannot change the outcome of the evaluation but can be used to filter off
+                        	 * any additional messages
+                        	 */
+                        	if (!errors.isEmpty()) {
+                        		/*
+                        		 * This means that the discriminated value has errors and doesn't match so these errors
+                        		 * are the only ones that will be reported *IF* there are no other schemas that successfully
+                        		 * validate to meet the requirement of anyOf.
+                        		 * 
+                        		 * If there are any successful schemas as per anyOf, all these errors will be discarded.
+                        		 */
+                        		discriminatorErrors = new ArrayList<>(errors);
+                        		allErrors = null; // This is no longer needed
+                        	}
                         }
                     }
-                    if (allErrors == null) {
-                        allErrors = new ArrayList<>();
+                    
+                    /*
+                     * This adds all the errors for this schema to the list that contains all the errors for later reporting.
+                     * 
+                     * There's no need to add these if there was a discriminator match with errors as only the discriminator
+                     * errors will be reported if all the schemas fail.
+                     */
+                    if (!errors.isEmpty() && discriminatorErrors == null) {
+                        if (allErrors == null) {
+                            allErrors = new ArrayList<>();
+                        }
+                        allErrors.addAll(errors);
                     }
-                    allErrors.addAll(errors);
                 }
             } finally {
                 // Restore flag
                 executionContext.setFailFast(failFast);
             }
 
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()
-                    && executionContext.getCurrentDiscriminatorContext().isActive()
-                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
-                existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(
-                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
-                        .build());
-                executionContext.setErrors(existingErrors);
-                return;
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
+            	// https://spec.openapis.org/oas/v3.1.0#discriminator-object
+            	// If the discriminator value does not match an implicit or explicit mapping, no schema can be determined and validation SHOULD fail. Mapping keys MUST be string values, but tooling MAY convert response values to strings for comparison.
+
+            		/*
+            		 * The only case where the discriminator can change the outcome of the result is if the discriminator value does not match an implicit or explicit mapping 
+            		 */
+                	DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                	if (state != null && state.getMatch() == null && state.getPropertyValue() != null) {
+                		// state.getPropertyValue() == null means there is no value at propertyName
+                        existingErrors.add(error().keyword("discriminator").instanceNode(node).instanceLocation(instanceLocation)
+                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .arguments(
+                                        "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                                .build());
+            	}
             }
         } finally {
             if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
@@ -164,9 +191,14 @@ public class AnyOfValidator extends BaseKeywordValidator {
             }
         }
         if (numberOfValidSubSchemas >= 1) {
+            // Successful so return only the existing errors, ie. no new errors
             executionContext.setErrors(existingErrors);
         } else {
-            if (allErrors != null) {
+        	if (discriminatorErrors != null) {
+        		// If errors are present matching the discriminator, only these errors should be reported
+                existingErrors.addAll(discriminatorErrors);
+        	} else if (allErrors != null) {
+        		// As the anyOf has failed, report all the errors
                 existingErrors.addAll(allErrors);
             }
             executionContext.setErrors(existingErrors);

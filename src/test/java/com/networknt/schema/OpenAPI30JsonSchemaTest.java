@@ -29,11 +29,13 @@ class OpenAPI30JsonSchemaTest {
         for (int j = 0; j < testCases.size(); j++) {
             try {
                 JsonNode testCase = testCases.get(j);
-
+                System.out.println("Test Case ["+(j+1)+"]: "+testCase.get("description"));
+                System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testCase.get("schema")));
+                System.out.println("Tests:");
                 ArrayNode testNodes = (ArrayNode) testCase.get("tests");
                 for (int i = 0; i < testNodes.size(); i++) {
                     JsonNode test = testNodes.get(i);
-                    System.out.println("=== " + test.get("description"));
+                    System.out.println(test);
                     JsonNode node = test.get("data");
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
@@ -59,6 +61,7 @@ class OpenAPI30JsonSchemaTest {
                         }
                         assertEquals(0, errors.size());
                     } else {
+//                    	System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testCase.get("schema")));
                         if (errors.isEmpty()) {
                             System.out.println("---- test case failed ----");
                             System.out.println("schema: " + schema);

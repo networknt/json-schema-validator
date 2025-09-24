@@ -67,7 +67,31 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
-        // Do nothing
+        // Check for discriminator mapping
+    	if ("".equals(this.propertyName)) {
+    		// Invalid discriminator as propertyName cannot be empty
+    		return;
+    	}
+    	JsonNode propertyValue = node.get(this.propertyName);
+    	DiscriminatorState state = new DiscriminatorState();
+    	DiscriminatorState existing = executionContext.getDiscriminatorMapping().put(instanceLocation, state);
+    	state.setPropertyName(this.propertyName);
+    	if (propertyValue != null && propertyValue.isTextual()) {
+    		String value = propertyValue.asText();
+    		state.setPropertyValue(value);
+    		// Check for explicit mapping
+    		String mapped = mapping.get(value);
+    		if (mapped == null) {
+    			// If explicit mapping not found use implicit value
+    			state.setDiscriminatingValue(value);
+    			state.setExplicitMapping(false);
+    		} else {
+    			state.setDiscriminatingValue(mapped);
+    			state.setExplicitMapping(true);
+    		}
+    	} else {
+    		// discriminator property name is missing so the property value in the state is null
+    	}
     }
 
     /**
@@ -162,7 +186,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
                     final JsonNode mappingValueToAdd = fieldToAdd.getValue();
 
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
-                    if (null != currentMappingValue && currentMappingValue != mappingValueToAdd) {
+                    if (null != currentMappingValue && !currentMappingValue.equals(mappingValueToAdd)) {
                         throw new SchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
                                 + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {

@@ -17,12 +17,15 @@
 package com.networknt.schema;
 
 import com.networknt.schema.annotation.Annotations;
+import com.networknt.schema.keyword.DiscriminatorState;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.result.SchemaResults;
 import com.networknt.schema.walk.WalkConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 
@@ -38,8 +41,14 @@ public class ExecutionContext {
     private Annotations annotations = null;
     private SchemaResults results = null;
     private List<Error> errors = new ArrayList<>();
+
+    private Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
     
-    /**
+    public Map<NodePath, DiscriminatorState> getDiscriminatorMapping() {
+		return discriminatorMapping;
+	}
+
+	/**
      * This is used during the execution to determine if the validator should fail fast.
      * <p>
      * This valid is determined by the previous validator.
