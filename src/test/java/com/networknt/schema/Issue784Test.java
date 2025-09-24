@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.format.Format;
 
 import org.junit.jupiter.api.Test;
 

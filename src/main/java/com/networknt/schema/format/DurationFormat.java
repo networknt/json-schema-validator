@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 import com.networknt.schema.SchemaContext;
 
 /**

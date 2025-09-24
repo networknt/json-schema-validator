@@ -1,7 +1,6 @@
 package com.networknt.schema.format;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 import com.networknt.schema.utils.RFC5892;
 
 /**

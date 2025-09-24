@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 /**
  * {@link AbstractFormat} for RFC 3986.

@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.networknt.schema;
+package com.networknt.schema.format;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.networknt.schema.format.DateFormat;
-import com.networknt.schema.format.DateTimeFormat;
-import com.networknt.schema.format.DurationFormat;
-import com.networknt.schema.format.EmailFormat;
-import com.networknt.schema.format.IPv6Format;
-import com.networknt.schema.format.IdnEmailFormat;
-import com.networknt.schema.format.IdnHostnameFormat;
-import com.networknt.schema.format.IriFormat;
-import com.networknt.schema.format.IriReferenceFormat;
-import com.networknt.schema.format.PatternFormat;
-import com.networknt.schema.format.RegexFormat;
-import com.networknt.schema.format.TimeFormat;
-import com.networknt.schema.format.UriFormat;
-import com.networknt.schema.format.UriReferenceFormat;
 
 /**
  * Formats.

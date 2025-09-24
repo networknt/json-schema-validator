@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 /**
  * Format for date.

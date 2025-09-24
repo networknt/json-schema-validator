@@ -18,7 +18,6 @@ package com.networknt.schema.dialect;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
-import com.networknt.schema.Format;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
@@ -26,6 +25,7 @@ import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.format.Format;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;

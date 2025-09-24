@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.format.Format;
 import com.networknt.schema.format.PatternFormat;
 import com.networknt.schema.output.OutputUnit;
 

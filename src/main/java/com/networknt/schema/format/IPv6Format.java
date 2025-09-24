@@ -3,7 +3,6 @@ package com.networknt.schema.format;
 import java.util.regex.Pattern;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 /**
  * Format for ipv6.

@@ -18,12 +18,12 @@ package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.format.BaseFormatValidator;
+import com.networknt.schema.format.Format;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

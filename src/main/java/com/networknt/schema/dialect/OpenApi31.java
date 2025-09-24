@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.format.Formats;
 import com.networknt.schema.keyword.NonValidationKeyword;
 import com.networknt.schema.keyword.KeywordType;
 

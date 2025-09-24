@@ -16,8 +16,6 @@
 
 package com.networknt.schema.format;
 
-import com.networknt.schema.Format;
-
 /**
  * Base implementation of {@link Format}.
  */
