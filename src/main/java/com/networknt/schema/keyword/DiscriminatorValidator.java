@@ -33,7 +33,13 @@ import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 /**
- * {@link KeywordValidator} that resolves discriminator.
+ * {@link KeywordValidator} for discriminator.
+ * <p>
+ * Note that discriminator MUST NOT change the validation outcome of the schema.
+ * <p>
+ * <a href=
+ * "https://spec.openapis.org/oas/v3.1.2#discriminator-object">Discriminator
+ * Object</>
  */
 public class DiscriminatorValidator extends BaseKeywordValidator {
     /**
@@ -84,18 +90,30 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
         DiscriminatorState existing = executionContext.getDiscriminatorMapping().get(instanceLocation);
         if (existing != null) {
             /*
+             * By default this does not throw an exception unless strict for discriminator
+             * is set to true.
+             * 
+             * This default is in line with the fact that the discriminator keyword doesn't
+             * affect validation but just helps to filter the messages.
+             */
+            if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
+                throw new SchemaException("Schema at " + this.schemaLocation
+                        + " has a discriminator keyword for which another discriminator keyword has already been set for at "
+                        + instanceLocation);
+            }
+            /*
              * This allows a new discriminator keyword if the propertyName is empty or if
              * the propertyName value is the same as the existing one.
              * 
-             * This is not specification compliant. There shouldn't be multiple matching
-             * discriminator keywords for the same instance.
+             * In the specification the behavior of this is undefined. There shouldn't be
+             * multiple matching discriminator keywords for the same instance.
              * 
              * Also propertyName for the discriminator keyword should not be empty according
              * to the specification.
              */
             if (!"".equals(this.propertyName) && !existing.getPropertyName().equals(this.propertyName)) {
                 throw new SchemaException("Schema at " + this.schemaLocation
-                        + " is redefining the discriminator property that has already been set for "
+                        + " is redefining the discriminator property that has already been set for at "
                         + instanceLocation);
             }
             state = existing;
@@ -126,15 +144,25 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
                 state.setMappedSchema(mappedSchema);
                 state.setExplicitMapping(true);
             } else {
-                // If explicit mapping not found use implicit value
-                state.setMappedSchema(discriminatingValue);
-                state.setExplicitMapping(false);
+                if (!state.isExplicitMapping()) { // only sets implicit if an explicit mapping was not previously set
+                    // If explicit mapping not found use implicit value
+                    state.setMappedSchema(discriminatingValue);
+                    state.setExplicitMapping(false);
+                }
             }
         } else {
             /*
              * The property is not present in the payload. This property SHOULD be required
              * in the payload schema, as the behavior when the property is absent is
              * undefined.
+             */
+            /*
+             * By default this does not generate an assertion unless strict for
+             * discriminator is set to true.
+             * 
+             * This default is in line with the intent that discriminator should be an
+             * annotation and not an assertion and shouldn't change the result which was why
+             * the specification changed from MUST to SHOULD.
              */
             if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)

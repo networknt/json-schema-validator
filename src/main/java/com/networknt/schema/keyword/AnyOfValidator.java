@@ -117,14 +117,14 @@ public class AnyOfValidator extends BaseKeywordValidator {
                         boolean discriminatorMatchFound = false;
                         if (refNode != null) {
                             // Check if there is a match
-                            String discriminatingValue = state.getMappedSchema();
-                            if (discriminatingValue != null) {
+                            String mappedSchema = state.getMappedSchema();
+                            if (mappedSchema != null) {
                                 String ref = refNode.asText();
-                                if (state.isExplicitMapping() && ref.equals(discriminatingValue)) {
+                                if (state.isExplicitMapping() && ref.equals(mappedSchema)) {
                                     // Explicit matching
                                     discriminatorMatchFound = true;
                                     state.setMatchedSchema(ref);
-                                } else if (!state.isExplicitMapping() && ref.endsWith(discriminatingValue)) {
+                                } else if (!state.isExplicitMapping() && ref.endsWith(mappedSchema)) {
                                     // Implicit matching
                                     discriminatorMatchFound = true;
                                     state.setMatchedSchema(ref);
@@ -180,11 +180,13 @@ public class AnyOfValidator extends BaseKeywordValidator {
                  * string values, but tooling MAY convert response values to strings for
                  * comparison.
                  * 
-                 * https://spec.openapis.org/oas/v3.1.0#discriminator-object
+                 * https://spec.openapis.org/oas/v3.1.2#examples-0
                  */
                 DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
-                if (state != null && state.getMatchedSchema() == null && state.getDiscriminatingValue() != null) {
-                    // state.getPropertyValue() == null means there is no value at propertyName
+                if (state != null && !state.hasMatchedSchema() && state.hasDiscriminatingValue()) {
+                    // The check for state.hasDiscriminatingValue is due to issue 988
+                    // Note that this is related to the DiscriminatorValidator by default not generating an assertion
+                    // if the discriminatingValue is not set in the payload
                     existingErrors.add(error().keyword("discriminator").instanceNode(node)
                             .instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())

@@ -969,7 +969,10 @@ class DiscriminatorValidatorTest {
         Schema schema = factory.getSchema(schemaData);
         List<Error> messages =  schema.validate(inputData, InputFormat.JSON);
         List<Error> list = messages.stream().collect(Collectors.toList());
+        // There should be no errors as discriminator should not affect the validation result of anyOf
+        // Although the matched schema has the following error
         // : required property 'numberOfBeds' not found
+        // There is still a schema in the anyOf that matches
         assertTrue(list.isEmpty());
     }
  

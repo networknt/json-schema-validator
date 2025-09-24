@@ -30,12 +30,11 @@ class OpenAPI30JsonSchemaTest {
             try {
                 JsonNode testCase = testCases.get(j);
                 System.out.println("Test Case ["+(j+1)+"]: "+testCase.get("description"));
-                System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testCase.get("schema")));
-                System.out.println("Tests:");
+                //System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testCase.get("schema")));
                 ArrayNode testNodes = (ArrayNode) testCase.get("tests");
                 for (int i = 0; i < testNodes.size(); i++) {
                     JsonNode test = testNodes.get(i);
-                    System.out.println(test);
+                    System.out.println("> Test Data ["+(i+1)+"]: "+test);
                     JsonNode node = test.get("data");
                     JsonNode typeLooseNode = test.get("isTypeLoose");
                     // Configure the schemaValidator to set typeLoose's value based on the test file,
@@ -51,10 +50,10 @@ class OpenAPI30JsonSchemaTest {
 
                     if (test.get("valid").asBoolean()) {
                         if (!errors.isEmpty()) {
-                            System.out.println("---- test case failed ----");
-                            System.out.println("schema: " + schema);
-                            System.out.println("data: " + test.get("data"));
-                            System.out.println("errors:");
+                            System.out.println("---- Test Data ["+(i+1)+"] FAILED [Unexpected Errors] ----");
+                            System.out.println("> Schema: " + schema);
+                            System.out.println("> Data  : " + test.get("data"));
+                            System.out.println("> Errors:");
                             for (Error error : errors) {
                                 System.out.println(error);
                             }
@@ -63,16 +62,17 @@ class OpenAPI30JsonSchemaTest {
                     } else {
 //                    	System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testCase.get("schema")));
                         if (errors.isEmpty()) {
-                            System.out.println("---- test case failed ----");
-                            System.out.println("schema: " + schema);
-                            System.out.println("data: " + test.get("data"));
+                            System.out.println("---- Test Data ["+(i+1)+"] FAILED [Unexpected Success] ----");
+                            System.out.println("> Schema: " + schema);
+                            System.out.println("> Data  : " + test.get("data"));
                         } else {
                             JsonNode errorCount = test.get("errorCount");
                             if (errorCount != null && errorCount.isInt() && errors.size() != errorCount.asInt()) {
-                                System.out.println("---- test case failed ----");
-                                System.out.println("schema: " + schema);
-                                System.out.println("data: " + test.get("data"));
-                                System.out.println("errors: " + errors);
+                                System.out.println("---- Test Data [" + (i + 1) + "] FAILED [Expected "
+                                        + errorCount.asInt() + " Errors but was " + errors.size() + "] ----");
+                                System.out.println("> Schema: " + schema);
+                                System.out.println("> Data  : " + test.get("data"));
+                                System.out.println("> Errors: " + errors);
                                 for (Error error : errors) {
                                     System.out.println(error);
                                 }
