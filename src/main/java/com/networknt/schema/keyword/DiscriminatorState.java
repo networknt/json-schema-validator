@@ -20,11 +20,79 @@ package com.networknt.schema.keyword;
  * Discriminator state for an instance location.
  */
 public class DiscriminatorState {
+    /**
+     * The propertyName field defined in the discriminator keyword schema.
+     */
     private String propertyName;
+    /**
+     * The discriminating value from the payload matching the property name.
+     */
     private String discriminatingValue;
+    /**
+     * The mapped schema from the mapping or the discriminating value if there is no
+     * mapping.
+     */
     private String mappedSchema = null;
+
+    /**
+     * Whether the mapped schema is explicitly mapped using mapping or is the
+     * discriminating value.
+     */
     private boolean explicitMapping = false;
+
+    /**
+     * The matched schema for the instance.
+     */
     private String matchedSchema;
+
+    /**
+     * Determines if there is a match of the mapped schema to the ref and update the
+     * matched schema if there is a match.
+     * 
+     * @param refSchema the $ref value
+     * @return true if there is a match
+     */
+    public boolean matches(String refSchema) {
+        boolean discriminatorMatchFound = false;
+        String mappedSchema = getMappedSchema();
+        if (mappedSchema != null) {
+            if (isExplicitMapping() && refSchema.equals(mappedSchema)) {
+                // Explicit matching
+                discriminatorMatchFound = true;
+                setMatchedSchema(refSchema);
+            } else if (!isExplicitMapping() && isImplicitMatch(refSchema, mappedSchema)) {
+                // Implicit matching
+                discriminatorMatchFound = true;
+                setMatchedSchema(refSchema);
+            }
+        }
+        return discriminatorMatchFound;
+    }
+
+    /**
+     * Determine if there is an implicit match of the mapped schema to the ref.
+     * 
+     * @param refSchema    the $ref value
+     * @param mappedSchema the mapped schema
+     * @return true if there is a match
+     */
+    private static boolean isImplicitMatch(String refSchema, String mappedSchema) {
+        /*
+         * To ensure that an ambiguous value (e.g. "foo") is treated as a relative URI
+         * reference by all implementations, authors MUST prefix it with the "." path
+         * segment (e.g. "./foo").
+         */
+        if (mappedSchema.startsWith(".")) {
+            return refSchema.equals(mappedSchema);
+        } else {
+            int found = refSchema.lastIndexOf('/');
+            if (found == -1) {
+                return refSchema.equals(mappedSchema);
+            } else {
+                return refSchema.substring(found + 1).equals(mappedSchema);
+            }
+        }
+    }
 
     /**
      * Gets the property name defined in the discriminator keyword schema.
@@ -149,5 +217,4 @@ public class DiscriminatorState {
         return this.matchedSchema != null;
     }
 
-    
 }

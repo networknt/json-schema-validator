@@ -54,6 +54,16 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
      */
     private final Map<String, String> mapping;
 
+    /**
+     * The schema name or URI reference to a schema that is expected to validate the
+     * structure of the model when the discriminating property is not present in the
+     * payload or contains a value for which there is no explicit or implicit
+     * mapping.
+     * <p>
+     * Since OpenAPI 3.2.0
+     */
+    private final String defaultMapping;
+
     public DiscriminatorValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
@@ -77,9 +87,19 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             } else {
                 this.mapping = Collections.emptyMap();
             }
+
+            // Check if OpenAPI 3.2.0
+            JsonNode defaultMapping = discriminator.get("defaultMapping");
+            if (defaultMapping != null) {
+                this.defaultMapping = defaultMapping.asText();
+            } else {
+                this.defaultMapping = null;
+            }
+
         } else {
             this.propertyName = "";
             this.mapping = Collections.emptyMap();
+            this.defaultMapping = null;
         }
     }
 
@@ -152,6 +172,15 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             }
         } else {
             /*
+             * Since OpenAPI 3.2.0 if defaultMapping is set, then the property is optional.
+             */
+            if (this.defaultMapping != null) {
+                state.setMappedSchema(defaultMapping);
+                state.setExplicitMapping(true);
+                return;
+            }
+
+            /*
              * The property is not present in the payload. This property SHOULD be required
              * in the payload schema, as the behavior when the property is absent is
              * undefined.
@@ -166,6 +195,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
              */
             if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .locale(executionContext.getExecutionConfig().getLocale())
                         .messageKey("discriminator.missing_discriminating_value").arguments(this.propertyName).build());
             }
         }

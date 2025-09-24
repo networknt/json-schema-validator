@@ -113,23 +113,11 @@ public class AnyOfValidator extends BaseKeywordValidator {
                         return;
                     } else if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
                         JsonNode refNode = schema.getSchemaNode().get("$ref");
-                        DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                        DiscriminatorState discriminator = executionContext.getDiscriminatorMapping()
+                                .get(instanceLocation);
                         boolean discriminatorMatchFound = false;
                         if (refNode != null) {
-                            // Check if there is a match
-                            String mappedSchema = state.getMappedSchema();
-                            if (mappedSchema != null) {
-                                String ref = refNode.asText();
-                                if (state.isExplicitMapping() && ref.equals(mappedSchema)) {
-                                    // Explicit matching
-                                    discriminatorMatchFound = true;
-                                    state.setMatchedSchema(ref);
-                                } else if (!state.isExplicitMapping() && ref.endsWith(mappedSchema)) {
-                                    // Implicit matching
-                                    discriminatorMatchFound = true;
-                                    state.setMatchedSchema(ref);
-                                }
-                            }
+                            discriminatorMatchFound = discriminator.matches(refNode.asText());
                         }
                         if (discriminatorMatchFound) {
                             /*
