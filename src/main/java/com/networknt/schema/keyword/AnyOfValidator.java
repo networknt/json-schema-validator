@@ -106,55 +106,56 @@ public class AnyOfValidator extends BaseKeywordValidator {
                         numberOfValidSubSchemas++;
                     }
 
-                    if (errors.isEmpty() && (!this.schemaContext.isDiscriminatorKeywordEnabled())
-                            && canShortCircuit() && canShortCircuit(executionContext)) {
+                    if (errors.isEmpty() && (!this.schemaContext.isDiscriminatorKeywordEnabled()) && canShortCircuit()
+                            && canShortCircuit(executionContext)) {
                         // Successful so return only the existing errors, ie. no new errors
                         executionContext.setErrors(existingErrors);
                         return;
                     } else if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                    	JsonNode refNode = schema.getSchemaNode().get("$ref");
-                    	DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
-						boolean discriminatorMatchFound = false;
-						if (refNode != null) {
-							// Check if there is a match
-							String discriminatingValue = state.getDiscriminatingValue();
-							if (discriminatingValue != null) {
-								String ref = refNode.asText();
-								if (state.isExplicitMapping() && ref.equals(discriminatingValue)) {
-									// Explicit matching
-									discriminatorMatchFound = true;
-									state.setMatch(ref);
-								} else if (!state.isExplicitMapping() && ref.endsWith(discriminatingValue)) {
-									// Implicit matching
-									discriminatorMatchFound = true;
-									state.setMatch(ref);
-								}
-							}
-						}
+                        JsonNode refNode = schema.getSchemaNode().get("$ref");
+                        DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                        boolean discriminatorMatchFound = false;
+                        if (refNode != null) {
+                            // Check if there is a match
+                            String discriminatingValue = state.getMappedSchema();
+                            if (discriminatingValue != null) {
+                                String ref = refNode.asText();
+                                if (state.isExplicitMapping() && ref.equals(discriminatingValue)) {
+                                    // Explicit matching
+                                    discriminatorMatchFound = true;
+                                    state.setMatchedSchema(ref);
+                                } else if (!state.isExplicitMapping() && ref.endsWith(discriminatingValue)) {
+                                    // Implicit matching
+                                    discriminatorMatchFound = true;
+                                    state.setMatchedSchema(ref);
+                                }
+                            }
+                        }
                         if (discriminatorMatchFound) {
-                        	/*
-                        	 * Note that discriminator cannot change the outcome of the evaluation but can be used to filter off
-                        	 * any additional messages
-                        	 */
-                        	if (!errors.isEmpty()) {
-                        		/*
-                        		 * This means that the discriminated value has errors and doesn't match so these errors
-                        		 * are the only ones that will be reported *IF* there are no other schemas that successfully
-                        		 * validate to meet the requirement of anyOf.
-                        		 * 
-                        		 * If there are any successful schemas as per anyOf, all these errors will be discarded.
-                        		 */
-                        		discriminatorErrors = new ArrayList<>(errors);
-                        		allErrors = null; // This is no longer needed
-                        	}
+                            /*
+                             * Note that discriminator cannot change the outcome of the evaluation but can
+                             * be used to filter off any additional messages
+                             */
+                            if (!errors.isEmpty()) {
+                                /*
+                                 * This means that the discriminated value has errors and doesn't match so these
+                                 * errors are the only ones that will be reported *IF* there are no other
+                                 * schemas that successfully validate to meet the requirement of anyOf.
+                                 * 
+                                 * If there are any successful schemas as per anyOf, all these errors will be
+                                 * discarded.
+                                 */
+                                discriminatorErrors = new ArrayList<>(errors);
+                                allErrors = null; // This is no longer needed
+                            }
                         }
                     }
-                    
                     /*
-                     * This adds all the errors for this schema to the list that contains all the errors for later reporting.
+                     * This adds all the errors for this schema to the list that contains all the
+                     * errors for later reporting.
                      * 
-                     * There's no need to add these if there was a discriminator match with errors as only the discriminator
-                     * errors will be reported if all the schemas fail.
+                     * There's no need to add these if there was a discriminator match with errors
+                     * as only the discriminator errors will be reported if all the schemas fail.
                      */
                     if (!errors.isEmpty() && discriminatorErrors == null) {
                         if (allErrors == null) {
@@ -169,21 +170,28 @@ public class AnyOfValidator extends BaseKeywordValidator {
             }
 
             if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-            	// https://spec.openapis.org/oas/v3.1.0#discriminator-object
-            	// If the discriminator value does not match an implicit or explicit mapping, no schema can be determined and validation SHOULD fail. Mapping keys MUST be string values, but tooling MAY convert response values to strings for comparison.
-
-            		/*
-            		 * The only case where the discriminator can change the outcome of the result is if the discriminator value does not match an implicit or explicit mapping 
-            		 */
-                	DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
-                	if (state != null && state.getMatch() == null && state.getPropertyValue() != null) {
-                		// state.getPropertyValue() == null means there is no value at propertyName
-                        existingErrors.add(error().keyword("discriminator").instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(
-                                        "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
-                                .build());
-            	}
+                /*
+                 * The only case where the discriminator can change the outcome of the result is
+                 * if the discriminator value does not match an implicit or explicit mapping
+                 */
+                /*
+                 * If the discriminator value does not match an implicit or explicit mapping, no
+                 * schema can be determined and validation SHOULD fail. Mapping keys MUST be
+                 * string values, but tooling MAY convert response values to strings for
+                 * comparison.
+                 * 
+                 * https://spec.openapis.org/oas/v3.1.0#discriminator-object
+                 */
+                DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                if (state != null && state.getMatchedSchema() == null && state.getDiscriminatingValue() != null) {
+                    // state.getPropertyValue() == null means there is no value at propertyName
+                    existingErrors.add(error().keyword("discriminator").instanceNode(node)
+                            .instanceLocation(instanceLocation)
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(
+                                    "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
+                            .build());
+                }
             }
         } finally {
             if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
@@ -194,11 +202,12 @@ public class AnyOfValidator extends BaseKeywordValidator {
             // Successful so return only the existing errors, ie. no new errors
             executionContext.setErrors(existingErrors);
         } else {
-        	if (discriminatorErrors != null) {
-        		// If errors are present matching the discriminator, only these errors should be reported
+            if (discriminatorErrors != null) {
+                // If errors are present matching the discriminator, only these errors should be
+                // reported
                 existingErrors.addAll(discriminatorErrors);
-        	} else if (allErrors != null) {
-        		// As the anyOf has failed, report all the errors
+            } else if (allErrors != null) {
+                // As the anyOf has failed, report all the errors
                 existingErrors.addAll(allErrors);
             }
             executionContext.setErrors(existingErrors);

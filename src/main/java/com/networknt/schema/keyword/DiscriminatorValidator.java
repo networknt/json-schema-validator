@@ -36,16 +36,29 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} that resolves discriminator.
  */
 public class DiscriminatorValidator extends BaseKeywordValidator {
+    /**
+     * The name of the property in the payload that will hold the discriminating
+     * value. This property SHOULD be required in the payload schema, as the
+     * behavior when the property is absent is undefined.
+     */
     private final String propertyName;
+    /**
+     * An object to hold mappings between payload values and schema names or URI
+     * references.
+     */
     private final Map<String, String> mapping;
 
     public DiscriminatorValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext,
-                evaluationPath);
+        super(KeywordType.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
         if (discriminator != null) {
             JsonNode propertyName = discriminator.get("propertyName");
+            /*
+             * There really should be a parse error if propertyName is not defined in the
+             * schema but there is non-specification compliant behavior if there are
+             * multiple discriminators on the same path if the propertyName is not defined.
+             */
             this.propertyName = propertyName != null ? propertyName.asText() : "";
             JsonNode mappingNode = discriminator.get("mapping");
             ObjectNode mapping = mappingNode != null && mappingNode.isObject() ? (ObjectNode) mappingNode : null;
@@ -67,31 +80,67 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
-        // Check for discriminator mapping
-    	if ("".equals(this.propertyName)) {
-    		// Invalid discriminator as propertyName cannot be empty
-    		return;
-    	}
-    	JsonNode propertyValue = node.get(this.propertyName);
-    	DiscriminatorState state = new DiscriminatorState();
-    	DiscriminatorState existing = executionContext.getDiscriminatorMapping().put(instanceLocation, state);
-    	state.setPropertyName(this.propertyName);
-    	if (propertyValue != null && propertyValue.isTextual()) {
-    		String value = propertyValue.asText();
-    		state.setPropertyValue(value);
-    		// Check for explicit mapping
-    		String mapped = mapping.get(value);
-    		if (mapped == null) {
-    			// If explicit mapping not found use implicit value
-    			state.setDiscriminatingValue(value);
-    			state.setExplicitMapping(false);
-    		} else {
-    			state.setDiscriminatingValue(mapped);
-    			state.setExplicitMapping(true);
-    		}
-    	} else {
-    		// discriminator property name is missing so the property value in the state is null
-    	}
+        DiscriminatorState state = null;
+        DiscriminatorState existing = executionContext.getDiscriminatorMapping().get(instanceLocation);
+        if (existing != null) {
+            /*
+             * This allows a new discriminator keyword if the propertyName is empty or if
+             * the propertyName value is the same as the existing one.
+             * 
+             * This is not specification compliant. There shouldn't be multiple matching
+             * discriminator keywords for the same instance.
+             * 
+             * Also propertyName for the discriminator keyword should not be empty according
+             * to the specification.
+             */
+            if (!"".equals(this.propertyName) && !existing.getPropertyName().equals(this.propertyName)) {
+                throw new SchemaException("Schema at " + this.schemaLocation
+                        + " is redefining the discriminator property that has already been set for "
+                        + instanceLocation);
+            }
+            state = existing;
+        } else {
+            state = new DiscriminatorState();
+            state.setPropertyName(this.propertyName);
+            executionContext.getDiscriminatorMapping().put(instanceLocation, state);
+        }
+        JsonNode discriminatingValueNode = node.get(state.getPropertyName());
+        if (discriminatingValueNode != null && discriminatingValueNode.isTextual()) {
+            String discriminatingValue = discriminatingValueNode.asText();
+            state.setDiscriminatingValue(discriminatingValue);
+            // Check for explicit mapping
+            String mappedSchema = mapping.get(discriminatingValue);
+            if (existing != null && mappedSchema != null) {
+                /*
+                 * If the existing already has an explicit mapping and this doesn't tally with
+                 * this one this is an issue as well.
+                 */
+                if (existing.isExplicitMapping() && !existing.getMappedSchema().equals(mappedSchema)) {
+                    throw new SchemaException(
+                            "Schema at " + this.schemaLocation + " is mapping that has already been set for "
+                                    + instanceLocation + " from " + existing.getMappedSchema() + " to " + mappedSchema);
+                }
+            }
+            if (mappedSchema != null) {
+                // Explicit mapping found
+                state.setMappedSchema(mappedSchema);
+                state.setExplicitMapping(true);
+            } else {
+                // If explicit mapping not found use implicit value
+                state.setMappedSchema(discriminatingValue);
+                state.setExplicitMapping(false);
+            }
+        } else {
+            /*
+             * The property is not present in the payload. This property SHOULD be required
+             * in the payload schema, as the behavior when the property is absent is
+             * undefined.
+             */
+            if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .messageKey("discriminator.missing_discriminating_value").arguments(this.propertyName).build());
+            }
+        }
     }
 
     /**
@@ -113,18 +162,19 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     }
 
     /**
-     * Checks based on the current {@link DiscriminatorContext} whether the provided {@link Schema} a match against
-     * the current discriminator.
+     * Checks based on the current {@link DiscriminatorContext} whether the provided
+     * {@link Schema} a match against the current discriminator.
      *
-     * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
+     * @param currentDiscriminatorContext the currently active
+     *                                    {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check
-     * @param discriminatorPropertyValue  the value of the <code>discriminator/propertyName</code> field
+     * @param discriminatorPropertyValue  the value of the
+     *                                    <code>discriminator/propertyName</code>
+     *                                    field
      * @param jsonSchema                  the {@link Schema} to check
      */
     public static void checkDiscriminatorMatch(final DiscriminatorContext currentDiscriminatorContext,
-                                                  final ObjectNode discriminator,
-                                                  final String discriminatorPropertyValue,
-                                                  final Schema jsonSchema) {
+            final ObjectNode discriminator, final String discriminatorPropertyValue, final Schema jsonSchema) {
         if (discriminatorPropertyValue == null) {
             currentDiscriminatorContext.markIgnore();
             return;
@@ -132,52 +182,54 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
         final JsonNode discriminatorMapping = discriminator.get("mapping");
         if (null == discriminatorMapping) {
-            checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                    discriminatorPropertyValue,
+            checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
                     jsonSchema);
         } else {
-            checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                    discriminatorPropertyValue,
-                    discriminatorMapping,
-                    jsonSchema);
+            checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
+                    discriminatorMapping, jsonSchema);
             if (!currentDiscriminatorContext.isDiscriminatorMatchFound()
                     && noExplicitDiscriminatorKeyOverride(discriminatorMapping, jsonSchema)) {
-                checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext,
-                        discriminatorPropertyValue,
+                checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
                         jsonSchema);
             }
         }
     }
 
     /**
-     * Rolls up all nested and compatible discriminators to the root discriminator of the type. Detects attempts to redefine
-     * the <code>propertyName</code> or mappings.
+     * Rolls up all nested and compatible discriminators to the root discriminator
+     * of the type. Detects attempts to redefine the <code>propertyName</code> or
+     * mappings.
      *
-     * @param currentDiscriminatorContext the currently active {@link DiscriminatorContext}
+     * @param currentDiscriminatorContext the currently active
+     *                                    {@link DiscriminatorContext}
      * @param discriminator               the discriminator to use for the check
-     * @param schema                      the value of the <code>discriminator/propertyName</code> field
-     * @param instanceLocation                          the logging prefix
+     * @param schema                      the value of the
+     *                                    <code>discriminator/propertyName</code>
+     *                                    field
+     * @param instanceLocation            the logging prefix
      */
     public static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
-                                                        final ObjectNode discriminator,
-                                                        final Schema schema,
-                                                        final NodePath instanceLocation) {
+            final ObjectNode discriminator, final Schema schema, final NodePath instanceLocation) {
         final JsonNode discriminatorOnSchema = schema.getSchemaNode().get("discriminator");
-        if (null != discriminatorOnSchema && null != currentDiscriminatorContext
-                .getDiscriminatorForPath(schema.getSchemaLocation())) {
-            // this is where A -> B -> C inheritance exists, A has the root discriminator and B adds to the mapping
+        if (null != discriminatorOnSchema
+                && null != currentDiscriminatorContext.getDiscriminatorForPath(schema.getSchemaLocation())) {
+            // this is where A -> B -> C inheritance exists, A has the root discriminator
+            // and B adds to the mapping
             final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
             if (null != propertyName) {
-                throw new SchemaException(instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
+                throw new SchemaException(
+                        instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
             }
             final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
             final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
             if (null == mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have a mapping on a nested discriminator and none on the root discriminator, so we can simply
+                // here we have a mapping on a nested discriminator and none on the root
+                // discriminator, so we can simply
                 // make it the root's
                 discriminator.set("mapping", discriminatorOnSchema);
             } else if (null != mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have to merge. The spec doesn't specify anything on this, but here we don't accept redefinition of
+                // here we have to merge. The spec doesn't specify anything on this, but here we
+                // don't accept redefinition of
                 // mappings that already exist
                 final Iterator<Map.Entry<String, JsonNode>> fieldsToAdd = mappingOnCurrentSchemaDiscriminator.fields();
                 while (fieldsToAdd.hasNext()) {
@@ -187,8 +239,8 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
                     final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
                     if (null != currentMappingValue && !currentMappingValue.equals(mappingValueToAdd)) {
-                        throw new SchemaException(instanceLocation + "discriminator mapping redefinition from " + mappingKeyToAdd
-                                + "/" + currentMappingValue + " to " + mappingValueToAdd);
+                        throw new SchemaException(instanceLocation + "discriminator mapping redefinition from "
+                                + mappingKeyToAdd + "/" + currentMappingValue + " to " + mappingValueToAdd);
                     } else if (null == currentMappingValue) {
                         mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
                     }
@@ -198,18 +250,17 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
         currentDiscriminatorContext.registerDiscriminator(schema.getSchemaLocation(), discriminator);
     }
 
-    private static void checkForImplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
-                                                                  final String discriminatorPropertyValue,
-                                                                  final Schema schema) {
+    private static void checkForImplicitDiscriminatorMappingMatch(
+            final DiscriminatorContext currentDiscriminatorContext, final String discriminatorPropertyValue,
+            final Schema schema) {
         if (schema.getSchemaLocation().getFragment().getName(-1).equals(discriminatorPropertyValue)) {
             currentDiscriminatorContext.markMatch();
         }
     }
 
-    private static void checkForExplicitDiscriminatorMappingMatch(final DiscriminatorContext currentDiscriminatorContext,
-                                                                  final String discriminatorPropertyValue,
-                                                                  final JsonNode discriminatorMapping,
-                                                                  final Schema schema) {
+    private static void checkForExplicitDiscriminatorMappingMatch(
+            final DiscriminatorContext currentDiscriminatorContext, final String discriminatorPropertyValue,
+            final JsonNode discriminatorMapping, final Schema schema) {
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
@@ -223,7 +274,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
     }
 
     private static boolean noExplicitDiscriminatorKeyOverride(final JsonNode discriminatorMapping,
-                                                              final Schema parentSchema) {
+            final Schema parentSchema) {
         final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
         while (explicitMappings.hasNext()) {
             final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
@@ -233,5 +284,5 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             }
         }
         return true;
-    }    
+    }
 }
