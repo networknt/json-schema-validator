@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.vocabulary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,11 +25,20 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.InvalidSchemaException;
+import com.networknt.schema.OutputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.output.OutputUnit;
+import com.networknt.schema.vocabulary.Vocabulary;
+import com.networknt.schema.vocabulary.VocabularyFactory;
 
 /**
  * Tests for vocabulary support in meta schemas.

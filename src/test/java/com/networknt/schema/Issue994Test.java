@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.vocabulary.Vocabulary;
 
 class Issue994Test {
     @Test

@@ -25,9 +25,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.Vocabularies;
-import com.networknt.schema.Vocabulary;
-import com.networknt.schema.VocabularyFactory;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.FormatKeyword;
 import com.networknt.schema.keyword.Keyword;
@@ -36,6 +33,10 @@ import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.UnknownKeywordFactory;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.StringUtils;
+import com.networknt.schema.vocabulary.Vocabularies;
+import com.networknt.schema.vocabulary.Vocabulary;
+import com.networknt.schema.vocabulary.VocabularyFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
