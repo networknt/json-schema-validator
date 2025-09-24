@@ -32,7 +32,7 @@ public class NotAllowedValidator extends BaseKeywordValidator implements Keyword
     private final List<String> fieldNames;
 
     public NotAllowedValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
             this.fieldNames = new ArrayList<>(size);

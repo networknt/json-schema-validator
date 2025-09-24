@@ -40,7 +40,7 @@ public class UnevaluatedItemsValidator extends BaseKeywordValidator {
 
     public UnevaluatedItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
+        super(Keywords.UNEVALUATED_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
         isMinV202012 = MinV202012.getVersions().contains(schemaContext.getDialect().getSpecificationVersion());
         if (schemaNode.isObject() || schemaNode.isBoolean()) {

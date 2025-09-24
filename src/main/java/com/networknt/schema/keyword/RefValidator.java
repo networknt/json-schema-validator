@@ -39,7 +39,7 @@ public class RefValidator extends BaseKeywordValidator {
     private static final String REF_CURRENT = "#";
 
     public RefValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         String refValue = schemaNode.asText();
         this.schema = getRefSchema(parentSchema, schemaContext, refValue, evaluationPath);
     }
@@ -184,7 +184,7 @@ public class RefValidator extends BaseKeywordValidator {
         
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(ValidatorTypeCode.REF.getValue())
+            Error error = error().keyword(Keywords.REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
@@ -201,7 +201,7 @@ public class RefValidator extends BaseKeywordValidator {
         // with the latest config. Reset the config.
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(ValidatorTypeCode.REF.getValue())
+            Error error = error().keyword(Keywords.REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();

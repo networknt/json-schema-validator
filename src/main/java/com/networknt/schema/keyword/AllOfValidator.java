@@ -37,7 +37,7 @@ public class AllOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
     public AllOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new SchemaException(error().instanceNode(schemaNode)

@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ abstract class AbstractJsonSchemaTest {
         return getJsonSchemaFromDataNode(dataNode).validate(dataNode);
     }
 
-    protected void assertValidatorType(String filename, ValidatorTypeCode validatorTypeCode) {
+    protected void assertValidatorType(String filename, Keywords validatorTypeCode) {
         List<Error> errors = validate(getDataTestFolder() + filename);
 
         assertTrue(

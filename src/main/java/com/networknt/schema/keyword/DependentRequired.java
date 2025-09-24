@@ -33,7 +33,7 @@ public class DependentRequired extends BaseKeywordValidator implements KeywordVa
 
     public DependentRequired(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(ValidatorTypeCode.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();

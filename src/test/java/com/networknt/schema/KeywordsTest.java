@@ -19,34 +19,34 @@ package com.networknt.schema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ValidatorTypeCodeTest {
+class KeywordsTest {
 
     @Test
     void testFromValueString() {
-        assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("additionalProperties"));
+        assertEquals(Keywords.ADDITIONAL_PROPERTIES, Keywords.fromValue("additionalProperties"));
     }
 
     @Test
     void testFromValueMissing() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.fromValue("missing")));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> assertEquals(Keywords.ADDITIONAL_PROPERTIES, Keywords.fromValue("missing")));
     }
 
     @Test
     void testIfThenElseNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_4);
-        Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("if")));
+        List<Keywords> list = Keywords.getKeywords(SpecificationVersion.DRAFT_4);
+        Assertions.assertFalse(list.contains(Keywords.fromValue("if")));
     }
 
     @Test
     void testExclusiveMaximumNotInV4() {
-        List<ValidatorTypeCode> list = ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_4);
-        Assertions.assertFalse(list.contains(ValidatorTypeCode.fromValue("exclusiveMaximum")));
+        List<Keywords> list = Keywords.getKeywords(SpecificationVersion.DRAFT_4);
+        Assertions.assertFalse(list.contains(Keywords.fromValue("exclusiveMaximum")));
     }
 
 }

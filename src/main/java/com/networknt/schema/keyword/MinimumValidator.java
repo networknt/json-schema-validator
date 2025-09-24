@@ -45,7 +45,7 @@ public class MinimumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMinimum;
 
     public MinimumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (!schemaNode.isNumber()) {
             throw new SchemaException("minimum value is not a number");

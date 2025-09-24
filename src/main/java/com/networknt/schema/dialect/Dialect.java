@@ -34,7 +34,7 @@ import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.UnknownKeywordFactory;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,8 +93,8 @@ public class Dialect {
             for (Map.Entry<String, Keyword> type : kwords.entrySet()) {
                 String keywordName = type.getKey();
                 Keyword keyword = type.getValue();
-                if (ValidatorTypeCode.FORMAT.getValue().equals(keywordName)) {
-                    if (!(keyword instanceof FormatKeyword) && !ValidatorTypeCode.FORMAT.equals(keyword)) {
+                if (Keywords.FORMAT.getValue().equals(keywordName)) {
+                    if (!(keyword instanceof FormatKeyword) && !Keywords.FORMAT.equals(keyword)) {
                         throw new IllegalArgumentException("Overriding the keyword 'format' is not supported. Use the formatKeywordFactory and extend the FormatKeyword.");
                     }
                     // Indicate that the format keyword needs to be created
@@ -455,9 +455,9 @@ public class Dialect {
                 if (schemaContext.isNullableKeywordEnabled() && "nullable".equals(keyword)) {
                     return null;
                 }
-                if (ValidatorTypeCode.DISCRIMINATOR.getValue().equals(keyword)
+                if (Keywords.DISCRIMINATOR.getValue().equals(keyword)
                         && schemaContext.isDiscriminatorKeywordEnabled()) {
-                    return ValidatorTypeCode.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
+                    return Keywords.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
                             parentSchema, schemaContext);
                 }
                 kw = this.builder.unknownKeywordFactory != null

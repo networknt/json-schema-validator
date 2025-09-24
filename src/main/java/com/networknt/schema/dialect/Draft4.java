@@ -6,7 +6,7 @@ import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 
 /**
  * Draft 4 dialect.
@@ -22,7 +22,7 @@ public class Draft4 {
                     .specificationVersion(SpecificationVersion.DRAFT_4)
                     .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_4))
+                    .keywords(Keywords.getKeywords(SpecificationVersion.DRAFT_4))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Arrays.asList(
                             new NonValidationKeyword("$schema"),

@@ -38,7 +38,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
 
     public PatternPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                       SchemaContext schemaContext) {
-        super(ValidatorTypeCode.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isObject()) {
             throw new SchemaException("patternProperties must be an object node");
         }

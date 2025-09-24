@@ -52,7 +52,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
      */
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.contentMediaType = schemaNode.textValue();
     }
 

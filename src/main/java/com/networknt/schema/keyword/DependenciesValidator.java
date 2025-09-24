@@ -43,7 +43,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
      */
     public DependenciesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(ValidatorTypeCode.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();

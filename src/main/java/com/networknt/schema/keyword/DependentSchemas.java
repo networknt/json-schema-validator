@@ -33,7 +33,7 @@ public class DependentSchemas extends BaseKeywordValidator {
 
     public DependentSchemas(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(ValidatorTypeCode.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();

@@ -7,7 +7,7 @@ import java.util.Map;
 import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 
 /**
  * Draft 2019-09 dialect.
@@ -35,7 +35,7 @@ public class Draft201909 {
                     .specificationVersion(SpecificationVersion.DRAFT_2019_09)
                     .idKeyword(ID_KEYWORD)
                     .formats(Formats.DEFAULT)
-                    .keywords(ValidatorTypeCode.getKeywords(SpecificationVersion.DRAFT_2019_09))
+                    .keywords(Keywords.getKeywords(SpecificationVersion.DRAFT_2019_09))
                     // keywords that may validly exist, but have no validation aspect to them
                     .keywords(Collections.singletonList(
 		                    new NonValidationKeyword("definitions")

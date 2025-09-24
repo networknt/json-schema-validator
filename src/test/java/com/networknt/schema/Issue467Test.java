@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
 import com.networknt.schema.walk.PropertyWalkListenerRunner;
@@ -49,7 +49,7 @@ class Issue467Test {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<NodePath> properties = new LinkedHashSet<>();
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new WalkListener() {
+                .keywordWalkListener(Keywords.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         properties.add(walkEvent.getSchema().getEvaluationPath().append(walkEvent.getKeyword()));

@@ -41,7 +41,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
 
     public DiscriminatorValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext,
+        super(Keywords.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
         if (discriminator != null) {

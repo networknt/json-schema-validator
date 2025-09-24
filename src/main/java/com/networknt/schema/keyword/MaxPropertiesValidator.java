@@ -31,7 +31,7 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
 
     public MaxPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         } else {

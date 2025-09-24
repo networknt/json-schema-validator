@@ -37,12 +37,12 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     protected final SchemaRef schema;
 
     public RecursiveRefValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         String refValue = schemaNode.asText();
         if (!"#".equals(refValue)) {
             Error error = error()
-                    .keyword(ValidatorTypeCode.RECURSIVE_REF.getValue()).messageKey("internal.invalidRecursiveRef")
+                    .keyword(Keywords.RECURSIVE_REF.getValue()).messageKey("internal.invalidRecursiveRef")
                     .message("The value of a $recursiveRef must be '#' but is '{0}'").instanceLocation(schemaLocation.getFragment())
                     .instanceNode(this.schemaNode)
                     .evaluationPath(evaluationPath).arguments(refValue).build();
@@ -95,7 +95,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
+            Error error = error().keyword(Keywords.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();
@@ -112,7 +112,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
         // with the latest config. Reset the config.
         Schema refSchema = this.schema.getSchema();
         if (refSchema == null) {
-            Error error = error().keyword(ValidatorTypeCode.RECURSIVE_REF.getValue())
+            Error error = error().keyword(Keywords.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(getEvaluationPath())
                     .arguments(schemaNode.asText()).build();

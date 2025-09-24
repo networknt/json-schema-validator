@@ -61,7 +61,7 @@ enum VersionCode {
     }
 }
 
-public enum ValidatorTypeCode implements Keyword {
+public enum Keywords implements Keyword {
     ADDITIONAL_PROPERTIES("additionalProperties", AdditionalPropertiesValidator::new, VersionCode.MaxV7),
     ALL_OF("allOf", AllOfValidator::new, VersionCode.MaxV7),
     ANY_OF("anyOf", AnyOfValidator::new, VersionCode.MaxV7),
@@ -119,10 +119,10 @@ public enum ValidatorTypeCode implements Keyword {
     WRITE_ONLY("writeOnly", WriteOnlyValidator::new, VersionCode.V7),
     ;
 
-    private static final Map<String, ValidatorTypeCode> CONSTANTS = new HashMap<>();
+    private static final Map<String, Keywords> CONSTANTS = new HashMap<>();
 
     static {
-        for (ValidatorTypeCode c : values()) {
+        for (Keywords c : values()) {
             CONSTANTS.put(c.value, c);
         }
     }
@@ -131,15 +131,15 @@ public enum ValidatorTypeCode implements Keyword {
     private final ValidatorFactory validatorFactory;
     private final VersionCode versionCode;
 
-    ValidatorTypeCode(String value, ValidatorFactory validatorFactory, VersionCode versionCode) {
+    Keywords(String value, ValidatorFactory validatorFactory, VersionCode versionCode) {
         this.value = value;
         this.validatorFactory = validatorFactory;
         this.versionCode = versionCode;
     }
 
-    public static List<ValidatorTypeCode> getKeywords(SpecificationVersion versionFlag) {
-        final List<ValidatorTypeCode> result = new ArrayList<>();
-        for (ValidatorTypeCode keyword : values()) {
+    public static List<Keywords> getKeywords(SpecificationVersion versionFlag) {
+        final List<Keywords> result = new ArrayList<>();
+        for (Keywords keyword : values()) {
             if (keyword.getVersionCode().getVersions().contains(versionFlag)) {
                 result.add(keyword);
             }
@@ -147,8 +147,8 @@ public enum ValidatorTypeCode implements Keyword {
         return result;
     }
 
-    public static ValidatorTypeCode fromValue(String value) {
-        ValidatorTypeCode constant = CONSTANTS.get(value);
+    public static Keywords fromValue(String value) {
+        Keywords constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         }

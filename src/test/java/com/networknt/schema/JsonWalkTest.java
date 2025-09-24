@@ -9,7 +9,7 @@ import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordValidator;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkListenerRunner;
 import com.networknt.schema.walk.WalkConfig;
@@ -51,8 +51,8 @@ class JsonWalkTest {
         KeywordWalkListenerRunner.Builder keywordWalkListenerRunnerBuilder = KeywordWalkListenerRunner.builder();
 
         keywordWalkListenerRunnerBuilder.keywordWalkListener(new AllKeywordListener());
-        keywordWalkListenerRunnerBuilder.keywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
-        keywordWalkListenerRunnerBuilder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+        keywordWalkListenerRunnerBuilder.keywordWalkListener(Keywords.REF.getValue(), new RefKeywordListener());
+        keywordWalkListenerRunnerBuilder.keywordWalkListener(Keywords.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         SchemaRegistry schemaFactory = SchemaRegistry.withDialect(dialect);
         this.jsonSchema = schemaFactory.getSchema(getSchema());
@@ -60,8 +60,8 @@ class JsonWalkTest {
 
         // Create another Schema.
         KeywordWalkListenerRunner.Builder keywordWalkListenerRunner1Builder = KeywordWalkListenerRunner.builder();
-        keywordWalkListenerRunner1Builder.keywordWalkListener(ValidatorTypeCode.REF.getValue(), new RefKeywordListener());
-        keywordWalkListenerRunner1Builder.keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(),
+        keywordWalkListenerRunner1Builder.keywordWalkListener(Keywords.REF.getValue(), new RefKeywordListener());
+        keywordWalkListenerRunner1Builder.keywordWalkListener(Keywords.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         schemaFactory = SchemaRegistry.withDialect(dialect);
         this.jsonSchema1 = schemaFactory.getSchema(getSchema());

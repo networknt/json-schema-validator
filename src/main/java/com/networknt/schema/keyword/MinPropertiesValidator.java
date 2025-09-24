@@ -31,7 +31,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
 
     public MinPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         } else {

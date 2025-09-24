@@ -22,7 +22,7 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
 
     public MinMaxContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
             SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Set<Analysis> analysis = null;
         int min = 1;

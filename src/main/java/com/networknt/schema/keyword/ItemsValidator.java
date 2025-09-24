@@ -47,7 +47,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     private final JsonNode additionalItemsSchemaNode;
 
     public ItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Boolean additionalItems = null;
 
@@ -242,10 +242,10 @@ public class ItemsValidator extends BaseKeywordValidator {
                             n = defaultNode;
                         }
                     }
-                    walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema, ValidatorTypeCode.ITEMS.getValue());
+                    walkSchema(executionContext, this.schema, n, rootNode, instanceLocation.append(i), shouldValidateSchema, Keywords.ITEMS.getValue());
                 }
             } else {
-                walkSchema(executionContext, this.schema, null, rootNode, instanceLocation.append(0), shouldValidateSchema, ValidatorTypeCode.ITEMS.getValue());
+                walkSchema(executionContext, this.schema, null, rootNode, instanceLocation.append(0), shouldValidateSchema, Keywords.ITEMS.getValue());
             }
         }
         else if (this.tupleSchema != null) {
@@ -266,10 +266,10 @@ public class ItemsValidator extends BaseKeywordValidator {
                         }
                     }
                     walkSchema(executionContext, this.tupleSchema.get(i), n, rootNode, instanceLocation.append(i),
-                            shouldValidateSchema, ValidatorTypeCode.ITEMS.getValue());
+                            shouldValidateSchema, Keywords.ITEMS.getValue());
                 } else {
                     walkSchema(executionContext, this.tupleSchema.get(i), null, rootNode, instanceLocation.append(i),
-                            shouldValidateSchema, ValidatorTypeCode.ITEMS.getValue());
+                            shouldValidateSchema, Keywords.ITEMS.getValue());
                 }
             }
             if (this.additionalSchema != null) {

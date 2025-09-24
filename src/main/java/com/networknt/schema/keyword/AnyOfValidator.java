@@ -41,7 +41,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
     private Boolean canShortCircuit = null;
 
     public AnyOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.ANY_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.ANY_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new SchemaException(error().instanceNode(schemaNode)

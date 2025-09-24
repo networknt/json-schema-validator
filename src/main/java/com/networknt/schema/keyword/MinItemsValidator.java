@@ -30,7 +30,7 @@ public class MinItemsValidator extends BaseKeywordValidator implements KeywordVa
     private int min = 0;
 
     public MinItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MIN_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         }

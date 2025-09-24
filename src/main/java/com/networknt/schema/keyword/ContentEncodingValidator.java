@@ -47,7 +47,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
      */
     public ContentEncodingValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext,
+        super(Keywords.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext,
                 evaluationPath);
         this.contentEncoding = schemaNode.textValue();
     }

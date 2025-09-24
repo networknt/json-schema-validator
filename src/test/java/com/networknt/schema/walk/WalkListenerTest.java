@@ -45,7 +45,7 @@ import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.keyword.ItemsValidator;
 import com.networknt.schema.keyword.ItemsValidator202012;
 import com.networknt.schema.keyword.PropertiesValidator;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SchemaRefs;
@@ -86,7 +86,7 @@ class WalkListenerTest {
                 + "}";
 
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new WalkListener() {
+                .keywordWalkListener(Keywords.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         @SuppressWarnings("unchecked")
@@ -386,7 +386,7 @@ class WalkListenerTest {
     @Test
     void draft201909() {
     	KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new WalkListener() {
+                .keywordWalkListener(Keywords.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         @SuppressWarnings("unchecked")
@@ -723,7 +723,7 @@ class WalkListenerTest {
                 + "}";
         Map<String, JsonNode> missingSchemaNode = new LinkedHashMap<>();
         KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
-                .keywordWalkListener(ValidatorTypeCode.PROPERTIES.getValue(), new WalkListener() {
+                .keywordWalkListener(Keywords.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         JsonNode requiredNode = walkEvent.getSchema().getSchemaNode().get("required");

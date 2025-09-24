@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.keyword.DiscriminatorValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 import com.networknt.schema.utils.JsonNodes;
 
 /**
@@ -186,13 +186,13 @@ public class Schema implements Validator {
                 if (!validator.validate(id, rootSchema, schemaLocation, result, schemaContext)) {
                     SchemaLocation idSchemaLocation = schemaLocation.append(schemaContext.getDialect().getIdKeyword());
                     Error error = Error.builder()
-                            .messageKey(ValidatorTypeCode.ID.getValue()).keyword(ValidatorTypeCode.ID.getValue())
+                            .messageKey(Keywords.ID.getValue()).keyword(Keywords.ID.getValue())
                             .instanceLocation(idSchemaLocation.getFragment())
                             .arguments(id, schemaContext.getDialect().getIdKeyword(), idSchemaLocation)
                             .schemaLocation(idSchemaLocation)
                             .schemaNode(schemaNode)
                             .messageFormatter(args -> schemaContext.getSchemaRegistryConfig().getMessageSource().getMessage(
-                                    ValidatorTypeCode.ID.getValue(), schemaContext.getSchemaRegistryConfig().getLocale(), args))
+                                    Keywords.ID.getValue(), schemaContext.getSchemaRegistryConfig().getLocale(), args))
                             .build();
                     throw new InvalidSchemaException(error);
                 }
@@ -506,7 +506,7 @@ public class Schema implements Validator {
                 }
                 if (found == null) {
                     Error error = Error.builder()
-                            .keyword(ValidatorTypeCode.REF.getValue()).messageKey("internal.unresolvedRef")
+                            .keyword(Keywords.REF.getValue()).messageKey("internal.unresolvedRef")
                             .message("Reference {0} cannot be resolved")
                             .instanceLocation(schemaLocation.getFragment())
                             .schemaLocation(schemaLocation)

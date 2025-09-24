@@ -39,7 +39,7 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
     private final Schema schema;
 
     public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.UNEVALUATED_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.UNEVALUATED_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
             this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);

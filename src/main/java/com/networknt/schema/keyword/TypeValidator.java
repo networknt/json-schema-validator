@@ -34,7 +34,7 @@ public class TypeValidator extends BaseKeywordValidator {
     private final UnionTypeValidator unionTypeValidator;
 
     public TypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         if (this.schemaType == JsonType.UNION) {
             this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);

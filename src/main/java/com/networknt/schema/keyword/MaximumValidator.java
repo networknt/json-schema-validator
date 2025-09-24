@@ -42,7 +42,7 @@ public class MaximumValidator extends BaseKeywordValidator {
 
 
     public MaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("maximum value is not a number");
         }

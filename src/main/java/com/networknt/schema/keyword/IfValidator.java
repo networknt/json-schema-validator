@@ -37,7 +37,7 @@ public class IfValidator extends BaseKeywordValidator {
     private final Schema elseSchema;
 
     public IfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
 
         Schema foundIfSchema = null;
         Schema foundThenSchema = null;

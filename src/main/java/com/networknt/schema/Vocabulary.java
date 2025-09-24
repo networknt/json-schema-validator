@@ -23,7 +23,7 @@ import java.util.Set;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 
 /**
  * Represents a vocabulary in meta-schema.
@@ -35,75 +35,75 @@ public class Vocabulary {
     // 2019-09
     public static final Vocabulary DRAFT_2019_09_CORE = new Vocabulary("https://json-schema.org/draft/2019-09/vocab/core",
             new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), new NonValidationKeyword("$anchor"),
-            ValidatorTypeCode.REF, ValidatorTypeCode.RECURSIVE_REF, new NonValidationKeyword("$recursiveAnchor"),
+            Keywords.REF, Keywords.RECURSIVE_REF, new NonValidationKeyword("$recursiveAnchor"),
             new NonValidationKeyword("$vocabulary"), new NonValidationKeyword("$comment"),
             new NonValidationKeyword("$defs"));
     public static final Vocabulary DRAFT_2019_09_APPLICATOR = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/applicator", new NonValidationKeyword("additionalItems"),
-            ValidatorTypeCode.UNEVALUATED_ITEMS, ValidatorTypeCode.ITEMS, ValidatorTypeCode.CONTAINS,
-            ValidatorTypeCode.ADDITIONAL_PROPERTIES, ValidatorTypeCode.UNEVALUATED_PROPERTIES,
-            ValidatorTypeCode.PROPERTIES, ValidatorTypeCode.PATTERN_PROPERTIES, ValidatorTypeCode.DEPENDENT_SCHEMAS,
-            ValidatorTypeCode.PROPERTYNAMES, ValidatorTypeCode.IF_THEN_ELSE, new NonValidationKeyword("then"),
-            new NonValidationKeyword("else"), ValidatorTypeCode.ALL_OF, ValidatorTypeCode.ANY_OF,
-            ValidatorTypeCode.ONE_OF, ValidatorTypeCode.NOT);
+            Keywords.UNEVALUATED_ITEMS, Keywords.ITEMS, Keywords.CONTAINS,
+            Keywords.ADDITIONAL_PROPERTIES, Keywords.UNEVALUATED_PROPERTIES,
+            Keywords.PROPERTIES, Keywords.PATTERN_PROPERTIES, Keywords.DEPENDENT_SCHEMAS,
+            Keywords.PROPERTYNAMES, Keywords.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            new NonValidationKeyword("else"), Keywords.ALL_OF, Keywords.ANY_OF,
+            Keywords.ONE_OF, Keywords.NOT);
     public static final Vocabulary DRAFT_2019_09_VALIDATION = new Vocabulary(
-            "https://json-schema.org/draft/2019-09/vocab/validation", ValidatorTypeCode.MULTIPLE_OF,
-            ValidatorTypeCode.MAXIMUM, ValidatorTypeCode.EXCLUSIVE_MAXIMUM, ValidatorTypeCode.MINIMUM,
-            ValidatorTypeCode.EXCLUSIVE_MINIMUM, ValidatorTypeCode.MAX_LENGTH, ValidatorTypeCode.MIN_LENGTH,
-            ValidatorTypeCode.PATTERN, ValidatorTypeCode.MAX_ITEMS, ValidatorTypeCode.MIN_ITEMS,
-            ValidatorTypeCode.UNIQUE_ITEMS, ValidatorTypeCode.MAX_CONTAINS, ValidatorTypeCode.MIN_CONTAINS,
-            ValidatorTypeCode.MAX_PROPERTIES, ValidatorTypeCode.MIN_PROPERTIES, ValidatorTypeCode.REQUIRED,
-            ValidatorTypeCode.DEPENDENT_REQUIRED, ValidatorTypeCode.CONST, ValidatorTypeCode.ENUM,
-            ValidatorTypeCode.TYPE);
+            "https://json-schema.org/draft/2019-09/vocab/validation", Keywords.MULTIPLE_OF,
+            Keywords.MAXIMUM, Keywords.EXCLUSIVE_MAXIMUM, Keywords.MINIMUM,
+            Keywords.EXCLUSIVE_MINIMUM, Keywords.MAX_LENGTH, Keywords.MIN_LENGTH,
+            Keywords.PATTERN, Keywords.MAX_ITEMS, Keywords.MIN_ITEMS,
+            Keywords.UNIQUE_ITEMS, Keywords.MAX_CONTAINS, Keywords.MIN_CONTAINS,
+            Keywords.MAX_PROPERTIES, Keywords.MIN_PROPERTIES, Keywords.REQUIRED,
+            Keywords.DEPENDENT_REQUIRED, Keywords.CONST, Keywords.ENUM,
+            Keywords.TYPE);
     public static final Vocabulary DRAFT_2019_09_META_DATA = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/meta-data", new AnnotationKeyword("title"),
             new AnnotationKeyword("description"), new AnnotationKeyword("default"), new AnnotationKeyword("deprecated"),
-            ValidatorTypeCode.READ_ONLY, ValidatorTypeCode.WRITE_ONLY, new AnnotationKeyword("examples"));
+            Keywords.READ_ONLY, Keywords.WRITE_ONLY, new AnnotationKeyword("examples"));
     public static final Vocabulary DRAFT_2019_09_FORMAT = new Vocabulary("https://json-schema.org/draft/2019-09/vocab/format",
-            ValidatorTypeCode.FORMAT);
+            Keywords.FORMAT);
     public static final Vocabulary DRAFT_2019_09_CONTENT = new Vocabulary(
             "https://json-schema.org/draft/2019-09/vocab/content", new AnnotationKeyword("contentMediaType"),
             new AnnotationKeyword("contentEncoding"), new AnnotationKeyword("contentSchema"));
 
     // 2020-12
     public static final Vocabulary DRAFT_2020_12_CORE = new Vocabulary("https://json-schema.org/draft/2020-12/vocab/core",
-            new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), ValidatorTypeCode.REF,
-            new NonValidationKeyword("$anchor"), ValidatorTypeCode.DYNAMIC_REF,
+            new NonValidationKeyword("$id"), new NonValidationKeyword("$schema"), Keywords.REF,
+            new NonValidationKeyword("$anchor"), Keywords.DYNAMIC_REF,
             new NonValidationKeyword("$dynamicAnchor"), new NonValidationKeyword("$vocabulary"),
             new NonValidationKeyword("$comment"), new NonValidationKeyword("$defs"));
     public static final Vocabulary DRAFT_2020_12_APPLICATOR = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/applicator", ValidatorTypeCode.PREFIX_ITEMS,
-            ValidatorTypeCode.ITEMS_202012, ValidatorTypeCode.CONTAINS, ValidatorTypeCode.ADDITIONAL_PROPERTIES,
-            ValidatorTypeCode.PROPERTIES, ValidatorTypeCode.PATTERN_PROPERTIES, ValidatorTypeCode.DEPENDENT_SCHEMAS,
-            ValidatorTypeCode.PROPERTYNAMES, ValidatorTypeCode.IF_THEN_ELSE, new NonValidationKeyword("then"),
-            new NonValidationKeyword("else"), ValidatorTypeCode.ALL_OF, ValidatorTypeCode.ANY_OF,
-            ValidatorTypeCode.ONE_OF, ValidatorTypeCode.NOT);
+            "https://json-schema.org/draft/2020-12/vocab/applicator", Keywords.PREFIX_ITEMS,
+            Keywords.ITEMS_202012, Keywords.CONTAINS, Keywords.ADDITIONAL_PROPERTIES,
+            Keywords.PROPERTIES, Keywords.PATTERN_PROPERTIES, Keywords.DEPENDENT_SCHEMAS,
+            Keywords.PROPERTYNAMES, Keywords.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            new NonValidationKeyword("else"), Keywords.ALL_OF, Keywords.ANY_OF,
+            Keywords.ONE_OF, Keywords.NOT);
     public static final Vocabulary DRAFT_2020_12_UNEVALUATED = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/unevaluated", ValidatorTypeCode.UNEVALUATED_ITEMS,
-            ValidatorTypeCode.UNEVALUATED_PROPERTIES);
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated", Keywords.UNEVALUATED_ITEMS,
+            Keywords.UNEVALUATED_PROPERTIES);
     public static final Vocabulary DRAFT_2020_12_VALIDATION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/validation", ValidatorTypeCode.TYPE, ValidatorTypeCode.CONST,
-            ValidatorTypeCode.ENUM, ValidatorTypeCode.MULTIPLE_OF, ValidatorTypeCode.MAXIMUM,
-            ValidatorTypeCode.EXCLUSIVE_MAXIMUM, ValidatorTypeCode.MINIMUM, ValidatorTypeCode.EXCLUSIVE_MINIMUM,
-            ValidatorTypeCode.MAX_LENGTH, ValidatorTypeCode.MIN_LENGTH, ValidatorTypeCode.PATTERN,
-            ValidatorTypeCode.MAX_ITEMS, ValidatorTypeCode.MIN_ITEMS, ValidatorTypeCode.UNIQUE_ITEMS,
-            ValidatorTypeCode.MAX_CONTAINS, ValidatorTypeCode.MIN_CONTAINS, ValidatorTypeCode.MAX_PROPERTIES,
-            ValidatorTypeCode.MIN_PROPERTIES, ValidatorTypeCode.REQUIRED, ValidatorTypeCode.DEPENDENT_REQUIRED);
+            "https://json-schema.org/draft/2020-12/vocab/validation", Keywords.TYPE, Keywords.CONST,
+            Keywords.ENUM, Keywords.MULTIPLE_OF, Keywords.MAXIMUM,
+            Keywords.EXCLUSIVE_MAXIMUM, Keywords.MINIMUM, Keywords.EXCLUSIVE_MINIMUM,
+            Keywords.MAX_LENGTH, Keywords.MIN_LENGTH, Keywords.PATTERN,
+            Keywords.MAX_ITEMS, Keywords.MIN_ITEMS, Keywords.UNIQUE_ITEMS,
+            Keywords.MAX_CONTAINS, Keywords.MIN_CONTAINS, Keywords.MAX_PROPERTIES,
+            Keywords.MIN_PROPERTIES, Keywords.REQUIRED, Keywords.DEPENDENT_REQUIRED);
     public static final Vocabulary DRAFT_2020_12_META_DATA = new Vocabulary(
             "https://json-schema.org/draft/2020-12/vocab/meta-data", new AnnotationKeyword("title"),
             new AnnotationKeyword("description"), new AnnotationKeyword("default"), new AnnotationKeyword("deprecated"),
-            ValidatorTypeCode.READ_ONLY, ValidatorTypeCode.WRITE_ONLY, new AnnotationKeyword("examples"));
+            Keywords.READ_ONLY, Keywords.WRITE_ONLY, new AnnotationKeyword("examples"));
     public static final Vocabulary DRAFT_2020_12_FORMAT_ANNOTATION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/format-annotation", ValidatorTypeCode.FORMAT);
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation", Keywords.FORMAT);
     public static final Vocabulary DRAFT_2020_12_FORMAT_ASSERTION = new Vocabulary(
-            "https://json-schema.org/draft/2020-12/vocab/format-assertion", ValidatorTypeCode.FORMAT);
+            "https://json-schema.org/draft/2020-12/vocab/format-assertion", Keywords.FORMAT);
     public static final Vocabulary DRAFT_2020_12_CONTENT = new Vocabulary(
             "https://json-schema.org/draft/2020-12/vocab/content", new AnnotationKeyword("contentEncoding"),
             new AnnotationKeyword("contentMediaType"), new AnnotationKeyword("contentSchema"));
 
     // OpenAPI 3.1
     public static final Vocabulary OPENAPI_3_1_BASE = new Vocabulary("https://spec.openapis.org/oas/3.1/vocab/base",
-            new AnnotationKeyword("example"), ValidatorTypeCode.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
+            new AnnotationKeyword("example"), Keywords.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
             new AnnotationKeyword("xml"));
 
     private final String iri;

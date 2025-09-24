@@ -6,7 +6,7 @@ import com.networknt.schema.Formats;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.keyword.NonValidationKeyword;
-import com.networknt.schema.keyword.ValidatorTypeCode;
+import com.networknt.schema.keyword.Keywords;
 
 /**
  * OpenAPI 3.0.
@@ -24,42 +24,42 @@ public class OpenApi30 {
                     .formats(Formats.DEFAULT)
                     .keywords(Arrays.asList(
                             new AnnotationKeyword("title"),
-                            ValidatorTypeCode.PATTERN,
-                            ValidatorTypeCode.REQUIRED,
-                            ValidatorTypeCode.ENUM,
-                            ValidatorTypeCode.MINIMUM,
-                            ValidatorTypeCode.MAXIMUM,
-                            ValidatorTypeCode.MULTIPLE_OF,
-                            ValidatorTypeCode.MIN_LENGTH,
-                            ValidatorTypeCode.MAX_LENGTH,
-                            ValidatorTypeCode.MIN_ITEMS,
-                            ValidatorTypeCode.MAX_ITEMS,
-                            ValidatorTypeCode.UNIQUE_ITEMS,
-                            ValidatorTypeCode.MIN_PROPERTIES,
-                            ValidatorTypeCode.MAX_PROPERTIES,
+                            Keywords.PATTERN,
+                            Keywords.REQUIRED,
+                            Keywords.ENUM,
+                            Keywords.MINIMUM,
+                            Keywords.MAXIMUM,
+                            Keywords.MULTIPLE_OF,
+                            Keywords.MIN_LENGTH,
+                            Keywords.MAX_LENGTH,
+                            Keywords.MIN_ITEMS,
+                            Keywords.MAX_ITEMS,
+                            Keywords.UNIQUE_ITEMS,
+                            Keywords.MIN_PROPERTIES,
+                            Keywords.MAX_PROPERTIES,
                             
-                            ValidatorTypeCode.TYPE,
-                            ValidatorTypeCode.FORMAT,
+                            Keywords.TYPE,
+                            Keywords.FORMAT,
                             new AnnotationKeyword("description"),
-                            ValidatorTypeCode.ITEMS,
-                            ValidatorTypeCode.PROPERTIES,
-                            ValidatorTypeCode.ADDITIONAL_PROPERTIES,
+                            Keywords.ITEMS,
+                            Keywords.PROPERTIES,
+                            Keywords.ADDITIONAL_PROPERTIES,
                             new AnnotationKeyword("default"),
-                            ValidatorTypeCode.ALL_OF,
-                            ValidatorTypeCode.ONE_OF,
-                            ValidatorTypeCode.ANY_OF,
-                            ValidatorTypeCode.NOT,
+                            Keywords.ALL_OF,
+                            Keywords.ONE_OF,
+                            Keywords.ANY_OF,
+                            Keywords.NOT,
 
                             new AnnotationKeyword("deprecated"),
-                            ValidatorTypeCode.DISCRIMINATOR,
+                            Keywords.DISCRIMINATOR,
                             new AnnotationKeyword("example"),
                             new AnnotationKeyword("externalDocs"),
                             new NonValidationKeyword("nullable"),
-                            ValidatorTypeCode.READ_ONLY,
-                            ValidatorTypeCode.WRITE_ONLY,
+                            Keywords.READ_ONLY,
+                            Keywords.WRITE_ONLY,
                             new AnnotationKeyword("xml"),
                             
-                            ValidatorTypeCode.REF
+                            Keywords.REF
                     ))
                     .build(); 
         }

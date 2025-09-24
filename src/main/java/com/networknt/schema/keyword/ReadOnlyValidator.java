@@ -33,7 +33,7 @@ public class ReadOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(ReadOnlyValidator.class);
 
     public ReadOnlyValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(ValidatorTypeCode.READ_ONLY, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(Keywords.READ_ONLY, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         logger.debug("Loaded ReadOnlyValidator for property {} as {}", parentSchema, "read mode");
     }
 
