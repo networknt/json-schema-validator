@@ -17,7 +17,6 @@
 package com.networknt.schema.keyword;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.CachedSupplier;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
@@ -25,6 +24,7 @@ import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
+import com.networknt.schema.utils.CachedSupplier;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaContext;
 
