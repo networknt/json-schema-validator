@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.PrefixItemsValidator;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.walk.ApplyDefaultsStrategy;
 import com.networknt.schema.walk.ItemWalkListenerRunner;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;

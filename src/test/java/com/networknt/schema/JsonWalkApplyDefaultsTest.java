@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.walk.ApplyDefaultsStrategy;
 import com.networknt.schema.walk.WalkConfig;
 
 import java.io.IOException;

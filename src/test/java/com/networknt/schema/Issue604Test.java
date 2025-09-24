@@ -1,6 +1,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.walk.ApplyDefaultsStrategy;
 import com.networknt.schema.walk.WalkConfig;
 
 import org.junit.jupiter.api.Test;

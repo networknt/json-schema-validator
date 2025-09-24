@@ -19,7 +19,6 @@ package com.networknt.schema.walk;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.NodePath;

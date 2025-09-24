@@ -33,7 +33,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ApplyDefaultsStrategy;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.Schema;

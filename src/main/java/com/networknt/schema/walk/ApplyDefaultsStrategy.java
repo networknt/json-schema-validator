@@ -1,4 +1,4 @@
-package com.networknt.schema;
+package com.networknt.schema.walk;
 
 public class ApplyDefaultsStrategy {
     public static final ApplyDefaultsStrategy EMPTY_APPLY_DEFAULTS_STRATEGY = new ApplyDefaultsStrategy(false, false, false);
