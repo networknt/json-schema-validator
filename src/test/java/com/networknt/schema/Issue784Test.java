@@ -29,11 +29,6 @@ class Issue784Test {
         public boolean matches(ExecutionContext executionContext, String value) {
             return value.equals(FOO_BAR);
         }
-
-        @Override
-        public String getErrorMessageDescription() {
-            return null;
-        }
     }
 
     @Test

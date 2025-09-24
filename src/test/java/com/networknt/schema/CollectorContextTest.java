@@ -142,12 +142,6 @@ class CollectorContextTest {
                     public String getName() {
                         return "sample-format";
                     }
-
-                    // Return null. As are just testing collection context.
-                    @Override
-                    public String getErrorMessageDescription() {
-                        return null;
-                    }
                 }).build();
         return dialect;
     }

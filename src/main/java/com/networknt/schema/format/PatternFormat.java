@@ -27,7 +27,6 @@ public class PatternFormat implements Format {
     private final String name;
     private final Pattern pattern;
     private final String messageKey;
-    private final String errorMessageDescription;
 
     /**
      * Constructor.
@@ -36,19 +35,9 @@ public class PatternFormat implements Format {
      * 
      * @param name the name
      * @param regex the regex
-     * @param errorMessageDescription the error message description
      */
-    @Deprecated
-    public PatternFormat(String name, String regex, String errorMessageDescription) {
+    private PatternFormat(String name, String regex, String messageKey) {
         this.name = name;
-        this.errorMessageDescription = errorMessageDescription != null ? errorMessageDescription : regex;
-        this.messageKey = "format";
-        this.pattern = Pattern.compile(regex);
-    }
-    
-    private PatternFormat(String name, String regex, String errorMessageDescription, String messageKey) {
-        this.name = name;
-        this.errorMessageDescription = errorMessageDescription != null ? errorMessageDescription : regex;
         this.messageKey = messageKey;
         this.pattern = Pattern.compile(regex);
     }
@@ -62,7 +51,7 @@ public class PatternFormat implements Format {
      * @return the pattern format
      */
     public static PatternFormat of(String name, String regex, String messageKey) {
-        return new PatternFormat(name, regex, null, messageKey != null ? messageKey : "format");
+        return new PatternFormat(name, regex, messageKey != null ? messageKey : "format");
     }
 
     @Override
@@ -78,10 +67,5 @@ public class PatternFormat implements Format {
     @Override
     public String getMessageKey() {
         return this.messageKey;
-    }
-
-    @Override
-    public String getErrorMessageDescription() {
-        return this.errorMessageDescription;
     }
 }

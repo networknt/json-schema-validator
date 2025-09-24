@@ -27,7 +27,7 @@ class Issue832Test {
         }
 
         @Override
-        public String getErrorMessageDescription() {
+        public String getMessageKey() {
             return "always fail match";
         }
     }

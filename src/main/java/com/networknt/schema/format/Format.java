@@ -25,7 +25,6 @@ import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.TypeFactory;
-import com.networknt.schema.MessageSourceError.Builder;
 import com.networknt.schema.keyword.FormatValidator;
 
 /**
@@ -47,10 +46,10 @@ public interface Format {
      * See jsv-messages.properties.
      * <p>
      * The following are the arguments.<br>
-     * {0} The instance location<br>
-     * {1} The format name<br>
-     * {2} The error message description<br>
-     * {3} The input value
+     * {0} The format name<br>
+     * {1} The input value
+     * <p>
+     * Note that the default localized messages do not use the input value.
      * 
      * @return the message key
      */
@@ -58,20 +57,6 @@ public interface Format {
         return "format";
     }
     
-    /**
-     * Gets the error message description.
-     * <p>
-     * Deprecated. Override getMessageKey() and set the localized message in the
-     * resource bundle or message source.
-     *
-     * @return the error message description.
-     */
-    @Deprecated
-    default String getErrorMessageDescription() {
-        return "";
-    }
-
-
     /**
      * Determines if the value matches the format.
      * <p>
@@ -154,7 +139,7 @@ public interface Format {
             if (!matches(executionContext, schemaContext, node, rootNode, instanceLocation, assertionsEnabled,
                     formatValidator)) {
                 executionContext.addError(message.get()
-                                .arguments(this.getName(), this.getErrorMessageDescription(), node.asText()).build());
+                                .arguments(this.getName(), node.asText()).build());
             }
         }
     }

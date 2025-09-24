@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.Format;
-import com.networknt.schema.format.PatternFormat;
 import com.networknt.schema.output.OutputUnit;
 
 /**
@@ -151,34 +150,6 @@ class FormatValidatorTest {
         assertFalse(messages.isEmpty());
     }
 
-    /**
-     * This tests that the changes to use message key doesn't cause a regression to
-     * the existing message.
-     */
-    @SuppressWarnings("deprecation")
-    @Test
-    void patternFormatDeprecated() {
-        Dialect customDialect = Dialect
-                .builder("https://www.example.com/schema", Dialects.getDraft7())
-                .formats(formats -> {
-                    PatternFormat format = new PatternFormat("custom", "test", "must be test");
-                    formats.put(format.getName(), format);
-                })
-                .build();
-
-        SchemaRegistry factory = SchemaRegistry.withDialect(customDialect);
-        String formatSchema = "{\r\n"
-                + "  \"type\": \"string\",\r\n"
-                + "  \"format\": \"custom\"\r\n"
-                + "}";
-        Schema schema = factory.getSchema(formatSchema);
-        List<Error> messages = schema.validate("\"inval!i:d^(abc]\"", InputFormat.JSON, executionConfiguration -> {
-            executionConfiguration.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
-        });
-        assertFalse(messages.isEmpty());
-        assertEquals(": does not match the custom pattern must be test", messages.iterator().next().toString());
-    }
-
     static class CustomNumberFormat implements Format {
         private final BigDecimal compare;
         
@@ -200,6 +171,11 @@ class FormatValidatorTest {
         @Override
         public String getName() {
             return "custom-number";
+        }
+
+        @Override
+        public String getMessageKey() {
+        	return "does not match the {0} pattern";
         }
     }
 
@@ -223,7 +199,7 @@ class FormatValidatorTest {
             executionConfiguration.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         assertFalse(messages.isEmpty());
-        assertEquals(": does not match the custom-number pattern ", messages.iterator().next().toString());
+        assertEquals(": does not match the custom-number pattern", messages.iterator().next().toString());
         messages = schema.validate("12345", InputFormat.JSON, executionConfiguration -> {
             executionConfiguration.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
