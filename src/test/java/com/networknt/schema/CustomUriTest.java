@@ -2,7 +2,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,14 +32,14 @@ class CustomUriTest {
 
     private SchemaRegistry buildJsonSchemaFactory() {
         return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(new CustomUriFetcher())).build();
+                .resourceLoaders(resourceLoaders -> resourceLoaders.add(new CustomUriFetcher())).build();
     }
 
-    private static class CustomUriFetcher implements SchemaLoader {
+    private static class CustomUriFetcher implements ResourceLoader {
         private static final String SCHEMA = "{\"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\"$id\":\"custom:date\",\"type\":\"string\",\"format\":\"date\"}";
 
         @Override
-        public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        public InputStreamSource getResource(AbsoluteIri absoluteIri) {
             return () -> new ByteArrayInputStream(SCHEMA.getBytes(StandardCharsets.UTF_8));
         }
     }

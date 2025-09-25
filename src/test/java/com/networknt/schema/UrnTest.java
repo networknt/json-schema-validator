@@ -33,7 +33,7 @@ class UrnTest
       SchemaRegistry.Builder builder = SchemaRegistry.builder()
           .defaultDialectId(draftV7.getId())
           .dialectRegistry(new BasicDialectRegistry(draftV7))
-          .schemaMappers(schemaMappers -> schemaMappers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
+          .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(value -> AbsoluteIri.of(String.format("resource:draft7/urn/%s.schema.json", value.toString())))
           );
       SchemaRegistry instance = builder.build();
       Schema schema = instance.getSchema(is);

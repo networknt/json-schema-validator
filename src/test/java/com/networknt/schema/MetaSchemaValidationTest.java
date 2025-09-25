@@ -42,7 +42,7 @@ class MetaSchemaValidationTest {
             SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
             Schema schema = SchemaRegistry
                     .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                            builder -> builder.schemaRegistryConfig(config).schemaMappers(schemaMappers -> schemaMappers
+                            builder -> builder.schemaRegistryConfig(config).schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"));
             List<Error> messages = schema.validate(inputData);

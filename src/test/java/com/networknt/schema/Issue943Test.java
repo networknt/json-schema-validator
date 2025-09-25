@@ -66,7 +66,7 @@ class Issue943Test {
                 + "  \"coordinates\": [1, 1]\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(external)));
         Schema schema = factory.getSchema(schemaData);
         assertTrue(schema.validate(inputData, InputFormat.JSON).isEmpty());
 

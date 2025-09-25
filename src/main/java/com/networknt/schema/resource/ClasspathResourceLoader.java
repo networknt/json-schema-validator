@@ -24,14 +24,14 @@ import com.networknt.schema.AbsoluteIri;
 /**
  * Loads from classpath.
  */
-public class ClasspathSchemaLoader implements SchemaLoader {
+public class ClasspathResourceLoader implements ResourceLoader {
     private final Supplier<ClassLoader> classLoaderSource;
 
     /**
      * Constructor.
      */
-    public ClasspathSchemaLoader() {
-        this(ClasspathSchemaLoader::getClassLoader);
+    public ClasspathResourceLoader() {
+        this(ClasspathResourceLoader::getClassLoader);
     }
 
     /**
@@ -39,12 +39,12 @@ public class ClasspathSchemaLoader implements SchemaLoader {
      *
      * @param classLoaderSource the class loader source
      */
-    public ClasspathSchemaLoader(Supplier<ClassLoader> classLoaderSource) {
+    public ClasspathResourceLoader(Supplier<ClassLoader> classLoaderSource) {
         this.classLoaderSource = classLoaderSource;
     }
 
     @Override
-    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+    public InputStreamSource getResource(AbsoluteIri absoluteIri) {
         String iri = absoluteIri != null ? absoluteIri.toString() : "";
         String name = null;
         if (iri.startsWith("classpath:")) {
@@ -75,7 +75,7 @@ public class ClasspathSchemaLoader implements SchemaLoader {
     protected static ClassLoader getClassLoader() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
-            classLoader = SchemaLoader.class.getClassLoader();
+            classLoader = ResourceLoader.class.getClassLoader();
         }
         return classLoader;
     }

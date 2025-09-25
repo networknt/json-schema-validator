@@ -17,8 +17,8 @@ import com.networknt.schema.serialization.JsonMapperFactory;
 class SampleTest {
     @Test
     void schemaFromSchemaLocationMapping() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaMappers(
-                schemaMappers -> schemaMappers.mapPrefix("https://www.example.com/schema", "classpath:schema")));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaIdResolvers(
+                schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://www.example.com/schema", "classpath:schema")));
         /*
          * This should be cached for performance.
          */
@@ -40,7 +40,7 @@ class SampleTest {
         String schemaData = "{\"enum\":[1, 2, 3, 4]}";
         
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
                         Collections.singletonMap("https://www.example.com/schema/example-ref.json", schemaData))));
         /*
          * This should be cached for performance.

@@ -7,16 +7,16 @@ import java.util.function.Predicate;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Map implementation of {@link SchemaMapper}.
+ * Map implementation of {@link SchemaIdResolver}.
  */
-public class MapSchemaMapper implements SchemaMapper {
+public class MapSchemaIdResolver implements SchemaIdResolver {
     private final Function<String, String> mappings;
     
-    public MapSchemaMapper(Map<String, String> mappings) {
+    public MapSchemaIdResolver(Map<String, String> mappings) {
         this(mappings::get);
     }
 
-    public MapSchemaMapper(Function<String, String> mappings) {
+    public MapSchemaIdResolver(Function<String, String> mappings) {
         this.mappings = mappings;
     }
 
@@ -26,7 +26,7 @@ public class MapSchemaMapper implements SchemaMapper {
      * @param test     the predicate
      * @param mappings the mapping
      */
-    public MapSchemaMapper(Predicate<String> test, Function<String, String> mappings) {
+    public MapSchemaIdResolver(Predicate<String> test, Function<String, String> mappings) {
         this.mappings = iri -> {
             if (test.test(iri)) {
                 return mappings.apply(iri);
@@ -36,7 +36,7 @@ public class MapSchemaMapper implements SchemaMapper {
     }
 
     @Override
-    public AbsoluteIri map(AbsoluteIri absoluteIRI) {
+    public AbsoluteIri resolve(AbsoluteIri absoluteIRI) {
         String mapped = this.mappings.apply(absoluteIRI.toString());
         if (mapped != null) {
             return AbsoluteIri.of(mapped);

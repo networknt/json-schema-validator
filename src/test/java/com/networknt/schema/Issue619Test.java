@@ -16,7 +16,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +39,9 @@ class Issue619Test {
 
     @BeforeEach
     void setup() throws Exception {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if (iri.startsWith("http://localhost:1234")) {
                     return () -> {
@@ -54,7 +54,7 @@ class Issue619Test {
         };
 
         factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");
         three = getJsonNodeFromStringContent("3");

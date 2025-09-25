@@ -27,18 +27,18 @@ import java.util.function.Predicate;
  * Schema Mappers used to map an ID indicated by an absolute IRI to a retrieval
  * IRI.
  */
-public class SchemaMappers extends ArrayList<SchemaMapper> {
+public class SchemaIdResolvers extends ArrayList<SchemaIdResolver> {
     private static final long serialVersionUID = 1L;
 
-    public SchemaMappers() {
+    public SchemaIdResolvers() {
         super();
     }
 
-    public SchemaMappers(Collection<? extends SchemaMapper> c) {
+    public SchemaIdResolvers(Collection<? extends SchemaIdResolver> c) {
         super(c);
     }
 
-    public SchemaMappers(int initialCapacity) {
+    public SchemaIdResolvers(int initialCapacity) {
         super(initialCapacity);
     }
 
@@ -47,7 +47,7 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
     }
 
     public static class Builder {
-        private final SchemaMappers values = new SchemaMappers();
+        private final SchemaIdResolvers values = new SchemaIdResolvers();
 
         public Builder() {
         }
@@ -64,12 +64,12 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
         }
 
         /**
-         * Customize the schema mappers.
+         * Customize the schema id resolvers.
          * 
          * @param customizer the customizer
          * @return the builder
          */
-        public Builder values(Consumer<List<SchemaMapper>> customizer) {
+        public Builder values(Consumer<List<SchemaIdResolver>> customizer) {
             customizer.accept(this.values);
             return this;
         }
@@ -77,11 +77,11 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
         /**
          * Adds a schema mapper.
          * 
-         * @param schemaMapper the schema mapper
+         * @param schemaIdResolver the schema mapper
          * @return the builder
          */
-        public Builder add(SchemaMapper schemaMapper) {
-            this.values.add(schemaMapper);
+        public Builder add(SchemaIdResolver schemaIdResolver) {
+            this.values.add(schemaIdResolver);
             return this;
         }
 
@@ -93,7 +93,7 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
          * @return the builder
          */
         public Builder mapPrefix(String source, String replacement) {
-            this.values.add(new PrefixSchemaMapper(source, replacement));
+            this.values.add(new PrefixSchemaIdResolver(source, replacement));
             return this;
         }
 
@@ -104,7 +104,7 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
          * @return the builder
          */
         public Builder mappings(Map<String, String> mappings) {
-            this.values.add(new MapSchemaMapper(mappings));
+            this.values.add(new MapSchemaIdResolver(mappings));
             return this;
         }
 
@@ -115,7 +115,7 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
          * @return the builder
          */
         public Builder mappings(Function<String, String> mappings) {
-            this.values.add(new MapSchemaMapper(mappings));
+            this.values.add(new MapSchemaIdResolver(mappings));
             return this;
         }
 
@@ -127,16 +127,16 @@ public class SchemaMappers extends ArrayList<SchemaMapper> {
          * @return the builder
          */
         public Builder mappings(Predicate<String> test, Function<String, String> mappings) {
-            this.values.add(new MapSchemaMapper(test, mappings));
+            this.values.add(new MapSchemaIdResolver(test, mappings));
             return this;
         }
 
         /**
-         * Builds a {@link SchemaMappers}
+         * Builds a {@link SchemaIdResolvers}
          * 
          * @return the schema mappers
          */
-        public SchemaMappers build() {
+        public SchemaIdResolvers build() {
             return values;
         }
     }

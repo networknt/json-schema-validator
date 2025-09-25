@@ -15,22 +15,18 @@
  */
 package com.networknt.schema.resource;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test;
-
 import com.networknt.schema.AbsoluteIri;
 
-class MapSchemaMapperTest {
-
-    @Test
-    void predicateMapping() {
-        MapSchemaMapper mapper = new MapSchemaMapper(test -> test.startsWith("http://www.example.org/"),
-                original -> original.replaceFirst("http://www.example.org/", "classpath:"));
-        AbsoluteIri result = mapper.map(AbsoluteIri.of("http://www.example.org/hello"));
-        assertEquals("classpath:hello", result.toString());
-        result = mapper.map(AbsoluteIri.of("notmatchingprefixhttp://www.example.org/hello"));
-        assertNull(result);
-    }
-
+/**
+ * Resource Loader used to load data using a retrieval IRI.
+ */
+@FunctionalInterface
+public interface ResourceLoader {
+    /**
+     * Loads data given the retrieval IRI.
+     * 
+     * @param location the retrieval IRI
+     * @return the input stream source
+     */
+    InputStreamSource getResource(AbsoluteIri location);
 }

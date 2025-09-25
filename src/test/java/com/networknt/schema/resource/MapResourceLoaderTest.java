@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.AbsoluteIri;
 
-class MapSchemaLoaderTest {
+class MapResourceLoaderTest {
     static class Result {
         private final String schema;
 
@@ -46,8 +46,8 @@ class MapSchemaLoaderTest {
         mappings.put("http://www.example.org/test.json", new Result("test"));
         mappings.put("http://www.example.org/hello.json", new Result("hello"));
 
-        MapSchemaLoader loader = new MapSchemaLoader(mappings::get, Result::getSchema);
-        InputStreamSource source = loader.getSchema(AbsoluteIri.of("http://www.example.org/test.json"));
+        MapResourceLoader loader = new MapResourceLoader(mappings::get, Result::getSchema);
+        InputStreamSource source = loader.getResource(AbsoluteIri.of("http://www.example.org/test.json"));
         try (InputStream inputStream = source.getInputStream()) {
             byte[] r = new byte[4];
             inputStream.read(r);
@@ -55,7 +55,7 @@ class MapSchemaLoaderTest {
             assertEquals("test", value);
         }
 
-        InputStreamSource result = loader.getSchema(AbsoluteIri.of("http://www.example.org/not-found.json"));
+        InputStreamSource result = loader.getResource(AbsoluteIri.of("http://www.example.org/not-found.json"));
         assertNull(result);
     }
 }

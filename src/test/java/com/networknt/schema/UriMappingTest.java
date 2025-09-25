@@ -33,9 +33,9 @@ import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.MapSchemaMapper;
-import com.networknt.schema.resource.SchemaLoader;
-import com.networknt.schema.resource.SchemaMapper;
+import com.networknt.schema.resource.MapSchemaIdResolver;
+import com.networknt.schema.resource.ResourceLoader;
+import com.networknt.schema.resource.SchemaIdResolver;
 
 class UriMappingTest {
 
@@ -54,7 +54,7 @@ class UriMappingTest {
         Builder builder = SchemaRegistry.builder()
                 .defaultDialectId(draftV4.getId())
                 .dialectRegistry(new BasicDialectRegistry(draftV4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings)));
         SchemaRegistry instance = builder.build();
         Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
@@ -71,9 +71,9 @@ class UriMappingTest {
      */
     @Test
     void testBuilderExampleMappings() throws IOException {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if ("https://example.com/invalid/schema/url".equals(iri)) {
                     return () -> {
@@ -84,7 +84,7 @@ class UriMappingTest {
             }
         };
         SchemaRegistry instance = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)));
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
@@ -105,7 +105,7 @@ class UriMappingTest {
         Builder builder = SchemaRegistry.builder()
                 .defaultDialectId(draftV4.getId())
                 .dialectRegistry(new BasicDialectRegistry(draftV4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings)));
         instance = builder.build();
         Schema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
@@ -121,7 +121,7 @@ class UriMappingTest {
     void testValidatorConfigUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
         SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
         Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
@@ -137,9 +137,9 @@ class UriMappingTest {
      */
     @Test
     void testValidatorConfigExampleMappings() throws IOException {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if ("https://example.com/invalid/schema/url".equals(iri)) {
                     return () -> {
@@ -151,7 +151,7 @@ class UriMappingTest {
         };        
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
         SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))).build();
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)))).build();
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
@@ -168,7 +168,7 @@ class UriMappingTest {
             fail("Unexpected exception thrown");
         }
         instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
         Schema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
@@ -177,13 +177,13 @@ class UriMappingTest {
     void testMappingsForRef() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/schema-with-ref-mapping.json");
         SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
         Schema schema = instance.getSchema(SchemaLocation.of("resource:uri_mapping/schema-with-ref.json")
                 );
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }
 
-    private SchemaMapper getUriMappingsFromUrl(URL url) {
+    private SchemaIdResolver getUriMappingsFromUrl(URL url) {
         HashMap<String, String> map = new HashMap<String, String>();
         try {
             for (JsonNode mapping : mapper.readTree(url)) {
@@ -193,6 +193,6 @@ class UriMappingTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new MapSchemaMapper(map);
+        return new MapSchemaIdResolver(map);
     }
 }

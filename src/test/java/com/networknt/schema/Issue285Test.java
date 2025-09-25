@@ -14,7 +14,7 @@ class Issue285Test {
     private final ObjectMapper mapper = new ObjectMapper();
     private final SchemaRegistry schemaFactory = SchemaRegistry
 		.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
-            .schemaMappers(schemaMappers -> schemaMappers
+            .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                     .mapPrefix("http://json-schema.org", "resource:")
                     .mapPrefix("https://json-schema.org", "resource:"))
     		.build();

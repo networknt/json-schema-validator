@@ -15,19 +15,22 @@
  */
 package com.networknt.schema.resource;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 import com.networknt.schema.AbsoluteIri;
 
-/**
- * Schema Mapper used to map an ID indicated by an absolute IRI to a retrieval
- * IRI.
- */
-@FunctionalInterface
-public interface SchemaMapper {
-    /**
-     * Maps an ID indicated by an absolute IRI to a retrieval IRI.
-     * 
-     * @param absoluteIRI the ID
-     * @return the retrieval IRI or null if this mapper doesn't support the mapping
-     */
-    AbsoluteIri map(AbsoluteIri absoluteIRI);
+class MapSchemaIdResolverTest {
+
+    @Test
+    void predicateMapping() {
+        MapSchemaIdResolver mapper = new MapSchemaIdResolver(test -> test.startsWith("http://www.example.org/"),
+                original -> original.replaceFirst("http://www.example.org/", "classpath:"));
+        AbsoluteIri result = mapper.resolve(AbsoluteIri.of("http://www.example.org/hello"));
+        assertEquals("classpath:hello", result.toString());
+        result = mapper.resolve(AbsoluteIri.of("notmatchingprefixhttp://www.example.org/hello"));
+        assertNull(result);
+    }
+
 }

@@ -20,14 +20,14 @@ import com.networknt.schema.AbsoluteIri;
 /**
  * Maps the JSON Schema meta schema to the class path location.
  */
-public class MetaSchemaMapper implements SchemaMapper {
+public class MetaSchemaIdResolver implements SchemaIdResolver {
     private static final char ANCHOR = '#';
     private static final String CLASSPATH_PREFIX = "classpath:";
     private static final String HTTP_JSON_SCHEMA_ORG_PREFIX = "http://json-schema.org/";
     private static final String HTTPS_JSON_SCHEMA_ORG_PREFIX = "https://json-schema.org/";
 
     @Override
-    public AbsoluteIri map(AbsoluteIri absoluteIRI) {
+    public AbsoluteIri resolve(AbsoluteIri absoluteIRI) {
         String absoluteIRIString = absoluteIRI != null ? absoluteIRI.toString() : null;
         if (absoluteIRIString != null) {
             if (absoluteIRIString.startsWith(HTTPS_JSON_SCHEMA_ORG_PREFIX)) {

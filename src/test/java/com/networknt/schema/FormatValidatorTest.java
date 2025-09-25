@@ -86,7 +86,7 @@ class FormatValidatorTest {
         Schema schema = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                         builder -> builder
-                                .schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections.singletonMap("https://www.example.com/format-assertion/schema", metaSchemaData))))
+                                .resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections.singletonMap("https://www.example.com/format-assertion/schema", metaSchemaData))))
                 .getSchema(schemaData);
         List<Error> messages = schema.validate("\"hello\"", InputFormat.JSON);
         assertEquals(1, messages.size());

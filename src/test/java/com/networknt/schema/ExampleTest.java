@@ -28,7 +28,7 @@ class ExampleTest {
     void exampleSchemaLocation() {
         // This creates a schema factory that will use Draft 2012-12 as the default if $schema is not specified in the initial schema
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> 
-            builder.schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://www.example.org/", "classpath:schema/"))
+            builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://www.example.org/", "classpath:schema/"))
         );
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of("https://www.example.org/example-main.json"));
         String input = "{\r\n"

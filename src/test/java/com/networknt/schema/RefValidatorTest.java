@@ -39,7 +39,7 @@ class RefValidatorTest {
                 + "}";
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
@@ -58,7 +58,7 @@ class RefValidatorTest {
                 + "}";
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
@@ -77,7 +77,7 @@ class RefValidatorTest {
                 + "}";
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
                         Collections.singletonMap("https://www.example.com/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
@@ -96,7 +96,7 @@ class RefValidatorTest {
                 + "}";
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
                         Collections.singletonMap("https://www.example.com/schema/hello/integer.json", otherSchema))));
         Schema jsonSchema = factory.getSchema(mainSchema);
         List<Error> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);

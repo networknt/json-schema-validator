@@ -56,8 +56,8 @@ class SchemaTest {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().preloadSchema(false).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                 builder -> builder.schemaRegistryConfig(config)
-                        .schemaLoaders(schemaLoaders -> schemaLoaders
-                        .schemas(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
+                        .resourceLoaders(resourceLoaders -> resourceLoaders
+                        .resources(Collections.singletonMap("http://example.org/ref.json", refSchemaData))));
         Schema schema = factory.getSchema(schemaData);
         Exception[] instance = new Exception[1];
         CountDownLatch latch = new CountDownLatch(1);

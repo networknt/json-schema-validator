@@ -3,19 +3,19 @@ package com.networknt.schema.resource;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Prefix implementation of {@link SchemaMapper}.
+ * Prefix implementation of {@link SchemaIdResolver}.
  */
-public class PrefixSchemaMapper implements SchemaMapper {
+public class PrefixSchemaIdResolver implements SchemaIdResolver {
     private final String source;
     private final String replacement;
 
-    public PrefixSchemaMapper(String source, String replacement) {
+    public PrefixSchemaIdResolver(String source, String replacement) {
         this.source = source;
         this.replacement = replacement;
     }
 
     @Override
-    public AbsoluteIri map(AbsoluteIri absoluteIRI) {
+    public AbsoluteIri resolve(AbsoluteIri absoluteIRI) {
         String absoluteIRIString = absoluteIRI != null ? absoluteIRI.toString() : null;
         if (absoluteIRIString != null && absoluteIRIString.startsWith(source)) {
             return AbsoluteIri.of(replacement + absoluteIRIString.substring(source.length()));

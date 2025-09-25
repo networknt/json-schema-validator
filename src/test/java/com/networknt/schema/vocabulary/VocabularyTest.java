@@ -71,7 +71,7 @@ class VocabularyTest {
                 + "}";
         Schema schema = SchemaRegistry
                 .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
                 .getSchema(schemaData);
@@ -86,7 +86,7 @@ class VocabularyTest {
         // Set validation vocab
         schema = SchemaRegistry
                 .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
                                                 Vocabulary.DRAFT_2020_12_VALIDATION.getIri())))))
@@ -123,7 +123,7 @@ class VocabularyTest {
                 + "}";
         Schema schema = SchemaRegistry
                 .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))))
                 .getSchema(schemaData);
@@ -139,7 +139,7 @@ class VocabularyTest {
         // Set format assertion vocab
         schema = SchemaRegistry
                 .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
                                                 Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getIri())))))
@@ -175,7 +175,7 @@ class VocabularyTest {
                 + "}";
         SchemaRegistry factory = SchemaRegistry
                 .withDefaultDialectId("https://www.example.com/no-validation-no-format/schema",
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
         assertThrows(InvalidSchemaException.class, () -> factory.getSchema(schemaData));
@@ -218,7 +218,7 @@ class VocabularyTest {
                 .build();
         SchemaRegistry factory = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                        builder -> builder.dialectRegistry(new BasicDialectRegistry(dialect)).schemaLoaders(schemaLoaders -> schemaLoaders.schemas(Collections
+                        builder -> builder.dialectRegistry(new BasicDialectRegistry(dialect)).resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
         Schema schema = factory.getSchema(schemaData);

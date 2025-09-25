@@ -33,7 +33,7 @@ import com.networknt.schema.AbsoluteIri;
 /**
  * Tests for URI schema Loader.
  */
-class UriSchemaLoaderTest {
+class IriResourceLoaderTest {
     /**
      * This test should only be run manually so as not to always hit the remote
      * server.
@@ -43,8 +43,8 @@ class UriSchemaLoaderTest {
     @Test
     @Disabled("manual")
     void shouldLoadAbsoluteIri() throws IOException {
-        UriSchemaLoader schemaLoader = new UriSchemaLoader();
-        InputStreamSource inputStreamSource = schemaLoader.getSchema(AbsoluteIri.of("https://私の団体も.jp/"));
+        IriResourceLoader schemaLoader = new IriResourceLoader();
+        InputStreamSource inputStreamSource = schemaLoader.getResource(AbsoluteIri.of("https://私の団体も.jp/"));
         try (InputStream inputStream = inputStreamSource.getInputStream()) {
             String result = new BufferedReader(new InputStreamReader(inputStream)).lines()
                     .collect(Collectors.joining("\n"));
@@ -54,13 +54,13 @@ class UriSchemaLoaderTest {
 
     @Test
     void shouldNotThrowAbsoluteIri() throws IOException {
-        UriSchemaLoader schemaLoader = new UriSchemaLoader();
-        assertDoesNotThrow(() -> schemaLoader.getSchema(AbsoluteIri.of("https://私の団体も.jp/")));
+        IriResourceLoader schemaLoader = new IriResourceLoader();
+        assertDoesNotThrow(() -> schemaLoader.getResource(AbsoluteIri.of("https://私の団体も.jp/")));
     }
 
     @Test
     void shouldThrowRelativeIri() throws IOException {
-        UriSchemaLoader schemaLoader = new UriSchemaLoader();
-        assertThrows(IllegalArgumentException.class, () -> schemaLoader.getSchema(AbsoluteIri.of("私の団体も.jp/")));
+        IriResourceLoader schemaLoader = new IriResourceLoader();
+        assertThrows(IllegalArgumentException.class, () -> schemaLoader.getResource(AbsoluteIri.of("私の団体も.jp/")));
     }
 }

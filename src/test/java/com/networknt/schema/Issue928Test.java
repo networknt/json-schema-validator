@@ -10,7 +10,7 @@ class Issue928Test {
     private SchemaRegistry factoryFor(SpecificationVersion version) {
         return SchemaRegistry
                 .builder(SchemaRegistry.withDefaultDialect(version))
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://example.org", "classpath:"))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }
 

@@ -259,7 +259,7 @@ class OutputUnitTest {
                 + "}";
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(external)));
         Schema schema = factory.getSchema(schemaData);
         
      // The following checks if the heirarchical output format is correct with multiple unevaluated properties

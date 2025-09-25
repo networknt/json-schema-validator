@@ -16,28 +16,37 @@
 package com.networknt.schema.resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 
-/**
- * Test for DisallowSchemaLoader.
- */
-class DisallowSchemaLoaderTest {
+public class SchemaLoaderTest {
+    @Test
+    void allow() {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaLoader(
+                        schemaLoader -> schemaLoader.allow(iri -> iri.toString().startsWith("classpath:"))));
+        InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
+                () -> factory.getSchema(SchemaLocation.of("http://www.example.org/schema")));
+        assertEquals("http://www.example.org/schema", invalidSchemaException.getError().getArguments()[0].toString());
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"));
+        assertNotNull(schema);
+    }
 
     @Test
-    void integration() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(DisallowSchemaLoader.getInstance())));
+    void block() {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaLoader(schemaLoader -> schemaLoader.block(iri -> true)));
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
                 () -> factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json")));
         assertEquals("classpath:schema/example-main.json",
                 invalidSchemaException.getError().getArguments()[0].toString());
     }
-
 }

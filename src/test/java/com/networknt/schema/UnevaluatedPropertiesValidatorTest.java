@@ -228,7 +228,7 @@ class UnevaluatedPropertiesValidatorTest {
         schemas.put("https://www.example.org/DeviceConfiguration.json", deviceConfiguration);
         Schema schema = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2019_09,
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas)))
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(schemas)))
                 .getSchema(schemaData);
         String inputData = "{ \"isPrimaryDevice\": true, \"roleName\": \"hello\" }";
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL,

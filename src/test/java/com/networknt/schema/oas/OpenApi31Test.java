@@ -40,7 +40,7 @@ class OpenApi31Test {
     @Test
     void validateVocabulary() {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.schemaMappers(schemaMappers -> schemaMappers
+                builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));

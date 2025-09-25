@@ -30,7 +30,7 @@ import com.networknt.schema.dialect.DialectId;
 /**
  * MetaSchemaMapperTest.
  */
-class MetaSchemaMapperTest {
+class MetaSchemaIdResolverTest {
 
     enum MapInput {
         V4(DialectId.DRAFT_4),
@@ -49,10 +49,10 @@ class MetaSchemaMapperTest {
     @ParameterizedTest
     @EnumSource(MapInput.class)
     void map(MapInput input) throws IOException {
-        MetaSchemaMapper mapper = new MetaSchemaMapper();
-        AbsoluteIri result = mapper.map(AbsoluteIri.of(input.iri));
-        ClasspathSchemaLoader loader = new ClasspathSchemaLoader();
-        InputStreamSource source = loader.getSchema(result);
+        MetaSchemaIdResolver mapper = new MetaSchemaIdResolver();
+        AbsoluteIri result = mapper.resolve(AbsoluteIri.of(input.iri));
+        ClasspathResourceLoader loader = new ClasspathResourceLoader();
+        InputStreamSource source = loader.getResource(result);
         assertNotNull(source);
         try (InputStream inputStream = source.getInputStream()) {
             inputStream.read();

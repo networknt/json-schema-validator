@@ -51,7 +51,7 @@ class Issue475Test {
     @Test
     void draft4() throws Exception {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_4));
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
@@ -64,7 +64,7 @@ class Issue475Test {
     @Test
     void draft6() throws Exception {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_6, builder -> builder
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_6));
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
@@ -77,7 +77,7 @@ class Issue475Test {
     @Test
     void draft7() throws Exception {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("http://json-schema.org", "classpath:")));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("http://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_7));
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
@@ -90,7 +90,7 @@ class Issue475Test {
     @Test
     void draft201909() throws Exception {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2019_09));
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));
@@ -103,7 +103,7 @@ class Issue475Test {
     @Test
     void draft202012() throws Exception {
         SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://json-schema.org", "classpath:")));
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://json-schema.org", "classpath:")));
         Schema schema = jsonSchemaFactory.getSchema(SchemaLocation.of(DialectId.DRAFT_2020_12));
 
         List<Error> assertions = schema.validate(JsonMapperFactory.getInstance().readTree(INVALID_INPUT));

@@ -8,42 +8,42 @@ import java.util.function.Function;
 import com.networknt.schema.AbsoluteIri;
 
 /**
- * Map implementation of {@link SchemaLoader}.
+ * Map implementation of {@link ResourceLoader}.
  */
-public class MapSchemaLoader implements SchemaLoader {
+public class MapResourceLoader implements ResourceLoader {
     private final Function<String, String> mappings;
 
     /**
-     * Sets the schema data by absolute IRI.
+     * Sets the resource data by absolute IRI.
      * 
      * @param mappings the mappings
      */
-    public MapSchemaLoader(Map<String, String> mappings) {
+    public MapResourceLoader(Map<String, String> mappings) {
         this(mappings::get);
     }
 
     /**
-     * Sets the schema data by absolute IRI function.
+     * Sets the resource data by absolute IRI function.
      * 
      * @param mappings the mappings
      */
-    public MapSchemaLoader(Function<String, String> mappings) {
+    public MapResourceLoader(Function<String, String> mappings) {
         this.mappings = mappings;
     }
 
     /**
-     * Sets the schema data by using two mapping functions.
+     * Sets the resource data by using two mapping functions.
      * <p>
      * Firstly to map the IRI to an object. If the object is null no mapping is
      * performed.
      * <p>
-     * Next to map the object to the schema data.
+     * Next to map the object to the resource data.
      * 
      * @param <T>             the type of the object
      * @param mapIriToObject  the mapping of IRI to object
-     * @param mapObjectToData the mappingof object to schema data
+     * @param mapObjectToData the mappingof object to resource data
      */
-    public <T> MapSchemaLoader(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
+    public <T> MapResourceLoader(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
         this.mappings = iri -> {
             T result = mapIriToObject.apply(iri);
             if (result != null) {
@@ -54,7 +54,7 @@ public class MapSchemaLoader implements SchemaLoader {
     }
 
     @Override
-    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+    public InputStreamSource getResource(AbsoluteIri absoluteIri) {
         try {
             String result = mappings.apply(absoluteIri.toString());
             if (result != null) {

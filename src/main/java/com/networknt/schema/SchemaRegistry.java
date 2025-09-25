@@ -23,11 +23,9 @@ import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.resource.DefaultSchemaLoader;
+import com.networknt.schema.resource.ResourceLoaders;
+import com.networknt.schema.resource.SchemaIdResolvers;
 import com.networknt.schema.resource.SchemaLoader;
-import com.networknt.schema.resource.SchemaLoaders;
-import com.networknt.schema.resource.SchemaMapper;
-import com.networknt.schema.resource.SchemaMappers;
 import com.networknt.schema.serialization.BasicJsonNodeReader;
 import com.networknt.schema.serialization.JsonNodeReader;
 
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
@@ -61,8 +58,7 @@ public class SchemaRegistry {
         private String defaultDialectId;
         private DialectRegistry dialectRegistry = null;
         private JsonNodeReader jsonNodeReader = null;
-        private SchemaLoaders.Builder schemaLoadersBuilder = null;
-        private SchemaMappers.Builder schemaMappersBuilder = null;
+        private SchemaLoader schemaLoader = null;
         private boolean enableSchemaCache = true;
         private SchemaRegistryConfig schemaRegistryConfig = null;
 
@@ -71,7 +67,8 @@ public class SchemaRegistry {
          * <p>
          * If set this takes precedence over the configured json mapper and yaml mapper.
          * <p>
-         * A location aware object reader can be created using JsonNodeReader.builder().locationAware().build().
+         * A location aware object reader can be created using
+         * JsonNodeReader.builder().locationAware().build().
          *
          * @param jsonNodeReader the object reader
          * @return the builder
@@ -81,12 +78,12 @@ public class SchemaRegistry {
             return this;
         }
 
-        public Builder defaultDialectId(final String defaultDialectId) {
+        public Builder defaultDialectId(String defaultDialectId) {
             this.defaultDialectId = defaultDialectId;
             return this;
         }
 
-        public Builder dialectRegistry(final DialectRegistry dialectRegistry) {
+        public Builder dialectRegistry(DialectRegistry dialectRegistry) {
             this.dialectRegistry = dialectRegistry;
             return this;
         }
@@ -95,20 +92,45 @@ public class SchemaRegistry {
             this.enableSchemaCache = enableSchemaCache;
             return this;
         }
-        
-        public Builder schemaLoaders(Consumer<SchemaLoaders.Builder> schemaLoadersBuilderCustomizer) {
-            if (this.schemaLoadersBuilder == null) {
-                this.schemaLoadersBuilder = SchemaLoaders.builder();
-            }
-            schemaLoadersBuilderCustomizer.accept(this.schemaLoadersBuilder);
+
+        public Builder schemaLoader(SchemaLoader schemaLoader) {
+            this.schemaLoader = schemaLoader;
             return this;
         }
-        
-        public Builder schemaMappers(Consumer<SchemaMappers.Builder> schemaMappersBuilderCustomizer) {
-            if (this.schemaMappersBuilder == null) {
-                this.schemaMappersBuilder = SchemaMappers.builder();
+
+        public Builder schemaLoader(Consumer<SchemaLoader.Builder> customizer) {
+            SchemaLoader.Builder builder = null;
+            if (this.schemaLoader != null) {
+                builder = SchemaLoader.builder(this.schemaLoader);
+            } else {
+                builder = SchemaLoader.builder();
             }
-            schemaMappersBuilderCustomizer.accept(this.schemaMappersBuilder);
+            customizer.accept(builder);
+            this.schemaLoader = builder.build();
+            return this;
+        }
+
+        public Builder resourceLoaders(Consumer<ResourceLoaders.Builder> customizer) {
+            SchemaLoader.Builder builder = null;
+            if (this.schemaLoader != null) {
+                builder = SchemaLoader.builder(this.schemaLoader);
+            } else {
+                builder = SchemaLoader.builder();
+            }
+            customizer.accept(builder.getResourceLoadersBuilder());
+            this.schemaLoader = builder.build();
+            return this;
+        }
+
+        public Builder schemaIdResolvers(Consumer<SchemaIdResolvers.Builder> customizer) {
+            SchemaLoader.Builder builder = null;
+            if (this.schemaLoader != null) {
+                builder = SchemaLoader.builder(this.schemaLoader);
+            } else {
+                builder = SchemaLoader.builder();
+            }
+            customizer.accept(builder.getSchemaIdResolversBuilder());
+            this.schemaLoader = builder.build();
             return this;
         }
 
@@ -118,63 +140,39 @@ public class SchemaRegistry {
         }
 
         public SchemaRegistry build() {
-            return new SchemaRegistry(
-                    jsonNodeReader != null ? jsonNodeReader : BasicJsonNodeReader.getInstance(),
-                    defaultDialectId,
-                    schemaLoadersBuilder,
-                    schemaMappersBuilder,
-                    enableSchemaCache,
-                    dialectRegistry,
-                    schemaRegistryConfig
-            );
+            return new SchemaRegistry(jsonNodeReader, defaultDialectId, schemaLoader, enableSchemaCache,
+                    dialectRegistry, schemaRegistryConfig);
         }
     }
 
     private final JsonNodeReader jsonNodeReader;
     private final String defaultDialectId;
-    private final SchemaLoaders.Builder schemaLoadersBuilder;
-    private final SchemaMappers.Builder schemaMappersBuilder;
     private final SchemaLoader schemaLoader;
     private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
     private final boolean enableSchemaCache;
     private final DialectRegistry dialectRegistry;
     private final SchemaRegistryConfig schemaRegistryConfig;
-    
-    private static final List<SchemaLoader> DEFAULT_SCHEMA_LOADERS = SchemaLoaders.builder().build();
-    private static final List<SchemaMapper> DEFAULT_SCHEMA_MAPPERS = SchemaMappers.builder().build();
 
-    private SchemaRegistry(
-            JsonNodeReader jsonNodeReader,
-            String defaultDialectId,
-            SchemaLoaders.Builder schemaLoadersBuilder,
-            SchemaMappers.Builder schemaMappersBuilder,
-            boolean enableSchemaCache,
-            DialectRegistry dialectRegistry,
-            SchemaRegistryConfig schemaRegistryConfig) {
+    private SchemaRegistry(JsonNodeReader jsonNodeReader, String defaultDialectId, SchemaLoader schemaLoader,
+            boolean enableSchemaCache, DialectRegistry dialectRegistry, SchemaRegistryConfig schemaRegistryConfig) {
         if (defaultDialectId == null || defaultDialectId.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultDialectId must not be null or empty");
         }
-        this.jsonNodeReader = jsonNodeReader;
+        this.jsonNodeReader = jsonNodeReader != null ? jsonNodeReader : BasicJsonNodeReader.getInstance();
         this.defaultDialectId = defaultDialectId;
-        this.schemaLoadersBuilder = schemaLoadersBuilder;
-        this.schemaMappersBuilder = schemaMappersBuilder;
-        this.schemaLoader = new DefaultSchemaLoader(
-                schemaLoadersBuilder != null ? schemaLoadersBuilder.build() : DEFAULT_SCHEMA_LOADERS,
-                schemaMappersBuilder != null ? schemaMappersBuilder.build() : DEFAULT_SCHEMA_MAPPERS);
+        this.schemaLoader = schemaLoader != null ? schemaLoader : SchemaLoader.getDefault();
         this.enableSchemaCache = enableSchemaCache;
         this.dialectRegistry = dialectRegistry != null ? dialectRegistry : new DefaultDialectRegistry();
-        this.schemaRegistryConfig = schemaRegistryConfig != null ? schemaRegistryConfig : SchemaRegistryConfig.getInstance();
-    }
-
-    public SchemaLoader getSchemaLoader() {
-        return this.schemaLoader;
+        this.schemaRegistryConfig = schemaRegistryConfig != null ? schemaRegistryConfig
+                : SchemaRegistryConfig.getInstance();
     }
 
     /**
      * Builder without keywords or formats.
      * <p>
      * Typically {@link #builder(SchemaRegistry)} or
-     * {@link #withDefaultDialect(SpecificationVersion)} or {@link #withDialect(Dialect)} would be used instead.
+     * {@link #withDefaultDialect(SpecificationVersion)} or
+     * {@link #withDialect(Dialect)} would be used instead.
      *
      * @return a builder instance without any keywords or formats - usually not what
      *         one needs.
@@ -184,8 +182,8 @@ public class SchemaRegistry {
     }
 
     /**
-     * Creates a new schema registry with a default schema dialect. The schema dialect
-     * will only be used if the input does not specify a $schema.
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
      * 
      * @param specificationVersion the default dialect id corresponding to the
      *                             specification version used when the schema does
@@ -197,8 +195,8 @@ public class SchemaRegistry {
     }
 
     /**
-     * Creates a new schema registry with a default schema dialect. The schema dialect
-     * will only be used if the input does not specify a $schema.
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
      * 
      * @param specificationVersion the default dialect id corresponding to the
      *                             specification version used when the schema does
@@ -213,8 +211,8 @@ public class SchemaRegistry {
     }
 
     /**
-     * Creates a new schema registry with a default schema dialect. The schema dialect
-     * will only be used if the input does not specify a $schema.
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
      * 
      * @param dialectId  the default dialect id used when the schema does not
      *                   specify the $schema keyword
@@ -246,7 +244,7 @@ public class SchemaRegistry {
      * <p>
      * Schemas that do not specify dialect using $schema will use the dialect.
      * 
-     * @param dialect the dialect
+     * @param dialect    the dialect
      * @param customizer to customize the registry
      * @return the schema registry
      */
@@ -269,27 +267,29 @@ public class SchemaRegistry {
      * @param blueprint the existing factory
      * @return the builder
      */
-    public static Builder builder(final SchemaRegistry blueprint) {
-        Builder builder = builder()
-                .defaultDialectId(blueprint.defaultDialectId)
+    public static Builder builder(SchemaRegistry blueprint) {
+        Builder builder = builder().schemaLoader(blueprint.schemaLoader).defaultDialectId(blueprint.defaultDialectId)
                 .jsonNodeReader(blueprint.jsonNodeReader);
-        if (blueprint.schemaLoadersBuilder != null) {
-            builder.schemaLoadersBuilder = SchemaLoaders.builder().with(blueprint.schemaLoadersBuilder);
-        }
-        if (blueprint.schemaMappersBuilder != null) {
-            builder.schemaMappersBuilder = SchemaMappers.builder().with(blueprint.schemaMappersBuilder);
-        }
         return builder;
+    }
+
+    /**
+     * Gets the schema loader.
+     * 
+     * @return the schema loader
+     */
+    public SchemaLoader getSchemaLoader() {
+        return this.schemaLoader;
     }
 
     /**
      * Creates a schema from initial input.
      * 
-     * @param schemaUri the schema location
+     * @param schemaUri  the schema location
      * @param schemaNode the schema data node
      * @return the schema
      */
-    protected Schema newSchema(final SchemaLocation schemaUri, final JsonNode schemaNode) {
+    protected Schema newSchema(SchemaLocation schemaUri, JsonNode schemaNode) {
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
         Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
                 new NodePath(schemaContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
@@ -321,34 +321,35 @@ public class SchemaRegistry {
         }
     }
 
-    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
+    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath,
+            JsonNode schemaNode, Schema parentSchema) {
         return doCreate(schemaContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
     }
 
-    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, evaluationPath,
-                schemaNode, parentSchema, suppressSubSchemaRetrieval);
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath,
+            JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
+        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, evaluationPath, schemaNode,
+                parentSchema, suppressSubSchemaRetrieval);
     }
-    
+
     /**
-     * Determines the schema context to use for the schema given the parent
-     * schema context.
+     * Determines the schema context to use for the schema given the parent schema
+     * context.
      * <p>
-     * This is typically the same schema context unless the schema has a
-     * different $schema from the parent.
+     * This is typically the same schema context unless the schema has a different
+     * $schema from the parent.
      * <p>
      * If the schema does not define a $schema, the parent should be used.
      * 
      * @param schemaContext the parent schema context
-     * @param schemaNode        the schema node
+     * @param schemaNode    the schema node
      * @return the schema context to use
      */
     private SchemaContext withDialect(SchemaContext schemaContext, JsonNode schemaNode) {
         Dialect dialect = getDialect(schemaNode, schemaContext.getSchemaRegistryConfig());
         if (dialect != null && !dialect.getId().equals(schemaContext.getDialect().getId())) {
-            return new SchemaContext(dialect, schemaContext.getSchemaRegistry(),
-                    schemaContext.getSchemaReferences(), schemaContext.getSchemaResources(),
-                    schemaContext.getDynamicAnchors());
+            return new SchemaContext(dialect, schemaContext.getSchemaRegistry(), schemaContext.getSchemaReferences(),
+                    schemaContext.getSchemaResources(), schemaContext.getDynamicAnchors());
         }
         return schemaContext;
     }
@@ -427,7 +428,7 @@ public class SchemaRegistry {
      * Using this is not recommended as there is potentially no base IRI for
      * resolving references to the absolute IRI.
      * 
-     * @param schema the schema data as a string
+     * @param schema      the schema data as a string
      * @param inputFormat input format
      * @return the schema
      */
@@ -461,7 +462,7 @@ public class SchemaRegistry {
      * resolving references to the absolute IRI.
      * 
      * @param schemaStream the input stream with the schema data
-     * @param inputFormat input format
+     * @param inputFormat  input format
      * @return the schema
      */
     public Schema getSchema(final InputStream schemaStream, InputFormat inputFormat) {
@@ -477,7 +478,8 @@ public class SchemaRegistry {
     /**
      * Gets the schema.
      * 
-     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param schemaUri the absolute IRI of the schema which can map to the
+     *                  retrieval IRI.
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri) {
@@ -489,7 +491,8 @@ public class SchemaRegistry {
     /**
      * Loads the schema.
      * 
-     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param schemaUri the absolute IRI of the schema which can map to the
+     *                  retrieval IRI.
      * @return the schema
      */
     public Schema loadSchema(final SchemaLocation schemaUri) {
@@ -515,7 +518,8 @@ public class SchemaRegistry {
     }
 
     protected Schema getMappedSchema(final SchemaLocation schemaUri) {
-        try (InputStream inputStream = this.schemaLoader.getSchema(schemaUri.getAbsoluteIri()).getInputStream()) {
+        try (InputStream inputStream = this.schemaLoader.getSchemaResource(schemaUri.getAbsoluteIri())
+                .getInputStream()) {
             if (inputStream == null) {
                 throw new IOException("Cannot load schema at " + schemaUri);
             }
@@ -528,11 +532,11 @@ public class SchemaRegistry {
 
             final Dialect dialect = getDialectOrDefault(schemaNode);
             NodePath evaluationPath = new NodePath(getSchemaRegistryConfig().getPathType());
-            if (schemaUri.getFragment() == null
-                    || schemaUri.getFragment().getNameCount() == 0) {
+            if (schemaUri.getFragment() == null || schemaUri.getFragment().getNameCount() == 0) {
                 // Schema without fragment
                 SchemaContext schemaContext = new SchemaContext(dialect, this);
-                return doCreate(schemaContext, schemaUri, evaluationPath, schemaNode, null, true /* retrieved via id, resolving will not change anything */);
+                return doCreate(schemaContext, schemaUri, evaluationPath, schemaNode, null,
+                        true /* retrieved via id, resolving will not change anything */);
             } else {
                 // Schema with fragment pointing to sub schema
                 final SchemaContext schemaContext = createSchemaContext(schemaNode);
@@ -542,7 +546,8 @@ public class SchemaRegistry {
             }
         } catch (IOException e) {
             logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
-            SchemaException exception = new SchemaException("Failed to load json schema from "+schemaUri.getAbsoluteIri());
+            SchemaException exception = new SchemaException(
+                    "Failed to load json schema from " + schemaUri.getAbsoluteIri());
             exception.initCause(e);
             throw exception;
         }
@@ -551,7 +556,8 @@ public class SchemaRegistry {
     /**
      * Gets the schema.
      * 
-     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
+     * @param schemaUri the absolute IRI of the schema which can map to the
+     *                  retrieval IRI.
      * @return the schema
      */
     public Schema getSchema(final URI schemaUri) {
@@ -561,8 +567,9 @@ public class SchemaRegistry {
     /**
      * Gets the schema.
      * 
-     * @param schemaUri the absolute IRI of the schema which can map to the retrieval IRI.
-     * @param jsonNode the node
+     * @param schemaUri the absolute IRI of the schema which can map to the
+     *                  retrieval IRI.
+     * @param jsonNode  the node
      * @return the schema
      */
     public Schema getSchema(final URI schemaUri, final JsonNode jsonNode) {
@@ -573,21 +580,21 @@ public class SchemaRegistry {
      * Gets the schema.
      * 
      * @param schemaUri the base absolute IRI
-     * @param jsonNode the node
+     * @param jsonNode  the node
      * @return the schema
      */
     public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
         return newSchema(schemaUri, jsonNode);
     }
-    
+
     /**
      * Gets the schema.
      * <p>
      * Using this is not recommended as there is potentially no base IRI for
      * resolving references to the absolute IRI.
      * <p>
-     * Prefer {@link #getSchema(SchemaLocation, JsonNode)}
-     * instead to ensure the base IRI if no id is present.
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode)} instead to ensure the
+     * base IRI if no id is present.
      * 
      * @param jsonNode the node
      * @return the schema
@@ -629,7 +636,7 @@ public class SchemaRegistry {
     static protected String normalizeDialectId(String id) {
         boolean found = false;
         for (SpecificationVersion flag : SpecificationVersion.values()) {
-            if(flag.getDialectId().equals(id)) {
+            if (flag.getDialectId().equals(id)) {
                 found = true;
                 break;
             }
@@ -647,7 +654,7 @@ public class SchemaRegistry {
                     id = DialectId.DRAFT_4;
                 } else if (id.contains("/draft-06/")) {
                     id = DialectId.DRAFT_6;
-                } 
+                }
             }
         }
         return id;

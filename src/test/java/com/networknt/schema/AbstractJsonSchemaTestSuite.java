@@ -19,7 +19,7 @@ package com.networknt.schema;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
@@ -209,9 +209,9 @@ abstract class AbstractJsonSchemaTestSuite {
 
     private SchemaRegistry buildSchemaRegistry(SpecificationVersion defaultVersion, TestCase testCase, SchemaRegistryConfig schemaRegistryConfig) {
         if (testCase.isDisabled()) return null;
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if (iri.startsWith("http://localhost:1234")) {
                     return () -> {
@@ -230,10 +230,10 @@ abstract class AbstractJsonSchemaTestSuite {
         SchemaRegistry base = SchemaRegistry.withDefaultDialect(specVersion);
         return SchemaRegistry
                 .builder(base)
-                .schemaMappers(schemaMappers -> schemaMappers
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader))
+                .resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader))
                 .schemaRegistryConfig(schemaRegistryConfig)
                 .build();
     }

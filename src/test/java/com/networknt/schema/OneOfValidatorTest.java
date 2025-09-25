@@ -189,8 +189,8 @@ class OneOfValidatorTest {
         
         Schema schema = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
-                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders
+                                .resources(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
                         "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
         
@@ -263,8 +263,8 @@ class OneOfValidatorTest {
         
         Schema schema = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
-                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders
+                                .resources(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
                         "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
         

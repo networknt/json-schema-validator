@@ -27,11 +27,19 @@ import com.networknt.schema.AbsoluteIri;
 import com.networknt.schema.utils.AbsoluteIris;
 
 /**
- * Loads from uri.
+ * Loads from iri.
  */
-public class UriSchemaLoader implements SchemaLoader {
+public class IriResourceLoader implements ResourceLoader {
+    private static class Holder {
+        private static final IriResourceLoader INSTANCE = new IriResourceLoader();
+    }
+    
+    public static IriResourceLoader getInstance() {
+        return Holder.INSTANCE;
+    }
+    
     @Override
-    public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+    public InputStreamSource getResource(AbsoluteIri absoluteIri) {
         URI uri = toURI(absoluteIri);
         URL url = toURL(uri);
         return () -> {
@@ -97,7 +105,7 @@ public class UriSchemaLoader implements SchemaLoader {
                     // and should be limited to 5 redirections at most.
                     if (target == null || !(target.getProtocol().equals("http") || target.getProtocol().equals("https"))
                             || redirects >= 5) {
-                        throw new SecurityException("illegal URL redirect");
+                        throw new SecurityException("Maximum number of redirects exceeded");
                     }
                     redir = true;
                     c = target.openConnection();

@@ -13,14 +13,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.networknt.schema.AbsoluteIri;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
-import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.SchemaLoader;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
@@ -44,19 +42,16 @@ public class NetworkntTestSuiteTestCases {
 
     public static List<NetworkntTestSuiteTestCase> findTestCases(SpecificationVersion defaultVersion, String basePath,
             Predicate<? super Path> filter) {
-        SchemaLoader schemaLoader = new SchemaLoader() {
-            @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
-                String iri = absoluteIri.toString();
-                if (iri.startsWith("http://localhost:1234")) {
-                    return () -> {
-                      String path = iri.substring("http://localhost:1234".length());
-                      return new FileInputStream("src/test/suite/remotes" + path);
-                    };
-                }
-                return null;
+        SchemaLoader schemaLoader = new SchemaLoader(location -> {
+            String iri = location.toString();
+            if (iri.startsWith("http://localhost:1234")) {
+                return () -> {
+                  String path = iri.substring("http://localhost:1234".length());
+                  return new FileInputStream("src/test/suite/remotes" + path);
+                };
             }
-        };
+            return null;
+        });
         List<NetworkntTestSuiteTestCase> results = new ArrayList<>();
         List<Path> testCasePaths = findTestCasePaths(basePath, filter);
         for (Path path : testCasePaths) {
@@ -71,7 +66,7 @@ public class NetworkntTestSuiteTestCases {
                     Schema schema = SchemaRegistry
                             .withDefaultDialect(defaultVersion,
                                     builder -> builder.schemaRegistryConfig(config)
-                                            .schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))
+                                            .schemaLoader(schemaLoader))
                             .getSchema(testCaseFileUri, testCase.getSchema());
                     results.add(new NetworkntTestSuiteTestCase(schema, testCase,
                             testCase.getSource().getPath().getParent().toString().endsWith("format") ? true : null));

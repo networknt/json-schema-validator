@@ -16,8 +16,8 @@ class Issue824Test {
     void validate() throws JsonProcessingException {
         final Schema v201909SpecSchema = SchemaRegistry
                 .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
-                .schemaMappers(schemaMappers -> {
-                    schemaMappers.mapPrefix("https://json-schema.org", "resource:");
+                .schemaIdResolvers(schemaIdResolvers -> {
+                    schemaIdResolvers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
                 .getSchema(SchemaLocation.of(Dialects.getDraft201909().getId()));
         final JsonNode invalidSchema = new ObjectMapper().readTree(
