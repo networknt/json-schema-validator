@@ -24,13 +24,12 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for discriminator.
@@ -39,7 +38,7 @@ import com.networknt.schema.SchemaContext;
  * <p>
  * <a href=
  * "https://spec.openapis.org/oas/v3.1.2#discriminator-object">Discriminator
- * Object</>
+ * Object</a>
  */
 public class DiscriminatorValidator extends BaseKeywordValidator {
     /**
@@ -217,130 +216,5 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
      */
     public Map<String, String> getMapping() {
         return mapping;
-    }
-
-    /**
-     * Checks based on the current {@link DiscriminatorContext} whether the provided
-     * {@link Schema} a match against the current discriminator.
-     *
-     * @param currentDiscriminatorContext the currently active
-     *                                    {@link DiscriminatorContext}
-     * @param discriminator               the discriminator to use for the check
-     * @param discriminatorPropertyValue  the value of the
-     *                                    <code>discriminator/propertyName</code>
-     *                                    field
-     * @param jsonSchema                  the {@link Schema} to check
-     */
-    public static void checkDiscriminatorMatch(final DiscriminatorContext currentDiscriminatorContext,
-            final ObjectNode discriminator, final String discriminatorPropertyValue, final Schema jsonSchema) {
-        if (discriminatorPropertyValue == null) {
-            currentDiscriminatorContext.markIgnore();
-            return;
-        }
-
-        final JsonNode discriminatorMapping = discriminator.get("mapping");
-        if (null == discriminatorMapping) {
-            checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
-                    jsonSchema);
-        } else {
-            checkForExplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
-                    discriminatorMapping, jsonSchema);
-            if (!currentDiscriminatorContext.isDiscriminatorMatchFound()
-                    && noExplicitDiscriminatorKeyOverride(discriminatorMapping, jsonSchema)) {
-                checkForImplicitDiscriminatorMappingMatch(currentDiscriminatorContext, discriminatorPropertyValue,
-                        jsonSchema);
-            }
-        }
-    }
-
-    /**
-     * Rolls up all nested and compatible discriminators to the root discriminator
-     * of the type. Detects attempts to redefine the <code>propertyName</code> or
-     * mappings.
-     *
-     * @param currentDiscriminatorContext the currently active
-     *                                    {@link DiscriminatorContext}
-     * @param discriminator               the discriminator to use for the check
-     * @param schema                      the value of the
-     *                                    <code>discriminator/propertyName</code>
-     *                                    field
-     * @param instanceLocation            the logging prefix
-     */
-    public static void registerAndMergeDiscriminator(final DiscriminatorContext currentDiscriminatorContext,
-            final ObjectNode discriminator, final Schema schema, final NodePath instanceLocation) {
-        final JsonNode discriminatorOnSchema = schema.getSchemaNode().get("discriminator");
-        if (null != discriminatorOnSchema
-                && null != currentDiscriminatorContext.getDiscriminatorForPath(schema.getSchemaLocation())) {
-            // this is where A -> B -> C inheritance exists, A has the root discriminator
-            // and B adds to the mapping
-            final JsonNode propertyName = discriminatorOnSchema.get("propertyName");
-            if (null != propertyName) {
-                throw new SchemaException(
-                        instanceLocation + " schema " + schema + " attempts redefining the discriminator property");
-            }
-            final ObjectNode mappingOnContextDiscriminator = (ObjectNode) discriminator.get("mapping");
-            final ObjectNode mappingOnCurrentSchemaDiscriminator = (ObjectNode) discriminatorOnSchema.get("mapping");
-            if (null == mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have a mapping on a nested discriminator and none on the root
-                // discriminator, so we can simply
-                // make it the root's
-                discriminator.set("mapping", discriminatorOnSchema);
-            } else if (null != mappingOnContextDiscriminator && null != mappingOnCurrentSchemaDiscriminator) {
-                // here we have to merge. The spec doesn't specify anything on this, but here we
-                // don't accept redefinition of
-                // mappings that already exist
-                final Iterator<Map.Entry<String, JsonNode>> fieldsToAdd = mappingOnCurrentSchemaDiscriminator.fields();
-                while (fieldsToAdd.hasNext()) {
-                    final Map.Entry<String, JsonNode> fieldToAdd = fieldsToAdd.next();
-                    final String mappingKeyToAdd = fieldToAdd.getKey();
-                    final JsonNode mappingValueToAdd = fieldToAdd.getValue();
-
-                    final JsonNode currentMappingValue = mappingOnContextDiscriminator.get(mappingKeyToAdd);
-                    if (null != currentMappingValue && !currentMappingValue.equals(mappingValueToAdd)) {
-                        throw new SchemaException(instanceLocation + "discriminator mapping redefinition from "
-                                + mappingKeyToAdd + "/" + currentMappingValue + " to " + mappingValueToAdd);
-                    } else if (null == currentMappingValue) {
-                        mappingOnContextDiscriminator.set(mappingKeyToAdd, mappingValueToAdd);
-                    }
-                }
-            }
-        }
-        currentDiscriminatorContext.registerDiscriminator(schema.getSchemaLocation(), discriminator);
-    }
-
-    private static void checkForImplicitDiscriminatorMappingMatch(
-            final DiscriminatorContext currentDiscriminatorContext, final String discriminatorPropertyValue,
-            final Schema schema) {
-        if (schema.getSchemaLocation().getFragment().getName(-1).equals(discriminatorPropertyValue)) {
-            currentDiscriminatorContext.markMatch();
-        }
-    }
-
-    private static void checkForExplicitDiscriminatorMappingMatch(
-            final DiscriminatorContext currentDiscriminatorContext, final String discriminatorPropertyValue,
-            final JsonNode discriminatorMapping, final Schema schema) {
-        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
-        while (explicitMappings.hasNext()) {
-            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getKey().equals(discriminatorPropertyValue)
-                    && ("#" + schema.getSchemaLocation().getFragment().toString())
-                            .equals(candidateExplicitMapping.getValue().asText())) {
-                currentDiscriminatorContext.markMatch();
-                break;
-            }
-        }
-    }
-
-    private static boolean noExplicitDiscriminatorKeyOverride(final JsonNode discriminatorMapping,
-            final Schema parentSchema) {
-        final Iterator<Map.Entry<String, JsonNode>> explicitMappings = discriminatorMapping.fields();
-        while (explicitMappings.hasNext()) {
-            final Map.Entry<String, JsonNode> candidateExplicitMapping = explicitMappings.next();
-            if (candidateExplicitMapping.getValue().asText()
-                    .equals(parentSchema.getSchemaLocation().getFragment().toString())) {
-                return false;
-            }
-        }
-        return true;
     }
 }

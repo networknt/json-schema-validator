@@ -20,17 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Schema;
-import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaContext;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for oneOf.
@@ -40,21 +38,20 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     private Boolean canShortCircuit = null;
 
-    public OneOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public OneOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+            Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.ONE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
-            throw new SchemaException(error().instanceNode(schemaNode)
-                    .instanceLocation(schemaLocation.getFragment())
-                    .messageKey("type")
-                    .arguments(nodeType.toString(), "array")
-                    .build());
+            throw new SchemaException(error().instanceNode(schemaNode).instanceLocation(schemaLocation.getFragment())
+                    .messageKey("type").arguments(nodeType.toString(), "array").build());
         }
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             JsonNode childNode = schemaNode.get(i);
-            this.schemas.add(schemaContext.newSchema( schemaLocation.append(i), evaluationPath.append(i), childNode, parentSchema));
+            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i), childNode,
+                    parentSchema));
         }
     }
 
@@ -66,35 +63,22 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
-        
         int numberOfValidSchema = 0;
         int index = 0;
         List<String> indexes = null;
         List<Error> existingErrors = executionContext.getErrors();
-        List<Error> childErrors = null;
-        List<Error> schemaErrors = new ArrayList<>();
-        executionContext.setErrors(schemaErrors);
+        List<Error> allErrors = null; // Keeps track of all the errors for reporting if in the end none or more than
+                                      // one sub schema matches
+        List<Error> discriminatorErrors = null; // The errors from the sub schema that match the discriminator
+        List<Error> subSchemaErrors = new ArrayList<>(); // Temporary errors from each sub schema execution
+
+        executionContext.setErrors(subSchemaErrors);
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
-        boolean addMessages = true;
         try {
-            DiscriminatorValidator discriminator = null;
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                DiscriminatorContext discriminatorContext = new DiscriminatorContext();
-                executionContext.enterDiscriminatorContext(discriminatorContext, instanceLocation);
-
-                // check if discriminator present
-                discriminator = (DiscriminatorValidator) this.getParentSchema().getValidators().stream()
-                        .filter(v -> "discriminator".equals(v.getKeyword())).findFirst().orElse(null);
-                if (discriminator != null) {
-                    // this is just to make the discriminator context active
-                    discriminatorContext.registerDiscriminator(discriminator.getSchemaLocation(),
-                            (ObjectNode) discriminator.getSchemaNode());
-                }
-            }
             executionContext.setFailFast(false);
             for (Schema schema : this.schemas) {
-                schemaErrors.clear();
+                subSchemaErrors.clear();
                 if (!walk) {
                     schema.validate(executionContext, node, rootNode, instanceLocation);
                 } else {
@@ -102,99 +86,115 @@ public class OneOfValidator extends BaseKeywordValidator {
                 }
 
                 // check if any validation errors have occurred
-                if (schemaErrors.isEmpty()) { // No new errors
+                if (subSchemaErrors.isEmpty()) { // No new errors
                     numberOfValidSchema++;
                     if (indexes == null) {
                         indexes = new ArrayList<>();
                     }
                     indexes.add(Integer.toString(index));
                 }
-                
+
                 if (numberOfValidSchema > 1 && canShortCircuit()) {
                     // short-circuit
-                    // note that the short circuit means that only 2 valid schemas are reported even if could be more
+                    // note that the short circuit means that only 2 valid schemas are reported even
+                    // if could be more
                     break;
                 }
-                
+
                 if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                    // The discriminator will cause all messages other than the one with the
-                    // matching discriminator to be discarded. Note that the discriminator cannot
-                    // affect the actual validation result.
-                    if (discriminator != null && !discriminator.getPropertyName().isEmpty()) {
-                        JsonNode discriminatorPropertyNode = node.get(discriminator.getPropertyName());
-                        if (discriminatorPropertyNode != null) {
-                            String discriminatorPropertyValue = discriminatorPropertyNode.asText();
-                            discriminatorPropertyValue = discriminator.getMapping().getOrDefault(discriminatorPropertyValue,
-                                    discriminatorPropertyValue);
-                            JsonNode refNode = schema.getSchemaNode().get("$ref");
-                            if (refNode != null) {
-                                String ref = refNode.asText();
-                                if (ref.equals(discriminatorPropertyValue) || ref.endsWith("/" + discriminatorPropertyValue)) {
-                                    executionContext.getCurrentDiscriminatorContext().markMatch();
-                                }
-                            }
-                        } else {
-                            // See issue 436 where the condition was relaxed to not cause an assertion
-                            // due to missing discriminator property value
-                            // Also see BaseJsonValidator#checkDiscriminatorMatch 
-                            executionContext.getCurrentDiscriminatorContext().markIgnore();
-                        }
+                    boolean discriminatorMatchFound = false;
+                    DiscriminatorState discriminator = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                    JsonNode refNode = schema.getSchemaNode().get("$ref");
+                    if (discriminator != null && refNode != null) {
+                        discriminatorMatchFound = discriminator.matches(refNode.asText());
                     }
-                    DiscriminatorContext currentDiscriminatorContext = executionContext.getCurrentDiscriminatorContext();
-                    if (currentDiscriminatorContext.isDiscriminatorMatchFound() && childErrors == null) {
-                        // Note that the match is set if found and not reset so checking if childErrors
-                        // found is null triggers on the correct schema
-                        childErrors = new ArrayList<>();
-                        childErrors.addAll(schemaErrors);
-                    } else if (currentDiscriminatorContext.isDiscriminatorIgnore()
-                            || !currentDiscriminatorContext.isActive()) {
+                    if (discriminatorMatchFound) {
+                        /*
+                         * Note that discriminator cannot change the outcome of the evaluation but can
+                         * be used to filter off any additional messages
+                         * 
+                         * The discriminator will cause all messages other than the one with the //
+                         * matching discriminator to be discarded.
+                         */
+                        if (!subSchemaErrors.isEmpty()) {
+                            /*
+                             * This means that the discriminated value has errors and doesn't match so these
+                             * errors are the only ones that will be reported *IF* there are no other
+                             * schemas that successfully validate to meet the requirement of anyOf.
+                             * 
+                             * If there are any successful schemas as per anyOf, all these errors will be
+                             * discarded.
+                             */
+                            discriminatorErrors = new ArrayList<>(subSchemaErrors);
+                            allErrors = null; // This is no longer needed
+                        }
+                    } else {
                         // This is the normal handling when discriminators aren't enabled
-                        if (childErrors == null) {
-                            childErrors = new ArrayList<>();
+                        if (discriminatorErrors == null) {
+                            if (allErrors == null) {
+                                allErrors = new ArrayList<>();
+                            }
+                            allErrors.addAll(subSchemaErrors);
                         }
-                        childErrors.addAll(schemaErrors);
                     }
-                } else if (!schemaErrors.isEmpty() && reportChildErrors(executionContext)) {
+                } else if (!subSchemaErrors.isEmpty() && reportChildErrors(executionContext)) {
                     // This is the normal handling when discriminators aren't enabled
-                    if (childErrors == null) {
-                        childErrors = new ArrayList<>();
+                    if (allErrors == null) {
+                        allErrors = new ArrayList<>();
                     }
-                    childErrors.addAll(schemaErrors);
+                    allErrors.addAll(subSchemaErrors);
                 }
                 index++;
             }
 
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()
-                    && (discriminator != null || executionContext.getCurrentDiscriminatorContext().isActive())
-                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorMatchFound()
-                    && !executionContext.getCurrentDiscriminatorContext().isDiscriminatorIgnore()) {
-                addMessages = false;
-                existingErrors.add(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(
-                                "based on the provided discriminator. No alternative could be chosen based on the discriminator property")
-                        .build());
+            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
+                /*
+                 * The only case where the discriminator can change the outcome of the result is
+                 * if the discriminator value does not match an implicit or explicit mapping
+                 */
+                /*
+                 * If the discriminator value does not match an implicit or explicit mapping, no
+                 * schema can be determined and validation SHOULD fail. Mapping keys MUST be
+                 * string values, but tooling MAY convert response values to strings for
+                 * comparison.
+                 * 
+                 * https://spec.openapis.org/oas/v3.1.2#examples-0
+                 */
+                DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
+                if (state != null && !state.hasMatchedSchema() && state.hasDiscriminatingValue()) {
+                    // The check for state.hasDiscriminatingValue is due to issue 988
+                    // Note that this is related to the DiscriminatorValidator by default not
+                    // generating an assertion
+                    // if the discriminatingValue is not set in the payload
+                    existingErrors
+                            .add(error().keyword("discriminator").instanceNode(node).instanceLocation(instanceLocation)
+                                    .locale(executionContext.getExecutionConfig().getLocale())
+                                    .messageKey("discriminator.oneOf.no_match_found")
+                                    .arguments(state.getDiscriminatingValue()).build());
+                }
             }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
-
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                executionContext.leaveDiscriminatorContextImmediately(instanceLocation);
-            }
         }
 
-        // ensure there is always an "OneOf" error reported if number of valid schemas
-        // is not equal to 1.
-        // errors will only not be null in the discriminator case where no match is found
-        if (numberOfValidSchema != 1 && addMessages) {
+        if (numberOfValidSchema != 1) {
+            /*
+             * Ensure there is always an "oneOf" error reported if number of valid schemas
+             * is not equal to 1
+             */
             Error message = error().instanceNode(node).instanceLocation(instanceLocation)
                     .messageKey(numberOfValidSchema > 1 ? "oneOf.indexes" : "oneOf")
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(Integer.toString(numberOfValidSchema), numberOfValidSchema > 1 ? String.join(", ", indexes) : "").build();
+                    .arguments(Integer.toString(numberOfValidSchema),
+                            numberOfValidSchema > 1 ? String.join(", ", indexes) : "")
+                    .build();
             existingErrors.add(message);
-            if (childErrors != null) {
-                existingErrors.addAll(childErrors);
+
+            if (discriminatorErrors != null) {
+                existingErrors.addAll(discriminatorErrors);
+            } else if (allErrors != null) {
+                existingErrors.addAll(allErrors);
             }
         }
         executionContext.setErrors(existingErrors);
@@ -212,7 +212,7 @@ public class OneOfValidator extends BaseKeywordValidator {
         // no point aggregating all the errors
         return !executionContext.getExecutionConfig().isFailFast();
     }
-    
+
     protected boolean canShortCircuit() {
         if (this.canShortCircuit == null) {
             boolean canShortCircuit = true;
@@ -228,7 +228,8 @@ public class OneOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation,
+            boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
             validate(executionContext, node, rootNode, instanceLocation, true);
         } else {
@@ -240,7 +241,7 @@ public class OneOfValidator extends BaseKeywordValidator {
 
     @Override
     public void preloadSchema() {
-        for (Schema schema: this.schemas) {
+        for (Schema schema : this.schemas) {
             schema.initializeValidators();
         }
         canShortCircuit(); // cache the flag

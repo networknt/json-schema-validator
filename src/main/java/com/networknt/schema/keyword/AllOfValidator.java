@@ -16,19 +16,18 @@
 
 package com.networknt.schema.keyword;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.DiscriminatorContext;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Schema;
-import com.networknt.schema.SchemaException;
 import com.networknt.schema.JsonType;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaContext;
+import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.TypeFactory;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for allOf.
@@ -36,15 +35,13 @@ import com.networknt.schema.SchemaContext;
 public class AllOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
-    public AllOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public AllOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+            Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
-            throw new SchemaException(error().instanceNode(schemaNode)
-                    .instanceLocation(schemaLocation.getFragment())
-                    .messageKey("type")
-                    .arguments(nodeType.toString(), "array")
-                    .build());
+            throw new SchemaException(error().instanceNode(schemaNode).instanceLocation(schemaLocation.getFragment())
+                    .messageKey("type").arguments(nodeType.toString(), "array").build());
         }
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
@@ -55,50 +52,25 @@ public class AllOfValidator extends BaseKeywordValidator {
     }
 
     @Override
-    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            NodePath instanceLocation) {
         validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean walk) {
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            NodePath instanceLocation, boolean walk) {
         for (Schema schema : this.schemas) {
             if (!walk) {
                 schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
                 schema.walk(executionContext, node, rootNode, instanceLocation, true);
             }
-            if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-                final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
-                while (arrayElements.hasNext()) {
-                    final ObjectNode allOfEntry = (ObjectNode) arrayElements.next();
-                    final JsonNode $ref = allOfEntry.get("$ref");
-                    if (null != $ref) {
-                        final DiscriminatorContext currentDiscriminatorContext = executionContext
-                                .getCurrentDiscriminatorContext();
-                        if (null != currentDiscriminatorContext) {
-                            final ObjectNode discriminator = currentDiscriminatorContext
-                                    .getDiscriminatorForPath(allOfEntry.get("$ref").asText());
-                            if (null != discriminator) {
-                                DiscriminatorValidator.registerAndMergeDiscriminator(currentDiscriminatorContext, discriminator,
-                                        this.parentSchema, instanceLocation);
-                                // now we have to check whether we have hit the right target
-                                final String discriminatorPropertyName = discriminator.get("propertyName").asText();
-                                final JsonNode discriminatorNode = node.get(discriminatorPropertyName);
-                                final String discriminatorPropertyValue = discriminatorNode == null ? null
-                                        : discriminatorNode.textValue();
-
-                                final Schema jsonSchema = this.parentSchema;
-                                DiscriminatorValidator.checkDiscriminatorMatch(currentDiscriminatorContext, discriminator,
-                                        discriminatorPropertyValue, jsonSchema);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
     @Override
-    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation,
+            boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
@@ -107,7 +79,7 @@ public class AllOfValidator extends BaseKeywordValidator {
             // Walk through the schema
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
-   }
+    }
 
     @Override
     public void preloadSchema() {

@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.keyword.DiscriminatorValidator;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
 import com.networknt.schema.path.NodePath;
@@ -678,6 +676,10 @@ public class Schema implements Validator {
 
         if (lhsName.equals(rhsName)) return 0;
 
+        // Discriminator needs to run first to set state in the execution context
+        if (lhsName.equals("discriminator")) return -1;
+        if (rhsName.equals("discriminator")) return 1;
+
         if (lhsName.equals("properties")) return -1;
         if (rhsName.equals("properties")) return 1;
         if (lhsName.equals("patternProperties")) return -1;
@@ -694,47 +696,10 @@ public class Schema implements Validator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, NodePath instanceLocation) {
-        if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-            ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
-            if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
-                executionContext.getCurrentDiscriminatorContext().registerDiscriminator(schemaLocation,
-                        discriminator);
-            }
-        }
         int currentErrors = executionContext.getErrors().size();
         for (KeywordValidator v : getValidators()) {
             v.validate(executionContext, jsonNode, rootNode, instanceLocation);
         }
-
-        if (this.schemaContext.isDiscriminatorKeywordEnabled()) {
-            ObjectNode discriminator = (ObjectNode) this.schemaNode.get("discriminator");
-            if (null != discriminator) {
-                final DiscriminatorContext discriminatorContext = executionContext
-                        .getCurrentDiscriminatorContext();
-                if (null != discriminatorContext) {
-                    final ObjectNode discriminatorToUse;
-                    final ObjectNode discriminatorFromContext = discriminatorContext
-                            .getDiscriminatorForPath(this.schemaLocation);
-                    if (null == discriminatorFromContext) {
-                        // register the current discriminator. This can only happen when the current context discriminator
-                        // was not registered via allOf. In that case we have a $ref to the schema with discriminator that gets
-                        // used for validation before allOf validation has kicked in
-                        discriminatorContext.registerDiscriminator(this.schemaLocation, discriminator);
-                        discriminatorToUse = discriminator;
-                    } else {
-                        discriminatorToUse = discriminatorFromContext;
-                    }
-
-                    final String discriminatorPropertyName = discriminatorToUse.get("propertyName").asText();
-                    final JsonNode discriminatorNode = jsonNode.get(discriminatorPropertyName);
-                    final String discriminatorPropertyValue = discriminatorNode == null ? null
-                            : discriminatorNode.asText();
-                    DiscriminatorValidator.checkDiscriminatorMatch(discriminatorContext, discriminatorToUse, discriminatorPropertyValue,
-                            this);
-                }
-            }
-        }
-
         if (executionContext.getErrors().size() > currentErrors) {
             // Failed with assertion set result and drop all annotations from this schema
             // and all subschemas

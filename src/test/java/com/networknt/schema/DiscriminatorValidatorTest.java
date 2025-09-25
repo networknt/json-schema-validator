@@ -770,7 +770,12 @@ class DiscriminatorValidatorTest {
     }
     
     /**
-     * See issue 436.
+     * Mapped to Bedroom with missing number of beds, however the discriminator is
+     * not supposed to change the result of anyOf and the data passes for "/anyOf/0"
+     * : {"$ref":"#/components/schemas/Room"}.
+     * 
+     * This case is an example of the actual implementation for undefined behavior
+     * eg. multiple discriminators for an instance location.
      */
     @Test
     void anyOfRedefinedDiscriminatorAndDiscriminatorWithMissingPropertyName() {

@@ -70,31 +70,6 @@ public class DiscriminatorState {
     }
 
     /**
-     * Determine if there is an implicit match of the mapped schema to the ref.
-     * 
-     * @param refSchema    the $ref value
-     * @param mappedSchema the mapped schema
-     * @return true if there is a match
-     */
-    private static boolean isImplicitMatch(String refSchema, String mappedSchema) {
-        /*
-         * To ensure that an ambiguous value (e.g. "foo") is treated as a relative URI
-         * reference by all implementations, authors MUST prefix it with the "." path
-         * segment (e.g. "./foo").
-         */
-        if (mappedSchema.startsWith(".")) {
-            return refSchema.equals(mappedSchema);
-        } else {
-            int found = refSchema.lastIndexOf('/');
-            if (found == -1) {
-                return refSchema.equals(mappedSchema);
-            } else {
-                return refSchema.substring(found + 1).equals(mappedSchema);
-            }
-        }
-    }
-
-    /**
      * Gets the property name defined in the discriminator keyword schema.
      * 
      * @return
@@ -133,7 +108,7 @@ public class DiscriminatorState {
     }
 
     /**
-     * Returns ture if the discriminating value is found in the payload
+     * Returns true if the discriminating value is found in the payload
      * corresponding to the property name.
      * 
      * @return true if the discriminating value is found in the payload
@@ -217,4 +192,28 @@ public class DiscriminatorState {
         return this.matchedSchema != null;
     }
 
+    /**
+     * Determine if there is an implicit match of the mapped schema to the ref.
+     * 
+     * @param refSchema    the $ref value
+     * @param mappedSchema the mapped schema
+     * @return true if there is a match
+     */
+    private static boolean isImplicitMatch(String refSchema, String mappedSchema) {
+        /*
+         * To ensure that an ambiguous value (e.g. "foo") is treated as a relative URI
+         * reference by all implementations, authors MUST prefix it with the "." path
+         * segment (e.g. "./foo").
+         */
+        if (mappedSchema.startsWith(".")) {
+            return refSchema.equals(mappedSchema);
+        } else {
+            int found = refSchema.lastIndexOf('/');
+            if (found == -1) {
+                return refSchema.equals(mappedSchema);
+            } else {
+                return refSchema.substring(found + 1).equals(mappedSchema);
+            }
+        }
+    }
 }

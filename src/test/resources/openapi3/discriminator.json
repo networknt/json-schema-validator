@@ -232,27 +232,27 @@
                 "valid": true
             },
             {
-                "description": "mapped to Bedroom with missing number of beds",
+                "description": "mapped to Bedroom with missing number of beds but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "bed"
                 },
-                "valid": false
+                "valid": true
             },
             {
-                "description": "mapped to KidsBedroom with missing number of beds",
+                "description": "mapped to KidsBedroom with missing number of beds but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "KidsBedRoom",
                     "isTidy": true
                 },
-                "valid": false
+                "valid": true
             },
             {
-                "description": "mapped to KidsBedroom with missing tidiness",
+                "description": "mapped to KidsBedroom with missing tidiness  but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "KidsBedRoom",
                     "numberOfBeds": 1
                 },
-                "valid": false
+                "valid": true
             },
             {
                 "description": "mapped to GuestRoom with correct @type (mapping override on BedRoom)",
@@ -264,12 +264,12 @@
                 "valid": true
             },
             {
-                "description": "mapped to GuestRoom with incorrect @type (mapping override on BedRoom)",
+                "description": "mapped to GuestRoom with incorrect @type (mapping override on BedRoom) but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "GuestRoom",
                     "guest": "Steve"
                 },
-                "valid": false
+                "valid": true
             },
             {
                 "description": "mapped to invalid Room",
@@ -409,7 +409,7 @@
                 "valid": true
             },
             {
-                "description": "schema with discriminator and recursion with invalid BedRoom",
+                "description": "schema with discriminator and recursion with invalid BedRoom  but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "can be ignored - discriminator not in use on root schema",
                     "numberOfBeds": 42,
@@ -418,7 +418,7 @@
                         "floor": 1
                     }
                 },
-                "valid": false
+                "valid": true
             }
         ]
     },
@@ -506,7 +506,7 @@
                 "valid": true
             },
             {
-                "description": "schema with discriminator and recursion with invalid BedRoom",
+                "description": "schema with discriminator and recursion with invalid BedRoom but #/components/schemas/Room matches and discriminator cannot change the validation result",
                 "data": {
                     "@type": "can be ignored - discriminator not in use on root schema",
                     "numberOfBeds": 42,
@@ -515,7 +515,7 @@
                         "floor": 1
                     }
                 },
-                "valid": false
+                "valid": true
             }
         ]
     },

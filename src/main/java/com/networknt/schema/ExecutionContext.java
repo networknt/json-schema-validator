@@ -16,18 +16,17 @@
 
 package com.networknt.schema;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import com.networknt.schema.annotation.Annotations;
 import com.networknt.schema.keyword.DiscriminatorState;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.result.SchemaResults;
 import com.networknt.schema.walk.WalkConfig;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.function.Consumer;
 
 /**
  * Stores the execution context for the validation run.
@@ -37,7 +36,6 @@ public class ExecutionContext {
     private WalkConfig walkConfig = null;
     private CollectorContext collectorContext = null;
 
-    private Stack<DiscriminatorContext> discriminatorContexts = null;
     private Annotations annotations = null;
     private SchemaResults results = null;
     private List<Error> errors = new ArrayList<>();
@@ -188,28 +186,6 @@ public class ExecutionContext {
      */
     public void setFailFast(boolean failFast) {
         this.failFast = failFast;
-    }
-
-    public DiscriminatorContext getCurrentDiscriminatorContext() {
-        if (this.discriminatorContexts == null) {
-            return null;
-        }
-
-        if (!this.discriminatorContexts.empty()) {
-            return this.discriminatorContexts.peek();
-        }
-        return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
-    }
-
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") NodePath instanceLocation) {
-        if (this.discriminatorContexts == null) {
-            this.discriminatorContexts = new Stack<>();
-        }
-        this.discriminatorContexts.push(ctx);
-    }
-
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") NodePath instanceLocation) {
-        this.discriminatorContexts.pop();
     }
 
     public List<Error> getErrors() {
