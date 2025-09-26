@@ -37,7 +37,10 @@ public class JsonNodeUtil {
     private static void visitArray(PathType pathType, String root, JsonNode node, Collection<String> collector) {
         int size = node.size();
         for (int i = 0; i < size; ++i) {
-            String path = pathType.append(root, i);
+            StringBuilder builder = new StringBuilder();
+            builder.append(root);
+            pathType.append(builder, i);
+            String path = builder.toString();
             collector.add(path);
             visitNode(pathType, path, node.get(i), collector);
         }
@@ -45,7 +48,10 @@ public class JsonNodeUtil {
 
     private static void visitObject(PathType pathType, String root, JsonNode node, Collection<String> collector) {
         node.fields().forEachRemaining(entry -> {
-            String path = pathType.append(root, entry.getKey());
+            StringBuilder builder = new StringBuilder();
+            builder.append(root);
+            pathType.append(builder, entry.getKey());
+            String path = builder.toString();
             collector.add(path);
             visitNode(pathType, path, entry.getValue(), collector);
         });

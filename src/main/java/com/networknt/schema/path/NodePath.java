@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.path;
 
+import java.util.ArrayDeque;
 import java.util.Objects;
 
 /**
@@ -202,14 +203,40 @@ public class NodePath implements Comparable<NodePath> {
     @Override
     public String toString() {
         if (this.value == null) {
-            String parentValue = this.parent == null ? type.getRoot() : this.parent.toString();
-            if (pathSegmentIndex != -1) {
-                this.value = this.type.append(parentValue, pathSegmentIndex);
-            } else if (pathSegment != null) {
-                this.value = this.type.append(parentValue, pathSegment);
-            } else {
-                this.value = parentValue;
+            if (pathSegmentIndex == -1 && this.pathSegment == null) {
+                this.value = type.getRoot();
+                return this.value;
             }
+
+            ArrayDeque<Object> pathSegments = new ArrayDeque<Object>();
+            if (pathSegmentIndex != -1) {
+                pathSegments.push(this.pathSegmentIndex);
+            } else if (this.pathSegment != null) {
+                pathSegments.push(this.pathSegment);
+            }
+            NodePath parent = getParent();
+            while (parent != null) {
+                if (parent.pathSegmentIndex != -1) {
+                    pathSegments.push(parent.pathSegmentIndex);
+                } else if (parent.pathSegment != null) {
+                    pathSegments.push(parent.pathSegment);
+                }
+                parent = parent.getParent();
+            }
+
+            StringBuilder builder = new StringBuilder();
+            String root = type.getRoot();
+            if (root != null) {
+                builder.append(root);
+            }
+            for (Object pathSegment : pathSegments) {
+                if (pathSegment instanceof Number) {
+                    type.append(builder, ((Number) pathSegment).intValue());
+                } else {
+                    type.append(builder, pathSegment.toString());
+                }
+            }
+            this.value = builder.toString();
         }
         return this.value;
     }

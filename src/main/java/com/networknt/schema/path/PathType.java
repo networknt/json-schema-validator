@@ -1,6 +1,6 @@
 package com.networknt.schema.path;
 
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 import java.util.function.IntPredicate;
 
 /**
@@ -11,18 +11,19 @@ public enum PathType {
     /**
      * The legacy approach, loosely based on JSONPath (but not guaranteed to give valid JSONPath expressions).
      */
-    LEGACY("$", (currentPath, token) -> currentPath + "." + replaceCommonSpecialCharactersIfPresent(token),
-            (currentPath, index) -> currentPath + "[" + index + "]"),
+    LEGACY("$", (currentPath, token) -> {
+        currentPath.append(".").append(replaceCommonSpecialCharactersIfPresent(token));
+    }, (currentPath, index) -> {
+        currentPath.append("[").append(index).append("]");
+    }),
 
     /**
      * Paths as JSONPath expressions.
      */
     JSON_PATH("$", (currentPath, token) -> {
-
         if (token.isEmpty()) {
             throw new IllegalArgumentException("A JSONPath selector cannot be empty");
         }
-
         /*
          * Accepted characters for shorthand paths:
          * - 'a' through 'z'
@@ -32,16 +33,18 @@ public enum PathType {
          * - any non-ASCII Unicode character
          */
         if (JSONPath.isShorthand(token)) {
-            return currentPath + "." + token;
+            currentPath.append(".").append(token);
+            return;
         }
 
         // Replace single quote (used to wrap property names when not shorthand form).
         if (token.indexOf('\'') != -1) token = token.replace("'", "\\'");
         // Replace other special characters.
         token = replaceCommonSpecialCharactersIfPresent(token);
-
-        return currentPath + "['" + token + "']";
-    }, (currentPath, index) -> currentPath + "[" + index + "]"),
+        currentPath.append("['").append(token).append("']");
+    }, (currentPath, index) -> {
+        currentPath.append("[").append(index).append("]");
+    }),
 
     /**
      * Paths as JSONPointer expressions.
@@ -54,21 +57,31 @@ public enum PathType {
         if (token.indexOf('/') != -1) token = token.replace("/", "~1");
         // Replace other special characters.
         token = replaceCommonSpecialCharactersIfPresent(token);
-        return currentPath + "/" + token;
-    }, (currentPath, index) -> currentPath + "/" + index),
+        currentPath.append("/").append(token);
+    }, (currentPath, index) -> {
+        currentPath.append("/").append(index);
+    }),
     
     /**
      * Paths as a URI reference.
      */
-    URI_REFERENCE("", (currentPath, token) -> !currentPath.isEmpty() ? currentPath + "/" + token : token, (currentPath, index) -> currentPath + "/" + index);
+    URI_REFERENCE("", (currentPath, token) -> {
+        if (!(currentPath.length() == 0)) {
+            currentPath.append("/").append(token);
+        } else {
+            currentPath.append(token);
+        }
+    }, (currentPath, index) -> {
+        currentPath.append("/").append(index);
+    });
 
     /**
      * The default path generation approach to use.
      */
     public static final PathType DEFAULT = LEGACY;
     private final String rootToken;
-    private final BiFunction<String, String, String> appendTokenFn;
-    private final BiFunction<String, Integer, String> appendIndexFn;
+    private final BiConsumer<StringBuilder, String> appendTokenFn;
+    private final BiConsumer<StringBuilder, Integer> appendIndexFn;
 
     /**
      * Constructor.
@@ -77,7 +90,7 @@ public enum PathType {
      * @param appendTokenFn A function used to define the path fragment used to append a token (e.g. property) to an existing path.
      * @param appendIndexFn A function used to append an index (for arrays) to an existing path.
      */
-    PathType(String rootToken, BiFunction<String, String, String> appendTokenFn, BiFunction<String, Integer, String> appendIndexFn) {
+    PathType(String rootToken, BiConsumer<StringBuilder, String> appendTokenFn, BiConsumer<StringBuilder, Integer> appendIndexFn) {
         this.rootToken = rootToken;
         this.appendTokenFn = appendTokenFn;
         this.appendIndexFn = appendIndexFn;
@@ -103,10 +116,9 @@ public enum PathType {
      *
      * @param currentPath The path to append to.
      * @param child The child token.
-     * @return The resulting complete path.
      */
-    public String append(String currentPath, String child) {
-        return this.appendTokenFn.apply(currentPath, child);
+    public void append(StringBuilder currentPath, String child) {
+        this.appendTokenFn.accept(currentPath, child);
     }
 
     /**
@@ -114,10 +126,9 @@ public enum PathType {
      *
      * @param currentPath The path to append to.
      * @param index The index to append.
-     * @return The resulting complete path.
      */
-    public String append(String currentPath, int index) {
-        return this.appendIndexFn.apply(currentPath, index);
+    public void append(StringBuilder currentPath, int index) {
+        this.appendIndexFn.accept(currentPath, index);
     }
 
     /**

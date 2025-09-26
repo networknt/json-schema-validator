@@ -70,13 +70,19 @@ class Issue687Test {
     @ParameterizedTest
     @MethodSource("appendTokens")
     void testAppendToken(PathType pathType, String currentPath, String token, String expected) {
-        assertEquals(expected, pathType.append(currentPath, token));
+        StringBuilder builder = new StringBuilder();
+        builder.append(currentPath);
+        pathType.append(builder, token);
+        assertEquals(expected, builder.toString());
     }
 
     @ParameterizedTest
     @MethodSource("appendIndexes")
     void testAppendIndex(PathType pathType, String currentPath, Integer index, String expected) {
-        assertEquals(expected, pathType.append(currentPath, index));
+        StringBuilder builder = new StringBuilder();
+        builder.append(currentPath);
+        pathType.append(builder, index);
+        assertEquals(expected, builder.toString());
     }
 
     @ParameterizedTest
