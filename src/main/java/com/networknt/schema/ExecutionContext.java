@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import com.networknt.schema.annotation.Annotations;
 import com.networknt.schema.keyword.DiscriminatorState;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.result.SchemaResults;
+import com.networknt.schema.result.InstanceResults;
 import com.networknt.schema.walk.WalkConfig;
 
 /**
@@ -37,7 +37,7 @@ public class ExecutionContext {
     private CollectorContext collectorContext = null;
 
     private Annotations annotations = null;
-    private SchemaResults results = null;
+    private InstanceResults instanceResults = null;
     private List<Error> errors = new ArrayList<>();
 
     private Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
@@ -156,11 +156,11 @@ public class ExecutionContext {
         return annotations;
     }
 
-    public SchemaResults getResults() {
-        if (this.results == null) {
-            this.results = new SchemaResults();
+    public InstanceResults getInstanceResults() {
+        if (this.instanceResults == null) {
+            this.instanceResults = new InstanceResults();
         }
-        return results;
+        return instanceResults;
     }
 
     /**

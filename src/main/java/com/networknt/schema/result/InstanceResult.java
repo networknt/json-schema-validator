@@ -21,15 +21,15 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 
 /**
- * Sub schema results.
+ * Instance results.
  */
-public class SchemaResult {
+public class InstanceResult {
     private final NodePath instanceLocation;
     private final SchemaLocation schemaLocation;
     private final NodePath evaluationPath;
     private final boolean valid;
 
-    public SchemaResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
+    public InstanceResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
         super();
         this.instanceLocation = instanceLocation;
@@ -73,7 +73,7 @@ public class SchemaResult {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SchemaResult other = (SchemaResult) obj;
+        InstanceResult other = (InstanceResult) obj;
         return Objects.equals(evaluationPath, other.evaluationPath)
                 && Objects.equals(instanceLocation, other.instanceLocation)
                 && Objects.equals(schemaLocation, other.schemaLocation) && valid == other.valid;

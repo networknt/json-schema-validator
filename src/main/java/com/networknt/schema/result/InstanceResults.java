@@ -24,26 +24,26 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 
 /**
- * Sub schema results.
+ * Instance results.
  */
-public class SchemaResults {
+public class InstanceResults {
 
     /**
      * Stores the invalid results.
      */
-    private final Map<NodePath, List<SchemaResult>> values = new HashMap<>();
+    private final Map<NodePath, List<InstanceResult>> values = new HashMap<>();
 
     public void setResult(NodePath instanceLocation, SchemaLocation schemaLocation, NodePath evaluationPath,
             boolean valid) {
-        SchemaResult result = new SchemaResult(instanceLocation, schemaLocation, evaluationPath, valid);
-        List<SchemaResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
+        InstanceResult result = new InstanceResult(instanceLocation, schemaLocation, evaluationPath, valid);
+        List<InstanceResult> v = values.computeIfAbsent(instanceLocation, k -> new ArrayList<>());
         v.add(result);
     }
 
     public boolean isValid(NodePath instanceLocation, NodePath evaluationPath) {
-        List<SchemaResult> instance = values.get(instanceLocation);
+        List<InstanceResult> instance = values.get(instanceLocation);
         if (instance != null) {
-            for (SchemaResult result : instance) {
+            for (InstanceResult result : instance) {
                 if (evaluationPath.startsWith(result.getEvaluationPath())) {
                     if(!result.isValid()) {
                         return false;

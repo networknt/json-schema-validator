@@ -703,7 +703,7 @@ public class Schema implements Validator {
         if (executionContext.getErrors().size() > currentErrors) {
             // Failed with assertion set result and drop all annotations from this schema
             // and all subschemas
-            executionContext.getResults().setResult(instanceLocation, getSchemaLocation(), getEvaluationPath(), false);
+            executionContext.getInstanceResults().setResult(instanceLocation, getSchemaLocation(), getEvaluationPath(), false);
         }
     }
 

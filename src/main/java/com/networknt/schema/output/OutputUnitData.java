@@ -100,7 +100,7 @@ public class OutputUnitData {
 
                     OutputUnitKey key = new OutputUnitKey(annotation.getEvaluationPath().getParent(),
                             annotationSchemaLocation, annotation.getInstanceLocation());
-                    boolean validResult = executionContext.getResults().isValid(annotation.getInstanceLocation(),
+                    boolean validResult = executionContext.getInstanceResults().isValid(annotation.getInstanceLocation(),
                             annotation.getEvaluationPath());
                     valid.put(key, validResult);
                     if (validResult) {
