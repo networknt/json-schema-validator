@@ -301,7 +301,9 @@ public class Dialect {
                         }
                         if (vocabulary != null) {
                             for (Keyword keyword : vocabulary.getKeywords()) {
-                                keywords.put(keyword.getValue(), keyword);
+                                // Only add keyword from vocabulary if not already
+                                // ie. allow overriding the keyword by explicitly adding it
+                                keywords.putIfAbsent(keyword.getValue(), keyword);
                             }
                         } else if (Boolean.TRUE.equals(entry.getValue())) {
                             Error error = Error.builder()
