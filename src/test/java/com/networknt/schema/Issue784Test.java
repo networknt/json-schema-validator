@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -56,7 +56,7 @@ class Issue784Test {
     }
 
 
-    private Set<ValidationMessage> validate(JsonSchema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
+    private List<ValidationMessage> validate(JsonSchema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
         return jsonSchema.validate(new ObjectMapper().readTree(" { \"my-date-time\": \"" + myDateTimeContent + "\" } "));
     }
 

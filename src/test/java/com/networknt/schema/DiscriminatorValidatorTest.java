@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -119,7 +118,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -151,7 +150,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -244,7 +243,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 
@@ -337,7 +336,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 
@@ -427,7 +426,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
@@ -523,7 +522,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
@@ -623,7 +622,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         // Only the oneOf and the error in the BedRoom discriminator is reported
         // the mismatch in Kitchen is not reported
         assertEquals(2, messages.size());
@@ -678,7 +677,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", list.get(0).getType());
@@ -774,7 +773,7 @@ class DiscriminatorValidatorTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build();
         JsonSchema schema = factory.getSchema(schemaData, config);
-        Set<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages =  schema.validate(inputData, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
         assertEquals("required", list.get(0).getType());
     }

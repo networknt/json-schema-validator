@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -58,7 +57,7 @@ class Issue285Test {
     @Test
     void nestedValidation() throws IOException {
         JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
-        Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
+        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
 
         System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
 
@@ -99,7 +98,7 @@ class Issue285Test {
     void nestedTypeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
+        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
 
         System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
 
@@ -122,7 +121,7 @@ class Issue285Test {
     void typeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
         JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        Set<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
+        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
 
         System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
 

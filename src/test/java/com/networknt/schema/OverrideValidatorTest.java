@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +56,7 @@ class OverrideValidatorTest {
         final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(validatorMetaSchema).build();
         final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
 
-        Set<ValidationMessage> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<ValidationMessage> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
 

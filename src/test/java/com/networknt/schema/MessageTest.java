@@ -17,8 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -42,15 +41,13 @@ class MessageTest {
         }
 
         @Override
-        public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+        public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
                 JsonNodePath instanceLocation) {
             if (!node.asText().equals(value)) {
-                return Collections
-                        .singleton(message().message("{0}: must be equal to ''{1}''")
+                executionContext.addError(message().message("{0}: must be equal to ''{1}''")
                                 .arguments(value)
                                 .instanceLocation(instanceLocation).instanceNode(node).build());
             }
-            return Collections.emptySet();
         }
     }
     
@@ -79,7 +76,7 @@ class MessageTest {
                 + "  \"equals\": \"helloworld\"\r\n"
                 + "}";
         JsonSchema schema = factory.getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals("$: must be equal to 'helloworld'", messages.iterator().next().getMessage());
         

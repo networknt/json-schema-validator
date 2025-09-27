@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -79,7 +79,7 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("validTimeZoneOffsets")
     void testValidTimeZoneOffsets(String jsonObject) throws JsonProcessingException {
-        Set<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
+        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -121,7 +121,7 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("invalidTimeRepresentations")
     void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
-        Set<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
+        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
             executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         Assertions.assertFalse(errors.isEmpty());

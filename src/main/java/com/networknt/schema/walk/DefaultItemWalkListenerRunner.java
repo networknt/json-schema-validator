@@ -8,7 +8,6 @@ import com.networknt.schema.JsonValidator;
 import com.networknt.schema.ValidationMessage;
 
 import java.util.List;
-import java.util.Set;
 
 public class DefaultItemWalkListenerRunner extends AbstractWalkListenerRunner {
 
@@ -28,7 +27,7 @@ public class DefaultItemWalkListenerRunner extends AbstractWalkListenerRunner {
 
     @Override
     public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator, Set<ValidationMessage> validationMessages) {
+            JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator, List<ValidationMessage> validationMessages) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
                 schema, validator);
         runPostWalkListeners(itemWalkListeners, walkEvent, validationMessages);

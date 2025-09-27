@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import com.networknt.schema.ExecutionContext;
@@ -73,7 +72,7 @@ public class OutputUnitData {
     }
 
     @SuppressWarnings("unchecked")
-    public static OutputUnitData from(Set<ValidationMessage> validationMessages, ExecutionContext executionContext,
+    public static OutputUnitData from(List<ValidationMessage> validationMessages, ExecutionContext executionContext,
             Function<ValidationMessage, Object> assertionMapper) {
         OutputUnitData data = new OutputUnitData();
 

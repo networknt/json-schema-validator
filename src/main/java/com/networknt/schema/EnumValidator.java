@@ -89,7 +89,7 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         if (node.isNumber()) {
@@ -98,12 +98,10 @@ public class EnumValidator extends BaseJsonValidator implements JsonValidator {
             node = processArrayNode((ArrayNode) node);
         }
         if (!nodes.contains(node) && !( this.validationContext.getConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast()).arguments(error).build());
         }
-
-        return Collections.emptySet();
     }
 
     /**

@@ -18,7 +18,6 @@ package com.networknt.schema.oas;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ class OpenApi31Test {
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"
@@ -78,7 +77,7 @@ class OpenApi31Test {
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"
@@ -109,7 +108,7 @@ class OpenApi31Test {
                 + "  \"bark\": \"woof\",\r\n"
                 + "  \"lovesRocks\": true\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", list.get(0).getType());
     }
@@ -128,7 +127,7 @@ class OpenApi31Test {
                 + "  \"petType\": \"lizard\",\r\n"
                 + "  \"none\": true\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", list.get(0).getType());
         assertEquals("required", list.get(1).getType());
@@ -150,7 +149,7 @@ class OpenApi31Test {
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"lovesRocks\": true\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

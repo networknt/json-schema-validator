@@ -7,7 +7,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonValidator;
 import com.networknt.schema.ValidationMessage;
 
-import java.util.Set;
+import java.util.List;
 
 public interface WalkListenerRunner {
 
@@ -15,6 +15,6 @@ public interface WalkListenerRunner {
                                 JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator);
 
     void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-                              JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator, Set<ValidationMessage> validationMessages);
+                              JsonNode rootNode, JsonNodePath instanceLocation, JsonSchema schema, JsonValidator validator, List<ValidationMessage> errors);
 
 }

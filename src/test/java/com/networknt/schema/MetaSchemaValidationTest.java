@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +46,7 @@ class MetaSchemaValidationTest {
                             builder -> builder.schemaMappers(schemaMappers -> schemaMappers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);
-            Set<ValidationMessage> messages = schema.validate(inputData);
+            List<ValidationMessage> messages = schema.validate(inputData);
             assertEquals(0, messages.size());
         }
     }

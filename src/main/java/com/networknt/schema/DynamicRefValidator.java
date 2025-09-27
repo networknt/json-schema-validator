@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -92,7 +90,7 @@ public class DynamicRefValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         JsonSchema refSchema = this.schema.getSchema();
         if (refSchema == null) {
@@ -102,11 +100,11 @@ public class DynamicRefValidator extends BaseJsonValidator {
                     .arguments(schemaNode.asText()).build();
             throw new InvalidSchemaRefException(validationMessage);
         }
-        return refSchema.validate(executionContext, node, rootNode, instanceLocation);
+        refSchema.validate(executionContext, node, rootNode, instanceLocation);
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         // This is important because if we use same JsonSchemaFactory for creating multiple JSONSchema instances,
         // these schemas will be cached along with config. We have to replace the config for cached $ref references
@@ -132,10 +130,10 @@ public class DynamicRefValidator extends BaseJsonValidator {
                 }
             }
             if (circularDependency) {
-                return Collections.emptySet();
+                return;
             }
         }
-        return refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        refSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
     }
 
 	public JsonSchemaRef getSchemaRef() {

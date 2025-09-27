@@ -14,7 +14,6 @@ import com.networknt.schema.walk.WalkFlow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +57,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[1, \"x\"]";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/prefixItems/0/type", message.getEvaluationPath().toString());
@@ -84,7 +83,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1]";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -103,7 +102,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
         JsonSchema schema = factory.getSchema(schemaData, config);
         String inputData = "[\"x\", 1, 1, 2]";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/items", message.getEvaluationPath().toString());
@@ -138,7 +137,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -194,7 +193,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()

@@ -45,9 +45,9 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         if (!node.isObject()) {
-            return Collections.emptySet();
+            return;
         }
 
         debug(logger, executionContext, node, rootNode, instanceLocation);
@@ -106,7 +106,6 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
             }
         }
 
-        Set<ValidationMessage> messages = new LinkedHashSet<>();
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
@@ -117,13 +116,13 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                     evaluatedProperties.add(fieldName);
                     if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                         // All fails as "unevaluatedProperties: false"
-                        messages.add(message().instanceNode(node).instanceLocation(instanceLocation).property(fieldName)
+                        executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation).property(fieldName)
                                 .arguments(fieldName).locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast()).build());
                     } else {
                         // Schema errors will be reported as is
-                        messages.addAll(this.schema.validate(executionContext, node.get(fieldName), node,
-                                instanceLocation.append(fieldName)));
+                        this.schema.validate(executionContext, node.get(fieldName), node,
+                                instanceLocation.append(fieldName));
                     }
                 }
             }
@@ -134,6 +133,6 @@ public class UnevaluatedPropertiesValidator extends BaseJsonValidator {
                 .put(JsonNodeAnnotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
                         .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(evaluatedProperties).build());
 
-        return messages == null || messages.isEmpty() ? Collections.emptySet() : messages;
+        return;
     }
 }

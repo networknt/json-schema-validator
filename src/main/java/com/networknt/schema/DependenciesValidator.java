@@ -62,10 +62,8 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        Set<ValidationMessage> errors = null;
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -73,10 +71,7 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             if (deps != null && !deps.isEmpty()) {
                 for (String field : deps) {
                     if (node.get(field) == null) {
-                        if (errors == null) {
-                            errors = new LinkedHashSet<>();
-                        }
-                        errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
+                        executionContext.addError(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast())
                                 .arguments(propertyDeps.toString()).build());
@@ -85,16 +80,9 @@ public class DependenciesValidator extends BaseJsonValidator implements JsonVali
             }
             JsonSchema schema = schemaDeps.get(pname);
             if (schema != null) {
-                Set<ValidationMessage> schemaDepsErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
-                if (!schemaDepsErrors.isEmpty()) {
-                    if (errors == null) {
-                        errors = new LinkedHashSet<>();
-                    }
-                    errors.addAll(schemaDepsErrors);
-                }
+                schema.validate(executionContext, node, rootNode, instanceLocation);
             }
         }
-        return errors == null || errors.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(errors);
     }
 
     @Override

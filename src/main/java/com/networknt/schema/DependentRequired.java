@@ -46,10 +46,8 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -57,7 +55,7 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
             if (dependencies != null && !dependencies.isEmpty()) {
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
-                        errors.add(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
+                        executionContext.addError(message().instanceNode(node).property(pname).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 .failFast(executionContext.isFailFast()).arguments(field, pname)
                                 .build());
@@ -65,8 +63,6 @@ public class DependentRequired extends BaseJsonValidator implements JsonValidato
                 }
             }
         }
-
-        return Collections.unmodifiableSet(errors);
     }
 
 }

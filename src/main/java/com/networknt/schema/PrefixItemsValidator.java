@@ -20,16 +20,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
-import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link JsonValidator} for prefixItems.
@@ -58,21 +54,14 @@ public class PrefixItemsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         // ignores non-arrays
         if (node.isArray()) {
-            SetView<ValidationMessage> errors = null;
             int count = Math.min(node.size(), this.tupleSchema.size());
             for (int i = 0; i < count; ++i) {
                 JsonNodePath path = instanceLocation.append(i);
-                Set<ValidationMessage> results = this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
-                if (!results.isEmpty()) {
-                    if (errors == null) {
-                        errors = new SetView<>();
-                    }
-                    errors.union(results);
-                }
+                this.tupleSchema.get(i).validate(executionContext, node.get(i), rootNode, path);
             }
 
             // Add annotation
@@ -94,15 +83,11 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
-            return errors == null || errors.isEmpty() ? Collections.emptySet() : errors;
-        } else {
-            return Collections.emptySet();
         }
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> validationMessages = new LinkedHashSet<>();
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (node instanceof ArrayNode) {
             ArrayNode array = (ArrayNode) node;
             int count = this.tupleSchema.size();
@@ -118,7 +103,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
                         }
                     }
                 }
-                doWalk(executionContext, validationMessages, i, n, rootNode, instanceLocation, shouldValidateSchema);
+                doWalk(executionContext, i, n, rootNode, instanceLocation, shouldValidateSchema);
             }
 
             // Add annotation
@@ -143,10 +128,9 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         } else {
             int count = this.tupleSchema.size();
             for (int i = 0; i < count; ++i) {
-                doWalk(executionContext, validationMessages, i, null, rootNode, instanceLocation, shouldValidateSchema);
+                doWalk(executionContext, i, null, rootNode, instanceLocation, shouldValidateSchema);
             }
         }
-        return validationMessages;
     }
 
     private static JsonNode getDefaultNode(JsonSchema schema) {
@@ -160,14 +144,14 @@ public class PrefixItemsValidator extends BaseJsonValidator {
         return result;
     }
 
-    private void doWalk(ExecutionContext executionContext, Set<ValidationMessage> validationMessages, int i,
+    private void doWalk(ExecutionContext executionContext, int i,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         walkSchema(executionContext, this.tupleSchema.get(i), node, rootNode, instanceLocation.append(i),
-                shouldValidateSchema, validationMessages);
+                shouldValidateSchema);
     }
 
     private void walkSchema(ExecutionContext executionContext, JsonSchema walkSchema, JsonNode node, JsonNode rootNode,
-            JsonNodePath instanceLocation, boolean shouldValidateSchema, Set<ValidationMessage> validationMessages) {
+            JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
         boolean executeWalk = this.validationContext.getConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
@@ -177,8 +161,9 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             instanceLocation,
             walkSchema, this
         );
+        int currentErrors = executionContext.getErrors().size();
         if (executeWalk) {
-            validationMessages.addAll(walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema));
+            walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
         this.validationContext.getConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
@@ -187,7 +172,7 @@ public class PrefixItemsValidator extends BaseJsonValidator {
             rootNode,
             instanceLocation,
             walkSchema,
-            this, validationMessages
+            this, executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size())
         );
         //@formatter:on
     }

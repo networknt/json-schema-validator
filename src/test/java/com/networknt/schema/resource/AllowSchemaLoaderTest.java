@@ -40,7 +40,7 @@ class AllowSchemaLoaderTest {
         InvalidSchemaException invalidSchemaException = assertThrows(InvalidSchemaException.class,
                 () -> factory.getSchema(SchemaLocation.of("http://www.example.org/schema")));
         assertEquals("http://www.example.org/schema",
-                invalidSchemaException.getValidationMessage().getArguments()[0].toString());
+                invalidSchemaException.getError().getArguments()[0].toString());
         JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:schema/example-main.json"));
         assertNotNull(schema);
     }

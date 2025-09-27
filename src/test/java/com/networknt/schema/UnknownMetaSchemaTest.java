@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 class UnknownMetaSchemaTest {
 
@@ -24,7 +24,7 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema1);
 
-        Set<ValidationMessage> errors = jsonSchema.validate(jsonNode);
+        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
         for(ValidationMessage error:errors) {
             System.out.println(error.getMessage());
         }
@@ -38,7 +38,7 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema2);
 
-        Set<ValidationMessage> errors = jsonSchema.validate(jsonNode);
+        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
         for(ValidationMessage error:errors) {
             System.out.println(error.getMessage());
         }
@@ -51,7 +51,7 @@ class UnknownMetaSchemaTest {
         JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)).build();
         JsonSchema jsonSchema = factory.getSchema(schema3);
 
-        Set<ValidationMessage> errors = jsonSchema.validate(jsonNode);
+        List<ValidationMessage> errors = jsonSchema.validate(jsonNode);
         for(ValidationMessage error:errors) {
             System.out.println(error.getMessage());
         }

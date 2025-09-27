@@ -18,7 +18,7 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +48,7 @@ class ExclusiveMinimumValidatorTest {
         String inputData = "{\"value1\":0}";
         String validData = "{\"value1\":0.1}";
         
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals(1, messages.stream().filter(m -> "minimum".equals(m.getType())).count());
         

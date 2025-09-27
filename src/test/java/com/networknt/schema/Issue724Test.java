@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +77,7 @@ class Issue724Test {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
             // nothing to do here
         }
     }

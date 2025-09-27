@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +52,7 @@ class AdditionalPropertiesValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/additionalProperties", message.getEvaluationPath().toString());
@@ -87,7 +87,7 @@ class AdditionalPropertiesValidatorTest {
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/additionalProperties/type", message.getEvaluationPath().toString());

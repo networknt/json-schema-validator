@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ class Issue396Test {
                 expected.add(entry.getKey());
         });
 
-        Set<ValidationMessage> errors = schema.validate(node);
+        List<ValidationMessage> errors = schema.validate(node);
         final Set<String> actual = errors.stream().map(ValidationMessage::getProperty).map(Object::toString).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }

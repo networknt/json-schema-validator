@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ class Issue467Test {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> set) {
                     }
                 })
                 .build();
@@ -78,7 +79,7 @@ class Issue467Test {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> set) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> set) {
                     }
                 })
                 .build();

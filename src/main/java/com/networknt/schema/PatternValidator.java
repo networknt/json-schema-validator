@@ -21,9 +21,7 @@ import com.networknt.schema.regex.RegularExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 public class PatternValidator extends BaseJsonValidator {
     private static final Logger logger = LoggerFactory.getLogger(PatternValidator.class);
@@ -48,19 +46,20 @@ public class PatternValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
-            return Collections.emptySet();
+            return;
         }
 
         try {
             if (!matches(node.asText())) {
-                return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .failFast(executionContext.isFailFast()).arguments(this.pattern).build());
+                return;
             }
         } catch (JsonSchemaException | FailFastAssertionException e) {
             throw e;
@@ -68,7 +67,5 @@ public class PatternValidator extends BaseJsonValidator {
             logger.error("Failed to apply pattern '{}' at {}: {}", this.pattern, instanceLocation, e.getMessage());
             throw e;
         }
-
-        return Collections.emptySet();
     }
 }

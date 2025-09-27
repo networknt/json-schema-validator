@@ -23,19 +23,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.utils.JsonNodes;
-import com.networknt.schema.utils.SetView;
 
 /**
  * Used for creating a schema with validators for validating inputs. This is
@@ -142,8 +139,8 @@ public class JsonSchema implements JsonSchemaValidator {
         }
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node) {
-        return validate(executionContext, node, node, atRoot());
+    public void validate(ExecutionContext executionContext, JsonNode node) {
+        validate(executionContext, node, node, atRoot());
     }
 
     /**
@@ -711,7 +708,7 @@ public class JsonSchema implements JsonSchemaValidator {
     /************************ START OF VALIDATE METHODS **********************************/
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
             ObjectNode discriminator = (ObjectNode) schemaNode.get("discriminator");
             if (null != discriminator && null != executionContext.getCurrentDiscriminatorContext()) {
@@ -719,21 +716,9 @@ public class JsonSchema implements JsonSchemaValidator {
                         discriminator);
             }
         }
-
-        SetView<ValidationMessage> errors = null;
+        int currentErrors = executionContext.getErrors().size();
         for (JsonValidator v : getValidators()) {
-            Set<ValidationMessage> results = null;
-
-            try {
-                results = v.validate(executionContext, jsonNode, rootNode, instanceLocation);
-            } finally {
-                if (results != null && !results.isEmpty()) {
-                    if (errors == null) {
-                        errors = new SetView<>();
-                    }
-                    errors.union(results);
-                }
-            }
+            v.validate(executionContext, jsonNode, rootNode, instanceLocation);
         }
 
         if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
@@ -765,12 +750,11 @@ public class JsonSchema implements JsonSchemaValidator {
             }
         }
 
-        if (errors != null && !errors.isEmpty()) {
+        if (executionContext.getErrors().size() > currentErrors) {
             // Failed with assertion set result and drop all annotations from this schema
             // and all subschemas
             executionContext.getResults().setResult(instanceLocation, getSchemaLocation(), getEvaluationPath(), false);
         }
-        return errors == null ? Collections.emptySet() : errors;
     }
 
     /**
@@ -786,7 +770,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @return A list of ValidationMessage if there is any validation error, or an
      *         empty list if there is no error.
      */
-    public Set<ValidationMessage> validate(JsonNode rootNode) {
+    public List<ValidationMessage> validate(JsonNode rootNode) {
         return validate(rootNode, OutputFormat.DEFAULT);
     }
 
@@ -803,7 +787,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public Set<ValidationMessage> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
+    public List<ValidationMessage> validate(JsonNode rootNode, ExecutionContextCustomizer executionCustomizer) {
         return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -820,7 +804,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public Set<ValidationMessage> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
+    public List<ValidationMessage> validate(JsonNode rootNode, Consumer<ExecutionContext> executionCustomizer) {
         return validate(rootNode, OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -898,7 +882,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @return A list of ValidationMessage if there is any validation error, or an
      *         empty list if there is no error.
      */
-    public Set<ValidationMessage> validate(String input, InputFormat inputFormat) {
+    public List<ValidationMessage> validate(String input, InputFormat inputFormat) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT);
     }
 
@@ -917,7 +901,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+    public List<ValidationMessage> validate(String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -936,7 +920,7 @@ public class JsonSchema implements JsonSchemaValidator {
      * @param executionCustomizer the execution customizer
      * @return the assertions
      */
-    public Set<ValidationMessage> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+    public List<ValidationMessage> validate(String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
         return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
     }
 
@@ -1031,13 +1015,12 @@ public class JsonSchema implements JsonSchemaValidator {
         if (executionCustomizer != null) {
             executionCustomizer.customize(executionContext, this.validationContext);
         }
-        Set<ValidationMessage> validationMessages = null;
         try {
-            validationMessages = validate(executionContext, node);
+            validate(executionContext, node);
         } catch (FailFastAssertionException e) {
-            validationMessages = e.getValidationMessages();
+            executionContext.setErrors(e.getErrors());
         }
-        return format.format(this, validationMessages, executionContext, this.validationContext);
+        return format.format(this, executionContext, this.validationContext);
     }
 
     /**
@@ -1083,7 +1066,7 @@ public class JsonSchema implements JsonSchemaValidator {
     @Deprecated
     private ValidationResult validateAndCollect(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, JsonNodePath instanceLocation) {
         // Validate.
-        Set<ValidationMessage> errors = validate(executionContext, jsonNode, rootNode, instanceLocation);
+        validate(executionContext, jsonNode, rootNode, instanceLocation);
 
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
@@ -1097,7 +1080,7 @@ public class JsonSchema implements JsonSchemaValidator {
             collectorContext.loadCollectors();
         }
         // Collect errors and collector context into validation result.
-        return new ValidationResult(errors, executionContext);
+        return new ValidationResult(executionContext);
     }
 
     /**
@@ -1356,7 +1339,7 @@ public class JsonSchema implements JsonSchemaValidator {
             executionCustomizer.customize(executionContext, this.validationContext);
         }
         // Walk through the schema.
-        Set<ValidationMessage> errors = walk(executionContext, node, rootNode, instanceLocation, validate);
+         walk(executionContext, node, rootNode, instanceLocation, validate);
 
         // Get the config.
         SchemaValidatorsConfig config = this.validationContext.getConfig();
@@ -1369,14 +1352,14 @@ public class JsonSchema implements JsonSchemaValidator {
             // Load all the data from collectors into the context.
             collectorContext.loadCollectors();
         }
-        return format.format(this, errors, executionContext, this.validationContext);
+        return format.format(this, executionContext, this.validationContext);
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        Set<ValidationMessage> errors = new LinkedHashSet<>();
         // Walk through all the JSONWalker's.
+        int currentErrors = executionContext.getErrors().size();
         for (JsonValidator validator : getValidators()) {
             JsonNodePath evaluationPathWithKeyword = validator.getEvaluationPath();
             try {
@@ -1385,23 +1368,16 @@ public class JsonSchema implements JsonSchemaValidator {
                 if (this.validationContext.getConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
                         this, validator)) {
-                    Set<ValidationMessage> results = null;
-                    try {
-                        results = validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-                    } finally {
-                        if (results != null && !results.isEmpty()) {
-                            errors.addAll(results);
-                        }
-                    }
+                    validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
                 }
             } finally {
                 // Call all the post-walk listeners.
                 this.validationContext.getConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
                         evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        this, validator, errors);
+                        this, validator,
+                        executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
             }
         }
-        return errors;
     }
 
     /************************ END OF WALK METHODS **********************************/

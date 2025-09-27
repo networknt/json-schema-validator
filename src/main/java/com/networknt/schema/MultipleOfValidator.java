@@ -23,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * {@link JsonValidator} for multipleOf.
@@ -40,21 +38,20 @@ public class MultipleOfValidator extends BaseJsonValidator implements JsonValida
         this.divisor = getDivisor(schemaNode);
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         if (this.divisor != null) {
             BigDecimal dividend = getDividend(node);
             if (dividend != null) {
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
-                    return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+                    executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                             .locale(executionContext.getExecutionConfig().getLocale())
                             .failFast(executionContext.isFailFast()).arguments(this.divisor)
                             .build());
                 }
             }
         }
-        return Collections.emptySet();
     }
 
     /**

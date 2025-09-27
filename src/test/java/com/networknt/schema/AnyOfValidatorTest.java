@@ -35,7 +35,7 @@ class AnyOfValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
-        assertEquals("type", ex.getValidationMessage().getMessageKey());
+        assertEquals("type", ex.getError().getMessageKey());
     }
 
     @Test

@@ -17,42 +17,42 @@
 package com.networknt.schema;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Represents an error when processing the JsonSchema.
  */
 public class JsonSchemaException extends RuntimeException {
     private static final long serialVersionUID = -7805792737596582110L;
-    private final ValidationMessage validationMessage;
+    private final ValidationMessage error;
 
-    public JsonSchemaException(ValidationMessage validationMessage) {
-        this.validationMessage = validationMessage;
+    public JsonSchemaException(ValidationMessage error) {
+        this.error = error;
     }
 
     public JsonSchemaException(String message) {
         super(message);
-        this.validationMessage = null;
+        this.error = null;
     }
 
     public JsonSchemaException(Throwable throwable) {
         super(throwable);
-        this.validationMessage = null;
+        this.error = null;
     }
 
     @Override
     public String getMessage() {
-        return this.validationMessage != null ? this.validationMessage.getMessage() : super.getMessage();
+        return this.error != null ? this.error.getMessage() : super.getMessage();
     }
 
-    public ValidationMessage getValidationMessage() {
-        return this.validationMessage;
+    public ValidationMessage getError() {
+        return this.error;
     }
 
-    public Set<ValidationMessage> getValidationMessages() {
-        if (validationMessage == null) {
-            return Collections.emptySet();
+    public List<ValidationMessage> getErrors() {
+        if (error == null) {
+            return Collections.emptyList();
         }
-        return Collections.singleton(validationMessage);
+        return Collections.singletonList(error);
     }
 }

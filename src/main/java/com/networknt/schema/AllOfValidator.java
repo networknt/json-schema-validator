@@ -20,7 +20,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.utils.SetView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,31 +51,19 @@ public class AllOfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-        return validate(executionContext, node, rootNode, instanceLocation, false);
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+        validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean walk) {
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean walk) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
-        SetView<ValidationMessage> childSchemaErrors = null;
-
         for (JsonSchema schema : this.schemas) {
-            Set<ValidationMessage> localErrors = null;
-
             if (!walk) {
-                localErrors = schema.validate(executionContext, node, rootNode, instanceLocation);
+                schema.validate(executionContext, node, rootNode, instanceLocation);
             } else {
-                localErrors = schema.walk(executionContext, node, rootNode, instanceLocation, true);
+                schema.walk(executionContext, node, rootNode, instanceLocation, true);
             }
-            
-            if (localErrors != null && !localErrors.isEmpty()) {
-                if (childSchemaErrors == null) {
-                    childSchemaErrors = new SetView<>();
-                }
-                childSchemaErrors.union(localErrors);
-            }
-
             if (this.validationContext.getConfig().isDiscriminatorKeywordEnabled()) {
                 final Iterator<JsonNode> arrayElements = this.schemaNode.elements();
                 while (arrayElements.hasNext()) {
@@ -106,21 +93,19 @@ public class AllOfValidator extends BaseJsonValidator {
                 }
             }
         }
-
-        return childSchemaErrors != null ? childSchemaErrors : Collections.emptySet();
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (shouldValidateSchema && node != null) {
-            return validate(executionContext, node, rootNode, instanceLocation, true);
+            validate(executionContext, node, rootNode, instanceLocation, true);
+            return;
         }
         for (JsonSchema schema : this.schemas) {
             // Walk through the schema
             schema.walk(executionContext, node, rootNode, instanceLocation, false);
         }
-        return Collections.emptySet();
-    }
+   }
 
     @Override
     public void preloadJsonSchema() {

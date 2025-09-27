@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.annotation.JsonNodeAnnotation;
 import com.networknt.schema.utils.JsonSchemaRefs;
-import com.networknt.schema.utils.SetView;
 import com.networknt.schema.walk.WalkListenerRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,16 +55,14 @@ public class PropertiesValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
-        return validate(executionContext, node, rootNode, instanceLocation, false);
+        validate(executionContext, node, rootNode, instanceLocation, false);
     }
 
-    protected Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation, boolean walk) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
-
-        SetView<ValidationMessage> errors = null;
 
         Set<String> matchedInstancePropertyNames = null;
         boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
@@ -81,20 +78,10 @@ public class PropertiesValidator extends BaseJsonValidator {
                 }
                 if (!walk) {
                     //validate the child element(s)
-                    Set<ValidationMessage> result = entry.getValue().validate(executionContext, propertyNode, rootNode,
-                            path);
-                    if (!result.isEmpty()) {
-                        if (errors == null) {
-                            errors = new SetView<>();
-                        }
-                        errors.union(result);
-                    }
+                    entry.getValue().validate(executionContext, propertyNode, rootNode, path);
                 } else {
                     // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                    if (errors == null) {
-                        errors = new SetView<>();
-                    }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
             } else {
                 if (walk) {
@@ -103,10 +90,7 @@ public class PropertiesValidator extends BaseJsonValidator {
                     // null.
                     // The actual walk needs to be skipped as the validators assume that node is not
                     // null.
-                    if (errors == null) {
-                        errors = new SetView<>();
-                    }
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, errors, this.validationContext.getConfig().getPropertyWalkListenerRunner());
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, this.validationContext.getConfig().getPropertyWalkListenerRunner());
                 }
             }
         }
@@ -118,27 +102,23 @@ public class PropertiesValidator extends BaseJsonValidator {
                                     : matchedInstancePropertyNames)
                             .build());
         }
-
-        return errors == null || errors.isEmpty() ? Collections.emptySet() : errors;
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-        SetView<ValidationMessage> validationMessages = new SetView<>();
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         if (this.validationContext.getConfig().getApplyDefaultsStrategy().shouldApplyPropertyDefaults() && null != node
                 && node.getNodeType() == JsonNodeType.OBJECT) {
             applyPropertyDefaults((ObjectNode) node);
         }
         if (shouldValidateSchema) {
-            validationMessages.union(validate(executionContext, node == null ? MissingNode.getInstance() : node, rootNode,
-                    instanceLocation, true));
+            validate(executionContext, node == null ? MissingNode.getInstance() : node, rootNode,
+                    instanceLocation, true);
         } else {
             WalkListenerRunner propertyWalkListenerRunner = this.validationContext.getConfig().getPropertyWalkListenerRunner();
             for (Map.Entry<String, JsonSchema> entry : this.schemas.entrySet()) {
-                walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, validationMessages, propertyWalkListenerRunner);
+                walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkListenerRunner);
             }
         }
-        return validationMessages;
     }
 
     private boolean collectAnnotations() {
@@ -180,8 +160,7 @@ public class PropertiesValidator extends BaseJsonValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, Map.Entry<String, JsonSchema> entry, JsonNode node,
-            JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema,
-            SetView<ValidationMessage> validationMessages, WalkListenerRunner propertyWalkListenerRunner) {
+            JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema, WalkListenerRunner propertyWalkListenerRunner) {
         JsonSchema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         JsonNodePath path = instanceLocation.append(entry.getKey());
@@ -192,19 +171,18 @@ public class PropertiesValidator extends BaseJsonValidator {
             // Attempt to get the property node again in case the propertyNode was updated
             propertyNode = node.get(entry.getKey());
         }
+        int currentErrors = executionContext.getErrors().size();
         if (executeWalk) {
-            validationMessages.union(
-                    propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema));
+            propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema);
         }
-        propertyWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.PROPERTIES.getValue(), propertyNode,
-                rootNode, path, propertySchema,
-                this, validationMessages);
+        propertyWalkListenerRunner.runPostWalkListeners(executionContext, ValidatorTypeCode.PROPERTIES.getValue(),
+                propertyNode, rootNode, path, propertySchema, this,
+                executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
     }
 
     public Map<String, JsonSchema> getSchemas() {
         return this.schemas;
     }
-
 
     @Override
     public void preloadJsonSchema() {

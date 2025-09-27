@@ -23,11 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.networknt.schema.VersionCode.MinV201909;
 
@@ -81,42 +79,48 @@ public class ContainsValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // ignores non-arrays
-        Set<ValidationMessage> results = null;
         int actual = 0, i = 0;
         List<Integer> indexes = new ArrayList<>(); // for the annotation
         if (null != this.schema && node.isArray()) {
             // Save flag as nested schema evaluation shouldn't trigger fail fast
             boolean failFast = executionContext.isFailFast();
+            List<ValidationMessage> existingErrors = executionContext.getErrors();
             try {
                 executionContext.setFailFast(false);
+                List<ValidationMessage> test = new ArrayList<>();
+                executionContext.setErrors(test);
                 for (JsonNode n : node) {
                     JsonNodePath path = instanceLocation.append(i);
-                    if (this.schema.validate(executionContext, n, rootNode, path).isEmpty()) {
+                    this.schema.validate(executionContext, n, rootNode, path);
+                    if (test.isEmpty()) {
                         ++actual;
                         indexes.add(i);
+                    } else {
+                        test.clear();
                     }
                     ++i;
                 }
             } finally {
                 // Restore flag
                 executionContext.setFailFast(failFast);
+                executionContext.setErrors(existingErrors);
             }
             int m = 1; // default to 1 if "min" not specified
             if (this.min != null) {
                 m = this.min;
             }
             if (actual < m) {
-                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
+                boundsViolated(executionContext, isMinV201909 ? ValidatorTypeCode.MIN_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         executionContext.isFailFast(), node, instanceLocation, m);
             }
 
             if (this.max != null && actual > this.max) {
-                results = boundsViolated(isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
+                boundsViolated(executionContext, isMinV201909 ? ValidatorTypeCode.MAX_CONTAINS : ValidatorTypeCode.CONTAINS,
                         executionContext.getExecutionConfig().getLocale(),
                         executionContext.isFailFast(), node, instanceLocation, this.max);
             }
@@ -172,7 +176,6 @@ public class ContainsValidator extends BaseJsonValidator {
                 }
             }
         }
-        return results == null ? Collections.emptySet() : results;
     }
 
     @Override
@@ -181,7 +184,7 @@ public class ContainsValidator extends BaseJsonValidator {
         collectAnnotations(); // cache the flag
     }
 
-    private Set<ValidationMessage> boundsViolated(ValidatorTypeCode validatorTypeCode, Locale locale, boolean failFast,
+    private void boundsViolated(ExecutionContext executionContext, ValidatorTypeCode validatorTypeCode, Locale locale, boolean failFast,
             JsonNode instanceNode, JsonNodePath instanceLocation, int bounds) {
         String messageKey = "contains";
         if (ValidatorTypeCode.MIN_CONTAINS.equals(validatorTypeCode)) {
@@ -189,8 +192,7 @@ public class ContainsValidator extends BaseJsonValidator {
         } else if (ValidatorTypeCode.MAX_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MAX;
         }
-        return Collections
-                .singleton(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
+        executionContext.addError(message().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
                         .locale(locale).failFast(failFast).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .code(validatorTypeCode.getErrorCode()).type(validatorTypeCode.getValue()).build());
     }

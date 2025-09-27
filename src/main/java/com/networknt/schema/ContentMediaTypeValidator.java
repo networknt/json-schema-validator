@@ -18,8 +18,6 @@ package com.networknt.schema;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -88,14 +86,14 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         // Ignore non-strings
         JsonType nodeType = TypeFactory.getValueNodeType(node, this.validationContext.getConfig());
         if (nodeType != JsonType.STRING) {
-            return Collections.emptySet();
+            return;
         }
 
         if (collectAnnotations(executionContext)) {
@@ -104,11 +102,10 @@ public class ContentMediaTypeValidator extends BaseJsonValidator {
         }
 
         if (!matches(node.asText())) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast()).arguments(this.contentMediaType)
                     .build());
         }
-        return Collections.emptySet();
     }
 }

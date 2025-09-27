@@ -17,8 +17,8 @@
 package com.networknt.schema;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Thrown when an assertion happens and the evaluation can fail fast.
@@ -32,15 +32,15 @@ import java.util.Set;
 public class FailFastAssertionException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private final ValidationMessage validationMessage;
+    private final ValidationMessage error;
 
     /**
      * Constructor.
      *
-     * @param validationMessage the validation message
+     * @param error the validation message
      */
-    public FailFastAssertionException(ValidationMessage validationMessage) {
-        this.validationMessage = Objects.requireNonNull(validationMessage);
+    public FailFastAssertionException(ValidationMessage error) {
+        this.error = Objects.requireNonNull(error);
     }
 
     /**
@@ -48,8 +48,8 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public ValidationMessage getValidationMessage() {
-        return this.validationMessage;
+    public ValidationMessage getError() {
+        return this.error;
     }
 
     /**
@@ -57,13 +57,13 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public Set<ValidationMessage> getValidationMessages() {
-        return Collections.singleton(this.validationMessage);
+    public List<ValidationMessage> getErrors() {
+        return Collections.singletonList(this.error);
     }
 
     @Override
     public String getMessage() {
-        return this.validationMessage != null ? this.validationMessage.getMessage() : super.getMessage();
+        return this.error != null ? this.error.getMessage() : super.getMessage();
     }
 
     @Override

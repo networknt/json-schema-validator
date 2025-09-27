@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,7 +45,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}");
 
             JsonNode node = getJsonNodeFromStringContent("");
-            Set<ValidationMessage> errors = schema.validate(node);
+            List<ValidationMessage> errors = schema.validate(node);
             Assertions.assertEquals(errors.size(), 0);
         });
     }
@@ -59,7 +60,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
             JsonSchema schema = factory.getSchema("{\"patternProperties\":6}", config);
 
             JsonNode node = getJsonNodeFromStringContent("");
-            Set<ValidationMessage> errors = schema.validate(node);
+            List<ValidationMessage> errors = schema.validate(node);
             Assertions.assertEquals(errors.size(), 0);
         });
     }
@@ -86,7 +87,7 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "  \"valid_string\": \"string_value\",\n"
                 + "  \"valid_key\": 5\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
         ValidationMessage message = messages.iterator().next();
         assertEquals("/patternProperties/^valid_/type", message.getEvaluationPath().toString());

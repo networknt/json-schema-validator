@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
@@ -101,7 +100,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -181,7 +180,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -267,7 +266,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
             }
         }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
@@ -340,7 +339,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
             }
         }).build();
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schemaData, config);
@@ -388,7 +387,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -608,7 +607,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -665,7 +664,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -733,7 +732,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -803,7 +802,7 @@ class JsonSchemaWalkListenerTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                     }
                 })
                 .build();
@@ -846,7 +845,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
@@ -909,7 +908,7 @@ class JsonSchemaWalkListenerTest {
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()

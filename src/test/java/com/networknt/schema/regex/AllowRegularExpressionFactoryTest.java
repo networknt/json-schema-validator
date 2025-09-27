@@ -38,7 +38,7 @@ class AllowRegularExpressionFactoryTest {
         String allowed = "testing";
         RegularExpressionFactory factory = new AllowRegularExpressionFactory(delegate, allowed::equals);
         InvalidSchemaException exception = assertThrows(InvalidSchemaException.class, () -> factory.getRegularExpression("hello"));
-        assertEquals("hello", exception.getValidationMessage().getArguments()[0]);
+        assertEquals("hello", exception.getError().getArguments()[0]);
         
         assertDoesNotThrow(() -> factory.getRegularExpression(allowed));
         assertTrue(called[0]);

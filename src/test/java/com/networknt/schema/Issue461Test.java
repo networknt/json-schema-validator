@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 class Issue461Test {
     protected ObjectMapper mapper = JsonMapperFactory.getInstance();
@@ -42,7 +42,7 @@ class Issue461Test {
 
         @Override
         public void onWalkEnd(final WalkEvent walkEvent,
-                              final Set<ValidationMessage> validationMessages) {
+                              final List<ValidationMessage> validationMessages) {
         }
     }
 }

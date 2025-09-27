@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +56,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -100,7 +99,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -143,7 +142,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()
@@ -184,7 +183,7 @@ class IfValidatorTest {
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
                         @SuppressWarnings("unchecked")
                         List<WalkEvent> types = (List<WalkEvent>) walkEvent.getExecutionContext()
                                 .getCollectorContext()

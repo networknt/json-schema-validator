@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ class OneOfValidatorTest {
                 + "  \"world\" : \"test\"\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size()); // even if more than 1 matches the mismatch errors are still reported
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", assertions.get(0).getType());
@@ -107,7 +106,7 @@ class OneOfValidatorTest {
                 + "  \"test\" : 1\r\n"
                 + "}";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(4, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("oneOf", assertions.get(0).getType());
@@ -140,7 +139,7 @@ class OneOfValidatorTest {
                 + "}";
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
-        assertEquals("type", ex.getValidationMessage().getMessageKey());
+        assertEquals("type", ex.getError().getMessageKey());
     }
 
     /**
@@ -305,7 +304,7 @@ class OneOfValidatorTest {
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
         String inputData = "{}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
     }
 
@@ -363,7 +362,7 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": 1\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Invalid only 1 message returned for number
@@ -371,13 +370,13 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": {}\r\n"
                 + "}";
-        Set<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        List<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
         JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
-        Set<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        List<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }
 
@@ -451,7 +450,7 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": 1\r\n"
                 + "}";
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Invalid only 1 message returned for number
@@ -459,13 +458,13 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": {}\r\n"
                 + "}";
-        Set<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        List<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
         JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
                 SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
-        Set<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        List<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }
 

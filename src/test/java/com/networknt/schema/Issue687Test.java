@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,7 +83,7 @@ class Issue687Test {
         SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().pathType(pathType).build();
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
         JsonSchema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath), config);
-        Set<ValidationMessage> messages = schema.validate(new ObjectMapper().readTree(content));
+        List<ValidationMessage> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
         for (String expectedPath: expectedMessagePaths) {
             assertTrue(messages.stream().anyMatch(msg -> expectedPath.equals(msg.getInstanceLocation().toString())));
@@ -124,7 +124,7 @@ class Issue687Test {
                         "        }\n" +
                         "    }\n" +
                         "}"), schemaValidatorsConfig);
-        Set<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
+        List<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
         assertEquals(1, validationMessages.size());
         assertEquals(expectedPath, validationMessages.iterator().next().getInstanceLocation().toString());
     }

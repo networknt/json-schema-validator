@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,7 @@ class RefValidatorTest {
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
-        Set<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
+        List<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 
@@ -63,7 +63,7 @@ class RefValidatorTest {
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
-        Set<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
+        List<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 
@@ -82,7 +82,7 @@ class RefValidatorTest {
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
-        Set<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
+        List<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 
@@ -101,7 +101,7 @@ class RefValidatorTest {
                 builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(
                         Collections.singletonMap("https://www.example.com/schema/hello/integer.json", otherSchema))));
         JsonSchema jsonSchema = factory.getSchema(mainSchema);
-        Set<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
+        List<ValidationMessage> messages = jsonSchema.validate("\"string\"", InputFormat.JSON);
         assertEquals(1, messages.size());
     }
 

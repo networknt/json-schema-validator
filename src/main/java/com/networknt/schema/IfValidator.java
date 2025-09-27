@@ -64,27 +64,31 @@ public class IfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         boolean ifConditionPassed = false;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<ValidationMessage> test = new ArrayList<>();
+        executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);
-            ifConditionPassed = this.ifSchema.validate(executionContext, node, rootNode, instanceLocation).isEmpty();
+            this.ifSchema.validate(executionContext, node, rootNode, instanceLocation);
+            ifConditionPassed = test.isEmpty();
         } finally {
             // Restore flag
+            executionContext.setErrors(existingErrors);
             executionContext.setFailFast(failFast);
         }
 
         if (ifConditionPassed && this.thenSchema != null) {
-            return this.thenSchema.validate(executionContext, node, rootNode, instanceLocation);
+            this.thenSchema.validate(executionContext, node, rootNode, instanceLocation);
         } else if (!ifConditionPassed && this.elseSchema != null) {
-            return this.elseSchema.validate(executionContext, node, rootNode, instanceLocation);
+            this.elseSchema.validate(executionContext, node, rootNode, instanceLocation);
         }
-        return Collections.emptySet();
     }
 
     @Override
@@ -101,17 +105,22 @@ public class IfValidator extends BaseJsonValidator {
     }
 
     @Override
-    public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
+    public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation, boolean shouldValidateSchema) {
         boolean checkCondition = node != null && shouldValidateSchema;
         boolean ifConditionPassed = false;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
+        List<ValidationMessage> test = new ArrayList<>();
+        executionContext.setErrors(test);
         try {
             executionContext.setFailFast(false);
-            ifConditionPassed = this.ifSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema).isEmpty();
+            this.ifSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+            ifConditionPassed = test.isEmpty();
         } finally {
             // Restore flag
+            executionContext.setErrors(existingErrors);
             executionContext.setFailFast(failFast);
         }
         if (!checkCondition) {
@@ -123,13 +132,12 @@ public class IfValidator extends BaseJsonValidator {
             }
         } else {
             if (this.thenSchema != null && ifConditionPassed) {
-                return this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
             else if (this.elseSchema != null && !ifConditionPassed) {
-                return this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
         }
-        return Collections.emptySet();
     }
 
 }

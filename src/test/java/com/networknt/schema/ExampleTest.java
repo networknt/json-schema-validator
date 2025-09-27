@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ class ExampleTest {
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
         assertEquals(SchemaId.V7, schema.getValidationContext().getMetaSchema().getIri());
-        Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09
@@ -64,7 +64,7 @@ class ExampleTest {
                 + "}";
         // The example-main.json schema defines $schema with Draft 07
         assertEquals(SchemaId.V7, schema.getValidationContext().getMetaSchema().getIri());
-        Set<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON);
+        List<ValidationMessage> assertions = schema.validate(input, InputFormat.JSON);
         assertEquals(1, assertions.size());
         
         // The example-ref.json schema defines $schema with Draft 2019-09

@@ -21,9 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link JsonValidator} for type union.
@@ -67,7 +65,7 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
         error = errorBuilder.toString();
     }
 
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
 
         JsonType nodeType = TypeFactory.getValueNodeType(node, validationContext.getConfig());
@@ -76,29 +74,33 @@ public class UnionTypeValidator extends BaseJsonValidator implements JsonValidat
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
+        List<ValidationMessage> existingErrors = executionContext.getErrors();
         try {
+            List<ValidationMessage> test = new ArrayList<>();
             executionContext.setFailFast(false);
+            executionContext.setErrors(test);
             for (JsonSchemaValidator schema : schemas) {
-                Set<ValidationMessage> errors = schema.validate(executionContext, node, rootNode, instanceLocation);
-                if (errors == null || errors.isEmpty()) {
+                schema.validate(executionContext, node, rootNode, instanceLocation);
+                if (test.isEmpty()) {
                     valid = true;
                     break;
+                } else {
+                    test.clear();
                 }
             }
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);
+            executionContext.setErrors(existingErrors);
         }
 
         if (!valid) {
-            return Collections.singleton(message().instanceNode(node).instanceLocation(instanceLocation)
+            executionContext.addError(message().instanceNode(node).instanceLocation(instanceLocation)
                     .type("type")
                     .locale(executionContext.getExecutionConfig().getLocale())
                     .failFast(executionContext.isFailFast()).arguments(nodeType.toString(), error)
                     .build());
         }
-
-        return Collections.emptySet();
     }
 
     @Override

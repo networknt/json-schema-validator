@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class Issue383Test {
         JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        Set<ValidationMessage> errors = schema.validate(node);
+        List<ValidationMessage> errors = schema.validate(node);
         Assertions.assertEquals(0, errors.size());
     }
 }

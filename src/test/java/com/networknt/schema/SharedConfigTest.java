@@ -1,6 +1,6 @@
 package com.networknt.schema;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class SharedConfigTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent walkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
         }
     }
 

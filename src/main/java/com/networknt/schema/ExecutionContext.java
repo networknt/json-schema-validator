@@ -19,6 +19,9 @@ package com.networknt.schema;
 import com.networknt.schema.annotation.JsonNodeAnnotations;
 import com.networknt.schema.result.JsonNodeResults;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -30,6 +33,7 @@ public class ExecutionContext {
     private Stack<DiscriminatorContext> discriminatorContexts = null;
     private JsonNodeAnnotations annotations = null;
     private JsonNodeResults results = null;
+    private List<ValidationMessage> errors = new ArrayList<>();
     
     /**
      * This is used during the execution to determine if the validator should fail fast.
@@ -172,5 +176,21 @@ public class ExecutionContext {
 
     public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
         this.discriminatorContexts.pop();
+    }
+
+    public List<ValidationMessage> getErrors() {
+        return this.errors;
+    }
+
+    public void addError(ValidationMessage error) {
+        if (this.isFailFast()) {
+            this.errors = Collections.singletonList(error);
+            throw new FailFastAssertionException(error);
+        }
+        this.errors.add(error);
+    }
+
+    public void setErrors(List<ValidationMessage> errors) {
+        this.errors = errors;
     }
 }

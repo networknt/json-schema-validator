@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 class Issue471Test {
@@ -69,11 +69,11 @@ class Issue471Test {
         InputStream dataInputStream = Issue471Test.class.getResourceAsStream(DATA_PATH);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
-        Set<ValidationMessage> validationMessages = schema.validate(node);
+        List<ValidationMessage> validationMessages = schema.validate(node);
         return convertValidationMessagesToMap(validationMessages);
     }
 
-    private Map<String, String> convertValidationMessagesToMap(Set<ValidationMessage> validationMessages) {
+    private Map<String, String> convertValidationMessagesToMap(List<ValidationMessage> validationMessages) {
         return validationMessages.stream().collect(Collectors.toMap(m -> m.getInstanceLocation().toString(), ValidationMessage::getMessage));
     }
 

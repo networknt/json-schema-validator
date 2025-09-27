@@ -19,7 +19,6 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ class UnevaluatedItemsValidatorTest {
                 + "}";
         String inputData = "[1,2,3]";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("unevaluatedItems", assertions.get(0).getType());
@@ -71,7 +70,7 @@ class UnevaluatedItemsValidatorTest {
                 + "}";
         String inputData = "[1,2,3]";
         JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        Set<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
         List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
         assertEquals("type", assertions.get(0).getType());

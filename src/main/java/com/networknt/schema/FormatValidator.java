@@ -22,8 +22,6 @@ import com.networknt.schema.format.BaseFormatJsonValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -58,7 +56,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
         return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
     }
     
-    public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         debug(logger, executionContext, node, rootNode, instanceLocation);
         /*
          * Annotations must be collected even if the format is unknown according to the specification.
@@ -74,7 +72,7 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
         boolean assertionsEnabled = isAssertionsEnabled(executionContext);
         if (this.format != null) {
             try {
-                return format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
+                format.validate(executionContext, validationContext, node, rootNode, instanceLocation,
                         assertionsEnabled,
                         () -> this.message().instanceNode(node).instanceLocation(instanceLocation)
                                 .messageKey(format.getMessageKey())
@@ -85,10 +83,9 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
                 // String is considered valid if pattern is invalid
                 logger.error("Failed to apply pattern on {}: Invalid RE syntax [{}]", instanceLocation,
                         format.getName(), pse);
-                return Collections.emptySet();
             }
         } else {
-            return validateUnknownFormat(executionContext, node, rootNode, instanceLocation);
+            validateUnknownFormat(executionContext, node, rootNode, instanceLocation);
         }
     }
 
@@ -99,19 +96,17 @@ public class FormatValidator extends BaseFormatJsonValidator implements JsonVali
      * @param node the node
      * @param rootNode the root node
      * @param instanceLocation the instance location
-     * @return the messages
      */
-    protected Set<ValidationMessage> validateUnknownFormat(ExecutionContext executionContext,
+    protected void validateUnknownFormat(ExecutionContext executionContext,
             JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
         /*
          * Unknown formats should create an assertion if the vocab is specified
          * according to the specification.
          */
         if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
-            return Collections.singleton(message().instanceLocation(instanceLocation).instanceNode(node)
+            executionContext.addError(message().instanceLocation(instanceLocation).instanceNode(node)
                     .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
         }
-        return Collections.emptySet();
     }
 
     /**

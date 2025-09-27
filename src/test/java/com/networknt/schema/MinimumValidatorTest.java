@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -177,12 +177,12 @@ class MinimumValidatorTest {
             // Schema and document parsed with just double
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = mapper.readTree(value);
-            Set<ValidationMessage> messages = v.validate(doc);
+            List<ValidationMessage> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Minimum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", minimum, value));
 
             // document parsed with BigDecimal
             doc = bigDecimalMapper.readTree(value);
-            Set<ValidationMessage> messages2 = v.validate(doc);
+            List<ValidationMessage> messages2 = v.validate(doc);
 
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             if (Double.valueOf(minimum).equals(Double.NEGATIVE_INFINITY)) {
@@ -197,7 +197,7 @@ class MinimumValidatorTest {
 
             // schema and document parsed with BigDecimal
             v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
-            Set<ValidationMessage> messages3 = v.validate(doc);
+            List<ValidationMessage> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (minimum.toLowerCase().equals(theValue)) {
@@ -220,7 +220,7 @@ class MinimumValidatorTest {
         JsonNode doc = mapper.readTree(content);
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
-        Set<ValidationMessage> messages = v.validate(doc);
+        List<ValidationMessage> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -250,7 +250,7 @@ class MinimumValidatorTest {
         JsonNode doc = mapper.readTree(content);
         JsonSchema v = factory.getSchema(mapper.readTree(schema));
 
-        Set<ValidationMessage> messages = v.validate(doc);
+        List<ValidationMessage> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -273,7 +273,7 @@ class MinimumValidatorTest {
             JsonSchema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper2.readTree(value);
 
-            Set<ValidationMessage> messages = v.validate(doc);
+            List<ValidationMessage> messages = v.validate(doc);
             assertFalse(messages.isEmpty(), format(MinimumValidatorTest.NEGATIVE_MESSAGE_TEMPLATE, value, minimum));
         }
     }
@@ -292,7 +292,7 @@ class MinimumValidatorTest {
             JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
             JsonNode doc = bigIntegerMapper.readTree(value);
 
-            Set<ValidationMessage> messages = v.validate(doc);
+            List<ValidationMessage> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format(MinimumValidatorTest.POSITIVT_MESSAGE_TEMPLATE, value, minimum));
         }
     }

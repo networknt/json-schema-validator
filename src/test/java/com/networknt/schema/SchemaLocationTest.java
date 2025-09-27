@@ -17,7 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Set;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -220,7 +220,7 @@ class SchemaLocationTest {
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
         JsonSchema schema = factory.getSchema(SchemaLocation
                 .of("classpath:schema/example-escaped.yaml#/paths/~1users/post/requestBody/application~1json/schema"));
-        Set<ValidationMessage> result = schema.validate("1", InputFormat.JSON);
+        List<ValidationMessage> result = schema.validate("1", InputFormat.JSON);
         assertFalse(result.isEmpty());
         result = schema.validate("{}", InputFormat.JSON);
         assertTrue(result.isEmpty());

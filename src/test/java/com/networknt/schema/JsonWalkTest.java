@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -168,14 +166,14 @@ class JsonWalkTest {
             }
 
             @Override
-            public Set<ValidationMessage> validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
-                return new TreeSet<>();
+            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+                return;
             }
 
             @Override
-            public Set<ValidationMessage> walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
+            public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
                     JsonNodePath instanceLocation, boolean shouldValidateSchema) {
-                return new LinkedHashSet<ValidationMessage>();
+                return;
             }
         }
     }
@@ -199,7 +197,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
 
         }
     }
@@ -220,7 +218,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
 
         }
     }
@@ -237,7 +235,7 @@ class JsonWalkTest {
         }
 
         @Override
-        public void onWalkEnd(WalkEvent keywordWalkEvent, Set<ValidationMessage> validationMessages) {
+        public void onWalkEnd(WalkEvent keywordWalkEvent, List<ValidationMessage> validationMessages) {
 
         }
     }
