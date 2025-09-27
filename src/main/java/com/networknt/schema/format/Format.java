@@ -20,12 +20,12 @@ import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonType;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.TypeFactory;
 import com.networknt.schema.keyword.FormatValidator;
 import com.networknt.schema.path.NodePath;
+import com.networknt.schema.utils.JsonType;
+import com.networknt.schema.utils.TypeFactory;
 
 /**
  * Used to implement the various formats for the format keyword.

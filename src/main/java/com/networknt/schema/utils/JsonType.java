@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.utils;
 
 /**
  * Indicates the type.

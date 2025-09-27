@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.networknt.schema.SchemaRegistryConfig;
 
 /**
  * Type factory.

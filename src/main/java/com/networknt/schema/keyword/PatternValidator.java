@@ -21,12 +21,13 @@ import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
-import com.networknt.schema.JsonType;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.TypeFactory;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 import com.networknt.schema.regex.RegularExpression;
+import com.networknt.schema.utils.JsonType;
+import com.networknt.schema.utils.TypeFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

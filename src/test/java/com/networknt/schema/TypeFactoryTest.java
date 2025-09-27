@@ -16,8 +16,8 @@
 
 package com.networknt.schema;
 
-import static com.networknt.schema.TypeFactory.getSchemaNodeType;
-import static com.networknt.schema.TypeFactory.getValueNodeType;
+import static com.networknt.schema.utils.TypeFactory.getSchemaNodeType;
+import static com.networknt.schema.utils.TypeFactory.getValueNodeType;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.math.BigDecimal;
@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.utils.JsonType;
 
 /**
  * Test for TypeFactory.

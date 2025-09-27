@@ -32,6 +32,8 @@ import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.Format;
 import com.networknt.schema.output.OutputUnit;
+import com.networknt.schema.utils.JsonType;
+import com.networknt.schema.utils.TypeFactory;
 
 /**
  * Test for format validator.
