@@ -32,8 +32,8 @@ import com.networknt.schema.InvalidSchemaException;
  * explicitly configured using {@link Builder#fetchRemoteResources}.
  */
 public class SchemaLoader {
-    private static final MetaSchemaIdResolver META_SCHEMA_ID_RESOLVER = new MetaSchemaIdResolver();
-    private static final ClasspathResourceLoader CLASSPATH_RESOURCE_LOADER = new ClasspathResourceLoader();
+    private static final MetaSchemaIdResolver META_SCHEMA_ID_RESOLVER = MetaSchemaIdResolver.getInstance();
+    private static final ClasspathResourceLoader CLASSPATH_RESOURCE_LOADER = ClasspathResourceLoader.getInstance();
 
     private static class DefaultHolder {
         private static final SchemaLoader DEFAULT = new SchemaLoader(Collections.emptyList(), Collections.emptyList());

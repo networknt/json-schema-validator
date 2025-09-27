@@ -25,6 +25,14 @@ import com.networknt.schema.AbsoluteIri;
  * Loads from classpath.
  */
 public class ClasspathResourceLoader implements ResourceLoader {
+    private static class Holder {
+        private static final ClasspathResourceLoader INSTANCE = new ClasspathResourceLoader();
+    }
+
+    public static ClasspathResourceLoader getInstance() {
+        return Holder.INSTANCE;
+    }
+
     private final Supplier<ClassLoader> classLoaderSource;
 
     /**

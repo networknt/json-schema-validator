@@ -16,7 +16,10 @@
 
 package com.networknt.schema;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -34,6 +37,9 @@ import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.path.PathType;
+import com.networknt.schema.resource.ClasspathResourceLoader;
+import com.networknt.schema.resource.InputStreamSource;
+import com.networknt.schema.resource.ResourceLoader;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.JsonNodes;
 
@@ -937,6 +943,250 @@ public class Schema implements Validator {
     }
 
     /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @return A list of Error if there is any validation error, or an
+     *         empty list if there is no error.
+     */
+    public List<Error> validate(AbsoluteIri input, InputFormat inputFormat) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     *
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public List<Error> validate(AbsoluteIri input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public List<Error> validate(AbsoluteIri input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>         the result type
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @param format      the formatter
+     * @return the result
+     */
+    public <T> T validate(AbsoluteIri input, InputFormat inputFormat, OutputFormat<T> format) {
+        return validate(deserialize(input, inputFormat), format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(AbsoluteIri input, InputFormat inputFormat, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(AbsoluteIri input, InputFormat inputFormat, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(createExecutionContext(), deserialize(input, inputFormat), format, (executionContext, schemaContext) -> executionCustomizer.accept(executionContext));
+    }
+    
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param executionContext    the execution context
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @return A list of Error if there is any validation error, or an
+     *         empty list if there is no error.
+     */
+    public List<Error> validate(ExecutionContext executionContext, String input, InputFormat inputFormat) {
+        return validate(executionContext, deserialize(input, inputFormat), OutputFormat.DEFAULT);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     *
+     * @param executionContext    the execution context
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public List<Error> validate(ExecutionContext executionContext, String input, InputFormat inputFormat, ExecutionContextCustomizer executionCustomizer) {
+        return validate(executionContext, deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validate the given input string using the input format, starting at the root
+     * of the data path.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param executionContext    the execution context
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param executionCustomizer the execution customizer
+     * @return the assertions
+     */
+    public List<Error> validate(ExecutionContext executionContext, String input, InputFormat inputFormat, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(executionContext, deserialize(input, inputFormat), OutputFormat.DEFAULT, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>         the result type
+     * @param executionContext    the execution context
+     * @param input       the input
+     * @param inputFormat the inputFormat
+     * @param format      the formatter
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, String input, InputFormat inputFormat, OutputFormat<T> format) {
+        return validate(executionContext, deserialize(input, inputFormat), format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, String input, InputFormat inputFormat, OutputFormat<T> format, ExecutionContextCustomizer executionCustomizer) {
+        return validate(executionContext, deserialize(input, inputFormat), format, executionCustomizer);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param input               the input
+     * @param inputFormat         the inputFormat
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, String input, InputFormat inputFormat, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(executionContext, deserialize(input, inputFormat), format, (execContext, schemaContext) -> executionCustomizer.accept(execContext));
+    }
+
+    /**
      * Validates to a format.
      * 
      * @param <T>              the result type
@@ -946,7 +1196,28 @@ public class Schema implements Validator {
      * @return the result
      */
     public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format) {
-        return validate(executionContext, node, format, null);
+        return validate(executionContext, node, format, (ExecutionContextCustomizer) null);
+    }
+
+    /**
+     * Validates the given input string using the input format, starting at the root
+     * of the data path. The output will be formatted using the formatter specified.
+     * <p>
+     * Note that since Draft 2019-09 by default format generates only annotations
+     * and not assertions.
+     * <p>
+     * Use {@link ExecutionConfig.Builder#formatAssertionsEnabled(Boolean)} to override
+     * the default.
+     * 
+     * @param <T>                 the result type
+     * @param executionContext    the execution context
+     * @param node                the node
+     * @param format              the formatter
+     * @param executionCustomizer the execution customizer
+     * @return the result
+     */
+    public <T> T validate(ExecutionContext executionContext, JsonNode node, OutputFormat<T> format, Consumer<ExecutionContext> executionCustomizer) {
+        return validate(executionContext, node, format, (execContext, schemaContext) -> executionCustomizer.accept(execContext));
     }
 
     /**
@@ -984,8 +1255,48 @@ public class Schema implements Validator {
         try {
             return this.getSchemaContext().getSchemaRegistry().readTree(input, inputFormat);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Invalid input", e);
+            throw new UncheckedIOException("Invalid input", e);
         }
+    }
+
+    /**
+     * Loads the resource from the input iri and deserialize to JsonNode.
+     * 
+     * @param input       the input
+     * @param inputFormat the format
+     * @return the JsonNode.
+     */
+    private JsonNode deserialize(AbsoluteIri input, InputFormat inputFormat) {
+        try {
+            InputStreamSource result = getInputResource(input);
+            if (result == null) {
+                throw new UncheckedIOException(new FileNotFoundException(input.toString() + " not found"));
+            }
+            try (InputStream inputStream = result.getInputStream()) {
+                return this.getSchemaContext().getSchemaRegistry().readTree(inputStream, inputFormat);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("Invalid input", e);
+        }
+    }
+
+    /**
+     * Loads the resource from the input iri.
+     * 
+     * @param input the input
+     * @return the input stream source
+     */
+    private InputStreamSource getInputResource(AbsoluteIri input) {
+        InputStreamSource result = null;
+        List<ResourceLoader> resourceLoaders = this.getSchemaContext().getSchemaRegistry().getSchemaLoader()
+                .getResourceLoaders();
+        for (ResourceLoader loader : resourceLoaders) {
+            result = loader.getResource(input);
+            if (result != null) {
+                return result;
+            }
+        }
+        return ClasspathResourceLoader.getInstance().getResource(input);
     }
 
     /************************ END OF VALIDATE METHODS **********************************/

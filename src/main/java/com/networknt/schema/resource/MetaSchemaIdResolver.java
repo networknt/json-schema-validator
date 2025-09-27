@@ -21,6 +21,14 @@ import com.networknt.schema.AbsoluteIri;
  * Maps the JSON Schema meta schema to the class path location.
  */
 public class MetaSchemaIdResolver implements SchemaIdResolver {
+    private static class Holder {
+        private static MetaSchemaIdResolver INSTANCE = new MetaSchemaIdResolver(); 
+    }
+
+    public static MetaSchemaIdResolver getInstance() {
+        return Holder.INSTANCE;
+    }
+
     private static final char ANCHOR = '#';
     private static final String CLASSPATH_PREFIX = "classpath:";
     private static final String HTTP_JSON_SCHEMA_ORG_PREFIX = "http://json-schema.org/";
