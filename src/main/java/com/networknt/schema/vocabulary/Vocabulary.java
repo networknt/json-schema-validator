@@ -28,7 +28,7 @@ import com.networknt.schema.keyword.KeywordType;
 /**
  * Represents a vocabulary in meta-schema.
  * <p>
- * This contains the IRI and the keywords in the vocabulary.
+ * This contains the id and the keywords in the vocabulary.
  */
 public class Vocabulary {
 
@@ -106,28 +106,28 @@ public class Vocabulary {
             new AnnotationKeyword("example"), KeywordType.DISCRIMINATOR, new AnnotationKeyword("externalDocs"),
             new AnnotationKeyword("xml"));
 
-    private final String iri;
+    private final String id;
     private final Set<Keyword> keywords;
 
     /**
      * Constructor.
      * 
-     * @param iri       the iri
+     * @param id       the id
      * @param keywords the keywords
      */
-    public Vocabulary(String iri, Keyword... keywords) {
-        this.iri = iri;
+    public Vocabulary(String id, Keyword... keywords) {
+        this.id = id;
         this.keywords = new LinkedHashSet<>();
 	      this.keywords.addAll(Arrays.asList(keywords));
     }
 
     /**
-     * The iri of the vocabulary.
+     * The id of the vocabulary.
      * 
-     * @return the iri
+     * @return the id
      */
-    public String getIri() {
-        return iri;
+    public String getId() {
+        return id;
     }
 
     /**
@@ -141,7 +141,7 @@ public class Vocabulary {
 
     @Override
     public int hashCode() {
-        return Objects.hash(iri, keywords);
+        return Objects.hash(id, keywords);
     }
 
     @Override
@@ -153,12 +153,12 @@ public class Vocabulary {
         if (getClass() != obj.getClass())
             return false;
         Vocabulary other = (Vocabulary) obj;
-        return Objects.equals(iri, other.iri) && Objects.equals(keywords, other.keywords);
+        return Objects.equals(id, other.id) && Objects.equals(keywords, other.keywords);
     }
 
     @Override
     public String toString() {
-        return "Vocabulary [iri=" + iri + ", keywords=" + keywords + "]";
+        return "Vocabulary [id=" + id + ", keywords=" + keywords + "]";
     }
 
 }

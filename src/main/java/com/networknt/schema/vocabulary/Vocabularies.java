@@ -26,23 +26,23 @@ public class Vocabularies {
 
     static {
         Map<String, Vocabulary> mapping = new HashMap<>();
-        mapping.put(Vocabulary.DRAFT_2019_09_CORE.getIri(), Vocabulary.DRAFT_2019_09_CORE);
-        mapping.put(Vocabulary.DRAFT_2019_09_APPLICATOR.getIri(), Vocabulary.DRAFT_2019_09_APPLICATOR);
-        mapping.put(Vocabulary.DRAFT_2019_09_VALIDATION.getIri(), Vocabulary.DRAFT_2019_09_VALIDATION);
-        mapping.put(Vocabulary.DRAFT_2019_09_META_DATA.getIri(), Vocabulary.DRAFT_2019_09_META_DATA);
-        mapping.put(Vocabulary.DRAFT_2019_09_FORMAT.getIri(), Vocabulary.DRAFT_2019_09_FORMAT);
-        mapping.put(Vocabulary.DRAFT_2019_09_CONTENT.getIri(), Vocabulary.DRAFT_2019_09_CONTENT);
+        mapping.put(Vocabulary.DRAFT_2019_09_CORE.getId(), Vocabulary.DRAFT_2019_09_CORE);
+        mapping.put(Vocabulary.DRAFT_2019_09_APPLICATOR.getId(), Vocabulary.DRAFT_2019_09_APPLICATOR);
+        mapping.put(Vocabulary.DRAFT_2019_09_VALIDATION.getId(), Vocabulary.DRAFT_2019_09_VALIDATION);
+        mapping.put(Vocabulary.DRAFT_2019_09_META_DATA.getId(), Vocabulary.DRAFT_2019_09_META_DATA);
+        mapping.put(Vocabulary.DRAFT_2019_09_FORMAT.getId(), Vocabulary.DRAFT_2019_09_FORMAT);
+        mapping.put(Vocabulary.DRAFT_2019_09_CONTENT.getId(), Vocabulary.DRAFT_2019_09_CONTENT);
 
-        mapping.put(Vocabulary.DRAFT_2020_12_CORE.getIri(), Vocabulary.DRAFT_2020_12_CORE);
-        mapping.put(Vocabulary.DRAFT_2020_12_APPLICATOR.getIri(), Vocabulary.DRAFT_2020_12_APPLICATOR);
-        mapping.put(Vocabulary.DRAFT_2020_12_UNEVALUATED.getIri(), Vocabulary.DRAFT_2020_12_UNEVALUATED);
-        mapping.put(Vocabulary.DRAFT_2020_12_VALIDATION.getIri(), Vocabulary.DRAFT_2020_12_VALIDATION);
-        mapping.put(Vocabulary.DRAFT_2020_12_META_DATA.getIri(), Vocabulary.DRAFT_2020_12_META_DATA);
-        mapping.put(Vocabulary.DRAFT_2020_12_FORMAT_ANNOTATION.getIri(), Vocabulary.DRAFT_2020_12_FORMAT_ANNOTATION);
-        mapping.put(Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getIri(), Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION);
-        mapping.put(Vocabulary.DRAFT_2020_12_CONTENT.getIri(), Vocabulary.DRAFT_2020_12_CONTENT);
+        mapping.put(Vocabulary.DRAFT_2020_12_CORE.getId(), Vocabulary.DRAFT_2020_12_CORE);
+        mapping.put(Vocabulary.DRAFT_2020_12_APPLICATOR.getId(), Vocabulary.DRAFT_2020_12_APPLICATOR);
+        mapping.put(Vocabulary.DRAFT_2020_12_UNEVALUATED.getId(), Vocabulary.DRAFT_2020_12_UNEVALUATED);
+        mapping.put(Vocabulary.DRAFT_2020_12_VALIDATION.getId(), Vocabulary.DRAFT_2020_12_VALIDATION);
+        mapping.put(Vocabulary.DRAFT_2020_12_META_DATA.getId(), Vocabulary.DRAFT_2020_12_META_DATA);
+        mapping.put(Vocabulary.DRAFT_2020_12_FORMAT_ANNOTATION.getId(), Vocabulary.DRAFT_2020_12_FORMAT_ANNOTATION);
+        mapping.put(Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getId(), Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION);
+        mapping.put(Vocabulary.DRAFT_2020_12_CONTENT.getId(), Vocabulary.DRAFT_2020_12_CONTENT);
 
-        mapping.put(Vocabulary.OPENAPI_3_1_BASE.getIri(), Vocabulary.OPENAPI_3_1_BASE);
+        mapping.put(Vocabulary.OPENAPI_3_1_BASE.getId(), Vocabulary.OPENAPI_3_1_BASE);
 
         VALUES = mapping;
     }

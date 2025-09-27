@@ -37,8 +37,6 @@ import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AnnotationKeyword;
 import com.networknt.schema.output.OutputUnit;
-import com.networknt.schema.vocabulary.Vocabulary;
-import com.networknt.schema.vocabulary.VocabularyFactory;
 
 /**
  * Tests for vocabulary support in meta schemas.
@@ -89,7 +87,7 @@ class VocabularyTest {
                         builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/validation",
-                                                Vocabulary.DRAFT_2020_12_VALIDATION.getIri())))))
+                                                Vocabulary.DRAFT_2020_12_VALIDATION.getId())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
@@ -142,7 +140,7 @@ class VocabularyTest {
                         builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData.replace("https://www.example.com/vocab/format",
-                                                Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getIri())))))
+                                                Vocabulary.DRAFT_2020_12_FORMAT_ASSERTION.getId())))))
                 .getSchema(schemaData);
         messages = schema.validate(inputDataNoValidation, InputFormat.JSON);
         assertEquals(1, messages.size());
