@@ -41,7 +41,7 @@ public class OpenApi30 {
                             KeywordType.TYPE,
                             KeywordType.FORMAT,
                             new AnnotationKeyword("description"),
-                            KeywordType.ITEMS,
+                            KeywordType.ITEMS_LEGACY,
                             KeywordType.PROPERTIES,
                             KeywordType.ADDITIONAL_PROPERTIES,
                             new AnnotationKeyword("default"),

@@ -40,8 +40,8 @@ import com.networknt.schema.SchemaRef;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.DialectId;
+import com.networknt.schema.keyword.ItemsLegacyValidator;
 import com.networknt.schema.keyword.ItemsValidator;
-import com.networknt.schema.keyword.ItemsValidator202012;
 import com.networknt.schema.keyword.PropertiesValidator;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.keyword.KeywordType;
@@ -297,7 +297,7 @@ class WalkListenerTest {
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(2, items.size());
         assertEquals("items", items.get(0).getValidator().getKeyword());
-	    assertInstanceOf(ItemsValidator.class, items.get(0).getValidator());
+	    assertInstanceOf(ItemsLegacyValidator.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
@@ -373,7 +373,7 @@ class WalkListenerTest {
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
         assertEquals(2, items.size());
         assertEquals("items", items.get(0).getValidator().getKeyword());
-	    assertInstanceOf(ItemsValidator202012.class, items.get(0).getValidator());
+	    assertInstanceOf(ItemsValidator.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
         assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
