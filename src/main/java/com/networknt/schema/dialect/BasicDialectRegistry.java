@@ -15,14 +15,24 @@
  */
 package com.networknt.schema.dialect;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.SchemaRegistry;
 
-public class BasicDialectRegistry implements DialectRegistry {
-    private Function<String, Dialect> dialects;
+/**
+ * Basic {@link DialectRegistry}.
+ */
+public class BasicDialectRegistry extends AbstractDialectRegistry {
+    protected final Function<String, Dialect> dialects;
+
+    protected BasicDialectRegistry() {
+        this.dialects = null;
+    }
 
     public BasicDialectRegistry(Function<String, Dialect> dialects) {
         this.dialects = dialects;
@@ -30,6 +40,14 @@ public class BasicDialectRegistry implements DialectRegistry {
 
     public BasicDialectRegistry(Dialect dialect) {
         this.dialects = dialectId -> dialect.getId().equals(dialectId) ? dialect : null;
+    }
+
+    public BasicDialectRegistry(Collection<Dialect> dialects) {
+        Map<String, Dialect> result = new HashMap<>();
+        for (Dialect dialect : dialects) {
+            result.put(dialect.getId(), dialect);
+        }
+        this.dialects = result::get;
     }
 
     @Override

@@ -15,65 +15,50 @@
  */
 package com.networknt.schema.dialect;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.Error;
-import com.networknt.schema.InvalidSchemaException;
-import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
-import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.Specification;
-import com.networknt.schema.SpecificationVersion;
 
 /**
  * Default {@link DialectRegistry}.
  */
-public class DefaultDialectRegistry implements DialectRegistry {
-    private final ConcurrentMap<String, Dialect> dialects = new ConcurrentHashMap<>();
-    
+public class DefaultDialectRegistry extends BasicDialectRegistry {
+    private final ConcurrentMap<String, Dialect> loadedDialects = new ConcurrentHashMap<>();
+
+    public DefaultDialectRegistry() {
+        super();
+    }
+
+    public DefaultDialectRegistry(Function<String, Dialect> dialects) {
+        super(dialects);
+    }
+
+    public DefaultDialectRegistry(Dialect dialect) {
+        super(dialect);
+    }
+
+    public DefaultDialectRegistry(Collection<Dialect> dialects) {
+        super(dialects);
+    }
+
     @Override
     public Dialect getDialect(String dialectId, SchemaRegistry schemaFactory) {
+        if (this.dialects != null) {
+            Dialect dialect = dialects.apply(dialectId);
+            if (dialect != null) {
+                return dialect;
+            }
+        }
         // Is it a well-known dialect?
         Dialect dialect = Specification.getDialect(dialectId);
         if (dialect != null) {
             return dialect;
         }
-        return dialects.computeIfAbsent(dialectId, id -> loadDialect(id, schemaFactory));
-    }
-
-    protected Dialect loadDialect(String iri, SchemaRegistry schemaFactory) {
-        try {
-            Dialect result = loadDialectBuilder(iri, schemaFactory).build();
-            return result;
-        } catch (InvalidSchemaException e) {
-            throw e;
-        } catch (Exception e) {
-            Error error = Error.builder().message("Failed to load dialect ''{0}''").arguments(iri).build();
-            throw new InvalidSchemaException(error, e);
-        }
-    }
-
-    protected Dialect.Builder loadDialectBuilder(String iri, SchemaRegistry schemaFactory) {
-        Schema schema = schemaFactory.getSchema(SchemaLocation.of(iri));
-        Dialect.Builder builder = Dialect.builder(iri, schema.getSchemaContext().getDialect());
-        SpecificationVersion specification = schema.getSchemaContext().getDialect().getSpecificationVersion();
-        if (specification != null) {
-            if (specification.getOrder() >= SpecificationVersion.DRAFT_2019_09.getOrder()) {
-                // Process vocabularies
-                JsonNode vocabulary = schema.getSchemaNode().get("$vocabulary");
-                if (vocabulary != null) {
-                    builder.vocabularies(Map::clear);
-                    for (Entry<String, JsonNode> vocabs : vocabulary.properties()) {
-                        builder.vocabulary(vocabs.getKey(), vocabs.getValue().booleanValue());
-                    }
-                }
-            }
-        }
-        return builder;
+        return loadedDialects.computeIfAbsent(dialectId, id -> loadDialect(id, schemaFactory));
     }
 
     private static class Holder {

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -300,6 +301,45 @@ public class SchemaRegistry {
         }
         return builder.build();
     }
+    
+
+    /**
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
+     * 
+     * @param dialect the default dialect used when the schema does not specify the
+     *                $schema keyword
+     * @return the factory
+     */
+    public static SchemaRegistry withDefaultDialect(Dialect dialect) {
+        return withDefaultDialect(dialect, null);
+    }
+
+    /**
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
+     * 
+     * @param dialect    the default dialect used when the schema does not specify
+     *                   the $schema keyword
+     * @param customizer to customize the registry
+     * @return the factory
+     */
+    public static SchemaRegistry withDefaultDialect(Dialect dialect, Consumer<SchemaRegistry.Builder> customizer) {
+        SchemaRegistry.Builder builder = builder().defaultDialectId(dialect.getId())
+                .dialectRegistry(new DefaultDialectRegistry(dialect));
+        if (customizer != null) {
+            customizer.accept(builder);
+        }
+        return builder.build();
+    }
 
     /**
      * Gets a new schema registry that supports a specific dialect only.
@@ -317,12 +357,13 @@ public class SchemaRegistry {
     }
 
     /**
-     * Gets a new schema registry that supports a specific dialect only.
+     * Gets a new schema registry that supports a list of specific dialects only.
      * <p>
-     * Schemas that do not specify dialect using $schema will use the dialect.
+     * Schemas that do not specify dialect using $schema will use the first dialect
+     * on the list.
      * <p>
-     * This uses a dialect registry that only contains this dialect and will throw
-     * an exception for unknown dialects.
+     * This uses a dialect registry that only contains the list of dialects and will
+     * throw an exception for unknown dialects.
      * 
      * @param dialect    the dialect
      * @param customizer to customize the registry
@@ -336,6 +377,44 @@ public class SchemaRegistry {
         }
         return builder.build();
     }
+    
+    /**
+     * Gets a new schema registry that supports a list of specific dialects only.
+     * <p>
+     * Schemas that do not specify dialect using $schema will use the first dialect
+     * on the list.
+     * <p>
+     * This uses a dialect registry that only contains the list of dialects and will
+     * throw an exception for unknown dialects.
+     * 
+     * @param dialects the dialects with the first being the default dialect
+     * @return the schema registry
+     */
+    public static SchemaRegistry withDialects(List<Dialect> dialects) {
+        return withDialects(dialects, null);
+    }
+
+    /**
+     * Gets a new schema registry that supports a specific dialect only.
+     * <p>
+     * Schemas that do not specify dialect using $schema will use the dialect.
+     * <p>
+     * This uses a dialect registry that only contains this dialect and will throw
+     * an exception for unknown dialects.
+     * 
+     * @param dialects   the dialects with the first being the default dialect
+     * @param customizer to customize the registry
+     * @return the schema registry
+     */
+    public static SchemaRegistry withDialects(List<Dialect> dialects, Consumer<SchemaRegistry.Builder> customizer) {
+        SchemaRegistry.Builder builder = builder().defaultDialectId(dialects.get(0).getId())
+                .dialectRegistry(new BasicDialectRegistry(dialects));
+        if (customizer != null) {
+            customizer.accept(builder);
+        }
+        return builder.build();
+    }
+
 
     /**
      * Builder from an existing {@link SchemaRegistry}.
