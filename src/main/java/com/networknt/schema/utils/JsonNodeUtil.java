@@ -109,11 +109,11 @@ public class JsonNodeUtil {
                 }
                 if (nodeType == JsonType.STRING) {
                     if (schemaType == JsonType.INTEGER) {
-	                    return StringChecker.isInteger(node.textValue());
+	                    return Strings.isInteger(node.textValue());
                     } else if (schemaType == JsonType.BOOLEAN) {
-	                    return StringChecker.isBoolean(node.textValue());
+	                    return Strings.isBoolean(node.textValue());
                     } else if (schemaType == JsonType.NUMBER) {
-	                    return StringChecker.isNumeric(node.textValue());
+	                    return Strings.isNumeric(node.textValue());
                     }
                 }
             }
@@ -140,7 +140,7 @@ public class JsonNodeUtil {
             return true;
         } else if (config.isTypeLoose()) {
             if (TypeFactory.getValueNodeType(node, config) == JsonType.STRING) {
-                return StringChecker.isNumeric(node.textValue());
+                return Strings.isNumeric(node.textValue());
             }
         }
         return false;

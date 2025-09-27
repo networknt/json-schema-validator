@@ -32,7 +32,7 @@ import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.UnknownKeywordFactory;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.keyword.KeywordType;
-import com.networknt.schema.utils.StringUtils;
+import com.networknt.schema.utils.Strings;
 import com.networknt.schema.vocabulary.Vocabularies;
 import com.networknt.schema.vocabulary.Vocabulary;
 import com.networknt.schema.vocabulary.VocabularyFactory;
@@ -326,10 +326,10 @@ public class Dialect {
     private final Builder builder;
 
     Dialect(String dialectId, String idKeyword, Map<String, Keyword> keywords, Map<String, Boolean> vocabularies, SpecificationVersion specification, Builder builder) {
-        if (StringUtils.isBlank(dialectId)) {
+        if (Strings.isBlank(dialectId)) {
             throw new IllegalArgumentException("dialect id must not be null or blank");
         }
-        if (StringUtils.isBlank(idKeyword)) {
+        if (Strings.isBlank(idKeyword)) {
             throw new IllegalArgumentException("idKeyword must not be null or blank");
         }
         if (keywords == null) {

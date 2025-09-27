@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.networknt.schema;
+package com.networknt.schema.utils;
 
 import org.junit.jupiter.api.Test;
 
-import static com.networknt.schema.utils.StringChecker.isNumeric;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StringCheckerTest {
+class StringsTest {
 
     private static final String[] validNumericValues = {
             "1", "-1", "1.1", "-1.1", "0E+1", "0E-1", "0E1", "-0E+1", "-0E-1", "-0E1", "0.1E+1", "0.1E-1", "0.1E1",
@@ -39,14 +38,14 @@ class StringCheckerTest {
     @Test
     void testNumericValues() {
         for (String validValue : validNumericValues) {
-            assertTrue(isNumeric(validValue), validValue);
+            assertTrue(Strings.isNumeric(validValue), validValue);
         }
     }
 
     @Test
     void testNonNumericValues() {
         for (String invalidValue : invalidNumericValues) {
-            assertFalse(isNumeric(invalidValue), invalidValue);
+            assertFalse(Strings.isNumeric(invalidValue), invalidValue);
         }
     }
 }

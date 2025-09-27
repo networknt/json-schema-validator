@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.networknt.schema.i18n.MessageFormatter;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.utils.CachingSupplier;
-import com.networknt.schema.utils.StringUtils;
+import com.networknt.schema.utils.Strings;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -371,7 +371,7 @@ public class Error {
             Supplier<String> messageSupplier = this.messageSupplier;
             String messageKey = this.messageKey;
             
-            if (StringUtils.isNotBlank(this.message)) {
+            if (!Strings.isBlank(this.message)) {
                 messageKey = this.message;
                 if (this.message.contains("{")) {
                     messageSupplier = new CachingSupplier<>(() -> {
