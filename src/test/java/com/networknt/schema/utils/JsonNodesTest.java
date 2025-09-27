@@ -37,7 +37,7 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.Error;
 import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.serialization.JsonNodeReader;
+import com.networknt.schema.serialization.NodeReader;
 import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 /**
  * Tests for JsonNodes.
@@ -87,7 +87,7 @@ class JsonNodesTest {
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
+                builder -> builder.nodeReader(nodeReader -> nodeReader.locationAware()));
         Schema schema = factory.getSchema(schemaData, InputFormat.JSON);
         List<Error> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
@@ -132,7 +132,7 @@ class JsonNodesTest {
         String inputData = "---\r\n"
                 + "startDate: '1'\r\n";
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
+                builder -> builder.nodeReader(NodeReader.builder().locationAware().build()));
         Schema schema = factory.getSchema(schemaData, InputFormat.YAML);
         List<Error> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));

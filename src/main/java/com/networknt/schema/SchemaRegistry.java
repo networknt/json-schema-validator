@@ -26,8 +26,9 @@ import com.networknt.schema.path.NodePath;
 import com.networknt.schema.resource.ResourceLoaders;
 import com.networknt.schema.resource.SchemaIdResolvers;
 import com.networknt.schema.resource.SchemaLoader;
-import com.networknt.schema.serialization.BasicJsonNodeReader;
-import com.networknt.schema.serialization.JsonNodeReader;
+import com.networknt.schema.serialization.BasicNodeReader;
+import com.networknt.schema.serialization.DefaultNodeReader;
+import com.networknt.schema.serialization.NodeReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class SchemaRegistry {
     public static class Builder {
         private String defaultDialectId;
         private DialectRegistry dialectRegistry = null;
-        private JsonNodeReader jsonNodeReader = null;
+        private NodeReader nodeReader = null;
         private SchemaLoader schemaLoader = null;
         private boolean enableSchemaCache = true;
         private SchemaRegistryConfig schemaRegistryConfig = null;
@@ -65,16 +66,38 @@ public class SchemaRegistry {
         /**
          * Sets the json node reader to read the data.
          * <p>
-         * If set this takes precedence over the configured json mapper and yaml mapper.
-         * <p>
          * A location aware object reader can be created using
-         * JsonNodeReader.builder().locationAware().build().
+         * NodeReader.builder().locationAware().build().
          *
-         * @param jsonNodeReader the object reader
+         * @param nodeReader the object reader
          * @return the builder
          */
-        public Builder jsonNodeReader(JsonNodeReader jsonNodeReader) {
-            this.jsonNodeReader = jsonNodeReader;
+        public Builder nodeReader(NodeReader nodeReader) {
+            this.nodeReader = nodeReader;
+            return this;
+        }
+
+        /**
+         * Sets the json node reader to read the data.
+         * 
+         * <pre>
+         * A location aware object reader can be created using
+         * schemaRegistryBuilder.nodeReader(nodeReader -&gt; nodeReader.locationAware()).
+         * </pre>
+         * 
+         * A json ObjectMapper can be set using
+         * 
+         * <pre>
+         * schemaRegistryBuilder.nodeReader(nodeReader -&gt; nodeReader.jsonMapper(objectMapper))
+         * </pre>
+         * 
+         * @param customizer
+         * @return the builder
+         */
+        public Builder nodeReader(Consumer<DefaultNodeReader.Builder> customizer) {
+            DefaultNodeReader.Builder builder = NodeReader.builder();
+            customizer.accept(builder);
+            this.nodeReader = builder.build();
             return this;
         }
 
@@ -140,12 +163,12 @@ public class SchemaRegistry {
         }
 
         public SchemaRegistry build() {
-            return new SchemaRegistry(jsonNodeReader, defaultDialectId, schemaLoader, enableSchemaCache,
+            return new SchemaRegistry(nodeReader, defaultDialectId, schemaLoader, enableSchemaCache,
                     dialectRegistry, schemaRegistryConfig);
         }
     }
 
-    private final JsonNodeReader jsonNodeReader;
+    private final NodeReader nodeReader;
     private final String defaultDialectId;
     private final SchemaLoader schemaLoader;
     private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
@@ -153,12 +176,12 @@ public class SchemaRegistry {
     private final DialectRegistry dialectRegistry;
     private final SchemaRegistryConfig schemaRegistryConfig;
 
-    private SchemaRegistry(JsonNodeReader jsonNodeReader, String defaultDialectId, SchemaLoader schemaLoader,
+    private SchemaRegistry(NodeReader nodeReader, String defaultDialectId, SchemaLoader schemaLoader,
             boolean enableSchemaCache, DialectRegistry dialectRegistry, SchemaRegistryConfig schemaRegistryConfig) {
         if (defaultDialectId == null || defaultDialectId.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultDialectId must not be null or empty");
         }
-        this.jsonNodeReader = jsonNodeReader != null ? jsonNodeReader : BasicJsonNodeReader.getInstance();
+        this.nodeReader = nodeReader != null ? nodeReader : BasicNodeReader.getInstance();
         this.defaultDialectId = defaultDialectId;
         this.schemaLoader = schemaLoader != null ? schemaLoader : SchemaLoader.getDefault();
         this.enableSchemaCache = enableSchemaCache;
@@ -184,6 +207,10 @@ public class SchemaRegistry {
     /**
      * Creates a new schema registry with a default schema dialect. The schema
      * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
      * 
      * @param specificationVersion the default dialect id corresponding to the
      *                             specification version used when the schema does
@@ -197,6 +224,10 @@ public class SchemaRegistry {
     /**
      * Creates a new schema registry with a default schema dialect. The schema
      * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
      * 
      * @param specificationVersion the default dialect id corresponding to the
      *                             specification version used when the schema does
@@ -213,6 +244,10 @@ public class SchemaRegistry {
     /**
      * Creates a new schema registry with a default schema dialect. The schema
      * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
      * 
      * @param dialectId  the default dialect id used when the schema does not
      *                   specify the $schema keyword
@@ -231,6 +266,9 @@ public class SchemaRegistry {
      * Gets a new schema registry that supports a specific dialect only.
      * <p>
      * Schemas that do not specify dialect using $schema will use the dialect.
+     * <p>
+     * This uses a dialect registry that only contains this dialect and will throw
+     * an exception for unknown dialects.
      * 
      * @param dialect the dialect
      * @return the schema registry
@@ -243,6 +281,9 @@ public class SchemaRegistry {
      * Gets a new schema registry that supports a specific dialect only.
      * <p>
      * Schemas that do not specify dialect using $schema will use the dialect.
+     * <p>
+     * This uses a dialect registry that only contains this dialect and will throw
+     * an exception for unknown dialects.
      * 
      * @param dialect    the dialect
      * @param customizer to customize the registry
@@ -261,15 +302,18 @@ public class SchemaRegistry {
      * Builder from an existing {@link SchemaRegistry}.
      * <p>
      * <code>
-     * SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(Specification.Version.DRAFT_2019_09));
+     * SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09));
      * </code>
      * 
      * @param blueprint the existing factory
      * @return the builder
      */
     public static Builder builder(SchemaRegistry blueprint) {
-        Builder builder = builder().schemaLoader(blueprint.schemaLoader).defaultDialectId(blueprint.defaultDialectId)
-                .jsonNodeReader(blueprint.jsonNodeReader);
+        Builder builder = builder().schemaLoader(blueprint.schemaLoader)
+                .defaultDialectId(blueprint.defaultDialectId)
+                .nodeReader(blueprint.nodeReader)
+                .dialectRegistry(blueprint.dialectRegistry)
+                .schemaRegistryConfig(blueprint.schemaRegistryConfig);
         return builder;
     }
 
@@ -402,11 +446,11 @@ public class SchemaRegistry {
     }
 
     JsonNode readTree(String content, InputFormat inputFormat) throws IOException {
-        return this.jsonNodeReader.readTree(content, inputFormat);
+        return this.nodeReader.readTree(content, inputFormat);
     }
 
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException {
-        return this.jsonNodeReader.readTree(content, inputFormat);
+        return this.nodeReader.readTree(content, inputFormat);
     }
 
     /**

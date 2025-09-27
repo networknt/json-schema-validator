@@ -24,18 +24,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
 
 /**
- * BasicJsonNodeReader.
+ * Basic implementation of {@link NodeReader}.
  */
-public class BasicJsonNodeReader implements JsonNodeReader {
+public class BasicNodeReader implements NodeReader {
     private static class Holder {
-        private static final BasicJsonNodeReader INSTANCE = new BasicJsonNodeReader();
+        private static final BasicNodeReader INSTANCE = new BasicNodeReader();
     }
 
-    public static BasicJsonNodeReader getInstance() {
+    public static BasicNodeReader getInstance() {
         return Holder.INSTANCE;
     }
 
-    protected BasicJsonNodeReader() {
+    protected BasicNodeReader() {
     }
 
     @Override

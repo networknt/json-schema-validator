@@ -24,7 +24,7 @@ import com.networknt.schema.InputFormat;
 /**
  * Reader for reading content to {@link JsonNode}.
  */
-public interface JsonNodeReader {
+public interface NodeReader {
 
     /**
      * Deserialize content as a tree.
@@ -47,11 +47,11 @@ public interface JsonNodeReader {
     JsonNode readTree(InputStream content, InputFormat inputFormat) throws IOException;
 
     /**
-     * Creates a builder for {@link JsonNodeReader}.
+     * Creates a builder for {@link NodeReader}.
      *
      * @return the builder
      */
-    static DefaultJsonNodeReader.Builder builder() {
-        return DefaultJsonNodeReader.builder();
+    static DefaultNodeReader.Builder builder() {
+        return DefaultNodeReader.builder();
     }
 }

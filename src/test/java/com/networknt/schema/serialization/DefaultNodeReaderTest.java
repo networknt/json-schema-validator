@@ -29,7 +29,7 @@ import com.networknt.schema.utils.JsonNodes;
 /**
  * Test for Default Object Reader.
  */
-class DefaultJsonNodeReaderTest {
+class DefaultNodeReaderTest {
     @Test
     void location() throws JsonParseException, IOException {
         String schemaData = "{\r\n"
@@ -41,7 +41,7 @@ class DefaultJsonNodeReaderTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonNode jsonNode = JsonNodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
+        JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
         JsonNode idNode = jsonNode.at("/$id");
         JsonLocation location = JsonNodes.tokenLocationOf(idNode);
         assertEquals(2, location.getLineNr());
@@ -69,7 +69,7 @@ class DefaultJsonNodeReaderTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonNode jsonNode = JsonNodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
+        JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
 
         JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(jsonNode.at("/properties/startDate/format"));
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(jsonNode.at("/properties/startDate/minLength"));
@@ -89,7 +89,7 @@ class DefaultJsonNodeReaderTest {
                 + "  startDate:\r\n"
                 + "    format: 'date'\r\n"
                 + "    minLength: 6\r\n";
-        JsonNode jsonNode = JsonNodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.YAML);
+        JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.YAML);
 
         JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(jsonNode.at("/properties/startDate/format"));
         JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(jsonNode.at("/properties/startDate/minLength"));
