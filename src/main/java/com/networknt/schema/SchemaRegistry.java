@@ -36,9 +36,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Registry for loading and registering {@link Schema} instances.
@@ -160,6 +162,43 @@ public class SchemaRegistry {
         public Builder schemaRegistryConfig(SchemaRegistryConfig schemaRegistryConfig) {
             this.schemaRegistryConfig = schemaRegistryConfig;
             return this;
+        }
+
+        /**
+         * Sets the schema data by absolute IRI.
+         * 
+         * @param schemas the map of IRI to schema data
+         * @return the builder
+         */
+        public Builder schemas(Map<String, String> schemas) {
+            return this.resourceLoaders(resourceLoaders -> resourceLoaders.resources(schemas));
+        }
+
+        /**
+         * Sets the schema data by absolute IRI function.
+         * 
+         * @param schemas the function that returns schema data given IRI
+         * @return the builder
+         */
+        public Builder schemas(Function<String, String> schemas) {
+            return this.resourceLoaders(resourceLoaders -> resourceLoaders.resources(schemas));
+        }
+
+        /**
+         * Sets the schema data by using two mapping functions.
+         * <p>
+         * Firstly to map the IRI to an object. If the object is null no mapping is
+         * performed.
+         * <p>
+         * Next to map the object to the schema data.
+         * 
+         * @param <T>             the type of the object
+         * @param mapIriToObject  the mapping of IRI to object
+         * @param mapObjectToData the mappingof object to schema data
+         * @return the builder
+         */
+        public <T> Builder schemas(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
+            return this.resourceLoaders(resourceLoaders -> resourceLoaders.resources(mapIriToObject, mapObjectToData));
         }
 
         public SchemaRegistry build() {

@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Schema Loaders used to load a resource given the retrieval IRI.
+ * Resource Loaders used to load a resource given the retrieval IRI.
  */
 public class ResourceLoaders extends ArrayList<ResourceLoader> {
     private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public class ResourceLoaders extends ArrayList<ResourceLoader> {
         }
 
         /**
-         * Customize the schema loaders.
+         * Customize the resource loaders.
          * 
          * @param customizer the customizer
          * @return the builder
@@ -73,20 +73,20 @@ public class ResourceLoaders extends ArrayList<ResourceLoader> {
         }
 
         /**
-         * Adds a schema loader.
+         * Adds a resource loader.
          * 
-         * @param schemaLoader the schema loader
+         * @param resourceLoader the resource loader
          * @return the builder
          */
-        public Builder add(ResourceLoader schemaLoader) {
-            this.values.add(schemaLoader);
+        public Builder add(ResourceLoader resourceLoader) {
+            this.values.add(resourceLoader);
             return this;
         }
 
         /**
-         * Sets the schema data by absolute IRI.
+         * Sets the resource data by absolute IRI.
          * 
-         * @param resources the map of IRI to schema data
+         * @param resources the map of IRI to resource data
          * @return the builder
          */
         public Builder resources(Map<String, String> resources) {
@@ -95,18 +95,18 @@ public class ResourceLoaders extends ArrayList<ResourceLoader> {
         }
 
         /**
-         * Sets the schema data by absolute IRI function.
+         * Sets the resource data by absolute IRI function.
          * 
-         * @param schemas the function that returns schema data given IRI
+         * @param resources the function that returns resource data given IRI
          * @return the builder
          */
-        public Builder resources(Function<String, String> schemas) {
-            this.values.add(new MapResourceLoader(schemas));
+        public Builder resources(Function<String, String> resources) {
+            this.values.add(new MapResourceLoader(resources));
             return this;
         }
 
         /**
-         * Sets the schema data by using two mapping functions.
+         * Sets the resource data by using two mapping functions.
          * <p>
          * Firstly to map the IRI to an object. If the object is null no mapping is
          * performed.
@@ -118,7 +118,7 @@ public class ResourceLoaders extends ArrayList<ResourceLoader> {
          * @param mapObjectToData the mappingof object to schema data
          * @return the builder
          */
-        public <T> Builder schemas(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
+        public <T> Builder resources(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
             this.values.add(new MapResourceLoader(mapIriToObject, mapObjectToData));
             return this;
         }
@@ -126,7 +126,7 @@ public class ResourceLoaders extends ArrayList<ResourceLoader> {
         /**
          * Builds a {@link ResourceLoaders}.
          * 
-         * @return the schema loaders
+         * @return the resource loaders
          */
         public ResourceLoaders build() {
             return values;

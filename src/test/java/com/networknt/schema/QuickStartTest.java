@@ -12,17 +12,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
- * Sample test.
+ * Quick start test.
  */
-class SampleTest {
+class QuickStartTest {
     @Test
     void schemaFromSchemaLocationMapping() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaIdResolvers(
-                schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://www.example.com/schema", "classpath:schema")));
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
+                        .mapPrefix("https://www.example.com/schema", "classpath:schema")));
         /*
          * This should be cached for performance.
          */
-        Schema schemaFromSchemaLocation = factory
+        Schema schemaFromSchemaLocation = schemaRegistry
                 .getSchema(SchemaLocation.of("https://www.example.com/schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
@@ -31,21 +32,22 @@ class SampleTest {
          */
         schemaFromSchemaLocation.initializeValidators();
         List<Error> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+                executionContext -> executionContext
+                        .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
     @Test
     void schemaFromSchemaLocationContent() {
         String schemaData = "{\"enum\":[1, 2, 3, 4]}";
-        
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(
-                        Collections.singletonMap("https://www.example.com/schema/example-ref.json", schemaData))));
+
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemas(
+                        Collections.singletonMap("https://www.example.com/schema/example-ref.json", schemaData)));
         /*
          * This should be cached for performance.
          */
-        Schema schemaFromSchemaLocation = factory
+        Schema schemaFromSchemaLocation = schemaRegistry
                 .getSchema(SchemaLocation.of("https://www.example.com/schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
@@ -54,20 +56,21 @@ class SampleTest {
          */
         schemaFromSchemaLocation.initializeValidators();
         List<Error> errors = schemaFromSchemaLocation.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+                executionContext -> executionContext
+                        .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
     @Test
     void schemaFromClasspath() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
          * Loading from using the retrieval IRI is not recommended as it may cause
          * confusing when resolving relative $ref when $id is also used.
          */
-        Schema schemaFromClasspath = factory.getSchema(SchemaLocation.of("classpath:schema/example-ref.json"));
+        Schema schemaFromClasspath = schemaRegistry.getSchema(SchemaLocation.of("classpath:schema/example-ref.json"));
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
          * thrown. You check if there are issues with ref resolving using
@@ -75,29 +78,29 @@ class SampleTest {
          */
         schemaFromClasspath.initializeValidators();
         List<Error> errors = schemaFromClasspath.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+                executionContext -> executionContext
+                        .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
     @Test
     void schemaFromString() {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         /*
          * This should be cached for performance.
          * 
          * Loading from a String is not recommended as there is no base IRI to use for
          * resolving relative $ref.
          */
-        Schema schemaFromString = factory
-                .getSchema("{\"enum\":[1, 2, 3, 4]}");
-        List<Error> errors = schemaFromString.validate("7", InputFormat.JSON,
-                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+        Schema schemaFromString = schemaRegistry.getSchema("{\"enum\":[1, 2, 3, 4]}");
+        List<Error> errors = schemaFromString.validate("7", InputFormat.JSON, executionContext -> executionContext
+                .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 
     @Test
     void schemaFromJsonNode() throws JsonProcessingException {
-        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(
                 "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");
         /*
@@ -106,10 +109,10 @@ class SampleTest {
          * Loading from a JsonNode is not recommended as there is no base IRI to use for
          * resolving relative $ref.
          *
-         * Note that the V202012 from the factory is the default version if $schema is not
-         * specified. As $schema is specified in the data, V6 is used.
+         * Note that the V202012 from the schemaRegistry is the default version if $schema is
+         * not specified. As $schema is specified in the data, V6 is used.
          */
-        Schema schemaFromNode = factory.getSchema(schemaNode);
+        Schema schemaFromNode = schemaRegistry.getSchema(schemaNode);
         /*
          * By default all schemas are preloaded eagerly but ref resolve failures are not
          * thrown. You check if there are issues with ref resolving using
@@ -117,7 +120,8 @@ class SampleTest {
          */
         schemaFromNode.initializeValidators();
         List<Error> errors = schemaFromNode.validate("{\"id\": \"2\"}", InputFormat.JSON,
-                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
+                executionContext -> executionContext
+                        .executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertEquals(1, errors.size());
     }
 }
