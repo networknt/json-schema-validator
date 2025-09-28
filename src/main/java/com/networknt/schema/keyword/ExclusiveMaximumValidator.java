@@ -23,7 +23,7 @@ import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.utils.JsonNodeUtil;
+import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.JsonType;
 
 import java.math.BigDecimal;
@@ -98,7 +98,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        if (!JsonNodeUtil.isNumber(node, schemaContext.getSchemaRegistryConfig())) {
+        if (!JsonNodeTypes.isNumber(node, schemaContext.getSchemaRegistryConfig())) {
             // maximum only applies to numbers
             return;
         }

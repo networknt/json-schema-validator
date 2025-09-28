@@ -1,16 +1,12 @@
 package com.networknt.schema.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
-import com.networknt.schema.path.PathType;
-import com.networknt.schema.SchemaContext;
 
-public class JsonNodeUtil {
+public class JsonNodeTypes {
     private static final long V6_VALUE = SpecificationVersion.DRAFT_6.getOrder();
 
     private static final String TYPE = "type";
@@ -18,55 +14,9 @@ public class JsonNodeUtil {
     private static final String REF = "$ref";
     private static final String NULLABLE = "nullable";
 
-    public static Collection<String> allPaths(PathType pathType, String root, JsonNode node) {
-        Collection<String> collector = new ArrayList<>();
-        visitNode(pathType, root, node, collector);
-        return collector;
-    }
-
-    private static void visitNode(PathType pathType, String root, JsonNode node, Collection<String> collector) {
-        if (node.isObject()) {
-            visitObject(pathType, root, node, collector);
-        } else if (node.isArray()) {
-            visitArray(pathType, root, node, collector);
-        }
-    }
-
-    private static void visitArray(PathType pathType, String root, JsonNode node, Collection<String> collector) {
-        int size = node.size();
-        for (int i = 0; i < size; ++i) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(root);
-            pathType.append(builder, i);
-            String path = builder.toString();
-            collector.add(path);
-            visitNode(pathType, path, node.get(i), collector);
-        }
-    }
-
-    private static void visitObject(PathType pathType, String root, JsonNode node, Collection<String> collector) {
-        node.fields().forEachRemaining(entry -> {
-            StringBuilder builder = new StringBuilder();
-            builder.append(root);
-            pathType.append(builder, entry.getKey());
-            String path = builder.toString();
-            collector.add(path);
-            visitNode(pathType, path, entry.getValue(), collector);
-        });
-    }
-
     public static boolean isNodeNullable(JsonNode schema){
         JsonNode nullable = schema.get(NULLABLE);
 	    return nullable != null && nullable.asBoolean();
-    }
-
-    //Check to see if a JsonNode is nullable with checking the isHandleNullableField
-    public static boolean isNodeNullable(JsonNode schema, SchemaContext schemaContext) {
-        // check if the parent schema declares the fields as nullable
-        if (schemaContext.isNullableKeywordEnabled()) {
-            return isNodeNullable(schema);
-        }
-        return false;
     }
 
     public static boolean equalsToSchemaType(JsonNode node, JsonType schemaType, Schema parentSchema, SchemaContext schemaContext) {
@@ -90,8 +40,8 @@ public class JsonNodeUtil {
             if (nodeType == JsonType.NULL) {
                 if (parentSchema != null && schemaContext.isNullableKeywordEnabled()) {
                     Schema grandParentSchema = parentSchema.getParentSchema();
-                    if (grandParentSchema != null && JsonNodeUtil.isNodeNullable(grandParentSchema.getSchemaNode())
-                            || JsonNodeUtil.isNodeNullable(parentSchema.getSchemaNode())) {
+                    if (grandParentSchema != null && JsonNodeTypes.isNodeNullable(grandParentSchema.getSchemaNode())
+                            || JsonNodeTypes.isNodeNullable(parentSchema.getSchemaNode())) {
                         return true;
                     }
                 }

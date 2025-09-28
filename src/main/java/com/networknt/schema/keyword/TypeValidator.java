@@ -22,7 +22,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.utils.JsonNodeUtil;
+import com.networknt.schema.utils.JsonNodeTypes;
 import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 
@@ -48,7 +48,7 @@ public class TypeValidator extends BaseKeywordValidator {
     }
 
     public boolean equalsToSchemaType(JsonNode node) {
-        return JsonNodeUtil.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.schemaContext);
+        return JsonNodeTypes.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.schemaContext);
     }
 
     @Override

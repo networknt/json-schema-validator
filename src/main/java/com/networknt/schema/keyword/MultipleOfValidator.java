@@ -22,7 +22,7 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
-import com.networknt.schema.utils.JsonNodeUtil;
+import com.networknt.schema.utils.JsonNodeTypes;
 
 import java.math.BigDecimal;
 
@@ -84,7 +84,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             // division and multiple
             return node.isBigDecimal() ? node.decimalValue() : BigDecimal.valueOf(node.doubleValue());
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()
-                && JsonNodeUtil.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
+                && JsonNodeTypes.isNumber(node, this.schemaContext.getSchemaRegistryConfig())) {
             // handling for type loose
             return new BigDecimal(node.textValue());
         }
