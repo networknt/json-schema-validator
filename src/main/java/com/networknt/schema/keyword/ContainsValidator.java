@@ -25,7 +25,7 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.path.NodePath;
 
-import static com.networknt.schema.SpecificationVersionRange.MinV201909;
+import static com.networknt.schema.SpecificationVersionRange.MIN_DRAFT_2019_09;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ContainsValidator extends BaseKeywordValidator {
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
         // slightly.
-        this.isMinV201909 = MinV201909.getVersions().contains(this.schemaContext.getDialect().getSpecificationVersion());
+        this.isMinV201909 = MIN_DRAFT_2019_09.getVersions().contains(this.schemaContext.getDialect().getSpecificationVersion());
 
         Integer currentMax = null;
         Integer currentMin = null;
