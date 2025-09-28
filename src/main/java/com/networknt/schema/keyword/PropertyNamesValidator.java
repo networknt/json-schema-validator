@@ -31,7 +31,7 @@ import com.networknt.schema.SchemaContext;
 public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
     private final Schema innerSchema;
     public PropertyNamesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.PROPERTYNAMES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.PROPERTY_NAMES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
         innerSchema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
     }
 

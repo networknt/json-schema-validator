@@ -43,7 +43,7 @@ public class Vocabulary {
             KeywordType.UNEVALUATED_ITEMS, KeywordType.ITEMS_LEGACY, KeywordType.CONTAINS,
             KeywordType.ADDITIONAL_PROPERTIES, KeywordType.UNEVALUATED_PROPERTIES,
             KeywordType.PROPERTIES, KeywordType.PATTERN_PROPERTIES, KeywordType.DEPENDENT_SCHEMAS,
-            KeywordType.PROPERTYNAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            KeywordType.PROPERTY_NAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
             new NonValidationKeyword("else"), KeywordType.ALL_OF, KeywordType.ANY_OF,
             KeywordType.ONE_OF, KeywordType.NOT);
     public static final Vocabulary DRAFT_2019_09_VALIDATION = new Vocabulary(
@@ -75,7 +75,7 @@ public class Vocabulary {
             "https://json-schema.org/draft/2020-12/vocab/applicator", KeywordType.PREFIX_ITEMS,
             KeywordType.ITEMS, KeywordType.CONTAINS, KeywordType.ADDITIONAL_PROPERTIES,
             KeywordType.PROPERTIES, KeywordType.PATTERN_PROPERTIES, KeywordType.DEPENDENT_SCHEMAS,
-            KeywordType.PROPERTYNAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
+            KeywordType.PROPERTY_NAMES, KeywordType.IF_THEN_ELSE, new NonValidationKeyword("then"),
             new NonValidationKeyword("else"), KeywordType.ALL_OF, KeywordType.ANY_OF,
             KeywordType.ONE_OF, KeywordType.NOT);
     public static final Vocabulary DRAFT_2020_12_UNEVALUATED = new Vocabulary(
