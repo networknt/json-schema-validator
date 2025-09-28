@@ -15,18 +15,21 @@
  */
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
-import com.networknt.schema.keyword.ThresholdMixin;
+import static java.lang.System.out;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import static java.lang.System.out;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.LongNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 @Disabled
 class ThresholdMixinPerfTest {
@@ -34,9 +37,11 @@ class ThresholdMixinPerfTest {
 
 
     private final LongNode maximumLong = new LongNode(thresholdIntegral);
+    @SuppressWarnings("unused")
     private final BigIntegerNode maximumBigInt = new BigIntegerNode(BigInteger.valueOf(thresholdIntegral));
 
     private final LongNode valueLong = new LongNode(Long.MAX_VALUE);
+    @SuppressWarnings("unused")
     private final BigIntegerNode valueBigInt = new BigIntegerNode(BigInteger.valueOf(Long.MAX_VALUE));
 
     //    private final double threshold = Double.MAX_VALUE - 1;
@@ -206,6 +211,7 @@ class ThresholdMixinPerfTest {
     }
 
 	ThresholdMixin asDouble = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             double lm = maximumDouble.doubleValue();
@@ -220,6 +226,7 @@ class ThresholdMixinPerfTest {
     };
 
     ThresholdMixin asLong = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             long lm = maximumLong.longValue();
@@ -234,6 +241,7 @@ class ThresholdMixinPerfTest {
     };
 
     ThresholdMixin typedThreshold = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             if (node.isDouble()) {
@@ -260,6 +268,7 @@ class ThresholdMixinPerfTest {
     };
 
     ThresholdMixin currentImplementationDouble = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             if (maximumDouble.isDouble() && maximumDouble.doubleValue() == Double.POSITIVE_INFINITY) {
@@ -288,6 +297,7 @@ class ThresholdMixinPerfTest {
 
 
     ThresholdMixin currentImplementationDecimal = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             if (maximumDecimal.isDouble() && maximumDecimal.doubleValue() == Double.POSITIVE_INFINITY) {
@@ -315,6 +325,7 @@ class ThresholdMixinPerfTest {
     };
 
     ThresholdMixin oneMixinForIntegerAndNumber = new ThresholdMixin() {
+        @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
             BigDecimal value = new BigDecimal(node.asText());
