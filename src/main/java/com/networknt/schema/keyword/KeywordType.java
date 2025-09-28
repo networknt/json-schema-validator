@@ -79,6 +79,7 @@ public enum KeywordType implements Keyword {
     PATTERN("pattern", PatternValidator::new, SpecificationVersionRange.MaxV7),
     PREFIX_ITEMS("prefixItems", PrefixItemsValidator::new, SpecificationVersionRange.None),
     PROPERTIES("properties", PropertiesValidator::new, SpecificationVersionRange.MaxV7),
+    PROPERTY_DEPENDENCIES("propertyDependencies", PropertyDependenciesValidator::new, SpecificationVersionRange.None),
     PROPERTYNAMES("propertyNames", PropertyNamesValidator::new, SpecificationVersionRange.MinV6MaxV7),
     READ_ONLY("readOnly", ReadOnlyValidator::new, SpecificationVersionRange.V7),
     RECURSIVE_REF("$recursiveRef", RecursiveRefValidator::new, SpecificationVersionRange.None),
