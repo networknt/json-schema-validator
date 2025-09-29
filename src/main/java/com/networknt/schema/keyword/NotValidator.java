@@ -68,7 +68,7 @@ public class NotValidator extends BaseKeywordValidator {
         if (test.isEmpty()) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .locale(executionContext.getExecutionConfig().getLocale())
-                    .arguments(this.schema.toString())
+                    .arguments(this.schemaNode.toString())
                     .build());
         }
     }

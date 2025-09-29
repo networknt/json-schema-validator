@@ -46,15 +46,10 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
             final TextNode pnameText = TextNode.valueOf(pname);
             innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
             for (final Error schemaError : schemaErrors) {
-                final String path = schemaError.getInstanceLocation().toString();
-                String msg = schemaError.getMessage();
-                if (msg.startsWith(path)) {
-                    msg = msg.substring(path.length()).replaceFirst("^:\\s*", "");
-                }
                 existingErrors.add(
                         error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
                                 .locale(executionContext.getExecutionConfig().getLocale())
-                                .arguments(pname, msg).build());
+                                .arguments(pname, schemaError.getMessage()).build());
             }
             schemaErrors.clear();
         }
