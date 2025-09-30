@@ -63,7 +63,7 @@ public class SchemaRegistry {
         private DialectRegistry dialectRegistry = null;
         private NodeReader nodeReader = null;
         private SchemaLoader schemaLoader = null;
-        private boolean enableSchemaCache = true;
+        private boolean schemaCacheEnabled = true;
         private SchemaRegistryConfig schemaRegistryConfig = null;
 
         /**
@@ -114,8 +114,8 @@ public class SchemaRegistry {
             return this;
         }
 
-        public Builder enableSchemaCache(boolean enableSchemaCache) {
-            this.enableSchemaCache = enableSchemaCache;
+        public Builder schemaCacheEnabled(boolean schemaCacheEnabled) {
+            this.schemaCacheEnabled = schemaCacheEnabled;
             return this;
         }
 
@@ -203,7 +203,7 @@ public class SchemaRegistry {
         }
 
         public SchemaRegistry build() {
-            return new SchemaRegistry(nodeReader, defaultDialectId, schemaLoader, enableSchemaCache,
+            return new SchemaRegistry(nodeReader, defaultDialectId, schemaLoader, schemaCacheEnabled,
                     dialectRegistry, schemaRegistryConfig);
         }
     }
@@ -212,19 +212,19 @@ public class SchemaRegistry {
     private final String defaultDialectId;
     private final SchemaLoader schemaLoader;
     private final ConcurrentMap<SchemaLocation, Schema> schemaCache = new ConcurrentHashMap<>();
-    private final boolean enableSchemaCache;
+    private final boolean schemaCacheEnabled;
     private final DialectRegistry dialectRegistry;
     private final SchemaRegistryConfig schemaRegistryConfig;
 
     private SchemaRegistry(NodeReader nodeReader, String defaultDialectId, SchemaLoader schemaLoader,
-            boolean enableSchemaCache, DialectRegistry dialectRegistry, SchemaRegistryConfig schemaRegistryConfig) {
+            boolean schemaCacheEnabled, DialectRegistry dialectRegistry, SchemaRegistryConfig schemaRegistryConfig) {
         if (defaultDialectId == null || defaultDialectId.trim().isEmpty()) {
             throw new IllegalArgumentException("defaultDialectId must not be null or empty");
         }
         this.nodeReader = nodeReader != null ? nodeReader : BasicNodeReader.getInstance();
         this.defaultDialectId = defaultDialectId;
         this.schemaLoader = schemaLoader != null ? schemaLoader : SchemaLoader.getDefault();
-        this.enableSchemaCache = enableSchemaCache;
+        this.schemaCacheEnabled = schemaCacheEnabled;
         this.dialectRegistry = dialectRegistry != null ? dialectRegistry : new DefaultDialectRegistry();
         this.schemaRegistryConfig = schemaRegistryConfig != null ? schemaRegistryConfig
                 : SchemaRegistryConfig.getInstance();
@@ -658,7 +658,7 @@ public class SchemaRegistry {
      * @return the schema
      */
     public Schema loadSchema(final SchemaLocation schemaUri) {
-        if (enableSchemaCache) {
+        if (schemaCacheEnabled) {
             // ConcurrentHashMap computeIfAbsent does not allow calls that result in a
             // recursive update to the map.
             // The getMapperSchema potentially recurses to call back to getSchema again
