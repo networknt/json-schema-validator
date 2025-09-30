@@ -16,15 +16,15 @@
 package com.networknt.schema.vocabulary;
 
 /**
- * Factory for {@link Vocabulary}.
+ * Registry for {@link Vocabulary}.
  */
 @FunctionalInterface
-public interface VocabularyFactory {
+public interface VocabularyRegistry {
     /**
-     * Gets the vocabulary given the vocabulary iri.
+     * Gets the vocabulary given the vocabulary id.
      * 
-     * @param iri the vocabulary iri
+     * @param id the vocabulary id which is an iri
      * @return the vocabulary
      */
-    Vocabulary getVocabulary(String iri);
+    Vocabulary getVocabulary(String id);
 }

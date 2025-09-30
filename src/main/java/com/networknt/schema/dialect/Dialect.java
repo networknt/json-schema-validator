@@ -35,7 +35,7 @@ import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.Strings;
 import com.networknt.schema.vocabulary.Vocabularies;
 import com.networknt.schema.vocabulary.Vocabulary;
-import com.networknt.schema.vocabulary.VocabularyFactory;
+import com.networknt.schema.vocabulary.VocabularyRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class Dialect {
         private final Map<String, Format> formats = new HashMap<>();
         private final Map<String, Boolean> vocabularies = new HashMap<>();
         private FormatKeywordFactory formatKeywordFactory = null;
-        private VocabularyFactory vocabularyFactory = null;
+        private VocabularyRegistry vocabularyRegistry = null;
         private KeywordFactory unknownKeywordFactory = null;
 
         public Builder(String id) {
@@ -124,13 +124,13 @@ public class Dialect {
         }
 
         /**
-         * Sets the vocabulary factory for handling custom vocabularies.
+         * Sets the vocabulary registry for handling custom vocabularies.
          * 
-         * @param vocabularyFactory the factory
+         * @param vocabularyRegistry the registry
          * @return the builder
          */
-        public Builder vocabularyFactory(VocabularyFactory vocabularyFactory) {
-            this.vocabularyFactory = vocabularyFactory;
+        public Builder vocabularyRegistry(VocabularyRegistry vocabularyRegistry) {
+            this.vocabularyRegistry = vocabularyRegistry;
             return this;
         }
 
@@ -293,8 +293,8 @@ public class Dialect {
                     for(Entry<String, Boolean> entry : this.vocabularies.entrySet()) {
                         Vocabulary vocabulary = null;
                         String id = entry.getKey();
-                        if (this.vocabularyFactory != null) {
-                            vocabulary = this.vocabularyFactory.getVocabulary(id);
+                        if (this.vocabularyRegistry != null) {
+                            vocabulary = this.vocabularyRegistry.getVocabulary(id);
                         }
                         if (vocabulary == null) {
                             vocabulary = Vocabularies.getVocabulary(id);
@@ -385,7 +385,7 @@ public class Dialect {
                 .formats(blueprint.builder.formats.values())
                 .specificationVersion(blueprint.getSpecificationVersion())
                 .vocabularies(vocabularies)
-                .vocabularyFactory(blueprint.builder.vocabularyFactory)
+                .vocabularyRegistry(blueprint.builder.vocabularyRegistry)
                 .formatKeywordFactory(blueprint.builder.formatKeywordFactory)
                 .unknownKeywordFactory(blueprint.builder.unknownKeywordFactory)
                 ;

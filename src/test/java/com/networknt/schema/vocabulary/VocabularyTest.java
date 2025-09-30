@@ -203,8 +203,8 @@ class VocabularyTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        VocabularyFactory vocabularyFactory = uri -> {
-            if ("https://www.example.com/vocab/format".equals(uri)) {
+        VocabularyRegistry vocabularyRegistry = id -> {
+            if ("https://www.example.com/vocab/format".equals(id)) {
                 return new Vocabulary("https://www.example.com/vocab/format", new AnnotationKeyword("hello"));
             }
             return null;
@@ -212,14 +212,14 @@ class VocabularyTest {
         
         Dialect dialect = Dialect
                 .builder("https://www.example.com/no-validation-no-format/schema", Dialects.getDraft202012())
-                .vocabularyFactory(vocabularyFactory)
+                .vocabularyRegistry(vocabularyRegistry)
                 .build();
-        SchemaRegistry factory = SchemaRegistry
+        SchemaRegistry schemaRegistry = SchemaRegistry
                 .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
                         builder -> builder.dialectRegistry(new BasicDialectRegistry(dialect)).resourceLoaders(resourceLoaders -> resourceLoaders.resources(Collections
                                 .singletonMap("https://www.example.com/no-validation-no-format/schema",
                                         metaSchemaData))));
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = schemaRegistry.getSchema(schemaData);
         OutputUnit outputUnit = schema.validate("{}", InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
             executionContext.executionConfig(executionConfig -> executionConfig
 					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
