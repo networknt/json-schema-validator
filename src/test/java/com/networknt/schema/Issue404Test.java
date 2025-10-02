@@ -2,7 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -29,7 +29,11 @@ class Issue404Test {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
         List<Error> errors = schema.validate(node);
-        Assertions.assertEquals(0, errors.size());
+        assertEquals(1, errors.size());
+        assertEquals("type", errors.get(0).getKeyword());
+        assertEquals("/bar", errors.get(0).getInstanceLocation().toString());
+        assertEquals("/properties/bar/$ref/type", errors.get(0).getEvaluationPath().toString());
+        assertEquals("https://example.com/address.schema.json#/properties/foo/type", errors.get(0).getSchemaLocation().toString());
     }
 
 }

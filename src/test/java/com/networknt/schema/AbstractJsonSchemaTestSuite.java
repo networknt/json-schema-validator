@@ -183,6 +183,7 @@ abstract class AbstractJsonSchemaTestSuite {
                 @SuppressWarnings("deprecation") boolean typeLoose = testSpec.isTypeLoose();
 
                 SchemaRegistryConfig.Builder configBuilder = SchemaRegistryConfig.builder();
+                configBuilder.strict("type", false);
                 configBuilder.typeLoose(typeLoose);
                 configBuilder.regularExpressionFactory(
                         TestSpec.RegexKind.JDK == testSpec.getRegex() ? JDKRegularExpressionFactory.getInstance()
