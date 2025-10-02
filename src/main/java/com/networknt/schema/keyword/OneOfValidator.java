@@ -105,28 +105,28 @@ public class OneOfValidator extends BaseKeywordValidator {
                     boolean discriminatorMatchFound = false;
                     DiscriminatorState discriminator = executionContext.getDiscriminatorMapping().get(instanceLocation);
                     JsonNode refNode = schema.getSchemaNode().get("$ref");
-                    if (discriminator != null && refNode != null) {
+                    if (discriminator != null && refNode != null && discriminator.hasDiscriminatingValue()) {
                         discriminatorMatchFound = discriminator.matches(refNode.asText());
-                    }
-                    if (discriminatorMatchFound) {
-                        /*
-                         * Note that discriminator cannot change the outcome of the evaluation but can
-                         * be used to filter off any additional messages
-                         * 
-                         * The discriminator will cause all messages other than the one with the //
-                         * matching discriminator to be discarded.
-                         */
-                        if (!subSchemaErrors.isEmpty()) {
+                        if (discriminatorMatchFound) {
                             /*
-                             * This means that the discriminated value has errors and doesn't match so these
-                             * errors are the only ones that will be reported *IF* there are no other
-                             * schemas that successfully validate to meet the requirement of anyOf.
+                             * Note that discriminator cannot change the outcome of the evaluation but can
+                             * be used to filter off any additional messages
                              * 
-                             * If there are any successful schemas as per anyOf, all these errors will be
-                             * discarded.
+                             * The discriminator will cause all messages other than the one with the //
+                             * matching discriminator to be discarded.
                              */
-                            discriminatorErrors = new ArrayList<>(subSchemaErrors);
-                            allErrors = null; // This is no longer needed
+                            if (!subSchemaErrors.isEmpty()) {
+                                /*
+                                 * This means that the discriminated value has errors and doesn't match so these
+                                 * errors are the only ones that will be reported *IF* there are no other
+                                 * schemas that successfully validate to meet the requirement of anyOf.
+                                 * 
+                                 * If there are any successful schemas as per anyOf, all these errors will be
+                                 * discarded.
+                                 */
+                                discriminatorErrors = new ArrayList<>(subSchemaErrors);
+                                allErrors = null; // This is no longer needed
+                            }
                         }
                     } else {
                         // This is the normal handling when discriminators aren't enabled
