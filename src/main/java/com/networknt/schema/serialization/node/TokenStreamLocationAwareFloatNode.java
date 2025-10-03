@@ -16,25 +16,25 @@
 package com.networknt.schema.serialization.node;
 
 import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.databind.node.FloatNode;
 
 /**
- * {@link POJONode} that is {@link JsonLocationAware}.
+ * {@link FloatNode} that is {@link TokenStreamLocationAware}.
  */
-public class JsonLocationAwarePOJONode extends POJONode implements JsonLocationAware {
+public class TokenStreamLocationAwareFloatNode extends FloatNode implements TokenStreamLocationAware {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenLocation;
+    private final JsonLocation tokenStreamLocation;
 
-    public JsonLocationAwarePOJONode(Object v, JsonLocation tokenLocation) {
+    public TokenStreamLocationAwareFloatNode(float v, JsonLocation tokenStreamLocation) {
         super(v);
-        this.tokenLocation = tokenLocation;
+        this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenLocation() {
-        return this.tokenLocation;
+    public JsonLocation tokenStreamLocation() {
+        return this.tokenStreamLocation;
     }
 }

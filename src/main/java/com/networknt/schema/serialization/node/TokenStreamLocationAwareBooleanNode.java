@@ -15,28 +15,26 @@
  */
 package com.networknt.schema.serialization.node;
 
-import java.math.BigInteger;
-
 import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 
 /**
- * {@link BigIntegerNode} that is {@link JsonLocationAware}.
+ * {@link BooleanNode} that is {@link TokenStreamLocationAware}.
  */
-public class JsonLocationAwareBigIntegerNode extends BigIntegerNode implements JsonLocationAware {
+public class TokenStreamLocationAwareBooleanNode extends BooleanNode implements TokenStreamLocationAware {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenLocation;
+    private final JsonLocation tokenStreamLocation;
 
-    public JsonLocationAwareBigIntegerNode(BigInteger v, JsonLocation tokenLocation) {
+    public TokenStreamLocationAwareBooleanNode(boolean v, JsonLocation tokenStreamLocation) {
         super(v);
-        this.tokenLocation = tokenLocation;
+        this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenLocation() {
-        return this.tokenLocation;
+    public JsonLocation tokenStreamLocation() {
+        return this.tokenStreamLocation;
     }
 }

@@ -15,35 +15,28 @@
  */
 package com.networknt.schema.serialization.node;
 
-import java.util.Map;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
 
 /**
- * {@link ObjectNode} that is {@link JsonLocationAware}.
+ * {@link DecimalNode} that is {@link TokenStreamLocationAware}.
  */
-public class JsonLocationAwareObjectNode extends ObjectNode implements JsonLocationAware {
+public class TokenStreamLocationAwareDecimalNode extends DecimalNode implements TokenStreamLocationAware {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenLocation;
+    private final JsonLocation tokenStreamLocation;
 
-    public JsonLocationAwareObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children, JsonLocation tokenLocation) {
-        super(nc, children);
-        this.tokenLocation = tokenLocation;
-    }
-
-    public JsonLocationAwareObjectNode(JsonNodeFactory nc, JsonLocation tokenLocation) {
-        super(nc);
-        this.tokenLocation = tokenLocation;
+    public TokenStreamLocationAwareDecimalNode(BigDecimal v, JsonLocation tokenStreamLocation) {
+        super(v);
+        this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenLocation() {
-        return this.tokenLocation;
+    public JsonLocation tokenStreamLocation() {
+        return this.tokenStreamLocation;
     }
 }

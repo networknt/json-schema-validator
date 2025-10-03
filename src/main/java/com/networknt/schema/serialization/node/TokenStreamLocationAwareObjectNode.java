@@ -15,40 +15,35 @@
  */
 package com.networknt.schema.serialization.node;
 
-import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * {@link ArrayNode} that is {@link JsonLocationAware}.
+ * {@link ObjectNode} that is {@link TokenStreamLocationAware}.
  */
-public class JsonLocationAwareArrayNode extends ArrayNode implements JsonLocationAware {
+public class TokenStreamLocationAwareObjectNode extends ObjectNode implements TokenStreamLocationAware {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenLocation;
+    private final JsonLocation tokenStreamLocation;
 
-    public JsonLocationAwareArrayNode(JsonNodeFactory nf, int capacity, JsonLocation tokenLocation) {
-        super(nf, capacity);
-        this.tokenLocation = tokenLocation;
+    public TokenStreamLocationAwareObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children, JsonLocation tokenStreamLocation) {
+        super(nc, children);
+        this.tokenStreamLocation = tokenStreamLocation;
     }
 
-    public JsonLocationAwareArrayNode(JsonNodeFactory nf, List<JsonNode> children, JsonLocation tokenLocation) {
-        super(nf, children);
-        this.tokenLocation = tokenLocation;
-    }
-
-    public JsonLocationAwareArrayNode(JsonNodeFactory nf, JsonLocation tokenLocation) {
-        super(nf);
-        this.tokenLocation = tokenLocation;
+    public TokenStreamLocationAwareObjectNode(JsonNodeFactory nc, JsonLocation tokenStreamLocation) {
+        super(nc);
+        this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenLocation() {
-        return this.tokenLocation;
+    public JsonLocation tokenStreamLocation() {
+        return this.tokenStreamLocation;
     }
 }

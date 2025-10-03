@@ -57,17 +57,17 @@ class JsonNodesTest {
         JsonNode jsonNode = JsonNodes.readTree(JsonMapperFactory.getInstance(), schemaData,
                 LocationJsonNodeFactoryFactory.getInstance());
         JsonNode idNode = jsonNode.at("/$id");
-        JsonLocation location = JsonNodes.tokenLocationOf(idNode);
+        JsonLocation location = JsonNodes.tokenStreamLocationOf(idNode);
         assertEquals(2, location.getLineNr());
         assertEquals(10, location.getColumnNr());
 
         JsonNode formatNode = jsonNode.at("/properties/startDate/format");
-        location = JsonNodes.tokenLocationOf(formatNode);
+        location = JsonNodes.tokenStreamLocationOf(formatNode);
         assertEquals(5, location.getLineNr());
         assertEquals(17, location.getColumnNr());
 
         JsonNode minLengthNode = jsonNode.at("/properties/startDate/minLength");
-        location = JsonNodes.tokenLocationOf(minLengthNode);
+        location = JsonNodes.tokenStreamLocationOf(minLengthNode);
         assertEquals(6, location.getLineNr());
         assertEquals(20, location.getColumnNr());
     }
@@ -94,11 +94,11 @@ class JsonNodesTest {
         });
         List<Error> list = messages.stream().collect(Collectors.toList());
         Error format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
+        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
         Error minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
+        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
         assertEquals("format", format.getKeyword());
 
@@ -139,11 +139,11 @@ class JsonNodesTest {
         });
         List<Error> list = messages.stream().collect(Collectors.toList());
         Error format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
+        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
         Error minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
+        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
         assertEquals("format", format.getKeyword());
 
@@ -191,16 +191,16 @@ class JsonNodesTest {
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         JsonNode root = JsonNodes.readTree(objectMapper, json, LocationJsonNodeFactoryFactory.getInstance());
         JsonNode numberNode = root.at("/properties/number");
-        assertEquals(3, JsonNodes.tokenLocationOf(numberNode).getLineNr());
+        assertEquals(3, JsonNodes.tokenStreamLocationOf(numberNode).getLineNr());
         JsonNode stringNode = root.at("/properties/string");
-        assertEquals(4, JsonNodes.tokenLocationOf(stringNode).getLineNr());
+        assertEquals(4, JsonNodes.tokenStreamLocationOf(stringNode).getLineNr());
         JsonNode booleanNode = root.at("/properties/boolean");
-        assertEquals(5, JsonNodes.tokenLocationOf(booleanNode).getLineNr());
+        assertEquals(5, JsonNodes.tokenStreamLocationOf(booleanNode).getLineNr());
         JsonNode arrayNode = root.at("/properties/array");
-        assertEquals(6, JsonNodes.tokenLocationOf(arrayNode).getLineNr());
+        assertEquals(6, JsonNodes.tokenStreamLocationOf(arrayNode).getLineNr());
         JsonNode objectNode = root.at("/properties/object");
-        assertEquals(7, JsonNodes.tokenLocationOf(objectNode).getLineNr());
+        assertEquals(7, JsonNodes.tokenStreamLocationOf(objectNode).getLineNr());
         JsonNode nullNode = root.at("/properties/null");
-        assertEquals(8, JsonNodes.tokenLocationOf(nullNode).getLineNr());
+        assertEquals(8, JsonNodes.tokenStreamLocationOf(nullNode).getLineNr());
     }
 }

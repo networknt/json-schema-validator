@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
- * {@link JsonNodeFactory} that creates {@link JsonLocationAware} nodes.
+ * {@link JsonNodeFactory} that creates {@link TokenStreamLocationAware} nodes.
  * <p>
  * Note that this will adversely affect performance as nodes with the same value
  * can no longer be cached and reused.
@@ -57,12 +57,12 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public BooleanNode booleanNode(boolean v) {
-        return new JsonLocationAwareBooleanNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareBooleanNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public NullNode nullNode() {
-        return new JsonLocationAwareNullNode(this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareNullNode(this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public NumericNode numberNode(byte v) {
-        return new JsonLocationAwareIntNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareIntNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public NumericNode numberNode(short v) {
-        return new JsonLocationAwareShortNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareShortNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -92,7 +92,7 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public NumericNode numberNode(int v) {
-        return new JsonLocationAwareIntNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareIntNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public NumericNode numberNode(long v) {
-        return new JsonLocationAwareLongNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareLongNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -112,12 +112,12 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public ValueNode numberNode(BigInteger v) {
-        return (v == null) ? nullNode() : new JsonLocationAwareBigIntegerNode(v, this.jsonParser.currentTokenLocation());
+        return (v == null) ? nullNode() : new TokenStreamLocationAwareBigIntegerNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public NumericNode numberNode(float v) {
-        return new JsonLocationAwareFloatNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareFloatNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -127,7 +127,7 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public NumericNode numberNode(double v) {
-        return new JsonLocationAwareDoubleNode(v, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareDoubleNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
@@ -137,47 +137,47 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
 
     @Override
     public ValueNode numberNode(BigDecimal v) {
-        return (v == null) ? nullNode() : new JsonLocationAwareDecimalNode(v, this.jsonParser.currentTokenLocation());
+        return (v == null) ? nullNode() : new TokenStreamLocationAwareDecimalNode(v, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public TextNode textNode(String text) {
-        return new JsonLocationAwareTextNode(text, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareTextNode(text, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public BinaryNode binaryNode(byte[] data) {
-        return new JsonLocationAwareBinaryNode(data, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareBinaryNode(data, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public BinaryNode binaryNode(byte[] data, int offset, int length) {
-        return new JsonLocationAwareBinaryNode(data, offset, length, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareBinaryNode(data, offset, length, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public ArrayNode arrayNode() {
-        return new JsonLocationAwareArrayNode(this, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareArrayNode(this, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public ArrayNode arrayNode(int capacity) {
-        return new JsonLocationAwareArrayNode(this, capacity, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareArrayNode(this, capacity, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public ObjectNode objectNode() {
-        return new JsonLocationAwareObjectNode(this, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwareObjectNode(this, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public ValueNode pojoNode(Object pojo) {
-        return new JsonLocationAwarePOJONode(pojo, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwarePOJONode(pojo, this.jsonParser.currentTokenLocation());
     }
 
     @Override
     public ValueNode rawValueNode(RawValue value) {
-        return new JsonLocationAwarePOJONode(value, this.jsonParser.currentTokenLocation());
+        return new TokenStreamLocationAwarePOJONode(value, this.jsonParser.currentTokenLocation());
     }
 
 }

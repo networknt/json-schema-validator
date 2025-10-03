@@ -16,15 +16,25 @@
 package com.networknt.schema.serialization.node;
 
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.databind.node.LongNode;
 
 /**
- * JsonNodes that are aware of the token location will implement this interface.
+ * {@link LongNode} that is {@link TokenStreamLocationAware}.
  */
-public interface JsonLocationAware {
+public class TokenStreamLocationAwareLongNode extends LongNode implements TokenStreamLocationAware {
     /**
-     * Gets the token location.
-     *
-     * @return the token location
+     * 
      */
-    JsonLocation tokenLocation();
+    private static final long serialVersionUID = 1L;
+    private final JsonLocation tokenStreamLocation;
+
+    public TokenStreamLocationAwareLongNode(long v, JsonLocation tokenStreamLocation) {
+        super(v);
+        this.tokenStreamLocation = tokenStreamLocation;
+    }
+
+    @Override
+    public JsonLocation tokenStreamLocation() {
+        return this.tokenStreamLocation;
+    }
 }
