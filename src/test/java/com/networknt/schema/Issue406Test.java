@@ -14,17 +14,17 @@ class Issue406Test {
 
     @Test
     void testPreloadingNotHappening() {
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        final Schema schema = factory.getSchema(INVALID_$REF_SCHEMA);
         // not breaking - pass
         Assertions.assertNotNull(schema);
     }
 
     @Test
     void testPreloadingHappening() {
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        final JsonSchema schema = factory.getSchema(INVALID_$REF_SCHEMA);
-        Assertions.assertThrows(JsonSchemaException.class,
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        final Schema schema = factory.getSchema(INVALID_$REF_SCHEMA);
+        Assertions.assertThrows(SchemaException.class,
                             new Executable() {
                                 @Override
                                 public void execute() {
@@ -36,8 +36,8 @@ class Issue406Test {
 
     @Test
     void testPreloadingHappeningForCircularDependency() {
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        final JsonSchema schema = factory.getSchema(CIRCULAR_$REF_SCHEMA);
+        final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        final Schema schema = factory.getSchema(CIRCULAR_$REF_SCHEMA);
         schema.initializeValidators();
     }
 }

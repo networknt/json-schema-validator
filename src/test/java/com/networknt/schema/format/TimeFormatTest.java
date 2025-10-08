@@ -23,11 +23,10 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.Error;
 
 class TimeFormatTest {
 
@@ -59,9 +58,9 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -88,9 +87,9 @@ class TimeFormatTest {
 
         String inputData = "\""+input.format+"\"";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON,
+                executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertFalse(messages.isEmpty());
     }
 }

@@ -2,15 +2,15 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.List;
 
 class Issue404Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
@@ -25,11 +25,15 @@ class Issue404Test {
         String schemaPath = "/schema/issue404-v7.json";
         String dataPath = "/data/issue404.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
-        Assertions.assertEquals(0, errors.size());
+        List<Error> errors = schema.validate(node);
+        assertEquals(1, errors.size());
+        assertEquals("type", errors.get(0).getKeyword());
+        assertEquals("/bar", errors.get(0).getInstanceLocation().toString());
+        assertEquals("/properties/bar/$ref/type", errors.get(0).getEvaluationPath().toString());
+        assertEquals("https://example.com/address.schema.json#/properties/foo/type", errors.get(0).getSchemaLocation().toString());
     }
 
 }

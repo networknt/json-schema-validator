@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 class Issue396Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
@@ -29,7 +29,7 @@ class Issue396Test {
         String schemaPath = "/schema/issue396-v7.json";
         String dataPath = "/data/issue396.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
@@ -39,8 +39,8 @@ class Issue396Test {
                 expected.add(entry.getKey());
         });
 
-        List<ValidationMessage> errors = schema.validate(node);
-        final Set<String> actual = errors.stream().map(ValidationMessage::getProperty).map(Object::toString).collect(Collectors.toSet());
+        List<Error> errors = schema.validate(node);
+        final Set<String> actual = errors.stream().map(Error::getProperty).map(Object::toString).collect(Collectors.toSet());
         Assertions.assertEquals(expected, actual);
     }
 }

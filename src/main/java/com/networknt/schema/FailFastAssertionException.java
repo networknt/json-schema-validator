@@ -23,23 +23,23 @@ import java.util.Objects;
 /**
  * Thrown when an assertion happens and the evaluation can fail fast.
  * <p>
- * This doesn't extend off JsonSchemaException as it is used for flow control
+ * This doesn't extend off SchemaException as it is used for flow control
  * and is intended to be caught in a specific place.
  * <p>
- * This will be caught in the JsonSchema validate method to be passed to the
+ * This will be caught in the Schema validate method to be passed to the
  * output formatter.
  */
 public class FailFastAssertionException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private final ValidationMessage error;
+    private final Error error;
 
     /**
      * Constructor.
      *
      * @param error the validation message
      */
-    public FailFastAssertionException(ValidationMessage error) {
+    public FailFastAssertionException(Error error) {
         this.error = Objects.requireNonNull(error);
     }
 
@@ -48,7 +48,7 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public ValidationMessage getError() {
+    public Error getError() {
         return this.error;
     }
 
@@ -57,7 +57,7 @@ public class FailFastAssertionException extends RuntimeException {
      * 
      * @return the validation message
      */
-    public List<ValidationMessage> getErrors() {
+    public List<Error> getErrors() {
         return Collections.singletonList(this.error);
     }
 

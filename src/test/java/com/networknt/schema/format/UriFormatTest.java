@@ -23,11 +23,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.Error;
 
 class UriFormatTest {
     @Test
@@ -36,10 +35,9 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
         
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
-                InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf\"",
+                InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -48,11 +46,9 @@ class UriFormatTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
-
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
-                InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter[test]=1\"",
+                InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertFalse(messages.isEmpty());
     }
 
@@ -62,10 +58,9 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
-                InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"https://test.com/assets/product.pdf?filter%5Btest%5D=1\"",
+                InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -75,10 +70,9 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
-                InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"https://test.com/assets/produktdatenblätter.pdf\"",
+                InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertFalse(messages.isEmpty());
     }
 
@@ -87,10 +81,8 @@ class UriFormatTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
-
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"http://\"", InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"http://\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -100,9 +92,8 @@ class UriFormatTest {
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"//\"", InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"//\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 
@@ -111,10 +102,8 @@ class UriFormatTest {
         String schemaData = "{\r\n"
                 + "  \"format\": \"uri\"\r\n"
                 + "}";
-
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData, config);
-        List<ValidationMessage> messages = schema.validate("\"about:\"", InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate("\"about:\"", InputFormat.JSON, executionContext -> executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true)));
         assertTrue(messages.isEmpty());
     }
 }

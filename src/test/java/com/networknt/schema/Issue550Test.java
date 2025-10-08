@@ -10,9 +10,9 @@ import java.util.List;
 
 
 class Issue550Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(String schemaPath) {
+    protected Schema getJsonSchemaFromStreamContentV7(String schemaPath) {
         InputStream schemaContent = getClass().getResourceAsStream(schemaPath);
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
@@ -27,13 +27,13 @@ class Issue550Test {
     void testValidationMessageDoContainSchemaPath() throws Exception {
         String schemaPath = "/schema/issue500_1-v7.json";
         String dataPath = "/data/issue500_1.json";
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
-        List<ValidationMessage> errors = schema.validate(node);
-        ValidationMessage validationMessage = errors.stream().findFirst().get();
+        List<Error> errors = schema.validate(node);
+        Error error = errors.stream().findFirst().get();
 
-        Assertions.assertEquals("https://example.com/person.schema.json#/properties/age/minimum", validationMessage.getSchemaLocation().toString());
+        Assertions.assertEquals("https://example.com/person.schema.json#/properties/age/minimum", error.getSchemaLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 
@@ -41,14 +41,14 @@ class Issue550Test {
     void testValidationMessageDoContainSchemaPathForOneOf() throws Exception {
         String schemaPath = "/schema/issue500_2-v7.json";
         String dataPath = "/data/issue500_2.json";
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaPath);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaPath);
         JsonNode node = getJsonNodeFromStreamContent(dataPath);
 
-        List<ValidationMessage> errors = schema.validate(node);
-        ValidationMessage validationMessage = errors.stream().findFirst().get();
+        List<Error> errors = schema.validate(node);
+        Error error = errors.stream().findFirst().get();
 
         // Instead of capturing all subSchema within oneOf, a pointer to oneOf should be provided.
-        Assertions.assertEquals("https://example.com/person.schema.json#/oneOf", validationMessage.getSchemaLocation().toString());
+        Assertions.assertEquals("https://example.com/person.schema.json#/oneOf", error.getSchemaLocation().toString());
         Assertions.assertEquals(1, errors.size());
     }
 

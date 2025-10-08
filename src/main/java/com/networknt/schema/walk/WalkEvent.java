@@ -2,22 +2,22 @@ package com.networknt.schema.walk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonValidator;
+import com.networknt.schema.Schema;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 /**
- * Encapsulation of Walk data that is passed into the {@link JsonSchemaWalkListener}.
+ * Encapsulation of Walk data that is passed into the {@link WalkListener}.
  */
 public class WalkEvent {
 
     private ExecutionContext executionContext;
-    private JsonSchema schema;
+    private Schema schema;
     private String keyword;
     private JsonNode rootNode;
     private JsonNode instanceNode;
-    private JsonNodePath instanceLocation;
-    private JsonValidator validator;
+    private NodePath instanceLocation;
+    private KeywordValidator validator;
 
     /**
      * Gets the execution context.
@@ -38,7 +38,7 @@ public class WalkEvent {
      *
      * @return the schema
      */
-    public JsonSchema getSchema() {
+    public Schema getSchema() {
         return schema;
     }
 
@@ -77,7 +77,7 @@ public class WalkEvent {
      * 
      * @return the instance location of the instance node
      */
-    public JsonNodePath getInstanceLocation() {
+    public NodePath getInstanceLocation() {
         return instanceLocation;
     }
 
@@ -87,7 +87,7 @@ public class WalkEvent {
      * @return the validator
      */
     @SuppressWarnings("unchecked")
-    public <T extends JsonValidator> T getValidator() {
+    public <T extends KeywordValidator> T getValidator() {
         return (T) this.validator;
     }
 
@@ -110,7 +110,7 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder schema(JsonSchema schema) {
+        public WalkEventBuilder schema(Schema schema) {
             walkEvent.schema = schema;
             return this;
         }
@@ -130,12 +130,12 @@ public class WalkEvent {
             return this;
         }
 
-        public WalkEventBuilder instanceLocation(JsonNodePath instanceLocation) {
+        public WalkEventBuilder instanceLocation(NodePath instanceLocation) {
             walkEvent.instanceLocation = instanceLocation;
             return this;
         }
 
-        public WalkEventBuilder validator(JsonValidator validator) {
+        public WalkEventBuilder validator(KeywordValidator validator) {
             walkEvent.validator = validator;
             return this;
         }

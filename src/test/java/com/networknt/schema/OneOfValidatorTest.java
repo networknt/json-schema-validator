@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.path.PathType;
 
 /**
  * OneOfValidatorTest.
@@ -64,15 +65,16 @@ class OneOfValidatorTest {
                 + "  \"fox\" : \"test\",\r\n"
                 + "  \"world\" : \"test\"\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size()); // even if more than 1 matches the mismatch errors are still reported
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", assertions.get(0).getType());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
         assertEquals("$: must be valid to one and only one schema, but 2 are valid with indexes '1, 2'",
-                assertions.get(0).getMessage());
+                assertions.get(0).toString());
     }
 
     @Test
@@ -105,24 +107,25 @@ class OneOfValidatorTest {
         String inputData = "{\r\n"
                 + "  \"test\" : 1\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(4, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", assertions.get(0).getType());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", assertions.get(0).getKeyword());
         assertEquals("$", assertions.get(0).getInstanceLocation().toString());
         assertEquals("$.oneOf", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("$: must be valid to one and only one schema, but 0 are valid", assertions.get(0).getMessage());
+        assertEquals("$: must be valid to one and only one schema, but 0 are valid", assertions.get(0).toString());
 
-        assertEquals("additionalProperties", assertions.get(1).getType());
+        assertEquals("additionalProperties", assertions.get(1).getKeyword());
         assertEquals("$", assertions.get(1).getInstanceLocation().toString());
         assertEquals("$.oneOf[0].additionalProperties", assertions.get(1).getEvaluationPath().toString());
 
-        assertEquals("type", assertions.get(2).getType());
+        assertEquals("type", assertions.get(2).getKeyword());
         assertEquals("$.test", assertions.get(2).getInstanceLocation().toString());
         assertEquals("$.oneOf[1].additionalProperties.type", assertions.get(2).getEvaluationPath().toString());
 
-        assertEquals("type", assertions.get(3).getType());
+        assertEquals("type", assertions.get(3).getKeyword());
         assertEquals("$.test", assertions.get(3).getInstanceLocation().toString());
         assertEquals("$.oneOf[2].additionalProperties.type", assertions.get(3).getEvaluationPath().toString());
     }
@@ -137,8 +140,8 @@ class OneOfValidatorTest {
                 + "    \"$ref\": \"#/defs/User\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        SchemaException ex = assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
 
@@ -184,10 +187,10 @@ class OneOfValidatorTest {
                 + "        age:\r\n"
                 + "          type: integer";
         
-        JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
-                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders
+                                .resources(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
                         "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
         
@@ -258,10 +261,10 @@ class OneOfValidatorTest {
                 + "        - hunts\r\n"
                 + "        - age";
         
-        JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012,
-                        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders
-                                .schemas(Collections.singletonMap("http://example.org/example.yaml", document))))
+        Schema schema = SchemaRegistry
+                .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders
+                                .resources(Collections.singletonMap("http://example.org/example.yaml", document))))
                 .getSchema(SchemaLocation.of(
                         "http://example.org/example.yaml#/paths/~1pets/patch/requestBody/content/application~1json/schema"));
         
@@ -301,10 +304,9 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         String inputData = "{}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
     }
 
@@ -355,14 +357,13 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         // Valid
         String inputData = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": 1\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Invalid only 1 message returned for number
@@ -370,13 +371,12 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": {}\r\n"
                 + "}";
-        List<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        List<Error> messages2 = schema.validate(inputData2, InputFormat.JSON);
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
-        JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
-        List<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        Schema schema2 = SchemaRegistry.withDialect(Dialects.getDraft202012()).getSchema(schemaData);
+        List<Error> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }
 
@@ -443,14 +443,13 @@ class OneOfValidatorTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(true).build());
+        Schema schema = SchemaRegistry.withDialect(Dialects.getOpenApi31()).getSchema(schemaData);
         // Valid
         String inputData = "{\r\n"
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": 1\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         // Invalid only 1 message returned for number
@@ -458,13 +457,12 @@ class OneOfValidatorTest {
                 + "  \"type\": \"number\",\r\n"
                 + "  \"value\": {}\r\n"
                 + "}";
-        List<ValidationMessage> messages2 = schema.validate(inputData2, InputFormat.JSON);
+        List<Error> messages2 = schema.validate(inputData2, InputFormat.JSON);
         assertEquals(2, messages2.size());
 
         // Invalid both messages for string and object returned
-        JsonSchema schema2 = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().discriminatorKeywordEnabled(false).build());
-        List<ValidationMessage> messages3 = schema2.validate(inputData2, InputFormat.JSON);
+        Schema schema2 = SchemaRegistry.withDialect(Dialects.getDraft202012()).getSchema(schemaData);
+        List<Error> messages3 = schema2.validate(inputData2, InputFormat.JSON);
         assertEquals(3, messages3.size());
     }
 
@@ -489,11 +487,11 @@ class OneOfValidatorTest {
 
         String jsonContents = "{}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        JsonSchema schema = factory.getSchema(schemaContents);
-        ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
-        result.getValidationMessages().forEach(m -> System.out.println(m));
-        assertEquals(true, result.getValidationMessages().isEmpty());
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        Schema schema = factory.getSchema(schemaContents);
+        Result result = schema.walk(jsonContents, InputFormat.JSON, true);
+        result.getErrors().forEach(m -> System.out.println(m));
+        assertEquals(true, result.getErrors().isEmpty());
     }
 
 }

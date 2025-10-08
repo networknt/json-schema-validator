@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * AdditionalPropertiesValidatorTest.
  */
@@ -45,22 +43,21 @@ class AdditionalPropertiesValidatorTest {
                 + "  },\r\n"
                 + "  \"additionalProperties\": false\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalProperties", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalProperties", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("false", message.getSchemaNode().toString());
         assertEquals("{\"foo\":\"hello\",\"bar\":\"world\"}", message.getInstanceNode().toString());
-        assertEquals(": property 'bar' is not defined in the schema and the schema does not allow additional properties", message.getMessage());
+        assertEquals(": property 'bar' is not defined in the schema and the schema does not allow additional properties", message.toString());
         assertEquals("bar", message.getProperty());
     }
     
@@ -80,22 +77,21 @@ class AdditionalPropertiesValidatorTest {
                 + "  },\r\n"
                 + "  \"additionalProperties\": { \"type\": \"number\" }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/additionalProperties/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/additionalProperties/type", message.getSchemaLocation().toString());
         assertEquals("/bar", message.getInstanceLocation().toString());
         assertEquals("\"number\"", message.getSchemaNode().toString());
         assertEquals("\"world\"", message.getInstanceNode().toString());
-        assertEquals("/bar: string found, number expected", message.getMessage());
+        assertEquals("/bar: string found, number expected", message.toString());
         assertNull(message.getProperty());
     }
 

@@ -18,6 +18,13 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.AbstractKeyword;
+import com.networknt.schema.keyword.AbstractKeywordValidator;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,14 +47,14 @@ class CustomMetaSchemaTest {
      */
     static class EnumNamesKeyword extends AbstractKeyword {
 
-        private static final class Validator extends AbstractJsonValidator {
+        private static final class Validator extends AbstractKeywordValidator {
             private final List<String> enumValues;
             private final List<String> enumNames;
             private final String keyword;
 
-            private Validator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, String keyword,
+            private Validator(SchemaLocation schemaLocation, NodePath evaluationPath, String keyword,
                     List<String> enumValues, List<String> enumNames, JsonNode schemaNode) {
-                super(schemaLocation, evaluationPath, new EnumNamesKeyword(), schemaNode);
+                super(new EnumNamesKeyword(), schemaNode, schemaLocation, evaluationPath);
                 if (enumNames.size() != enumValues.size()) {
                     throw new IllegalArgumentException("enum and enumNames need to be of same length");
                 }
@@ -57,19 +64,19 @@ class CustomMetaSchemaTest {
             }
 
             @Override
-            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, JsonNodePath instanceLocation) {
+            public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
                 String value = node.asText();
                 int idx = enumValues.indexOf(value);
                 if (idx < 0) {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
                 }
                 String valueName = enumNames.get(idx);
-                ValidationMessage validationMessage = ValidationMessage.builder().type(keyword)
+                Error error = Error.builder().keyword(keyword)
                         .schemaNode(node)
                         .instanceNode(node)
-                        .code("tests.example.enumNames").message("{0}: enumName is {1}").instanceLocation(instanceLocation)
+                        .messageKey("tests.example.enumNames").message("enumName is {0}").instanceLocation(instanceLocation)
                         .arguments(valueName).build();
-                executionContext.addError(validationMessage);
+                executionContext.addError(error);
             }
         }
 
@@ -79,17 +86,17 @@ class CustomMetaSchemaTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                                          JsonSchema parentSchema, ValidationContext validationContext) throws JsonSchemaException, Exception {
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+                                          Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             /*
              * You can access the schema node here to read data from your keyword
              */
             if (!schemaNode.isArray()) {
-                throw new JsonSchemaException("Keyword enumNames needs to receive an array");
+                throw new SchemaException("Keyword enumNames needs to receive an array");
             }
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             if (!parentSchemaNode.has("enum")) {
-                throw new JsonSchemaException("Keyword enumNames needs to have a sibling enum keyword");
+                throw new SchemaException("Keyword enumNames needs to have a sibling enum keyword");
             }
             JsonNode enumSchemaNode = parentSchemaNode.get("enum");
 
@@ -99,7 +106,7 @@ class CustomMetaSchemaTest {
 
         private List<String> readStringList(JsonNode node) {
             if (!node.isArray()) {
-                throw new JsonSchemaException("Keyword enum needs to receive an array");
+                throw new SchemaException("Keyword enum needs to receive an array");
             }
             ArrayList<String> result = new ArrayList<String>(node.size());
             for (JsonNode child : node) {
@@ -112,24 +119,24 @@ class CustomMetaSchemaTest {
     @Test
     void customMetaSchemaWithIgnoredKeyword() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonMetaSchema metaSchema = JsonMetaSchema
-                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", JsonMetaSchema.getV4())
+        final Dialect dialect = Dialect
+                .builder("https://github.com/networknt/json-schema-validator/tests/schemas/example01", Dialects.getDraft4())
                 // Generated UI uses enumNames to render Labels for enum values
                 .keyword(new EnumNamesKeyword())
                 .build();
 
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)).metaSchema(metaSchema).build();
-        final JsonSchema schema = validatorFactory.getSchema("{\n" +
+        final SchemaRegistry validatorFactory = SchemaRegistry.withDialect(dialect);
+        final Schema schema = validatorFactory.getSchema("{\n" +
                 "  \"$schema\":\n" +
                 "    \"https://github.com/networknt/json-schema-validator/tests/schemas/example01\",\n" +
                 "  \"enum\": [\"foo\", \"bar\"],\n" +
                 "  \"enumNames\": [\"Foo !\", \"Bar !\"]\n" +
                 "}");
 
-        List<ValidationMessage> messages = schema.validate(objectMapper.readTree("\"foo\""));
+        List<Error> messages = schema.validate(objectMapper.readTree("\"foo\""));
         assertEquals(1, messages.size());
 
-        ValidationMessage message = messages.iterator().next();
-        assertEquals("$: enumName is Foo !", message.getMessage());
+        Error message = messages.iterator().next();
+        assertEquals(": enumName is Foo !", message.toString());
     }
 }

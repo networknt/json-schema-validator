@@ -23,8 +23,8 @@ import java.util.function.Function;
 
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationMessage;
-import com.networknt.schema.annotation.JsonNodeAnnotation;
+import com.networknt.schema.Error;
+import com.networknt.schema.annotation.Annotation;
 
 /**
  * Output Unit Data.
@@ -51,29 +51,13 @@ public class OutputUnitData {
         return droppedAnnotations;
     }
 
-    public static String formatAssertion(ValidationMessage validationMessage) {
-        return formatMessage(validationMessage.getMessage());
-    }
-
-    public static String formatMessage(String message) {
-        int index = message.indexOf(':');
-        if (index != -1) {
-            int length = message.length();
-            while (index + 1 < length) {
-                if (message.charAt(index + 1) == ' ') {
-                    index++;
-                } else {
-                    break;
-                }
-            }
-            return message.substring(index + 1);
-        }
-        return message;
+    public static String formatError(Error error) {
+        return error.getMessage();
     }
 
     @SuppressWarnings("unchecked")
-    public static OutputUnitData from(List<ValidationMessage> validationMessages, ExecutionContext executionContext,
-            Function<ValidationMessage, Object> assertionMapper) {
+    public static OutputUnitData from(List<Error> validationErrors, ExecutionContext executionContext,
+            Function<Error, Object> errorMapper) {
         OutputUnitData data = new OutputUnitData();
 
         Map<OutputUnitKey, Boolean> valid = data.valid;
@@ -81,31 +65,31 @@ public class OutputUnitData {
         Map<OutputUnitKey, Map<String, Object>> annotations = data.annotations;
         Map<OutputUnitKey, Map<String, Object>> droppedAnnotations = data.droppedAnnotations;
 
-        for (ValidationMessage assertion : validationMessages) {
-            SchemaLocation assertionSchemaLocation = new SchemaLocation(assertion.getSchemaLocation().getAbsoluteIri(),
-                    assertion.getSchemaLocation().getFragment().getParent());
-            OutputUnitKey key = new OutputUnitKey(assertion.getEvaluationPath().getParent(),
-                    assertionSchemaLocation, assertion.getInstanceLocation());
+        for (Error error : validationErrors) {
+            SchemaLocation assertionSchemaLocation = new SchemaLocation(error.getSchemaLocation().getAbsoluteIri(),
+                    error.getSchemaLocation().getFragment().getParent());
+            OutputUnitKey key = new OutputUnitKey(error.getEvaluationPath().getParent(),
+                    assertionSchemaLocation, error.getInstanceLocation());
             valid.put(key, false);
             Map<String, Object> errorMap = errors.computeIfAbsent(key, k -> new LinkedHashMap<>());
-            Object value = errorMap.get(assertion.getType());
+            Object value = errorMap.get(error.getKeyword());
             if (value == null) {
-                errorMap.put(assertion.getType(), assertionMapper.apply(assertion));
+                errorMap.put(error.getKeyword(), errorMapper.apply(error));
             } else {
                 // Existing error, make it into a list
                 if (value instanceof List) {
-                    ((List<Object>) value).add(assertionMapper.apply(assertion));
+                    ((List<Object>) value).add(errorMapper.apply(error));
                 } else {
                     List<Object> values = new ArrayList<>();
                     values.add(value.toString());
-                    values.add(assertionMapper.apply(assertion));
-                    errorMap.put(assertion.getType(), values);
+                    values.add(errorMapper.apply(error));
+                    errorMap.put(error.getKeyword(), values);
                 }
             }
         }
 
-        for (List<JsonNodeAnnotation> annotationsResult : executionContext.getAnnotations().asMap().values()) {
-            for (JsonNodeAnnotation annotation : annotationsResult) {
+        for (List<Annotation> annotationsResult : executionContext.getAnnotations().asMap().values()) {
+            for (Annotation annotation : annotationsResult) {
                 // As some annotations are required for computation, filter those that are not
                 // required for reporting
                 if (executionContext.getExecutionConfig().getAnnotationCollectionFilter()
@@ -116,7 +100,7 @@ public class OutputUnitData {
 
                     OutputUnitKey key = new OutputUnitKey(annotation.getEvaluationPath().getParent(),
                             annotationSchemaLocation, annotation.getInstanceLocation());
-                    boolean validResult = executionContext.getResults().isValid(annotation.getInstanceLocation(),
+                    boolean validResult = executionContext.getInstanceResults().isValid(annotation.getInstanceLocation(),
                             annotation.getEvaluationPath());
                     valid.put(key, validResult);
                     if (validResult) {

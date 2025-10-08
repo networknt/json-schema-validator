@@ -28,11 +28,14 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchemaFactory.Builder;
+import com.networknt.schema.SchemaRegistry.Builder;
+import com.networknt.schema.dialect.BasicDialectRegistry;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.MapSchemaMapper;
-import com.networknt.schema.resource.SchemaLoader;
-import com.networknt.schema.resource.SchemaMapper;
+import com.networknt.schema.resource.MapSchemaIdResolver;
+import com.networknt.schema.resource.ResourceLoader;
+import com.networknt.schema.resource.SchemaIdResolver;
 
 class UriMappingTest {
 
@@ -47,13 +50,13 @@ class UriMappingTest {
     @Test
     void testBuilderUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
-        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
-        Builder builder = JsonSchemaFactory.builder()
-                .defaultMetaSchemaIri(draftV4.getIri())
-                .metaSchema(draftV4)
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
-        JsonSchemaFactory instance = builder.build();
-        JsonSchema schema = instance.getSchema(SchemaLocation.of(
+        Dialect draftV4 = Dialects.getDraft4();
+        Builder builder = SchemaRegistry.builder()
+                .defaultDialectId(draftV4.getId())
+                .dialectRegistry(new BasicDialectRegistry(draftV4))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings)));
+        SchemaRegistry instance = builder.build();
+        Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
@@ -68,9 +71,9 @@ class UriMappingTest {
      */
     @Test
     void testBuilderExampleMappings() throws IOException {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if ("https://example.com/invalid/schema/url".equals(iri)) {
                     return () -> {
@@ -80,15 +83,15 @@ class UriMappingTest {
                 return null;
             }
         };
-        JsonSchemaFactory instance = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
+        SchemaRegistry instance = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)));
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
-            JsonSchema schema = instance.getSchema(example);
+            Schema schema = instance.getSchema(example);
             schema.validate(mapper.createObjectNode());
             fail("Expected exception not thrown");
-        } catch (JsonSchemaException ex) {
+        } catch (SchemaException ex) {
             Throwable cause = ex.getCause();
             if (!(cause instanceof IOException )) {
                 fail("Unexpected cause for JsonSchemaException", ex);
@@ -98,13 +101,13 @@ class UriMappingTest {
             fail("Unexpected exception thrown", ex);
         }
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
-        JsonMetaSchema draftV4 = JsonMetaSchema.getV4();
-        Builder builder = JsonSchemaFactory.builder()
-                .defaultMetaSchemaIri(draftV4.getIri())
-                .metaSchema(draftV4)
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings)));
+        Dialect draftV4 = Dialects.getDraft4();
+        Builder builder = SchemaRegistry.builder()
+                .defaultDialectId(draftV4.getId())
+                .dialectRegistry(new BasicDialectRegistry(draftV4))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings)));
         instance = builder.build();
-        JsonSchema schema = instance.getSchema(example);
+        Schema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
 
@@ -117,9 +120,9 @@ class UriMappingTest {
     @Test
     void testValidatorConfigUriMappingUri() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/uri-mapping.json");
-        JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
-        JsonSchema schema = instance.getSchema(SchemaLocation.of(
+        SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
+        Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
         assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
     }
@@ -134,9 +137,9 @@ class UriMappingTest {
      */
     @Test
     void testValidatorConfigExampleMappings() throws IOException {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if ("https://example.com/invalid/schema/url".equals(iri)) {
                     return () -> {
@@ -147,16 +150,15 @@ class UriMappingTest {
             }
         };        
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/invalid-schema-uri.json");
-        JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)))).build();
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
+        SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)))).build();
         SchemaLocation example = SchemaLocation.of("https://example.com/invalid/schema/url");
         // first test that attempting to use example URL throws an error
         try {
-            JsonSchema schema = instance.getSchema(example, config);
+            Schema schema = instance.getSchema(example);
             schema.validate(mapper.createObjectNode());
             fail("Expected exception not thrown");
-        } catch (JsonSchemaException ex) {
+        } catch (SchemaException ex) {
             Throwable cause = ex.getCause();
             if (!(cause instanceof IOException)) {
                 fail("Unexpected cause for JsonSchemaException");
@@ -165,24 +167,23 @@ class UriMappingTest {
         } catch (Exception ex) {
             fail("Unexpected exception thrown");
         }
-        instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
-        JsonSchema schema = instance.getSchema(example, config);
+        instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
+        Schema schema = instance.getSchema(example);
         assertEquals(0, schema.validate(mapper.createObjectNode()).size());
     }
 
     @Test
     void testMappingsForRef() throws IOException {
         URL mappings = UriMappingTest.class.getResource("/uri_mapping/schema-with-ref-mapping.json");
-        JsonSchemaFactory instance = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-                .schemaMappers(schemaMappers -> schemaMappers.add(getUriMappingsFromUrl(mappings))).build();
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = instance.getSchema(SchemaLocation.of("resource:uri_mapping/schema-with-ref.json"),
-                config);
+        SchemaRegistry instance = SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
+        Schema schema = instance.getSchema(SchemaLocation.of("resource:uri_mapping/schema-with-ref.json")
+                );
         assertEquals(0, schema.validate(mapper.readTree("[]")).size());
     }
 
-    private SchemaMapper getUriMappingsFromUrl(URL url) {
+    private SchemaIdResolver getUriMappingsFromUrl(URL url) {
         HashMap<String, String> map = new HashMap<String, String>();
         try {
             for (JsonNode mapping : mapper.readTree(url)) {
@@ -192,6 +193,6 @@ class UriMappingTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return new MapSchemaMapper(map);
+        return new MapSchemaIdResolver(map);
     }
 }

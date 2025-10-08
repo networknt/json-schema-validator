@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * Test MultipleOfValidator validator.
  */
@@ -47,14 +45,14 @@ class MultipleOfValidatorTest {
 
     @Test
     void test() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        JsonSchema schema = factory.getSchema(schemaData);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":123.892,\"value2\":123456.2934,\"value3\":123.123}";
         String validData = "{\"value1\":123.89,\"value2\":123456,\"value3\":123.010}";
         
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         messages = schema.validate(validData, InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -62,29 +60,30 @@ class MultipleOfValidatorTest {
 
     @Test
     void testTypeLoose() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        JsonSchema schema = factory.getSchema(schemaData);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         
         String inputData = "{\"value1\":\"123.892\",\"value2\":\"123456.2934\",\"value3\":123.123}";
         String validTypeLooseInputData = "{\"value1\":\"123.89\",\"value2\":\"123456.29\",\"value3\":123.12}";
         
         // Without type loose this has 2 type and 1 multipleOf errors
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
-        assertEquals(1, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
+        assertEquals(1, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         // 2 type errors
         messages = schema.validate(validTypeLooseInputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getType())).count());
+        assertEquals(2, messages.stream().filter(m -> "type".equals(m.getKeyword())).count());
         
         // With type loose this has 3 multipleOf errors
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-        JsonSchema typeLoose = factory.getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        Schema typeLoose = factory.getSchema(schemaData);
         messages = typeLoose.validate(inputData, InputFormat.JSON);
         assertEquals(3, messages.size());
-        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getType())).count());
+        assertEquals(3, messages.stream().filter(m -> "multipleOf".equals(m.getKeyword())).count());
         
         // No errors
         messages = typeLoose.validate(validTypeLooseInputData, InputFormat.JSON);

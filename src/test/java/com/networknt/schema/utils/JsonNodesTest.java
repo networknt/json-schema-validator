@@ -32,13 +32,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.Error;
 import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.serialization.JsonNodeReader;
+import com.networknt.schema.serialization.NodeReader;
 import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
 /**
  * Tests for JsonNodes.
@@ -58,17 +57,17 @@ class JsonNodesTest {
         JsonNode jsonNode = JsonNodes.readTree(JsonMapperFactory.getInstance(), schemaData,
                 LocationJsonNodeFactoryFactory.getInstance());
         JsonNode idNode = jsonNode.at("/$id");
-        JsonLocation location = JsonNodes.tokenLocationOf(idNode);
+        JsonLocation location = JsonNodes.tokenStreamLocationOf(idNode);
         assertEquals(2, location.getLineNr());
         assertEquals(10, location.getColumnNr());
 
         JsonNode formatNode = jsonNode.at("/properties/startDate/format");
-        location = JsonNodes.tokenLocationOf(formatNode);
+        location = JsonNodes.tokenStreamLocationOf(formatNode);
         assertEquals(5, location.getLineNr());
         assertEquals(17, location.getColumnNr());
 
         JsonNode minLengthNode = jsonNode.at("/properties/startDate/minLength");
-        location = JsonNodes.tokenLocationOf(minLengthNode);
+        location = JsonNodes.tokenStreamLocationOf(minLengthNode);
         assertEquals(6, location.getLineNr());
         assertEquals(20, location.getColumnNr());
     }
@@ -87,22 +86,21 @@ class JsonNodesTest {
         String inputData = "{\r\n"
                 + "  \"startDate\": \"1\"\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, InputFormat.JSON, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(nodeReader -> nodeReader.locationAware()));
+        Schema schema = factory.getSchema(schemaData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON, executionContext -> {
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        ValidationMessage format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
-        ValidationMessage minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        Error format = list.get(0);
+        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
+        Error minLength = list.get(1);
+        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
-        assertEquals("format", format.getType());
+        assertEquals("format", format.getKeyword());
 
         assertEquals("date", format.getSchemaNode().asText());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
@@ -112,7 +110,7 @@ class JsonNodesTest {
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
 
-        assertEquals("minLength", minLength.getType());
+        assertEquals("minLength", minLength.getKeyword());
 
         assertEquals("6", minLength.getSchemaNode().asText());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
@@ -133,22 +131,21 @@ class JsonNodesTest {
                 + "    minLength: 6\r\n";
         String inputData = "---\r\n"
                 + "startDate: '1'\r\n";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.jsonNodeReader(JsonNodeReader.builder().locationAware().build()));
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, InputFormat.YAML, config);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.nodeReader(NodeReader.builder().locationAware().build()));
+        Schema schema = factory.getSchema(schemaData, InputFormat.YAML);
+        List<Error> messages = schema.validate(inputData, InputFormat.YAML, executionContext -> {
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        ValidationMessage format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(format.getSchemaNode());
-        ValidationMessage minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenLocationOf(minLength.getSchemaNode());
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        Error format = list.get(0);
+        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
+        Error minLength = list.get(1);
+        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
-        assertEquals("format", format.getType());
+        assertEquals("format", format.getKeyword());
 
         assertEquals("date", format.getSchemaNode().asText());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
@@ -158,7 +155,7 @@ class JsonNodesTest {
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(12, formatInstanceNodeTokenLocation.getColumnNr());
 
-        assertEquals("minLength", minLength.getType());
+        assertEquals("minLength", minLength.getKeyword());
 
         assertEquals("6", minLength.getSchemaNode().asText());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
@@ -194,16 +191,16 @@ class JsonNodesTest {
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         JsonNode root = JsonNodes.readTree(objectMapper, json, LocationJsonNodeFactoryFactory.getInstance());
         JsonNode numberNode = root.at("/properties/number");
-        assertEquals(3, JsonNodes.tokenLocationOf(numberNode).getLineNr());
+        assertEquals(3, JsonNodes.tokenStreamLocationOf(numberNode).getLineNr());
         JsonNode stringNode = root.at("/properties/string");
-        assertEquals(4, JsonNodes.tokenLocationOf(stringNode).getLineNr());
+        assertEquals(4, JsonNodes.tokenStreamLocationOf(stringNode).getLineNr());
         JsonNode booleanNode = root.at("/properties/boolean");
-        assertEquals(5, JsonNodes.tokenLocationOf(booleanNode).getLineNr());
+        assertEquals(5, JsonNodes.tokenStreamLocationOf(booleanNode).getLineNr());
         JsonNode arrayNode = root.at("/properties/array");
-        assertEquals(6, JsonNodes.tokenLocationOf(arrayNode).getLineNr());
+        assertEquals(6, JsonNodes.tokenStreamLocationOf(arrayNode).getLineNr());
         JsonNode objectNode = root.at("/properties/object");
-        assertEquals(7, JsonNodes.tokenLocationOf(objectNode).getLineNr());
+        assertEquals(7, JsonNodes.tokenStreamLocationOf(objectNode).getLineNr());
         JsonNode nullNode = root.at("/properties/null");
-        assertEquals(8, JsonNodes.tokenLocationOf(nullNode).getLineNr());
+        assertEquals(8, JsonNodes.tokenStreamLocationOf(nullNode).getLineNr());
     }
 }

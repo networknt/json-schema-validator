@@ -12,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class Issue285Test {
     private final ObjectMapper mapper = new ObjectMapper();
-    private final JsonSchemaFactory schemaFactory = JsonSchemaFactory
-		.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-            .schemaMappers(schemaMappers -> schemaMappers
+    private final SchemaRegistry schemaFactory = SchemaRegistry
+		.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
+            .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                     .mapPrefix("http://json-schema.org", "resource:")
                     .mapPrefix("https://json-schema.org", "resource:"))
     		.build();
@@ -56,12 +56,12 @@ class Issue285Test {
     // The result is as expected, and we get a validation error.
     @Test
     void nestedValidation() throws IOException {
-        JsonSchema jsonSchema = schemaFactory.getSchema(schemaStr);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(person));
+        Schema jsonSchema = schemaFactory.getSchema(schemaStr);
+        List<Error> errors = jsonSchema.validate(mapper.readTree(person));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
 
 
     }
@@ -97,12 +97,12 @@ class Issue285Test {
     @Test
     void nestedTypeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
-        JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
+        Schema jsonSchema = schemaFactory.getSchema(uri);
+        List<Error> errors = jsonSchema.validate(mapper.readTree(invalidNestedSchema));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
     }
 
     String invalidSchema = "{\n" +
@@ -120,11 +120,11 @@ class Issue285Test {
     @Test
     void typeValidation() throws IOException {
         SchemaLocation uri = SchemaLocation.of("https://json-schema.org/draft/2019-09/schema");
-        JsonSchema jsonSchema = schemaFactory.getSchema(uri);
-        List<ValidationMessage> validationMessages = jsonSchema.validate(mapper.readTree(invalidSchema));
+        Schema jsonSchema = schemaFactory.getSchema(uri);
+        List<Error> errors = jsonSchema.validate(mapper.readTree(invalidSchema));
 
-        System.err.println("\n" + Arrays.toString(validationMessages.toArray()));
+        System.err.println("\n" + Arrays.toString(errors.toArray()));
 
-        assertFalse(validationMessages.isEmpty());
+        assertFalse(errors.isEmpty());
     }
 }

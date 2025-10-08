@@ -46,42 +46,39 @@ public class BaseJsonSchemaValidatorTest {
         return mapper.readTree(new URL(url));
     }
 
-    public static JsonSchema getJsonSchemaFromClasspath(String name) {
-        return getJsonSchemaFromClasspath(name, SpecVersion.VersionFlag.V4, null);
+    public static Schema getJsonSchemaFromClasspath(String name) {
+        return getJsonSchemaFromClasspath(name, SpecificationVersion.DRAFT_4, null);
     }
 
-    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion) {
+    public static Schema getJsonSchemaFromClasspath(String name, SpecificationVersion schemaVersion) {
         return getJsonSchemaFromClasspath(name, schemaVersion, null);
     }
 
-    public static JsonSchema getJsonSchemaFromClasspath(String name, SpecVersion.VersionFlag schemaVersion, SchemaValidatorsConfig config) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(schemaVersion);
+    public static Schema getJsonSchemaFromClasspath(String name, SpecificationVersion schemaVersion, SchemaRegistryConfig config) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(schemaVersion, builder -> builder.schemaRegistryConfig(config));
         InputStream is = Thread.currentThread().getContextClassLoader()
             .getResourceAsStream(name);
-        if (config == null) {
-            return factory.getSchema(is);
-        }
-        return factory.getSchema(is, config);
+        return factory.getSchema(is);
     }
 
-    public static JsonSchema getJsonSchemaFromStringContent(String schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    public static Schema getJsonSchemaFromStringContent(String schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(schemaContent);
     }
 
-    public static JsonSchema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    public static Schema getJsonSchemaFromUrl(String uri) throws URISyntaxException {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(SchemaLocation.of(uri));
     }
 
-    public static JsonSchema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    public static Schema getJsonSchemaFromJsonNode(JsonNode jsonNode) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         return factory.getSchema(jsonNode);
     }
 
     // Automatically detect version for given JsonNode
-    public static JsonSchema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonNode));
+    public static Schema getJsonSchemaFromJsonNodeAutomaticVersion(JsonNode jsonNode) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersionDetector.detect(jsonNode));
         return factory.getSchema(jsonNode);
     }
 

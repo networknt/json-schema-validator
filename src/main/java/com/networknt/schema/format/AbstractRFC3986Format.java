@@ -5,10 +5,9 @@ import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 /**
- * {@link AbstractFormat} for RFC 3986.
+ * {@link Format} for RFC 3986 Uniform Resource Identifier (URI): Generic Syntax.
  */
 public abstract class AbstractRFC3986Format implements Format {
     private static final Pattern VALID = Pattern.compile("([A-Za-z0-9+-\\.]*:)?//|[A-Za-z0-9+-\\.]+:");

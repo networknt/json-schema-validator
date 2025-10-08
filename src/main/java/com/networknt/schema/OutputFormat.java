@@ -32,12 +32,12 @@ public interface OutputFormat<T> {
     /**
      * Customize the execution context before validation.
      * <p>
-     * The validation context should only be used for reference as it is shared.
+     * The schema context should only be used for reference as it is shared.
      * 
      * @param executionContext  the execution context
-     * @param validationContext the validation context for reference
+     * @param schemaContext     the schema context for reference
      */
-    default void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+    default void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
     }
 
     /**
@@ -45,12 +45,12 @@ public interface OutputFormat<T> {
      * 
      * @param jsonSchema         the schema
      * @param executionContext   the execution context
-     * @param validationContext  the validation context
+     * @param schemaContext      the schema context
      * 
      * @return the result
      */
-    T format(JsonSchema jsonSchema, 
-            ExecutionContext executionContext, ValidationContext validationContext);
+    T format(Schema jsonSchema, 
+            ExecutionContext executionContext, SchemaContext schemaContext);
 
     /**
      * The Default output format.
@@ -88,15 +88,15 @@ public interface OutputFormat<T> {
     /**
      * The Default output format.
      */
-    class Default implements OutputFormat<java.util.List<ValidationMessage>> {
+    class Default implements OutputFormat<java.util.List<Error>> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
-        }
+		public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
+			executionContext.executionConfig(executionConfig -> executionConfig.annotationCollectionEnabled(false));
+		}
 
         @Override
-        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public java.util.List<Error> format(Schema jsonSchema,
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors();
         }
     }
@@ -106,14 +106,14 @@ public interface OutputFormat<T> {
      */
     class Flag implements OutputFormat<OutputFlag> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
-            executionContext.getExecutionConfig().setFailFast(true);
-        }
+		public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
+			executionContext.executionConfig(
+					executionConfig -> executionConfig.annotationCollectionEnabled(false).failFast(true));
+		}
 
         @Override
-        public OutputFlag format(JsonSchema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public OutputFlag format(Schema jsonSchema, 
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return new OutputFlag(executionContext.getErrors().isEmpty());
         }
     }
@@ -123,14 +123,14 @@ public interface OutputFormat<T> {
      */
     class Boolean implements OutputFormat<java.lang.Boolean> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
-            executionContext.getExecutionConfig().setAnnotationCollectionEnabled(false);
-            executionContext.getExecutionConfig().setFailFast(true);
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
+			executionContext.executionConfig(
+					executionConfig -> executionConfig.annotationCollectionEnabled(false).failFast(true));
         }
 
         @Override
-        public java.lang.Boolean format(JsonSchema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public java.lang.Boolean format(Schema jsonSchema, 
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors().isEmpty();
         }
     }
@@ -139,30 +139,30 @@ public interface OutputFormat<T> {
      * The List output format.
      */
     class List implements OutputFormat<OutputUnit> {
-        private final Function<ValidationMessage, Object> assertionMapper;
+        private final Function<Error, Object> errorMapper;
 
         public List() {
-            this(OutputUnitData::formatAssertion);
+            this(OutputUnitData::formatError);
         }
 
         /**
          * Constructor.
          * 
-         * @param assertionMapper to map the assertion
+         * @param errorMapper to map the error
          */
-        public List(Function<ValidationMessage, Object> assertionMapper) {
-            this.assertionMapper = assertionMapper;
+        public List(Function<Error, Object> errorMapper) {
+            this.errorMapper = errorMapper;
         }
 
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema,
-                ExecutionContext executionContext, ValidationContext validationContext) {
-            return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, validationContext,
-                    this.assertionMapper);
+        public OutputUnit format(Schema jsonSchema,
+                ExecutionContext executionContext, SchemaContext schemaContext) {
+            return ListOutputUnitFormatter.format(executionContext.getErrors(), executionContext, schemaContext,
+                    this.errorMapper);
         }
     }
 
@@ -170,30 +170,30 @@ public interface OutputFormat<T> {
      * The Hierarchical output format.
      */
     class Hierarchical implements OutputFormat<OutputUnit> {
-        private final Function<ValidationMessage, Object> assertionMapper;
+        private final Function<Error, Object> errorMapper;
 
         public Hierarchical() {
-            this(OutputUnitData::formatAssertion);
+            this(OutputUnitData::formatError);
         }
 
         /**
          * Constructor.
          * 
-         * @param assertionMapper to map the assertion
+         * @param errorMapper to map the error
          */
-        public Hierarchical(Function<ValidationMessage, Object> assertionMapper) {
-            this.assertionMapper = assertionMapper;
+        public Hierarchical(Function<Error, Object> errorMapper) {
+            this.errorMapper = errorMapper;
         }
 
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
-        public OutputUnit format(JsonSchema jsonSchema, 
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public OutputUnit format(Schema jsonSchema, 
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return HierarchicalOutputUnitFormatter.format(jsonSchema, executionContext.getErrors(), executionContext,
-                    validationContext, this.assertionMapper);
+            		schemaContext, this.errorMapper);
         }
     }
 
@@ -202,14 +202,15 @@ public interface OutputFormat<T> {
      * <p>
      * This is currently not exposed to consumers.
      */
-    class Result implements OutputFormat<ValidationResult> {
+    class Result implements OutputFormat<com.networknt.schema.Result> {
         @Override
-        public void customize(ExecutionContext executionContext, ValidationContext validationContext) {
+        public void customize(ExecutionContext executionContext, SchemaContext schemaContext) {
         }
 
         @Override
-        public ValidationResult format(JsonSchema jsonSchema,ExecutionContext executionContext, ValidationContext validationContext) {
-            return new ValidationResult(executionContext);
+        public com.networknt.schema.Result format(Schema jsonSchema, ExecutionContext executionContext,
+                SchemaContext schemaContext) {
+            return new com.networknt.schema.Result(executionContext);
         }
     }
 }

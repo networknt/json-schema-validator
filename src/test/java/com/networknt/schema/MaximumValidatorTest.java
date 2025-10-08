@@ -34,7 +34,7 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"maximum\": %s }";
     private static final String EXCLUSIVE_INTEGER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"integer\", \"maximum\": %s, \"exclusiveMaximum\": true}";
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
 
     private static final ObjectMapper mapper = new ObjectMapper();
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
@@ -181,21 +181,24 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
                 {"1.000000000000000000000001E+400", "\"1.0000000000000000000000011E+400\""},
         };
 
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+
         for (String[] aTestCycle : values) {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(NUMBER, maximum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
+
             // Schema and document parsed with just double
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format("Maximum %s and value %s are interpreted as Infinity, thus no schema violation should be reported", maximum, value));
 
             // document parsed with BigDecimal
 
             doc = bigDecimalMapper.readTree(value);
-            List<ValidationMessage> messages2 = v.validate(doc);
+            List<Error> messages2 = v.validate(doc);
             if (Double.valueOf(maximum).equals(Double.POSITIVE_INFINITY)) {
                 assertTrue(messages2.isEmpty(), format("Maximum %s and value %s are equal, thus no schema violation should be reported", maximum, value));
             } else {
@@ -204,8 +207,8 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
 
 
             // schema and document parsed with BigDecimal
-            v = factory.getSchema(bigDecimalMapper.readTree(schema), config);
-            List<ValidationMessage> messages3 = v.validate(doc);
+            v = factory.getSchema(bigDecimalMapper.readTree(schema));
+            List<Error> messages3 = v.validate(doc);
             //when the schema and value are both using BigDecimal, the value should be parsed in same mechanism.
             String theValue = value.toLowerCase().replace("\"", "");
             if (maximum.toLowerCase().equals(theValue)) {
@@ -226,9 +229,9 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String content = "1.7976931348623158e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
-        List<ValidationMessage> messages = v.validate(doc);
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -258,9 +261,9 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
         String content = "1.7976931348623160e+308";
 
         JsonNode doc = mapper.readTree(content);
-        JsonSchema v = factory.getSchema(mapper.readTree(schema));
+        Schema v = factory.getSchema(mapper.readTree(schema));
 
-        List<ValidationMessage> messages = v.validate(doc);
+        List<Error> messages = v.validate(doc);
         assertTrue(messages.isEmpty(), "Validation should succeed as by default double values are used by mapper");
 
         doc = bigDecimalMapper.readTree(content);
@@ -294,12 +297,12 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String maximum = aTestCycle[0];
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(true).build();
-
-            JsonSchema v = factory.getSchema(mapper.readTree(schema), config);
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(true).build();
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper.readTree(value);
 
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertTrue(messages.isEmpty(), format(MaximumValidatorTest.POSITIVE_TEST_CASE_TEMPLATE, maximum, value));
         }
     }
@@ -316,10 +319,10 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             String value = aTestCycle[1];
             String schema = format(schemaTemplate, maximum);
 
-            JsonSchema v = factory.getSchema(mapper.readTree(schema));
+            Schema v = factory.getSchema(mapper.readTree(schema));
             JsonNode doc = mapper2.readTree(value);
 
-            List<ValidationMessage> messages = v.validate(doc);
+            List<Error> messages = v.validate(doc);
             assertFalse(messages.isEmpty(), format(MaximumValidatorTest.NEGATIVE_TEST_CASE_TEMPLATE, value, maximum));
         }
     }

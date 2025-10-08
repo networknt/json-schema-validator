@@ -20,22 +20,20 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 class Issue936Test {
     @Test
     void shouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
+                () -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
         try {
-            JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
+            SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema);
         } catch (InvalidSchemaException e) {
-            assertEquals("/$id: '0' is not a valid $id", e.getMessage());
+            assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
     }
 }

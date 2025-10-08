@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 class Issue383Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
@@ -26,10 +26,10 @@ class Issue383Test {
         String schemaPath = "/schema/issue383-v7.json";
         String dataPath = "/data/issue383.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(0, errors.size());
     }
 }

@@ -22,8 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.serialization.JsonMapperFactory;
+import com.networknt.schema.vocabulary.Vocabulary;
 
 class Issue994Test {
     @Test
@@ -41,12 +43,12 @@ class Issue994Test {
                 + "        }\r\n"
                 + "    }\r\n"
                 + "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012()).vocabularies(vocabularies -> {
-            vocabularies.remove(Vocabulary.V202012_VALIDATION.getIri());
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012()).vocabularies(vocabularies -> {
+            vocabularies.remove(Vocabulary.DRAFT_2020_12_VALIDATION.getId());
         }).build();
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(schemaData);
-        JsonSchema schema = JsonSchemaFactory
-                .getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema)).getSchema(schemaNode);
+        Schema schema = SchemaRegistry
+                .withDialect(dialect).getSchema(schemaNode);
         String inputData = "{\r\n"
                 + "  \"textValue\": \"hello\"\r\n"
                 + "}";

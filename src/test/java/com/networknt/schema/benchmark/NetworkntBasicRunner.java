@@ -11,22 +11,22 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 
 /**
  * Basic Benchmark.
  */
 public class NetworkntBasicRunner implements Callable<Object> {
     private static final Logger logger = LoggerFactory.getLogger(NetworkntBasicRunner.class);
-    private JsonSchema jsonSchema;
+    private Schema jsonSchema;
     private JsonNode schemas;
     private List<String> schemaNames;
 
     public NetworkntBasicRunner() {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V4);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             ObjectReader reader = objectMapper.reader();

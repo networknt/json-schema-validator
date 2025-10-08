@@ -17,136 +17,86 @@ package com.networknt.schema;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.function.Function;
 
 /**
- * Context for holding the output returned by the {@link Collector}
- * implementations.
+ * Context for holding data which can be set by custom walkers or validators and
+ * can be retrieved later from the execution context.
  */
 public class CollectorContext {
     /**
-     * Map for holding the name and {@link Collector} or a simple Object.
+     * Map for the data.
      */
-    private final Map<String, Object> collectorMap;
-
-    /**
-     * Map for holding the name and {@link Collector} class collect method output.
-     */
-    private final Map<String, Object> collectorLoadMap;
+    private final Map<Object, Object> data;
 
     /**
      * Default constructor will use an unsynchronized HashMap to store data. This is
      * suitable if the collector context is not shared with multiple threads.
      */
     public CollectorContext() {
-        this(new HashMap<>(), new HashMap<>());
+        this(new HashMap<>());
+    }
+
+	/**
+	 * Constructor that creates the context using the specified instances to store
+	 * data.
+	 * <p>
+	 * If for instance the collector context needs to be shared with multiple
+	 * threads a ConcurrentHashMap can be used.
+	 * <p>
+	 * It is however more likely that the data will only be used after the walk or
+	 * validation is complete rather then during processing.
+	 *
+	 * @param data the data map
+	 */
+    public CollectorContext(Map<Object, Object> data) {
+        this.data = data;
     }
 
     /**
-     * Constructor that creates the context using the specified instances to store
-     * data.
-     * <p>
-     * If for instance the collector context needs to be shared with multiple
-     * threads a ConcurrentHashMap can be used.
+     * Sets data associated with a given key.
      *
-     * @param collectorMap the collector map
-     * @param collectorLoadMap the collector load map
+     * @param <T> the return type
+     * @param key   the key
+     * @param value the value
+     * @return the previous value
      */
-    public CollectorContext(Map<String, Object> collectorMap, Map<String, Object> collectorLoadMap) {
-        this.collectorMap = collectorMap;
-        this.collectorLoadMap = collectorLoadMap;
+    @SuppressWarnings("unchecked")
+    public <T> T put(Object key, Object value) {
+        return (T) this.data.put(key, value);
     }
 
     /**
-     * Adds a collector with give name. Preserving this method for backward
-     * compatibility.
-     *
-     * @param <E>       element
-     * @param name      String
-     * @param collector Collector
-     */
-    public <E> void add(String name, Collector<E> collector) {
-        this.collectorMap.put(name, collector);
-    }
-
-    /**
-     * Adds a collector or a simple object with give name.
-     *
-     * @param <E>    element
-     * @param object Object
-     * @param name   String
-     */
-    public <E> void add(String name, Object object) {
-        this.collectorMap.put(name, object);
-    }
-
-    /**
-     * Gets the data associated with a given name. Please note if you are collecting
-     * {@link Collector} instances you should wait till the validation is complete
-     * to gather all data.
-     * <p>
-     * When {@link CollectorContext} is used to collect {@link Collector} instances
-     * for a particular key, this method will return the {@link Collector} instance
-     * as long as {@link #loadCollectors} method is not called. Once
-     * the {@link #loadCollectors} method is called this method will
-     * return the actual data collected by collector.
-     *
-     * @param name String
-     * @return Object
-     */
-    public Object get(String name) {
-        Object object = this.collectorMap.get(name);
-        if (object instanceof Collector<?> && (this.collectorLoadMap.get(name) != null)) {
-            return this.collectorLoadMap.get(name);
-        }
-        return this.collectorMap.get(name);
-    }
-
-    /**
-     * Gets the collector map.
+     * Gets the data associated with a given key.
      * 
-     * @return the collector map
+     * @param <T> the return type
+     * @param key the key
+     * @return the value
      */
-    public Map<String, Object> getCollectorMap() {
-        return this.collectorMap;
+    @SuppressWarnings("unchecked")
+	public <T> T get(Object key) {
+        return (T) this.data.get(key);
     }
 
     /**
-     * Returns all the collected data. Please look into {@link #get(String)} method for more details.
-     * @return Map
-     */
-    public Map<String, Object> getAll() {
-        Map<String, Object> mergedMap = new HashMap<>();
-        mergedMap.putAll(this.collectorMap);
-        mergedMap.putAll(this.collectorLoadMap);
-        return mergedMap;
-    }
-
-    /**
-     * Combines data with Collector identified by the given name.
+     * Computes the value if absent.
      *
-     * @param name String
-     * @param data Object
+     * @param <T> the return type
+     * @param key the key
+     * @param mappingFunction the mapping function
+     * @return the value
      */
-    public void combineWithCollector(String name, Object data) {
-        Object object = this.collectorMap.get(name);
-        if (object instanceof Collector<?>) {
-            Collector<?> collector = (Collector<?>) object;
-            collector.combine(data);
-        }
+    @SuppressWarnings("unchecked")
+    public <T> T computeIfAbsent(Object key, Function<Object,Object> mappingFunction) {
+    	return (T) this.data.computeIfAbsent(key, mappingFunction);
     }
 
     /**
-     * Loads data from all collectors.
+     * Gets the data map.
+     * 
+     * @return the data map
      */
-    public void loadCollectors() {
-        Set<Entry<String, Object>> entrySet = this.collectorMap.entrySet();
-        for (Entry<String, Object> entry : entrySet) {
-            if (entry.getValue() instanceof Collector<?>) {
-                Collector<?> collector = (Collector<?>) entry.getValue();
-                this.collectorLoadMap.put(entry.getKey(), collector.collect());
-            }
-        }
+    public Map<Object, Object> getData() {
+        return this.data;
     }
 }

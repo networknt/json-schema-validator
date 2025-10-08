@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.DisallowUnknownJsonMetaSchemaFactory;
 import com.networknt.schema.InputFormat;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.Error;
 
 /**
  * OpenApi31Test.
@@ -39,16 +39,16 @@ class OpenApi31Test {
      */
     @Test
     void validateVocabulary() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.schemaMappers(schemaMappers -> schemaMappers
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                         .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
-        JsonSchema schema = factory
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"
@@ -57,9 +57,9 @@ class OpenApi31Test {
                 + "}";
         messages = schema.validate(invalid, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("bark", list.get(1).getProperty());
     }
 
@@ -68,16 +68,14 @@ class OpenApi31Test {
      */
     @Test
     void validateMetaSchema() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
-        JsonSchema schema = factory
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
 
         String invalid = "{\r\n"
@@ -86,9 +84,9 @@ class OpenApi31Test {
                 + "}";
         messages = schema.validate(invalid, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("bark", list.get(1).getProperty());
     }
 
@@ -98,19 +96,17 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfMultipleMatchShouldFail() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
-        JsonSchema schema = factory
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"bark\": \"woof\",\r\n"
                 + "  \"lovesRocks\": true\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", list.get(0).getKeyword());
     }
 
     /**
@@ -118,19 +114,17 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfNoMatchShouldFail() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
-        JsonSchema schema = factory
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"lizard\",\r\n"
                 + "  \"none\": true\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
-        List<ValidationMessage> list = messages.stream().collect(Collectors.toList());
-        assertEquals("oneOf", list.get(0).getType());
-        assertEquals("required", list.get(1).getType());
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> list = messages.stream().collect(Collectors.toList());
+        assertEquals("oneOf", list.get(0).getKeyword());
+        assertEquals("required", list.get(1).getKeyword());
         assertEquals("lovesRocks", list.get(1).getProperty());
     }
 
@@ -140,16 +134,14 @@ class OpenApi31Test {
      */
     @Test
     void discriminatorOneOfOneMatchWrongDiscriminatorShouldSucceed() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.metaSchema(OpenApi31.getInstance())
-                        .metaSchemaFactory(DisallowUnknownJsonMetaSchemaFactory.getInstance()));
-        JsonSchema schema = factory
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
         String input = "{\r\n"
                 + "  \"petType\": \"dog\",\r\n"
                 + "  \"lovesRocks\": true\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(input, InputFormat.JSON);
+        List<Error> messages = schema.validate(input, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
 

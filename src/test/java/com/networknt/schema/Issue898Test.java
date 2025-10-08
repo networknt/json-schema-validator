@@ -13,13 +13,13 @@ class Issue898Test extends BaseJsonSchemaValidatorTest {
 
     @Test
     void testMessagesWithSingleQuotes() throws Exception {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().locale(Locale.FRENCH).build();
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().locale(Locale.FRENCH).build();
 
-        JsonSchema schema = getJsonSchemaFromClasspath("schema/issue898.json", SpecVersion.VersionFlag.V202012, config);
+        Schema schema = getJsonSchemaFromClasspath("schema/issue898.json", SpecificationVersion.DRAFT_2020_12, config);
         JsonNode node = getJsonNodeFromClasspath("data/issue898.json");
 
         List<String> messages = schema.validate(node).stream()
-                .map(ValidationMessage::getMessage)
+                .map(Error::toString)
                 .collect(toList());
 
         Assertions.assertEquals(2, messages.size());

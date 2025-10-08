@@ -2,8 +2,10 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.BasicDialectRegistry;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,27 +33,27 @@ class JsonSchemaFactoryUriCacheTest {
 
     private void runCacheTest(boolean enableCache) throws JsonProcessingException {
         CustomURIFetcher fetcher = new CustomURIFetcher();
-        JsonSchemaFactory factory = buildJsonSchemaFactory(fetcher, enableCache);
+        SchemaRegistry factory = buildJsonSchemaFactory(fetcher, enableCache);
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");
         String schema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"string\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), schema);
-        assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri, SchemaValidatorsConfig.builder().build()).schemaNode);
+        assertEquals(objectMapper.readTree(schema), factory.getSchema(schemaUri).schemaNode);
 
         String modifiedSchema = "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"title\": \"json-object-with-schema\", \"type\": \"object\" }";
         fetcher.addResource(schemaUri.getAbsoluteIri(), modifiedSchema);
 
-        assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri, SchemaValidatorsConfig.builder().build()).schemaNode);
+        assertEquals(objectMapper.readTree(enableCache ? schema : modifiedSchema), factory.getSchema(schemaUri).schemaNode);
     }
 
-    private JsonSchemaFactory buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
-        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
-                .enableSchemaCache(enableSchemaCache)
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(uriFetcher))
-                .metaSchema(JsonMetaSchema.getV202012())
+    private SchemaRegistry buildJsonSchemaFactory(CustomURIFetcher uriFetcher, boolean enableSchemaCache) {
+        return SchemaRegistry.builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12))
+                .schemaCacheEnabled(enableSchemaCache)
+                .resourceLoaders(resourceLoaders -> resourceLoaders.add(uriFetcher))
+                .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012()))
                 .build();
     }
 
-    private class CustomURIFetcher implements SchemaLoader {
+    private class CustomURIFetcher implements ResourceLoader {
 
         private final Map<AbsoluteIri, InputStream> uriToResource = new HashMap<>();
 
@@ -64,7 +66,7 @@ class JsonSchemaFactoryUriCacheTest {
         }
 
         @Override
-        public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+        public InputStreamSource getResource(AbsoluteIri absoluteIri) {
             return () -> uriToResource.get(absoluteIri);
         }
     }

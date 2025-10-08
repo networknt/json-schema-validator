@@ -10,13 +10,13 @@ import java.io.InputStream;
 import java.util.List;
 
 class Issue313Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         return factory.getSchema(schemaContent);
     }
 
-    protected JsonSchema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    protected Schema getJsonSchemaFromStreamContentV201909(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 
@@ -32,10 +32,10 @@ class Issue313Test {
         String schemaPath = "/schema/issue313-2019-09.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV201909(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
     }
 
@@ -44,10 +44,10 @@ class Issue313Test {
         String schemaPath = "/schema/issue313-v7.json";
         String dataPath = "/data/issue313.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
     }
 

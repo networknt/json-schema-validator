@@ -22,7 +22,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.DisallowUnknownKeywordFactory;
 
 /**
  * Test ExclusiveMinimumValidator validator.
@@ -40,17 +42,16 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";        
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV4())
+        Dialect dialect = Dialect.builder(Dialects.getDraft4())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V4,
-                builder -> builder.metaSchema(metaSchema));
-        JsonSchema schema = factory.getSchema(schemaData);
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\"value1\":0}";
         String validData = "{\"value1\":0.1}";
         
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals(1, messages.stream().filter(m -> "minimum".equals(m.getType())).count());
+        assertEquals(1, messages.stream().filter(m -> "minimum".equals(m.getKeyword())).count());
         
         messages = schema.validate(validData, InputFormat.JSON);
         assertEquals(0, messages.size());
@@ -68,11 +69,10 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV6())
+        Dialect dialect = Dialect.builder(Dialects.getDraft6())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V6,
-                builder -> builder.metaSchema(metaSchema));
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
+        assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
 
     @Test
@@ -87,10 +87,9 @@ class ExclusiveMinimumValidatorTest {
                 "    }" +
                 "  }" +
                 "}";
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV7())
+        Dialect dialect = Dialect.builder(Dialects.getDraft7())
                 .unknownKeywordFactory(DisallowUnknownKeywordFactory.getInstance()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7,
-                builder -> builder.metaSchema(metaSchema));
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
+        assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
 }

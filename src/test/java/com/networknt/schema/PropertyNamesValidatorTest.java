@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * PropertyNamesValidatorTest.
  */
@@ -38,22 +36,21 @@ class PropertyNamesValidatorTest {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"propertyNames\": {\"maxLength\": 3}\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\": {},\r\n"
                 + "  \"foobar\": {}\r\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/propertyNames", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/propertyNames", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("{\"maxLength\":3}", message.getSchemaNode().toString());
         assertEquals("{\"foo\":{},\"foobar\":{}}", message.getInstanceNode().toString());
-        assertEquals(": property 'foobar' name is not valid: must be at most 3 characters long", message.getMessage());
+        assertEquals(": property 'foobar' name is not valid: must be at most 3 characters long", message.toString());
         assertEquals("foobar", message.getProperty());
     }
 }

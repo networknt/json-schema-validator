@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -40,13 +39,13 @@ class MetaSchemaValidationTest {
     void oas31() throws IOException {
         try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/3.1/petstore.json")) {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
-            SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-            JsonSchema schema = JsonSchemaFactory
-                    .getInstance(VersionFlag.V202012,
-                            builder -> builder.schemaMappers(schemaMappers -> schemaMappers
+            SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+            Schema schema = SchemaRegistry
+                    .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                            builder -> builder.schemaRegistryConfig(config).schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
-                    .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"), config);
-            List<ValidationMessage> messages = schema.validate(inputData);
+                    .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"));
+            List<Error> messages = schema.validate(inputData);
             assertEquals(0, messages.size());
         }
     }

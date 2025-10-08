@@ -12,8 +12,9 @@ import java.util.List;
  * Validating custom message
  */
 class Issue426Test {
-    protected JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+    protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().errorMessageKeyword("message").build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(schemaContent);
     }
 
@@ -27,15 +28,15 @@ class Issue426Test {
         String schemaPath = "/schema/issue426-v7.json";
         String dataPath = "/data/issue426.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
         final JsonNode message = schema.schemaNode.get("message");
-        for(ValidationMessage error : errors) {
+        for(Error error : errors) {
             //validating custom message
-            Assertions.assertEquals(message.get(error.getType()).asText(),  error.getMessage());
+            Assertions.assertEquals(message.get(error.getKeyword()).asText(),  error.getMessage());
         }
     }
 }

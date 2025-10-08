@@ -22,7 +22,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.format.Format;
+import com.networknt.schema.keyword.FormatKeyword;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 class FormatKeywordFactoryTest {
     
@@ -32,20 +37,19 @@ class FormatKeywordFactoryTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext) {
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
             throw new IllegalArgumentException();
         }
     }
     
     @Test
     void shouldUseFormatKeyword() {
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012())
                 .formatKeywordFactory(CustomFormatKeyword::new).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.metaSchema(metaSchema));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"
                 + "  \"format\": \"hello\"\r\n"
                 + "}";
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
 }

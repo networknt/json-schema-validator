@@ -19,13 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 class Issue935Test {
     @Test
     void shouldThrowInvalidSchemaException() {
         String schema = "{ \"$schema\": \"0\" }";
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(VersionFlag.V201909).getSchema(schema));
+                () -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09).getSchema(schema));
     }
 }

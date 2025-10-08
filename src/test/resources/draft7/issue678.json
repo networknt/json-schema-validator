@@ -48,7 +48,7 @@
           }
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           "/outerObject/innerObject: object found, string expected",
           "/outerObject/innerObject: required property 'value' not found",
           "/outerObject/innerObject: required property 'unit' not found", 

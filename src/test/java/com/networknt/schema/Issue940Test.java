@@ -19,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 class Issue940Test {
     @Test
     void shouldNotThrowException() {
@@ -31,7 +29,7 @@ class Issue940Test {
                 + "    \"greeting\": {}\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchema jsonSchema = JsonSchemaFactory.getInstance(VersionFlag.V7).getSchema(schema);
+        Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7).getSchema(schema);
         assertDoesNotThrow(() -> jsonSchema.initializeValidators());
     }
 }

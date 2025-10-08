@@ -19,36 +19,32 @@ class ReadOnlyValidatorTest {
 	@Test
 	void givenConfigWriteFalseWhenReadOnlyTrueThenAllows() throws IOException {
 		ObjectNode node = getJsonNode();
-		List<ValidationMessage> errors = loadJsonSchema(false).validate(node);
+		List<Error> errors = loadJsonSchema().validate(node, executionContext -> executionContext
+				.executionConfig(executionConfig -> executionConfig.readOnly(false)));
 		assertTrue(errors.isEmpty());
 	}
 
 	@Test
 	void givenConfigWriteTrueWhenReadOnlyTrueThenDenies() throws IOException {
 		ObjectNode node = getJsonNode();
-		List<ValidationMessage> errors = loadJsonSchema(true).validate(node);
+		List<Error> errors = loadJsonSchema().validate(node, executionContext -> executionContext
+				.executionConfig(executionConfig -> executionConfig.readOnly(true)));
 		assertFalse(errors.isEmpty());
 		assertEquals("/firstName: is a readonly field, it cannot be changed",
-				errors.stream().map(e -> e.getMessage()).collect(Collectors.toList()).get(0));
+				errors.stream().map(e -> e.toString()).collect(Collectors.toList()).get(0));
 	}
 
-	private JsonSchema loadJsonSchema(Boolean write) {
-		JsonSchema schema = this.getJsonSchema(write);
+	private Schema loadJsonSchema() {
+		Schema schema = this.getJsonSchema();
 		schema.initializeValidators();
 		return schema;
 
 	}
 
-	private JsonSchema getJsonSchema(Boolean write) {
-		JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-		SchemaValidatorsConfig schemaConfig = createSchemaConfig(write);
+	private Schema getJsonSchema() {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
 		InputStream schema = getClass().getClassLoader().getResourceAsStream("schema/read-only-schema.json");
-		return factory.getSchema(schema, schemaConfig);
-	}
-
-	private SchemaValidatorsConfig createSchemaConfig(Boolean write) {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(write).build();
-		return config;
+		return factory.getSchema(schema);
 	}
 
 	private ObjectNode getJsonNode() throws IOException {

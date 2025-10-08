@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class Issue493Test
 {
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
     private static final String schemaPath1 = "/schema/issue493.json";
 
     private JsonNode getJsonNodeFromJsonData (String jsonFilePath)
@@ -35,9 +35,9 @@ class Issue493Test
             throws Exception
     {
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
-        JsonSchema schema = factory.getSchema(schemaInputStream);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-valid-1.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -47,9 +47,9 @@ class Issue493Test
             throws Exception
     {
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
-        JsonSchema schema = factory.getSchema(schemaInputStream);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-valid-2.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -59,18 +59,18 @@ class Issue493Test
             throws Exception
     {
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
-        JsonSchema schema = factory.getSchema(schemaInputStream);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-1.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(2, errors.size());
 
         Set<String> allErrorMessages = new HashSet<>();
         errors.forEach(vm -> {
-            allErrorMessages.add(vm.getMessage());
+            allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages,
-                   Matchers.containsInAnyOrder("$.parameters[0].value: string found, integer expected",
-                                               "$.parameters[0].value: does not match the regex pattern ^\\{\\{.+\\}\\}$"));
+                   Matchers.containsInAnyOrder("/parameters/0/value: string found, integer expected",
+                                               "/parameters/0/value: does not match the regex pattern ^\\{\\{.+\\}\\}$"));
     }
 
     @Test
@@ -79,19 +79,19 @@ class Issue493Test
             throws Exception
     {
         InputStream schemaInputStream = Issue493Test.class.getResourceAsStream(schemaPath1);
-        JsonSchema schema = factory.getSchema(schemaInputStream);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/issue493-invalid-2.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
 
         Set<String> allErrorMessages = new HashSet<>();
         errors.forEach(vm -> {
-            allErrorMessages.add(vm.getMessage());
+            allErrorMessages.add(vm.toString());
         });
         assertThat(allErrorMessages, Matchers.containsInAnyOrder(
-            "$.parameters[1].value: string found, integer expected",
-            "$.parameters[1].value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
-            "$.parameters[1]: must be valid to one and only one schema, but 0 are valid"
+            "/parameters/1/value: string found, integer expected",
+            "/parameters/1/value: does not match the regex pattern ^\\{\\{.+\\}\\}$",
+            "/parameters/1: must be valid to one and only one schema, but 0 are valid"
         ));
     }
 }

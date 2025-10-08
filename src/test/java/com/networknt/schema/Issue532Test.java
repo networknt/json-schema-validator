@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class Issue532Test {
     @Test
     void failure() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        SchemaException ex = assertThrows(SchemaException.class, () -> {
             factory.getSchema("{ \"$schema\": true }");
         });
-        assertEquals("Unknown MetaSchema: true", ex.getMessage());
+        assertEquals("Unknown dialect: true", ex.getMessage());
     }
 }

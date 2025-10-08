@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.networknt.schema.resource;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+/**
+ * Resource Loaders used to load a resource given the retrieval IRI.
+ */
+public class ResourceLoaders extends ArrayList<ResourceLoader> {
+    private static final long serialVersionUID = 1L;
+
+    public ResourceLoaders() {
+        super();
+    }
+
+    public ResourceLoaders(Collection<? extends ResourceLoader> c) {
+        super(c);
+    }
+
+    public ResourceLoaders(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final ResourceLoaders values = new ResourceLoaders();
+
+        public Builder() {
+        }
+
+        public Builder(Builder copy) {
+            this.values.addAll(copy.values);
+        }
+
+        public Builder with(Builder builder) {
+            if (!builder.values.isEmpty()) {
+                this.values.addAll(builder.values);
+            }
+            return this;
+        }
+
+        /**
+         * Customize the resource loaders.
+         * 
+         * @param customizer the customizer
+         * @return the builder
+         */
+        public Builder values(Consumer<List<ResourceLoader>> customizer) {
+            customizer.accept(this.values);
+            return this;
+        }
+
+        /**
+         * Adds a resource loader.
+         * 
+         * @param resourceLoader the resource loader
+         * @return the builder
+         */
+        public Builder add(ResourceLoader resourceLoader) {
+            this.values.add(resourceLoader);
+            return this;
+        }
+
+        /**
+         * Sets the resource data by absolute IRI.
+         * 
+         * @param resources the map of IRI to resource data
+         * @return the builder
+         */
+        public Builder resources(Map<String, String> resources) {
+            this.values.add(new MapResourceLoader(resources));
+            return this;
+        }
+
+        /**
+         * Sets the resource data by absolute IRI function.
+         * 
+         * @param resources the function that returns resource data given IRI
+         * @return the builder
+         */
+        public Builder resources(Function<String, String> resources) {
+            this.values.add(new MapResourceLoader(resources));
+            return this;
+        }
+
+        /**
+         * Sets the resource data by using two mapping functions.
+         * <p>
+         * Firstly to map the IRI to an object. If the object is null no mapping is
+         * performed.
+         * <p>
+         * Next to map the object to the schema data.
+         * 
+         * @param <T>             the type of the object
+         * @param mapIriToObject  the mapping of IRI to object
+         * @param mapObjectToData the mappingof object to schema data
+         * @return the builder
+         */
+        public <T> Builder resources(Function<String, T> mapIriToObject, Function<T, String> mapObjectToData) {
+            this.values.add(new MapResourceLoader(mapIriToObject, mapObjectToData));
+            return this;
+        }
+
+        /**
+         * Builds a {@link ResourceLoaders}.
+         * 
+         * @return the resource loaders
+         */
+        public ResourceLoaders build() {
+            return values;
+        }
+    }
+}

@@ -16,26 +16,37 @@
 
 package com.networknt.schema;
 
-import com.networknt.schema.annotation.JsonNodeAnnotations;
-import com.networknt.schema.result.JsonNodeResults;
-
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import com.networknt.schema.annotation.Annotations;
+import com.networknt.schema.keyword.DiscriminatorState;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.result.InstanceResults;
+import com.networknt.schema.walk.WalkConfig;
 
 /**
  * Stores the execution context for the validation run.
  */
 public class ExecutionContext {
     private ExecutionConfig executionConfig;
+    private WalkConfig walkConfig = null;
     private CollectorContext collectorContext = null;
-    private Stack<DiscriminatorContext> discriminatorContexts = null;
-    private JsonNodeAnnotations annotations = null;
-    private JsonNodeResults results = null;
-    private List<ValidationMessage> errors = new ArrayList<>();
+
+    private Annotations annotations = null;
+    private InstanceResults instanceResults = null;
+    private List<Error> errors = new ArrayList<>();
+
+    private Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
     
-    /**
+    public Map<NodePath, DiscriminatorState> getDiscriminatorMapping() {
+		return discriminatorMapping;
+	}
+
+	/**
      * This is used during the execution to determine if the validator should fail fast.
      * <p>
      * This valid is determined by the previous validator.
@@ -46,7 +57,7 @@ public class ExecutionContext {
      * Creates an execution context.
      */
     public ExecutionContext() {
-        this(new ExecutionConfig(), null);
+        this(ExecutionConfig.getInstance(), null);
     }
 
     /**
@@ -55,7 +66,7 @@ public class ExecutionContext {
      * @param collectorContext the collector context
      */
     public ExecutionContext(CollectorContext collectorContext) {
-        this(new ExecutionConfig(), collectorContext);
+        this(ExecutionConfig.getInstance(), collectorContext);
     }
 
     /**
@@ -76,6 +87,27 @@ public class ExecutionContext {
     public ExecutionContext(ExecutionConfig executionConfig, CollectorContext collectorContext) {
         this.collectorContext = collectorContext;
         this.executionConfig = executionConfig;
+    }
+
+    /**
+     * Sets the walk configuration.
+     * 
+     * @param walkConfig the walk configuration
+     */
+    public void setWalkConfig(WalkConfig walkConfig) {
+        this.walkConfig = walkConfig;
+    }
+
+    /**
+     * Gets the walk configuration.
+     * 
+     * @return the walk configuration
+     */
+    public WalkConfig getWalkConfig() {
+        if (this.walkConfig == null) {
+            this.walkConfig = WalkConfig.getInstance();
+        }
+        return this.walkConfig;
     }
 
     /**
@@ -117,18 +149,18 @@ public class ExecutionContext {
         this.executionConfig = executionConfig;
     }
 
-    public JsonNodeAnnotations getAnnotations() {
+    public Annotations getAnnotations() {
         if (this.annotations == null) {
-            this.annotations = new JsonNodeAnnotations();
+            this.annotations = new Annotations();
         }
         return annotations;
     }
 
-    public JsonNodeResults getResults() {
-        if (this.results == null) {
-            this.results = new JsonNodeResults();
+    public InstanceResults getInstanceResults() {
+        if (this.instanceResults == null) {
+            this.instanceResults = new InstanceResults();
         }
-        return results;
+        return instanceResults;
     }
 
     /**
@@ -156,41 +188,40 @@ public class ExecutionContext {
         this.failFast = failFast;
     }
 
-    public DiscriminatorContext getCurrentDiscriminatorContext() {
-        if (this.discriminatorContexts == null) {
-            return null;
-        }
-
-        if (!this.discriminatorContexts.empty()) {
-            return this.discriminatorContexts.peek();
-        }
-        return null; // this is the case when we get on a schema that has a discriminator, but it's not used in anyOf
-    }
-
-    public void enterDiscriminatorContext(final DiscriminatorContext ctx, @SuppressWarnings("unused") JsonNodePath instanceLocation) {
-        if (this.discriminatorContexts == null) {
-            this.discriminatorContexts = new Stack<>();
-        }
-        this.discriminatorContexts.push(ctx);
-    }
-
-    public void leaveDiscriminatorContextImmediately(@SuppressWarnings("unused") JsonNodePath instanceLocation) {
-        this.discriminatorContexts.pop();
-    }
-
-    public List<ValidationMessage> getErrors() {
+    public List<Error> getErrors() {
         return this.errors;
     }
 
-    public void addError(ValidationMessage error) {
+    public void addError(Error error) {
+        this.errors.add(error);
         if (this.isFailFast()) {
-            this.errors = Collections.singletonList(error);
             throw new FailFastAssertionException(error);
         }
-        this.errors.add(error);
     }
 
-    public void setErrors(List<ValidationMessage> errors) {
+    public void setErrors(List<Error> errors) {
         this.errors = errors;
+    }
+
+    /**
+     * Customize the execution configuration.
+     *
+     * @param customizer the customizer
+     */
+    public void executionConfig(Consumer<ExecutionConfig.Builder> customizer) {
+    	ExecutionConfig.Builder builder = ExecutionConfig.builder(this.getExecutionConfig());
+    	customizer.accept(builder);
+    	this.executionConfig = builder.build();
+    }
+
+    /**
+     * Customize the walk configuration.
+     * 
+     * @param customizer the customizer
+     */
+    public void walkConfig(Consumer<WalkConfig.Builder> customizer) {
+    	WalkConfig.Builder builder = WalkConfig.builder(this.getWalkConfig());
+    	customizer.accept(builder);
+    	this.walkConfig = builder.build();
     }
 }

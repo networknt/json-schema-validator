@@ -28,14 +28,14 @@ class DependentRequiredTest {
             "   }" +
             "}";
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-    private static final JsonSchema schema = factory.getSchema(SCHEMA);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
+    private static final Schema schema = factory.getSchema(SCHEMA);
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     void shouldReturnNoErrorMessagesForObjectWithoutOptionalField() throws IOException {
 
-        List<ValidationMessage> messages = whenValidate("{}");
+        List<Error> messages = whenValidate("{}");
 
         assertThat(messages, empty());
     }
@@ -43,23 +43,23 @@ class DependentRequiredTest {
     @Test
     void shouldReturnErrorMessageForObjectWithoutDependentRequiredField() throws IOException {
 
-        List<ValidationMessage> messages = whenValidate("{ \"optional\": \"present\" }");
+        List<Error> messages = whenValidate("{ \"optional\": \"present\" }");
 
         assertThat(
-            messages.stream().map(ValidationMessage::getMessage).collect(Collectors.toList()),
-            contains("$: has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
+            messages.stream().map(Error::toString).collect(Collectors.toList()),
+            contains(": has a missing property 'requiredWhenOptionalPresent' which is dependent required because 'optional' is present"));
     }
 
     @Test
     void shouldReturnNoErrorMessagesForObjectWithOptionalAndDependentRequiredFieldSet() throws JsonProcessingException {
 
-        List<ValidationMessage> messages =
+        List<Error> messages =
             whenValidate("{ \"optional\": \"present\", \"requiredWhenOptionalPresent\": \"present\" }");
 
         assertThat(messages, empty());
     }
 
-    private static List<ValidationMessage> whenValidate(String content) throws JsonProcessingException {
+    private static List<Error> whenValidate(String content) throws JsonProcessingException {
         return schema.validate(mapper.readTree(content));
     }
 

@@ -18,7 +18,6 @@ package com.networknt.schema.format;
 
 import com.networknt.org.apache.commons.validator.routines.EmailValidator;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 /**
  * Format for email.

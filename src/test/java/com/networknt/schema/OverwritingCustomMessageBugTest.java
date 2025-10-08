@@ -2,7 +2,9 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.path.PathType;
+import com.networknt.schema.regex.JDKRegularExpressionFactory;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +13,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class OverwritingCustomMessageBugTest {
-  private JsonSchema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
-    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
+  private Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
+      SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(PathType.LEGACY)
+              .errorMessageKeyword("message")
+              .regularExpressionFactory(JDKRegularExpressionFactory.getInstance()).build();
+      SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
     return factory.getSchema(schemaContent);
   }
 
@@ -23,7 +28,7 @@ class OverwritingCustomMessageBugTest {
 
   @Test
   void customMessageIsNotOverwritten() throws Exception {
-    List<ValidationMessage> errors = validate();
+    List<Error> errors = validate();
     Map<String, String> errorMsgMap = transferErrorMsg(errors);
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].foos"), "error message must contains key: $.foos");
     Assertions.assertTrue(errorMsgMap.containsKey("$.toplevel[1].bars"), "error message must contains key: $.bars");
@@ -32,20 +37,20 @@ class OverwritingCustomMessageBugTest {
   }
 
 
-  private List<ValidationMessage> validate() throws Exception {
+  private List<Error> validate() throws Exception {
     String schemaPath = "/schema/OverwritingCustomMessageBug.json";
     String dataPath = "/data/OverwritingCustomMessageBug.json";
     InputStream schemaInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(schemaPath);
-    JsonSchema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
+    Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
     InputStream dataInputStream = OverwritingCustomMessageBugTest.class.getResourceAsStream(dataPath);
     JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
     return schema.validate(node);
   }
 
-  private Map<String, String> transferErrorMsg(List<ValidationMessage> validationMessages) {
+  private Map<String, String> transferErrorMsg(List<Error> errors) {
     Map<String, String> pathToMessage = new HashMap<>();
-    validationMessages.forEach(msg -> {
-      pathToMessage.put(msg.getInstanceLocation().toString(), msg.getMessage());
+    errors.forEach(msg -> {
+      pathToMessage.put(msg.getInstanceLocation().toString(), msg.toString());
     });
     return pathToMessage;
   }

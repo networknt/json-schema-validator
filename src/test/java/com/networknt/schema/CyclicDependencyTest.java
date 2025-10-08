@@ -10,8 +10,8 @@ class CyclicDependencyTest {
     @Test
     void whenDependencyBetweenSchemaThenValidationSuccessful() throws Exception {
 
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
+        SchemaRegistry schemaFactory = SchemaRegistry
+            .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4))
             .build();
         String jsonObject = "{\n" +
                 "  \"element\": {\n" +
@@ -32,8 +32,7 @@ class CyclicDependencyTest {
                 "  ]\n" +
                 "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = schemaFactory.getSchema(SchemaLocation.of("resource:/draft4/issue258/Master.json"), config);
+        Schema schema = schemaFactory.getSchema(SchemaLocation.of("resource:/draft4/issue258/Master.json"));
         assertEquals(0, schema.validate(new ObjectMapper().readTree(jsonObject)).size());
     }
 

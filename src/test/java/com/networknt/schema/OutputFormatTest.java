@@ -17,12 +17,11 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.utils.CachingSupplier;
 
 class OutputFormatTest {
 
-    private static final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    private static final SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
     private static final String schemaPath1 = "/schema/output-format-schema.json";
 
     private JsonNode getJsonNodeFromJsonData(String jsonFilePath) throws Exception {
@@ -35,14 +34,13 @@ class OutputFormatTest {
     @DisplayName("Test Validation Messages")
     void testInvalidJson() throws Exception {
         InputStream schemaInputStream = OutputFormatTest.class.getResourceAsStream(schemaPath1);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaInputStream, config);
+        Schema schema = factory.getSchema(schemaInputStream);
         JsonNode node = getJsonNodeFromJsonData("/data/output-format-input.json");
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         Assertions.assertEquals(3, errors.size());
 
         Set<String[]> messages = errors.stream().map(m -> new String[] { m.getEvaluationPath().toString(),
-                m.getSchemaLocation().toString(), m.getInstanceLocation().toString(), m.getMessage() })
+                m.getSchemaLocation().toString(), m.getInstanceLocation().toString(), m.toString() })
                 .collect(Collectors.toSet());
         
         assertThat(messages,
@@ -53,8 +51,8 @@ class OutputFormatTest {
                         new String[] { "/items/$ref/required", "https://example.com/polygon#/$defs/point/required", "/1", "/1: required property 'y' not found"}));
     }
 
-    public static class Detailed implements OutputFormat<List<ValidationMessage>> {
-        private ValidationMessage format(ValidationMessage message) {
+    public static class Detailed implements OutputFormat<List<Error>> {
+        private Error format(Error message) {
             Supplier<String> messageSupplier = () -> {
                 StringBuilder builder = new StringBuilder();
                 builder.append("[");
@@ -68,11 +66,11 @@ class OutputFormatTest {
                     builder.append("'");
                     builder.append(" ");
                 }
-                builder.append(message.getError());
+                builder.append(message.getMessage());
 
                 return builder.toString();
             };
-            return ValidationMessage.builder()
+            return Error.builder()
                     .messageSupplier(new CachingSupplier<>(messageSupplier))
                     .evaluationPath(message.getEvaluationPath())
                     .instanceLocation(message.getInstanceLocation())
@@ -84,13 +82,13 @@ class OutputFormatTest {
         }
 
         @Override
-        public java.util.List<ValidationMessage> format(JsonSchema jsonSchema,
-                ExecutionContext executionContext, ValidationContext validationContext) {
+        public java.util.List<Error> format(Schema jsonSchema,
+                ExecutionContext executionContext, SchemaContext schemaContext) {
             return executionContext.getErrors().stream().map(this::format).collect(Collectors.toCollection(ArrayList::new));
         }
     }
 
-    public static final OutputFormat<List<ValidationMessage>> DETAILED = new Detailed();
+    public static final OutputFormat<List<Error>> DETAILED = new Detailed();
 
     @Test
     void customFormat() {
@@ -107,13 +105,13 @@ class OutputFormatTest {
                 + "    }\n"
                 + "  }\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012)
-                .getSchema(schemaData, InputFormat.JSON, SchemaValidatorsConfig.builder().build());
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+                .getSchema(schemaData, InputFormat.JSON);
         String inputData = "{\n"
                 + "  \"type\": \"cat\",\n"
                 + "  \"id\": 1\n"
                 + "}";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON, DETAILED).stream().collect(Collectors.toList());
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON, DETAILED).stream().collect(Collectors.toList());
         assertEquals("[/type] with value 'cat' does not have a value in the enumeration [\"book\", \"author\"]", messages.get(0).getMessage());
         assertEquals("[/id] with value '1' integer found, string expected", messages.get(1).getMessage());
     }

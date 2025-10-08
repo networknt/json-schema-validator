@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -54,15 +53,14 @@ class ContentSchemaValidatorTest {
                 + "        ]\r\n"
                 + "    }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
 
         String inputData = "\"helloworld\"";
 
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.LIST, executionConfiguration -> {
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionEnabled(true);
-            executionConfiguration.getExecutionConfig().setAnnotationCollectionFilter(keyword -> true);
+            executionConfiguration.executionConfig(executionConfig -> executionConfig
+					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
         });
         String output = JsonMapperFactory.getInstance().writeValueAsString(outputUnit);
         String expected = "{\"valid\":true,\"details\":[{\"valid\":true,\"evaluationPath\":\"\",\"schemaLocation\":\"#\",\"instanceLocation\":\"\",\"annotations\":{\"contentMediaType\":\"application/jwt\",\"contentSchema\":{\"type\":\"array\",\"minItems\":2,\"prefixItems\":[{\"const\":{\"typ\":\"JWT\",\"alg\":\"HS256\"}},{\"type\":\"object\",\"required\":[\"iss\",\"exp\"],\"properties\":{\"iss\":{\"type\":\"string\"},\"exp\":{\"type\":\"integer\"}}}]}}}]}";

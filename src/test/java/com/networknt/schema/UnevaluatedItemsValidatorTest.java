@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * UnevaluatedItemsValidatorTest.
  */
@@ -43,16 +41,16 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : false\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("unevaluatedItems", assertions.get(0).getType());
-        assertEquals("$", assertions.get(0).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("unevaluatedItems", assertions.get(1).getType());
-        assertEquals("$", assertions.get(1).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("unevaluatedItems", assertions.get(0).getKeyword());
+        assertEquals("", assertions.get(0).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems", assertions.get(0).getEvaluationPath().toString());
+        assertEquals("unevaluatedItems", assertions.get(1).getKeyword());
+        assertEquals("", assertions.get(1).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems", assertions.get(1).getEvaluationPath().toString());
     }
 
     @Test
@@ -69,15 +67,15 @@ class UnevaluatedItemsValidatorTest {
                 + "  \"unevaluatedItems\" : { \"type\" : \"string\" }\r\n"
                 + "}";
         String inputData = "[1,2,3]";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertEquals(2, messages.size());
-        List<ValidationMessage> assertions = messages.stream().collect(Collectors.toList());
-        assertEquals("type", assertions.get(0).getType());
-        assertEquals("$[1]", assertions.get(0).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems.type", assertions.get(0).getEvaluationPath().toString());
-        assertEquals("type", assertions.get(1).getType());
-        assertEquals("$[2]", assertions.get(1).getInstanceLocation().toString());
-        assertEquals("$.unevaluatedItems.type", assertions.get(1).getEvaluationPath().toString());
+        List<Error> assertions = messages.stream().collect(Collectors.toList());
+        assertEquals("type", assertions.get(0).getKeyword());
+        assertEquals("/1", assertions.get(0).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems/type", assertions.get(0).getEvaluationPath().toString());
+        assertEquals("type", assertions.get(1).getKeyword());
+        assertEquals("/2", assertions.get(1).getInstanceLocation().toString());
+        assertEquals("/unevaluatedItems/type", assertions.get(1).getEvaluationPath().toString());
     }
 }

@@ -22,29 +22,32 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
+import com.networknt.schema.keyword.BaseKeywordValidator;
+import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.keyword.KeywordValidator;
+import com.networknt.schema.path.NodePath;
 
 /**
  * Test for messages.
  */
 class MessageTest {
-    static class EqualsValidator extends BaseJsonValidator {
-        private static final ErrorMessageType ERROR_MESSAGE_TYPE = () -> "equals";
-        
+    static class EqualsValidator extends BaseKeywordValidator {
         private final String value;
 
-        EqualsValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath, JsonNode schemaNode,
-                JsonSchema parentSchema, Keyword keyword,
-                ValidationContext validationContext) {
-            super(schemaLocation, evaluationPath, schemaNode, parentSchema, ERROR_MESSAGE_TYPE, keyword, validationContext);
+        EqualsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+                Schema parentSchema, Keyword keyword,
+                SchemaContext schemaContext) {
+            super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
             this.value = schemaNode.textValue();
         }
 
         @Override
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
-                JsonNodePath instanceLocation) {
+                NodePath instanceLocation) {
             if (!node.asText().equals(value)) {
-                executionContext.addError(message().message("{0}: must be equal to ''{1}''")
+                executionContext.addError(error().message("must be equal to ''{0}''")
                                 .arguments(value)
                                 .instanceLocation(instanceLocation).instanceNode(node).build());
             }
@@ -59,26 +62,26 @@ class MessageTest {
         }
 
         @Override
-        public JsonValidator newValidator(SchemaLocation schemaLocation, JsonNodePath evaluationPath,
-                JsonNode schemaNode, JsonSchema parentSchema, ValidationContext validationContext)
-                throws JsonSchemaException, Exception {
-            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, validationContext);
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath,
+                JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext)
+                throws SchemaException, Exception {
+            return new EqualsValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, this, schemaContext);
         }
     }
 
     @Test
     void message() {
-        JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012().getIri(), JsonMetaSchema.getV202012())
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012().getId(), Dialects.getDraft202012())
                 .keyword(new EqualsKeyword()).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012, builder -> builder.metaSchema(metaSchema));
+        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"equals\": \"helloworld\"\r\n"
                 + "}";
-        JsonSchema schema = factory.getSchema(schemaData);
-        List<ValidationMessage> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
+        Schema schema = factory.getSchema(schemaData);
+        List<Error> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
-        assertEquals("$: must be equal to 'helloworld'", messages.iterator().next().getMessage());
+        assertEquals(": must be equal to 'helloworld'", messages.iterator().next().toString());
         
         messages = schema.validate("\"helloworld\"", InputFormat.JSON);
         assertEquals(0, messages.size());

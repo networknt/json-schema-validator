@@ -16,7 +16,7 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,16 +32,16 @@ import java.io.FileInputStream;
 
 class Issue619Test {
 
-    private JsonSchemaFactory factory;
+    private SchemaRegistry factory;
     private JsonNode one;
     private JsonNode two;
     private JsonNode three;
 
     @BeforeEach
     void setup() throws Exception {
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if (iri.startsWith("http://localhost:1234")) {
                     return () -> {
@@ -53,8 +53,8 @@ class Issue619Test {
             }
         };
 
-        factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader)));
+        factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4,
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader)));
         one = getJsonNodeFromStringContent("1");
         two = getJsonNodeFromStringContent("2");
         three = getJsonNodeFromStringContent("3");
@@ -62,7 +62,7 @@ class Issue619Test {
 
     @Test
     void bundledSchemaLoadsAndValidatesCorrectly_Ref() {
-        JsonSchema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json\" }");
+        Schema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json\" }");
 
         assertTrue(referencingRootSchema.validate(one).isEmpty());
         assertTrue(referencingRootSchema.validate(two).isEmpty());
@@ -71,7 +71,7 @@ class Issue619Test {
 
     @Test
     void bundledSchemaLoadsAndValidatesCorrectly_Uri() throws Exception {
-        JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json"));
+        Schema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
         assertTrue(rootSchema.validate(two).isEmpty());
@@ -80,7 +80,7 @@ class Issue619Test {
 
     @Test
     void uriWithEmptyFragment_Ref() {
-        JsonSchema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#\" }");
+        Schema referencingRootSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#\" }");
 
         assertTrue(referencingRootSchema.validate(one).isEmpty());
         assertTrue(referencingRootSchema.validate(two).isEmpty());
@@ -89,7 +89,7 @@ class Issue619Test {
 
     @Test
     void uriWithEmptyFragment_Uri() throws Exception {
-        JsonSchema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#"));
+        Schema rootSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#"));
 
         assertTrue(rootSchema.validate(one).isEmpty());
         assertTrue(rootSchema.validate(two).isEmpty());
@@ -98,7 +98,7 @@ class Issue619Test {
 
     @Test
     void uriThatPointsToTwoShouldOnlyValidateTwo_Ref() {
-        JsonSchema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/two\" }");
+        Schema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/two\" }");
 
         assertFalse(referencingTwoSchema.validate(one).isEmpty());
         assertTrue(referencingTwoSchema.validate(two).isEmpty());
@@ -107,7 +107,7 @@ class Issue619Test {
 
     @Test
     void uriThatPointsToOneShouldOnlyValidateOne_Uri() throws Exception {
-        JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/one"));
+        Schema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/one"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
         assertFalse(oneSchema.validate(two).isEmpty());
@@ -116,7 +116,7 @@ class Issue619Test {
 
     @Test
     void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Ref() {
-        JsonSchema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/refToOne\" }");
+        Schema referencingTwoSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/refToOne\" }");
 
         assertTrue(referencingTwoSchema.validate(one).isEmpty());
         assertFalse(referencingTwoSchema.validate(two).isEmpty());
@@ -125,7 +125,7 @@ class Issue619Test {
 
     @Test
     void uriThatPointsToNodeThatInTurnReferencesOneShouldOnlyValidateOne_Uri() throws Exception {
-        JsonSchema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/refToOne"));
+        Schema oneSchema = factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/refToOne"));
 
         assertTrue(oneSchema.validate(one).isEmpty());
         assertFalse(oneSchema.validate(two).isEmpty());
@@ -137,7 +137,7 @@ class Issue619Test {
         JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
         JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-        JsonSchema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:tests/draft4/refRemote.json#/3/schema\" }");
+        Schema schemaWithIdFromRef = factory.getSchema("{ \"$ref\": \"resource:tests/draft4/refRemote.json#/3/schema\" }");
         assertTrue(schemaWithIdFromRef.validate(oneArray).isEmpty());
         assertFalse(schemaWithIdFromRef.validate(textArray).isEmpty());
     }
@@ -147,28 +147,28 @@ class Issue619Test {
         JsonNode oneArray = getJsonNodeFromStringContent("[[1]]");
         JsonNode textArray = getJsonNodeFromStringContent("[[\"a\"]]");
 
-        JsonSchema schemaWithIdFromUri = factory.getSchema(SchemaLocation.of("resource:tests/draft4/refRemote.json#/3/schema"));
+        Schema schemaWithIdFromUri = factory.getSchema(SchemaLocation.of("resource:tests/draft4/refRemote.json#/3/schema"));
         assertTrue(schemaWithIdFromUri.validate(oneArray).isEmpty());
         assertFalse(schemaWithIdFromUri.validate(textArray).isEmpty());
     }
 
     @Test
     void uriThatPointsToSchemaThatDoesNotExistShouldFail_Ref() {
-        JsonSchema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:data/schema-that-does-not-exist.json#/definitions/something\" }");
+        Schema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:data/schema-that-does-not-exist.json#/definitions/something\" }");
 
-        assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
+        assertThrows(SchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
     void uriThatPointsToSchemaThatDoesNotExistShouldFail_Uri() {
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
+        assertThrows(SchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:data/schema-that-does-not-exist.json#/definitions/something")));
     }
 
     @Test
     void uriThatPointsToNodeThatDoesNotExistShouldFail_Ref() {
-        JsonSchema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/node-that-does-not-exist\" }");
+        Schema referencingNonexistentSchema = factory.getSchema("{ \"$ref\": \"resource:schema/issue619.json#/definitions/node-that-does-not-exist\" }");
 
-        assertThrows(JsonSchemaException.class, () -> referencingNonexistentSchema.validate(one));
+        assertThrows(SchemaException.class, () -> referencingNonexistentSchema.validate(one));
     }
 
     @Test
@@ -180,6 +180,6 @@ class Issue619Test {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
+        assertThrows(SchemaException.class, () -> factory.getSchema(SchemaLocation.of("resource:schema/issue619.json#/definitions/node-that-does-not-exist")));
     }
 }

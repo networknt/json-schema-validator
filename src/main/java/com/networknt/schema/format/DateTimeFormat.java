@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.ethlo.time.ITU;
 import com.ethlo.time.LeapSecondException;
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 import com.networknt.schema.utils.Classes;
 
 /**

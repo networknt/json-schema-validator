@@ -18,7 +18,7 @@ public class ErrorMessages {
      * @param keyword             the keyword
      * @return the custom error message
      */
-    public static Map<String, String> getErrorMessage(JsonSchema parentSchema, String errorMessageKeyword,
+    public static Map<String, String> getErrorMessage(Schema parentSchema, String errorMessageKeyword,
             String keyword) {
         final JsonNode message = getMessageNode(errorMessageKeyword, parentSchema.schemaNode, parentSchema, keyword);
         if (message != null) {
@@ -39,7 +39,7 @@ public class ErrorMessages {
         return Collections.emptyMap();
     }
 
-    protected static JsonNode getMessageNode(String errorMessageKeyword, JsonNode schemaNode, JsonSchema parentSchema,
+    protected static JsonNode getMessageNode(String errorMessageKeyword, JsonNode schemaNode, Schema parentSchema,
             String pname) {
         if (schemaNode.get(errorMessageKeyword) != null && schemaNode.get(errorMessageKeyword).get(pname) != null) {
             return schemaNode.get(errorMessageKeyword);

@@ -19,6 +19,8 @@ package com.networknt.schema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.PatternFormat;
 
 import org.junit.jupiter.api.Test;
@@ -49,15 +51,15 @@ class OverrideValidatorTest {
         "  \"timestamp\": \"bad\"\n" +
         "}");
         // Use Default EmailValidator
-        final JsonMetaSchema validatorMetaSchema = JsonMetaSchema
-                .builder(URI, JsonMetaSchema.getV201909())
+        final Dialect validatorMetaSchema = Dialect
+                .builder(URI, Dialects.getDraft201909())
                 .build();
 
-        final JsonSchemaFactory validatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(validatorMetaSchema).build();
-        final JsonSchema validatorSchema = validatorFactory.getSchema(schema);
+        final SchemaRegistry validatorFactory = SchemaRegistry.withDialect(validatorMetaSchema);
+        final Schema validatorSchema = validatorFactory.getSchema(schema);
 
-        List<ValidationMessage> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        List<Error> messages = validatorSchema.validate(targetNode, OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
 
         assertEquals(2, messages.size(), Arrays.toString(messages.toArray()));
@@ -65,16 +67,16 @@ class OverrideValidatorTest {
         assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
 
         // Override EmailValidator
-        final JsonMetaSchema overrideValidatorMetaSchema = JsonMetaSchema
-                .builder(URI, JsonMetaSchema.getV201909())
+        final Dialect overrideValidatorMetaSchema = Dialect
+                .builder(URI, Dialects.getDraft201909())
                 .format(PatternFormat.of("email", "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$", "format.email"))
                 .build();
 
-        final JsonSchemaFactory overrideValidatorFactory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)).metaSchema(overrideValidatorMetaSchema).build();
-        final JsonSchema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
+        final SchemaRegistry overrideValidatorFactory = SchemaRegistry.withDialect(overrideValidatorMetaSchema);
+        final Schema overrideValidatorSchema = overrideValidatorFactory.getSchema(schema);
 
         messages = overrideValidatorSchema.validate(targetNode, executionContext -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         assertTrue(messages.stream().anyMatch(it -> it.getInstanceLocation().getName(-1).equals("timestamp")));
         assertEquals(1, messages.size());

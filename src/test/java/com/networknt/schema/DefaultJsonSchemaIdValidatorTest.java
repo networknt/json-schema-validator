@@ -21,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * Tests for the non-standard DefaultJsonSchemaIdValidator.
  */
@@ -31,15 +29,15 @@ class DefaultJsonSchemaIdValidatorTest {
     void givenRelativeIdShouldThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
         assertThrowsExactly(InvalidSchemaException.class,
-                () -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
+                () -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
         try {
-            JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config);
+            SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema);
         } catch (InvalidSchemaException e) {
-            assertEquals("/$id: '0' is not a valid $id", e.getMessage());
+            assertEquals("/$id: '0' is not a valid $id", e.getError().toString());
         }
     }
 
@@ -47,28 +45,28 @@ class DefaultJsonSchemaIdValidatorTest {
     void givenFragmentWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"#0\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
     
     @Test
     void givenSlashWithNoContextShouldNotThrowInvalidSchemaException() {
         String schema = "{\r\n" + "  \"$id\": \"/base\",\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\"\r\n" + "}";
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schema, config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config)).getSchema(schema));
     }
 
     @Test
     void givenRelativeIdWithClasspathBaseShouldNotThrowInvalidSchemaException() {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .schemaIdValidator(JsonSchemaIdValidator.DEFAULT)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .schemaIdValidator(SchemaIdValidator.DEFAULT)
                 .build();
-        assertDoesNotThrow(() -> JsonSchemaFactory.getInstance(VersionFlag.V202012)
-                .getSchema(SchemaLocation.of("classpath:schema/id-relative.json"), config));
+        assertDoesNotThrow(() -> SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config))
+                .getSchema(SchemaLocation.of("classpath:schema/id-relative.json")));
     }
 }

@@ -1,6 +1,10 @@
 package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.keyword.RecursiveRefValidator;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.path.PathType;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,15 +23,15 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
     void testInvalidRecursiveReference() {
         // Arrange
         String invalidSchemaJson = "{ \"$recursiveRef\": \"invalid\" }";
-        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        JsonSchema jsonSchema = jsonSchemaFactory.getSchema(invalidSchemaJson);
+        SchemaRegistry jsonSchemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema jsonSchema = jsonSchemaFactory.getSchema(invalidSchemaJson);
         JsonNode schemaNode = jsonSchema.getSchemaNode();
-        ValidationContext validationContext = new ValidationContext(jsonSchema.getValidationContext().getMetaSchema(),
-                jsonSchemaFactory, null);
+        SchemaContext schemaContext = new SchemaContext(jsonSchema.getSchemaContext().getDialect(),
+                jsonSchemaFactory);
 
         // Act and Assert
-        assertThrows(JsonSchemaException.class, () -> {
-            new RecursiveRefValidator(SchemaLocation.of(""), new JsonNodePath(PathType.JSON_POINTER), schemaNode, null, validationContext);
+        assertThrows(SchemaException.class, () -> {
+            new RecursiveRefValidator(SchemaLocation.of(""), new NodePath(PathType.JSON_POINTER), schemaNode, null, schemaContext);
         });
     }
 

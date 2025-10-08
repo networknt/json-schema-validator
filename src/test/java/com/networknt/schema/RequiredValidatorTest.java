@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * RequiredValidatorTest.
  */
@@ -55,16 +53,17 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.readOnly(true))));
         assertEquals(messages.size(), 2);
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
         assertEquals("amount", message.getProperty());
         message = messages.get(1);
@@ -99,16 +98,17 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"foo\":\"hello\",\r\n"
                 + "  \"bar\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.writeOnly(true))));
         assertEquals(messages.size(), 2);
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals("/required", message.getEvaluationPath().toString());
         assertEquals("description", message.getProperty());
         message = messages.get(1);
@@ -143,14 +143,15 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().readOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"amount\":10,\r\n"
                 + "  \"description\":\"world\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.readOnly(true))));
         assertEquals(messages.size(), 0);
     }
 
@@ -181,14 +182,15 @@ class RequiredValidatorTest {
                 + "    \"name\"\r\n"
                 + "  ]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().writeOnly(true).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "{\r\n"
                 + "  \"description\":\"world\",\r\n"
                 + "  \"name\":\"hello\"\r\n"
                 + "}";
-        List<ValidationMessage> messages = new ArrayList<>(schema.validate(inputData, InputFormat.JSON));
+		List<Error> messages = new ArrayList<>(
+				schema.validate(inputData, InputFormat.JSON, executionContext -> executionContext
+						.executionConfig(executionConfig -> executionConfig.writeOnly(true))));
         assertEquals(messages.size(), 0);
     }
 }

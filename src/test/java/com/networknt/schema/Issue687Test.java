@@ -2,6 +2,8 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.path.PathType;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -54,7 +56,7 @@ class Issue687Test {
         );
     }
 
-    static Stream<Arguments> validationMessages() {
+    static Stream<Arguments> errors() {
         String schemaPath = "/schema/issue687.json";
         String content = "{ \"foo\": \"a\", \"b.ar\": 1, \"children\": [ { \"childFoo\": \"a\", \"c/hildBar\": 1 } ] }";
         return Stream.of(
@@ -68,22 +70,28 @@ class Issue687Test {
     @ParameterizedTest
     @MethodSource("appendTokens")
     void testAppendToken(PathType pathType, String currentPath, String token, String expected) {
-        assertEquals(expected, pathType.append(currentPath, token));
+        StringBuilder builder = new StringBuilder();
+        builder.append(currentPath);
+        pathType.append(builder, token);
+        assertEquals(expected, builder.toString());
     }
 
     @ParameterizedTest
     @MethodSource("appendIndexes")
     void testAppendIndex(PathType pathType, String currentPath, Integer index, String expected) {
-        assertEquals(expected, pathType.append(currentPath, index));
+        StringBuilder builder = new StringBuilder();
+        builder.append(currentPath);
+        pathType.append(builder, index);
+        assertEquals(expected, builder.toString());
     }
 
     @ParameterizedTest
-    @MethodSource("validationMessages")
-    void testValidationMessage(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-        JsonSchema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath), config);
-        List<ValidationMessage> messages = schema.validate(new ObjectMapper().readTree(content));
+    @MethodSource("errors")
+    void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(pathType).build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
+        Schema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath));
+        List<Error> messages = schema.validate(new ObjectMapper().readTree(content));
         assertEquals(expectedMessagePaths.length, messages.size());
         for (String expectedPath: expectedMessagePaths) {
             assertTrue(messages.stream().anyMatch(msg -> expectedPath.equals(msg.getInstanceLocation().toString())));
@@ -113,8 +121,8 @@ class Issue687Test {
     @MethodSource("specialCharacterTests")
     void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().pathType(pathType).build();
-        JsonSchema schema = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().pathType(pathType).build();
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig))
                 .getSchema(mapper.readTree("{\n" +
                         "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
                         "    \"type\": \"object\",\n" +
@@ -123,10 +131,10 @@ class Issue687Test {
                         "            \"type\": \"boolean\"\n" +
                         "        }\n" +
                         "    }\n" +
-                        "}"), schemaValidatorsConfig);
-        List<ValidationMessage> validationMessages = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
-        assertEquals(1, validationMessages.size());
-        assertEquals(expectedPath, validationMessages.iterator().next().getInstanceLocation().toString());
+                        "}"));
+        List<Error> errors = schema.validate(mapper.readTree("{\""+propertyName+"\": 1}"));
+        assertEquals(1, errors.size());
+        assertEquals(expectedPath, errors.iterator().next().getInstanceLocation().toString());
     }
 
 }

@@ -7,44 +7,44 @@ import org.junit.jupiter.api.Test;
 class Issue928Test {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private JsonSchemaFactory factoryFor(SpecVersion.VersionFlag version) {
-        return JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(version))
-                .schemaMappers(schemaMappers -> schemaMappers.mapPrefix("https://example.org", "classpath:"))
+    private SchemaRegistry factoryFor(SpecificationVersion version) {
+        return SchemaRegistry
+                .builder(SchemaRegistry.withDefaultDialect(version))
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mapPrefix("https://example.org", "classpath:"))
                 .build();
     }
 
     @Test
     void test_07() {
-        test_spec(SpecVersion.VersionFlag.V7);
+        test_spec(SpecificationVersion.DRAFT_7);
     }
 
     @Test
     void test_201909() {
-        test_spec(SpecVersion.VersionFlag.V201909);
+        test_spec(SpecificationVersion.DRAFT_2019_09);
     }
 
     @Test
     void test_202012() {
-        test_spec(SpecVersion.VersionFlag.V202012);
+        test_spec(SpecificationVersion.DRAFT_2020_12);
     }
 
-    void test_spec(SpecVersion.VersionFlag specVersion) {
-        JsonSchemaFactory schemaFactory = factoryFor(specVersion);
+    void test_spec(SpecificationVersion specVersion) {
+        SchemaRegistry schemaFactory = factoryFor(specVersion);
 
-        String versionId = specVersion.getId();
+        String versionId = specVersion.getDialectId();
         String versionStr = versionId.substring(versionId.indexOf("draft") + 6, versionId.indexOf("/schema"));
 
         String baseUrl = String.format("https://example.org/schema/issue928-v%s.json", versionStr);
         System.out.println("baseUrl: " + baseUrl);
 
-        JsonSchema byPointer = schemaFactory.getSchema(
+        Schema byPointer = schemaFactory.getSchema(
                 SchemaLocation.of(baseUrl + "#/definitions/example"));
 
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("A")).size(), 0);
         Assertions.assertEquals(byPointer.validate(mapper.valueToTree("Z")).size(), 1);
 
-        JsonSchema byAnchor = schemaFactory.getSchema(
+        Schema byAnchor = schemaFactory.getSchema(
                 SchemaLocation.of(baseUrl + "#example"));
 
         Assertions.assertEquals(

@@ -21,11 +21,11 @@ import java.util.stream.Stream;
  * updated to version 1.7.0 or later.
  */
 class Issue575Test {
-    private static JsonSchema schema;
+    private static Schema schema;
 
     @BeforeAll
     static void init() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         String schemaPath = "/schema/issue575-2019-09.json";
         InputStream schemaInputStream = Issue575Test.class.getResourceAsStream(schemaPath);
         schema = factory.getSchema(schemaInputStream);
@@ -79,7 +79,7 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("validTimeZoneOffsets")
     void testValidTimeZoneOffsets(String jsonObject) throws JsonProcessingException {
-        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
+        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
         Assertions.assertTrue(errors.isEmpty());
     }
 
@@ -121,8 +121,8 @@ class Issue575Test {
     @ParameterizedTest
     @MethodSource("invalidTimeRepresentations")
     void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
-        List<ValidationMessage> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
+        List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
+            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         Assertions.assertFalse(errors.isEmpty());
     }

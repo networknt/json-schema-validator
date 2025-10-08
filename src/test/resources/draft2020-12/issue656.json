@@ -154,7 +154,7 @@
             "followup-treatments": []
         },
         "valid": false,
-        "validationMessages": [
+        "errors": [
           ": must be valid to one and only one schema, but 2 are valid with indexes '0, 1'"
         ]
       }

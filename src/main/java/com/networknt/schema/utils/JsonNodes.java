@@ -25,8 +25,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.networknt.schema.JsonNodePath;
-import com.networknt.schema.serialization.node.JsonLocationAware;
+import com.networknt.schema.path.NodePath;
+import com.networknt.schema.serialization.node.TokenStreamLocationAware;
 import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
 
 /**
@@ -42,7 +42,7 @@ public class JsonNodes {
      * @return the node found at the path or null
      */
     @SuppressWarnings("unchecked")
-    public static <T extends JsonNode> T get(JsonNode node, JsonNodePath path) {
+    public static <T extends JsonNode> T get(JsonNode node, NodePath path) {
         int nameCount = path.getNameCount();
         JsonNode current = node;
         for (int x = 0; x < nameCount; x++) {
@@ -118,14 +118,14 @@ public class JsonNodes {
     }
 
     /**
-     * Gets the token location of the {@link JsonNode} that implements {@link JsonLocationAware}.
+     * Gets the token location of the {@link JsonNode} that implements {@link TokenStreamLocationAware}.
      * 
      * @param jsonNode the node
      * @return the JsonLocation
      */
-    public static JsonLocation tokenLocationOf(JsonNode jsonNode) {
-        if (jsonNode instanceof JsonLocationAware) {
-            return ((JsonLocationAware) jsonNode).tokenLocation();
+    public static JsonLocation tokenStreamLocationOf(JsonNode jsonNode) {
+        if (jsonNode instanceof TokenStreamLocationAware) {
+            return ((TokenStreamLocationAware) jsonNode).tokenStreamLocation();
         }
         throw new IllegalArgumentException("JsonNode does not contain the location information.");
     }

@@ -24,10 +24,18 @@ import java.util.function.Predicate;
  * Configuration per execution.
  */
 public class ExecutionConfig {
+    private static class Holder {
+        private static final ExecutionConfig INSTANCE = ExecutionConfig.builder().build();
+    }
+
+    public static ExecutionConfig getInstance() {
+        return Holder.INSTANCE;
+    }
+
     /**
      * The locale to use for formatting messages.
      */
-    private Locale locale = Locale.ROOT;
+    private final Locale locale;
 
     /**
      * Determines if annotation collection is enabled.
@@ -35,7 +43,7 @@ public class ExecutionConfig {
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
      */
-    private boolean annotationCollectionEnabled = false;
+    private final boolean annotationCollectionEnabled;
 
     /**
      * If annotation collection is enabled, determine which annotations to collect.
@@ -43,26 +51,42 @@ public class ExecutionConfig {
      * This does not affect annotation collection required for evaluating keywords
      * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
      */
-    private Predicate<String> annotationCollectionFilter = keyword -> false;
+    private final Predicate<String> annotationCollectionFilter;
 
     /**
      * Since Draft 2019-09 format assertions are not enabled by default.
      */
-    private Boolean formatAssertionsEnabled = null;
+    private final Boolean formatAssertionsEnabled;
 
     /**
      * Determine if the validation execution can fail fast.
      */
-    private boolean failFast = false;
+    private final boolean failFast;
 
     /**
-     * Determine if debugging features such that logging are switched on.
-     * <p>
-     * This is turned off by default. This is present because the library attempts
-     * to log debug logs at each validation node and the logger evaluation on
-     * whether the logger is turned on is impacting performance.
+     * When set to true assumes that schema is used to validate incoming data from
+     * an API.
      */
-    private boolean debugEnabled = false;
+    private final Boolean readOnly;
+
+    /**
+     * When set to true assumes that schema is used to validate outgoing data from
+     * an API.
+     */
+    private final Boolean writeOnly;
+
+    protected ExecutionConfig(Locale locale, boolean annotationCollectionEnabled,
+            Predicate<String> annotationCollectionFilter, Boolean formatAssertionsEnabled, boolean failFast,
+            Boolean readOnly, Boolean writeOnly) {
+        super();
+        this.locale = locale;
+        this.annotationCollectionEnabled = annotationCollectionEnabled;
+        this.annotationCollectionFilter = annotationCollectionFilter;
+        this.formatAssertionsEnabled = formatAssertionsEnabled;
+        this.failFast = failFast;
+        this.readOnly = readOnly;
+        this.writeOnly = writeOnly;
+    }
 
     /**
      * Gets the locale to use for formatting messages.
@@ -71,15 +95,6 @@ public class ExecutionConfig {
      */
     public Locale getLocale() {
         return locale;
-    }
-
-    /**
-     * Sets the locale to use for formatting messages.
-     * 
-     * @param locale the locale
-     */
-    public void setLocale(Locale locale) {
-        this.locale = Objects.requireNonNull(locale, "Locale must not be null");
     }
 
     /**
@@ -98,30 +113,12 @@ public class ExecutionConfig {
     }
 
     /**
-     * Sets the format assertion enabled flag.
-     * 
-     * @param formatAssertionsEnabled the format assertions enabled flag
-     */
-    public void setFormatAssertionsEnabled(Boolean formatAssertionsEnabled) {
-        this.formatAssertionsEnabled = formatAssertionsEnabled;
-    }
-
-    /**
      * Return if fast fail is enabled.
      * 
      * @return if fast fail is enabled
      */
     public boolean isFailFast() {
         return failFast;
-    }
-
-    /**
-     * Sets whether fast fail is enabled.
-     * 
-     * @param failFast true to fast fail
-     */
-    public void setFailFast(boolean failFast) {
-        this.failFast = failFast;
     }
 
     /**
@@ -137,21 +134,6 @@ public class ExecutionConfig {
      */
     public boolean isAnnotationCollectionEnabled() {
         return annotationCollectionEnabled;
-    }
-
-    /**
-     * Sets whether the annotation collection is enabled.
-     * <p>
-     * This does not affect annotation collection required for evaluating keywords
-     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
-     * <p>
-     * The annotations to collect can be customized using the annotation collection
-     * predicate.
-     * 
-     * @param annotationCollectionEnabled true to enable annotation collection
-     */
-    public void setAnnotationCollectionEnabled(boolean annotationCollectionEnabled) {
-        this.annotationCollectionEnabled = annotationCollectionEnabled;
     }
 
     /**
@@ -173,37 +155,155 @@ public class ExecutionConfig {
     }
 
     /**
-     * Predicate to determine if annotation collection is allowed for a particular
-     * keyword. This only has an effect if annotation collection is enabled.
-     * <p>
-     * The default value is to not collect any annotation keywords if annotation
-     * collection is enabled.
-     * <p>
-     * This does not affect annotation collection required for evaluating keywords
-     * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+     * Returns the value of the read only flag.
      *
-     * @param annotationCollectionFilter the predicate accepting the keyword
+     * @return the value of read only flag or null if not set
      */
-    public void setAnnotationCollectionFilter(Predicate<String> annotationCollectionFilter) {
-        this.annotationCollectionFilter = Objects.requireNonNull(annotationCollectionFilter,
-                "annotationCollectionFilter must not be null");
+    public Boolean getReadOnly() {
+        return this.readOnly;
     }
 
     /**
-     * Gets if debugging features such as logging is switched on.
+     * Returns the value of the write only flag.
      *
-     * @return true if debug is enabled
+     * @return the value of the write only flag or null if not set
      */
-    public boolean isDebugEnabled() {
-        return debugEnabled;
+    public Boolean getWriteOnly() {
+        return this.writeOnly;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builder(ExecutionConfig config) {
+        Builder copy = new Builder();
+        copy.locale = config.locale;
+        copy.annotationCollectionEnabled = config.annotationCollectionEnabled;
+        copy.annotationCollectionFilter = config.annotationCollectionFilter;
+        copy.formatAssertionsEnabled = config.formatAssertionsEnabled;
+        copy.failFast = config.failFast;
+        copy.readOnly = config.readOnly;
+        copy.writeOnly = config.writeOnly;
+        return copy;
     }
 
     /**
-     * Sets if debugging features such as logging is switched on.
-     *
-     * @param debugEnabled true to enable debug
+     * Builder for {@link ExecutionConfig}.
      */
-    public void setDebugEnabled(boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
+    public static class Builder extends BuilderSupport<Builder> {
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    }
+
+    /**
+     * Builder for {@link ExecutionConfig}.
+     */
+    public static abstract class BuilderSupport<T> {
+        protected Locale locale = Locale.ROOT;
+        protected boolean annotationCollectionEnabled = false;
+        protected Predicate<String> annotationCollectionFilter = keyword -> false;
+        protected Boolean formatAssertionsEnabled = null;
+        protected boolean failFast = false;
+        protected Boolean readOnly = null;
+        protected Boolean writeOnly = null;
+
+        protected abstract T self();
+
+        /**
+         * Sets the locale to use for formatting messages.
+         * 
+         * @param locale the locale
+         * @return the builder
+         */
+        public T locale(Locale locale) {
+            this.locale = locale;
+            return self();
+        }
+
+        /**
+         * Sets whether the annotation collection is enabled.
+         * <p>
+         * This does not affect annotation collection required for evaluating keywords
+         * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+         * <p>
+         * The annotations to collect can be customized using the annotation collection
+         * predicate.
+         * 
+         * @param annotationCollectionEnabled true to enable annotation collection
+         * @return the builder
+         */
+        public T annotationCollectionEnabled(boolean annotationCollectionEnabled) {
+            this.annotationCollectionEnabled = annotationCollectionEnabled;
+            return self();
+        }
+
+        /**
+         * Predicate to determine if annotation collection is allowed for a particular
+         * keyword. This only has an effect if annotation collection is enabled.
+         * <p>
+         * The default value is to not collect any annotation keywords if annotation
+         * collection is enabled.
+         * <p>
+         * This does not affect annotation collection required for evaluating keywords
+         * such as unevaluatedItems or unevaluatedProperties and only affects reporting.
+         *
+         * @param annotationCollectionFilter the predicate accepting the keyword
+         * @return the builder
+         */
+        public T annotationCollectionFilter(Predicate<String> annotationCollectionFilter) {
+            this.annotationCollectionFilter = annotationCollectionFilter;
+            return self();
+        }
+
+        /**
+         * Sets the format assertion enabled flag.
+         * 
+         * @param formatAssertionsEnabled the format assertions enabled flag
+         * @return the builder
+         */
+        public T formatAssertionsEnabled(Boolean formatAssertionsEnabled) {
+            this.formatAssertionsEnabled = formatAssertionsEnabled;
+            return self();
+        }
+
+        /**
+         * Sets whether fast fail is enabled.
+         * 
+         * @param failFast true to fast fail
+         * @return the builder
+         */
+        public T failFast(boolean failFast) {
+            this.failFast = failFast;
+            return self();
+        }
+
+        public T readOnly(Boolean readOnly) {
+            this.readOnly = readOnly;
+            return self();
+        }
+
+        public T writeOnly(Boolean writeOnly) {
+            this.writeOnly = writeOnly;
+            return self();
+        }
+
+        /**
+         * Builds the {@link ExecutionConfig}.
+         * 
+         * @return the execution configuration
+         */
+        public ExecutionConfig build() {
+            Locale locale = this.locale;
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
+            Objects.requireNonNull(annotationCollectionFilter, "annotationCollectionFilter must not be null");
+            return new ExecutionConfig(locale, annotationCollectionEnabled, annotationCollectionFilter,
+                    formatAssertionsEnabled, failFast, readOnly, writeOnly);
+        }
     }
 }

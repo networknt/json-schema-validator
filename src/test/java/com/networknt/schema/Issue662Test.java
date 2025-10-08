@@ -13,33 +13,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Issue662Test extends BaseJsonSchemaValidatorTest {
 
     private static final String RESOURCE_PREFIX = "issues/662/";
-    private static JsonSchema schema;
+    private static Schema schema;
 
     @BeforeAll
     static void setup() {
-        schema = getJsonSchemaFromClasspath(resource("schema.json"), SpecVersion.VersionFlag.V7);
+        schema = getJsonSchemaFromClasspath(resource("schema.json"), SpecificationVersion.DRAFT_7);
     }
 
     @Test
     void testNoErrorsForEmptyObject() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("emptyObject.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         assertTrue(errors.isEmpty(), "No validation errors for empty optional object");
     }
 
     @Test
     void testNoErrorsForValidObject() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("validObject.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         assertTrue(errors.isEmpty(), "No validation errors for a valid optional object");
     }
 
     @Test
     void testCorrectErrorForInvalidValue() throws IOException {
         JsonNode node = getJsonNodeFromClasspath(resource("objectInvalidValue.json"));
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         List<String> errorMessages = errors.stream()
-            .map(v -> v.getEvaluationPath() + " = " + v.getMessage())
+            .map(v -> v.getEvaluationPath() + " = " + v.toString())
             .collect(toList());
 
         // As this is from an anyOf evaluation both error messages should be present as they didn't match any
@@ -48,9 +48,9 @@ class Issue662Test extends BaseJsonSchemaValidatorTest {
         // Omitting the 'object found, null expected' message also provides the misleading impression that the
         // object is required when leaving it empty is a possible option
         assertTrue(errorMessages
-                .contains("$.properties.optionalObject.anyOf[0].type = $.optionalObject: object found, null expected"));
+                .contains("/properties/optionalObject/anyOf/0/type = /optionalObject: object found, null expected"));
         assertTrue(errorMessages.contains(
-                "$.properties.optionalObject.anyOf[1].properties.value.enum = $.optionalObject.value: does not have a value in the enumeration [\"one\", \"two\"]"));
+                "/properties/optionalObject/anyOf/1/properties/value/enum = /optionalObject/value: does not have a value in the enumeration [\"one\", \"two\"]"));
     }
 
     private static String resource(String name) {

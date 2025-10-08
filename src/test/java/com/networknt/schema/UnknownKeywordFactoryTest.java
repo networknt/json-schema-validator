@@ -19,6 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.keyword.AnnotationKeyword;
+import com.networknt.schema.keyword.Keyword;
+import com.networknt.schema.keyword.UnknownKeywordFactory;
+
 class UnknownKeywordFactoryTest {
 
     @Test

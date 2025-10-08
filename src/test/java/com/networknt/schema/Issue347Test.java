@@ -11,13 +11,13 @@ class Issue347Test {
 
     @Test
     void failure() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        assertThrows(JsonSchemaException.class, () -> factory.getSchema(Thread.currentThread().getContextClassLoader().getResourceAsStream("schema/issue347-v7.json")));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        assertThrows(SchemaException.class, () -> factory.getSchema(Thread.currentThread().getContextClassLoader().getResourceAsStream("schema/issue347-v7.json")));
         try {
             factory.getSchema(Thread.currentThread().getContextClassLoader().getResourceAsStream("schema/issue347-v7.json"));
         } catch (Throwable e) {
-            assertThat(e, instanceOf(JsonSchemaException.class));
-            assertEquals("/$id: 'test' is not a valid $id", e.getMessage());
+            assertThat(e, instanceOf(SchemaException.class));
+            assertEquals("/$id: 'test' is not a valid $id", ((SchemaException) e).getError().toString());
         }
     }
 }

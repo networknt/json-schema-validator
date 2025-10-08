@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.networknt.schema.dialect.DialectId;
 
 class RefTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
     
     @Test
     void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"), config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -25,10 +25,10 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getId());
+        List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
-        ValidationMessage error = errors.iterator().next();
+        Error error = errors.iterator().next();
         assertEquals("classpath:///schema/ref-ref.json#/definitions/DriverProperties/required",
                 error.getSchemaLocation().toString());
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",
@@ -38,9 +38,8 @@ class RefTest {
     
     @Test
     void shouldLoadSchemaResource() throws JsonProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"), config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"));
         String input = "{\r\n"
                 + "  \"DriverProperties\": {\r\n"
                 + "    \"CommonProperties\": {\r\n"
@@ -48,19 +47,19 @@ class RefTest {
                 + "    }\r\n"
                 + "  }\r\n"
                 + "}";
-        assertEquals(SchemaId.V4, schema.getValidationContext().getMetaSchema().getIri());
-        List<ValidationMessage> errors = schema.validate(OBJECT_MAPPER.readTree(input));
+        assertEquals(DialectId.DRAFT_4, schema.getSchemaContext().getDialect().getId());
+        List<Error> errors = schema.validate(OBJECT_MAPPER.readTree(input));
         assertEquals(1, errors.size());
-        ValidationMessage error = errors.iterator().next();
+        Error error = errors.iterator().next();
         assertEquals("https://www.example.org/common#/definitions/DriverProperties/required",
                 error.getSchemaLocation().toString());
         assertEquals("/properties/DriverProperties/properties/CommonProperties/$ref/required",
                 error.getEvaluationPath().toString());
         assertEquals("field1", error.getProperty());
-        JsonSchema driver = schema.getValidationContext().getSchemaResources().get("https://www.example.org/driver#");
-        JsonSchema common = schema.getValidationContext().getSchemaResources().get("https://www.example.org/common#");
-        assertEquals(SchemaId.V4, driver.getValidationContext().getMetaSchema().getIri());
-        assertEquals(SchemaId.V7, common.getValidationContext().getMetaSchema().getIri());
+        Schema driver = schema.getSchemaContext().getSchemaResources().get("https://www.example.org/driver#");
+        Schema common = schema.getSchemaContext().getSchemaResources().get("https://www.example.org/common#");
+        assertEquals(DialectId.DRAFT_4, driver.getSchemaContext().getDialect().getId());
+        assertEquals(DialectId.DRAFT_7, common.getSchemaContext().getDialect().getId());
 
     }
 }

@@ -17,7 +17,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.SpecVersion.VersionFlag;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +26,8 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 class Issue375Test {
-    protected JsonSchema getJsonSchemaFromStreamContent(InputStream schemaContent) {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V201909);
+    protected Schema getJsonSchemaFromStreamContent(InputStream schemaContent) {
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         return factory.getSchema(schemaContent);
     }
 
@@ -42,19 +41,19 @@ class Issue375Test {
         String schemaPath = "/draft2019-09/issue375.json";
         String dataPath = "/data/issue375.json";
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
-        JsonSchema schema = getJsonSchemaFromStreamContent(schemaInputStream);
+        Schema schema = getJsonSchemaFromStreamContent(schemaInputStream);
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
-        List<ValidationMessage> errors = schema.validate(node);
+        List<Error> errors = schema.validate(node);
         List<String> errorMessages = new ArrayList<String>();
-        for (ValidationMessage error: errors) {
-            errorMessages.add(error.getMessage());
+        for (Error error: errors) {
+            errorMessages.add(error.toString());
         }
 
         List<String> expectedMessages = Arrays.asList(
-            "$.fields: property 'longName123' name is not valid: must be at most 5 characters long",
-            "$.fields: property 'longName123' name is not valid: does not match the regex pattern ^[a-zA-Z]+$",
-            "$.fields: property 'a' name is not valid: must be at least 3 characters long");
+            "/fields: property 'longName123' name is not valid: must be at most 5 characters long",
+            "/fields: property 'longName123' name is not valid: does not match the regex pattern ^[a-zA-Z]+$",
+            "/fields: property 'a' name is not valid: must be at least 3 characters long");
         MatcherAssert.assertThat(errorMessages, Matchers.containsInAnyOrder(expectedMessages.toArray()));
     }
 }

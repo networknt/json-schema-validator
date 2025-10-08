@@ -12,7 +12,9 @@ class Issue792 {
 
     @Test
     void test() throws JsonProcessingException {
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().typeLoose(false).failFast(true).build();
+
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
 
         String schemaDef =
                 "{\n" +
@@ -28,9 +30,7 @@ class Issue792 {
                 "   }\n" +
                 "}";
 
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().typeLoose(false).failFast(true).build();
-
-        JsonSchema jsonSchema = schemaFactory.getSchema(schemaDef, config);
+        Schema jsonSchema = schemaFactory.getSchema(schemaDef);
         JsonNode jsonNode = new ObjectMapper().readTree("{\"field\": \"pattern-violation\"}");
 
         assertEquals(1, jsonSchema.validate(jsonNode).size());

@@ -10,7 +10,7 @@
             "type": "string",
             "pattern": "(foo)+",
             "message": {
-              "pattern": "{0}: Must be a string with the a shape foofoofoofoo... with at least one foo"
+              "pattern": "Must be a string with the a shape foofoofoofoo... with at least one foo"
             }
           },
           "Nope": {
@@ -20,7 +20,7 @@
             "type": "string",
             "pattern": "(bar)+",
             "message": {
-              "pattern": "{0}: Must be a string with the a shape barbarbar... with at least one bar"
+              "pattern": "Must be a string with the a shape barbarbar... with at least one bar"
             }
           }
         }

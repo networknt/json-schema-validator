@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.TemporalAccessor;
 
 import com.networknt.schema.ExecutionContext;
-import com.networknt.schema.Format;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 import static java.time.temporal.ChronoField.*;

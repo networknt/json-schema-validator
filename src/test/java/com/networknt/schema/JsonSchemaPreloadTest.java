@@ -18,25 +18,23 @@ package com.networknt.schema;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * Test to control preloading of schemas.
  */
 class JsonSchemaPreloadTest {
     @Test
     void cacheRefsFalse() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().cacheRefs(false).build();
-        factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"), config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().cacheRefs(false).build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"));
     }
 
     @Test
     void preloadSchemaRefMaxNestingDepth() {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V7);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .preloadJsonSchemaRefMaxNestingDepth(20)
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                .preloadSchemaRefMaxNestingDepth(20)
                 .build();
-        factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"), config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(config));
+        factory.getSchema(SchemaLocation.of("classpath:/issues/1016/schema.json"));
     }
 }

@@ -1,0 +1,217 @@
+/*
+ * Copyright (c) 2016 Network New Technologies Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.networknt.schema.keyword;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.Error;
+import com.networknt.schema.ExecutionContext;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaLocation;
+import com.networknt.schema.SchemaContext;
+import com.networknt.schema.annotation.Annotation;
+import com.networknt.schema.path.NodePath;
+
+import static com.networknt.schema.SpecificationVersionRange.MIN_DRAFT_2019_09;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
+/**
+ * {@link KeywordValidator} for contains.
+ */
+public class ContainsValidator extends BaseKeywordValidator {
+    private static final String CONTAINS_MAX = "contains.max";
+    private static final String CONTAINS_MIN = "contains.min";
+
+    private final Schema schema;
+    private final boolean isMinV201909;
+
+    private final Integer min;
+    private final Integer max;
+
+    private Boolean hasUnevaluatedItemsValidator = null;
+
+    public ContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+
+        // Draft 6 added the contains keyword but maxContains and minContains first
+        // appeared in Draft 2019-09 so the semantics of the validation changes
+        // slightly.
+        this.isMinV201909 = MIN_DRAFT_2019_09.getVersions().contains(this.schemaContext.getDialect().getSpecificationVersion());
+
+        Integer currentMax = null;
+        Integer currentMin = null;
+        if (schemaNode.isObject() || schemaNode.isBoolean()) {
+            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            JsonNode parentSchemaNode = parentSchema.getSchemaNode();
+            Optional<JsonNode> maxNode = Optional
+                    .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral);
+            if (maxNode.isPresent()) {
+                currentMax = maxNode.get().intValue();
+            }
+
+            Optional<JsonNode> minNode = Optional
+                    .ofNullable(parentSchemaNode.get(KeywordType.MIN_CONTAINS.getValue()))
+                    .filter(JsonNode::canConvertToExactIntegral);
+            if (minNode.isPresent()) {
+                currentMin = minNode.get().intValue();
+            }
+        } else {
+            this.schema = null;
+        }
+        this.max = currentMax;
+        this.min = currentMin;
+    }
+
+    @Override
+    public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
+        // ignores non-arrays
+        int actual = 0, i = 0;
+        List<Integer> indexes = new ArrayList<>(); // for the annotation
+        if (null != this.schema && node.isArray()) {
+            // Save flag as nested schema evaluation shouldn't trigger fail fast
+            boolean failFast = executionContext.isFailFast();
+            List<Error> existingErrors = executionContext.getErrors();
+            try {
+                executionContext.setFailFast(false);
+                List<Error> test = new ArrayList<>();
+                executionContext.setErrors(test);
+                for (JsonNode n : node) {
+                    NodePath path = instanceLocation.append(i);
+                    this.schema.validate(executionContext, n, rootNode, path);
+                    if (test.isEmpty()) {
+                        ++actual;
+                        indexes.add(i);
+                    } else {
+                        test.clear();
+                    }
+                    ++i;
+                }
+            } finally {
+                // Restore flag
+                executionContext.setFailFast(failFast);
+                executionContext.setErrors(existingErrors);
+            }
+            int m = 1; // default to 1 if "min" not specified
+            if (this.min != null) {
+                m = this.min;
+            }
+            if (actual < m) {
+                boundsViolated(executionContext, isMinV201909 ? KeywordType.MIN_CONTAINS : KeywordType.CONTAINS,
+                        executionContext.getExecutionConfig().getLocale(),
+                        node, instanceLocation, m);
+            }
+
+            if (this.max != null && actual > this.max) {
+                boundsViolated(executionContext, isMinV201909 ? KeywordType.MAX_CONTAINS : KeywordType.CONTAINS,
+                        executionContext.getExecutionConfig().getLocale(),
+                        node, instanceLocation, this.max);
+            }
+        }
+        
+        boolean collectAnnotations = collectAnnotations();
+        if (this.schema != null) {
+            // This keyword produces an annotation value which is an array of the indexes to
+            // which this keyword validates successfully when applying its subschema, in
+            // ascending order. The value MAY be a boolean "true" if the subschema validates
+            // successfully when applied to every index of the instance. The annotation MUST
+            // be present if the instance array to which this keyword's schema applies is
+            // empty.
+            
+            if (collectAnnotations || collectAnnotations(executionContext, "contains")) {
+                if (actual == i) {
+                    // evaluated all
+                    executionContext.getAnnotations()
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword("contains").value(true).build());
+                } else {
+                    executionContext.getAnnotations()
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .keyword("contains").value(indexes).build());
+                }
+            }
+            
+            // Add minContains and maxContains annotations
+            if (this.min != null) {
+                String minContainsKeyword = "minContains";
+                if (collectAnnotations || collectAnnotations(executionContext, minContainsKeyword)) {
+                    // Omitted keywords MUST NOT produce annotation results. However, as described
+                    // in the section for contains, the absence of this keyword's annotation causes
+                    // contains to assume a minimum value of 1.
+                    executionContext.getAnnotations()
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath.append(minContainsKeyword))
+                                    .schemaLocation(this.schemaLocation.append(minContainsKeyword))
+                                    .keyword(minContainsKeyword).value(this.min).build());
+                }
+            }
+            
+            if (this.max != null) {
+                String maxContainsKeyword = "maxContains";
+                if (collectAnnotations || collectAnnotations(executionContext, maxContainsKeyword)) {
+                    executionContext.getAnnotations()
+                            .put(Annotation.builder().instanceLocation(instanceLocation)
+                                    .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
+                                    .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
+                                    .keyword(maxContainsKeyword).value(this.max).build());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void preloadSchema() {
+        Optional.ofNullable(this.schema).ifPresent(Schema::initializeValidators);
+        collectAnnotations(); // cache the flag
+    }
+
+    private void boundsViolated(ExecutionContext executionContext, KeywordType validatorTypeCode, Locale locale,
+            JsonNode instanceNode, NodePath instanceLocation, int bounds) {
+        String messageKey = "contains";
+        if (KeywordType.MIN_CONTAINS.equals(validatorTypeCode)) {
+            messageKey = CONTAINS_MIN;
+        } else if (KeywordType.MAX_CONTAINS.equals(validatorTypeCode)) {
+            messageKey = CONTAINS_MAX;
+        }
+        executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
+                        .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
+                        .keyword(validatorTypeCode.getValue()).build());
+    }
+    
+    /**
+     * Determine if annotations must be collected for evaluation.
+     * <p>
+     * This will be collected regardless of whether it is needed for reporting.
+     * 
+     * @return true if annotations must be collected for evaluation.
+     */
+    private boolean collectAnnotations() {
+        return hasUnevaluatedItemsValidator();
+    }
+
+    private boolean hasUnevaluatedItemsValidator() {
+        if (this.hasUnevaluatedItemsValidator == null) {
+            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
+        }
+        return hasUnevaluatedItemsValidator;
+    }
+}

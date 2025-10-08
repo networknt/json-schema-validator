@@ -16,11 +16,10 @@
 
 package com.networknt.schema;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.regex.JDKRegularExpressionFactory;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 import com.networknt.schema.resource.InputStreamSource;
-import com.networknt.schema.resource.SchemaLoader;
+import com.networknt.schema.resource.ResourceLoader;
 import com.networknt.schema.suite.TestCase;
 import com.networknt.schema.suite.TestSource;
 import com.networknt.schema.suite.TestSpec;
@@ -43,7 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.networknt.schema.SpecVersionDetector.detectVersion;
+import static com.networknt.schema.SpecificationVersionDetector.detectVersion;
 import static org.junit.jupiter.api.Assumptions.abort;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
@@ -54,11 +53,21 @@ abstract class AbstractJsonSchemaTestSuite {
         return file.toString().replace('\\', '/');
     }
 
-    private static void executeTest(JsonSchema schema, TestSpec testSpec) {
-        List<ValidationMessage> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, validationContext) -> {
-            if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
-                executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
-            }
+    private static void executeTest(Schema schema, TestSpec testSpec) {
+        List<Error> errors = schema.validate(testSpec.getData(), OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
+        	executionContext.executionConfig(executionConfig -> {
+        		if (testSpec.getConfig() != null) {
+                	if (testSpec.getConfig().containsKey("readOnly")) {
+                		executionConfig.readOnly((Boolean) testSpec.getConfig().get("readOnly"));
+                    }
+                    if (testSpec.getConfig().containsKey("writeOnly")) {
+                    	executionConfig.writeOnly((Boolean) testSpec.getConfig().get("writeOnly"));
+                    }
+        		}
+                if (testSpec.getTestCase().getSource().getPath().getParent().toString().endsWith("format")) {
+                	executionConfig.formatAssertionsEnabled(true);
+                }
+        	});
         });
 
         if (testSpec.isValid()) {
@@ -74,7 +83,7 @@ abstract class AbstractJsonSchemaTestSuite {
 
                 AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
                         .message(msg)
-                        .reason(errors.stream().map(ValidationMessage::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
+                        .reason(errors.stream().map(Error::getMessage).collect(Collectors.joining("\n    ", "\n  errors:\n    ", "")))
                         .build();
                 t.setStackTrace(new StackTraceElement[0]);
                 throw t;
@@ -100,8 +109,10 @@ abstract class AbstractJsonSchemaTestSuite {
 
         // Expected Validation Messages need not be exactly same as actual errors.
         // This code checks if expected validation message is subset of actual errors
-        Set<String> actual = errors.stream().map(ValidationMessage::getMessage).collect(Collectors.toSet());
-        Set<String> expected = testSpec.getValidationMessages();
+        Set<String> actual = errors.stream()
+                .map(error -> error.getInstanceLocation().toString() + ": " + error.getMessage())
+                .collect(Collectors.toSet());
+        Set<String> expected = testSpec.getErrors();
         expected.removeAll(actual);
         if (!expected.isEmpty()) {
             String msg = new StringBuilder("Expected Validation Messages")
@@ -137,7 +148,7 @@ abstract class AbstractJsonSchemaTestSuite {
         );
     }
 
-    protected Stream<DynamicNode> createTests(VersionFlag defaultVersion, String basePath) {
+    protected Stream<DynamicNode> createTests(SpecificationVersion defaultVersion, String basePath) {
         return findTestCases(basePath)
                 .stream()
                 .peek(System.out::println)
@@ -152,7 +163,7 @@ abstract class AbstractJsonSchemaTestSuite {
         return Optional.empty();
     }
 
-    private Stream<DynamicNode> buildContainers(VersionFlag defaultVersion, Path path) {
+    private Stream<DynamicNode> buildContainers(SpecificationVersion defaultVersion, Path path) {
         boolean disabled = !enabled(path);
         String reason = reason(path).orElse("Unknown");
         return TestSource.loadFrom(path, disabled, reason)
@@ -160,18 +171,35 @@ abstract class AbstractJsonSchemaTestSuite {
                 .orElse(Stream.empty());
     }
 
-    private Stream<DynamicNode> buildContainer(VersionFlag defaultVersion, TestSource testSource) {
+    private Stream<DynamicNode> buildContainer(SpecificationVersion defaultVersion, TestSource testSource) {
         return testSource.getTestCases().stream().map(testCase -> buildContainer(defaultVersion, testCase));
     }
 
-    private DynamicNode buildContainer(VersionFlag defaultVersion, TestCase testCase) {
+    private DynamicNode buildContainer(SpecificationVersion defaultVersion, TestCase testCase) {
         try {
-            JsonSchemaFactory validatorFactory = buildValidatorFactory(defaultVersion, testCase);
-
             return dynamicContainer(testCase.getDisplayName(), testCase.getTests().stream().map(testSpec -> {
-                return buildTest(validatorFactory, testSpec);
+                // Configure the schemaValidator to set typeLoose's value based on the test file,
+                // if test file do not contains typeLoose flag, use default value: false.
+                @SuppressWarnings("deprecation") boolean typeLoose = testSpec.isTypeLoose();
+
+                SchemaRegistryConfig.Builder configBuilder = SchemaRegistryConfig.builder();
+                configBuilder.strict("type", false);
+                configBuilder.typeLoose(typeLoose);
+                configBuilder.regularExpressionFactory(
+                        TestSpec.RegexKind.JDK == testSpec.getRegex() ? JDKRegularExpressionFactory.getInstance()
+                                : JoniRegularExpressionFactory.getInstance());
+                testSpec.getStrictness().forEach(configBuilder::strict);
+
+                if (testSpec.getConfig() != null) {
+                    if (testSpec.getConfig().containsKey("isCustomMessageSupported")) {
+                        configBuilder.errorMessageKeyword(
+                                (Boolean) testSpec.getConfig().get("isCustomMessageSupported") ? "message" : null);
+                    }
+                }
+                SchemaRegistry schemaRegistry = buildSchemaRegistry(defaultVersion, testCase, configBuilder.build());
+                return buildTest(schemaRegistry, testSpec);
             }));
-        } catch (JsonSchemaException e) {
+        } catch (SchemaException e) {
             String msg = e.getMessage();
             if (msg.endsWith("' is unrecognizable schema")) {
                 return dynamicContainer(testCase.getDisplayName(), unsupportedMetaSchema(testCase));
@@ -180,11 +208,11 @@ abstract class AbstractJsonSchemaTestSuite {
         }
     }
 
-    private JsonSchemaFactory buildValidatorFactory(VersionFlag defaultVersion, TestCase testCase) {
+    private SchemaRegistry buildSchemaRegistry(SpecificationVersion defaultVersion, TestCase testCase, SchemaRegistryConfig schemaRegistryConfig) {
         if (testCase.isDisabled()) return null;
-        SchemaLoader schemaLoader = new SchemaLoader() {
+        ResourceLoader schemaLoader = new ResourceLoader() {
             @Override
-            public InputStreamSource getSchema(AbsoluteIri absoluteIri) {
+            public InputStreamSource getResource(AbsoluteIri absoluteIri) {
                 String iri = absoluteIri.toString();
                 if (iri.startsWith("http://localhost:1234")) {
                     return () -> {
@@ -199,47 +227,25 @@ abstract class AbstractJsonSchemaTestSuite {
                 return null;
             }
         };
-        VersionFlag specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
-        JsonSchemaFactory base = JsonSchemaFactory.getInstance(specVersion);
-        return JsonSchemaFactory
+        SpecificationVersion specVersion = detectVersion(testCase.getSchema(), testCase.getSpecification(), defaultVersion, false);
+        SchemaRegistry base = SchemaRegistry.withDefaultDialect(specVersion);
+        return SchemaRegistry
                 .builder(base)
-                .schemaMappers(schemaMappers -> schemaMappers
+                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                         .mapPrefix("https://", "http://")
                         .mapPrefix("http://json-schema.org", "resource:"))
-                .schemaLoaders(schemaLoaders -> schemaLoaders.add(schemaLoader))               
+                .resourceLoaders(resourceLoaders -> resourceLoaders.add(schemaLoader))
+                .schemaRegistryConfig(schemaRegistryConfig)
                 .build();
     }
 
-    private DynamicNode buildTest(JsonSchemaFactory validatorFactory, TestSpec testSpec) {
+    private DynamicNode buildTest(SchemaRegistry validatorFactory, TestSpec testSpec) {
         if (testSpec.isDisabled()) {
             return dynamicTest(testSpec.getDescription(), () -> abortAndReset(testSpec.getReason()));
         }
 
-        // Configure the schemaValidator to set typeLoose's value based on the test file,
-        // if test file do not contains typeLoose flag, use default value: false.
-        @SuppressWarnings("deprecation") boolean typeLoose = testSpec.isTypeLoose();
-
-        SchemaValidatorsConfig.Builder configBuilder = SchemaValidatorsConfig.builder();
-        configBuilder.typeLoose(typeLoose);
-        configBuilder.regularExpressionFactory(
-                TestSpec.RegexKind.JDK == testSpec.getRegex() ? JDKRegularExpressionFactory.getInstance()
-                        : JoniRegularExpressionFactory.getInstance());
-        testSpec.getStrictness().forEach(configBuilder::strict);
-
-        if (testSpec.getConfig() != null) {
-            if (testSpec.getConfig().containsKey("isCustomMessageSupported")) {
-                configBuilder.errorMessageKeyword(
-                        (Boolean) testSpec.getConfig().get("isCustomMessageSupported") ? "message" : null);
-            }
-            if (testSpec.getConfig().containsKey("readOnly")) {
-                configBuilder.readOnly((Boolean) testSpec.getConfig().get("readOnly"));
-            }
-            if (testSpec.getConfig().containsKey("writeOnly")) {
-                configBuilder.writeOnly((Boolean) testSpec.getConfig().get("writeOnly"));
-            }
-        }
         SchemaLocation testCaseFileUri = SchemaLocation.of("classpath:" + toForwardSlashPath(testSpec.getTestCase().getSpecification()));
-        JsonSchema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema(), configBuilder.build());
+        Schema schema = validatorFactory.getSchema(testCaseFileUri, testSpec.getTestCase().getSchema());
 
         return dynamicTest(testSpec.getDescription(), () -> executeAndReset(schema, testSpec));
     }
@@ -252,7 +258,7 @@ abstract class AbstractJsonSchemaTestSuite {
         }
     }
 
-    private void executeAndReset(JsonSchema schema, TestSpec testSpec) {
+    private void executeAndReset(Schema schema, TestSpec testSpec) {
         try {
             executeTest(schema, testSpec);
         } finally {

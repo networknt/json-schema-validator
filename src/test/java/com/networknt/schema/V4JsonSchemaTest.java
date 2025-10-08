@@ -37,9 +37,9 @@ class V4JsonSchemaTest {
     void testLoadingWithId() throws Exception {
         try (InputStream inputStream = new FileInputStream("src/test/resources/remotes/self_ref/selfRef.json")) {
             JsonNode schemaJson = mapper.readTree(inputStream);
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
+            SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
             @SuppressWarnings("unused")
-            JsonSchema schema = factory.getSchema(schemaJson);
+            Schema schema = factory.getSchema(schemaJson);
         }
     }
 
@@ -48,7 +48,7 @@ class V4JsonSchemaTest {
      */
     @Test
     void testFailFast_AllErrors() throws IOException {
-        List<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+        List<Error> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-all-errors-data.json");
         assertEquals(1, messages.size());
     }
@@ -58,7 +58,7 @@ class V4JsonSchemaTest {
      */
     @Test
     void testFailFast_OneErrors() throws IOException {
-        List<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+        List<Error> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-one-error-data.json");
         assertEquals(1, messages.size());
     }
@@ -68,31 +68,29 @@ class V4JsonSchemaTest {
      */
     @Test
     void testFailFast_TwoErrors() throws IOException {
-        List<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+        List<Error> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-two-errors-data.json");
         assertEquals(1, messages.size());
     }
 
     /**
      * The file contains no errors, in ths case
-     * {@link Set}&lt;{@link ValidationMessage}&gt; must be empty
+     * {@link Set}&lt;{@link Error}&gt; must be empty
      */
     @Test
     void testFailFast_NoErrors() throws IOException {
-        final List<ValidationMessage> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
+        final List<Error> messages = validateFailingFastSchemaFor("extra/product/product.schema.json",
                 "extra/product/product-no-errors-data.json");
         assertTrue(messages.isEmpty());
     }
 
-    private List<ValidationMessage> validateFailingFastSchemaFor(final String schemaFileName, final String dataFileName) throws IOException {
+    private List<Error> validateFailingFastSchemaFor(final String schemaFileName, final String dataFileName) throws IOException {
         final ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode schema = getJsonNodeFromResource(objectMapper, schemaFileName);
         final JsonNode dataFile = getJsonNodeFromResource(objectMapper, dataFileName);
-        final SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().failFast(true).build();
-        return JsonSchemaFactory
-            .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4))
-            .build()
-            .getSchema(schema, config)
+        final SchemaRegistryConfig config = SchemaRegistryConfig.builder().failFast(true).build();
+        return SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config))
+            .getSchema(schema)
             .validate(dataFile);
     }
 

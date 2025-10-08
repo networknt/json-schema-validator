@@ -6,9 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.SpecVersion.VersionFlag;
+import com.networknt.schema.keyword.PrefixItemsValidator;
+import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
-import com.networknt.schema.walk.JsonSchemaWalkListener;
+import com.networknt.schema.walk.ApplyDefaultsStrategy;
+import com.networknt.schema.walk.ItemWalkListenerRunner;
+import com.networknt.schema.walk.WalkListener;
+import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
 
@@ -32,10 +36,10 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
      */
     @Test
     void testEmptyPrefixItemsException() {
-        Stream<DynamicNode> dynamicNodeStream = createTests(SpecVersion.VersionFlag.V7, "src/test/resources/prefixItemsException");
+        Stream<DynamicNode> dynamicNodeStream = createTests(SpecificationVersion.DRAFT_7, "src/test/resources/prefixItemsException");
         dynamicNodeStream.forEach(
                 dynamicNode -> {
-                    assertThrows(JsonSchemaException.class, () -> {
+                    assertThrows(SchemaException.class, () -> {
                         ((DynamicContainer) dynamicNode).getChildren().forEach(dynamicNode1 -> {
                         });
                     });
@@ -53,19 +57,19 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "[1, \"x\"]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/prefixItems/0/type", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/prefixItems/0/type", message.getSchemaLocation().toString());
         assertEquals("/0", message.getInstanceLocation().toString());
         assertEquals("\"string\"", message.getSchemaNode().toString());
         assertEquals("1", message.getInstanceNode().toString());
-        assertEquals("/0: integer found, string expected", message.getMessage());
+        assertEquals("/0: integer found, string expected", message.toString());
         assertNull(message.getProperty());
     }
 
@@ -79,11 +83,11 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"$id\": \"https://www.example.org/schema\",\r\n"
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}]"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "[\"x\", 1, 1]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertTrue(messages.isEmpty());
     }
 
@@ -98,19 +102,19 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  \"prefixItems\": [{\"type\": \"string\"},{\"type\": \"integer\"}],\r\n"
                 + "  \"items\": false"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12, builder -> builder.schemaRegistryConfig(config));
+        Schema schema = factory.getSchema(schemaData);
         String inputData = "[\"x\", 1, 1, 2]";
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
         assertFalse(messages.isEmpty());
-        ValidationMessage message = messages.iterator().next();
+        Error message = messages.iterator().next();
         assertEquals("/items", message.getEvaluationPath().toString());
         assertEquals("https://www.example.org/schema#/items", message.getSchemaLocation().toString());
         assertEquals("", message.getInstanceLocation().toString());
         assertEquals("false", message.getSchemaNode().toString());
         assertEquals("[\"x\",1,1,2]", message.getInstanceNode().toString());
-        assertEquals(": index '2' is not defined in the schema and the schema does not allow additional items", message.getMessage());
+        assertEquals(": index '2' is not defined in the schema and the schema does not allow additional items", message.toString());
         assertNull(message.getProperty());
     }
 
@@ -129,26 +133,29 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().itemWalkListener(new JsonSchemaWalkListener() {
+        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder().itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
             }
 
             @Override
-            public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+            public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                 @SuppressWarnings("unchecked")
                 List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
                         .getCollectorContext()
-                        .getCollectorMap()
-                        .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        .getData()
+                        .computeIfAbsent("items", key -> new ArrayList<NodePath>());
                 items.add(walkEvent);
             }
         }).build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
-        ValidationResult result = schema.walk(null, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
+
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
+        Result result = schema.walk(null, true, 
+                executionContext -> executionContext.setWalkConfig(walkConfig));
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");
@@ -182,31 +189,31 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
-                .applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
-                .itemWalkListener(new JsonSchemaWalkListener() {
-
+        
+        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+                .itemWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
                         return WalkFlow.CONTINUE;
                     }
 
                     @Override
-                    public void onWalkEnd(WalkEvent walkEvent, List<ValidationMessage> validationMessages) {
+                    public void onWalkEnd(WalkEvent walkEvent, List<Error> errors) {
                         @SuppressWarnings("unchecked")
-                        List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext()
-                                .getCollectorContext()
-                                .getCollectorMap()
-                                .computeIfAbsent("items", key -> new ArrayList<JsonNodePath>());
+                        List<WalkEvent> items = (List<WalkEvent>) walkEvent.getExecutionContext().getCollectorContext()
+                                .getData().computeIfAbsent("items", key -> new ArrayList<NodePath>());
                         items.add(walkEvent);
                     }
-                })
-                .build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+                }).build();
+        WalkConfig walkConfig = WalkConfig.builder().applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
+                .itemWalkListenerRunner(itemWalkListenerRunner).build();
+
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
         JsonNode input = JsonMapperFactory.getInstance().readTree("[null, null]");
-        ValidationResult result = schema.walk(input, true);
-        assertTrue(result.getValidationMessages().isEmpty());
+        Result result = schema.walk(input, true,
+                executionContext -> executionContext.setWalkConfig(walkConfig));
+        assertTrue(result.getErrors().isEmpty());
         
         @SuppressWarnings("unchecked")
         List<WalkEvent> items = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("items");

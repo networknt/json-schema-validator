@@ -2,6 +2,7 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 import java.io.IOException;
@@ -21,29 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 abstract class AbstractJsonSchemaTest {
 
     private static final String SCHEMA = "$schema";
-    private static final SpecVersion.VersionFlag DEFAULT_VERSION_FLAG = SpecVersion.VersionFlag.V202012;
-    private static final String ASSERT_MSG_ERROR_CODE = "Validation result should contain {0} error code";
-    private static final String ASSERT_MSG_TYPE = "Validation result should contain {0} type";
+    private static final SpecificationVersion DEFAULT_VERSION_FLAG = SpecificationVersion.DRAFT_2020_12;
+    private static final String ASSERT_MSG_KEYWORD = "Validation result should contain {0} keyword";
 
-    protected List<ValidationMessage> validate(String dataPath) {
+    protected List<Error> validate(String dataPath) {
         JsonNode dataNode = getJsonNodeFromPath(dataPath);
         return getJsonSchemaFromDataNode(dataNode).validate(dataNode);
     }
 
-    protected void assertValidatorType(String filename, ValidatorTypeCode validatorTypeCode) {
-        List<ValidationMessage> validationMessages = validate(getDataTestFolder() + filename);
+    protected void assertValidatorType(String filename, KeywordType validatorTypeCode) {
+        List<Error> errors = validate(getDataTestFolder() + filename);
 
         assertTrue(
-                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getErrorCode().equals(vm.getCode())),
-                () -> MessageFormat.format(ASSERT_MSG_ERROR_CODE, validatorTypeCode.getErrorCode()));
-        assertTrue(
-                validationMessages.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getType())),
-                () -> MessageFormat.format(ASSERT_MSG_TYPE, validatorTypeCode.getValue()));
+                errors.stream().anyMatch(vm -> validatorTypeCode.getValue().equals(vm.getKeyword())),
+                () -> MessageFormat.format(ASSERT_MSG_KEYWORD, validatorTypeCode.getValue()));
     }
 
     protected abstract String getDataTestFolder();
 
-    private JsonSchema getJsonSchemaFromDataNode(JsonNode dataNode) {
+    private Schema getJsonSchemaFromDataNode(JsonNode dataNode) {
         return Optional.ofNullable(dataNode.get(SCHEMA))
                 .map(JsonNode::textValue)
                 .map(this::getJsonNodeFromPath)
@@ -61,9 +58,9 @@ abstract class AbstractJsonSchemaTest {
         }
     }
 
-    private JsonSchema getJsonSchema(JsonNode schemaNode) {
-        return JsonSchemaFactory
-                .getInstance(SpecVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
+    private Schema getJsonSchema(JsonNode schemaNode) {
+        return SchemaRegistry
+                .withDefaultDialect(SpecificationVersionDetector.detectOptionalVersion(schemaNode, false).orElse(DEFAULT_VERSION_FLAG))
                 .getSchema(schemaNode);
     }
 

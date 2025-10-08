@@ -19,21 +19,19 @@ class Issue366FailSlowTest {
         setupSchema();
     }
 
-    JsonSchema jsonSchema;
+    Schema jsonSchema;
     ObjectMapper objectMapper = new ObjectMapper();
 
     private void setupSchema() throws IOException {
 
-        SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder().typeLoose(false).build();
-        JsonSchemaFactory schemaFactory = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .build();
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().typeLoose(false).build();
+        SchemaRegistry schemaFactory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig));
 
         SchemaLocation uri = getSchema();
 
         InputStream in = getClass().getResourceAsStream("/schema/issue366_schema.json");
         JsonNode testCases = objectMapper.readValue(in, JsonNode.class);
-        this.jsonSchema = schemaFactory.getSchema(uri, testCases, schemaValidatorsConfig);
+        this.jsonSchema = schemaFactory.getSchema(uri, testCases);
     }
 
     protected JsonNode getJsonNodeFromStreamContent(InputStream content) throws Exception {
@@ -51,7 +49,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(0);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 
@@ -64,7 +62,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(1);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
         assertTrue(errors.isEmpty());
     }
 
@@ -77,7 +75,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(2);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
 	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 1);
     }
@@ -91,7 +89,7 @@ class Issue366FailSlowTest {
         List<JsonNode> testNodes = node.findValues("tests");
         JsonNode testNode = testNodes.get(0).get(3);
         JsonNode dataNode = testNode.get("data");
-        List<ValidationMessage> errors = jsonSchema.validate(dataNode);
+        List<Error> errors = jsonSchema.validate(dataNode);
 	    assertFalse(errors.isEmpty());
         assertEquals(errors.size(), 3);
     }

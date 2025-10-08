@@ -9,16 +9,17 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.dialect.Dialects;
 
 class Issue824Test {
     @Test
     void validate() throws JsonProcessingException {
-        final JsonSchema v201909SpecSchema = JsonSchemaFactory
-                .builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909))
-                .schemaMappers(schemaMappers -> {
-                    schemaMappers.mapPrefix("https://json-schema.org", "resource:");
+        final Schema v201909SpecSchema = SchemaRegistry
+                .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
+                .schemaIdResolvers(schemaIdResolvers -> {
+                    schemaIdResolvers.mapPrefix("https://json-schema.org", "resource:");
                 }).build()
-                .getSchema(SchemaLocation.of(JsonMetaSchema.getV201909().getIri()));
+                .getSchema(SchemaLocation.of(Dialects.getDraft201909().getId()));
         final JsonNode invalidSchema = new ObjectMapper().readTree(
                 "{"+
                 "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\","+
@@ -26,8 +27,8 @@ class Issue824Test {
                 "}");
 
         // Validate same JSON schema against v2019-09 spec schema twice
-        final List<ValidationMessage> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
-        final List<ValidationMessage> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
+        final List<Error> validationErrors1 = v201909SpecSchema.validate(invalidSchema);
+        final List<Error> validationErrors2 = v201909SpecSchema.validate(invalidSchema);
 
         // Validation errors should be the same
         assertEquals(validationErrors1, validationErrors2);

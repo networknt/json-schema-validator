@@ -23,8 +23,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 class Issue943Test {
     @Test
     void test() {
@@ -67,10 +65,9 @@ class Issue943Test {
                 + "  \"type\": \"Point\",\r\n"
                 + "  \"coordinates\": [1, 1]\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012,
-                builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(external)));
-        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder().build();
-        JsonSchema schema = factory.getSchema(schemaData, config);
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.resources(external)));
+        Schema schema = factory.getSchema(schemaData);
         assertTrue(schema.validate(inputData, InputFormat.JSON).isEmpty());
 
         String badData = "{\r\n"

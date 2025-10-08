@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 /**
  * EnumValidator test. 
  */
@@ -85,11 +83,10 @@ class EnumValidatorTest {
                 + "   \"name\": \"FOO\",\r\n"
                 + "   \"cardinality\": 50\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().build());
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertEquals(1, messages.size());
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals(
                 ": does not have a value in the enumeration [{\"name\":\"EMPTY\",\"cardinality\":0}, {\"name\":\"OK\",\"cardinality\":20}, {\"name\":\"UNKNOWN\",\"cardinality\":30}, {\"name\":\"WARNING\",\"cardinality\":40}, {\"name\":\"CRITICAL\",\"cardinality\":50}]",
                 message.toString());
@@ -105,11 +102,10 @@ class EnumValidatorTest {
                 + "   \"name\": \"FOO\",\r\n"
                 + "   \"cardinality\": 50\r\n"
                 + "}";
-        JsonSchema schema = JsonSchemaFactory.getInstance(VersionFlag.V202012).getSchema(schemaData,
-                SchemaValidatorsConfig.builder().build());
-        List<ValidationMessage> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schemaData);
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON).stream().collect(Collectors.toList());
         assertEquals(1, messages.size());
-        ValidationMessage message = messages.get(0);
+        Error message = messages.get(0);
         assertEquals(": does not have a value in the enumeration [6, \"foo\", [], true, {\"foo\":12}]", message.toString());
     }
 }

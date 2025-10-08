@@ -20,11 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.networknt.schema.SpecVersion.VersionFlag;
-
 class AllOfValidatorTest {
     @Test
-    void invalidTypeShouldThrowJsonSchemaException() {
+    void invalidTypeShouldThrowSchemaException() {
         String schemaData = "{\r\n"
                 + "  \"$defs\": {\r\n"
                 + "    \"User\": true\r\n"
@@ -33,8 +31,8 @@ class AllOfValidatorTest {
                 + "    \"$ref\": \"#/defs/User\"\r\n"
                 + "  }\r\n"
                 + "}";
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
-        JsonSchemaException ex = assertThrows(JsonSchemaException.class, () -> factory.getSchema(schemaData));
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        SchemaException ex = assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
         assertEquals("type", ex.getError().getMessageKey());
     }
 
@@ -59,9 +57,9 @@ class AllOfValidatorTest {
 
         String jsonContents = "{}";
 
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        JsonSchema schema = factory.getSchema(schemaContents);
-        ValidationResult result = schema.walk(jsonContents, InputFormat.JSON, true);
-        assertEquals(true, result.getValidationMessages().isEmpty());
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        Schema schema = factory.getSchema(schemaContents);
+        Result result = schema.walk(jsonContents, InputFormat.JSON, true);
+        assertEquals(true, result.getErrors().isEmpty());
     }    
 }
