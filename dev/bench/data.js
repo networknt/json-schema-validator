@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759001971918,
+  "lastUpdate": 1759945507677,
   "repoUrl": "https://github.com/networknt/json-schema-validator",
   "entries": {
     "JSON Schema Validator Benchmark": [
@@ -268,6 +268,96 @@ window.BENCHMARK_DATA = {
           {
             "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
             "value": 5919.574162301934,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49700559+justin-tay@users.noreply.github.com",
+            "name": "Justin Tay",
+            "username": "justin-tay"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e880dd0aa16a52098aa6eea25d688275ac1590d9",
+          "message": "Main refactor for 2.x (#1198)\n\n* Refactor to remove ErrorMessageType\n\n* Remove failFast from MessageSourceValidationMessage builder\n\n* Remove hard coded instance location for the error message\n\n* Rename ValidationMessage to Error\n\n* Rename JsonSchemaWalker to Walker\n\n* Rename JsonSchemaValidator to Validator\n\n* Rename JsonValidator to KeywordValidator and fix class hierarchy\n\n* Move keyword and keyword validators to keyword package\n\n* Rename SpecVersion.VersionFlag to Specification.Version and refactor\n\n* Rename SchemaId to DialectId\n\n* Rename JsonMetaSchema to Dialect\n\n* Refactor dialect and add dialects\n\n* Rename JsonMetaSchemaFactory to DialectRegistry\n\n* Rename JsonSchema to Schema\n\n* Rename JsonSchemaFactory to SchemaRegistry\n\n* Refactor SchemaRegistry\n\n* Rename SchemaValidatorsConfig to SchemaRegistryConfig and move from ValidationContext to SchemaRegistry and refactor\n\nRename JsonSchemaWalkerListener to SchemaWalkerListener\nRename DefaultItemWalkListenerRunner to ItemWalkListenerRunner\nRename DefaultKeywordWalkListenerRunner to KeywordWalkListenerRunner\nRename DefaultPropertyWalkListenerRunner to PropertyWalkListenerRunner\nShift walk configuration to WalkConfig\n\n* Rename ValidationContext to SchemaContext\n\n* Remove JsonSchemaVersion\n\n* Rename JsonSchemaIdValidator to SchemaIdValidator\n\n* Rename JsonSchemaRef to SchemaRef\n\n* Rename JsonSchemaException to SchemaException\n\n* Rename JsonNodePath to NodePath\n\n* Rename preloadJsonSchema in KeywordValidator to preloadSchema\n\n* Rename JsonNodeAnnotation to Annotation\n\n* Rename BaseFormatJsonValidator to BaseFormatValidator\n\n* Rename JsonNodeResult to SchemaResult\n\n* Rename ValidationResult to Result\n\n* Refactor naming\n\n* Rename Specification.Version to SpecificationVersion and refactor\n\n* Rename ValidatorTypeCode to Keywords\n\n* Rename VersionCode to SpecificationVersionRange\n\n* Rename ValidatorTypeCode to KeywordType\n\n* Move ThresholdMixin to keyword package\n\n* Move Vocabulary to vocabulary package\n\n* Move ApplyDefaultsStrategy to walk package\n\n* Move Format and Formats to format package\n\n* Remove AbstractFormat and BaseFormat\n\n* Refactor format\n\n* Move CachedSupplier to utils package\n\n* Rename CachedSupplier to ThreadSafeCachingSupplier and refactor\n\n* Move NodePath and PathType to path package\n\n* Refactor and fix discriminator\n\n* Refactor discriminator\n\n* Refactor discriminator\n\n* Refactor discriminator\n\n* Refactor discriminator\n\n* Refactor SchemaLoader\n\n* Refactor path type\n\n* Rename SchemaResult to InstanceResult\n\n* Move SpecificationVersionDetector to test\n\n* Move JsonType and TypeFactory to utils package\n\n* Rename JsonNodeReader to NodeReader\n\n* Refactor SchemaRegistry and ResourceLoaders\n\n* Fix UrnTest\n\n* Refactor Dialect Registry and Schema Registry\n\n* Rename ItemsValidator to ItemsLegacyValidator and ItemsValidator202012 to ItemsValidator\n\n* Refactor StringUtils and StringChecker into Strings\n\n* Refactor Schema to allow loading input from iri\n\n* Refactor Vocabulary rename iri to id\n\n* Allow adding keyword to dialect to override vocabulary keywords\n\n* Rename JsonNodeUtil to JsonNodeTypes\n\n* Remove SetView\n\n* Suppress warnings for ThresholdMixinPerfTest\n\n* Add propertyDependencies keyword\n\n* Rename PROPERTYNAMES KeywordType to PROPERTY_NAMES\n\n* Refactor SpecificationVersionRange and rename constants\n\n* Fix propertyNames and not messages\n\n* Rename VocabularyFactory to VocabularyRegistry\n\n* Rename enableSchemaCache to schemaCacheEnabled in SchemaRegistry\n\n* Fix discriminator\n\n* Fix enum\n\n* Rename JsonLocationAware to TokenStreamLocationAware to align with v3\n\n* migration docs",
+          "timestamp": "2025-10-08T13:38:41-04:00",
+          "tree_id": "fe6598378d25d1f11b498909c4c1314d1bfbb34b",
+          "url": "https://github.com/networknt/json-schema-validator/commit/e880dd0aa16a52098aa6eea25d688275ac1590d9"
+        },
+        "date": 1759945506628,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntBenchmark.basic",
+            "value": 9015.25115588655,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1190.067578458102,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1268.4261236432458,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 1305.5079044639922,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3327.434374862661,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteOptionalBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 3835.0186256243073,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2020-12\"} )",
+            "value": 1238.8627084821762,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"2019-09\"} )",
+            "value": 1341.687356189944,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"7\"} )",
+            "value": 3587.2522310658155,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"6\"} )",
+            "value": 3715.5398139019853,
+            "unit": "ops/s",
+            "extra": "iterations: 3\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "com.networknt.schema.benchmark.NetworkntTestSuiteRequiredBenchmark.testsuite ( {\"specification\":\"4\"} )",
+            "value": 5620.090429084829,
             "unit": "ops/s",
             "extra": "iterations: 3\nforks: 1\nthreads: 1"
           }
