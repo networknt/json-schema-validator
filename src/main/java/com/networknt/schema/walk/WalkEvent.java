@@ -18,6 +18,11 @@ public class WalkEvent {
     private JsonNode instanceNode;
     private NodePath instanceLocation;
     private KeywordValidator validator;
+    private NodePath evaluationPath;
+    
+    public NodePath getEvaluationPath() {
+        return this.evaluationPath;
+    }
 
     /**
      * Gets the execution context.
@@ -93,7 +98,7 @@ public class WalkEvent {
 
     @Override
     public String toString() {
-        return "WalkEvent [evaluationPath=" + getSchema().getEvaluationPath() + ", schemaLocation="
+        return "WalkEvent [schemaLocation="
                 + getSchema().getSchemaLocation() + ", instanceLocation=" + instanceLocation + "]";
     }
 
@@ -141,6 +146,9 @@ public class WalkEvent {
         }
 
         public WalkEvent build() {
+            if (walkEvent.executionContext != null) {
+                walkEvent.evaluationPath = walkEvent.executionContext.getEvaluationPath();
+            }
             return walkEvent;
         }
 

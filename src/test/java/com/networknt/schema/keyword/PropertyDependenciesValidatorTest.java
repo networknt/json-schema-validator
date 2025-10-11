@@ -18,7 +18,7 @@ import com.networknt.schema.dialect.Dialects;
  */
 public class PropertyDependenciesValidatorTest {
     @Test
-    void basicTest() {
+    void evaluationPath() {
         Dialect dialect = Dialect.builder(Dialects.getDraft202012()).keyword(KeywordType.PROPERTY_DEPENDENCIES).build();
         SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"

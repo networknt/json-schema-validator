@@ -40,6 +40,7 @@ import com.networknt.schema.path.PathType;
 import com.networknt.schema.resource.ClasspathResourceLoader;
 import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.ResourceLoader;
+import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.JsonNodes;
 
@@ -63,9 +64,11 @@ public class Schema implements Validator {
      * The validators sorted and indexed by evaluation path.
      */
     private List<KeywordValidator> validators = null;
+    private boolean unevaluatedPropertiesPresent = false;
+    private boolean unevaluatedItemsPresent = false;
+    
     private boolean validatorsLoaded = false;
     private boolean recursiveAnchor = false;
-    private TypeValidator typeValidator = null;
 
     protected final JsonNode schemaNode;
     protected final Schema parentSchema;
@@ -73,9 +76,6 @@ public class Schema implements Validator {
     protected final SchemaContext schemaContext;
     protected final boolean suppressSubSchemaRetrieval;
 
-    protected final NodePath evaluationPath;
-    protected final Schema evaluationParentSchema;
-    
     public JsonNode getSchemaNode() {
         return this.schemaNode;
     }
@@ -90,17 +90,6 @@ public class Schema implements Validator {
 
     public boolean isSuppressSubSchemaRetrieval() {
         return suppressSubSchemaRetrieval;
-    }
-
-    public NodePath getEvaluationPath() {
-        return evaluationPath;
-    }
-
-    public Schema getEvaluationParentSchema() {
-        if (this.evaluationParentSchema != null) {
-            return this.evaluationParentSchema;
-        }
-        return getParentSchema();
     }
 
     protected Schema fetchSubSchemaNode(SchemaContext schemaContext) {
@@ -147,6 +136,14 @@ public class Schema implements Validator {
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node) {
+        /* Previously the evaluation path started with the fragment of the schema due to the way it was implemented
+         * as part of the schema's state
+         * int count = this.schemaLocation.getFragment().getNameCount(); 
+         * for (int x = 0; x < count; x++) {
+         *     executionContext.evaluationPath.addLast(this.schemaLocation.getFragment().getElement(x)); 
+         * }
+         */
+        executionContext.evaluationPath = atRoot();
         validate(executionContext, node, node, atRoot());
     }
 
@@ -166,8 +163,8 @@ public class Schema implements Validator {
         return new NodePath(this.schemaContext.getSchemaRegistryConfig().getPathType());
     }    
 
-    static Schema from(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
-        return new Schema(schemaContext, schemaLocation, evaluationPath, schemaNode, parent, suppressSubSchemaRetrieval);
+    static Schema from(SchemaContext schemaContext, SchemaLocation schemaLocation, JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
+        return new Schema(schemaContext, schemaLocation, schemaNode, parent, suppressSubSchemaRetrieval);
     }
 
     private boolean hasNoFragment(SchemaLocation schemaLocation) {
@@ -209,19 +206,13 @@ public class Schema implements Validator {
         }
     }
 
-    private Schema(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath,
+    private Schema(SchemaContext schemaContext, SchemaLocation schemaLocation, 
             JsonNode schemaNode, Schema parent, boolean suppressSubSchemaRetrieval) {
-        /*
-        super(resolve(schemaLocation, schemaNode, parent == null, schemaContext), evaluationPath, schemaNode, parent,
-                null, null, schemaContext, suppressSubSchemaRetrieval);
-        */
         this.schemaContext = schemaContext;
         this.schemaLocation = resolve(schemaLocation, schemaNode, parent == null, schemaContext);
         this.schemaNode = schemaNode;
         this.parentSchema = parent;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.evaluationPath = evaluationPath;
-        this.evaluationParentSchema = null;
         
         String id = this.schemaContext.resolveSchemaId(this.schemaNode);
         if (id != null) {
@@ -271,39 +262,29 @@ public class Schema implements Validator {
      * @param validators the validators
      * @param validatorsLoaded whether the validators are preloaded
      * @param recursiveAnchor whether this is has a recursive anchor
-     * @param typeValidator the type validator
      * @param id the id
      * @param suppressSubSchemaRetrieval to suppress sub schema retrieval
      * @param schemaNode the schema node
      * @param schemaContext the schema context
      * @param parentSchema the parent schema
      * @param schemaLocation the schema location
-     * @param evaluationPath the evaluation path
-     * @param evaluationParentSchema the evaluation parent schema
      * @param errorMessage the error message
      */
     protected Schema(
-            /* Below from JsonSchema */
             List<KeywordValidator> validators,
             boolean validatorsLoaded,
             boolean recursiveAnchor,
             TypeValidator typeValidator,
             String id,            
-            /* Below from BaseJsonValidator */
             boolean suppressSubSchemaRetrieval,
             JsonNode schemaNode,
             SchemaContext schemaContext,
             Schema parentSchema,
             SchemaLocation schemaLocation,
-            NodePath evaluationPath,
-            Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
-//        super(suppressSubSchemaRetrieval, schemaNode, schemaContext, errorMessageType, keyword,
-//                parentSchema, schemaLocation, evaluationPath, evaluationParentSchema, errorMessage);
         this.validators = validators;
         this.validatorsLoaded = validatorsLoaded;
         this.recursiveAnchor = recursiveAnchor;
-        this.typeValidator = typeValidator;
         this.id = id;
         
         this.schemaContext = schemaContext;
@@ -311,89 +292,14 @@ public class Schema implements Validator {
         this.schemaNode = schemaNode;
         this.parentSchema = parentSchema;
         this.suppressSubSchemaRetrieval = suppressSubSchemaRetrieval;
-        this.evaluationPath = evaluationPath;
-        this.evaluationParentSchema = evaluationParentSchema;
     }
-
-    /**
-     * Creates a schema using the current one as a template with the parent as the
-     * ref.
-     * <p>
-     * This is typically used if this schema is a schema resource that can be
-     * pointed to by various references.
-     *
-     * @param refEvaluationParentSchema the parent ref
-     * @param refEvaluationPath the ref evaluation path
-     * @return the schema
-     */
-    public Schema fromRef(Schema refEvaluationParentSchema, NodePath refEvaluationPath) {
-        SchemaContext schemaContext = new SchemaContext(this.getSchemaContext().getDialect(),
-                this.getSchemaContext().getSchemaRegistry(),
-                refEvaluationParentSchema.getSchemaContext().getSchemaReferences(),
-                refEvaluationParentSchema.getSchemaContext().getSchemaResources(),
-                refEvaluationParentSchema.getSchemaContext().getDynamicAnchors());
-        NodePath evaluationPath = refEvaluationPath;
-        Schema evaluationParentSchema = refEvaluationParentSchema;
-        // Validator state is reset due to the changes in evaluation path
-        boolean validatorsLoaded = false;
-        TypeValidator typeValidator = null;
-        List<KeywordValidator> validators = null;
-
-        return new Schema(
-                /* Below from JsonSchema */
-                validators,
-                validatorsLoaded,
-                recursiveAnchor,
-                typeValidator,
-                id,            
-                /* Below from BaseJsonValidator */
-                suppressSubSchemaRetrieval,
-                schemaNode,
-                schemaContext,
-                parentSchema, schemaLocation, evaluationPath,
-                evaluationParentSchema, /* errorMessage */ null);
-    }
-
-//    public Schema withConfig(SchemaValidatorsConfig config) {
-//        if (this.getValidationContext().getMetaSchema().getKeywords().containsKey("discriminator")
-//                && !config.isDiscriminatorKeywordEnabled()) {
-//            config = SchemaValidatorsConfig.builder(config)
-//                    .discriminatorKeywordEnabled(true)
-//                    .nullableKeywordEnabled(true)
-//                    .build();
-//        }
-//        if (!this.getValidationContext().getSchemaRegistryConfig().equals(config)) {
-//            ValidationContext schemaContext = new ValidationContext(this.getValidationContext().getMetaSchema(),
-//                    this.getValidationContext().getSchemaRegistry(), config,
-//                    this.getValidationContext().getSchemaReferences(),
-//                    this.getValidationContext().getSchemaResources(),
-//                    this.getValidationContext().getDynamicAnchors());
-//            boolean validatorsLoaded = false;
-//            TypeValidator typeValidator = null;
-//            List<KeywordValidator> validators = null;
-//            return new Schema(
-//                    /* Below from JsonSchema */
-//                    validators,
-//                    validatorsLoaded,
-//                    recursiveAnchor,
-//                    typeValidator,
-//                    id,            
-//                    /* Below from BaseJsonValidator */
-//                    suppressSubSchemaRetrieval,
-//                    schemaNode,
-//                    schemaContext,
-//                    parentSchema,
-//                    schemaLocation,
-//                    evaluationPath,
-//                    evaluationParentSchema,
-//                    /* errorMessage */ null);
-//
-//        }
-//        return this;
-//    }
 
     public SchemaContext getSchemaContext() {
         return this.schemaContext;
+    }
+    
+    public boolean hasKeyword(String keyword) {
+        return this.schemaNode.has(keyword);
     }
 
     /**
@@ -461,7 +367,6 @@ public class Schema implements Validator {
         Schema subSchema = null;
         JsonNode parentNode = parent.getSchemaNode();
         SchemaLocation schemaLocation = document.getSchemaLocation();
-        NodePath evaluationPath = document.getEvaluationPath();
         int nameCount = fragment.getNameCount();
         for (int x = 0; x < nameCount; x++) {
             /*
@@ -478,10 +383,8 @@ public class Schema implements Validator {
                 if (segment instanceof Number && parentNode.isArray()) {
                     int index = ((Number) segment).intValue();
                     schemaLocation = schemaLocation.append(index);
-                    evaluationPath = evaluationPath.append(index);
                 } else {
                     schemaLocation = schemaLocation.append(segment.toString());
-                    evaluationPath = evaluationPath.append(segment.toString());
                 }
                 /*
                  * The parent schema context is used to create as there can be changes in
@@ -492,7 +395,7 @@ public class Schema implements Validator {
 //                if (!("definitions".equals(segment.toString()) || "$defs".equals(segment.toString())
 //                        )) {
                 if (id != null || x == nameCount - 1) {
-                    subSchema = parent.getSchemaContext().newSchema(schemaLocation, evaluationPath, subSchemaNode,
+                    subSchema = parent.getSchemaContext().newSchema(schemaLocation, subSchemaNode,
                             parent);
                     parent = subSchema;
                     schemaLocation = subSchema.getSchemaLocation();
@@ -516,7 +419,7 @@ public class Schema implements Validator {
                             .message("Reference {0} cannot be resolved")
                             .instanceLocation(schemaLocation.getFragment())
                             .schemaLocation(schemaLocation)
-                            .evaluationPath(evaluationPath)
+                            .evaluationPath(null)
                             .arguments(fragment).build();
                     throw new InvalidSchemaRefException(error);
                 }
@@ -605,14 +508,12 @@ public class Schema implements Validator {
         if (schemaNode.isBoolean()) {
             validators = new ArrayList<>(1);
             if (schemaNode.booleanValue()) {
-                NodePath path = getEvaluationPath().append("true");
-                KeywordValidator validator = this.schemaContext.newValidator(getSchemaLocation().append("true"), path,
+                KeywordValidator validator = this.schemaContext.newValidator(getSchemaLocation().append("true"),
                         "true", schemaNode, this);
                 validators.add(validator);
             } else {
-                NodePath path = getEvaluationPath().append("false");
                 KeywordValidator validator = this.schemaContext.newValidator(getSchemaLocation().append("false"),
-                        path, "false", schemaNode, this);
+                        "false", schemaNode, this);
                 validators.add(validator);
             }
         } else {
@@ -625,7 +526,6 @@ public class Schema implements Validator {
                 String pname = entry.getKey();
                 JsonNode nodeToUse = entry.getValue();
 
-                NodePath path = getEvaluationPath().append(pname);
                 SchemaLocation schemaPath = getSchemaLocation().append(pname);
 
                 if ("$recursiveAnchor".equals(pname)) {
@@ -634,8 +534,8 @@ public class Schema implements Validator {
                                 .messageKey("internal.invalidRecursiveAnchor")
                                 .message(
                                         "The value of a $recursiveAnchor must be a Boolean literal but is {0}")
-                                .instanceLocation(path)
-                                .evaluationPath(path)
+                                .instanceLocation(null)
+                                .evaluationPath(null)
                                 .schemaLocation(schemaPath)
                                 .arguments(nodeToUse.getNodeType().toString())
                                 .build();
@@ -644,17 +544,18 @@ public class Schema implements Validator {
                     this.recursiveAnchor = nodeToUse.booleanValue();
                 }
 
-                KeywordValidator validator = this.schemaContext.newValidator(schemaPath, path,
+                KeywordValidator validator = this.schemaContext.newValidator(schemaPath, 
                         pname, nodeToUse, this);
                 if (validator != null) {
                     validators.add(validator);
+                    if ("unevaluatedProperties".equals(pname)) {
+                        this.unevaluatedPropertiesPresent = true;
+                    } else if ("unevaluatedItems".equals(pname)) {
+                        this.unevaluatedItemsPresent = true;
+                    }
 
                     if ("$ref".equals(pname)) {
                         refValidator = validator;
-                    } else if ("type".equals(pname)) {
-                        if (validator instanceof TypeValidator) {
-                            this.typeValidator = (TypeValidator) validator;
-                        }
                     }
                 }
 
@@ -677,14 +578,17 @@ public class Schema implements Validator {
      * so that we can apply default values before validating required.
      */
     private static final Comparator<KeywordValidator> VALIDATOR_SORT = (lhs, rhs) -> {
-        String lhsName = lhs.getEvaluationPath().getName(-1);
-        String rhsName = rhs.getEvaluationPath().getName(-1);
+        String lhsName = lhs.getKeyword();
+        String rhsName = rhs.getKeyword();
 
         if (lhsName.equals(rhsName)) return 0;
 
         // Discriminator needs to run first to set state in the execution context
         if (lhsName.equals("discriminator")) return -1;
         if (rhsName.equals("discriminator")) return 1;
+
+        if (lhsName.equals("type")) return -1;
+        if (rhsName.equals("type")) return 1;
 
         if (lhsName.equals("properties")) return -1;
         if (rhsName.equals("properties")) return 1;
@@ -702,14 +606,46 @@ public class Schema implements Validator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode jsonNode, JsonNode rootNode, NodePath instanceLocation) {
-        int currentErrors = executionContext.getErrors().size();
-        for (KeywordValidator v : getValidators()) {
-            v.validate(executionContext, jsonNode, rootNode, instanceLocation);
+        List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
+        executionContext.evaluationSchema.addLast(this);
+        boolean unevaluatedPropertiesPresent = executionContext.unevaluatedPropertiesPresent;
+        boolean unevaluatedItemsPresent =  executionContext.unevaluatedItemsPresent;
+        if (this.unevaluatedPropertiesPresent) {
+            executionContext.unevaluatedPropertiesPresent = this.unevaluatedPropertiesPresent;
         }
-        if (executionContext.getErrors().size() > currentErrors) {
-            // Failed with assertion set result and drop all annotations from this schema
-            // and all subschemas
-            executionContext.getInstanceResults().setResult(instanceLocation, getSchemaLocation(), getEvaluationPath(), false);
+        if (this.unevaluatedItemsPresent) {
+            executionContext.unevaluatedItemsPresent = this.unevaluatedItemsPresent;
+        }
+        try {
+            int currentErrors = executionContext.getErrors().size();
+            for (KeywordValidator v : validators) {
+                executionContext.evaluationPathAddLast(v.getKeyword());
+                executionContext.evaluationSchemaPath.addLast(v.getKeyword());
+                try {
+                    v.validate(executionContext, jsonNode, rootNode, instanceLocation);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                    executionContext.evaluationSchemaPath.removeLast();
+                }
+            }
+            if (executionContext.getErrors().size() > currentErrors) {
+                // Failed with assertion set result and drop all annotations from this schema
+                // and all subschemas
+                List<Annotation> annotations = executionContext.getAnnotations().asMap().get(instanceLocation);
+                if (annotations != null) {
+                    for (Annotation annotation : annotations) {
+                        if (annotation.getEvaluationPath().startsWith(executionContext.getEvaluationPath())) {
+                            annotation.setValid(false);
+                        }
+                    }
+                }
+                
+                //executionContext.getInstanceResults().setResult(instanceLocation, getSchemaLocation(), executionContext.getEvaluationPath(), false);
+            }
+        } finally {
+            executionContext.evaluationSchema.removeLast();
+            executionContext.unevaluatedPropertiesPresent = unevaluatedPropertiesPresent;
+            executionContext.unevaluatedItemsPresent = unevaluatedItemsPresent;
         }
     }
 
@@ -1568,6 +1504,7 @@ public class Schema implements Validator {
             executionCustomizer.customize(executionContext, this.schemaContext);
         }
         // Walk through the schema.
+        executionContext.evaluationPath = atRoot();
         walk(executionContext, node, rootNode, instanceLocation, validate);
         return format.format(this, executionContext, this.schemaContext);
     }
@@ -1576,44 +1513,53 @@ public class Schema implements Validator {
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean shouldValidateSchema) {
         // Walk through all the JSONWalker's.
-        int currentErrors = executionContext.getErrors().size();
-        for (KeywordValidator validator : getValidators()) {
-            NodePath evaluationPathWithKeyword = validator.getEvaluationPath();
-            try {
-                // Call all the pre-walk listeners. If at least one of the pre walk listeners
-                // returns SKIP, then skip the walk.
-                if (executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        this, validator)) {
-                    validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+        List<KeywordValidator> validators = getValidators(); // Load the validators before checking the flags
+        executionContext.evaluationSchema.addLast(this);
+        boolean unevaluatedPropertiesPresent = executionContext.unevaluatedPropertiesPresent;
+        boolean unevaluatedItemsPresent =  executionContext.unevaluatedItemsPresent;
+        if (this.unevaluatedPropertiesPresent) {
+            executionContext.unevaluatedPropertiesPresent = this.unevaluatedPropertiesPresent;
+        }
+        if (this.unevaluatedItemsPresent) {
+            executionContext.unevaluatedItemsPresent = this.unevaluatedItemsPresent;
+        }
+        try {
+            int currentErrors = executionContext.getErrors().size();
+            for (KeywordValidator validator : validators) {
+                try {
+                    // Call all the pre-walk listeners. If at least one of the pre walk listeners
+                    // returns SKIP, then skip the walk.
+                    if (executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
+                            validator.getKeyword(), node, rootNode, instanceLocation,
+                            this, validator)) {
+                        executionContext.evaluationPathAddLast(validator.getKeyword());
+                        executionContext.evaluationSchemaPath.addLast(validator.getKeyword());
+                        try {
+                            validator.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                        } finally {
+                            executionContext.evaluationPathRemoveLast();
+                            executionContext.evaluationSchemaPath.removeLast();
+                        }
+                    }
+                } finally {
+                    // Call all the post-walk listeners.
+                    executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
+                            validator.getKeyword(), node, rootNode, instanceLocation,
+                            this, validator,
+                            executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
                 }
-            } finally {
-                // Call all the post-walk listeners.
-                executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
-                        evaluationPathWithKeyword.getName(-1), node, rootNode, instanceLocation,
-                        this, validator,
-                        executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
             }
+        } finally {
+            executionContext.evaluationSchema.removeLast();
+            executionContext.unevaluatedPropertiesPresent = unevaluatedPropertiesPresent;
+            executionContext.unevaluatedItemsPresent = unevaluatedItemsPresent;
         }
     }
 
     /************************ END OF WALK METHODS **********************************/
     @Override
     public String toString() {
-        return "\"" + getEvaluationPath() + "\" : " + getSchemaNode().toString();
-    }
-
-    public boolean hasTypeValidator() {
-        return getTypeValidator() != null;
-    }
-
-    public TypeValidator getTypeValidator() {
-        // As the validators are lazy loaded the typeValidator is only known if the
-        // validators are not null
-        if (this.validators == null) {
-            getValidators();
-        }
-        return this.typeValidator;
+        return getSchemaNode().toString();
     }
 
     public List<KeywordValidator> getValidators() {
@@ -1634,15 +1580,23 @@ public class Schema implements Validator {
      */
     public void initializeValidators() {
         if (!this.validatorsLoaded) {
-            for (final KeywordValidator validator : getValidators()) {
-                validator.preloadSchema();
-            }
             /*
-             * This is only set to true after the preload as it may throw an exception for
-             * instance if the remote host is unavailable and we may want to be able to try
-             * again.
+             * This is set to true here to prevent recursive cyclic loading of the validators
              */
             this.validatorsLoaded = true;
+            try {
+                for (final KeywordValidator validator : getValidators()) {
+                    validator.preloadSchema();
+                }
+            } catch (RuntimeException e) {
+                /*
+                 * As the preload may throw an exception for
+                 * instance if the remote host is unavailable and we may want to be able to try
+                 * again.
+                 */
+                this.validatorsLoaded = false;
+                throw e;
+            }
         }
     }
 

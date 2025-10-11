@@ -31,8 +31,8 @@ import com.networknt.schema.SchemaContext;
 public class MinLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private int minLength;
 
-    public MinLengthValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public MinLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.MIN_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
         minLength = Integer.MIN_VALUE;
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             minLength = schemaNode.intValue();
@@ -50,7 +50,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
 
         if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(minLength).build());
         }
     }

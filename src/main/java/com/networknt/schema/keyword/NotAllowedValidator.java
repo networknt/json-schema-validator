@@ -31,8 +31,8 @@ import java.util.*;
 public class NotAllowedValidator extends BaseKeywordValidator implements KeywordValidator {
     private final List<String> fieldNames;
 
-    public NotAllowedValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public NotAllowedValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.NOT_ALLOWED, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.isArray()) {
             int size = schemaNode.size();
             this.fieldNames = new ArrayList<>(size);
@@ -52,7 +52,7 @@ public class NotAllowedValidator extends BaseKeywordValidator implements Keyword
 
             if (propertyNode != null) {
                 executionContext.addError(error().property(fieldName).instanceNode(node)
-                        .instanceLocation(instanceLocation.append(fieldName))
+                        .evaluationPath(executionContext.getEvaluationPath()).instanceLocation(instanceLocation.append(fieldName))
                         .locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(fieldName).build());
             }

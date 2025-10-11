@@ -31,9 +31,9 @@ import java.util.*;
 public class DependentRequired extends BaseKeywordValidator implements KeywordValidator {
     private final Map<String, List<String>> propertyDependencies = new HashMap<>();
 
-    public DependentRequired(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+    public DependentRequired(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
 
-        super(KeywordType.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
             String pname = it.next();
@@ -56,7 +56,7 @@ public class DependentRequired extends BaseKeywordValidator implements KeywordVa
                 for (String field : dependencies) {
                     if (node.get(field) == null) {
                         executionContext.addError(error().instanceNode(node).property(pname).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(field, pname)
                                 .build());
                     }

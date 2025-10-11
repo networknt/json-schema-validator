@@ -79,7 +79,7 @@ class IfValidatorTest {
         List<WalkEvent> types = result.getExecutionContext().getCollectorContext().get("types");
         assertEquals(1, types.size());
         assertEquals("", types.get(0).getInstanceLocation().toString());
-        assertEquals("/then", types.get(0).getSchema().getEvaluationPath().toString());
+        assertEquals("/then", types.get(0).getEvaluationPath().toString());
     }
 
     @Test
@@ -125,7 +125,7 @@ class IfValidatorTest {
         List<WalkEvent> types = (List<WalkEvent>) result.getExecutionContext().getCollectorContext().get("types");
         assertEquals(1, types.size());
         assertEquals("", types.get(0).getInstanceLocation().toString());
-        assertEquals("/else", types.get(0).getSchema().getEvaluationPath().toString());
+        assertEquals("/else", types.get(0).getEvaluationPath().toString());
     }
 
     @Test

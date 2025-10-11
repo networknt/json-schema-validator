@@ -21,7 +21,6 @@ import com.networknt.schema.ErrorMessages;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 import java.util.Collection;
@@ -36,12 +35,9 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
     protected final Schema parentSchema;
     protected final Map<String, String> errorMessage;
 
-    protected final Schema evaluationParentSchema;
-
     public BaseKeywordValidator(Keyword keyword, JsonNode schemaNode, SchemaLocation schemaLocation,
-            Schema parentSchema, SchemaContext schemaContext,
-            NodePath evaluationPath) {
-        super(keyword, schemaNode, schemaLocation, evaluationPath);
+            Schema parentSchema, SchemaContext schemaContext) {
+        super(keyword, schemaNode, schemaLocation);
         this.schemaContext = schemaContext;
 
         this.parentSchema = parentSchema;
@@ -51,7 +47,6 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         } else {
             this.errorMessage = null;
         }
-        this.evaluationParentSchema = null;
     }
 
     /**
@@ -61,8 +56,6 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      * @param schemaLocation the schema location
      * @param schemaContext the schema context
      * @param parentSchema the parent schema
-     * @param evaluationPath the evaluation path
-     * @param evaluationParentSchema the evaluation parent schema
      * @param errorMessage the error message
      */
     protected BaseKeywordValidator(
@@ -71,16 +64,12 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
             SchemaLocation schemaLocation,
             SchemaContext schemaContext,
             Schema parentSchema,
-            NodePath evaluationPath,
-            Schema evaluationParentSchema,
             Map<String, String> errorMessage) {
-        super(keyword, schemaNode, schemaLocation, evaluationPath);
+        super(keyword, schemaNode, schemaLocation);
         this.schemaContext = schemaContext;
         
         this.parentSchema = parentSchema;
         this.errorMessage = errorMessage;
-
-        this.evaluationParentSchema = evaluationParentSchema;
     }
 
     /**
@@ -92,21 +81,6 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
      */
     public Schema getParentSchema() {
         return this.parentSchema;
-    }
-
-    /**
-     * Gets the evaluation parent schema.
-     * <p>
-     * This is the dynamic parent schema when following references.
-     * 
-     * @see Schema#fromRef(Schema, NodePath)
-     * @return the evaluation parent schema
-     */
-    public Schema getEvaluationParentSchema() {
-        if (this.evaluationParentSchema != null) {
-            return this.evaluationParentSchema;
-        }
-        return getParentSchema();
     }
 
     protected String getNodeFieldType() {
@@ -123,41 +97,10 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         }
     }
 
-    /**
-     * Determines if the keyword exists adjacent in the evaluation path.
-     * <p>
-     * This does not check if the keyword exists in the current meta schema as this
-     * can be a cross-draft case where the properties keyword is in a Draft 7 schema
-     * and the unevaluatedProperties keyword is in an outer Draft 2020-12 schema.
-     * <p>
-     * The fact that the validator exists in the evaluation path implies that the
-     * keyword was valid in whatever meta schema for that schema it was created for.
-     * 
-     * @param keyword the keyword to check
-     * @return true if found
-     */
-    protected boolean hasAdjacentKeywordInEvaluationPath(String keyword) {
-        Schema schema = getEvaluationParentSchema();
-        while (schema != null) {
-            for (KeywordValidator validator : schema.getValidators()) {
-                if (keyword.equals(validator.getKeyword())) {
-                    return true;
-                }
-            }
-            Object element = schema.getEvaluationPath().getElement(-1);
-            if ("properties".equals(element) || "items".equals(element)) {
-                // If there is a change in instance location then return false
-                return false;
-            }
-            schema = schema.getEvaluationParentSchema();
-        }
-        return false;
-    }
-
     protected MessageSourceError.Builder error() {
         return MessageSourceError
                 .builder(this.schemaContext.getSchemaRegistryConfig().getMessageSource(), this.errorMessage)
-                .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation).evaluationPath(this.evaluationPath)
+                .schemaNode(this.schemaNode).schemaLocation(this.schemaLocation)
                 .keyword(this.getKeyword()).messageKey(this.getKeyword());
     }
 }

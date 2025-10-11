@@ -40,8 +40,8 @@ public class MaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
 
-    public MaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public MaximumValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("maximum value is not a number");
         }
@@ -120,7 +120,7 @@ public class MaximumValidator extends BaseKeywordValidator {
 
         if (this.typedMaximum.crossesThreshold(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.typedMaximum.thresholdValue()).build());
         }
     }

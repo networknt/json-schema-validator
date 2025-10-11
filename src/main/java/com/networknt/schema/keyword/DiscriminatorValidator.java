@@ -63,9 +63,9 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
      */
     private final String defaultMapping;
 
-    public DiscriminatorValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public DiscriminatorValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.DISCRIMINATOR, schemaNode, schemaLocation, parentSchema, schemaContext);
         ObjectNode discriminator = schemaNode.isObject() ? (ObjectNode) schemaNode : null;
         if (discriminator != null) {
             JsonNode propertyName = discriminator.get("propertyName");
@@ -194,7 +194,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
              */
             if (this.schemaContext.getSchemaRegistryConfig().isStrict("discriminator", Boolean.FALSE)) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .messageKey("discriminator.missing_discriminating_value").arguments(this.propertyName).build());
             }
         }

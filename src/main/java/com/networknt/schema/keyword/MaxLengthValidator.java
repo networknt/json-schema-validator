@@ -31,8 +31,8 @@ import com.networknt.schema.SchemaContext;
 public class MaxLengthValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int maxLength;
 
-    public MaxLengthValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public MaxLengthValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.MAX_LENGTH, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode != null && schemaNode.canConvertToExactIntegral()) {
             this.maxLength = schemaNode.intValue();
         } else {
@@ -50,7 +50,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
         }
         if (node.textValue().codePointCount(0, node.textValue().length()) > this.maxLength) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.maxLength).build());
         }
     }

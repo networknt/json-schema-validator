@@ -18,30 +18,17 @@ package com.networknt.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.serialization.JsonMapperFactory;
 
 class Issue1091Test {
     @Test
     @Disabled // Disabled as this test takes quite long to run for ci
     void testHasAdjacentKeywordInEvaluationPath() throws Exception {
-        SchemaRegistryConfig config = SchemaRegistryConfig.builder().cacheRefs(false).build();
-
-        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4, builder -> builder.schemaRegistryConfig(config))
+        Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4)
                 .getSchema(SchemaLocation.of("classpath:schema/issue1091.json"));
-        JsonNode node = JsonMapperFactory.getInstance()
-                .readTree(Issue1091Test.class.getClassLoader().getResource("data/issue1091.json"));
-
-        List<String> messages = schema.validate(node)
-                .stream()
-                .map(Error::getMessage)
-                .collect(Collectors.toList());
-
-        assertEquals(0, messages.size());
+        List<Error> errors = schema.validate(AbsoluteIri.of("classpath:data/issue1091.json"), InputFormat.JSON);
+        assertEquals(0, errors.size());
     }
 }

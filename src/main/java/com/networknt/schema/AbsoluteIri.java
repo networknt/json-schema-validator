@@ -17,6 +17,8 @@ package com.networknt.schema;
 
 import java.util.Objects;
 
+import com.networknt.schema.utils.Strings;
+
 /**
  * The absolute IRI is an IRI without the fragment.
  * <p>
@@ -131,7 +133,7 @@ public class AbsoluteIri {
                 }
                 base = parent(base, scheme);
 
-                String[] iriParts = iri.split("/");
+                String[] iriParts = Strings.split(iri, '/');
                 for (int x = 0; x < iriParts.length; x++) {
                     if ("..".equals(iriParts[x])) {
                         base = parent(base, scheme);
@@ -148,9 +150,6 @@ public class AbsoluteIri {
                             base = base + "/" + iriParts[x];
                         }
                     }
-                }
-                if (iri.endsWith("/")) {
-                    base = base + "/";
                 }
                 return base;
             }

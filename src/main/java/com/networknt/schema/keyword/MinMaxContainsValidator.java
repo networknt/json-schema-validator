@@ -20,9 +20,9 @@ import java.util.Set;
 public class MinMaxContainsValidator extends BaseKeywordValidator {
     private final Set<Analysis> analysis;
 
-    public MinMaxContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public MinMaxContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
             SchemaContext schemaContext) {
-        super(KeywordType.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MAX_CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         Set<Analysis> analysis = null;
         int min = 1;
@@ -68,6 +68,7 @@ public class MinMaxContainsValidator extends BaseKeywordValidator {
             this.analysis.stream()
             .map(analysis -> error().instanceNode(node)
                     .instanceLocation(instanceLocation)
+                    .evaluationPath(executionContext.getEvaluationPath())
                     .messageKey(analysis.getMessageKey()).locale(executionContext.getExecutionConfig().getLocale())
                     .keyword(analysis.getMessageKey())
                     .arguments(parentSchema.getSchemaNode().toString()).build())

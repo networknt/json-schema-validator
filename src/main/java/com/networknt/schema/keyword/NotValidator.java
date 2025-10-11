@@ -32,9 +32,9 @@ import java.util.*;
 public class NotValidator extends BaseKeywordValidator {
     private final Schema schema;
 
-    public NotValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.NOT, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
-        this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+    public NotValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.NOT, schemaNode, schemaLocation, parentSchema, schemaContext);
+        this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class NotValidator extends BaseKeywordValidator {
         }
         if (test.isEmpty()) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.schemaNode.toString())
                     .build());
         }

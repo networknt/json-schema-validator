@@ -34,11 +34,9 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "patternProperties";
     private final Map<RegularExpression, Schema> schemas = new IdentityHashMap<>();
 
-    private Boolean hasUnevaluatedPropertiesValidator = null;
-
-    public PatternPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public PatternPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                       SchemaContext schemaContext) {
-        super(KeywordType.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.PATTERN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isObject()) {
             throw new SchemaException("patternProperties must be an object node");
         }
@@ -46,7 +44,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         while (names.hasNext()) {
             String name = names.next();
             RegularExpression pattern = RegularExpression.compile(name, schemaContext);
-            schemas.put(pattern, schemaContext.newSchema(schemaLocation.append(name), evaluationPath.append(name),
+            schemas.put(pattern, schemaContext.newSchema(schemaLocation.append(name), 
                     schemaNode.get(name), parentSchema));
         }
     }
@@ -59,7 +57,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         }
         Set<String> matchedInstancePropertyNames = null;
         Iterator<String> names = node.fieldNames();
-        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
+        boolean collectAnnotations = hasUnevaluatedPropertiesInEvaluationPath(executionContext) || collectAnnotations(executionContext);
         while (names.hasNext()) {
             String name = names.next();
             JsonNode n = node.get(name);
@@ -67,7 +65,13 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
                 if (entry.getKey().matches(name)) {
                     NodePath path = instanceLocation.append(name);
                     int currentErrors = executionContext.getErrors().size();
-                    entry.getValue().validate(executionContext, n, rootNode, path);
+                    Schema schema = entry.getValue();
+                    executionContext.evaluationPathAddLast(schema.getSchemaLocation().getFragment().getElement(-1).toString());
+                    try {
+                        schema.validate(executionContext, n, rootNode, path);
+                    } finally {
+                        executionContext.evaluationPathRemoveLast();
+                    }
                     if (currentErrors == executionContext.getErrors().size()) { // No new errors
                         if (collectAnnotations) {
                             if (matchedInstancePropertyNames == null) {
@@ -82,7 +86,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         if (collectAnnotations) {
             executionContext.getAnnotations()
                     .put(Annotation.builder().instanceLocation(instanceLocation)
-                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                             .keyword(getKeyword())
                             .value(matchedInstancePropertyNames != null ? matchedInstancePropertyNames
                                     : Collections.emptySet())
@@ -90,20 +94,8 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         }
     }
     
-    private boolean collectAnnotations() {
-        return hasUnevaluatedPropertiesValidator();
-    }
-
-    private boolean hasUnevaluatedPropertiesValidator() {
-        if (this.hasUnevaluatedPropertiesValidator == null) {
-            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
-        }
-        return hasUnevaluatedPropertiesValidator;
-    }
-
     @Override
     public void preloadSchema() {
         preloadSchemas(schemas.values());
-        collectAnnotations(); // cache the flag
     }
 }

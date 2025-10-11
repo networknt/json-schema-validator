@@ -36,8 +36,8 @@ public class IfValidator extends BaseKeywordValidator {
     private final Schema thenSchema;
     private final Schema elseSchema;
 
-    public IfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public IfValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.IF_THEN_ELSE, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         Schema foundIfSchema = null;
         Schema foundThenSchema = null;
@@ -46,15 +46,14 @@ public class IfValidator extends BaseKeywordValidator {
         for (final String keyword : KEYWORDS) {
             final JsonNode node = parentSchema.getSchemaNode().get(keyword);
             final SchemaLocation schemaLocationOfSchema = parentSchema.getSchemaLocation().append(keyword);
-            final NodePath evaluationPathOfSchema = parentSchema.getEvaluationPath().append(keyword);
             if (keyword.equals("if")) {
-                foundIfSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundIfSchema = schemaContext.newSchema(schemaLocationOfSchema, node,
                         parentSchema);
             } else if (keyword.equals("then") && node != null) {
-                foundThenSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundThenSchema = schemaContext.newSchema(schemaLocationOfSchema, node,
                         parentSchema);
             } else if (keyword.equals("else") && node != null) {
-                foundElseSchema = schemaContext.newSchema(schemaLocationOfSchema, evaluationPathOfSchema, node,
+                foundElseSchema = schemaContext.newSchema(schemaLocationOfSchema, node,
                         parentSchema);
             }
         }
@@ -66,8 +65,6 @@ public class IfValidator extends BaseKeywordValidator {
 
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        
-
         boolean ifConditionPassed = false;
 
         // Save flag as nested schema evaluation shouldn't trigger fail fast
@@ -86,9 +83,25 @@ public class IfValidator extends BaseKeywordValidator {
         }
 
         if (ifConditionPassed && this.thenSchema != null) {
-            this.thenSchema.validate(executionContext, node, rootNode, instanceLocation);
+            // The "if" keyword is a bit unusual as it actually handles multiple keywords
+            // This removes the "if" in the evaluation path so the rest of the evaluation paths will be correct
+            executionContext.evaluationPathRemoveLast();
+            executionContext.evaluationPathAddLast("then");
+            try {
+                this.thenSchema.validate(executionContext, node, rootNode, instanceLocation);
+            } finally {
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("if");
+            }
         } else if (!ifConditionPassed && this.elseSchema != null) {
-            this.elseSchema.validate(executionContext, node, rootNode, instanceLocation);
+            executionContext.evaluationPathRemoveLast();
+            executionContext.evaluationPathAddLast("else");
+            try {
+                this.elseSchema.validate(executionContext, node, rootNode, instanceLocation);
+            } finally {
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("if");
+            }
         }
     }
 
@@ -107,6 +120,9 @@ public class IfValidator extends BaseKeywordValidator {
 
     @Override
     public void walk(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema) {
+        // The "if" keyword is a bit unusual as it actually handles multiple keywords
+        // This removes the "if" in the evaluation path so the rest of the evaluation paths will be correct
+
         boolean checkCondition = node != null && shouldValidateSchema;
         boolean ifConditionPassed = false;
 
@@ -126,17 +142,44 @@ public class IfValidator extends BaseKeywordValidator {
         }
         if (!checkCondition) {
             if (this.thenSchema != null) {
-                this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("then");
+                try {
+                    this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                    executionContext.evaluationPathAddLast("if");
+                }
             }
             if (this.elseSchema != null) {
-                this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("else");
+                try {
+                    this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                    executionContext.evaluationPathAddLast("if");
+                }
             }
         } else {
             if (this.thenSchema != null && ifConditionPassed) {
-                this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
-            }
-            else if (this.elseSchema != null && !ifConditionPassed) {
-                this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("then");
+                try {
+                    this.thenSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                    executionContext.evaluationPathAddLast("if");
+                }
+            } else if (this.elseSchema != null && !ifConditionPassed) {
+                executionContext.evaluationPathRemoveLast();
+                executionContext.evaluationPathAddLast("else");
+                try {
+                    this.elseSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                    executionContext.evaluationPathAddLast("if");
+                }
             }
         }
     }

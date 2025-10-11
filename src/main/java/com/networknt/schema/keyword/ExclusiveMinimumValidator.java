@@ -39,8 +39,8 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public ExclusiveMinimumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.EXCLUSIVE_MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public ExclusiveMinimumValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.EXCLUSIVE_MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMinimum value is not a number");
         }
@@ -112,7 +112,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
 
         if (typedMinimum.crossesThreshold(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(typedMinimum.thresholdValue()).build());
         }
     }

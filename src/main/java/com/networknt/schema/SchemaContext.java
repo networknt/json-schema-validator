@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.keyword.KeywordValidator;
-import com.networknt.schema.path.NodePath;
 
 /**
  * The schema context associated with a schema and all its validators.
@@ -118,13 +117,13 @@ public class SchemaContext {
         }
     }
 
-    public Schema newSchema(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema) {
-        return getSchemaRegistry().create(this, schemaLocation, evaluationPath, schemaNode, parentSchema);
+    public Schema newSchema(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema) {
+        return getSchemaRegistry().create(this, schemaLocation, schemaNode, parentSchema);
     }
 
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation,
             String keyword /* keyword */, JsonNode schemaNode, Schema parentSchema) {
-        return this.dialect.newValidator(this, schemaLocation, evaluationPath, keyword, schemaNode, parentSchema);
+        return this.dialect.newValidator(this, schemaLocation, keyword, schemaNode, parentSchema);
     }
 
     public String resolveSchemaId(JsonNode schemaNode) {

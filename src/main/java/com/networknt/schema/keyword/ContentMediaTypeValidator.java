@@ -45,14 +45,13 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
      * Constructor.
      * 
      * @param schemaLocation    the schema location
-     * @param evaluationPath    the evaluation path
      * @param schemaNode        the schema node
      * @param parentSchema      the parent schema
      * @param schemaContext the schema context
      */
-    public ContentMediaTypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.contentMediaType = schemaNode.textValue();
     }
 
@@ -104,7 +103,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
 
         if (!matches(node.asText())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentMediaType)
                     .build());
         }

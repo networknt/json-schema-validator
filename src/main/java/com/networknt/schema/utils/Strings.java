@@ -16,6 +16,9 @@
 
 package com.networknt.schema.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Utility methods for working with Strings.
  */
@@ -125,5 +128,45 @@ public final class Strings {
 
     public static boolean isBlank(String string) {
         return null == string || string.trim().isEmpty();
+    }
+
+    /**
+     * Split text. Unlike the JDK String split using regex trailing delimiters are
+     * preserved.
+     * 
+     * @param text the text to split
+     * @param delimiter the delimiter
+     * @return the fragments
+     */
+    public static String[] split(String text, char delimiter) {
+        if (text == null) {
+            return new String[0];
+        }
+        if (text.isEmpty()) {
+            return new String[]{""};
+        }
+
+        List<String> segments = new ArrayList<>();
+        int start = 0;
+        int end;
+
+        while (start <= text.length()) {
+            end = text.indexOf(delimiter, start);
+
+            if (end == -1) {
+                end = text.length();
+            }
+
+            String segment = text.substring(start, end);
+            segments.add(segment);
+
+            if (end == text.length()) {
+                break;
+            }
+
+            start = end + 1;
+        }
+
+        return segments.toArray(new String[segments.size()]);
     }
 }

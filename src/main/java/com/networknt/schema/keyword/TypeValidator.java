@@ -33,11 +33,11 @@ public class TypeValidator extends BaseKeywordValidator {
     private final JsonType schemaType;
     private final UnionTypeValidator unionTypeValidator;
 
-    public TypeValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public TypeValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.TYPE, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.schemaType = TypeFactory.getSchemaNodeType(schemaNode);
         if (this.schemaType == JsonType.UNION) {
-            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);
+            this.unionTypeValidator = new UnionTypeValidator(schemaLocation, schemaNode, parentSchema, schemaContext);
         } else {
             this.unionTypeValidator = null;
         }
@@ -47,8 +47,8 @@ public class TypeValidator extends BaseKeywordValidator {
         return this.schemaType;
     }
 
-    public boolean equalsToSchemaType(JsonNode node) {
-        return JsonNodeTypes.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.schemaContext);
+    public boolean equalsToSchemaType(JsonNode node, ExecutionContext executionContext) {
+        return JsonNodeTypes.equalsToSchemaType(node, this.schemaType, this.parentSchema, this.schemaContext, executionContext);
     }
 
     @Override
@@ -60,10 +60,10 @@ public class TypeValidator extends BaseKeywordValidator {
             return;
         }
 
-        if (!equalsToSchemaType(node)) {
+        if (!equalsToSchemaType(node, executionContext)) {
             JsonType nodeType = TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig());
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(nodeType.toString(), this.schemaType.toString()).build());
         }
     }

@@ -22,7 +22,7 @@ import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.DialectId;
 import com.networknt.schema.dialect.DialectRegistry;
-import com.networknt.schema.path.NodePath;
+import com.networknt.schema.resource.InputStreamSource;
 import com.networknt.schema.resource.ResourceLoaders;
 import com.networknt.schema.resource.SchemaIdResolvers;
 import com.networknt.schema.resource.SchemaLoader;
@@ -33,6 +33,7 @@ import com.networknt.schema.serialization.NodeReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -454,7 +455,7 @@ public class SchemaRegistry {
     protected Schema newSchema(SchemaLocation schemaUri, JsonNode schemaNode) {
         final SchemaContext schemaContext = createSchemaContext(schemaNode);
         Schema jsonSchema = doCreate(schemaContext, getSchemaLocation(schemaUri),
-                new NodePath(schemaContext.getSchemaRegistryConfig().getPathType()), schemaNode, null, false);
+                schemaNode, null, false);
         preload(jsonSchema);
         return jsonSchema;
     }
@@ -483,14 +484,14 @@ public class SchemaRegistry {
         }
     }
 
-    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath,
+    public Schema create(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNode schemaNode, Schema parentSchema) {
-        return doCreate(schemaContext, schemaLocation, evaluationPath, schemaNode, parentSchema, false);
+        return doCreate(schemaContext, schemaLocation, schemaNode, parentSchema, false);
     }
 
-    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation, NodePath evaluationPath,
+    private Schema doCreate(SchemaContext schemaContext, SchemaLocation schemaLocation,
             JsonNode schemaNode, Schema parentSchema, boolean suppressSubSchemaRetrieval) {
-        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, evaluationPath, schemaNode,
+        return Schema.from(withDialect(schemaContext, schemaNode), schemaLocation, schemaNode,
                 parentSchema, suppressSubSchemaRetrieval);
     }
 
@@ -680,38 +681,42 @@ public class SchemaRegistry {
     }
 
     protected Schema getMappedSchema(final SchemaLocation schemaUri) {
-        try (InputStream inputStream = this.schemaLoader.getSchemaResource(schemaUri.getAbsoluteIri())
-                .getInputStream()) {
-            if (inputStream == null) {
-                throw new IOException("Cannot load schema at " + schemaUri);
-            }
-            final JsonNode schemaNode;
-            if (isYaml(schemaUri)) {
-                schemaNode = readTree(inputStream, InputFormat.YAML);
-            } else {
-                schemaNode = readTree(inputStream, InputFormat.JSON);
-            }
+        InputStreamSource inputStreamSource = this.schemaLoader.getSchemaResource(schemaUri.getAbsoluteIri());
+        if (inputStreamSource != null) {
+            try (InputStream inputStream = inputStreamSource.getInputStream()) {
+                if (inputStream == null) {
+                    throw new IOException("Cannot load schema at " + schemaUri);
+                }
+                final JsonNode schemaNode;
+                if (isYaml(schemaUri)) {
+                    schemaNode = readTree(inputStream, InputFormat.YAML);
+                } else {
+                    schemaNode = readTree(inputStream, InputFormat.JSON);
+                }
 
-            final Dialect dialect = getDialectOrDefault(schemaNode);
-            NodePath evaluationPath = new NodePath(getSchemaRegistryConfig().getPathType());
-            if (schemaUri.getFragment() == null || schemaUri.getFragment().getNameCount() == 0) {
-                // Schema without fragment
-                SchemaContext schemaContext = new SchemaContext(dialect, this);
-                return doCreate(schemaContext, schemaUri, evaluationPath, schemaNode, null,
-                        true /* retrieved via id, resolving will not change anything */);
-            } else {
-                // Schema with fragment pointing to sub schema
-                final SchemaContext schemaContext = createSchemaContext(schemaNode);
-                SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
-                Schema document = doCreate(schemaContext, documentLocation, evaluationPath, schemaNode, null, false);
-                return document.getRefSchema(schemaUri.getFragment());
+                final Dialect dialect = getDialectOrDefault(schemaNode);
+                if (schemaUri.getFragment() == null || schemaUri.getFragment().getNameCount() == 0) {
+                    // Schema without fragment
+                    SchemaContext schemaContext = new SchemaContext(dialect, this);
+                    return doCreate(schemaContext, schemaUri, schemaNode, null,
+                            true /* retrieved via id, resolving will not change anything */);
+                } else {
+                    // Schema with fragment pointing to sub schema
+                    final SchemaContext schemaContext = createSchemaContext(schemaNode);
+                    SchemaLocation documentLocation = new SchemaLocation(schemaUri.getAbsoluteIri());
+                    Schema document = doCreate(schemaContext, documentLocation, schemaNode, null,
+                            false);
+                    return document.getRefSchema(schemaUri.getFragment());
+                }
+            } catch (IOException e) {
+                logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
+                SchemaException exception = new SchemaException(
+                        "Failed to load json schema from " + schemaUri.getAbsoluteIri());
+                exception.initCause(e);
+                throw exception;
             }
-        } catch (IOException e) {
-            logger.error("Failed to load json schema from {}", schemaUri.getAbsoluteIri(), e);
-            SchemaException exception = new SchemaException(
-                    "Failed to load json schema from " + schemaUri.getAbsoluteIri());
-            exception.initCause(e);
-            throw exception;
+        } else {
+            throw new SchemaException(new FileNotFoundException(schemaUri.getAbsoluteIri().toString()));
         }
     }
 

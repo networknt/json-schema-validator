@@ -43,8 +43,8 @@ public class MinimumValidator extends BaseKeywordValidator {
      */
     private final ThresholdMixin typedMinimum;
 
-    public MinimumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public MinimumValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.MINIMUM, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         if (!schemaNode.isNumber()) {
             throw new SchemaException("minimum value is not a number");
@@ -127,7 +127,7 @@ public class MinimumValidator extends BaseKeywordValidator {
 
         if (this.typedMinimum.crossesThreshold(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.typedMinimum.thresholdValue()).build());
         }
     }

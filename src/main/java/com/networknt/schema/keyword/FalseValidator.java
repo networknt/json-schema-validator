@@ -18,25 +18,24 @@ package com.networknt.schema.keyword;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.SchemaContext;
 
 /**
  * {@link KeywordValidator} for false.
  */
 public class FalseValidator extends BaseKeywordValidator implements KeywordValidator {
-    private final String reason;
 
-    public FalseValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.FALSE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
-        this.reason = this.evaluationPath.getParent().getName(-1);
+    public FalseValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.FALSE, schemaNode, schemaLocation, parentSchema, schemaContext);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         // For the false validator, it is always not valid
+        String reason = executionContext.getEvaluationPath().getParent().getName(-1);
         executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                .locale(executionContext.getExecutionConfig().getLocale())
+                .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                 .arguments(reason).build());
     }
 }

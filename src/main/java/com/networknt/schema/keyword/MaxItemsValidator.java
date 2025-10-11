@@ -29,8 +29,8 @@ import com.networknt.schema.SchemaContext;
 public class MaxItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int max;
 
-    public MaxItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public MaxItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.MAX_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.canConvertToExactIntegral()) {
             this.max = schemaNode.intValue();
         } else {
@@ -44,13 +44,13 @@ public class MaxItemsValidator extends BaseKeywordValidator implements KeywordVa
         if (node.isArray()) {
             if (node.size() > this.max) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max, node.size()).build());
             }
         } else if (this.schemaContext.getSchemaRegistryConfig().isTypeLoose()) {
             if (1 > this.max) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.max, 1).build());
             }
         }

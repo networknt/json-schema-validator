@@ -165,10 +165,10 @@ class JsonWalkTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                                           Schema parentSchema, SchemaContext schemaContext) throws SchemaException {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
+                return new CustomValidator(schemaLocation, schemaNode);
             }
             return null;
         }
@@ -181,8 +181,8 @@ class JsonWalkTest {
          */
         private static class CustomValidator extends AbstractKeywordValidator {
 
-            CustomValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
-                super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
+            CustomValidator(SchemaLocation schemaLocation, JsonNode schemaNode) {
+                super(new CustomKeyword(), schemaNode, schemaLocation);
             }
 
             @Override

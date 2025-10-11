@@ -29,9 +29,9 @@ import com.networknt.schema.SchemaContext;
 public class AnnotationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
-        public Validator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public Validator(SchemaLocation schemaLocation, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext, Keyword keyword) {
-            super(keyword, schemaNode, schemaLocation, evaluationPath);
+            super(keyword, schemaNode, schemaLocation);
         }
 
         @Override
@@ -62,8 +62,8 @@ public class AnnotationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                                       Schema parentSchema, SchemaContext schemaContext) {
-        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext, this);
+        return new Validator(schemaLocation, schemaNode, parentSchema, schemaContext, this);
     }
 }

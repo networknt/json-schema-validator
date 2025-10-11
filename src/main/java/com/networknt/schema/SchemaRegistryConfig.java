@@ -46,8 +46,6 @@ public class SchemaRegistryConfig {
         return Holder.INSTANCE;
     }
     
-    public static final int DEFAULT_PRELOAD_SCHEMA_REF_MAX_NESTING_DEPTH = 40;
-
     /**
      * The execution context customizer that runs by default for all schemas.
      */
@@ -76,12 +74,6 @@ public class SchemaRegistryConfig {
     private final Boolean formatAssertionsEnabled;
 
     /**
-     * When set to true, use Java-specific semantics rather than native JavaScript
-     * semantics
-     */
-    private final boolean javaSemantics;
-
-    /**
      * The Locale to consider when loading validation messages from the default resource bundle.
      */
     private final Locale locale;
@@ -105,11 +97,6 @@ public class SchemaRegistryConfig {
      * Controls if the schema will automatically be preloaded.
      */
     private final boolean preloadSchema;
-
-    /**
-     * Controls the max depth of the evaluation path to preload when preloading refs.
-     */
-    private final int preloadSchemaRefMaxNestingDepth;
 
     /**
      * Used to create {@link com.networknt.schema.regex.RegularExpression}.
@@ -139,10 +126,9 @@ public class SchemaRegistryConfig {
     protected SchemaRegistryConfig(boolean cacheRefs,
             String errorMessageKeyword, ExecutionContextCustomizer executionContextCustomizer, boolean failFast,
             Boolean formatAssertionsEnabled,
-            boolean javaSemantics,
             Locale locale, boolean losslessNarrowing,
             MessageSource messageSource, PathType pathType,
-            boolean preloadSchema, int preloadSchemaRefMaxNestingDepth,
+            boolean preloadSchema,
             RegularExpressionFactory regularExpressionFactory, SchemaIdValidator schemaIdValidator,
             Map<String, Boolean> strictness, boolean typeLoose) {
         super();
@@ -151,13 +137,11 @@ public class SchemaRegistryConfig {
         this.executionContextCustomizer = executionContextCustomizer;
         this.failFast = failFast;
         this.formatAssertionsEnabled = formatAssertionsEnabled;
-        this.javaSemantics = javaSemantics;
         this.locale = locale;
         this.losslessNarrowing = losslessNarrowing;
         this.messageSource = messageSource;
         this.pathType = pathType;
         this.preloadSchema = preloadSchema;
-        this.preloadSchemaRefMaxNestingDepth = preloadSchemaRefMaxNestingDepth;
         this.regularExpressionFactory = regularExpressionFactory;
         this.schemaIdValidator = schemaIdValidator;
         this.strictness = strictness;
@@ -222,15 +206,6 @@ public class SchemaRegistryConfig {
     }
 
     /**
-     * Gets the max depth of the evaluation path to preload when preloading refs.
-     *
-     * @return the max depth to preload
-     */
-    public int getPreloadSchemaRefMaxNestingDepth() {
-        return preloadSchemaRefMaxNestingDepth;
-    }
-
-    /**
      * Gets the regular expression factory.
      * <p>
      * This defaults to the JDKRegularExpressionFactory and the implementations
@@ -267,10 +242,6 @@ public class SchemaRegistryConfig {
 
     public boolean isFailFast() {
         return this.failFast;
-    }
-
-    public boolean isJavaSemantics() {
-        return this.javaSemantics;
     }
 
     public boolean isLosslessNarrowing() {
@@ -346,13 +317,11 @@ public class SchemaRegistryConfig {
         builder.executionContextCustomizer = config.executionContextCustomizer;
         builder.failFast = config.failFast;
         builder.formatAssertionsEnabled = config.formatAssertionsEnabled;
-        builder.javaSemantics = config.javaSemantics;
         builder.locale = config.locale;
         builder.losslessNarrowing = config.losslessNarrowing;
         builder.messageSource = config.messageSource;
         builder.pathType = config.pathType;
         builder.preloadSchema = config.preloadSchema;
-        builder.preloadSchemaRefMaxNestingDepth = config.preloadSchemaRefMaxNestingDepth;
         builder.regularExpressionFactory = config.regularExpressionFactory;
         builder.schemaIdValidator = config.schemaIdValidator;
         builder.strictness = config.strictness;
@@ -379,13 +348,11 @@ public class SchemaRegistryConfig {
         protected ExecutionContextCustomizer executionContextCustomizer = null;
         protected boolean failFast = false;
         protected Boolean formatAssertionsEnabled = null;
-        protected boolean javaSemantics = false;
         protected Locale locale = null; // This must be null to use Locale.getDefault() as the default can be changed
         protected boolean losslessNarrowing = false;
         protected MessageSource messageSource = null;
         protected PathType pathType = PathType.JSON_POINTER;
         protected boolean preloadSchema = true;
-        protected int preloadSchemaRefMaxNestingDepth = DEFAULT_PRELOAD_SCHEMA_REF_MAX_NESTING_DEPTH;
         protected RegularExpressionFactory regularExpressionFactory = JDKRegularExpressionFactory.getInstance();
         protected SchemaIdValidator schemaIdValidator = SchemaIdValidator.DEFAULT;
         protected Map<String, Boolean> strictness = new HashMap<>(0);
@@ -459,12 +426,7 @@ public class SchemaRegistryConfig {
             return self();
         }
 
-        public T javaSemantics(boolean javaSemantics) {
-            this.javaSemantics = javaSemantics;
-            return self();
-        }
-
-		/**
+        /**
 		 * Set the locale to consider when generating localized messages.
 		 * <p>
 		 * Note that this locale is set on a schema registry basis. To configure the
@@ -480,7 +442,16 @@ public class SchemaRegistryConfig {
             this.locale = locale;
             return self();
         }
-
+        /**
+         * Sets whether lossless narrowing of other numeric types to integer is performed.
+         * <p>
+         * Note that this likely only has a visible effect for dialects written before Draft 6.
+         * <p>
+         * Since Draft 6 for example 1.0 is treated as an integer even without this enabled.
+         * 
+         * @param losslessNarrowing true to enable
+         * @return the builder
+         */
         public T losslessNarrowing(boolean losslessNarrowing) {
             this.losslessNarrowing = losslessNarrowing;
             return self();
@@ -519,18 +490,7 @@ public class SchemaRegistryConfig {
             this.preloadSchema = preloadSchema;
             return self();
         }
-        /**
-         * Sets the max depth of the evaluation path to preload when preloading refs.
-         * <p>
-         * Defaults to 40.
-         *
-         * @param preloadSchemaRefMaxNestingDepth to preload
-         * @return the builder
-         */
-        public T preloadSchemaRefMaxNestingDepth(int preloadSchemaRefMaxNestingDepth) {
-            this.preloadSchemaRefMaxNestingDepth = preloadSchemaRefMaxNestingDepth;
-            return self();
-        }
+
         /**
          * Sets the regular expression factory.
          * <p>
@@ -572,13 +532,11 @@ public class SchemaRegistryConfig {
             this.typeLoose = typeLoose;
             return self();
         }
+
         public SchemaRegistryConfig build() {
-            return new SchemaRegistryConfig(cacheRefs, errorMessageKeyword,
-                    executionContextCustomizer, failFast, formatAssertionsEnabled, 
-                    javaSemantics, locale, losslessNarrowing, messageSource,
-                    pathType, preloadSchema, preloadSchemaRefMaxNestingDepth,
-                    regularExpressionFactory, schemaIdValidator, strictness, typeLoose
-                    );
+            return new SchemaRegistryConfig(cacheRefs, errorMessageKeyword, executionContextCustomizer, failFast,
+                    formatAssertionsEnabled, locale, losslessNarrowing, messageSource, pathType,
+                    preloadSchema, regularExpressionFactory, schemaIdValidator, strictness, typeLoose);
         }
 
     }

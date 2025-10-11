@@ -30,7 +30,6 @@ import com.networknt.schema.keyword.Keyword;
 import com.networknt.schema.keyword.KeywordFactory;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.UnknownKeywordFactory;
-import com.networknt.schema.path.NodePath;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.utils.Strings;
 import com.networknt.schema.vocabulary.Vocabularies;
@@ -441,14 +440,13 @@ public class Dialect {
      *
      * @param schemaContext the schema context
      * @param schemaLocation the schema location
-     * @param evaluationPath the evaluation path
      * @param keyword the keyword
      * @param schemaNode the schema node
      * @param parentSchema the parent schema
      * @return the validator
      */
     public KeywordValidator newValidator(SchemaContext schemaContext, SchemaLocation schemaLocation,
-            NodePath evaluationPath, String keyword, JsonNode schemaNode, Schema parentSchema) {
+            String keyword, JsonNode schemaNode, Schema parentSchema) {
         try {
             Keyword kw = this.keywords.get(keyword);
             if (kw == null) {
@@ -460,7 +458,7 @@ public class Dialect {
                 }
                 if (KeywordType.DISCRIMINATOR.getValue().equals(keyword)
                         && schemaContext.isDiscriminatorKeywordEnabled()) {
-                    return KeywordType.DISCRIMINATOR.newValidator(schemaLocation, evaluationPath, schemaNode,
+                    return KeywordType.DISCRIMINATOR.newValidator(schemaLocation, schemaNode,
                             parentSchema, schemaContext);
                 }
                 kw = this.builder.unknownKeywordFactory != null
@@ -470,7 +468,7 @@ public class Dialect {
                     return null;
                 }
             }
-            return kw.newValidator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext);
+            return kw.newValidator(schemaLocation, schemaNode, parentSchema, schemaContext);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof SchemaException) {
                 logger.error("Error:", e);

@@ -26,8 +26,8 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for true.
  */
 public class TrueValidator extends BaseKeywordValidator implements KeywordValidator {
-    public TrueValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.TRUE, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public TrueValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.TRUE, schemaNode, schemaLocation, parentSchema, schemaContext);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {

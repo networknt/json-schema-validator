@@ -45,10 +45,8 @@ public class ContainsValidator extends BaseKeywordValidator {
     private final Integer min;
     private final Integer max;
 
-    private Boolean hasUnevaluatedItemsValidator = null;
-
-    public ContainsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public ContainsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.CONTAINS, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         // Draft 6 added the contains keyword but maxContains and minContains first
         // appeared in Draft 2019-09 so the semantics of the validation changes
@@ -58,7 +56,7 @@ public class ContainsValidator extends BaseKeywordValidator {
         Integer currentMax = null;
         Integer currentMin = null;
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
             JsonNode parentSchemaNode = parentSchema.getSchemaNode();
             Optional<JsonNode> maxNode = Optional
                     .ofNullable(parentSchemaNode.get(KeywordType.MAX_CONTAINS.getValue()))
@@ -126,7 +124,7 @@ public class ContainsValidator extends BaseKeywordValidator {
             }
         }
         
-        boolean collectAnnotations = collectAnnotations();
+        boolean collectAnnotations = hasUnevaluatedItemsInEvaluationPath(executionContext);
         if (this.schema != null) {
             // This keyword produces an annotation value which is an array of the indexes to
             // which this keyword validates successfully when applying its subschema, in
@@ -140,12 +138,12 @@ public class ContainsValidator extends BaseKeywordValidator {
                     // evaluated all
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                                     .keyword("contains").value(true).build());
                 } else {
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                                     .keyword("contains").value(indexes).build());
                 }
             }
@@ -157,22 +155,26 @@ public class ContainsValidator extends BaseKeywordValidator {
                     // Omitted keywords MUST NOT produce annotation results. However, as described
                     // in the section for contains, the absence of this keyword's annotation causes
                     // contains to assume a minimum value of 1.
+                    executionContext.evaluationPathAddLast(minContainsKeyword);
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath.append(minContainsKeyword))
+                                    .evaluationPath(executionContext.getEvaluationPath())
                                     .schemaLocation(this.schemaLocation.append(minContainsKeyword))
                                     .keyword(minContainsKeyword).value(this.min).build());
+                    executionContext.evaluationPathRemoveLast();
                 }
             }
             
             if (this.max != null) {
                 String maxContainsKeyword = "maxContains";
                 if (collectAnnotations || collectAnnotations(executionContext, maxContainsKeyword)) {
+                    executionContext.evaluationPathAddLast(maxContainsKeyword);
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath.append(maxContainsKeyword))
+                                    .evaluationPath(executionContext.getEvaluationPath())
                                     .schemaLocation(this.schemaLocation.append(maxContainsKeyword))
                                     .keyword(maxContainsKeyword).value(this.max).build());
+                    executionContext.evaluationPathRemoveLast();
                 }
             }
         }
@@ -181,7 +183,6 @@ public class ContainsValidator extends BaseKeywordValidator {
     @Override
     public void preloadSchema() {
         Optional.ofNullable(this.schema).ifPresent(Schema::initializeValidators);
-        collectAnnotations(); // cache the flag
     }
 
     private void boundsViolated(ExecutionContext executionContext, KeywordType validatorTypeCode, Locale locale,
@@ -192,26 +193,9 @@ public class ContainsValidator extends BaseKeywordValidator {
         } else if (KeywordType.MAX_CONTAINS.equals(validatorTypeCode)) {
             messageKey = CONTAINS_MAX;
         }
-        executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).messageKey(messageKey)
+        executionContext.addError(error().instanceNode(instanceNode).instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).messageKey(messageKey)
                         .locale(locale).arguments(String.valueOf(bounds), this.schema.getSchemaNode().toString())
                         .keyword(validatorTypeCode.getValue()).build());
     }
     
-    /**
-     * Determine if annotations must be collected for evaluation.
-     * <p>
-     * This will be collected regardless of whether it is needed for reporting.
-     * 
-     * @return true if annotations must be collected for evaluation.
-     */
-    private boolean collectAnnotations() {
-        return hasUnevaluatedItemsValidator();
-    }
-
-    private boolean hasUnevaluatedItemsValidator() {
-        if (this.hasUnevaluatedItemsValidator == null) {
-            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
-        }
-        return hasUnevaluatedItemsValidator;
-    }
 }

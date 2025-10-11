@@ -38,11 +38,11 @@ import com.networknt.schema.path.NodePath;
 public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
     private final Schema schema;
 
-    public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.UNEVALUATED_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public UnevaluatedPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.UNEVALUATED_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'unevaluatedProperties' MUST be a valid JSON Schema.");
         }
@@ -56,10 +56,11 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
 
         
         // Get all the valid adjacent annotations
-        Predicate<Annotation> validEvaluationPathFilter = a -> executionContext.getInstanceResults().isValid(instanceLocation, a.getEvaluationPath());
+        Predicate<Annotation> validEvaluationPathFilter = a -> a.isValid();
+        //Predicate<Annotation> validEvaluationPathFilter = a -> executionContext.getInstanceResults().isValid(instanceLocation, a.getEvaluationPath());
 
         Predicate<Annotation> adjacentEvaluationPathFilter = a -> a.getEvaluationPath()
-                .startsWith(this.evaluationPath.getParent());
+                .startsWith(executionContext.getEvaluationPath().getParent());
 
         List<Annotation> instanceLocationAnnotations = executionContext.getAnnotations().asMap()
                 .getOrDefault(instanceLocation, Collections.emptyList());
@@ -121,7 +122,7 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
                     if (this.schemaNode.isBoolean() && this.schemaNode.booleanValue() == false) {
                         // All fails as "unevaluatedProperties: false"
                         executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation).property(fieldName)
-                                .arguments(fieldName).locale(executionContext.getExecutionConfig().getLocale())
+                                .evaluationPath(executionContext.getEvaluationPath()).arguments(fieldName).locale(executionContext.getExecutionConfig().getLocale())
                                 .build());
                     } else {
                         // Schema errors will be reported as is
@@ -134,7 +135,7 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
             executionContext.setFailFast(failFast); // restore flag
         }
         executionContext.getAnnotations()
-                .put(Annotation.builder().instanceLocation(instanceLocation).evaluationPath(this.evaluationPath)
+                .put(Annotation.builder().instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
                         .schemaLocation(this.schemaLocation).keyword(getKeyword()).value(evaluatedProperties).build());
 
         return;
