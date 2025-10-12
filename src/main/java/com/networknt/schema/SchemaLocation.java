@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.path.PathType;
+import com.networknt.schema.utils.Strings;
 
 /**
  * The schema location is the canonical IRI of the schema object plus a JSON
@@ -219,7 +220,8 @@ public class SchemaLocation {
                 fragmentString = fragmentString.substring(1);
             }
             NodePath fragment = JSON_POINTER;
-            String[] fragmentParts = fragmentString.split("/");
+//            String[] fragmentParts = fragmentString.split("/");
+            String[] fragmentParts = Strings.split(fragmentString, '/');
 
             boolean jsonPointer = false;
             if (fragmentString.startsWith("/")) {
@@ -269,10 +271,6 @@ public class SchemaLocation {
                     }
                     fragment = fragment.append(fragmentPartString);
                 }
-            }
-            if (index == -1 && fragmentString.endsWith("/")) {
-                // Trailing / in fragment
-                fragment = fragment.append("");
             }
             return fragment;
         }

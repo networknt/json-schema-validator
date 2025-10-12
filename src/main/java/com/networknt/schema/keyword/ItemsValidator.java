@@ -35,12 +35,9 @@ public class ItemsValidator extends BaseKeywordValidator {
     private final int prefixCount;
     private final boolean additionalItems;
     
-    private Boolean hasUnevaluatedItemsValidator = null;
-
-    public ItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public ItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext,
-                evaluationPath);
+        super(KeywordType.ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         JsonNode prefixItems = parentSchema.getSchemaNode().get("prefixItems");
         if (prefixItems instanceof ArrayNode) {
@@ -52,7 +49,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         }
 
         if (schemaNode.isObject() || schemaNode.isBoolean()) {
-            this.schema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+            this.schema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
         } else {
             throw new IllegalArgumentException("The value of 'items' MUST be a valid JSON Schema.");
         }
@@ -78,17 +75,17 @@ public class ItemsValidator extends BaseKeywordValidator {
                     // generate a helpful message
                     int x = i;
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                             .index(x).arguments(x).build());
                 }
                 evaluated = true;
             }
             if (evaluated) {
-                if (collectAnnotations() || collectAnnotations(executionContext)) {
+                if (hasUnevaluatedItemsInEvaluationPath(executionContext) || collectAnnotations(executionContext)) {
                     // Applies to all
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
@@ -103,7 +100,7 @@ public class ItemsValidator extends BaseKeywordValidator {
             JsonNode defaultNode = null;
             if (executionContext.getWalkConfig().getApplyDefaultsStrategy().shouldApplyArrayDefaults()
                     && this.schema != null) {
-                defaultNode = getDefaultNode(this.schema);
+                defaultNode = getDefaultNode(this.schema, executionContext);
             }
             boolean evaluated = false;
             for (int i = this.prefixCount; i < node.size(); ++i) {
@@ -119,11 +116,11 @@ public class ItemsValidator extends BaseKeywordValidator {
                 }
             }
             if (evaluated) {
-                if (collectAnnotations() || collectAnnotations(executionContext)) {
+                if (hasUnevaluatedItemsInEvaluationPath(executionContext) || collectAnnotations(executionContext)) {
                     // Applies to all
                     executionContext.getAnnotations()
                             .put(Annotation.builder().instanceLocation(instanceLocation)
-                                    .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                                     .keyword(getKeyword()).value(true).build());
                 }
             }
@@ -135,12 +132,12 @@ public class ItemsValidator extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(Schema schema) {
+    private static JsonNode getDefaultNode(Schema schema, ExecutionContext executionContext) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
-            SchemaRef schemaRef = SchemaRefs.from(schema);
+            SchemaRef schemaRef = SchemaRefs.from(schema, executionContext);
             if (schemaRef != null) {
-                result = getDefaultNode(schemaRef.getSchema());
+                result = getDefaultNode(schemaRef.getSchema(), executionContext);
             }
         }
         return result;
@@ -151,7 +148,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         //@formatter:off
         boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
             executionContext,
-            KeywordType.ITEMS_LEGACY.getValue(),
+            KeywordType.ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,
@@ -163,7 +160,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         }
         executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
             executionContext,
-            KeywordType.ITEMS_LEGACY.getValue(),
+            KeywordType.ITEMS.getValue(),
             node,
             rootNode,
             instanceLocation,
@@ -180,18 +177,5 @@ public class ItemsValidator extends BaseKeywordValidator {
     @Override
     public void preloadSchema() {
         this.schema.initializeValidators();
-        collectAnnotations(); // cache the flag
     }
-
-    private boolean collectAnnotations() {
-        return hasUnevaluatedItemsValidator();
-    }
-
-    private boolean hasUnevaluatedItemsValidator() {
-        if (this.hasUnevaluatedItemsValidator == null) {
-            this.hasUnevaluatedItemsValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedItems");
-        }
-        return hasUnevaluatedItemsValidator;
-    }
-
 }

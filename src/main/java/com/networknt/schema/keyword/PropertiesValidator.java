@@ -44,15 +44,13 @@ public class PropertiesValidator extends BaseKeywordValidator {
     public static final String PROPERTY = "properties";
     private final Map<String, Schema> schemas = new LinkedHashMap<>();
     
-    private Boolean hasUnevaluatedPropertiesValidator;
-
-    public PropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public PropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
         for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
             this.schemas.put(pname, schemaContext.newSchema(schemaLocation.append(pname),
-                    evaluationPath.append(pname), entry.getValue(), parentSchema));
+                    entry.getValue(), parentSchema));
         }
     }
 
@@ -64,10 +62,8 @@ public class PropertiesValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
-        
-
         Set<String> matchedInstancePropertyNames = null;
-        boolean collectAnnotations = collectAnnotations() || collectAnnotations(executionContext);
+        boolean collectAnnotations =  hasUnevaluatedPropertiesInEvaluationPath(executionContext) || collectAnnotations(executionContext);
         for (Entry<String, Schema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
             if (propertyNode != null) {
@@ -78,12 +74,17 @@ public class PropertiesValidator extends BaseKeywordValidator {
                     }
                     matchedInstancePropertyNames.add(entry.getKey());
                 }
-                if (!walk) {
-                    //validate the child element(s)
-                    entry.getValue().validate(executionContext, propertyNode, rootNode, path);
-                } else {
-                    // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                executionContext.evaluationPathAddLast(entry.getKey());
+                try {
+                    if (!walk) {
+                        //validate the child element(s)
+                        entry.getValue().validate(executionContext, propertyNode, rootNode, path);
+                    } else {
+                        // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
+                        walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                    }
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
                 }
             } else {
                 if (walk) {
@@ -92,14 +93,20 @@ public class PropertiesValidator extends BaseKeywordValidator {
                     // null.
                     // The actual walk needs to be skipped as the validators assume that node is not
                     // null.
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                    executionContext.evaluationPathAddLast(entry.getKey());
+                    try {
+                        walkSchema(executionContext, entry, node, rootNode, instanceLocation, true,
+                                executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                    } finally {
+                        executionContext.evaluationPathRemoveLast();
+                    }
                 }
             }
         }
         if (collectAnnotations) {
             executionContext.getAnnotations()
                     .put(Annotation.builder().instanceLocation(instanceLocation)
-                            .evaluationPath(this.evaluationPath).schemaLocation(this.schemaLocation)
+                            .evaluationPath(executionContext.getEvaluationPath()).schemaLocation(this.schemaLocation)
                             .keyword(getKeyword()).value(matchedInstancePropertyNames == null ? Collections.emptySet()
                                     : matchedInstancePropertyNames)
                             .build());
@@ -118,27 +125,21 @@ public class PropertiesValidator extends BaseKeywordValidator {
         } else {
             WalkListenerRunner propertyWalkListenerRunner = executionContext.getWalkConfig().getPropertyWalkListenerRunner();
             for (Map.Entry<String, Schema> entry : this.schemas.entrySet()) {
-                walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkListenerRunner);
+                executionContext.evaluationPathAddLast(entry.getKey());
+                try {
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkListenerRunner);
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
+                }
             }
         }
-    }
-
-    private boolean collectAnnotations() {
-        return hasUnevaluatedPropertiesValidator();
-    }
-
-    private boolean hasUnevaluatedPropertiesValidator() {
-        if (this.hasUnevaluatedPropertiesValidator == null) {
-            this.hasUnevaluatedPropertiesValidator = hasAdjacentKeywordInEvaluationPath("unevaluatedProperties");
-        }
-        return hasUnevaluatedPropertiesValidator;
     }
 
     private void applyPropertyDefaults(ObjectNode node, ExecutionContext executionContext) {
         for (Map.Entry<String, Schema> entry : this.schemas.entrySet()) {
             JsonNode propertyNode = node.get(entry.getKey());
 
-            JsonNode defaultNode = getDefaultNode(entry.getValue());
+            JsonNode defaultNode = getDefaultNode(entry.getValue(), executionContext);
             if (defaultNode == null) {
                 continue;
             }
@@ -150,12 +151,12 @@ public class PropertiesValidator extends BaseKeywordValidator {
         }
     }
 
-    private static JsonNode getDefaultNode(Schema schema) {
+    private static JsonNode getDefaultNode(Schema schema, ExecutionContext executionContext) {
         JsonNode result = schema.getSchemaNode().get("default");
         if (result == null) {
-            SchemaRef schemaRef = SchemaRefs.from(schema);
+            SchemaRef schemaRef = SchemaRefs.from(schema, executionContext);
             if (schemaRef != null) {
-                result = getDefaultNode(schemaRef.getSchema());
+                result = getDefaultNode(schemaRef.getSchema(), executionContext);
             }
         }
         return result;
@@ -189,6 +190,5 @@ public class PropertiesValidator extends BaseKeywordValidator {
     @Override
     public void preloadSchema() {
         preloadSchemas(this.schemas.values());
-        collectAnnotations(); // cache the flag
     }
 }

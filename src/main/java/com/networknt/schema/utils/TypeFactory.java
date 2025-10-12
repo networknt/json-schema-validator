@@ -93,8 +93,7 @@ public class TypeFactory {
         case NUMBER:
             if (node.isIntegralNumber()) {
                 return JsonType.INTEGER;
-            } else if (config != null && (config.isJavaSemantics() || config.isLosslessNarrowing())
-                    && node.canConvertToExactIntegral()) {
+            } else if (config != null && config.isLosslessNarrowing() && node.canConvertToExactIntegral()) {
                 return JsonType.INTEGER;
             } else {
                 return JsonType.NUMBER;

@@ -26,22 +26,22 @@ import com.networknt.schema.SchemaContext;
  * {@link KeywordValidator} for const.
  */
 public class ConstValidator extends BaseKeywordValidator implements KeywordValidator {
-    public ConstValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public ConstValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.CONST, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.CONST, schemaNode, schemaLocation, parentSchema, schemaContext);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         if (schemaNode.isNumber() && node.isNumber()) {
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(schemaNode.asText(), node.asText())
                         .build());
             }
         } else if (!schemaNode.equals(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
         }
     }
 }

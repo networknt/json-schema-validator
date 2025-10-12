@@ -35,9 +35,9 @@ import com.networknt.schema.utils.TypeFactory;
 public class AllOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
-    public AllOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public AllOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.ALL_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new SchemaException(error().instanceNode(schemaNode).instanceLocation(schemaLocation.getFragment())
@@ -46,7 +46,7 @@ public class AllOfValidator extends BaseKeywordValidator {
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i),
                     schemaNode.get(i), parentSchema));
         }
     }
@@ -59,12 +59,19 @@ public class AllOfValidator extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
+        int schemaIndex = 0;
         for (Schema schema : this.schemas) {
-            if (!walk) {
-                schema.validate(executionContext, node, rootNode, instanceLocation);
-            } else {
-                schema.walk(executionContext, node, rootNode, instanceLocation, true);
+            executionContext.evaluationPathAddLast(schemaIndex);
+            try {
+                if (!walk) {
+                    schema.validate(executionContext, node, rootNode, instanceLocation);
+                } else {
+                    schema.walk(executionContext, node, rootNode, instanceLocation, true);
+                }
+            } finally {
+                executionContext.evaluationPathRemoveLast();
             }
+            schemaIndex++;
         }
     }
 
@@ -75,9 +82,16 @@ public class AllOfValidator extends BaseKeywordValidator {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
         }
+        int schemaIndex = 0;
         for (Schema schema : this.schemas) {
             // Walk through the schema
-            schema.walk(executionContext, node, rootNode, instanceLocation, false);
+            executionContext.evaluationPathAddLast(schemaIndex);
+            try {
+                schema.walk(executionContext, node, rootNode, instanceLocation, false);
+            } finally {
+                executionContext.evaluationPathRemoveLast();
+            }
+            schemaIndex++;
         }
     }
 

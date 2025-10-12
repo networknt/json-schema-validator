@@ -16,8 +16,8 @@ import com.networknt.schema.SchemaContext;
 public class WriteOnlyValidator extends BaseKeywordValidator {
     private static final Logger logger = LoggerFactory.getLogger(WriteOnlyValidator.class);
 
-    public WriteOnlyValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.WRITE_ONLY, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public WriteOnlyValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.WRITE_ONLY, schemaNode, schemaLocation, parentSchema, schemaContext);
         logger.debug("Loaded WriteOnlyValidator for property {} as {}", parentSchema, "write mode");
     }
 
@@ -26,7 +26,7 @@ public class WriteOnlyValidator extends BaseKeywordValidator {
         
         if (Boolean.TRUE.equals(executionContext.getExecutionConfig().getWriteOnly())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .build());
         } 
     }

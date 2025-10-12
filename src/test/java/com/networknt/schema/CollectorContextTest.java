@@ -260,10 +260,10 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator(schemaLocation, evaluationPath, schemaNode);
+                return new CustomValidator(schemaLocation, schemaNode);
             }
             return null;
         }
@@ -277,8 +277,8 @@ class CollectorContextTest {
      */
     private class CustomValidator extends AbstractKeywordValidator {
     	private final CustomCollector customCollector = new CustomCollector();
-        public CustomValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
-            super(new CustomKeyword(), schemaNode, schemaLocation, evaluationPath);
+        public CustomValidator(SchemaLocation schemaLocation, JsonNode schemaNode) {
+            super(new CustomKeyword(), schemaNode, schemaLocation);
         }
 
 		@Override
@@ -350,10 +350,10 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isArray()) {
-                return new CustomValidator1(schemaLocation, evaluationPath, schemaNode);
+                return new CustomValidator1(schemaLocation, schemaNode);
             }
             return null;
         }
@@ -368,8 +368,8 @@ class CollectorContextTest {
      * keyword has been used multiple times in JSON Schema.
      */
     private class CustomValidator1 extends AbstractKeywordValidator {
-        public CustomValidator1(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
-            super(new CustomKeyword(), schemaNode,schemaLocation, evaluationPath);
+        public CustomValidator1(SchemaLocation schemaLocation, JsonNode schemaNode) {
+            super(new CustomKeyword(), schemaNode,schemaLocation);
         }
 
         @Override
@@ -426,18 +426,18 @@ class CollectorContextTest {
         }
 
         @Override
-        public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext) throws SchemaException, Exception {
             if (schemaNode != null && schemaNode.isBoolean()) {
-                return new CollectValidator(schemaLocation, evaluationPath, schemaNode);
+                return new CollectValidator(schemaLocation, schemaNode);
             }
             return null;
         }
     }
 
     private class CollectValidator extends AbstractKeywordValidator {
-        CollectValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode) {
-            super(new CollectKeyword(), schemaNode, schemaLocation, evaluationPath);
+        CollectValidator(SchemaLocation schemaLocation, JsonNode schemaNode) {
+            super(new CollectKeyword(), schemaNode, schemaLocation);
         }
 
         @Override

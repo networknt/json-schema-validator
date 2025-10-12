@@ -44,7 +44,7 @@ class TypeFactoryTest {
 
     @Test
     void testIntegralValuesWithJavaSemantics() {
-        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().javaSemantics(true).build();
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().losslessNarrowing(true).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.INTEGER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),
@@ -59,7 +59,7 @@ class TypeFactoryTest {
 
     @Test
     void testIntegralValuesWithoutJavaSemantics() {
-        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().javaSemantics(false).build();
+        SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().losslessNarrowing(false).build();
         for (String validValue : validIntegralValues) {
             assertSame(JsonType.NUMBER,
                     getValueNodeType(DecimalNode.valueOf(new BigDecimal(validValue)), schemaValidatorsConfig),

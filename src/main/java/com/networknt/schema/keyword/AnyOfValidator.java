@@ -36,11 +36,9 @@ import com.networknt.schema.utils.TypeFactory;
 public class AnyOfValidator extends BaseKeywordValidator {
     private final List<Schema> schemas;
 
-    private Boolean canShortCircuit = null;
-
-    public AnyOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public AnyOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.ANY_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.ANY_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isArray()) {
             JsonType nodeType = TypeFactory.getValueNodeType(schemaNode, this.schemaContext.getSchemaRegistryConfig());
             throw new SchemaException(error().instanceNode(schemaNode).instanceLocation(schemaLocation.getFragment())
@@ -49,7 +47,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
         int size = schemaNode.size();
         this.schemas = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i), evaluationPath.append(i),
+            this.schemas.add(schemaContext.newSchema(schemaLocation.append(i),
                     schemaNode.get(i), parentSchema));
         }
     }
@@ -73,28 +71,21 @@ public class AnyOfValidator extends BaseKeywordValidator {
         // Save flag as nested schema evaluation shouldn't trigger fail fast
         boolean failFast = executionContext.isFailFast();
         try {
+            int schemaIndex = 0;
             executionContext.setFailFast(false);
             for (Schema schema : this.schemas) {
                 subSchemaErrors.clear(); // Reuse and clear for each run
-                TypeValidator typeValidator = schema.getTypeValidator();
-                if (typeValidator != null) {
-                    // If schema has type validator and node type doesn't match with schemaType then
-                    // ignore it
-                    // For union type, it is a must to call TypeValidator
-                    if (typeValidator.getSchemaType() != JsonType.UNION && !typeValidator.equalsToSchemaType(node)) {
-                        typeValidator.validate(executionContext, node, rootNode, instanceLocation);
-                        if (allErrors == null) {
-                            allErrors = new ArrayList<>();
-                        }
-                        allErrors.addAll(subSchemaErrors);
-                        continue;
+                executionContext.evaluationPathAddLast(schemaIndex);
+                try {
+                    if (!walk) {
+                        schema.validate(executionContext, node, rootNode, instanceLocation);
+                    } else {
+                        schema.walk(executionContext, node, rootNode, instanceLocation, true);
                     }
+                } finally {
+                    executionContext.evaluationPathRemoveLast();
                 }
-                if (!walk) {
-                    schema.validate(executionContext, node, rootNode, instanceLocation);
-                } else {
-                    schema.walk(executionContext, node, rootNode, instanceLocation, true);
-                }
+                schemaIndex++;
 
                 // check if any validation errors have occurred
                 if (subSchemaErrors.isEmpty()) {
@@ -103,7 +94,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 }
 
                 if (subSchemaErrors.isEmpty() && (!this.schemaContext.isDiscriminatorKeywordEnabled())
-                        && canShortCircuit() && canShortCircuit(executionContext)) {
+                        && canShortCircuit(executionContext)) {
                     // Successful so return only the existing errors, ie. no new errors
                     executionContext.setErrors(existingErrors);
                     return;
@@ -172,7 +163,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                 // generating an assertion
                 // if the discriminatingValue is not set in the payload
                 existingErrors.add(error().keyword("discriminator").instanceNode(node)
-                        .instanceLocation(instanceLocation).locale(executionContext.getExecutionConfig().getLocale())
+                        .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .messageKey("discriminator.anyOf.no_match_found").arguments(state.getDiscriminatingValue())
                         .build());
             }
@@ -201,8 +192,15 @@ public class AnyOfValidator extends BaseKeywordValidator {
             validate(executionContext, node, rootNode, instanceLocation, true);
             return;
         }
+        int schemaIndex = 0;
         for (Schema schema : this.schemas) {
-            schema.walk(executionContext, node, rootNode, instanceLocation, false);
+            executionContext.evaluationPathAddLast(schemaIndex);
+            try {
+                schema.walk(executionContext, node, rootNode, instanceLocation, false);
+            } finally {
+                executionContext.evaluationPathRemoveLast();
+            }
+            schemaIndex++;
         }
     }
 
@@ -215,31 +213,17 @@ public class AnyOfValidator extends BaseKeywordValidator {
      * @return true if can short circuit
      */
     protected boolean canShortCircuit(ExecutionContext executionContext) {
-        return !executionContext.getExecutionConfig().isAnnotationCollectionEnabled();
-    }
-
-    /**
-     * If annotations are require for evaluation cannot short circuit.
-     * 
-     * @return true if can short circuit
-     */
-    protected boolean canShortCircuit() {
-        if (this.canShortCircuit == null) {
-            boolean canShortCircuit = true;
-            for (KeywordValidator validator : getEvaluationParentSchema().getValidators()) {
-                if ("unevaluatedProperties".equals(validator.getKeyword())
-                        || "unevaluatedItems".equals(validator.getKeyword())) {
-                    canShortCircuit = false;
-                }
-            }
-            this.canShortCircuit = canShortCircuit;
+        if (hasUnevaluatedItemsInEvaluationPath(executionContext)) {
+            return false;
         }
-        return this.canShortCircuit;
+        if (hasUnevaluatedPropertiesInEvaluationPath(executionContext)) {
+            return false;
+        }
+        return !executionContext.getExecutionConfig().isAnnotationCollectionEnabled();
     }
 
     @Override
     public void preloadSchema() {
         preloadSchemas(this.schemas);
-        canShortCircuit(); // cache flag
     }
 }

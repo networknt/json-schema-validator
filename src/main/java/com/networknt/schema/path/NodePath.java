@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * Represents a path to a JSON node.
  */
-public class NodePath implements Comparable<NodePath> {
+public class NodePath implements Comparable<NodePath>, Path {
     private final PathType type;
     private final NodePath parent;
 

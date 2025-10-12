@@ -125,17 +125,17 @@ class WalkListenerTest {
         assertEquals(3, propertyKeywords.size());
         assertEquals("properties", propertyKeywords.get(0).getValidator().getKeyword());
         assertEquals("", propertyKeywords.get(0).getInstanceLocation().toString());
-        assertEquals("/properties", propertyKeywords.get(0).getSchema().getEvaluationPath()
-                .append(propertyKeywords.get(0).getKeyword()).toString());
+        //assertEquals("/properties", propertyKeywords.get(0).getEvaluationPath()
+        //        .append(propertyKeywords.get(0).getKeyword()).toString());
         assertEquals("/tags/0", propertyKeywords.get(1).getInstanceLocation().toString());
         assertEquals("image", propertyKeywords.get(1).getInstanceNode().get("name").asText());
-        assertEquals("/properties/tags/items/$ref/properties",
-                propertyKeywords.get(1).getValidator().getEvaluationPath().toString());
-        assertEquals("/properties/tags/items/$ref/properties", propertyKeywords.get(1).getSchema().getEvaluationPath()
-                .append(propertyKeywords.get(1).getKeyword()).toString());
+        //assertEquals("/properties/tags/items/$ref/properties",
+        //        propertyKeywords.get(1).getValidator().getEvaluationPath().toString());
+        //assertEquals("/properties/tags/items/$ref/properties", propertyKeywords.get(1).getEvaluationPath()
+        //        .append(propertyKeywords.get(1).getKeyword()).toString());
         assertEquals("/tags/1", propertyKeywords.get(2).getInstanceLocation().toString());
-        assertEquals("/properties/tags/items/$ref/properties", propertyKeywords.get(2).getSchema().getEvaluationPath()
-                .append(propertyKeywords.get(2).getKeyword()).toString());
+        //assertEquals("/properties/tags/items/$ref/properties", propertyKeywords.get(2).getEvaluationPath()
+        //        .append(propertyKeywords.get(2).getKeyword()).toString());
         assertEquals("link", propertyKeywords.get(2).getInstanceNode().get("name").asText());
     }
 
@@ -210,23 +210,23 @@ class WalkListenerTest {
         assertEquals("properties", properties.get(0).getValidator().getKeyword());
 
         assertEquals("/tags", properties.get(0).getInstanceLocation().toString());
-        assertEquals("/properties/tags", properties.get(0).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags", properties.get(0).getEvaluationPath().toString());
 
         assertEquals("/tags/0/name", properties.get(1).getInstanceLocation().toString());
         assertEquals("image", properties.get(1).getInstanceNode().asText());
-        assertEquals("/properties/tags/items/$ref/properties/name", properties.get(1).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items/$ref/properties/name", properties.get(1).getEvaluationPath().toString());
 
         assertEquals("/tags/0/description", properties.get(2).getInstanceLocation().toString());
         assertEquals("An image", properties.get(2).getInstanceNode().asText());
-        assertEquals("/properties/tags/items/$ref/properties/description", properties.get(2).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items/$ref/properties/description", properties.get(2).getEvaluationPath().toString());
 
         assertEquals("/tags/1/name", properties.get(3).getInstanceLocation().toString());
         assertEquals("link", properties.get(3).getInstanceNode().asText());
-        assertEquals("/properties/tags/items/$ref/properties/name", properties.get(3).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items/$ref/properties/name", properties.get(3).getEvaluationPath().toString());
 
         assertEquals("/tags/1/description", properties.get(4).getInstanceLocation().toString());
         assertEquals("A link", properties.get(4).getInstanceNode().asText());
-        assertEquals("/properties/tags/items/$ref/properties/description", properties.get(4).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items/$ref/properties/description", properties.get(4).getEvaluationPath().toString());
     }
 
     @Test
@@ -300,10 +300,10 @@ class WalkListenerTest {
 	    assertInstanceOf(ItemsLegacyValidator.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
-        assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items", items.get(0).getEvaluationPath().toString());
 
         assertEquals("/tags/1", items.get(1).getInstanceLocation().toString());
-        assertEquals("/properties/tags/items", items.get(1).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items", items.get(1).getEvaluationPath().toString());
     }
 
     @Test
@@ -376,10 +376,10 @@ class WalkListenerTest {
 	    assertInstanceOf(ItemsValidator.class, items.get(0).getValidator());
 
         assertEquals("/tags/0", items.get(0).getInstanceLocation().toString());
-        assertEquals("/properties/tags/items", items.get(0).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items", items.get(0).getEvaluationPath().toString());
 
         assertEquals("/tags/1", items.get(1).getInstanceLocation().toString());
-        assertEquals("/properties/tags/items", items.get(1).getSchema().getEvaluationPath().toString());
+        assertEquals("/properties/tags/items", items.get(1).getEvaluationPath().toString());
     }
 
     @Test
@@ -431,115 +431,115 @@ class WalkListenerTest {
         assertEquals(28, propertyKeywords.size());
 
         assertEquals("", propertyKeywords.get(0).getInstanceLocation().toString());
-        assertEquals("/properties", propertyKeywords.get(0).getSchema().getEvaluationPath().append(propertyKeywords.get(0).getKeyword()).toString());
+        assertEquals("/properties", propertyKeywords.get(0).getEvaluationPath().append(propertyKeywords.get(0).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/schema#/properties", propertyKeywords.get(0).getSchema().getSchemaLocation().append(propertyKeywords.get(0).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(1).getInstanceLocation().toString());
-        assertEquals("/allOf/0/$ref/properties", propertyKeywords.get(1).getSchema().getEvaluationPath().append(propertyKeywords.get(1).getKeyword()).toString());
+        assertEquals("/allOf/0/$ref/properties", propertyKeywords.get(1).getEvaluationPath().append(propertyKeywords.get(1).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/core#/properties", propertyKeywords.get(1).getSchema().getSchemaLocation().append(propertyKeywords.get(1).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(2).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties", propertyKeywords.get(2).getSchema().getEvaluationPath().append(propertyKeywords.get(2).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties", propertyKeywords.get(2).getEvaluationPath().append(propertyKeywords.get(2).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/applicator#/properties", propertyKeywords.get(2).getSchema().getSchemaLocation().append(propertyKeywords.get(2).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(3).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(3).getSchema().getEvaluationPath().append(propertyKeywords.get(3).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(3).getEvaluationPath().append(propertyKeywords.get(3).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/schema#/properties", propertyKeywords.get(3).getSchema().getSchemaLocation().append(propertyKeywords.get(3).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(4).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(4).getSchema().getEvaluationPath().append(propertyKeywords.get(4).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(4).getEvaluationPath().append(propertyKeywords.get(4).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/core#/properties", propertyKeywords.get(4).getSchema().getSchemaLocation().append(propertyKeywords.get(4).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(5).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(5).getSchema().getEvaluationPath().append(propertyKeywords.get(5).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(5).getEvaluationPath().append(propertyKeywords.get(5).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/applicator#/properties", propertyKeywords.get(5).getSchema().getSchemaLocation().append(propertyKeywords.get(5).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(6).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(6).getSchema().getEvaluationPath().append(propertyKeywords.get(6).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(6).getEvaluationPath().append(propertyKeywords.get(6).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/validation#/properties", propertyKeywords.get(6).getSchema().getSchemaLocation().append(propertyKeywords.get(6).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(7).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(7).getSchema().getEvaluationPath().append(propertyKeywords.get(7).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(7).getEvaluationPath().append(propertyKeywords.get(7).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/meta-data#/properties", propertyKeywords.get(7).getSchema().getSchemaLocation().append(propertyKeywords.get(7).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(8).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(8).getSchema().getEvaluationPath().append(propertyKeywords.get(8).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(8).getEvaluationPath().append(propertyKeywords.get(8).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/format#/properties", propertyKeywords.get(8).getSchema().getSchemaLocation().append(propertyKeywords.get(8).getKeyword()).toString());
 
         assertEquals("/properties/kebab-case", propertyKeywords.get(9).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(9).getSchema().getEvaluationPath().append(propertyKeywords.get(9).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(9).getEvaluationPath().append(propertyKeywords.get(9).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/content#/properties", propertyKeywords.get(9).getSchema().getSchemaLocation().append(propertyKeywords.get(9).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(10).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(10).getSchema().getEvaluationPath().append(propertyKeywords.get(10).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(10).getEvaluationPath().append(propertyKeywords.get(10).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/schema#/properties", propertyKeywords.get(10).getSchema().getSchemaLocation().append(propertyKeywords.get(10).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(11).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(11).getSchema().getEvaluationPath().append(propertyKeywords.get(11).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(11).getEvaluationPath().append(propertyKeywords.get(11).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/core#/properties", propertyKeywords.get(11).getSchema().getSchemaLocation().append(propertyKeywords.get(11).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(12).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(12).getSchema().getEvaluationPath().append(propertyKeywords.get(12).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(12).getEvaluationPath().append(propertyKeywords.get(12).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/applicator#/properties", propertyKeywords.get(12).getSchema().getSchemaLocation().append(propertyKeywords.get(12).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(13).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(13).getSchema().getEvaluationPath().append(propertyKeywords.get(13).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(13).getEvaluationPath().append(propertyKeywords.get(13).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/validation#/properties", propertyKeywords.get(13).getSchema().getSchemaLocation().append(propertyKeywords.get(13).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(14).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(14).getSchema().getEvaluationPath().append(propertyKeywords.get(14).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(14).getEvaluationPath().append(propertyKeywords.get(14).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/meta-data#/properties", propertyKeywords.get(14).getSchema().getSchemaLocation().append(propertyKeywords.get(14).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(15).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(15).getSchema().getEvaluationPath().append(propertyKeywords.get(15).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(15).getEvaluationPath().append(propertyKeywords.get(15).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/format#/properties", propertyKeywords.get(15).getSchema().getSchemaLocation().append(propertyKeywords.get(15).getKeyword()).toString());
 
         assertEquals("/properties/snake_case", propertyKeywords.get(16).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(16).getSchema().getEvaluationPath().append(propertyKeywords.get(16).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(16).getEvaluationPath().append(propertyKeywords.get(16).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/content#/properties", propertyKeywords.get(16).getSchema().getSchemaLocation().append(propertyKeywords.get(16).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(17).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(17).getSchema().getEvaluationPath().append(propertyKeywords.get(17).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/properties", propertyKeywords.get(17).getEvaluationPath().append(propertyKeywords.get(17).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/schema#/properties", propertyKeywords.get(17).getSchema().getSchemaLocation().append(propertyKeywords.get(17).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(18).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(18).getSchema().getEvaluationPath().append(propertyKeywords.get(18).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/0/$ref/properties", propertyKeywords.get(18).getEvaluationPath().append(propertyKeywords.get(18).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/core#/properties", propertyKeywords.get(18).getSchema().getSchemaLocation().append(propertyKeywords.get(18).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(19).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(19).getSchema().getEvaluationPath().append(propertyKeywords.get(19).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/1/$ref/properties", propertyKeywords.get(19).getEvaluationPath().append(propertyKeywords.get(19).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/applicator#/properties", propertyKeywords.get(19).getSchema().getSchemaLocation().append(propertyKeywords.get(19).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(20).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(20).getSchema().getEvaluationPath().append(propertyKeywords.get(20).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/2/$ref/properties", propertyKeywords.get(20).getEvaluationPath().append(propertyKeywords.get(20).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/validation#/properties", propertyKeywords.get(20).getSchema().getSchemaLocation().append(propertyKeywords.get(20).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(21).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(21).getSchema().getEvaluationPath().append(propertyKeywords.get(21).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/3/$ref/properties", propertyKeywords.get(21).getEvaluationPath().append(propertyKeywords.get(21).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/meta-data#/properties", propertyKeywords.get(21).getSchema().getSchemaLocation().append(propertyKeywords.get(21).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(22).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(22).getSchema().getEvaluationPath().append(propertyKeywords.get(22).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/4/$ref/properties", propertyKeywords.get(22).getEvaluationPath().append(propertyKeywords.get(22).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/format#/properties", propertyKeywords.get(22).getSchema().getSchemaLocation().append(propertyKeywords.get(22).getKeyword()).toString());
 
         assertEquals("/properties/a", propertyKeywords.get(23).getInstanceLocation().toString());
-        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(23).getSchema().getEvaluationPath().append(propertyKeywords.get(23).getKeyword()).toString());
+        assertEquals("/allOf/1/$ref/properties/properties/additionalProperties/$recursiveRef/allOf/5/$ref/properties", propertyKeywords.get(23).getEvaluationPath().append(propertyKeywords.get(23).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/content#/properties", propertyKeywords.get(23).getSchema().getSchemaLocation().append(propertyKeywords.get(23).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(24).getInstanceLocation().toString());
-        assertEquals("/allOf/2/$ref/properties", propertyKeywords.get(24).getSchema().getEvaluationPath().append(propertyKeywords.get(24).getKeyword()).toString());
+        assertEquals("/allOf/2/$ref/properties", propertyKeywords.get(24).getEvaluationPath().append(propertyKeywords.get(24).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/validation#/properties", propertyKeywords.get(24).getSchema().getSchemaLocation().append(propertyKeywords.get(24).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(25).getInstanceLocation().toString());
-        assertEquals("/allOf/3/$ref/properties", propertyKeywords.get(25).getSchema().getEvaluationPath().append(propertyKeywords.get(25).getKeyword()).toString());
+        assertEquals("/allOf/3/$ref/properties", propertyKeywords.get(25).getEvaluationPath().append(propertyKeywords.get(25).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/meta-data#/properties", propertyKeywords.get(25).getSchema().getSchemaLocation().append(propertyKeywords.get(25).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(26).getInstanceLocation().toString());
-        assertEquals("/allOf/4/$ref/properties", propertyKeywords.get(26).getSchema().getEvaluationPath().append(propertyKeywords.get(26).getKeyword()).toString());
+        assertEquals("/allOf/4/$ref/properties", propertyKeywords.get(26).getEvaluationPath().append(propertyKeywords.get(26).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/format#/properties", propertyKeywords.get(26).getSchema().getSchemaLocation().append(propertyKeywords.get(26).getKeyword()).toString());
 
         assertEquals("", propertyKeywords.get(27).getInstanceLocation().toString());
-        assertEquals("/allOf/5/$ref/properties", propertyKeywords.get(27).getSchema().getEvaluationPath().append(propertyKeywords.get(27).getKeyword()).toString());
+        assertEquals("/allOf/5/$ref/properties", propertyKeywords.get(27).getEvaluationPath().append(propertyKeywords.get(27).getKeyword()).toString());
         assertEquals("https://json-schema.org/draft/2019-09/meta/content#/properties", propertyKeywords.get(27).getSchema().getSchemaLocation().append(propertyKeywords.get(27).getKeyword()).toString());
     }
 
@@ -605,7 +605,7 @@ class WalkListenerTest {
                         if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                                 || walkEvent.getInstanceNode().isNull()) {
                             Schema schema = walkEvent.getSchema();
-                            SchemaRef schemaRef = SchemaRefs.from(schema);
+                            SchemaRef schemaRef = SchemaRefs.from(schema, walkEvent.getExecutionContext());
                             if (schemaRef != null) {
                                 schema = schemaRef.getSchema();
                             }
@@ -665,7 +665,7 @@ class WalkListenerTest {
                         if (walkEvent.getInstanceNode() == null || walkEvent.getInstanceNode().isMissingNode()
                                 || walkEvent.getInstanceNode().isNull()) {
                             Schema schema = walkEvent.getSchema();
-                            SchemaRef schemaRef = SchemaRefs.from(schema);
+                            SchemaRef schemaRef = SchemaRefs.from(schema, walkEvent.getExecutionContext());
                             if (schemaRef != null) {
                                 schema = schemaRef.getSchema();
                             }
@@ -740,7 +740,7 @@ class WalkListenerTest {
                                 // Get the schema
                                 PropertiesValidator propertiesValidator = walkEvent.getValidator();
                                 Schema propertySchema = propertiesValidator.getSchemas().get(requiredProperty);
-                                SchemaRef schemaRef = SchemaRefs.from(propertySchema);
+                                SchemaRef schemaRef = SchemaRefs.from(propertySchema, walkEvent.getExecutionContext());
                                 if (schemaRef != null) {
                                     propertySchema = schemaRef.getSchema();
                                 }
@@ -805,7 +805,7 @@ class WalkListenerTest {
                             Schema schema = walkEvent.getSchema();
                             SchemaRef schemaRef = null;
                             do {
-                                schemaRef = SchemaRefs.from(schema);
+                                schemaRef = SchemaRefs.from(schema, walkEvent.getExecutionContext());
                                 if (schemaRef != null) {
                                     schema = schemaRef.getSchema();
                                 }

@@ -38,10 +38,10 @@ public class FormatValidator extends BaseFormatValidator implements KeywordValid
 
     private final Format format;
     
-    public FormatValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public FormatValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext, Format format,
             Keyword keyword) {
-        super(schemaLocation, evaluationPath, schemaNode, parentSchema, keyword, schemaContext);
+        super(schemaLocation, schemaNode, parentSchema, keyword, schemaContext);
         this.format = format;
     }
 
@@ -76,7 +76,7 @@ public class FormatValidator extends BaseFormatValidator implements KeywordValid
                 format.validate(executionContext, schemaContext, node, rootNode, instanceLocation,
                         assertionsEnabled,
                         () -> this.error().instanceNode(node).instanceLocation(instanceLocation)
-                                .messageKey(format.getMessageKey())
+                                .evaluationPath(executionContext.getEvaluationPath()).messageKey(format.getMessageKey())
                                 .locale(executionContext.getExecutionConfig().getLocale())
                                 ,
                         this);
@@ -106,7 +106,7 @@ public class FormatValidator extends BaseFormatValidator implements KeywordValid
          */
         if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
             executionContext.addError(error().instanceLocation(instanceLocation).instanceNode(node)
-                    .messageKey("format.unknown").arguments(schemaNode.textValue()).build());
+                    .evaluationPath(executionContext.getEvaluationPath()).messageKey("format.unknown").arguments(schemaNode.textValue()).build());
         }
     }
 

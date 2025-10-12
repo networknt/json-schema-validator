@@ -35,8 +35,8 @@ import java.math.BigInteger;
 public class ExclusiveMaximumValidator extends BaseKeywordValidator {
     private final ThresholdMixin typedMaximum;
 
-    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public ExclusiveMaximumValidator(SchemaLocation schemaLocation, final JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.EXCLUSIVE_MAXIMUM, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMaximum value is not a number");
         }
@@ -105,7 +105,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
 
         if (typedMaximum.crossesThreshold(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(typedMaximum.thresholdValue()).build());
         }
     }

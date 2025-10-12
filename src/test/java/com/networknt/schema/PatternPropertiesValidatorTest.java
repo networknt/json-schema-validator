@@ -135,8 +135,8 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "}";
         OutputUnit outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
             executionContext.executionConfig(executionConfig -> executionConfig
-					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
-		});
+                    .annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+        });
         Set<String> patternProperties = (Set<String>) outputUnit.getAnnotations().get("patternProperties");
         assertTrue(patternProperties.isEmpty());
 
@@ -146,12 +146,12 @@ class PatternPropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                 + "}";
         outputUnit = schema.validate(inputData, InputFormat.JSON, OutputFormat.HIERARCHICAL, executionContext -> {
             executionContext.executionConfig(executionConfig -> executionConfig
-					.annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
-		});
+                    .annotationCollectionEnabled(true).annotationCollectionFilter(keyword -> true));
+        });
         patternProperties = (Set<String>) outputUnit.getAnnotations().get("patternProperties");
         Set<String> all = new HashSet<>();
         all.add("valid_array");
         all.add("valid_string");
-        assertTrue(patternProperties.containsAll(patternProperties));
+        assertTrue(patternProperties.containsAll(all));
     }
 }

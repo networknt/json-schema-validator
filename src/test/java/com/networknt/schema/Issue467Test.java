@@ -53,7 +53,7 @@ class Issue467Test {
                 .keywordWalkListener(KeywordType.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                        properties.add(walkEvent.getSchema().getEvaluationPath().append(walkEvent.getKeyword()));
+                        properties.add(walkEvent.getExecutionContext().getEvaluationPath().append(walkEvent.getKeyword()));
                         return WalkFlow.CONTINUE;
                     }
 
@@ -82,7 +82,7 @@ class Issue467Test {
                 .propertyWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
-                        properties.add(walkEvent.getSchema().getEvaluationPath());
+                        properties.add(walkEvent.getExecutionContext().getEvaluationPath());
                         return WalkFlow.CONTINUE;
                     }
 

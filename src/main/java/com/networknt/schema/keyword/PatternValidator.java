@@ -38,8 +38,8 @@ public class PatternValidator extends BaseKeywordValidator {
     private final String pattern;
     private final RegularExpression compiledPattern;
 
-    public PatternValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.PATTERN, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public PatternValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.PATTERN, schemaNode, schemaLocation, parentSchema, schemaContext);
 
         this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
         try {
@@ -67,7 +67,7 @@ public class PatternValidator extends BaseKeywordValidator {
         try {
             if (!matches(node.asText())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.pattern).build());
                 return;
             }

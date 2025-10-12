@@ -10,15 +10,14 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.keyword.BaseKeywordValidator;
 import com.networknt.schema.keyword.Keyword;
-import com.networknt.schema.path.NodePath;
 
 public abstract class BaseFormatValidator extends BaseKeywordValidator {
     protected final boolean assertionsEnabled;
     
-    public BaseFormatValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public BaseFormatValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, Keyword keyword,
             SchemaContext schemaContext) {
-        super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext);
         SpecificationVersion dialect = this.schemaContext.getDialect().getSpecificationVersion();
         if (dialect == null || dialect.getOrder() < SpecificationVersion.DRAFT_2019_09.getOrder()) {
             assertionsEnabled = true;

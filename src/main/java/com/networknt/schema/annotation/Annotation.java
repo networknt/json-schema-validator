@@ -30,6 +30,7 @@ public class Annotation {
     private final SchemaLocation schemaLocation;
     private final NodePath evaluationPath;
     private final Object value;
+    private boolean valid = true; // If not valid it means dropped
 
     public Annotation(String keyword, NodePath instanceLocation, SchemaLocation schemaLocation,
             NodePath evaluationPath, Object value) {
@@ -88,6 +89,14 @@ public class Annotation {
     @SuppressWarnings("unchecked")
     public <T> T getValue() {
         return (T) value;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
     @Override

@@ -2,8 +2,6 @@ package com.networknt.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.RecursiveRefValidator;
-import com.networknt.schema.path.NodePath;
-import com.networknt.schema.path.PathType;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +29,7 @@ class RecursiveReferenceValidatorExceptionTest extends AbstractJsonSchemaTestSui
 
         // Act and Assert
         assertThrows(SchemaException.class, () -> {
-            new RecursiveRefValidator(SchemaLocation.of(""), new NodePath(PathType.JSON_POINTER), schemaNode, null, schemaContext);
+            new RecursiveRefValidator(SchemaLocation.of(""), schemaNode, null, schemaContext);
         });
     }
 

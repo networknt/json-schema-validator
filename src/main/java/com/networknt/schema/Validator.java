@@ -63,13 +63,4 @@ public interface Validator extends Walker {
      * @return the schema location
      */
     SchemaLocation getSchemaLocation();
-
-    /**
-     * The evaluation path is the set of keys, starting from the schema root,
-     * through which evaluation passes to reach the schema object that produced a
-     * specific result.
-     * 
-     * @return the evaluation path
-     */
-    NodePath getEvaluationPath();
 }

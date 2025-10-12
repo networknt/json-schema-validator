@@ -29,9 +29,9 @@ import com.networknt.schema.SchemaContext;
 public class MaxPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
     private final int max;
 
-    public MaxPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public MaxPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
-        super(KeywordType.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MAX_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.canConvertToExactIntegral()) {
             max = schemaNode.intValue();
         } else {
@@ -45,7 +45,7 @@ public class MaxPropertiesValidator extends BaseKeywordValidator implements Keyw
         if (node.isObject()) {
             if (node.size() > max) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(max).build());
             }
         }

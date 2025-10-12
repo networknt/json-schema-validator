@@ -16,6 +16,7 @@
 
 package com.networknt.schema;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
 import com.networknt.schema.annotation.Annotations;
 import com.networknt.schema.keyword.DiscriminatorState;
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.result.InstanceResults;
+//import com.networknt.schema.result.InstanceResults;
 import com.networknt.schema.walk.WalkConfig;
 
 /**
@@ -37,11 +38,40 @@ public class ExecutionContext {
     private CollectorContext collectorContext = null;
 
     private Annotations annotations = null;
-    private InstanceResults instanceResults = null;
+//    private InstanceResults instanceResults = null;
     private List<Error> errors = new ArrayList<>();
 
-    private Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
+    private final Map<NodePath, DiscriminatorState> discriminatorMapping = new HashMap<>();
     
+    NodePath evaluationPath;
+    final ArrayDeque<Schema> evaluationSchema = new ArrayDeque<>(64);
+    final ArrayDeque<Object> evaluationSchemaPath = new ArrayDeque<>(64);
+    
+    public NodePath getEvaluationPath() {
+        return evaluationPath;
+    }
+
+    public void evaluationPathAddLast(String token) {
+        this.evaluationPath = evaluationPath.append(token);
+    }
+    
+    public void evaluationPathAddLast(int token) {
+        this.evaluationPath = evaluationPath.append(token);
+    }
+
+    public void evaluationPathRemoveLast() {
+        this.evaluationPath = evaluationPath.getParent();
+    }
+
+
+    public ArrayDeque<Schema> getEvaluationSchema() {
+        return evaluationSchema;
+    }
+    
+    public ArrayDeque<Object> getEvaluationSchemaPath() {
+        return evaluationSchemaPath;
+    }
+
     public Map<NodePath, DiscriminatorState> getDiscriminatorMapping() {
 		return discriminatorMapping;
 	}
@@ -156,12 +186,12 @@ public class ExecutionContext {
         return annotations;
     }
 
-    public InstanceResults getInstanceResults() {
-        if (this.instanceResults == null) {
-            this.instanceResults = new InstanceResults();
-        }
-        return instanceResults;
-    }
+//    public InstanceResults getInstanceResults() {
+//        if (this.instanceResults == null) {
+//            this.instanceResults = new InstanceResults();
+//        }
+//        return instanceResults;
+//    }
 
     /**
      * Determines if the validator should immediately throw a fail fast exception if
@@ -223,5 +253,25 @@ public class ExecutionContext {
     	WalkConfig.Builder builder = WalkConfig.builder(this.getWalkConfig());
     	customizer.accept(builder);
     	this.walkConfig = builder.build();
+    }
+    
+    boolean unevaluatedPropertiesPresent = false;
+    
+    boolean unevaluatedItemsPresent = false;
+    
+    public boolean isUnevaluatedPropertiesPresent() {
+        return this.unevaluatedPropertiesPresent;
+    }
+    
+    public boolean isUnevaluatedItemsPresent() {
+        return this.unevaluatedItemsPresent;
+    }
+    
+    public void setUnevaluatedPropertiesPresent(boolean set) {
+        this.unevaluatedPropertiesPresent = set;
+    }
+    
+    public void setUnevaluatedItemsPresent(boolean set) {
+        this.unevaluatedItemsPresent = set;
     }
 }

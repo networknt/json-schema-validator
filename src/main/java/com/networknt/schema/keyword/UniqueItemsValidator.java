@@ -32,8 +32,8 @@ import java.util.Set;
 public class UniqueItemsValidator extends BaseKeywordValidator implements KeywordValidator {
     private final boolean unique;
 
-    public UniqueItemsValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public UniqueItemsValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.UNIQUE_ITEMS, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.isBoolean()) {
             unique = schemaNode.booleanValue();
         } else {
@@ -49,7 +49,7 @@ public class UniqueItemsValidator extends BaseKeywordValidator implements Keywor
             for (JsonNode n : node) {
                 if (!set.add(n)) {
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                             .build());
                 }
             }

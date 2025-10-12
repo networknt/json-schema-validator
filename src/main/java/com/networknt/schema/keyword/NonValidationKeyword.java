@@ -32,21 +32,21 @@ import java.util.Map.Entry;
 public class NonValidationKeyword extends AbstractKeyword {
 
     private static final class Validator extends AbstractKeywordValidator {
-        public Validator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+        public Validator(SchemaLocation schemaLocation, JsonNode schemaNode,
                 Schema parentSchema, SchemaContext schemaContext, Keyword keyword) {
-            super(keyword, schemaNode, schemaLocation, evaluationPath);
+            super(keyword, schemaNode, schemaLocation);
             String id = schemaContext.resolveSchemaId(schemaNode);
             String anchor = schemaContext.getDialect().readAnchor(schemaNode);
             String dynamicAnchor = schemaContext.getDialect().readDynamicAnchor(schemaNode);
             if (id != null || anchor != null || dynamicAnchor != null) {
                 // Used to register schema resources with $id
-                schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+                schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
             }
             if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
                 for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
                     Entry<String, JsonNode> property = field.next();
                     SchemaLocation location = schemaLocation.append(property.getKey());
-                    Schema schema = schemaContext.newSchema(location, evaluationPath.append(property.getKey()),
+                    Schema schema = schemaContext.newSchema(location,
                             property.getValue(), parentSchema);
                     schemaContext.getSchemaReferences().put(location.toString(), schema);
                 }
@@ -64,8 +64,8 @@ public class NonValidationKeyword extends AbstractKeyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
                                       Schema parentSchema, SchemaContext schemaContext) {
-        return new Validator(schemaLocation, evaluationPath, schemaNode, parentSchema, schemaContext, this);
+        return new Validator(schemaLocation, schemaNode, parentSchema, schemaContext, this);
     }
 }

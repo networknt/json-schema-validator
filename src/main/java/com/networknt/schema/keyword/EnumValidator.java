@@ -48,8 +48,8 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         return node.asText();
     }
     
-    public EnumValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public EnumValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.ENUM, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode != null && schemaNode.isArray()) {
             nodes = new HashSet<>();
             StringBuilder sb = new StringBuilder();
@@ -100,7 +100,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
         }
         if (!nodes.contains(node) && !( this.schemaContext.getSchemaRegistryConfig().isTypeLoose() && isTypeLooseContainsInEnum(node))) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(error).build());
         }
     }

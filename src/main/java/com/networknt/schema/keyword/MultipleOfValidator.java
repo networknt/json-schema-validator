@@ -32,9 +32,9 @@ import java.math.BigDecimal;
 public class MultipleOfValidator extends BaseKeywordValidator implements KeywordValidator {
     private final BigDecimal divisor;
 
-    public MultipleOfValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public MultipleOfValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MULTIPLE_OF, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.divisor = getDivisor(schemaNode);
     }
 
@@ -46,7 +46,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             if (dividend != null) {
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                             .arguments(this.divisor)
                             .build());
                 }

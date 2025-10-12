@@ -31,8 +31,8 @@ import java.util.*;
 public class RequiredValidator extends BaseKeywordValidator implements KeywordValidator {
     private final List<String> fieldNames;
 
-    public RequiredValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+    public RequiredValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.isArray()) {
             this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {
@@ -73,7 +73,7 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
                  * @see <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#name-basic">Basic</a>
                  */
                 executionContext.addError(error().instanceNode(node).property(fieldName).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(fieldName).build());
             }
         }

@@ -30,9 +30,9 @@ import com.networknt.schema.SchemaContext;
 
 public class PropertyNamesValidator extends BaseKeywordValidator implements KeywordValidator {
     private final Schema innerSchema;
-    public PropertyNamesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.PROPERTY_NAMES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
-        innerSchema = schemaContext.newSchema(schemaLocation, evaluationPath, schemaNode, parentSchema);
+    public PropertyNamesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        super(KeywordType.PROPERTY_NAMES, schemaNode, schemaLocation, parentSchema, schemaContext);
+        innerSchema = schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
@@ -48,7 +48,7 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
             for (final Error schemaError : schemaErrors) {
                 existingErrors.add(
                         error().property(pname).instanceNode(node).instanceLocation(instanceLocation)
-                                .locale(executionContext.getExecutionConfig().getLocale())
+                                .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                                 .arguments(pname, schemaError.getMessage()).build());
             }
             schemaErrors.clear();

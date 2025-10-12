@@ -40,15 +40,13 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
      * Constructor.
      * 
      * @param schemaLocation    the schema location
-     * @param evaluationPath    the evaluation path
      * @param schemaNode        the schema node
      * @param parentSchema      the parent schema
      * @param schemaContext the schema context
      */
-    public ContentEncodingValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
-        super(KeywordType.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext,
-                evaluationPath);
+        super(KeywordType.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext);
         this.contentEncoding = schemaNode.textValue();
     }
 
@@ -81,7 +79,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
 
         if (!matches(node.asText())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentEncoding)
                     .build());
         }

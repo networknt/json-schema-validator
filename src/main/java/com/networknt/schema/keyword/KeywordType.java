@@ -21,7 +21,6 @@ import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.SpecificationVersionRange;
-import com.networknt.schema.path.NodePath;
 import com.networknt.schema.SchemaContext;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ import java.util.Map;
 
 @FunctionalInterface
 interface ValidatorFactory {
-    KeywordValidator newInstance(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    KeywordValidator newInstance(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext);
 }
 
@@ -53,7 +52,7 @@ public enum KeywordType implements Keyword {
     EXCLUSIVE_MINIMUM("exclusiveMinimum", ExclusiveMinimumValidator::new, SpecificationVersionRange.DRAFT_6_TO_DRAFT_7),
     FALSE("false", FalseValidator::new, SpecificationVersionRange.MIN_DRAFT_6),
     FORMAT("format", null, SpecificationVersionRange.MAX_DRAFT_7) {
-        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
+        @Override public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
             throw new UnsupportedOperationException("Use FormatKeyword instead");
         }
     },
@@ -131,12 +130,12 @@ public enum KeywordType implements Keyword {
     }
 
     @Override
-    public KeywordValidator newValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode,
+    public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         if (this.validatorFactory == null) {
             throw new UnsupportedOperationException("No suitable validator for " + getValue());
         }
-        return validatorFactory.newInstance(schemaLocation, evaluationPath, schemaNode, parentSchema,
+        return validatorFactory.newInstance(schemaLocation, schemaNode, parentSchema,
                 schemaContext);
     }
 

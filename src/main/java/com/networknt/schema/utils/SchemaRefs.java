@@ -15,6 +15,7 @@
  */
 package com.networknt.schema.utils;
 
+import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
 import com.networknt.schema.keyword.DynamicRefValidator;
@@ -33,14 +34,14 @@ public class SchemaRefs {
      * @param schema the schema
      * @return the ref
      */
-    public static SchemaRef from(Schema schema) {
+    public static SchemaRef from(Schema schema, ExecutionContext executionContext) {
         for (KeywordValidator validator : schema.getValidators()) {
             if (validator instanceof RefValidator) {
                 return ((RefValidator) validator).getSchemaRef();
             } else if (validator instanceof DynamicRefValidator) {
-                return ((DynamicRefValidator) validator).getSchemaRef();
+                return ((DynamicRefValidator) validator).getSchemaRef(executionContext);
             } else if (validator instanceof RecursiveRefValidator) {
-                return ((RecursiveRefValidator) validator).getSchemaRef();
+                return ((RecursiveRefValidator) validator).getSchemaRef(executionContext);
             }
         }
         return null;

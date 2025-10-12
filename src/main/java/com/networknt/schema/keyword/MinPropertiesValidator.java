@@ -29,9 +29,9 @@ import com.networknt.schema.SchemaContext;
 public class MinPropertiesValidator extends BaseKeywordValidator implements KeywordValidator {
     protected final int min;
 
-    public MinPropertiesValidator(SchemaLocation schemaLocation, NodePath evaluationPath, JsonNode schemaNode, Schema parentSchema,
+    public MinPropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema,
                                   SchemaContext schemaContext) {
-        super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext, evaluationPath);
+        super(KeywordType.MIN_PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
         if (schemaNode.canConvertToExactIntegral()) {
             min = schemaNode.intValue();
         } else {
@@ -45,7 +45,7 @@ public class MinPropertiesValidator extends BaseKeywordValidator implements Keyw
         if (node.isObject()) {
             if (node.size() < min) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(min).build());
             }
         }
