@@ -19,8 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests for JDKRegularExpression.
@@ -44,10 +45,39 @@ class JDKRegularExpressionTest {
     }
 
     @Test
-    @Disabled
     void anchorShouldNotMatchMultilineInput() {
         RegularExpression regex = new JDKRegularExpression("^[a-z]{1,10}$");
         assertFalse(regex.matches("abc\n"));
+    }
+
+    @Test
+    void anchorStartShouldNotMatchMultilineInput() {
+        RegularExpression regex = new JDKRegularExpression("^[a-z]{1,10}$");
+        assertFalse(regex.matches("\nabc"));
+    }
+
+    @Test
+    void dollarInCharacterClassShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JDKRegularExpression("^[a$]{1,10}$");
+        assertTrue(regex.matches("a$a$a$a$aa"));
+    }
+
+    @Test
+    void escapedDollarShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JDKRegularExpression("\\$");
+        assertTrue(regex.matches("$"));
+    }
+
+    @Test
+    void escapedDollarInCharacterClassShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JDKRegularExpression("[\\$]");
+        assertTrue(regex.matches("$"));
+    }
+
+    @Test
+    void dollarInLiteralQuotingSectionShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JDKRegularExpression("\\Q$\\E");
+        assertTrue(regex.matches("asd$$a"));
     }
 
     /**
@@ -58,5 +88,33 @@ class JDKRegularExpressionTest {
     void noImplicitAnchors() {
         RegularExpression regex = new JDKRegularExpression("[a-z]{1,10}");
         assertTrue(regex.matches("1abc1"));
+    }
+
+    enum CharacterClassInput {
+        LETTER("\\p{Letter}", "hello", true),
+        NUMBER("\\p{Number}", "1", true),
+        LOWERCASE_LETTER("\\p{Lowercase_Letter}", "A", false),
+        ;
+
+        String regex;
+        String input;
+        boolean result;
+
+        CharacterClassInput(String regex, String input, boolean result) {
+            this.regex = regex;
+            this.input = input;
+            this.result = result;
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(CharacterClassInput.class)
+    void characterClass(CharacterClassInput input) {
+        RegularExpression regex = new JDKRegularExpression(input.regex);
+        if(input.result) {
+            assertTrue(regex.matches(input.input));
+        } else {
+            assertFalse(regex.matches(input.input));
+        }
     }
 }

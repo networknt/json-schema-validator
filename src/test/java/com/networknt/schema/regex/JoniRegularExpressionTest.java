@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.joni.exception.SyntaxException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -157,12 +156,35 @@ class JoniRegularExpressionTest {
     }
 
     @Test
-    @Disabled // This test should pass but currently doesn't see issue #495
     void anchorShouldNotMatchMultilineInput() {
         RegularExpression regex = new JoniRegularExpression("^[a-z]{1,10}$");
         assertFalse(regex.matches("abc\n"));
     }
 
+    @Test
+    void anchorStartShouldNotMatchMultilineInput() {
+        RegularExpression regex = new JoniRegularExpression("^[a-z]{1,10}$");
+        assertFalse(regex.matches("\nabc"));
+    }
+
+    @Test
+    void dollarInCharacterClassShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JoniRegularExpression("^[a$]{1,10}$");
+        assertTrue(regex.matches("a$a$a$a$aa"));
+    }
+
+    @Test
+    void escapedDollarShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JoniRegularExpression("\\$");
+        assertTrue(regex.matches("$"));
+    }
+
+    @Test
+    void escapedDollarInCharacterClassShouldNotBeInterpretedAsAnchor() {
+        RegularExpression regex = new JoniRegularExpression("[\\$]");
+        assertTrue(regex.matches("$"));
+    }
+    
     /**
      * This test is because the JDK regex matches function implicitly adds anchors
      * which isn't expected.
@@ -249,5 +271,33 @@ class JoniRegularExpressionTest {
     void nonWhitespaceClassShouldNotMatchLatin1NonBreakingSpaceInCharacterSet() {
         RegularExpression regex = new JoniRegularExpression("[\\S]");
         assertFalse(regex.matches("\u00a0"));
+    }
+
+    enum CharacterClassInput {
+        LETTER("\\p{Letter}", "hello", true),
+        NUMBER("\\p{Number}", "1", true),
+        LOWERCASE_LETTER("\\p{Lowercase_Letter}", "A", false),
+        ;
+
+        String regex;
+        String input;
+        boolean result;
+
+        CharacterClassInput(String regex, String input, boolean result) {
+            this.regex = regex;
+            this.input = input;
+            this.result = result;
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(CharacterClassInput.class)
+    void characterClass(CharacterClassInput input) {
+        RegularExpression regex = new JoniRegularExpression(input.regex);
+        if(input.result) {
+            assertTrue(regex.matches(input.input));
+        } else {
+            assertFalse(regex.matches(input.input));
+        }
     }
 }
