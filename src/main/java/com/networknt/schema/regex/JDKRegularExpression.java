@@ -9,7 +9,8 @@ class JDKRegularExpression implements RegularExpression {
     private final Pattern pattern;
 
     JDKRegularExpression(String regex) {
-        this.pattern = Pattern.compile(regex);
+        this.pattern = Pattern.compile(RegularExpressions
+                .replaceLongformCharacterProperties(RegularExpressions.replaceDollarAnchors(regex)));
     }
 
     @Override
