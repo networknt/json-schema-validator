@@ -100,7 +100,7 @@ class JsonWalkApplyDefaultsTest {
             case "walkWithNoDefaults": {
                 // same empty strategy, but tests for NullPointerException
         		WalkConfig walkConfig = WalkConfig.builder()
-        				.applyDefaultsStrategy(null).build();
+        				.applyDefaultsStrategy((ApplyDefaultsStrategy)null).build();
             	Schema jsonSchema = createSchema();
                 errors = jsonSchema.walk(inputNode, true, executionContext -> executionContext.setWalkConfig(walkConfig)).getErrors();
                 break;

@@ -49,15 +49,15 @@ The following test case shows how to pass a config object to use the `GraalJS` f
 public class RegularExpressionTest {
     @Test
     public void testInvalidRegexValidatorECMA262() throws Exception {
-        SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfig.builder()
-                .regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance()).build();
-        SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
-                builder -> builder.schemaRegistryConfig(schemaRegistryConfig));
-        Schema schema = schemaRegistry.getSchema("{\r\n"
+        SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
+                .regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance())
+                .build();
+        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(VersionFlag.V202012);
+        JsonSchema schema = factory.getSchema("{\r\n"
                 + "  \"format\": \"regex\"\r\n"
-                + "}");
-        List<Error> errors = schema.validate("\"\\\\a\"", InputFormat.JSON, executionContext -> {
-            executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
+                + "}", config);
+        Set<ValidationMessage> errors = schema.validate("\"\\\\a\"", InputFormat.JSON, executionContext -> {
+            executionContext.getExecutionConfig().setFormatAssertionsEnabled(true);
         });
         assertFalse(errors.isEmpty());
     }

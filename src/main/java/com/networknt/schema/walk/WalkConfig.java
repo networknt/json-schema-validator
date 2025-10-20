@@ -17,6 +17,7 @@
 package com.networknt.schema.walk;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
@@ -38,27 +39,27 @@ public class WalkConfig {
     }
 
     /**
-     * {@link WalkListenerRunner} that performs no operations but indicates that it
+     * {@link WalkHandler} that performs no operations but indicates that it
      * should walk.
      */
-    public static class NoOpWalkListenerRunner implements WalkListenerRunner {
+    public static class NoOpWalkHandler implements WalkHandler {
         private static class Holder {
-            private static final NoOpWalkListenerRunner INSTANCE = new NoOpWalkListenerRunner();
+            private static final NoOpWalkHandler INSTANCE = new NoOpWalkHandler();
         }
 
-        public static NoOpWalkListenerRunner getInstance() {
+        public static NoOpWalkHandler getInstance() {
             return Holder.INSTANCE;
         }
 
         @Override
-        public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+        public boolean preWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
                 JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {
             // Always walk
             return true;
         }
 
         @Override
-        public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+        public void postWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
                 JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator,
                 List<Error> errors) {
         }
@@ -70,19 +71,19 @@ public class WalkConfig {
      */
     private final ApplyDefaultsStrategy applyDefaultsStrategy;
 
-    private final WalkListenerRunner itemWalkListenerRunner;
+    private final WalkHandler itemWalkHandler;
 
-    private final WalkListenerRunner keywordWalkListenerRunner;
+    private final WalkHandler keywordWalkHandler;
 
-    private final WalkListenerRunner propertyWalkListenerRunner;
+    private final WalkHandler propertyWalkHandler;
 
-    WalkConfig(ApplyDefaultsStrategy applyDefaultsStrategy, WalkListenerRunner itemWalkListenerRunner,
-            WalkListenerRunner keywordWalkListenerRunner, WalkListenerRunner propertyWalkListenerRunner) {
+    WalkConfig(ApplyDefaultsStrategy applyDefaultsStrategy, WalkHandler itemWalkHandler,
+            WalkHandler keywordWalkHandler, WalkHandler propertyWalkHandler) {
         super();
         this.applyDefaultsStrategy = applyDefaultsStrategy;
-        this.itemWalkListenerRunner = itemWalkListenerRunner;
-        this.keywordWalkListenerRunner = keywordWalkListenerRunner;
-        this.propertyWalkListenerRunner = propertyWalkListenerRunner;
+        this.itemWalkHandler = itemWalkHandler;
+        this.keywordWalkHandler = keywordWalkHandler;
+        this.propertyWalkHandler = propertyWalkHandler;
     }
 
     /**
@@ -95,31 +96,31 @@ public class WalkConfig {
     }
 
     /**
-     * Gets the property walk listener runner.
+     * Gets the property walk handler.
      * 
-     * @return the property walk listener runner
+     * @return the property walk handler
      */
 
-    public WalkListenerRunner getPropertyWalkListenerRunner() {
-        return this.propertyWalkListenerRunner;
+    public WalkHandler getPropertyWalkHandler() {
+        return this.propertyWalkHandler;
     }
 
     /**
-     * Gets the item walk listener runner.
+     * Gets the item walk handler.
      * 
-     * @return the item walk listener runner
+     * @return the item walk handler
      */
-    public WalkListenerRunner getItemWalkListenerRunner() {
-        return this.itemWalkListenerRunner;
+    public WalkHandler getItemWalkHandler() {
+        return this.itemWalkHandler;
     }
 
     /**
-     * Gets the keyword walk listener runner.
+     * Gets the keyword walk handler.
      * 
-     * @return the keyword walk listener runner
+     * @return the keyword walk handler
      */
-    public WalkListenerRunner getKeywordWalkListenerRunner() {
-        return this.keywordWalkListenerRunner;
+    public WalkHandler getKeywordWalkHandler() {
+        return this.keywordWalkHandler;
     }
 
     /**
@@ -140,9 +141,9 @@ public class WalkConfig {
     public static Builder builder(WalkConfig config) {
         Builder builder = new Builder();
         builder.applyDefaultsStrategy = config.applyDefaultsStrategy;
-        builder.itemWalkListenerRunner = config.itemWalkListenerRunner;
-        builder.keywordWalkListenerRunner = config.keywordWalkListenerRunner;
-        builder.propertyWalkListenerRunner = config.propertyWalkListenerRunner;
+        builder.itemWalkHandler = config.itemWalkHandler;
+        builder.keywordWalkHandler = config.keywordWalkHandler;
+        builder.propertyWalkHandler = config.propertyWalkHandler;
         return builder;
     }
 
@@ -151,9 +152,9 @@ public class WalkConfig {
      */
     public static class Builder {
         private ApplyDefaultsStrategy applyDefaultsStrategy = null;
-        private WalkListenerRunner itemWalkListenerRunner = null;
-        private WalkListenerRunner keywordWalkListenerRunner = null;
-        private WalkListenerRunner propertyWalkListenerRunner = null;
+        private WalkHandler itemWalkHandler = null;
+        private WalkHandler keywordWalkHandler = null;
+        private WalkHandler propertyWalkHandler = null;
 
         /**
          * Sets the strategy the walker uses to sets nodes to the default value.
@@ -168,18 +169,24 @@ public class WalkConfig {
             return this;
         }
 
-        public Builder itemWalkListenerRunner(WalkListenerRunner itemWalkListenerRunner) {
-            this.itemWalkListenerRunner = itemWalkListenerRunner;
+        public Builder applyDefaultsStrategy(Consumer<ApplyDefaultsStrategy.Builder> customizer) {
+            ApplyDefaultsStrategy.Builder builder = ApplyDefaultsStrategy.builder(applyDefaultsStrategy);
+            customizer.accept(builder);
+            return applyDefaultsStrategy(builder.build());
+        }
+
+        public Builder itemWalkHandler(WalkHandler itemWalkHandler) {
+            this.itemWalkHandler = itemWalkHandler;
             return this;
         }
 
-        public Builder keywordWalkListenerRunner(WalkListenerRunner keywordWalkListenerRunner) {
-            this.keywordWalkListenerRunner = keywordWalkListenerRunner;
+        public Builder keywordWalkHandler(WalkHandler keywordWalkHandler) {
+            this.keywordWalkHandler = keywordWalkHandler;
             return this;
         }
 
-        public Builder propertyWalkListenerRunner(WalkListenerRunner propertyWalkListenerRunner) {
-            this.propertyWalkListenerRunner = propertyWalkListenerRunner;
+        public Builder propertyWalkHandler(WalkHandler propertyWalkHandler) {
+            this.propertyWalkHandler = propertyWalkHandler;
             return this;
         }
 
@@ -187,11 +194,11 @@ public class WalkConfig {
             return new WalkConfig(
                     applyDefaultsStrategy != null ? applyDefaultsStrategy
                             : ApplyDefaultsStrategy.EMPTY_APPLY_DEFAULTS_STRATEGY,
-                    itemWalkListenerRunner != null ? itemWalkListenerRunner : NoOpWalkListenerRunner.getInstance(),
-                    keywordWalkListenerRunner != null ? keywordWalkListenerRunner
-                            : NoOpWalkListenerRunner.getInstance(),
-                    propertyWalkListenerRunner != null ? propertyWalkListenerRunner
-                            : NoOpWalkListenerRunner.getInstance());
+                    itemWalkHandler != null ? itemWalkHandler : NoOpWalkHandler.getInstance(),
+                    keywordWalkHandler != null ? keywordWalkHandler
+                            : NoOpWalkHandler.getInstance(),
+                    propertyWalkHandler != null ? propertyWalkHandler
+                            : NoOpWalkHandler.getInstance());
         }
     }
 }

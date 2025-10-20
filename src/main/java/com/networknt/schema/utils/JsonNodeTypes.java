@@ -27,10 +27,6 @@ public class JsonNodeTypes {
         // same type of schema. In REST API, query parameters, path parameters and headers are all
         // string type and we must convert, otherwise, all schema validations will fail.
         if (nodeType != schemaType) {
-            if (schemaType == JsonType.ANY) {
-                return true;
-            }
-
             if (schemaType == JsonType.NUMBER && nodeType == JsonType.INTEGER) {
                 return true;
             }
@@ -68,7 +64,9 @@ public class JsonNodeTypes {
                     }
                 }
             }
-
+            if (schemaType == JsonType.ANY) {
+                return true;
+            }
             return false;
         }
         return true;

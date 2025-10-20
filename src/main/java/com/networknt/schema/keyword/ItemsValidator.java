@@ -146,7 +146,7 @@ public class ItemsValidator extends BaseKeywordValidator {
     private void walkSchema(ExecutionContext executionContext, Schema walkSchema, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean shouldValidateSchema) {
         //@formatter:off
-        boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner().runPreWalkListeners(
+        boolean executeWalk = executionContext.getWalkConfig().getItemWalkHandler().preWalk(
             executionContext,
             KeywordType.ITEMS.getValue(),
             node,
@@ -158,7 +158,7 @@ public class ItemsValidator extends BaseKeywordValidator {
         if (executeWalk) {
             walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
         }
-        executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(
+        executionContext.getWalkConfig().getItemWalkHandler().postWalk(
             executionContext,
             KeywordType.ITEMS.getValue(),
             node,

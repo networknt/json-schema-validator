@@ -1474,6 +1474,46 @@ public class Schema implements Validator {
             Consumer<ExecutionContext> executionCustomizer) {
         return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
     }
+    
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @return the validation result
+     */
+    public Result walk(AbsoluteIri input, InputFormat inputFormat, boolean validate) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public Result walk(AbsoluteIri input, InputFormat inputFormat, boolean validate,
+            ExecutionContextCustomizer executionCustomizer) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
+    }
+
+    /**
+     * Walk the input.
+     * 
+     * @param input       the input
+     * @param inputFormat the input format
+     * @param validate    true to validate the input against the schema
+     * @param executionCustomizer the customizer
+     * @return the validation result
+     */
+    public Result walk(AbsoluteIri input, InputFormat inputFormat, boolean validate,
+            Consumer<ExecutionContext> executionCustomizer) {
+        return walk(createExecutionContext(), deserialize(input, inputFormat), validate, executionCustomizer);
+    }
 
     /**
      * Walk at the node.
@@ -1529,7 +1569,7 @@ public class Schema implements Validator {
                 try {
                     // Call all the pre-walk listeners. If at least one of the pre walk listeners
                     // returns SKIP, then skip the walk.
-                    if (executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPreWalkListeners(executionContext,
+                    if (executionContext.getWalkConfig().getKeywordWalkHandler().preWalk(executionContext,
                             validator.getKeyword(), node, rootNode, instanceLocation,
                             this, validator)) {
                         executionContext.evaluationPathAddLast(validator.getKeyword());
@@ -1543,7 +1583,7 @@ public class Schema implements Validator {
                     }
                 } finally {
                     // Call all the post-walk listeners.
-                    executionContext.getWalkConfig().getKeywordWalkListenerRunner().runPostWalkListeners(executionContext,
+                    executionContext.getWalkConfig().getKeywordWalkHandler().postWalk(executionContext,
                             validator.getKeyword(), node, rootNode, instanceLocation,
                             this, validator,
                             executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));

@@ -9,9 +9,12 @@
 
 ### Major Changes
 
+- Configuration on a per Schema basis is no longer possible.
 - Removal of deprecated methods and functionality from 1.x.
 - Major renaming of many of the public APIs and moving of classes into sub-packages.
 - Errors are returned as a `List` instead of a `Set`.
+- Error messages do not have the `instanceLocation` as part of the message.
+- Error codes have been removed.
 - External resources will not be automatically fetched by default. This now requires opt-in via configuration.
   - This is to conform to the specification that requires such functionality to be disabled by default to prefer offline operation. Note however that classpath resources will still be automatically loaded.
 
@@ -51,32 +54,32 @@
 
 The `com.networknt.schema.SchemaValidatorsConfig` file has been replaced by either `com.networknt.schema.SchemaRegistryConfig` or `com.networknt.schema.walk.WalkConfig` or moved to `com.networknt.schema.ExecutionConfig` and can no longer be configured on a per schema basis.
 
-| Name                                  | Migration                                                |
-| ------------------------------------- | -------------------------------------------------------- |
-| `applyDefaultsStrategy`               | `com.networknt.schema.walk.WalkConfig`                   |
-| `cacheRefs`                           | `com.networknt.schema.SchemaRegistryConfig`              |
-| `discriminatorKeywordEnabled`         | Removed. Dialect must contain a `discriminator` keyword. |
-| `errorMessageKeyword`                 | `com.networknt.schema.SchemaRegistryConfig`              |
-| `executionContextCustomizer`          | `com.networknt.schema.SchemaRegistryConfig`              |
-| `failFast`                            | `com.networknt.schema.SchemaRegistryConfig`              |
-| `formatAssertionsEnabled`             | `com.networknt.schema.SchemaRegistryConfig`              |
-| `javaSemantics`                       | `com.networknt.schema.SchemaRegistryConfig`              |
-| `locale`                              | `com.networknt.schema.SchemaRegistryConfig`              |
-| `losslessNarrowing`                   | `com.networknt.schema.SchemaRegistryConfig`              |
-| `messageSource`                       | `com.networknt.schema.SchemaRegistryConfig`              |
-| `nullableKeywordEnabled`              | Removed. Dialect must contain a `nullable` keyword.      |
-| `pathType`                            | `com.networknt.schema.SchemaRegistryConfig`              |
-| `preloadJsonSchema`                   | `com.networknt.schema.SchemaRegistryConfig`              |
-| `preloadJsonSchemaRefMaxNestingDepth` | `com.networknt.schema.SchemaRegistryConfig`              |
-| `readOnly`                            | `com.networknt.schema.ExecutionConfig`                   |
-| `regularExpressionFactory`            | `com.networknt.schema.SchemaRegistryConfig`              |
-| `schemaIdValidator`                   | `com.networknt.schema.SchemaRegistryConfig`              |
-| `strict`                              | `com.networknt.schema.SchemaRegistryConfig`              |
-| `typeLoose`                           | `com.networknt.schema.SchemaRegistryConfig`              |
-| `writeOnly`                           | `com.networknt.schema.ExecutionConfig`                   |
-| `itemWalkListeners`                   | `com.networknt.schema.walk.WalkConfig`                   |
-| `keywordWalkListeners`                | `com.networknt.schema.walk.WalkConfig`                   |
-| `propertyWalkListeners`               | `com.networknt.schema.walk.WalkConfig`                   |
+| Name                                  | Migration                                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------------------- |
+| `applyDefaultsStrategy`               | `com.networknt.schema.walk.WalkConfig`                                                  |
+| `cacheRefs`                           | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `discriminatorKeywordEnabled`         | Removed. Dialect must contain a `discriminator` keyword.                                |
+| `errorMessageKeyword`                 | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `executionContextCustomizer`          | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `failFast`                            | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `formatAssertionsEnabled`             | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `javaSemantics`                       | Removed as this did the same thing as `losslessNarrowing`.                              |
+| `locale`                              | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `losslessNarrowing`                   | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `messageSource`                       | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `nullableKeywordEnabled`              | Removed. Dialect must contain a `nullable` keyword.                                     |
+| `pathType`                            | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `preloadJsonSchema`                   | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `preloadJsonSchemaRefMaxNestingDepth` | Removed. No longer needed as evaluation context is no longer stored as validator state. |
+| `readOnly`                            | `com.networknt.schema.ExecutionConfig`                                                  |
+| `regularExpressionFactory`            | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `schemaIdValidator`                   | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `strict`                              | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `typeLoose`                           | `com.networknt.schema.SchemaRegistryConfig`                                             |
+| `writeOnly`                           | `com.networknt.schema.ExecutionConfig`                                                  |
+| `itemWalkListeners`                   | `com.networknt.schema.walk.WalkConfig`                                                  |
+| `keywordWalkListeners`                | `com.networknt.schema.walk.WalkConfig`                                                  |
+| `propertyWalkListeners`               | `com.networknt.schema.walk.WalkConfig`                                                  |
 
 #### API
 
@@ -135,4 +138,86 @@ public class Demo {
 		System.out.println(errors);
 	}
 }
+```
+
+#### Configuration Examples
+
+##### Support all standard dialects but defaults to Draft 2020-12 when not specified using $schema
+
+```java
+SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+```
+
+##### Only supports Draft 2020-12 and defaults to it when not specified using $schema
+
+```java
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012());
+```
+
+##### Only supports OpenAPI 3.1 and defaults to it when not specified using $schema
+
+```java
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+```
+
+##### Provide schema resource using string
+
+```java
+Map<String, String> schemas = new HashMap<>();
+    schemas.put("https://example.com/address.schema.json", schemaData);
+    SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+        builder -> builder.schemas(schemas));
+```
+
+##### Map schema resource id to classpath
+
+```java
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+    builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
+        .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")));
+```
+
+##### Fetch remote schema resources
+
+```java
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+    builder -> builder.schemaLoader(schemaLoader -> schemaLoader.fetchRemoteResources()));
+```
+
+##### Force the format keyword always behave as an assertion even after Draft 2019-09
+
+```java
+SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfig.builder().formatAssertionsEnabled(true)
+        .build();
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+        builder -> builder.schemaRegistryConfig(schemaRegistryConfig));
+```
+
+##### Use [joni](https://github.com/jruby/joni) regular expression implementation instead of JDK which has better ECMA compliance
+
+```java
+SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfig.builder()
+        .regularExpressionFactory(JoniRegularExpressionFactory.getInstance()).build();
+SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+        builder -> builder.schemaRegistryConfig(schemaRegistryConfig));
+```
+
+##### Get schema using schema location
+
+```java
+Schema schema = schemaRegistry.getSchema(SchemaLocation.of("https://example.com/address.schema.json"));
+```
+
+##### Get schema using schema location
+
+```java
+Schema schema = schemaRegistry.getSchema(SchemaLocation.of("https://example.com/address.schema.json"));
+```
+
+##### Get schema using a string with the schema data
+
+**_NOTE_**: The schema may not have a base `$id` to properly resolve references to other schema documents.
+
+```java
+Schema schema = schemaRegistry.getSchema(schemaData, InputFormat.JSON);
 ```

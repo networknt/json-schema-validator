@@ -99,7 +99,7 @@ public class WalkEvent {
     @Override
     public String toString() {
         return "WalkEvent [schemaLocation="
-                + getSchema().getSchemaLocation() + ", instanceLocation=" + instanceLocation + "]";
+                + getSchema().getSchemaLocation() + ", instanceLocation=" + instanceLocation + ", evaluationPath=" + evaluationPath + "]";
     }
 
     static class WalkEventBuilder {

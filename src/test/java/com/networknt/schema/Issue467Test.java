@@ -34,8 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
-import com.networknt.schema.walk.PropertyWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
+import com.networknt.schema.walk.PropertyWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -49,7 +49,7 @@ class Issue467Test {
     void shouldWalkKeywordWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<NodePath> properties = new LinkedHashSet<>();
-        KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
                 .keywordWalkListener(KeywordType.PROPERTIES.getValue(), new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -63,7 +63,7 @@ class Issue467Test {
                 })
                 .build();
         WalkConfig walkConfig = WalkConfig.builder()
-                .keywordWalkListenerRunner(keywordWalkListenerRunner)
+                .keywordWalkHandler(keywordWalkHandler)
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
@@ -78,7 +78,7 @@ class Issue467Test {
     void shouldWalkPropertiesWithValidation() throws URISyntaxException, IOException {
         InputStream schemaInputStream = Issue467Test.class.getResourceAsStream(schemaPath);
         final Set<NodePath> properties = new LinkedHashSet<>();
-        PropertyWalkListenerRunner propertyWalkListenerRunner = PropertyWalkListenerRunner.builder()
+        PropertyWalkHandler propertyWalkHandler = PropertyWalkHandler.builder()
                 .propertyWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -92,7 +92,7 @@ class Issue467Test {
                 })
                 .build();
         WalkConfig walkConfig = WalkConfig.builder()
-                .propertyWalkListenerRunner(propertyWalkListenerRunner)
+                .propertyWalkHandler(propertyWalkHandler)
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);

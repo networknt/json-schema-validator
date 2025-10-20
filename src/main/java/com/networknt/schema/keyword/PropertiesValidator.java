@@ -28,7 +28,7 @@ import com.networknt.schema.SchemaContext;
 import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.utils.SchemaRefs;
-import com.networknt.schema.walk.WalkListenerRunner;
+import com.networknt.schema.walk.WalkHandler;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -81,7 +81,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
                         entry.getValue().validate(executionContext, propertyNode, rootNode, path);
                     } else {
                         // check if walker is enabled. If it is enabled it is upto the walker implementation to decide about the validation.
-                        walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                        walkSchema(executionContext, entry, node, rootNode, instanceLocation, true, executionContext.getWalkConfig().getPropertyWalkHandler());
                     }
                 } finally {
                     executionContext.evaluationPathRemoveLast();
@@ -96,7 +96,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
                     executionContext.evaluationPathAddLast(entry.getKey());
                     try {
                         walkSchema(executionContext, entry, node, rootNode, instanceLocation, true,
-                                executionContext.getWalkConfig().getPropertyWalkListenerRunner());
+                                executionContext.getWalkConfig().getPropertyWalkHandler());
                     } finally {
                         executionContext.evaluationPathRemoveLast();
                     }
@@ -123,11 +123,11 @@ public class PropertiesValidator extends BaseKeywordValidator {
             validate(executionContext, node == null ? MissingNode.getInstance() : node, rootNode,
                     instanceLocation, true);
         } else {
-            WalkListenerRunner propertyWalkListenerRunner = executionContext.getWalkConfig().getPropertyWalkListenerRunner();
+            WalkHandler propertyWalkHandler = executionContext.getWalkConfig().getPropertyWalkHandler();
             for (Map.Entry<String, Schema> entry : this.schemas.entrySet()) {
                 executionContext.evaluationPathAddLast(entry.getKey());
                 try {
-                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkListenerRunner);
+                    walkSchema(executionContext, entry, node, rootNode, instanceLocation, shouldValidateSchema, propertyWalkHandler);
                 } finally {
                     executionContext.evaluationPathRemoveLast();
                 }
@@ -163,11 +163,11 @@ public class PropertiesValidator extends BaseKeywordValidator {
     }
 
     private void walkSchema(ExecutionContext executionContext, Map.Entry<String, Schema> entry, JsonNode node,
-            JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema, WalkListenerRunner propertyWalkListenerRunner) {
+            JsonNode rootNode, NodePath instanceLocation, boolean shouldValidateSchema, WalkHandler propertyWalkHandler) {
         Schema propertySchema = entry.getValue();
         JsonNode propertyNode = (node == null ? null : node.get(entry.getKey()));
         NodePath path = instanceLocation.append(entry.getKey());
-        boolean executeWalk = propertyWalkListenerRunner.runPreWalkListeners(executionContext,
+        boolean executeWalk = propertyWalkHandler.preWalk(executionContext,
                 KeywordType.PROPERTIES.getValue(), propertyNode, rootNode, path,
                 propertySchema, this);
         if (propertyNode == null && node != null) {
@@ -178,7 +178,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
         if (executeWalk) {
             propertySchema.walk(executionContext, propertyNode, rootNode, path, shouldValidateSchema);
         }
-        propertyWalkListenerRunner.runPostWalkListeners(executionContext, KeywordType.PROPERTIES.getValue(),
+        propertyWalkHandler.postWalk(executionContext, KeywordType.PROPERTIES.getValue(),
                 propertyNode, rootNode, path, propertySchema, this,
                 executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
     }

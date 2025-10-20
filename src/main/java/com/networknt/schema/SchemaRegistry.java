@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -652,6 +651,69 @@ public class SchemaRegistry {
     }
 
     /**
+     * Gets the schema.
+     * 
+     * @param schemaUri the base absolute IRI
+     * @param jsonNode  the node
+     * @return the schema
+     */
+    public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
+        return newSchema(schemaUri, jsonNode);
+    }
+
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri   the base absolute IRI
+     * @param schema      the input schema data
+     * @param inputFormat input format
+     * @return the schema
+     */
+    public Schema getSchema(final SchemaLocation schemaUri, final String schema, InputFormat inputFormat) {
+        try {
+            final JsonNode schemaNode = readTree(schema, inputFormat);
+            return newSchema(schemaUri, schemaNode);
+        } catch (IOException ioe) {
+            logger.error("Failed to load json schema!", ioe);
+            throw new SchemaException(ioe);
+        }
+    }
+
+    /**
+     * Gets the schema.
+     * 
+     * @param schemaUri   the base absolute IRI
+     * @param schemaStream      the input schema data
+     * @param inputFormat input format
+     * @return the schema
+     */
+    public Schema getSchema(final SchemaLocation schemaUri, final InputStream schemaStream, InputFormat inputFormat) {
+        try {
+            final JsonNode schemaNode = readTree(schemaStream, inputFormat);
+            return newSchema(schemaUri, schemaNode);
+        } catch (IOException ioe) {
+            logger.error("Failed to load json schema!", ioe);
+            throw new SchemaException(ioe);
+        }
+    }
+
+    /**
+     * Gets the schema.
+     * <p>
+     * Using this is not recommended as there is potentially no base IRI for
+     * resolving references to the absolute IRI.
+     * <p>
+     * Prefer {@link #getSchema(SchemaLocation, JsonNode)} instead to ensure the
+     * base IRI if no id is present.
+     * 
+     * @param jsonNode the node
+     * @return the schema
+     */
+    public Schema getSchema(final JsonNode jsonNode) {
+        return newSchema(null, jsonNode);
+    }
+
+    /**
      * Loads the schema.
      * 
      * @param schemaUri the absolute IRI of the schema which can map to the
@@ -718,56 +780,6 @@ public class SchemaRegistry {
         } else {
             throw new SchemaException(new FileNotFoundException(schemaUri.getAbsoluteIri().toString()));
         }
-    }
-
-    /**
-     * Gets the schema.
-     * 
-     * @param schemaUri the absolute IRI of the schema which can map to the
-     *                  retrieval IRI.
-     * @return the schema
-     */
-    public Schema getSchema(final URI schemaUri) {
-        return getSchema(SchemaLocation.of(schemaUri.toString()));
-    }
-
-    /**
-     * Gets the schema.
-     * 
-     * @param schemaUri the absolute IRI of the schema which can map to the
-     *                  retrieval IRI.
-     * @param jsonNode  the node
-     * @return the schema
-     */
-    public Schema getSchema(final URI schemaUri, final JsonNode jsonNode) {
-        return newSchema(SchemaLocation.of(schemaUri.toString()), jsonNode);
-    }
-
-    /**
-     * Gets the schema.
-     * 
-     * @param schemaUri the base absolute IRI
-     * @param jsonNode  the node
-     * @return the schema
-     */
-    public Schema getSchema(final SchemaLocation schemaUri, final JsonNode jsonNode) {
-        return newSchema(schemaUri, jsonNode);
-    }
-
-    /**
-     * Gets the schema.
-     * <p>
-     * Using this is not recommended as there is potentially no base IRI for
-     * resolving references to the absolute IRI.
-     * <p>
-     * Prefer {@link #getSchema(SchemaLocation, JsonNode)} instead to ensure the
-     * base IRI if no id is present.
-     * 
-     * @param jsonNode the node
-     * @return the schema
-     */
-    public Schema getSchema(final JsonNode jsonNode) {
-        return newSchema(null, jsonNode);
     }
 
     /**

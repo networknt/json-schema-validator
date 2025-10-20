@@ -31,20 +31,20 @@ import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.path.NodePath;
 
 /**
- * A {@link WalkListenerRunner} for walking keywords.
+ * A {@link WalkHandler} for walking keywords.
  */
-public class KeywordWalkListenerRunner extends AbstractWalkListenerRunner {
+public class KeywordWalkHandler extends AbstractWalkHandler {
     private final List<WalkListener> allKeywordWalkListeners;
     private final Map<String, List<WalkListener>> keywordWalkListenersMap;
 
-    public KeywordWalkListenerRunner(List<WalkListener> allKeywordWalkListeners,
+    public KeywordWalkHandler(List<WalkListener> allKeywordWalkListeners,
             Map<String, List<WalkListener>> keywordWalkListenersMap) {
         this.allKeywordWalkListeners = allKeywordWalkListeners;
         this.keywordWalkListenersMap = keywordWalkListenersMap;
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+    public boolean preWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
             JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {
         boolean continueRunningListenersAndWalk = true;
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode,
@@ -60,7 +60,7 @@ public class KeywordWalkListenerRunner extends AbstractWalkListenerRunner {
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+    public void postWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
             JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator,
             List<Error> errors) {
         WalkEvent keywordWalkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode,
@@ -99,8 +99,8 @@ public class KeywordWalkListenerRunner extends AbstractWalkListenerRunner {
             return this;
         }
 
-        public KeywordWalkListenerRunner build() {
-            return new KeywordWalkListenerRunner(allKeywordWalkListeners, keywordWalkListeners);
+        public KeywordWalkHandler build() {
+            return new KeywordWalkHandler(allKeywordWalkListeners, keywordWalkListeners);
         }
     }
 }

@@ -3,7 +3,7 @@ package com.networknt.schema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.PropertyWalkListenerRunner;
+import com.networknt.schema.walk.PropertyWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -58,8 +58,8 @@ class Issue451Test {
         InputStream schemaInputStream = getClass().getResourceAsStream(schemaPath);
         Schema schema = getJsonSchemaFromStreamContentV7(schemaInputStream);
 
-    	WalkConfig walkConfig = WalkConfig.builder().propertyWalkListenerRunner(
-    			PropertyWalkListenerRunner.builder().propertyWalkListener(new CountingWalker()).build()).build();
+    	WalkConfig walkConfig = WalkConfig.builder().propertyWalkHandler(
+    			PropertyWalkHandler.builder().propertyWalkListener(new CountingWalker()).build()).build();
         CollectorContext collectorContext = schema.walk(data, shouldValidate, executionContext -> executionContext.setWalkConfig(walkConfig)).getCollectorContext();
 
         Map<String, Integer> collector = (Map<String, Integer>) collectorContext.get(COLLECTOR_ID);

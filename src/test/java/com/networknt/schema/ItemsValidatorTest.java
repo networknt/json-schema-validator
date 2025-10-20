@@ -26,7 +26,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.networknt.schema.path.NodePath;
-import com.networknt.schema.walk.ItemWalkListenerRunner;
+import com.networknt.schema.walk.ItemWalkHandler;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
@@ -68,7 +68,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder().itemWalkListener(new WalkListener() {
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder().itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
@@ -85,7 +85,7 @@ class ItemsValidatorTest {
             }
         }).build();
         WalkConfig walkConfig = WalkConfig.builder()
-                .itemWalkListenerRunner(itemWalkListenerRunner)
+                .itemWalkHandler(itemWalkHandler)
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
@@ -110,7 +110,7 @@ class ItemsValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder().itemWalkListener(new WalkListener() {
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder().itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
@@ -127,7 +127,7 @@ class ItemsValidatorTest {
             }
         }).build();
         WalkConfig walkConfig = WalkConfig.builder()
-                .itemWalkListenerRunner(itemWalkListenerRunner)
+                .itemWalkHandler(itemWalkHandler)
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
