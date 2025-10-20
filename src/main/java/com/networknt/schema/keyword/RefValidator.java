@@ -23,6 +23,7 @@ import com.networknt.schema.InvalidSchemaRefException;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
 import com.networknt.schema.SchemaRef;
+import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.utils.ThreadSafeCachingSupplier;
 import com.networknt.schema.SchemaLocation;
@@ -146,7 +147,8 @@ public class RefValidator extends BaseKeywordValidator {
     private static String resolve(Schema parentSchema, String refValue) {
         // $ref prevents a sibling $id from changing the base uri
         Schema base = parentSchema;
-        if (parentSchema.getId() != null && parentSchema.getParentSchema() != null) {
+        if (parentSchema.getId() != null && parentSchema.getParentSchema() != null && parentSchema.getSchemaContext()
+                .getDialect().getSpecificationVersion().getOrder() <= SpecificationVersion.DRAFT_7.getOrder()) {
             base = parentSchema.getParentSchema();
         }
         return SchemaLocation.resolve(base.getSchemaLocation(), refValue);

@@ -17,6 +17,7 @@ package com.networknt.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -133,5 +134,96 @@ class RefValidatorTest {
                 + "  }\r\n"
                 + "}";
         assertFalse(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+    
+    @Test
+    void refSiblingId07AndBelow() {
+        String schemaData = "{\r\n"
+                + "  \"$id\": \"http://localhost:1234/sibling_id/base/\",\r\n"
+                + "  \"definitions\": {\r\n"
+                + "    \"foo\": {\r\n"
+                + "      \"$id\": \"http://localhost:1234/sibling_id/foo.json\",\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    },\r\n"
+                + "    \"base_foo\": {\r\n"
+                + "      \"$comment\": \"this canonical uri is http://localhost:1234/sibling_id/base/foo.json\",\r\n"
+                + "      \"$id\": \"foo.json\",\r\n"
+                + "      \"type\": \"number\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"allOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"$comment\": \"$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json\",\r\n"
+                + "      \"$id\": \"http://localhost:1234/sibling_id/\",\r\n"
+                + "      \"$ref\": \"foo.json\"\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        Schema schema = factory.getSchema(schemaData);
+        String inputData = "1";
+        assertTrue(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+
+    @Test
+    void refSiblingId201909AndAbove() {
+        String schemaData = "{\r\n"
+                + "  \"$id\": \"http://localhost:1234/sibling_id/base/\",\r\n"
+                + "  \"definitions\": {\r\n"
+                + "    \"foo\": {\r\n"
+                + "      \"$id\": \"http://localhost:1234/sibling_id/foo.json\",\r\n"
+                + "      \"type\": \"string\"\r\n"
+                + "    },\r\n"
+                + "    \"base_foo\": {\r\n"
+                + "      \"$comment\": \"this canonical uri is http://localhost:1234/sibling_id/base/foo.json\",\r\n"
+                + "      \"$id\": \"foo.json\",\r\n"
+                + "      \"type\": \"number\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"allOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"$comment\": \"$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json\",\r\n"
+                + "      \"$id\": \"http://localhost:1234/sibling_id/\",\r\n"
+                + "      \"$ref\": \"foo.json\"\r\n"
+                + "    }\r\n"
+                + "  ]\r\n"
+                + "}";
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
+        Schema schema = factory.getSchema(schemaData);
+        String inputData = "\"a\"";
+        assertTrue(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
+    }
+
+    @Test
+    void refSiblingIdInner201909AndAbove() {
+        String schemaData = "{\r\n"
+                + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
+                + "  \"$id\": \"http://example.com/schema-relative-uri-defs1.json\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"foo\": {\r\n"
+                + "      \"$id\": \"schema-relative-uri-defs2.json\",\r\n"
+                + "      \"$defs\": {\r\n"
+                + "        \"inner\": {\r\n"
+                + "          \"properties\": {\r\n"
+                + "            \"bar\": {\r\n"
+                + "              \"type\": \"string\"\r\n"
+                + "            }\r\n"
+                + "          }\r\n"
+                + "        }\r\n"
+                + "      },\r\n"
+                + "      \"$ref\": \"#/$defs/inner\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"$ref\": \"schema-relative-uri-defs2.json\"\r\n"
+                + "}";
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
+        Schema schema = factory.getSchema(schemaData);
+        String inputData = "{\r\n"
+                + "  \"foo\": {\r\n"
+                + "    \"bar\": \"a\"\r\n"
+                + "  },\r\n"
+                + "  \"bar\": \"a\"\r\n"
+                + "}";
+        assertTrue(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
     }
 }
