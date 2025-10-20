@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -25,11 +25,11 @@ class Issue461Test {
 
     @Test
     void shouldWalkWithValidation() throws IOException {
-    	KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
+    	KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
                 .keywordWalkListener(KeywordType.PROPERTIES.getValue(), new Walker())
                 .build();
         WalkConfig walkConfig = WalkConfig.builder()
-                .keywordWalkListenerRunner(keywordWalkListenerRunner)
+                .keywordWalkHandler(keywordWalkHandler)
                 .build();
 
         Schema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));

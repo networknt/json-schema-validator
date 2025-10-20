@@ -12,7 +12,7 @@ import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -49,24 +49,24 @@ class JsonWalkTest {
     private void setupSchema() {
         final Dialect dialect = getDialect();
         // Create Schema.
-        KeywordWalkListenerRunner.Builder keywordWalkListenerRunnerBuilder = KeywordWalkListenerRunner.builder();
+        KeywordWalkHandler.Builder keywordWalkHandlerBuilder = KeywordWalkHandler.builder();
 
-        keywordWalkListenerRunnerBuilder.keywordWalkListener(new AllKeywordListener());
-        keywordWalkListenerRunnerBuilder.keywordWalkListener(KeywordType.REF.getValue(), new RefKeywordListener());
-        keywordWalkListenerRunnerBuilder.keywordWalkListener(KeywordType.PROPERTIES.getValue(),
+        keywordWalkHandlerBuilder.keywordWalkListener(new AllKeywordListener());
+        keywordWalkHandlerBuilder.keywordWalkListener(KeywordType.REF.getValue(), new RefKeywordListener());
+        keywordWalkHandlerBuilder.keywordWalkListener(KeywordType.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         SchemaRegistry schemaFactory = SchemaRegistry.withDialect(dialect);
         this.jsonSchema = schemaFactory.getSchema(getSchema());
-        this.walkConfig =  WalkConfig.builder().keywordWalkListenerRunner(keywordWalkListenerRunnerBuilder.build()).build();
+        this.walkConfig =  WalkConfig.builder().keywordWalkHandler(keywordWalkHandlerBuilder.build()).build();
 
         // Create another Schema.
-        KeywordWalkListenerRunner.Builder keywordWalkListenerRunner1Builder = KeywordWalkListenerRunner.builder();
-        keywordWalkListenerRunner1Builder.keywordWalkListener(KeywordType.REF.getValue(), new RefKeywordListener());
-        keywordWalkListenerRunner1Builder.keywordWalkListener(KeywordType.PROPERTIES.getValue(),
+        KeywordWalkHandler.Builder keywordWalkHandler1Builder = KeywordWalkHandler.builder();
+        keywordWalkHandler1Builder.keywordWalkListener(KeywordType.REF.getValue(), new RefKeywordListener());
+        keywordWalkHandler1Builder.keywordWalkListener(KeywordType.PROPERTIES.getValue(),
                 new PropertiesKeywordListener());
         schemaFactory = SchemaRegistry.withDialect(dialect);
         this.jsonSchema1 = schemaFactory.getSchema(getSchema());
-        this.walkConfig1 =  WalkConfig.builder().keywordWalkListenerRunner(keywordWalkListenerRunner1Builder.build()).build();
+        this.walkConfig1 =  WalkConfig.builder().keywordWalkHandler(keywordWalkHandler1Builder.build()).build();
     }
 
     private Dialect getDialect() {

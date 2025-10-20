@@ -10,8 +10,8 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.walk.ApplyDefaultsStrategy;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
-import com.networknt.schema.walk.PropertyWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
+import com.networknt.schema.walk.PropertyWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -66,7 +66,7 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
 
     @Test
     void evaluationPathWalk() {
-        PropertyWalkListenerRunner propertyWalkListenerRunner = PropertyWalkListenerRunner.builder()
+        PropertyWalkHandler propertyWalkHandler = PropertyWalkHandler.builder()
                 .propertyWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -77,7 +77,7 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
                     }
                 }).build();
 
-        KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
                 .keywordWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -109,8 +109,8 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
         Schema schema = schemaRegistry.getSchema(schemaData, InputFormat.JSON);
         Result result = schema.walk(instanceData, InputFormat.JSON, true,
                 executionContext -> executionContext
-                        .walkConfig(walkConfig -> walkConfig.propertyWalkListenerRunner(propertyWalkListenerRunner)
-                                .keywordWalkListenerRunner(keywordWalkListenerRunner)));
+                        .walkConfig(walkConfig -> walkConfig.propertyWalkHandler(propertyWalkHandler)
+                                .keywordWalkHandler(keywordWalkHandler)));
         List<Error> errors = result.getErrors();
         assertEquals(2, errors.size());
         assertEquals("/properties/productId/minimum", errors.get(0).getEvaluationPath().toString());

@@ -40,4 +40,48 @@ public class ApplyDefaultsStrategy {
     public boolean shouldApplyArrayDefaults() {
         return applyArrayDefaults;
     }
+
+    public static Builder builder(ApplyDefaultsStrategy copy) {
+        if (copy == null) {
+            return new Builder();
+        }
+        Builder builder = new Builder();
+        builder.applyArrayDefaults = copy.applyArrayDefaults;
+        builder.applyPropertyDefaults = copy.applyPropertyDefaults;
+        builder.applyPropertyDefaultsIfNull = copy.applyPropertyDefaultsIfNull;
+        return builder;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    public static class Builder {
+        private boolean applyPropertyDefaults = false;
+        private boolean applyPropertyDefaultsIfNull = false;
+        private boolean applyArrayDefaults = false;
+
+        public Builder applyArrayDefaults(boolean applyArrayDefaults) {
+            this.applyArrayDefaults = applyArrayDefaults;
+            return this;
+        }
+        public Builder applyPropertyDefaults(boolean applyPropertyDefaults) {
+            this.applyPropertyDefaults = applyPropertyDefaults;
+            if (!applyPropertyDefaults) {
+                this.applyPropertyDefaultsIfNull = false;
+            }
+            return this;
+        }
+        public Builder applyPropertyDefaultsIfNull(boolean applyPropertyDefaultsIfNull) {
+            this.applyPropertyDefaultsIfNull = applyPropertyDefaultsIfNull;
+            if (applyPropertyDefaultsIfNull) {
+                this.applyPropertyDefaults = true;
+            }
+            return this;
+        }
+
+        public ApplyDefaultsStrategy build() {
+            return new ApplyDefaultsStrategy(applyPropertyDefaults, applyPropertyDefaultsIfNull, applyArrayDefaults);
+        }
+    }
 }

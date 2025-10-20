@@ -28,52 +28,52 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A {@link WalkListenerRunner} for walking properties.
+ * A {@link WalkHandler} for walking items.
  */
-public class PropertyWalkListenerRunner extends AbstractWalkListenerRunner {
+public class ItemWalkHandler extends AbstractWalkHandler {
 
-    private final List<WalkListener> propertyWalkListeners;
+    private final List<WalkListener> itemWalkListeners;
 
-    public PropertyWalkListenerRunner(List<WalkListener> propertyWalkListeners) {
-        this.propertyWalkListeners = propertyWalkListeners;
+    public ItemWalkHandler(List<WalkListener> itemWalkListeners) {
+        this.itemWalkListeners = itemWalkListeners;
     }
 
     @Override
-    public boolean runPreWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+    public boolean preWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
             JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
                 schema, validator);
-        return runPreWalkListeners(propertyWalkListeners, walkEvent);
+        return runPreWalkListeners(itemWalkListeners, walkEvent);
     }
 
     @Override
-    public void runPostWalkListeners(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
-            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator,
-            List<Error> errors) {
+    public void postWalk(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
+            JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator, List<Error> errors) {
         WalkEvent walkEvent = constructWalkEvent(executionContext, keyword, instanceNode, rootNode, instanceLocation,
                 schema, validator);
-        runPostWalkListeners(propertyWalkListeners, walkEvent, errors);
+        runPostWalkListeners(itemWalkListeners, walkEvent, errors);
     }
-
+    
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        private List<WalkListener> propertyWalkListeners = new ArrayList<>();
+        private List<WalkListener> itemWalkListeners = new ArrayList<>();
 
-        public Builder propertyWalkListener(WalkListener propertyWalkListener) {
-            this.propertyWalkListeners.add(propertyWalkListener);
+        public Builder itemWalkListener(WalkListener itemWalkListener) {
+            this.itemWalkListeners.add(itemWalkListener);
             return this;
         }
 
-        public Builder propertyWalkListeners(Consumer<List<WalkListener>> propertyWalkListeners) {
-            propertyWalkListeners.accept(this.propertyWalkListeners);
+        public Builder itemWalkListeners(Consumer<List<WalkListener>> itemWalkListeners) {
+            itemWalkListeners.accept(this.itemWalkListeners);
             return this;
         }
 
-        public PropertyWalkListenerRunner build() {
-            return new PropertyWalkListenerRunner(propertyWalkListeners);
+        public ItemWalkHandler build() {
+            return new ItemWalkHandler(itemWalkListeners);
         }
     }
+
 }

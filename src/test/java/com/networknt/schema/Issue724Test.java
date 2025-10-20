@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -23,7 +23,7 @@ class Issue724Test {
     @Test
     void test() throws JsonProcessingException {
         StringCollector stringCollector = new StringCollector();
-        KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder().keywordWalkListener(stringCollector).build();
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder().keywordWalkListener(stringCollector).build();
 
         String schema =
             "{\n"
@@ -51,7 +51,7 @@ class Issue724Test {
                 + "  \"billing_address\" : \"my_billing_address\"\n"
                 + "}\n";
         WalkConfig walkConfig = WalkConfig.builder()
-                .keywordWalkListenerRunner(keywordWalkListenerRunner)
+                .keywordWalkHandler(keywordWalkHandler)
                 .build();
         Schema jsonSchema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12).getSchema(schema);
         jsonSchema.walk(new ObjectMapper().readTree(data), /* shouldValidateSchema= */ false, executionContext -> executionContext.setWalkConfig(walkConfig));

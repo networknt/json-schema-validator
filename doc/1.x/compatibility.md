@@ -19,11 +19,11 @@ The implementation supports the use of custom keywords, formats, vocabularies an
 
 There are currently no known issues with the required functionality from the specification.
 
-The following are the tests results after running the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as at 13 Oct 2025 using version 2.0.0. As the test suite is continously updated, this can result in changes in the results subsequently.
+The following are the tests results after running the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) as at 18 Jun 2024 using version 1.4.1. As the test suite is continously updated, this can result in changes in the results subsequently.
 
-| Implementations | Overall                                                              | DRAFT_03 | DRAFT_04                                                           | DRAFT_06                                                           | DRAFT_07                                                           | DRAFT_2019_09                                                       | DRAFT_2020_12                                                       |
-| --------------- | -------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| NetworkNt       | pass: r:4840 (100.0%) o:2421 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) |          | pass: r:610 (100.0%) o:255 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:829 (100.0%) o:322 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:913 (100.0%) o:554 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:1227 (100.0%) o:639 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:1261 (100.0%) o:651 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) |
+| Implementations | Overall                                                                 | DRAFT_03                                                          | DRAFT_04                                                            | DRAFT_06                                                           | DRAFT_07                                                               | DRAFT_2019_09                                                        | DRAFT_2020_12                                                          |
+|-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| NetworkNt       | pass: r:4803 (100.0%) o:2372 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)    |                                                                   | pass: r:610 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:822 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:906 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)     | pass: r:1220 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:1245 (100.0%) o:637 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)    |
 
 ### Legend
 
@@ -174,7 +174,7 @@ This behavior can be overridden to generate assertions by setting the `setFormat
 
 ##### Unknown Formats
 
-When the format assertion vocabularies are used in a meta schema, in accordance to the specification, unknown formats will result in assertions. If the format assertion vocabularies are not used, unknown formats will only result in assertions if the assertions are enabled and if `strict("format", true)` for `SchemaRegistryConfig`.
+When the format assertion vocabularies are used in a meta schema, in accordance to the specification, unknown formats will result in assertions. If the format assertion vocabularies are not used, unknown formats will only result in assertions if the assertions are enabled and if `setStrict("format", true)`.
 
 ##### Footnotes
 1. Note that the validation are only optional for some of the keywords/formats.

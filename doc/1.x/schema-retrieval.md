@@ -15,8 +15,9 @@ String schemaData = "{\r\n"
         + "  \"type\": \"integer\"\r\n"
         + "}";
 Map<String, String> schemas = Collections.singletonMap("https://www.example.com/integer.json", schemaData); 
-SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder.schemas(schemas));
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7,
+        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas)));
 ```
 
 Schemas can be loaded through a function.
@@ -26,8 +27,9 @@ String schemaData = "{\r\n"
         + "  \"type\": \"integer\"\r\n"
         + "}";
 Map<String, String> schemas = Collections.singletonMap("https://www.example.com/integer.json", schemaData); 
-SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder.schemas(schemas::get));
+    JsonSchemaFactory schemaFactory = JsonSchemaFactory
+        .getInstance(VersionFlag.V7,
+            builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.schemas(schemas::get)));
 ```
 
 Schemas can also be loaded in the following manner.
@@ -50,8 +52,9 @@ String schemaData = "{\r\n"
         + "}";
 Map<String, RegistryEntry> registry = Collections
     .singletonMap("https://www.example.com/integer.json", new RegistryEntry(schemaData));
-SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder.schemas(registry::get, RegistryEntry::getSchemaData));
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7, builder -> builder
+        .schemaLoaders(schemaLoaders -> schemaLoaders.schemas(registry::get, RegistryEntry::getSchemaData)));
 ```
 
 ## Mapping Schema Identifier to Retrieval IRI
@@ -61,9 +64,9 @@ The schema identifier can be mapped to the retrieval IRI by implementing the `Sc
 ### Configuring Schema Mapper
 
 ```java
-class CustomSchemaIdResolver implements SchemaIdResolver {
+class CustomSchemaMapper implements SchemaMapper {
     @Override
-    public AbsoluteIri resolve(AbsoluteIri absoluteIRI) {
+    public AbsoluteIri map(AbsoluteIri absoluteIRI) {
         String iri = absoluteIRI.toString();
         if ("https://www.example.com/integer.json".equals(iri)) {
             return AbsoluteIri.of("classpath:schemas/integer.json");
@@ -72,19 +75,20 @@ class CustomSchemaIdResolver implements SchemaIdResolver {
     }
 }
 
-SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder
-                .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(new CustomSchemaIdResolver())))
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7,
+        builder -> builder.schemaMappers(schemaMappers -> schemaMappers.add(new CustomSchemaMapper())));
 ```
 
 ### Configuring Prefix Mappings
 
 ```java
-SchemaRegistry schemaRegistry = SchemaRegistry
-        .withDefaultDialect(SpecificationVersion.DRAFT_7,
-                builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
-                        .mapPrefix("https://json-schema.org", "classpath:")
-                        .mapPrefix("http://json-schema.org", "classpath:")));
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7,
+        builder -> builder
+            .schemaMappers(schemaMappers -> schemaMappers
+                .mapPrefix("https://json-schema.org", "classpath:")
+                .mapPrefix("http://json-schema.org", "classpath:")));
 ```
 
 ### Configuring Mappings
@@ -93,9 +97,9 @@ SchemaRegistry schemaRegistry = SchemaRegistry
 Map<String, String> mappings = Collections
     .singletonMap("https://www.example.com/integer.json", "classpath:schemas/integer.json");
 
-SchemaRegistry schemaRegistry = SchemaRegistry
-    .withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.mappings(mappings)));
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7,
+        builder -> builder.schemaMappers(schemaMappers -> schemaMappers.mappings(mappings)));
 ```
 
 ## Customizing Network Schema Retrieval
@@ -104,17 +108,17 @@ The default `UriSchemaLoader` implementation uses JDK connection/socket without 
 
 ### Configuring Custom URI Schema Loader
 
-The default `IriResourceLoader` can be overwritten in order to customize its behaviour in regards of authorization or error handling.
+The default `UriSchemaLoader` can be overwritten in order to customize its behaviour in regards of authorization or error handling.
 
-The `ResourceLoader` interface must implemented and the implementation configured on the `SchemaRegistry`.
+The `SchemaLoader` interface must implemented and the implementation configured on the `JsonSchemaFactory`.
 
 ```java
-public class CustomUriResourceLoader implements ResourceLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CustomUriResourceLoader.class);
+public class CustomUriSchemaLoader implements SchemaLoader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomUriSchemaLoader.class);
     private final String        authorizationToken;
     private final HttpClient    client;
 
-    public CustomUriResourceLoader(String authorizationToken) {
+    public CustomUriSchemaLoader(String authorizationToken) {
         this.authorizationToken = authorizationToken;
         this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     }
@@ -143,12 +147,12 @@ public class CustomUriResourceLoader implements ResourceLoader {
 }
 ```
 
-Within the `SchemaRegistry` the custom `ResourceLoader` must be configured.
+Within the `JsonSchemaFactory` the custom `SchemaLoader` must be configured.
 
 ```java
-CustomUriResourceLoader uriResourceLoader = new CustomUriResourceLoader(authorizationToken);
+CustomUriSchemaLoader uriSchemaLoader = new CustomUriSchemaLoader(authorizationToken);
 
-SchemaRegistry schemaRegistry = SchemaRegistry
-    .withDefaultDialect(SpecificationVersion.DRAFT_7,
-        builder -> builder.resourceLoaders(resourceLoaders -> resourceLoaders.add(uriSchemaLoader)));
+JsonSchemaFactory schemaFactory = JsonSchemaFactory
+    .getInstance(VersionFlag.V7,
+        builder -> builder.schemaLoaders(schemaLoaders -> schemaLoaders.add(uriSchemaLoader)));
 ```

@@ -39,10 +39,9 @@ class MetaSchemaValidationTest {
     void oas31() throws IOException {
         try (InputStream input = MetaSchemaValidationTest.class.getResourceAsStream("/schema/oas/3.1/petstore.json")) {
             JsonNode inputData = JsonMapperFactory.getInstance().readTree(input);
-            SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
             Schema schema = SchemaRegistry
                     .withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
-                            builder -> builder.schemaRegistryConfig(config).schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
+                            builder -> builder.schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers
                                     .mapPrefix("https://spec.openapis.org/oas/3.1", "classpath:oas/3.1")))
                     .getSchema(SchemaLocation.of("https://spec.openapis.org/oas/3.1/schema-base/2022-10-07"));
             List<Error> messages = schema.validate(inputData);

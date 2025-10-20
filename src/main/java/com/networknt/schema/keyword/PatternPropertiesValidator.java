@@ -26,6 +26,7 @@ import com.networknt.schema.annotation.Annotation;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.regex.RegularExpression;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * {@link KeywordValidator} for patternProperties.
@@ -56,11 +57,12 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
             return;
         }
         Set<String> matchedInstancePropertyNames = null;
-        Iterator<String> names = node.fieldNames();
+        Iterator<Entry<String, JsonNode>> fields = node.fields();
         boolean collectAnnotations = hasUnevaluatedPropertiesInEvaluationPath(executionContext) || collectAnnotations(executionContext);
-        while (names.hasNext()) {
-            String name = names.next();
-            JsonNode n = node.get(name);
+        while (fields.hasNext()) {
+            Entry<String, JsonNode> field = fields.next();
+            String name = field.getKey();
+            JsonNode n = field.getValue();
             for (Map.Entry<RegularExpression, Schema> entry : schemas.entrySet()) {
                 if (entry.getKey().matches(name)) {
                     NodePath path = instanceLocation.append(name);

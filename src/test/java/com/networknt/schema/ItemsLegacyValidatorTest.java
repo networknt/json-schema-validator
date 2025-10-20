@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.ApplyDefaultsStrategy;
-import com.networknt.schema.walk.ItemWalkListenerRunner;
+import com.networknt.schema.walk.ItemWalkHandler;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
@@ -124,7 +124,7 @@ class ItemsLegacyValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
 				.itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -141,7 +141,7 @@ class ItemsLegacyValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
+        WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk("[\"the\",\"quick\",\"brown\"]", InputFormat.JSON, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -162,7 +162,7 @@ class ItemsLegacyValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
 				.itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -179,7 +179,7 @@ class ItemsLegacyValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
+        WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -206,7 +206,7 @@ class ItemsLegacyValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
 				.itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -223,7 +223,7 @@ class ItemsLegacyValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-        WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
+        WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
         Result result = schema.walk(null, true, executionContext -> executionContext.setWalkConfig(walkConfig));
@@ -258,7 +258,7 @@ class ItemsLegacyValidatorTest {
                 + "    \"type\": \"string\"\r\n"
                 + "  }\r\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
 				.itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -275,7 +275,7 @@ class ItemsLegacyValidatorTest {
                 items.add(walkEvent);
             }
         }).build();
-		WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner)
+		WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler)
 				.build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);
@@ -316,7 +316,7 @@ class ItemsLegacyValidatorTest {
                 + "  }\r\n"
                 + "}";
         
-		ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+		ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
 				.itemWalkListener(new WalkListener() {
 					@Override
 					public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -331,7 +331,7 @@ class ItemsLegacyValidatorTest {
 						items.add(walkEvent);
 					}
 				}).build();
-		WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner)
+		WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler)
 				.applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true)).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09);
         Schema schema = factory.getSchema(schemaData);

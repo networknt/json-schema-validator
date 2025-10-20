@@ -367,13 +367,13 @@ public class ItemsLegacyValidator extends BaseKeywordValidator {
             executionContext.evaluationPathAddLast(keyword);
         }
         try {
-            boolean executeWalk = executionContext.getWalkConfig().getItemWalkListenerRunner()
-                    .runPreWalkListeners(executionContext, keyword, node, rootNode, instanceLocation, walkSchema, this);
+            boolean executeWalk = executionContext.getWalkConfig().getItemWalkHandler()
+                    .preWalk(executionContext, keyword, node, rootNode, instanceLocation, walkSchema, this);
             int currentErrors = executionContext.getErrors().size();
             if (executeWalk) {
                 walkSchema.walk(executionContext, node, rootNode, instanceLocation, shouldValidateSchema);
             }
-            executionContext.getWalkConfig().getItemWalkListenerRunner().runPostWalkListeners(executionContext, keyword,
+            executionContext.getWalkConfig().getItemWalkHandler().postWalk(executionContext, keyword,
                     node, rootNode, instanceLocation, walkSchema, this,
                     executionContext.getErrors().subList(currentErrors, executionContext.getErrors().size()));
         } finally {

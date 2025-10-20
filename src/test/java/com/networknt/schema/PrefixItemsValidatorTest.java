@@ -10,7 +10,7 @@ import com.networknt.schema.keyword.PrefixItemsValidator;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.ApplyDefaultsStrategy;
-import com.networknt.schema.walk.ItemWalkListenerRunner;
+import com.networknt.schema.walk.ItemWalkHandler;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
@@ -133,7 +133,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder().itemWalkListener(new WalkListener() {
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder().itemWalkListener(new WalkListener() {
             @Override
             public WalkFlow onWalkStart(WalkEvent walkEvent) {
                 return WalkFlow.CONTINUE;
@@ -149,7 +149,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 items.add(walkEvent);
             }
         }).build();
-        WalkConfig walkConfig = WalkConfig.builder().itemWalkListenerRunner(itemWalkListenerRunner).build();
+        WalkConfig walkConfig = WalkConfig.builder().itemWalkHandler(itemWalkHandler).build();
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
@@ -190,7 +190,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                 + "  ]\n"
                 + "}";
         
-        ItemWalkListenerRunner itemWalkListenerRunner = ItemWalkListenerRunner.builder()
+        ItemWalkHandler itemWalkHandler = ItemWalkHandler.builder()
                 .itemWalkListener(new WalkListener() {
                     @Override
                     public WalkFlow onWalkStart(WalkEvent walkEvent) {
@@ -206,7 +206,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
                     }
                 }).build();
         WalkConfig walkConfig = WalkConfig.builder().applyDefaultsStrategy(new ApplyDefaultsStrategy(true, true, true))
-                .itemWalkListenerRunner(itemWalkListenerRunner).build();
+                .itemWalkHandler(itemWalkHandler).build();
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);

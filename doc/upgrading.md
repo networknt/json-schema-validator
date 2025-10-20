@@ -4,6 +4,29 @@ This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 
+### 2.0.0
+
+| Compatibility | Version   |
+| ------------- | --------- |
+| Java          | Java 8    |
+| Jackson       | Jackson 2 |
+
+#### Major Changes
+
+- Configuration on a per Schema basis is no longer possible.
+- Removal of deprecated methods and functionality from 1.x.
+- Major renaming of many of the public APIs and moving of classes into sub-packages.
+- Errors are returned as a `List` instead of a `Set`.
+- Error messages do not have the `instanceLocation` as part of the message.
+- Error codes have been removed.
+- External resources will not be automatically fetched by default. This now requires opt-in via configuration.
+  - This is to conform to the specification that requires such functionality to be disabled by default to prefer offline operation. Note however that classpath resources will still be automatically loaded.
+
+#### Migration
+
+The migration document can be found [here](migration-2.0.0.md).
+
+
 ### 1.4.1
 
 #### Schema Validators Config
@@ -23,24 +46,26 @@ SchemaValidatorsConfig config = SchemaValidatorsConfig.builder()
 ```
 
 The following configurations were renamed with the old ones deprecated
-* `handleNullableField` -> `nullableKeywordEnabled`
-* `openAPI3StyleDiscriminators` -> `discriminatorKeywordEnabled`
-* `customMessageSupported` -> `errorMessageKeyword`
+
+- `handleNullableField` -> `nullableKeywordEnabled`
+- `openAPI3StyleDiscriminators` -> `discriminatorKeywordEnabled`
+- `customMessageSupported` -> `errorMessageKeyword`
 
 The following defaults were changed in the builder vs the constructor
-* `pathType` from `PathType.LEGACY` to `PathType.JSON_POINTER`
-* `handleNullableField` from `true` to `false`
-* `customMessageSupported` from `true` to `false`
+
+- `pathType` from `PathType.LEGACY` to `PathType.JSON_POINTER`
+- `handleNullableField` from `true` to `false`
+- `customMessageSupported` from `true` to `false`
 
 When using the builder custom error messages are not enabled by default and must be enabled by specifying the error message keyword to use ie. "message".
 
-| Deprecated Code                                                        | Replacement
-|------------------------------------------------------------------------|----------------------------------------------------------------------
-| `SchemaValidatorsConfig config = new SchemaValidatorsConfig();`        | `SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().pathType(PathType.LEGACY).errorMessageKeyword("message").nullableKeywordEnabled(true).build();`
-| `config.setEcma262Validator(true);`                                    | `builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());`
-| `config.setHandleNullableField(true);`                                 | `builder.nullableKeywordEnabled(true);`
-| `config.setOpenAPI3StyleDiscriminators(true);`                         | `builder.discriminatorKeywordEnabled(true);`
-| `config.setCustomMessageSupported(true);`                              | `builder.errorMessageKeyword("message");`
+| Deprecated Code                                                 | Replacement                                                                                                                                                         |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SchemaValidatorsConfig config = new SchemaValidatorsConfig();` | `SchemaValidatorsConfig config = SchemaValidatorsConfig().builder().pathType(PathType.LEGACY).errorMessageKeyword("message").nullableKeywordEnabled(true).build();` |
+| `config.setEcma262Validator(true);`                             | `builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());`                                                                                     |
+| `config.setHandleNullableField(true);`                          | `builder.nullableKeywordEnabled(true);`                                                                                                                             |
+| `config.setOpenAPI3StyleDiscriminators(true);`                  | `builder.discriminatorKeywordEnabled(true);`                                                                                                                        |
+| `config.setCustomMessageSupported(true);`                       | `builder.errorMessageKeyword("message");`                                                                                                                           |
 
 #### Collector Context
 
@@ -88,10 +113,10 @@ The preferred way of configuring the implementation is via setting the `regularE
 
 Previously the if debug logging is enabled the validators will log fine grained logs. This now requires setting the `debugEnabled` flag in `ExecutionConfig` as the checks to determine if the logger was enabled was impacting performance.
 
-
 ### 1.4.0
 
-This contains breaking changes 
+This contains breaking changes
+
 - to those using the walk functionality
 - in how custom meta-schemas are created
 
@@ -102,65 +127,68 @@ The behavior for the property listener is now more consistent whether or not val
 The following are the breaking changes to those using the walk functionality.
 
 `WalkEvent`
-| Field                    | Change       | Notes
+| Field | Change | Notes
 |--------------------------|--------------|----------
-| `schemaLocation`         | Removed      | For keywords: `getValidator().getSchemaLocation()`. For items and properties: `getSchema().getSchemaLocation()`
-| `evaluationPath`         | Removed      | For keywords: `getValidator().getEvaluationPath()`. For items and properties: `getSchema().getEvaluationPath()`
-| `schemaNode`             | Removed      | `getSchema().getSchemaNode()`
-| `parentSchema`           | Removed      | `getSchema().getParentSchema()`
-| `schema`                 | New          | For keywords this is the parent schema of the validator. For items and properties this is the item or property schema being evaluated.
-| `node`                   | Renamed      | `instanceNode`
-| `currentJsonSchemaFactory`| Removed     | `getSchema().getValidationContext().getJsonSchemaFactory()`
-| `validator`              | New          | The validator indicated by the keyword.
-
+| `schemaLocation` | Removed | For keywords: `getValidator().getSchemaLocation()`. For items and properties: `getSchema().getSchemaLocation()`
+| `evaluationPath` | Removed | For keywords: `getValidator().getEvaluationPath()`. For items and properties: `getSchema().getEvaluationPath()`
+| `schemaNode` | Removed | `getSchema().getSchemaNode()`
+| `parentSchema` | Removed | `getSchema().getParentSchema()`
+| `schema` | New | For keywords this is the parent schema of the validator. For items and properties this is the item or property schema being evaluated.
+| `node` | Renamed | `instanceNode`
+| `currentJsonSchemaFactory`| Removed | `getSchema().getValidationContext().getJsonSchemaFactory()`
+| `validator` | New | The validator indicated by the keyword.
 
 The following are the breaking changes in how custom meta-schemas are created.
 
 `JsonSchemaFactory`
-* The following were renamed on `JsonSchemaFactory` builder
-  * `defaultMetaSchemaURI` -> `defaultMetaSchemaIri`
-  * `enableUriSchemaCache` -> `enableSchemaCache`
-* The builder now accepts a `JsonMetaSchemaFactory` which can be used to restrict the loading of meta-schemas that aren't explicitly defined in the `JsonSchemaFactory`. The `DisallowUnknownJsonMetaSchemaFactory` can be used to only allow explicitly configured meta-schemas.
+
+- The following were renamed on `JsonSchemaFactory` builder
+  - `defaultMetaSchemaURI` -> `defaultMetaSchemaIri`
+  - `enableUriSchemaCache` -> `enableSchemaCache`
+- The builder now accepts a `JsonMetaSchemaFactory` which can be used to restrict the loading of meta-schemas that aren't explicitly defined in the `JsonSchemaFactory`. The `DisallowUnknownJsonMetaSchemaFactory` can be used to only allow explicitly configured meta-schemas.
 
 `JsonMetaSchema`
-* In particular `Version201909` and `Version202012` had most of the keywords moved to their respective vocabularies.
-* The following were renamed
-  * `getUri` -> `getIri`
-* The builder now accepts a `vocabularyFactory` to allow for custom vocabularies.
-* The builder now accepts a `unknownKeywordFactory`. By default this uses the `UnknownKeywordFactory` implementation that logs a warning and returns a `AnnotationKeyword`. The `DisallowUnknownKeywordFactory` can be used to disallow the use of unknown keywords.
-* The implementation of the builder now correctly throws an exception for `$vocabulary` with value of `true` that are not known to the implementation.
+
+- In particular `Version201909` and `Version202012` had most of the keywords moved to their respective vocabularies.
+- The following were renamed
+  - `getUri` -> `getIri`
+- The builder now accepts a `vocabularyFactory` to allow for custom vocabularies.
+- The builder now accepts a `unknownKeywordFactory`. By default this uses the `UnknownKeywordFactory` implementation that logs a warning and returns a `AnnotationKeyword`. The `DisallowUnknownKeywordFactory` can be used to disallow the use of unknown keywords.
+- The implementation of the builder now correctly throws an exception for `$vocabulary` with value of `true` that are not known to the implementation.
 
 `ValidatorTypeCode`
-* `getNonFormatKeywords` has been removed and replaced with `getKeywords`. This now includes the `format` keyword as the `JsonMetaSchema.Builder` now needs to know if the `format` keyword was configured, as it might not be in meta-schemas that don't define the format vocabulary.
-* The applicable `VersionCode` for each of the `ValidatorTypeCode` were modified to remove the keywords that are defined in vocabularies for `Version201909` and `Version202012`.
+
+- `getNonFormatKeywords` has been removed and replaced with `getKeywords`. This now includes the `format` keyword as the `JsonMetaSchema.Builder` now needs to know if the `format` keyword was configured, as it might not be in meta-schemas that don't define the format vocabulary.
+- The applicable `VersionCode` for each of the `ValidatorTypeCode` were modified to remove the keywords that are defined in vocabularies for `Version201909` and `Version202012`.
 
 `Vocabulary`
-* This now contains `Keyword` instances instead of the string keyword value as it needs to know the explicit implementation. For instance the implementation for the `items` keyword in Draft 2019-09 and Draft 2020-12 are different.
-* The following were renamed
-  * `getId` -> `getIri`
+
+- This now contains `Keyword` instances instead of the string keyword value as it needs to know the explicit implementation. For instance the implementation for the `items` keyword in Draft 2019-09 and Draft 2020-12 are different.
+- The following were renamed
+  - `getId` -> `getIri`
 
 ### 1.3.1
 
 This contains a breaking change in that the results from `failFast` are no longer thrown as an exception. The single result is instead returned normally in the output. This was partially done to distinguish the fail fast result from true exceptions such as when references could not be resolved.
 
-* Annotation collection and reporting has been implemented
-* Keywords have been refactored to use annotations for evaluation to improve performance and meet functional requirements
-* The list and hierarchical output formats have been implemented as per the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
-* The fail fast evaluation processing has been redesigned and fixed. This currently passes the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) with fail fast enabled. Previously contains and union type may cause incorrect results.
-* This also contains fixes for regressions introduced in 1.3.0
+- Annotation collection and reporting has been implemented
+- Keywords have been refactored to use annotations for evaluation to improve performance and meet functional requirements
+- The list and hierarchical output formats have been implemented as per the [Specification for Machine-Readable Output for JSON Schema Validation and Annotation](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
+- The fail fast evaluation processing has been redesigned and fixed. This currently passes the [JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) with fail fast enabled. Previously contains and union type may cause incorrect results.
+- This also contains fixes for regressions introduced in 1.3.0
 
 The following keywords were refactored to improve performance and meet the functional requirements.
 
 In particular this converts the `unevaluatedItems` and `unevaluatedProperties` validators to use annotations to perform the evaluation instead of the current mechanism which affects performance. This also refactors `$recursiveRef` to not rely on that same mechanism.
 
-* `unevaluatedProperties`
-* `unevaluatedItems`
-* `properties`
-* `patternProperties`
-* `items` / `additionalItems`
-* `prefixItems` / `items`
-* `contains`
-* `$recursiveRef`
+- `unevaluatedProperties`
+- `unevaluatedItems`
+- `properties`
+- `patternProperties`
+- `items` / `additionalItems`
+- `prefixItems` / `items`
+- `contains`
+- `$recursiveRef`
 
 This also fixes the issue where the `unevaluatedItems` keyword does not take into account the `contains` keyword when performing the evaluation.
 
@@ -170,9 +198,9 @@ This should fix most of the remaining functional and performance issues.
 
 #### Functional
 
-| Implementations | Overall                                                                 | DRAFT_03                                                          | DRAFT_04                                                            | DRAFT_06                                                           | DRAFT_07                                                               | DRAFT_2019_09                                                        | DRAFT_2020_12                                                          |
-|-----------------|-------------------------------------------------------------------------|-------------------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| NetworkNt       | pass: r:4703 (100.0%) o:2369 (100.0%)<br>fail: r:0 (0.0%) o:1 (0.0%)    |                                                                   | pass: r:600 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:796 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:880 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)     | pass: r:1201 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%)  | pass: r:1226 (100.0%) o:634 (99.8%)<br>fail: r:0 (0.0%) o:1 (0.2%)     |
+| Implementations | Overall                                                              | DRAFT_03 | DRAFT_04                                                           | DRAFT_06                                                           | DRAFT_07                                                           | DRAFT_2019_09                                                       | DRAFT_2020_12                                                      |
+| --------------- | -------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| NetworkNt       | pass: r:4703 (100.0%) o:2369 (100.0%)<br>fail: r:0 (0.0%) o:1 (0.0%) |          | pass: r:600 (100.0%) o:251 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:796 (100.0%) o:318 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:880 (100.0%) o:541 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:1201 (100.0%) o:625 (100.0%)<br>fail: r:0 (0.0%) o:0 (0.0%) | pass: r:1226 (100.0%) o:634 (99.8%)<br>fail: r:0 (0.0%) o:1 (0.2%) |
 
 #### Performance
 
@@ -211,22 +239,24 @@ EveritBenchmark.testValidate:·gc.time                             thrpt   10   
 This adds support for Draft 2020-12
 
 This adds support for the following keywords
-* `$dynamicRef`
-* `$dynamicAnchor`
-* `$vocabulary`
 
-This refactors the schema retrieval codes as the ID is based on IRI and not URI. 
+- `$dynamicRef`
+- `$dynamicAnchor`
+- `$vocabulary`
+
+This refactors the schema retrieval codes as the ID is based on IRI and not URI.
 
 Note that Java does not support IRIs. See https://cr.openjdk.org/%7Edfuchs/writeups/updating-uri/ for details.
 
 The following are removed and replaced by `SchemaLoader` and `SchemaMapper`.
-* `URIFactory` - No replacement. The resolve logic is in `AbsoluteIRI`.
-* `URISchemeFactory` - No replacement as `URIFactory` isn't required anymore.
-* `URISchemeFetcher` - No replacement. The `SchemaLoaders` are iterated and called.
-* `URITranslator` - Replaced by `SchemaMapper`.
-* `URLFactory` - No replacement as `URIFactory` isn't required anymore.
-* `URLFetcher` - Replaced by `UriSchemaLoader`.
-* `URNURIFactory` - No replacement as `URIFactory` isn't required anymore.
+
+- `URIFactory` - No replacement. The resolve logic is in `AbsoluteIRI`.
+- `URISchemeFactory` - No replacement as `URIFactory` isn't required anymore.
+- `URISchemeFetcher` - No replacement. The `SchemaLoaders` are iterated and called.
+- `URITranslator` - Replaced by `SchemaMapper`.
+- `URLFactory` - No replacement as `URIFactory` isn't required anymore.
+- `URLFetcher` - Replaced by `UriSchemaLoader`.
+- `URNURIFactory` - No replacement as `URIFactory` isn't required anymore.
 
 The `SchemaLoader` and `SchemaMapper` are configured in the `JsonSchemaFactory.Builder`. See [Customizing Schema Retrieval](schema-retrieval.md).
 
@@ -237,49 +267,59 @@ This can be changed by using a custom meta schema with the relevant `$vocabulary
 ### 1.2.0
 
 The following are a summary of the changes
-* Paths are now specified using the `JsonNodePath`. The paths are `instanceLocation`, `schemaLocation` and `evaluationPath`. The meaning of these paths are as defined in the [specification](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
-* Schema Location comprises an absolute IRI component and a fragment that is a `JsonNodePath` that is typically a JSON pointer
-* Rename `at` to `instanceLocation`. Note that for the `required` validator the error message `instanceLocation` does not point to the missing property to be consistent with the [specification](https://json-schema.org/draft/2020-12/json-schema-core#section-12.4.2).  The `ValidationMessage` now contains a `property` attribute if this is required.
-* Rename `schemaPath` to `schemaLocation`. This should generally be an absolute IRI with a fragment particularly in later drafts.
-* Add `evaluationPath`
+
+- Paths are now specified using the `JsonNodePath`. The paths are `instanceLocation`, `schemaLocation` and `evaluationPath`. The meaning of these paths are as defined in the [specification](https://github.com/json-schema-org/json-schema-spec/blob/main/output/jsonschema-validation-output-machines.md).
+- Schema Location comprises an absolute IRI component and a fragment that is a `JsonNodePath` that is typically a JSON pointer
+- Rename `at` to `instanceLocation`. Note that for the `required` validator the error message `instanceLocation` does not point to the missing property to be consistent with the [specification](https://json-schema.org/draft/2020-12/json-schema-core#section-12.4.2). The `ValidationMessage` now contains a `property` attribute if this is required.
+- Rename `schemaPath` to `schemaLocation`. This should generally be an absolute IRI with a fragment particularly in later drafts.
+- Add `evaluationPath`
 
 `JsonValidator`
-* Now contains `getSchemaLocation` and `getEvaluationPath` in the interface
-* Implementations now need a constructor that takes in `schemaLocation` and `evaluationPath`
-* The `validate` method uses `JsonNodePath` for the `instanceLocation`
-* The `validate` method with just the `rootNode` has been removed
+
+- Now contains `getSchemaLocation` and `getEvaluationPath` in the interface
+- Implementations now need a constructor that takes in `schemaLocation` and `evaluationPath`
+- The `validate` method uses `JsonNodePath` for the `instanceLocation`
+- The `validate` method with just the `rootNode` has been removed
 
 `JsonSchemaWalker`
-* The `walk` method uses `JsonNodePath` for the `instanceLocation`
+
+- The `walk` method uses `JsonNodePath` for the `instanceLocation`
 
 `WalkEvent`
-* Rename `at` to `instanceLocation`
-* Rename `schemaPath` to `schemaLocation`
-* Add `evaluationPath`
-* Rename `keyWordName` to `keyword`
+
+- Rename `at` to `instanceLocation`
+- Rename `schemaPath` to `schemaLocation`
+- Add `evaluationPath`
+- Rename `keyWordName` to `keyword`
 
 `WalkListenerRunner`
-* Rename `at` to `instanceLocation`
-* Rename `schemaPath` to `schemaLocation`
-* Add `evaluationPath`
+
+- Rename `at` to `instanceLocation`
+- Rename `schemaPath` to `schemaLocation`
+- Add `evaluationPath`
 
 `BaseJsonValidator`
-* The `atPath` methods are removed. Use `JsonNodePath.append` to get the path of the child
-* The `buildValidationMessage` methods are removed. Use the `message` builder method instead.
+
+- The `atPath` methods are removed. Use `JsonNodePath.append` to get the path of the child
+- The `buildValidationMessage` methods are removed. Use the `message` builder method instead.
 
 `CollectorContext`
-* The `evaluatedProperties` and `evaluatedItems` are now `Collection<JsonNodePath>`
+
+- The `evaluatedProperties` and `evaluatedItems` are now `Collection<JsonNodePath>`
 
 `JsonSchema`
-* The validator keys are now using `evaluationPath` instead of `schemaPath`
-* The `@deprecated` constructor methods have been removed
+
+- The validator keys are now using `evaluationPath` instead of `schemaPath`
+- The `@deprecated` constructor methods have been removed
 
 `ValidatorTypeCode`
-* The `customMessage` has been removed. This made the `ValidatorTypeCode` mutable if the feature was used as the enum is a shared instance. The logic for determining the `customMessage` has been moved to the validator. 
-* The creation of `newValidator` instances now uses a functional interface instead of reflection.
+
+- The `customMessage` has been removed. This made the `ValidatorTypeCode` mutable if the feature was used as the enum is a shared instance. The logic for determining the `customMessage` has been moved to the validator.
+- The creation of `newValidator` instances now uses a functional interface instead of reflection.
 
 `ValidatorState`
-* The `ValidatorState` is now a property of the `ExecutionContext`. This change is largely to improve performance. The `CollectorContext.get` method is particularly slow for this use case.
+
+- The `ValidatorState` is now a property of the `ExecutionContext`. This change is largely to improve performance. The `CollectorContext.get` method is particularly slow for this use case.
 
 ### 1.1.0
 
@@ -287,11 +327,11 @@ Removes use of `ThreadLocal` to store context and explicitly passes the context 
 
 The following are the main API changes, typically to accept an `ExecutionContext` as a parameter
 
-* `com.networknt.schema.JsonSchema`
-* `com.networknt.schema.JsonValidator`
-* `com.networknt.schema.Format`
-* `com.networknt.schema.walk.JsonSchemaWalker`
-* `com.networknt.schema.walk.WalkEvent`
+- `com.networknt.schema.JsonSchema`
+- `com.networknt.schema.JsonValidator`
+- `com.networknt.schema.Format`
+- `com.networknt.schema.walk.JsonSchemaWalker`
+- `com.networknt.schema.walk.WalkEvent`
 
 `JsonSchema` was modified to optionally accept an `ExecutionContext` for the `validate`, `validateAndCollect` and `walk` methods. For methods where no `ExecutionContext` is supplied, one is created for each run in the `createExecutionContext` method in `JsonSchema`.
 

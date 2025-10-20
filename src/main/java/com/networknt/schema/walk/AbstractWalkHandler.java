@@ -9,7 +9,7 @@ import com.networknt.schema.Error;
 
 import java.util.List;
 
-public abstract class AbstractWalkListenerRunner implements WalkListenerRunner {
+public abstract class AbstractWalkHandler implements WalkHandler {
 
     protected WalkEvent constructWalkEvent(ExecutionContext executionContext, String keyword, JsonNode instanceNode,
             JsonNode rootNode, NodePath instanceLocation, Schema schema, KeywordValidator validator) {

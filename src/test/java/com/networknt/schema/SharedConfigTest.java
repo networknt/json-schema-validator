@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.WalkListener;
-import com.networknt.schema.walk.KeywordWalkListenerRunner;
+import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
 import com.networknt.schema.walk.WalkEvent;
 import com.networknt.schema.walk.WalkFlow;
@@ -34,9 +34,9 @@ class SharedConfigTest {
     void shouldCallAllKeywordListenerOnWalkStart() throws Exception {
 
         AllKeywordListener allKeywordListener = new AllKeywordListener();
-        KeywordWalkListenerRunner keywordWalkListenerRunner = KeywordWalkListenerRunner.builder()
+        KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder()
                 .keywordWalkListener(allKeywordListener).build();
-        WalkConfig walkConfig = WalkConfig.builder().keywordWalkListenerRunner(keywordWalkListenerRunner).build();
+        WalkConfig walkConfig = WalkConfig.builder().keywordWalkHandler(keywordWalkHandler).build();
 
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
 

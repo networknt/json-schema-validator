@@ -71,14 +71,15 @@ class MessageTest {
 
     @Test
     void message() {
-        Dialect dialect = Dialect.builder(Dialects.getDraft202012().getId(), Dialects.getDraft202012())
-                .keyword(new EqualsKeyword()).build();
-        SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
+        Dialect dialect = Dialect.builder(Dialects.getDraft202012())
+                .keyword(new EqualsKeyword())
+                .build();
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(dialect);
         String schemaData = "{\r\n"
                 + "  \"type\": \"string\",\r\n"
                 + "  \"equals\": \"helloworld\"\r\n"
                 + "}";
-        Schema schema = factory.getSchema(schemaData);
+        Schema schema = schemaRegistry.getSchema(schemaData);
         List<Error> messages = schema.validate("\"helloworlda\"", InputFormat.JSON);
         assertEquals(1, messages.size());
         assertEquals(": must be equal to 'helloworld'", messages.iterator().next().toString());
