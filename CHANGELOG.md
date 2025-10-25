@@ -11,6 +11,21 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 2.0.0- 2025-10-25
+
+### Added
+
+### Changed
+
+- Fix ref with sibling id from 2019-09 (#1203) Thanks @justin-tay
+- Refactor walk and update docs (#1202) Thanks @justin-tay
+- Fix matching of $ when there are trailing newlines (#1201) Thanks @justin-tay
+- Refactor evaluation context out from validator state (#1199) Thanks @justin-tay
+- Main refactor for 2.x (#1198) Thanks @justin-tay
+- Refactor set to list in execution context (#1197) Thanks @justin-tay
+- Refactor and remove validation message handler (#1196) Thanks @justin-tay
+- Add benchmark for performance regression testing (#1195) Thanks @justin-tay
+
 ## 1.5.9- 2025-09-13
 
 ### Added
