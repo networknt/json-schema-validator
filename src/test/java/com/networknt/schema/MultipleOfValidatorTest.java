@@ -89,4 +89,15 @@ class MultipleOfValidatorTest {
         messages = typeLoose.validate(validTypeLooseInputData, InputFormat.JSON);
         assertEquals(0, messages.size());
     }
+
+    @Test
+    void messageFormatPrecision() {
+        String schemaData = "{ \"type\": \"object\", \"properties\": { \"value1\": { \"type\": \"number\", \"multipleOf\": 0.00001 } } }";
+        SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
+        Schema schema = factory.getSchema(schemaData);
+        String inputData = "{\"value1\":123.000001}";
+
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        assertEquals("must be multiple of 0.00001", messages.get(0).getMessage());
+    }
 }
