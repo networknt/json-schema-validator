@@ -25,7 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Dialects;
 
 /**
  * Tests for JsonSchemaFactory.
@@ -86,5 +88,32 @@ class SchemaRegistryTest {
             }
         });
         assertFalse(failed.get());
+    }
+
+    @Test
+    void noDefaultDialect() {
+        SchemaRegistry registry = SchemaRegistry.builder()
+                .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012())).build();
+        assertThrows(MissingSchemaKeywordException.class, () -> {
+            registry.getSchema("{\"type\":\"object\"}");
+        });
+    }
+
+    @Test
+    void noDefaultDialectButSchemaSpecified() {
+        SchemaRegistry registry = SchemaRegistry.builder()
+                .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012())).build();
+        assertDoesNotThrow(() -> {
+            registry.getSchema("{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\"}");
+        });
+    }
+
+    @Test
+    void noDefaultDialectButSchemaSpecifiedButNotInRegistry() {
+        SchemaRegistry registry = SchemaRegistry.builder()
+                .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft201909())).build();
+        assertThrows(InvalidSchemaException.class, () -> {
+            registry.getSchema("{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\"}");
+        });
     }
 }

@@ -218,9 +218,6 @@ public class SchemaRegistry {
 
     private SchemaRegistry(NodeReader nodeReader, String defaultDialectId, SchemaLoader schemaLoader,
             boolean schemaCacheEnabled, DialectRegistry dialectRegistry, SchemaRegistryConfig schemaRegistryConfig) {
-        if (defaultDialectId == null || defaultDialectId.trim().isEmpty()) {
-            throw new IllegalArgumentException("defaultDialectId must not be null or empty");
-        }
         this.nodeReader = nodeReader != null ? nodeReader : BasicNodeReader.getInstance();
         this.defaultDialectId = defaultDialectId;
         this.schemaLoader = schemaLoader != null ? schemaLoader : SchemaLoader.getDefault();
@@ -549,6 +546,10 @@ public class SchemaRegistry {
             throw new SchemaException("Unknown dialect: " + iriNode);
         }
         final String iri = iriNode == null || iriNode.isNull() ? defaultDialectId : iriNode.textValue();
+        if (iri == null) {
+            throw new MissingSchemaKeywordException(
+                    "The $schema keyword that indicates the schema dialect must be specified.");
+        }
         return getDialect(iri);
     }
 
