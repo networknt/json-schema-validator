@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonSchemaValidatorTest;
 import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;
+import com.networknt.schema.OutputFormat;
 import com.networknt.schema.Result;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
@@ -119,5 +120,27 @@ class PropertiesValidatorTest extends BaseJsonSchemaValidatorTest {
         assertEquals("/additionalProperties/type", errors.get(1).getEvaluationPath().toString());
         assertEquals("#/additionalProperties/type", errors.get(1).getSchemaLocation().toString());
         assertEquals("type", errors.get(1).getKeyword());
+    }
+
+    @Test
+    void shouldNotProcessIfNotObject() {
+        SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012());
+        String schemaData = "{\n"
+                + "  \"properties\": {\n"
+                + "    \"productId\": {\n"
+                + "      \"type\": \"integer\",\n"
+                + "      \"minimum\": 1\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"additionalProperties\": {\n"
+                + "    \"type\": \"integer\"\n"
+                + "  },\n"
+                + "  \"unevaluatedProperties\": false\n"
+                + "}";
+        String instanceData = "\"hello\"";
+        Schema schema = schemaRegistry.getSchema(schemaData, InputFormat.JSON);
+        Result result = schema.validate(instanceData, InputFormat.JSON, OutputFormat.RESULT);
+        assertEquals(true, result.getErrors().isEmpty());
+        assertEquals(0, result.getExecutionContext().getAnnotations().asMap().size());
     }
 }
