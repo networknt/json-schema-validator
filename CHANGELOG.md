@@ -11,6 +11,18 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+### Changed
+
+## 2.0.1- 2025-12-11
+
+### Added
+
+### Changed
+
+- Skip processing of properties keyword if not an object (#1217) Thanks @justin-tay
+- Allow for default dialect id not to be specified and throw an exception (#1212) Thanks @justin-tay
+- Fix multipleOf error message for fractional digits greater than 3 (#1210) Thanks @justin-tay
+
 ## 2.0.0- 2025-10-25
 
 ### Added
