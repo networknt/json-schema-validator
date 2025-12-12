@@ -47,7 +47,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {
                     executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                             .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                            .arguments(this.divisor)
+                            .arguments(this.divisor.toString()) // String is used as the MessageFormat NumberFormat considers 3 fractional digits by default
                             .build());
                 }
             }
@@ -66,7 +66,7 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             if (divisor != 0) {
                 // convert to BigDecimal since double type is not accurate enough to do the
                 // division and multiple
-                return schemaNode.isBigDecimal() ? schemaNode.decimalValue() : BigDecimal.valueOf(divisor);
+                return schemaNode.isBigDecimal() ? schemaNode.decimalValue().stripTrailingZeros() : BigDecimal.valueOf(divisor).stripTrailingZeros();
             }
         }
         return null;

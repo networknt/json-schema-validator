@@ -339,6 +339,16 @@ List<Error> errors = schema.validate(input, InputFormat.JSON, executionContext -
 });
 ```
 
+### Require schema dialect to be specified
+
+The specification allows for the `$schema` keyword not to be specified, in which case the schema will default to the default dialect specified.
+
+The following example creates a `SchemaRegistry` that does not specify a default dialect and will throw a `MissingSchemaKeywordException` if the schema does not specify a dialect using the `$schema` keyword.
+
+```java
+SchemaRegistry registry = SchemaRegistry.builder().dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012())).build();
+```
+
 ### Results and output formats
 
 #### Results
