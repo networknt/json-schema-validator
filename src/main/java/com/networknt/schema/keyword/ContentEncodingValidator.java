@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -47,7 +47,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
     public ContentEncodingValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.CONTENT_ENCODING, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.contentEncoding = schemaNode.textValue();
+        this.contentEncoding = schemaNode.asString();
     }
 
     private boolean matches(String value) {
@@ -77,7 +77,7 @@ public class ContentEncodingValidator extends BaseKeywordValidator {
                     annotation -> annotation.instanceLocation(instanceLocation).value(this.contentEncoding));
         }
 
-        if (!matches(node.asText())) {
+        if (!matches(node.asString())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentEncoding)

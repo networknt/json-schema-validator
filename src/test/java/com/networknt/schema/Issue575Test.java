@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -78,7 +78,7 @@ class Issue575Test {
      */
     @ParameterizedTest
     @MethodSource("validTimeZoneOffsets")
-    void testValidTimeZoneOffsets(String jsonObject) throws JsonProcessingException {
+    void testValidTimeZoneOffsets(String jsonObject) throws JacksonException {
         List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject));
         Assertions.assertTrue(errors.isEmpty());
     }
@@ -120,7 +120,7 @@ class Issue575Test {
      */
     @ParameterizedTest
     @MethodSource("invalidTimeRepresentations")
-    void testInvalidTimeRepresentations(String jsonObject) throws JsonProcessingException {
+    void testInvalidTimeRepresentations(String jsonObject) throws JacksonException {
         List<Error> errors = schema.validate(new ObjectMapper().readTree(jsonObject), OutputFormat.DEFAULT, (executionContext, schemaContext) -> {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });

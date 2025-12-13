@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
@@ -37,7 +37,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
     public RecursiveRefValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.RECURSIVE_REF, schemaNode, schemaLocation, parentSchema, schemaContext);
 
-        String refValue = schemaNode.asText();
+        String refValue = schemaNode.asString(schemaNode.toString());
         if (!"#".equals(refValue)) {
             Error error = error()
                     .keyword(KeywordType.RECURSIVE_REF.getValue()).messageKey("internal.invalidRecursiveRef")
@@ -82,7 +82,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
             Error error = error().keyword(KeywordType.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
-                    .arguments(schemaNode.asText()).build();
+                    .arguments(schemaNode.toString()).build();
             throw new InvalidSchemaRefException(error);
         }
          refSchema.validate(executionContext, node, rootNode, instanceLocation);
@@ -99,7 +99,7 @@ public class RecursiveRefValidator extends BaseKeywordValidator {
             Error error = error().keyword(KeywordType.RECURSIVE_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
-                    .arguments(schemaNode.asText()).build();
+                    .arguments(schemaNode.toString()).build();
             throw new InvalidSchemaRefException(error);
         }
         if (node == null) {

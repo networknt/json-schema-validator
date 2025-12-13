@@ -16,10 +16,10 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.NullNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.NullNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -28,7 +28,6 @@ import com.networknt.schema.utils.JsonType;
 import com.networknt.schema.utils.TypeFactory;
 import com.networknt.schema.SchemaContext;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,12 +39,12 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
     private final Set<JsonNode> nodes;
     private final String error;
 
-    static String asText(JsonNode node) {
-        if (node.isObject() || node.isArray() || node.isTextual()) {
-            // toString for isTextual is so that there are quotes
+    static String asString(JsonNode node) {
+        if (node.isObject() || node.isArray() || node.isString()) {
+            // toString for isString is so that there are quotes
             return node.toString();
         }
-        return node.asText();
+        return node.asString();
     }
     
     public EnumValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
@@ -69,7 +68,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
                 }
 
                 sb.append(separator);
-                sb.append(asText(n));
+                sb.append(asString(n));
                 separator = ", ";
             }
 
@@ -112,9 +111,9 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      */
     private boolean isTypeLooseContainsInEnum(JsonNode node) {
         if (TypeFactory.getValueNodeType(node, this.schemaContext.getSchemaRegistryConfig()) == JsonType.STRING) {
-            String nodeText = node.textValue();
+            String nodeText = node.asString();
             for (JsonNode n : nodes) {
-                String value = n.asText();
+                String value = n.asString();
                 if (value != null && value.equals(nodeText)) {
                     return true;
                 }
@@ -130,7 +129,7 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      * @return the node
      */
     protected JsonNode processNumberNode(JsonNode n) {
-        return DecimalNode.valueOf(new BigDecimal(n.decimalValue().toPlainString()));
+        return DecimalNode.valueOf(n.decimalValue().stripTrailingZeros());
     }
 
     /**

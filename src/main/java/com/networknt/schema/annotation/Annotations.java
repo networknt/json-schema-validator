@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -92,7 +92,7 @@ public class Annotations {
 
             try {
                 return JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(results);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 return "";
             }
         }

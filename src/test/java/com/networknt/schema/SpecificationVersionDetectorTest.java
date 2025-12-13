@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -34,10 +34,10 @@ class SpecificationVersionDetectorTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
+    @CsvSource(value = {
             "data/schemaTag.json,        'http://json-schema.org/draft-03/schema#' is unrecognizable schema",
             "data/schemaTagMissing.json, '$schema' tag is not present"
-    })
+    }, quoteCharacter = '"')
     void detectInvalidSchemaVersion(String schemaPath, String expectedError) throws IOException {
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaPath);
         JsonNode node = mapper.readTree(in);

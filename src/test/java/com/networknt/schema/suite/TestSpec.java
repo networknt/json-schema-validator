@@ -2,7 +2,7 @@ package com.networknt.schema.suite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.SchemaRegistryConfig;
 
 import java.util.Collections;

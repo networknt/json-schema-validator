@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -93,7 +93,7 @@ class OutputUnitTest {
             + "  \"bar\": { \"bar-prop\": 20 }\r\n"
             + "}";
     @Test
-    void annotationCollectionList() throws JsonProcessingException {
+    void annotationCollectionList() throws JacksonException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
         
@@ -109,7 +109,7 @@ class OutputUnitTest {
     }
 
     @Test
-    void annotationCollectionHierarchical() throws JsonProcessingException {
+    void annotationCollectionHierarchical() throws JacksonException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
@@ -125,7 +125,7 @@ class OutputUnitTest {
     }
 
     @Test
-    void annotationCollectionHierarchical2() throws JsonProcessingException {
+    void annotationCollectionHierarchical2() throws JacksonException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(schemaData);
 
@@ -222,7 +222,7 @@ class OutputUnitTest {
     }
     
     @Test
-    void unevaluatedProperties() throws JsonProcessingException {
+    void unevaluatedProperties() throws JacksonException {
         Map<String, String> external = new HashMap<>();
 
         String externalSchemaData = "{\r\n"
@@ -282,10 +282,10 @@ class OutputUnitTest {
      * 
      * @see <a href=
      *      "https://github.com/json-schema-org/json-schema-spec/blob/f8967bcbc6cee27753046f63024b55336a9b1b54/jsonschema-core.md?plain=1#L1717-L1720">anyOf</a>
-     * @throws JsonProcessingException the exception
+     * @throws JacksonException the exception
      */
     @Test
-    void anyOf() throws JsonProcessingException {
+    void anyOf() throws JacksonException {
         // Test that any of doesn't short circuit if annotations need to be collected
         String schemaData = "{\r\n"
                 + "  \"type\": \"object\",\r\n"

@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -36,7 +36,7 @@ public class RequiredValidator extends BaseKeywordValidator implements KeywordVa
         if (schemaNode.isArray()) {
             this.fieldNames = new ArrayList<>(schemaNode.size());
             for (JsonNode fieldNme : schemaNode) {
-                fieldNames.add(fieldNme.asText());
+                fieldNames.add(fieldNme.asString());
             }
         } else {
             this.fieldNames = Collections.emptyList();

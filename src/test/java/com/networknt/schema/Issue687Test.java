@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.path.PathType;
 
 import org.junit.jupiter.api.Test;
@@ -87,7 +87,7 @@ class Issue687Test {
 
     @ParameterizedTest
     @MethodSource("errors")
-    void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JsonProcessingException {
+    void testError(PathType pathType, String schemaPath, String content, String[] expectedMessagePaths) throws JacksonException {
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().pathType(pathType).build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
         Schema schema = factory.getSchema(Issue687Test.class.getResourceAsStream(schemaPath));
@@ -119,7 +119,7 @@ class Issue687Test {
 
     @ParameterizedTest
     @MethodSource("specialCharacterTests")
-    void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JsonProcessingException {
+    void testSpecialCharacters(PathType pathType, String propertyName, String expectedPath) throws JacksonException {
         ObjectMapper mapper = new ObjectMapper();
         SchemaRegistryConfig schemaValidatorsConfig = SchemaRegistryConfig.builder().pathType(pathType).build();
         Schema schema = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(schemaValidatorsConfig))

@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.walk.WalkListener;
@@ -67,7 +67,7 @@ class Issue467Test {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
-        JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
+        JsonNode data = mapper.readTree(Issue467Test.class.getResourceAsStream("/data/issue467.json"));
         Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertEquals(new HashSet<>(Arrays.asList("/properties", "/properties/tags/items/0/properties")),
                 properties.stream().map(Object::toString).collect(Collectors.toSet()));
@@ -96,7 +96,7 @@ class Issue467Test {
                 .build();
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
         Schema schema = factory.getSchema(schemaInputStream);
-        JsonNode data = mapper.readTree(Issue467Test.class.getResource("/data/issue467.json"));
+        JsonNode data = mapper.readTree(Issue467Test.class.getResourceAsStream("/data/issue467.json"));
         Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         assertEquals(
                 new HashSet<>(Arrays.asList("/properties/tags", "/properties/tags/items/0/properties/category", "/properties/tags/items/0/properties/value")),

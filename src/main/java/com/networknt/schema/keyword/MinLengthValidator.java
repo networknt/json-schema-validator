@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -48,7 +48,7 @@ public class MinLengthValidator extends BaseKeywordValidator implements KeywordV
             return;
         }
 
-        if (node.textValue().codePointCount(0, node.textValue().length()) < minLength) {
+        if (node.asString().codePointCount(0, node.asString().length()) < minLength) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(minLength).build());

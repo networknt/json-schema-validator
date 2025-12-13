@@ -19,7 +19,7 @@ package com.networknt.schema.keyword;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -103,7 +103,7 @@ public class AnyOfValidator extends BaseKeywordValidator {
                     DiscriminatorState discriminator = executionContext.getDiscriminatorMapping().get(instanceLocation);
                     JsonNode refNode = schema.getSchemaNode().get("$ref");
                     if (discriminator != null && refNode != null) {
-                        discriminatorMatchFound = discriminator.matches(refNode.asText());
+                        discriminatorMatchFound = discriminator.matches(refNode.asString());
                     }
                     if (discriminatorMatchFound) {
                         /*

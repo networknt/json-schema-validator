@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.DefaultDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
@@ -534,18 +534,18 @@ public class SchemaRegistry {
 
     private Dialect getDialect(final JsonNode schemaNode, SchemaRegistryConfig config) {
         final JsonNode iriNode = schemaNode.get("$schema");
-        if (iriNode != null && iriNode.isTextual()) {
-            return getDialect(iriNode.textValue());
+        if (iriNode != null && iriNode.isString()) {
+            return getDialect(iriNode.asString());
         }
         return null;
     }
 
     private Dialect getDialectOrDefault(final JsonNode schemaNode) {
         final JsonNode iriNode = schemaNode.get("$schema");
-        if (iriNode != null && !iriNode.isNull() && !iriNode.isTextual()) {
+        if (iriNode != null && !iriNode.isNull() && !iriNode.isString()) {
             throw new SchemaException("Unknown dialect: " + iriNode);
         }
-        final String iri = iriNode == null || iriNode.isNull() ? defaultDialectId : iriNode.textValue();
+        final String iri = iriNode == null || iriNode.isNull() ? defaultDialectId : iriNode.asString();
         if (iri == null) {
             throw new MissingSchemaKeywordException(
                     "The $schema keyword that indicates the schema dialect must be specified.");

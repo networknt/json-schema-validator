@@ -16,7 +16,7 @@
 
 package com.networknt.schema.dialect;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Schema;
@@ -416,7 +416,7 @@ public class Dialect {
 
     private static String readText(JsonNode node, String field) {
         JsonNode fieldNode = node.get(field);
-        return fieldNode == null ? null : fieldNode.textValue();
+        return fieldNode == null ? null : fieldNode.asString();
     }
 
     public String getId() {

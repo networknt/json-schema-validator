@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -60,7 +60,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         JsonNode propertiesNode = parentSchema.getSchemaNode().get(PropertiesValidator.PROPERTY);
         if (propertiesNode != null) {
             allowedProperties = new HashSet<>();
-            for (Iterator<String> it = propertiesNode.fieldNames(); it.hasNext(); ) {
+            for (Iterator<String> it = propertiesNode.propertyNames().iterator(); it.hasNext(); ) {
                 allowedProperties.add(it.next());
             }
         } else {
@@ -70,7 +70,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         JsonNode patternPropertiesNode = parentSchema.getSchemaNode().get(PatternPropertiesValidator.PROPERTY);
         if (patternPropertiesNode != null) {
             this.patternProperties = new ArrayList<>(patternPropertiesNode.size());
-            for (Iterator<String> it = patternPropertiesNode.fieldNames(); it.hasNext(); ) {
+            for (Iterator<String> it = patternPropertiesNode.propertyNames().iterator(); it.hasNext(); ) {
                 patternProperties.add(RegularExpression.compile(it.next(), schemaContext));
             }
         } else {
@@ -97,7 +97,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
                 || collectAnnotations(executionContext);
         // if allowAdditionalProperties is true, add all the properties as evaluated.
         if (allowAdditionalProperties && collectAnnotations) {
-            for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+            for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext();) {
                 if (matchedInstancePropertyNames == null) {
                     matchedInstancePropertyNames = new LinkedHashSet<>();
                 }
@@ -106,7 +106,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
             }
         }
 
-        for (Iterator<Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ) {
+        for (Iterator<Entry<String, JsonNode>> it = node.properties().iterator(); it.hasNext(); ) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
             // skip the context items
@@ -154,7 +154,7 @@ public class AdditionalPropertiesValidator extends BaseKeywordValidator {
         }
 
         // Else continue walking.
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
             String pname = it.next();
             // skip the context items
             if (pname.startsWith("#")) {

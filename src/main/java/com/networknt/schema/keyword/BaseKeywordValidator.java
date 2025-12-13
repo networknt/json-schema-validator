@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ErrorMessages;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
@@ -86,7 +86,7 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
     protected String getNodeFieldType() {
         JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
         if (typeField != null) {
-            return typeField.asText();
+            return typeField.asString();
         }
         return null;
     }

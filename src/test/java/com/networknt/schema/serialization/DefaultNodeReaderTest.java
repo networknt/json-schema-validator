@@ -20,9 +20,8 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.utils.JsonNodes;
 
@@ -31,7 +30,7 @@ import com.networknt.schema.utils.JsonNodes;
  */
 class DefaultNodeReaderTest {
     @Test
-    void location() throws JsonParseException, IOException {
+    void location() throws IOException {
         String schemaData = "{\r\n"
                 + "  \"$id\": \"https://schema/myschema\",\r\n"
                 + "  \"properties\": {\r\n"
@@ -43,7 +42,7 @@ class DefaultNodeReaderTest {
                 + "}";
         JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
         JsonNode idNode = jsonNode.at("/$id");
-        JsonLocation location = JsonNodes.tokenStreamLocationOf(idNode);
+        TokenStreamLocation location = JsonNodes.tokenStreamLocationOf(idNode);
         assertEquals(2, location.getLineNr());
         assertEquals(10, location.getColumnNr());
 
@@ -71,8 +70,8 @@ class DefaultNodeReaderTest {
                 + "}";
         JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.JSON);
 
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/format"));
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/minLength"));
+        TokenStreamLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/format"));
+        TokenStreamLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/minLength"));
 
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
         assertEquals(17, formatSchemaNodeTokenLocation.getColumnNr());
@@ -91,8 +90,8 @@ class DefaultNodeReaderTest {
                 + "    minLength: 6\r\n";
         JsonNode jsonNode = NodeReader.builder().locationAware().build().readTree(schemaData, InputFormat.YAML);
 
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/format"));
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/minLength"));
+        TokenStreamLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/format"));
+        TokenStreamLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(jsonNode.at("/properties/startDate/minLength"));
 
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
         assertEquals(13, formatSchemaNodeTokenLocation.getColumnNr());

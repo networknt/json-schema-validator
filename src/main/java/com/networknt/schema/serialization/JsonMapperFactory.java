@@ -15,8 +15,8 @@
  */
 package com.networknt.schema.serialization;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Json Mapper Factory.
@@ -27,7 +27,7 @@ public class JsonMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = JsonMapper.builder().build();
+        private static final ObjectMapper INSTANCE = JsonMapper.shared();
     }
 
     /**

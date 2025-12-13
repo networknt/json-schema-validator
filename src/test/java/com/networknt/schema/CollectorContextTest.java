@@ -15,10 +15,8 @@
  */
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.Format;
@@ -65,12 +63,12 @@ class CollectorContextTest {
     void testCollectorContextWithKeyword() throws Exception {
         Result validationResult = validate("{\"test-property1\":\"sample1\",\"test-property2\":\"sample2\"}");
         Assertions.assertEquals(0, validationResult.getErrors().size());
-        List<String> contextValues = validationResult.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
-        contextValues.sort(null);
+        List<String> conasStrings = validationResult.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
+        conasStrings.sort(null);
         Assertions.assertEquals(0, validationResult.getErrors().size());
-        Assertions.assertEquals(2, contextValues.size());
-        Assertions.assertEquals(contextValues.get(0), "actual_value_added_to_context1");
-        Assertions.assertEquals(contextValues.get(1), "actual_value_added_to_context2");
+        Assertions.assertEquals(2, conasStrings.size());
+        Assertions.assertEquals(conasStrings.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(conasStrings.get(1), "actual_value_added_to_context2");
     }
 
     @Test
@@ -103,13 +101,13 @@ class CollectorContextTest {
         Assertions.assertEquals(0, validationResult2.getErrors().size());
         Assertions.assertEquals(0, validationResult3.getErrors().size());
 
-        List<String> contextValue1 = validationResult1.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
-        List<String> contextValue2 = validationResult2.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
-        List<String> contextValue3 = validationResult3.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
+        List<String> conasString1 = validationResult1.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
+        List<String> conasString2 = validationResult2.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
+        List<String> conasString3 = validationResult3.getCollectorContext().get(Data.SAMPLE_COLLECTOR);
 
-        Assertions.assertEquals(contextValue1.get(0), "actual_value_added_to_context1");
-        Assertions.assertEquals(contextValue2.get(0), "actual_value_added_to_context2");
-        Assertions.assertEquals(contextValue3.get(0), "actual_value_added_to_context3");
+        Assertions.assertEquals(conasString1.get(0), "actual_value_added_to_context1");
+        Assertions.assertEquals(conasString2.get(0), "actual_value_added_to_context2");
+        Assertions.assertEquals(conasString3.get(0), "actual_value_added_to_context3");
     }
 
     @Test
@@ -229,10 +227,6 @@ class CollectorContextTest {
         public void run() {
             try {
                 this.validationResult = validate(data);
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -315,7 +309,7 @@ class CollectorContextTest {
 		public BiConsumer<List<String>, JsonNode> accumulator() {
 			return (returnList, instanceNode) -> {
 	            synchronized (returnList) {
-	                returnList.add(referenceMap.get(instanceNode.textValue()));
+	                returnList.add(referenceMap.get(instanceNode.asString()));
 	            }
 			};
 		}
@@ -381,7 +375,7 @@ class CollectorContextTest {
             List<String> returnList = collectorContext.computeIfAbsent(Data.SAMPLE_COLLECTOR_OTHER,
                     key -> new ArrayList<String>());
             synchronized (returnList) {
-                returnList.add(node.textValue());
+                returnList.add(node.asString());
             }
         }
 

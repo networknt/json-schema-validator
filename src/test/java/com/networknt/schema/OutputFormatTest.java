@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.utils.CachingSupplier;
 
 class OutputFormatTest {
@@ -62,7 +62,7 @@ class OutputFormatTest {
                 if (!value.isObject() && !value.isArray()) {
                     builder.append("with value ");
                     builder.append("'");
-                    builder.append(value.asText());
+                    builder.append(value.asString());
                     builder.append("'");
                     builder.append(" ");
                 }

@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
@@ -74,14 +74,14 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
              * schema but there is non-specification compliant behavior if there are
              * multiple discriminators on the same path if the propertyName is not defined.
              */
-            this.propertyName = propertyName != null ? propertyName.asText() : "";
+            this.propertyName = propertyName != null ? propertyName.asString() : "";
             JsonNode mappingNode = discriminator.get("mapping");
             ObjectNode mapping = mappingNode != null && mappingNode.isObject() ? (ObjectNode) mappingNode : null;
             if (mapping != null) {
                 this.mapping = new HashMap<>();
-                for (Iterator<Entry<String, JsonNode>> iter = mapping.fields(); iter.hasNext();) {
+                for (Iterator<Entry<String, JsonNode>> iter = mapping.properties().iterator(); iter.hasNext();) {
                     Entry<String, JsonNode> entry = iter.next();
-                    this.mapping.put(entry.getKey(), entry.getValue().asText());
+                    this.mapping.put(entry.getKey(), entry.getValue().asString());
                 }
             } else {
                 this.mapping = Collections.emptyMap();
@@ -90,7 +90,7 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             // Check if OpenAPI 3.2.0
             JsonNode defaultMapping = discriminator.get("defaultMapping");
             if (defaultMapping != null) {
-                this.defaultMapping = defaultMapping.asText();
+                this.defaultMapping = defaultMapping.asString();
             } else {
                 this.defaultMapping = null;
             }
@@ -142,8 +142,8 @@ public class DiscriminatorValidator extends BaseKeywordValidator {
             executionContext.getDiscriminatorMapping().put(instanceLocation, state);
         }
         JsonNode discriminatingValueNode = node.get(state.getPropertyName());
-        if (discriminatingValueNode != null && discriminatingValueNode.isTextual()) {
-            String discriminatingValue = discriminatingValueNode.asText();
+        if (discriminatingValueNode != null && discriminatingValueNode.isString()) {
+            String discriminatingValue = discriminatingValueNode.asString();
             state.setDiscriminatingValue(discriminatingValue);
             // Check for explicit mapping
             String mappedSchema = mapping.get(discriminatingValue);

@@ -15,8 +15,8 @@
  */
 package com.networknt.schema.serialization.node;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
  * Factory that produces a {@link JsonNodeFactory}.

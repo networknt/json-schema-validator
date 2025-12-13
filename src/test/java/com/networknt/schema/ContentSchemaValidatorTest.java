@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -28,7 +28,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  */
 class ContentSchemaValidatorTest {
     @Test
-    void annotationCollection() throws JsonProcessingException {
+    void annotationCollection() throws JacksonException {
         String schemaData = "{\r\n"
                 + "    \"type\": \"string\",\r\n"
                 + "    \"contentMediaType\": \"application/jwt\",\r\n"

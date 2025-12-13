@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -46,8 +46,8 @@ public class AnnotationKeyword extends AbstractKeyword {
         }
 
         private Object getAnnotationValue(JsonNode schemaNode) {
-            if (schemaNode.isTextual()) {
-                return schemaNode.textValue(); 
+            if (schemaNode.isString()) {
+                return schemaNode.asString(); 
             } else if (schemaNode.isNumber()) {
                 return schemaNode.numberValue();
             } else if (schemaNode.isObject()) {

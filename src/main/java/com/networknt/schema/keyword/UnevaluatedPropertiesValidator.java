@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -115,7 +115,7 @@ public class UnevaluatedPropertiesValidator extends BaseKeywordValidator {
         boolean failFast = executionContext.isFailFast();
         try {
             executionContext.setFailFast(false);
-            for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+            for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext();) {
                 String fieldName = it.next();
                 if (!existingEvaluatedProperties.contains(fieldName)) {
                     evaluatedProperties.add(fieldName);

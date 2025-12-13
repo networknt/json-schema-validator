@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.BaseKeywordValidator;
@@ -40,13 +40,13 @@ class MessageTest {
                 Schema parentSchema, Keyword keyword,
                 SchemaContext schemaContext) {
             super(keyword, schemaNode, schemaLocation, parentSchema, schemaContext);
-            this.value = schemaNode.textValue();
+            this.value = schemaNode.asString();
         }
 
         @Override
         public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
                 NodePath instanceLocation) {
-            if (!node.asText().equals(value)) {
+            if (!node.asString().equals(value)) {
                 executionContext.addError(error().message("must be equal to ''{0}''")
                                 .arguments(value)
                                 .instanceLocation(instanceLocation).instanceNode(node).evaluationPath(executionContext.getEvaluationPath()).build());

@@ -1,6 +1,5 @@
 package com.networknt.schema.benchmark;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -8,9 +7,9 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
@@ -37,9 +36,9 @@ public class NetworkntBasicRunner implements Callable<Object> {
             schemas = root.get("schemas");
 
             List<String> names = new ArrayList<>();
-            schemas.fieldNames().forEachRemaining(names::add);
+            schemas.propertyNames().iterator().forEachRemaining(names::add);
             schemaNames = names;
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             logger.error("Failed to initialize NetworkntBasicRunner", e);
         }
     }

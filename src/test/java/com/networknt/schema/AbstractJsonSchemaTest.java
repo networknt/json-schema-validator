@@ -1,11 +1,10 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.List;
@@ -42,7 +41,7 @@ abstract class AbstractJsonSchemaTest {
 
     private Schema getJsonSchemaFromDataNode(JsonNode dataNode) {
         return Optional.ofNullable(dataNode.get(SCHEMA))
-                .map(JsonNode::textValue)
+                .map(JsonNode::asString)
                 .map(this::getJsonNodeFromPath)
                 .map(this::getJsonSchema)
                 .orElseThrow(() -> new IllegalArgumentException("No schema found on document to test"));
@@ -51,11 +50,7 @@ abstract class AbstractJsonSchemaTest {
     private JsonNode getJsonNodeFromPath(String dataPath) {
         InputStream dataInputStream = getClass().getResourceAsStream(dataPath);
         ObjectMapper mapper = JsonMapperFactory.getInstance();
-        try {
-            return mapper.readTree(dataInputStream);
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        return mapper.readTree(dataInputStream);
     }
 
     private Schema getJsonSchema(JsonNode schemaNode) {

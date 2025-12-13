@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.resource.InputStreamSource;
@@ -22,16 +22,16 @@ class JsonSchemaFactoryUriCacheTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void cacheEnabled() throws JsonProcessingException {
+    void cacheEnabled() throws JacksonException {
         runCacheTest(true);
     }
 
     @Test
-    void cacheDisabled() throws JsonProcessingException {
+    void cacheDisabled() throws JacksonException {
         runCacheTest(false);
     }
 
-    private void runCacheTest(boolean enableCache) throws JsonProcessingException {
+    private void runCacheTest(boolean enableCache) throws JacksonException {
         CustomURIFetcher fetcher = new CustomURIFetcher();
         SchemaRegistry factory = buildJsonSchemaFactory(fetcher, enableCache);
         SchemaLocation schemaUri = SchemaLocation.of("cache:uri_mapping/schema1.json");

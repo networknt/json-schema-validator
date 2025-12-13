@@ -16,9 +16,9 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.PatternFormat;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OverrideValidatorTest {
 
     @Test
-    void overrideDefaultValidator() throws JsonProcessingException, IOException {
+    void overrideDefaultValidator() throws JacksonException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final String URI = "https://github.com/networknt/json-schema-validator/tests/schemas/example01";
         final String schema = "{\n" +

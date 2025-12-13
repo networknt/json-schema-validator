@@ -15,7 +15,7 @@
  */
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -36,12 +36,14 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
             if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
-                        .arguments(schemaNode.asText(), node.asText())
+                        .arguments(schemaNode.asString(schemaNode.toString()), node.asString())
                         .build());
             }
         } else if (!schemaNode.equals(node)) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
-                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale()).arguments(schemaNode.asText(), node.asText()).build());
+                    .evaluationPath(executionContext.getEvaluationPath())
+                    .locale(executionContext.getExecutionConfig().getLocale())
+                    .arguments(schemaNode.asString(schemaNode.toString()), node.asString(node.toString())).build());
         }
     }
 }

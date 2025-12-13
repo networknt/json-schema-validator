@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -34,7 +34,7 @@ public class DependentSchemas extends BaseKeywordValidator {
     public DependentSchemas(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.DEPENDENT_SCHEMAS, schemaNode, schemaLocation, parentSchema, schemaContext);
-        for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext();) {
+        for (Iterator<String> it = schemaNode.propertyNames().iterator(); it.hasNext();) {
             String pname = it.next();
             JsonNode pvalue = schemaNode.get(pname);
             if (pvalue.isObject() || pvalue.isBoolean()) {
@@ -52,7 +52,7 @@ public class DependentSchemas extends BaseKeywordValidator {
 
     protected void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation, boolean walk) {
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
             String pname = it.next();
             Schema schema = this.schemaDependencies.get(pname);
             if (schema != null) {

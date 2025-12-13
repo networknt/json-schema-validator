@@ -15,7 +15,7 @@
  */
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.resource.ResourceLoader;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.ApplyDefaultsStrategy;
@@ -244,7 +244,7 @@ class ItemsLegacyValidatorTest {
     }
 
     @Test
-    void walkTupleItemsAdditional() throws JsonProcessingException {
+    void walkTupleItemsAdditional() throws JacksonException {
         String schemaData = "{\r\n"
                 + "  \"items\": [\r\n"
                 + "    {\r\n"
@@ -288,7 +288,7 @@ class ItemsLegacyValidatorTest {
         assertEquals(3, items.size());
         assertEquals("/0", items.get(0).getInstanceLocation().toString());
         assertEquals("items", items.get(0).getKeyword());
-        assertEquals("hello", items.get(0).getInstanceNode().textValue());
+        assertEquals("hello", items.get(0).getInstanceNode().asString());
         assertEquals("/1", items.get(1).getInstanceLocation().toString());
         assertEquals("items", items.get(1).getKeyword());
         assertNull(items.get(1).getInstanceNode());
@@ -298,7 +298,7 @@ class ItemsLegacyValidatorTest {
     }
 
     @Test
-    void walkTupleItemsAdditionalDefaults() throws JsonProcessingException {
+    void walkTupleItemsAdditionalDefaults() throws JacksonException {
         String schemaData = "{\r\n"
                 + "  \"items\": [\r\n"
                 + "    {\r\n"
@@ -344,15 +344,15 @@ class ItemsLegacyValidatorTest {
         assertEquals(4, items.size());
         assertEquals("/0", items.get(0).getInstanceLocation().toString());
         assertEquals("items", items.get(0).getKeyword());
-        assertEquals("1", items.get(0).getInstanceNode().textValue());
+        assertEquals("1", items.get(0).getInstanceNode().asString());
         assertEquals("/1", items.get(1).getInstanceLocation().toString());
         assertEquals("items", items.get(1).getKeyword());
         assertEquals(2, items.get(1).getInstanceNode().intValue());
         assertEquals("/2", items.get(2).getInstanceLocation().toString());
         assertEquals("additionalItems", items.get(2).getKeyword());
-        assertEquals("additional", items.get(2).getInstanceNode().asText());
+        assertEquals("additional", items.get(2).getInstanceNode().asString());
         assertEquals("/3", items.get(3).getInstanceLocation().toString());
         assertEquals("additionalItems", items.get(3).getKeyword());
-        assertEquals("additional", items.get(3).getInstanceNode().asText());
+        assertEquals("additional", items.get(3).getInstanceNode().asString());
     }
 }

@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class Issue396Test {
     protected Schema getJsonSchemaFromStreamContentV7(InputStream schemaContent) {
@@ -34,7 +34,7 @@ class Issue396Test {
         JsonNode node = getJsonNodeFromStreamContent(dataInputStream);
 
         final Set<String> expected = new HashSet<>();
-        node.fields().forEachRemaining(entry -> {
+        node.properties().iterator().forEachRemaining(entry -> {
             if (!entry.getValue().asBoolean())
                 expected.add(entry.getKey());
         });

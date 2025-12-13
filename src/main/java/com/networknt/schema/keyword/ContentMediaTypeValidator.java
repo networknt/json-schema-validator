@@ -20,8 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -52,7 +52,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
     public ContentMediaTypeValidator(SchemaLocation schemaLocation, JsonNode schemaNode,
             Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.CONTENT_MEDIA_TYPE, schemaNode, schemaLocation, parentSchema, schemaContext);
-        this.contentMediaType = schemaNode.textValue();
+        this.contentMediaType = schemaNode.asString();
     }
 
     private boolean matches(String value) {
@@ -60,8 +60,8 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
             // Validate content
             JsonNode node = this.parentSchema.getSchemaNode().get("contentEncoding");
             String encoding = null;
-            if (node != null && node.isTextual()) {
-                encoding = node.asText();
+            if (node != null && node.isString()) {
+                encoding = node.asString();
             }
             String data = value;
             if ("base64".equals(encoding)) {
@@ -74,7 +74,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
             // Validate the json
             try {
                 JsonMapperFactory.getInstance().readTree(data);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 return false;
             }
             return true;
@@ -101,7 +101,7 @@ public class ContentMediaTypeValidator extends BaseKeywordValidator {
                     annotation -> annotation.instanceLocation(instanceLocation).value(this.contentMediaType));
         }
 
-        if (!matches(node.asText())) {
+        if (!matches(node.asString())) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.contentMediaType)

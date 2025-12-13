@@ -18,7 +18,7 @@ package com.networknt.schema.format;
 
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.MessageSourceError;
 import com.networknt.schema.SchemaContext;
@@ -95,7 +95,7 @@ public interface Format {
         if (nodeType != JsonType.STRING) {
             return true;
         }
-        return matches(executionContext, schemaContext, value.textValue());
+        return matches(executionContext, schemaContext, value.asString());
     }
 
     /**
@@ -139,7 +139,7 @@ public interface Format {
             if (!matches(executionContext, schemaContext, node, rootNode, instanceLocation, assertionsEnabled,
                     formatValidator)) {
                 executionContext.addError(message.get()
-                                .arguments(this.getName(), node.asText()).build());
+                                .arguments(this.getName(), node.asString()).build());
             }
         }
     }

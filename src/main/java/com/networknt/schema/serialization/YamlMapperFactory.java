@@ -15,8 +15,8 @@
  */
 package com.networknt.schema.serialization;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * YAML Mapper Factory.
@@ -27,7 +27,7 @@ public class YamlMapperFactory {
      * The holder defers the classloading until it is used.
      */
     private static class Holder {
-        private static final ObjectMapper INSTANCE = YAMLMapper.builder().build();
+        private static final ObjectMapper INSTANCE = YAMLMapper.shared();
     }
 
     /**

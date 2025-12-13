@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.InvalidSchemaRefException;
@@ -96,7 +96,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
             Error error = error().keyword(KeywordType.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
-                    .arguments(schemaNode.asText()).build();
+                    .arguments(schemaNode.asString()).build();
             throw new InvalidSchemaRefException(error);
         }
         refSchema.validate(executionContext, node, rootNode, instanceLocation);
@@ -112,7 +112,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
             Error error = error().keyword(KeywordType.DYNAMIC_REF.getValue())
                     .messageKey("internal.unresolvedRef").message("Reference {0} cannot be resolved")
                     .instanceLocation(instanceLocation).evaluationPath(executionContext.getEvaluationPath())
-                    .arguments(schemaNode.asText()).build();
+                    .arguments(schemaNode.asString()).build();
             throw new InvalidSchemaRefException(error);
         }
         if (node == null) {
@@ -134,7 +134,7 @@ public class DynamicRefValidator extends BaseKeywordValidator {
     }
 
 	public SchemaRef getSchemaRef(ExecutionContext executionContext ) {
-	    String refValue = schemaNode.asText();
+	    String refValue = schemaNode.asString();
 		return getRefSchema(this.getParentSchema(), refValue, executionContext);
 	}
 }

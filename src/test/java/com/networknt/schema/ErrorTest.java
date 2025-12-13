@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -27,7 +27,7 @@ import com.networknt.schema.serialization.JsonMapperFactory;
  */
 class ErrorTest {
     @Test
-    void testSerialization() throws JsonProcessingException {
+    void testSerialization() throws JacksonException {
         String value = JsonMapperFactory.getInstance()
                 .writeValueAsString(Error.builder().messageSupplier(() -> "hello")
                         .schemaLocation(SchemaLocation.of("https://www.example.com/#defs/definition")).build());

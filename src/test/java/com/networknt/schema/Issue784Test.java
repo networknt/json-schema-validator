@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.format.Format;
@@ -54,7 +54,7 @@ class Issue784Test {
     }
 
 
-    private List<Error> validate(Schema jsonSchema, String myDateTimeContent) throws JsonProcessingException {
+    private List<Error> validate(Schema jsonSchema, String myDateTimeContent) throws JacksonException {
         return jsonSchema.validate(new ObjectMapper().readTree(" { \"my-date-time\": \"" + myDateTimeContent + "\" } "));
     }
 

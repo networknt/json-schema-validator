@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * ErrorMessages.
@@ -24,12 +24,12 @@ public class ErrorMessages {
         if (message != null) {
             JsonNode messageNode = message.get(keyword);
             if (messageNode != null) {
-                if (messageNode.isTextual()) {
-                    return Collections.singletonMap("", messageNode.asText());
+                if (messageNode.isString()) {
+                    return Collections.singletonMap("", messageNode.asString());
                 } else if (messageNode.isObject()) {
                     Map<String, String> result = new LinkedHashMap<>();
-                    messageNode.fields()
-                            .forEachRemaining(entry -> result.put(entry.getKey(), entry.getValue().textValue()));
+                    messageNode.properties().iterator()
+                            .forEachRemaining(entry -> result.put(entry.getKey(), entry.getValue().asString()));
                     if (!result.isEmpty()) {
                         return result;
                     }

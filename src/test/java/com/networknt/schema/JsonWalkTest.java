@@ -1,9 +1,9 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.MissingNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeywordValidator;
@@ -210,8 +210,8 @@ class JsonWalkTest {
             }
             if (keyWordName.equals(CUSTOM_KEYWORD) && schemaNode.get(CUSTOM_KEYWORD).isArray()) {
                 ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
-                objectNode.put(keywordWalkEvent.getSchema().getSchemaNode().get("title").textValue().toUpperCase(),
-                        keywordWalkEvent.getInstanceNode().textValue());
+                objectNode.put(keywordWalkEvent.getSchema().getSchemaNode().get("title").asString().toUpperCase(),
+                        keywordWalkEvent.getInstanceNode().asString());
             }
             return WalkFlow.CONTINUE;
         }
@@ -232,7 +232,7 @@ class JsonWalkTest {
                 collectorContext.put(SAMPLE_WALK_COLLECTOR_TYPE, mapper.createObjectNode());
             }
             ObjectNode objectNode = (ObjectNode) collectorContext.get(SAMPLE_WALK_COLLECTOR_TYPE);
-            objectNode.set(keywordWalkEvent.getSchema().getSchemaNode().get("title").textValue().toLowerCase(),
+            objectNode.set(keywordWalkEvent.getSchema().getSchemaNode().get("title").asString().toLowerCase(),
                     keywordWalkEvent.getInstanceNode());
             return WalkFlow.SKIP;
         }
@@ -248,7 +248,7 @@ class JsonWalkTest {
         @Override
         public WalkFlow onWalkStart(WalkEvent keywordWalkEvent) {
             JsonNode schemaNode = keywordWalkEvent.getSchema().getSchemaNode();
-            if (schemaNode.get("title").textValue().equals("Property3")) {
+            if (schemaNode.get("title").asString().equals("Property3")) {
                 return WalkFlow.SKIP;
             }
             return WalkFlow.CONTINUE;

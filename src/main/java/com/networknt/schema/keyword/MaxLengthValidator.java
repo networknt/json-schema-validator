@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -48,7 +48,7 @@ public class MaxLengthValidator extends BaseKeywordValidator implements KeywordV
             // ignore no-string typs
             return;
         }
-        if (node.textValue().codePointCount(0, node.textValue().length()) > this.maxLength) {
+        if (node.asString().codePointCount(0, node.asString().length()) > this.maxLength) {
             executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                     .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                     .arguments(this.maxLength).build());

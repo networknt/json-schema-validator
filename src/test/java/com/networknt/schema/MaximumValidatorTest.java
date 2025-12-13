@@ -16,9 +16,9 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,8 +40,8 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
     // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
     // https://github.com/FasterXML/jackson-databind/issues/1770
     // https://github.com/FasterXML/jackson-databind/issues/2087
-    private static final ObjectMapper bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-    private static final ObjectMapper bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+    private static final ObjectMapper bigDecimalMapper = new ObjectMapper().rebuild().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
+    private static final ObjectMapper bigIntegerMapper = new ObjectMapper().rebuild().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS).build();
 
     static String[][] augmentWithQuotes(String[][] values) {
         for (int i = 0; i < values.length; i++) {

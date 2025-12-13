@@ -1,6 +1,6 @@
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.BaseJsonSchemaValidatorTest;
 import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;

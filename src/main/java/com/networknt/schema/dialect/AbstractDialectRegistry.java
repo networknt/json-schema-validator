@@ -18,7 +18,7 @@ package com.networknt.schema.dialect;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.InvalidSchemaException;
 import com.networknt.schema.Schema;

@@ -2,7 +2,7 @@ package com.networknt.schema.output;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 /**
@@ -40,7 +40,7 @@ public class OutputFlag {
     public String toString() {
         try {
             return JsonMapperFactory.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(this);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return "OutputFlag [valid=" + valid + "]";
         }
     }

@@ -15,7 +15,7 @@
  */
 package com.networknt.schema.serialization.node;
 
-import com.fasterxml.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 
 /**
  * JsonNodes that are aware of the token location will implement this interface.
@@ -26,5 +26,5 @@ public interface TokenStreamLocationAware {
      *
      * @return the token location
      */
-    JsonLocation tokenStreamLocation();
+    TokenStreamLocation tokenStreamLocation();
 }
