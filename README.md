@@ -219,9 +219,14 @@ The library supports Java 8 and up. If you want to build from the source code, y
 
 ### Adding the dependency
 
-This package is available on Maven central.
+The `json-schema-validator` package is published to Maven Central and is available in two major release lines, depending on your Java and Jackson versions:
+
+- **2.x.x** — Compatible with **Java 8+** and **Jackson 2.x**
+- **3.x.x** — Compatible with **Java 17+** and **Jackson 3.x**
 
 #### Maven:
+
+**Jackson 2 (Java 8+)**
 
 ```xml
 <dependency>
@@ -231,13 +236,39 @@ This package is available on Maven central.
 </dependency>
 ```
 
+
+**Jackson 3 (Java 17+)**
+
+```xml
+<dependency>
+    <groupId>com.networknt</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <version>3.0.0</version>
+</dependency>
+```
+
 #### Gradle:
+
+
+**Jackson 2 (Java 8+)**
+
 
 ```java
 dependencies {
     implementation(group: 'com.networknt', name: 'json-schema-validator', version: '2.0.1');
 }
 ```
+
+
+**Jackson 3 (Java 17+)**
+
+
+```java
+dependencies {
+    implementation(group: 'com.networknt', name: 'json-schema-validator', version: '3.0.0');
+}
+```
+
 
 ### Validating inputs against a schema
 

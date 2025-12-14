@@ -13,6 +13,15 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.0- 2025-12-13
+
+### Added
+
+### Changed
+
+- Upgrade to Jackson 3 and JDK 17 (#1219) Thanks @justin-tay
+
+
 ## 2.0.1- 2025-12-11
 
 ### Added
