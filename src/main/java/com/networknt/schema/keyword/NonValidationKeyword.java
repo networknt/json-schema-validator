@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -43,7 +43,7 @@ public class NonValidationKeyword extends AbstractKeyword {
                 schemaContext.newSchema(schemaLocation, schemaNode, parentSchema);
             }
             if ("$defs".equals(keyword.getValue()) || "definitions".equals(keyword.getValue())) {
-                for (Iterator<Entry<String, JsonNode>> field = schemaNode.fields(); field.hasNext(); ) {
+                for (Iterator<Entry<String, JsonNode>> field = schemaNode.properties().iterator(); field.hasNext(); ) {
                     Entry<String, JsonNode> property = field.next();
                     SchemaLocation location = schemaLocation.append(property.getKey());
                     Schema schema = schemaContext.newSchema(location,

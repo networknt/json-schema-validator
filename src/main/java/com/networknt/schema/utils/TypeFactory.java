@@ -16,8 +16,8 @@
 
 package com.networknt.schema.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeType;
 import com.networknt.schema.SchemaRegistryConfig;
 
 /**
@@ -32,8 +32,8 @@ public class TypeFactory {
      */
     public static JsonType getSchemaNodeType(JsonNode node) {
         //Single Type Definition
-        if (node.isTextual()) {
-            String type = node.textValue();
+        if (node.isString()) {
+            String type = node.asString();
             if ("object".equals(type)) {
                 return JsonType.OBJECT;
             }
@@ -89,6 +89,12 @@ public class TypeFactory {
             return JsonType.ARRAY;
         case STRING:
         case BINARY:
+        case POJO:
+            /*
+             * In Jackson 3 binary data is converted to POJO not BINARY.
+             * BINARY and POJO are currently interpreted as STRING due to issue 650.
+             * In reality though, a base64 encoded string should be stored as a STRING.
+             */
             return JsonType.STRING;
         case NUMBER:
             if (node.isIntegralNumber()) {

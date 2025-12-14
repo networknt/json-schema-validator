@@ -15,26 +15,26 @@
  */
 package com.networknt.schema.serialization.node;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.node.StringNode;
 
 /**
- * {@link TextNode} that is {@link TokenStreamLocationAware}.
+ * {@link StringNode} that is {@link TokenStreamLocationAware}.
  */
-public class TokenStreamLocationAwareTextNode extends TextNode implements TokenStreamLocationAware {
+public class TokenStreamLocationAwareStringNode extends StringNode implements TokenStreamLocationAware {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenStreamLocation;
+    private final TokenStreamLocation tokenStreamLocation;
 
-    public TokenStreamLocationAwareTextNode(String v, JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareStringNode(String v, TokenStreamLocation tokenStreamLocation) {
         super(v);
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenStreamLocation() {
+    public TokenStreamLocation tokenStreamLocation() {
         return this.tokenStreamLocation;
     }
 }

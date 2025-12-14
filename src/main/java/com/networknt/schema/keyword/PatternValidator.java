@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.FailFastAssertionException;
 import com.networknt.schema.Schema;
@@ -41,7 +41,7 @@ public class PatternValidator extends BaseKeywordValidator {
     public PatternValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.PATTERN, schemaNode, schemaLocation, parentSchema, schemaContext);
 
-        this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isTextual).map(JsonNode::textValue).orElse(null);
+        this.pattern = Optional.ofNullable(schemaNode).filter(JsonNode::isString).map(JsonNode::asString).orElse(null);
         try {
             this.compiledPattern = RegularExpression.compile(this.pattern, schemaContext);
         } catch (RuntimeException e) {
@@ -65,7 +65,7 @@ public class PatternValidator extends BaseKeywordValidator {
         }
 
         try {
-            if (!matches(node.asText())) {
+            if (!matches(node.asString())) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(this.pattern).build());

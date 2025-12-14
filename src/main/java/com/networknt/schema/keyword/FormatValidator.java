@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -54,7 +54,7 @@ public class FormatValidator extends BaseFormatValidator implements KeywordValid
         if (this.format != null) {
             return this.format.getName();
         }
-        return this.schemaNode.isTextual() ? schemaNode.textValue() : null;
+        return this.schemaNode.isString() ? schemaNode.asString() : null;
     }
     
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
@@ -104,9 +104,9 @@ public class FormatValidator extends BaseFormatValidator implements KeywordValid
          * Unknown formats should create an assertion if the vocab is specified
          * according to the specification.
          */
-        if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isTextual()) {
+        if (createUnknownFormatAssertions(executionContext) && this.schemaNode.isString()) {
             executionContext.addError(error().instanceLocation(instanceLocation).instanceNode(node)
-                    .evaluationPath(executionContext.getEvaluationPath()).messageKey("format.unknown").arguments(schemaNode.textValue()).build());
+                    .evaluationPath(executionContext.getEvaluationPath()).messageKey("format.unknown").arguments(schemaNode.asString()).build());
         }
     }
 

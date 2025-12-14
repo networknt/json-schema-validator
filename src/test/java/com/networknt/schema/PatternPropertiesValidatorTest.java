@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
 

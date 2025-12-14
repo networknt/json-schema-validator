@@ -24,10 +24,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.i18n.Locales;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
@@ -35,7 +34,7 @@ class LocaleTest {
     private Schema getSchema(SchemaRegistryConfig config) {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09, builder -> builder.schemaRegistryConfig(config));
         return factory.getSchema(
-                "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } } }"
+                "{ \"$schema\": \"https://json-schema.org/draft/2019-09/schema\", \"$id\": \"https://json-schema.org/draft/2019-09/schema\", \"type\": \"object\", \"properties\": { \"foo\": { \"type\": \"string\" } } }"
                 );
     }
 
@@ -44,10 +43,10 @@ class LocaleTest {
      * context locale.
      * 
      * @throws JsonMappingException    the error
-     * @throws JsonProcessingException the error
+     * @throws JacksonException the error
      */
     @Test
-    void executionContextLocale() throws JsonMappingException, JsonProcessingException {
+    void executionContextLocale() throws JacksonException {
         JsonNode rootNode = new ObjectMapper().readTree(" { \"foo\": 123 } ");
         SchemaRegistryConfig config = SchemaRegistryConfig.builder().build();
         Schema jsonSchema = getSchema(config);
@@ -73,10 +72,10 @@ class LocaleTest {
      * Locale.ENGLISH should work despite Locale.getDefault setting.
      * 
      * @throws JsonMappingException the exception
-     * @throws JsonProcessingException the exception
+     * @throws JacksonException the exception
      */
     @Test
-    void englishLocale() throws JsonMappingException, JsonProcessingException {
+    void englishLocale() throws JacksonException {
         Locale locale = Locale.getDefault();
         try {
             Locale.setDefault(Locale.GERMAN);

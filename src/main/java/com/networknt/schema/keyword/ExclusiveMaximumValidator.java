@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
@@ -40,7 +40,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMaximum value is not a number");
         }
-        final String maximumText = schemaNode.asText();
+        final String maximumText = schemaNode.asString();
         if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
@@ -49,12 +49,12 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                 public boolean crossesThreshold(JsonNode node) {
                     if (node.isBigInteger()) {
                         //node.isBigInteger is not trustable, the type BigInteger doesn't mean it is a big number.
-                        int compare = node.bigIntegerValue().compareTo(new BigInteger(schemaNode.asText()));
+                        int compare = node.bigIntegerValue().compareTo(new BigInteger(schemaNode.asString()));
                         return compare > 0 || compare == 0;
 
-                    } else if (node.isTextual()) {
+                    } else if (node.isString()) {
                         BigDecimal max = new BigDecimal(maximumText);
-                        BigDecimal value = new BigDecimal(node.asText());
+                        BigDecimal value = new BigDecimal(node.asString());
                         int compare = value.compareTo(max);
                         return compare > 0 || compare == 0;
                     }
@@ -84,7 +84,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                         return true;
                     }
                     final BigDecimal max = new BigDecimal(maximumText);
-                    BigDecimal value = new BigDecimal(node.asText());
+                    BigDecimal value = new BigDecimal(node.asString());
                     int compare = value.compareTo(max);
                     return compare > 0 || compare == 0;
                 }

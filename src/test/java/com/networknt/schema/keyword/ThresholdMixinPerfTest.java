@@ -24,12 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.DoubleNode;
-import com.fasterxml.jackson.databind.node.LongNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.BigIntegerNode;
+import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.DoubleNode;
+import tools.jackson.databind.node.LongNode;
+import tools.jackson.databind.node.StringNode;
 
 @Disabled
 class ThresholdMixinPerfTest {
@@ -52,9 +52,9 @@ class ThresholdMixinPerfTest {
     private final double value = threshold + 1;
     private final DoubleNode valueDouble = new DoubleNode(value);
     private final DecimalNode valueDecimal = new DecimalNode(new BigDecimal(value));
-    private final TextNode valueTextual = new TextNode(String.valueOf(value));
+    private final StringNode valueTextual = new StringNode(String.valueOf(value));
 
-    private final String maximumText = maximumDouble.asText();
+    private final String maximumText = maximumDouble.asString();
     private final BigDecimal max = new BigDecimal(maximumText);
 
     private final int executeTimes = 200000;
@@ -129,10 +129,10 @@ class ThresholdMixinPerfTest {
         double decimalValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueDecimal, executeTimes);
         out.printf("Typed threshold execution time %f ns, %f times slower%n", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble));
 
-        double textValueAvgTime = getAvgTimeViaMixin(typedThreshold, valueTextual, executeTimes);
-        out.printf("Typed threshold execution time %f ns, %f times slower%n", textValueAvgTime, (textValueAvgTime / baseTimeForDouble));
+        double asStringAvgTime = getAvgTimeViaMixin(typedThreshold, valueTextual, executeTimes);
+        out.printf("Typed threshold execution time %f ns, %f times slower%n", asStringAvgTime, (asStringAvgTime / baseTimeForDouble));
 
-        out.printf("Cumulative average: %f\n\n%n", (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d);
+        out.printf("Cumulative average: %f\n\n%n", (doubleValueAvgTime + decimalValueAvgTime + asStringAvgTime) / 3.0d);
     }
 
     @Test
@@ -144,10 +144,10 @@ class ThresholdMixinPerfTest {
         double decimalValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueDecimal, executeTimes);
         out.printf("No mixins with decimal value time %f ns, %f times slower%n", decimalValueAvgTime, (decimalValueAvgTime / baseTimeForDouble));
 
-        double textValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueTextual, executeTimes);
-        out.printf("No mixins with text value time %f ns, %f times slower%n", textValueAvgTime, (textValueAvgTime / baseTimeForDouble));
+        double asStringAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, valueTextual, executeTimes);
+        out.printf("No mixins with text value time %f ns, %f times slower%n", asStringAvgTime, (asStringAvgTime / baseTimeForDouble));
         out.printf("Cumulative average: %f\n\n%n",
-                (doubleValueAvgTime + decimalValueAvgTime + textValueAvgTime) / 3.0d);
+                (doubleValueAvgTime + decimalValueAvgTime + asStringAvgTime) / 3.0d);
     }
 
     @Test
@@ -158,7 +158,7 @@ class ThresholdMixinPerfTest {
         double bigIntValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new BigIntegerNode(BigInteger.valueOf((long) value)), executeTimes);
         out.printf("No mixins with big int value time %f ns, %f times slower%n", bigIntValueAvgTime, (bigIntValueAvgTime / baseTimeForLong));
 
-        double textIntValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new TextNode(String.valueOf((long) value)), executeTimes);
+        double textIntValueAvgTime = getAvgTimeViaMixin(oneMixinForIntegerAndNumber, new StringNode(String.valueOf((long) value)), executeTimes);
         out.printf("No mixins with text value time %f ns, %f times slower%n", textIntValueAvgTime, (textIntValueAvgTime / baseTimeForLong));
         out.printf("Cumulative average: %f\n\n%n",
                 (longValueAvgTime + bigIntValueAvgTime + textIntValueAvgTime) / 3.0d);
@@ -176,7 +176,7 @@ class ThresholdMixinPerfTest {
         AllInOneThreshold(JsonNode maximum, boolean exludeEqual) {
             this.maximum = maximum;
             this.excludeEqual = exludeEqual;
-            this.bigDecimalMax = new BigDecimal(maximum.asText());
+            this.bigDecimalMax = new BigDecimal(maximum.asString());
         }
 
         @Override
@@ -199,14 +199,14 @@ class ThresholdMixinPerfTest {
                 return compare > 0 || (excludeEqual && compare == 0);
             }
 
-            BigDecimal value = new BigDecimal(node.asText());
+            BigDecimal value = new BigDecimal(node.asString());
             int compare = value.compareTo(bigDecimalMax);
             return compare > 0 || (excludeEqual && compare == 0);
         }
 
         @Override
         public String thresholdValue() {
-            return maximum.asText();
+            return maximum.asString();
         }
     }
 
@@ -256,7 +256,7 @@ class ThresholdMixinPerfTest {
                 return compare > 0 || (excludeEqual && compare == 0);
             }
 
-            BigDecimal value = new BigDecimal(node.asText());
+            BigDecimal value = new BigDecimal(node.asString());
             int compare = value.compareTo(max);
             return compare > 0 || (excludeEqual && compare == 0);
         }
@@ -284,7 +284,7 @@ class ThresholdMixinPerfTest {
                 return true;
             }
             final BigDecimal max = new BigDecimal(maximumText);
-            BigDecimal value = new BigDecimal(node.asText());
+            BigDecimal value = new BigDecimal(node.asString());
             int compare = value.compareTo(max);
             return compare > 0 || (excludeEqual && compare == 0);
         }
@@ -313,7 +313,7 @@ class ThresholdMixinPerfTest {
                 return true;
             }
             final BigDecimal max = new BigDecimal(maximumText);
-            BigDecimal value = new BigDecimal(node.asText());
+            BigDecimal value = new BigDecimal(node.asString());
             int compare = value.compareTo(max);
             return compare > 0 || (excludeEqual && compare == 0);
         }
@@ -328,7 +328,7 @@ class ThresholdMixinPerfTest {
         @SuppressWarnings("unused")
         @Override
         public boolean crossesThreshold(JsonNode node) {
-            BigDecimal value = new BigDecimal(node.asText());
+            BigDecimal value = new BigDecimal(node.asString());
             int compare = value.compareTo(max);
             return compare > 0 || (excludeEqual && compare == 0);
         }

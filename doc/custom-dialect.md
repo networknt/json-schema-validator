@@ -35,7 +35,7 @@ public class EqualsValidator extends BaseKeywordValidator {
     @Override
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode,
             NodePath instanceLocation) {
-        if (!node.asText().equals(value)) {
+        if (!node.asString().equals(value)) {
             executionContext.addError(error().message("must be equal to ''{0}''")
                             .arguments(value)
                             .instanceLocation(instanceLocation).instanceNode(node).evaluationPath(executionContext.getEvaluationPath()).build());

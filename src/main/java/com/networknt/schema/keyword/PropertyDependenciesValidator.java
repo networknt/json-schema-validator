@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaContext;
@@ -69,7 +69,7 @@ public class PropertyDependenciesValidator extends BaseKeywordValidator implemen
         Set<Entry<String, JsonNode>> properties = node.properties();
         for (Entry<String, JsonNode> property : properties) {
             String propertyName = property.getKey();
-            String propertyValue = property.getValue().asText();
+            String propertyValue = property.getValue().asString();
             if (propertyValue != null) {
                 Map<String, Schema> propertySchemas = this.propertyDependencies.get(propertyName);
                 if (propertySchemas != null) {

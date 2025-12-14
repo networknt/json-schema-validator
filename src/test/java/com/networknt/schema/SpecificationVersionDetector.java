@@ -16,7 +16,7 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public final class SpecificationVersionDetector {
     public static Optional<SpecificationVersion> detectOptionalVersion(JsonNode jsonNode, boolean throwIfUnsupported) {
         return Optional.ofNullable(jsonNode.get(SCHEMA_TAG)).map(schemaTag -> {
 
-            String schemaTagValue = schemaTag.asText();
+            String schemaTagValue = schemaTag.asString();
             String schemaUri = SchemaRegistry.normalizeDialectId(schemaTagValue);
 
             if (throwIfUnsupported) {

@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialects;
 
 class Issue824Test {
     @Test
-    void validate() throws JsonProcessingException {
+    void validate() throws JacksonException {
         final Schema v201909SpecSchema = SchemaRegistry
                 .builder(SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2019_09))
                 .schemaIdResolvers(schemaIdResolvers -> {

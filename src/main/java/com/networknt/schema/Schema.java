@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.KeywordValidator;
 import com.networknt.schema.keyword.TypeValidator;
 import com.networknt.schema.path.NodePath;
@@ -107,11 +107,11 @@ public class Schema implements Validator {
             return null;
         }
 
-        final String text = node.textValue();
+        final String text = node.asString();
         if (text == null) {
             return null;
         }
-        final SchemaLocation schemaLocation = SchemaLocation.of(node.textValue());
+        final SchemaLocation schemaLocation = SchemaLocation.of(node.asString());
         return schemaContext.getSchemaRegistry().getSchema(schemaLocation);
     }
     public static class JsonNodePathLegacy {
@@ -519,7 +519,7 @@ public class Schema implements Validator {
         } else {
             KeywordValidator refValidator = null;
 
-            Iterator<Entry<String, JsonNode>> iterator = schemaNode.fields();
+            Iterator<Entry<String, JsonNode>> iterator = schemaNode.properties().iterator();
             validators = new ArrayList<>(schemaNode.size());
             while (iterator.hasNext()) {
                 Entry<String, JsonNode> entry = iterator.next();

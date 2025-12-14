@@ -6,16 +6,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.networknt.schema.dialect.DialectId;
 
 class RefTest {
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
     
     @Test
-    void shouldLoadRelativeClasspathReference() throws JsonProcessingException {
+    void shouldLoadRelativeClasspathReference() throws JacksonException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main.json"));
         String input = "{\r\n"
@@ -37,7 +37,7 @@ class RefTest {
     }
     
     @Test
-    void shouldLoadSchemaResource() throws JsonProcessingException {
+    void shouldLoadSchemaResource() throws JacksonException {
         SchemaRegistry factory = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         Schema schema = factory.getSchema(SchemaLocation.of("classpath:///schema/ref-main-schema-resource.json"));
         String input = "{\r\n"

@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.serialization.JsonMapperFactory;
@@ -29,12 +29,12 @@ import com.networknt.schema.vocabulary.Vocabulary;
 
 class Issue994Test {
     @Test
-    void test() throws JsonProcessingException {
+    void test() throws JacksonException {
         String schemaData = "{\r\n"
                 + "    \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "    \"type\": \"object\",\r\n"
                 + "    \"properties\": {\r\n"
-                + "        \"textValue\": {\r\n"
+                + "        \"asString\": {\r\n"
                 + "            \"type\": [\r\n"
                 + "                \"string\",\r\n"
                 + "                \"null\"\r\n"
@@ -50,7 +50,7 @@ class Issue994Test {
         Schema schema = SchemaRegistry
                 .withDialect(dialect).getSchema(schemaNode);
         String inputData = "{\r\n"
-                + "  \"textValue\": \"hello\"\r\n"
+                + "  \"asString\": \"hello\"\r\n"
                 + "}";
         assertTrue(schema.validate(inputData, InputFormat.JSON, OutputFormat.BOOLEAN));
     }

@@ -421,17 +421,17 @@ JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationO
 JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
 assertEquals("format", format.getKeyword());
-assertEquals("date", format.getSchemaNode().asText());
+assertEquals("date", format.getSchemaNode().asString());
 assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
 assertEquals(17, formatSchemaNodeTokenLocation.getColumnNr());
-assertEquals("1", format.getInstanceNode().asText());
+assertEquals("1", format.getInstanceNode().asString());
 assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
 assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
 assertEquals("minLength", minLength.getKeyword());
-assertEquals("6", minLength.getSchemaNode().asText());
+assertEquals("6", minLength.getSchemaNode().asString());
 assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
 assertEquals(20, minLengthSchemaNodeTokenLocation.getColumnNr());
-assertEquals("1", minLength.getInstanceNode().asText());
+assertEquals("1", minLength.getInstanceNode().asString());
 assertEquals(2, minLengthInstanceNodeTokenLocation.getLineNr());
 assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
 assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());

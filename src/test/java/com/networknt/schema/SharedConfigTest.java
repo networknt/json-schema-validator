@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;

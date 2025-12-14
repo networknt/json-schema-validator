@@ -17,8 +17,8 @@ package com.networknt.schema.serialization.node;
 
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.node.BigIntegerNode;
 
 /**
  * {@link BigIntegerNode} that is {@link TokenStreamLocationAware}.
@@ -28,15 +28,15 @@ public class TokenStreamLocationAwareBigIntegerNode extends BigIntegerNode imple
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenStreamLocation;
+    private final TokenStreamLocation tokenStreamLocation;
 
-    public TokenStreamLocationAwareBigIntegerNode(BigInteger v, JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareBigIntegerNode(BigInteger v, TokenStreamLocation tokenStreamLocation) {
         super(v);
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenStreamLocation() {
+    public TokenStreamLocation tokenStreamLocation() {
         return this.tokenStreamLocation;
     }
 }

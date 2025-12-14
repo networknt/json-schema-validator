@@ -4,6 +4,17 @@ This library can contain breaking changes in `minor` version releases.
 
 This contains information on the notable or breaking changes in each version.
 
+### 3.0.0
+
+| Compatibility | Version   |
+| ------------- | --------- |
+| Java          | Java 17   |
+| Jackson       | Jackson 3 |
+
+#### Major Changes
+
+- Change to use Jackson 3 for which Java 17 is now required.
+
 ### 2.0.0
 
 | Compatibility | Version   |

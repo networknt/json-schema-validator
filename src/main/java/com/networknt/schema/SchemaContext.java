@@ -19,7 +19,7 @@ package com.networknt.schema;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.keyword.KeywordValidator;
 

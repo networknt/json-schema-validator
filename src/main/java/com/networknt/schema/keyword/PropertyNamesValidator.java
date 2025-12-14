@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.StringNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
@@ -41,9 +41,9 @@ public class PropertyNamesValidator extends BaseKeywordValidator implements Keyw
         List<Error> existingErrors = executionContext.getErrors();
         List<Error> schemaErrors = new ArrayList<>();
         executionContext.setErrors(schemaErrors);
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
             final String pname = it.next();
-            final TextNode pnameText = TextNode.valueOf(pname);
+            final StringNode pnameText = StringNode.valueOf(pname);
             innerSchema.validate(executionContext, pnameText, node, instanceLocation.append(pname));
             for (final Error schemaError : schemaErrors) {
                 existingErrors.add(

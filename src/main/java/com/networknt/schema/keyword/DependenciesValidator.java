@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -45,10 +45,11 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
 
         super(KeywordType.DEPENDENCIES, schemaNode, schemaLocation, parentSchema, schemaContext);
 
-        for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext(); ) {
+        for (Iterator<Entry<String, JsonNode>> it = schemaNode.properties().iterator(); it.hasNext(); ) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
             JsonNode pvalue = entry.getValue();
+
             if (pvalue.isArray()) {
                 List<String> depsProps = propertyDeps.get(pname);
                 if (depsProps == null) {
@@ -56,7 +57,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
                     propertyDeps.put(pname, depsProps);
                 }
                 for (int i = 0; i < pvalue.size(); i++) {
-                    depsProps.add(pvalue.get(i).asText());
+                    depsProps.add(pvalue.get(i).asString());
                 }
             } else if (pvalue.isObject() || pvalue.isBoolean()) {
                 schemaDeps.put(pname, schemaContext.newSchema(schemaLocation.append(pname),
@@ -66,7 +67,7 @@ public class DependenciesValidator extends BaseKeywordValidator implements Keywo
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
             String pname = it.next();
             List<String> deps = propertyDeps.get(pname);
             if (deps != null && !deps.isEmpty()) {

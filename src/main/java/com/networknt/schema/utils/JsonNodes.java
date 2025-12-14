@@ -15,16 +15,15 @@
  */
 package com.networknt.schema.utils;
 
-import java.io.IOException;
 import java.io.InputStream;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.node.JsonNodeFactory;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.node.TokenStreamLocationAware;
 import com.networknt.schema.serialization.node.JsonNodeFactoryFactory;
@@ -85,13 +84,12 @@ public class JsonNodes {
      */
     public static JsonNode readTree(ObjectMapper objectMapper, String content,
             JsonNodeFactoryFactory jsonNodeFactoryFactory) {
-        JsonFactory factory = objectMapper.getFactory();
-        try (JsonParser parser = factory.createParser(content)) {
+        try (JsonParser parser = objectMapper.createParser(content)) {
             JsonNodeFactory nodeFactory = jsonNodeFactoryFactory.getJsonNodeFactory(parser);
             ObjectReader reader = objectMapper.reader(nodeFactory);
             JsonNode result = reader.readTree(parser);
             return (result != null) ? result : nodeFactory.missingNode();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Invalid input", e);
         }
     }
@@ -106,13 +104,12 @@ public class JsonNodes {
      */
     public static JsonNode readTree(ObjectMapper objectMapper, InputStream inputStream,
             JsonNodeFactoryFactory jsonNodeFactoryFactory) {
-        JsonFactory factory = objectMapper.getFactory();
-        try (JsonParser parser = factory.createParser(inputStream)) {
+        try (JsonParser parser = objectMapper.createParser(inputStream)) {
             JsonNodeFactory nodeFactory = jsonNodeFactoryFactory.getJsonNodeFactory(parser);
             ObjectReader reader = objectMapper.reader(nodeFactory);
             JsonNode result = reader.readTree(parser);
             return (result != null) ? result : nodeFactory.missingNode();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Invalid input", e);
         }
     }
@@ -121,9 +118,9 @@ public class JsonNodes {
      * Gets the token location of the {@link JsonNode} that implements {@link TokenStreamLocationAware}.
      * 
      * @param jsonNode the node
-     * @return the JsonLocation
+     * @return the TokenStreamLocation
      */
-    public static JsonLocation tokenStreamLocationOf(JsonNode jsonNode) {
+    public static TokenStreamLocation tokenStreamLocationOf(JsonNode jsonNode) {
         if (jsonNode instanceof TokenStreamLocationAware) {
             return ((TokenStreamLocationAware) jsonNode).tokenStreamLocation();
         }

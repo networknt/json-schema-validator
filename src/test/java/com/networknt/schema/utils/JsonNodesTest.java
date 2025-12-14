@@ -26,11 +26,10 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
@@ -44,7 +43,7 @@ import com.networknt.schema.serialization.node.LocationJsonNodeFactoryFactory;
  */
 class JsonNodesTest {
     @Test
-    void location() throws JsonParseException, IOException {
+    void location() throws IOException {
         String schemaData = "{\r\n"
                 + "  \"$id\": \"https://schema/myschema\",\r\n"
                 + "  \"properties\": {\r\n"
@@ -57,7 +56,7 @@ class JsonNodesTest {
         JsonNode jsonNode = JsonNodes.readTree(JsonMapperFactory.getInstance(), schemaData,
                 LocationJsonNodeFactoryFactory.getInstance());
         JsonNode idNode = jsonNode.at("/$id");
-        JsonLocation location = JsonNodes.tokenStreamLocationOf(idNode);
+        TokenStreamLocation location = JsonNodes.tokenStreamLocationOf(idNode);
         assertEquals(2, location.getLineNr());
         assertEquals(10, location.getColumnNr());
 
@@ -94,29 +93,29 @@ class JsonNodesTest {
         });
         List<Error> list = messages.stream().collect(Collectors.toList());
         Error format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
+        TokenStreamLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        TokenStreamLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
         Error minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
+        TokenStreamLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        TokenStreamLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
         assertEquals("format", format.getKeyword());
 
-        assertEquals("date", format.getSchemaNode().asText());
+        assertEquals("date", format.getSchemaNode().asString());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
         assertEquals(17, formatSchemaNodeTokenLocation.getColumnNr());
 
-        assertEquals("1", format.getInstanceNode().asText());
+        assertEquals("1", format.getInstanceNode().asString());
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
 
         assertEquals("minLength", minLength.getKeyword());
 
-        assertEquals("6", minLength.getSchemaNode().asText());
+        assertEquals("6", minLength.getSchemaNode().asString());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
         assertEquals(20, minLengthSchemaNodeTokenLocation.getColumnNr());
 
-        assertEquals("1", minLength.getInstanceNode().asText());
+        assertEquals("1", minLength.getInstanceNode().asString());
         assertEquals(2, minLengthInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
     }
@@ -139,29 +138,29 @@ class JsonNodesTest {
         });
         List<Error> list = messages.stream().collect(Collectors.toList());
         Error format = list.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
+        TokenStreamLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        TokenStreamLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
         Error minLength = list.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
+        TokenStreamLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        TokenStreamLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
         assertEquals("format", format.getKeyword());
 
-        assertEquals("date", format.getSchemaNode().asText());
+        assertEquals("date", format.getSchemaNode().asString());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
         assertEquals(13, formatSchemaNodeTokenLocation.getColumnNr());
 
-        assertEquals("1", format.getInstanceNode().asText());
+        assertEquals("1", format.getInstanceNode().asString());
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(12, formatInstanceNodeTokenLocation.getColumnNr());
 
         assertEquals("minLength", minLength.getKeyword());
 
-        assertEquals("6", minLength.getSchemaNode().asText());
+        assertEquals("6", minLength.getSchemaNode().asString());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
         assertEquals(16, minLengthSchemaNodeTokenLocation.getColumnNr());
 
-        assertEquals("1", minLength.getInstanceNode().asText());
+        assertEquals("1", minLength.getInstanceNode().asString());
         assertEquals(2, minLengthInstanceNodeTokenLocation.getLineNr());
         assertEquals(12, minLengthInstanceNodeTokenLocation.getColumnNr());
     }
@@ -187,8 +186,8 @@ class JsonNodesTest {
                 + "  }\r\n"
                 + "}";
         ObjectMapper objectMapper = JsonMapperFactory.getInstance()
-                .copy()
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+                .rebuild()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
         JsonNode root = JsonNodes.readTree(objectMapper, json, LocationJsonNodeFactoryFactory.getInstance());
         JsonNode numberNode = root.at("/properties/number");
         assertEquals(3, JsonNodes.tokenStreamLocationOf(numberNode).getLineNr());

@@ -25,9 +25,9 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.MissingNode;
+import tools.jackson.databind.node.StringNode;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonType;
 
@@ -142,7 +142,7 @@ class TypeFactoryTest {
 
     @Test
     void testUnknownSchema() {
-        assertSame(JsonType.UNKNOWN, getSchemaNodeType(TextNode.valueOf("unexpected")));
+        assertSame(JsonType.UNKNOWN, getSchemaNodeType(StringNode.valueOf("unexpected")));
     }
 
     @Test
@@ -152,42 +152,42 @@ class TypeFactoryTest {
 
     @Test
     void testStringSchema() {
-        assertSame(JsonType.STRING, getSchemaNodeType(TextNode.valueOf(JsonType.STRING.toString())));
+        assertSame(JsonType.STRING, getSchemaNodeType(StringNode.valueOf(JsonType.STRING.toString())));
     }
 
     @Test
     void testObjectSchema() {
-        assertSame(JsonType.OBJECT, getSchemaNodeType(TextNode.valueOf(JsonType.OBJECT.toString())));
+        assertSame(JsonType.OBJECT, getSchemaNodeType(StringNode.valueOf(JsonType.OBJECT.toString())));
     }
 
     @Test
     void testArraySchema() {
-        assertSame(JsonType.ARRAY, getSchemaNodeType(TextNode.valueOf(JsonType.ARRAY.toString())));
+        assertSame(JsonType.ARRAY, getSchemaNodeType(StringNode.valueOf(JsonType.ARRAY.toString())));
     }
 
     @Test
     void testBooleanSchema() {
-        assertSame(JsonType.BOOLEAN, getSchemaNodeType(TextNode.valueOf(JsonType.BOOLEAN.toString())));
+        assertSame(JsonType.BOOLEAN, getSchemaNodeType(StringNode.valueOf(JsonType.BOOLEAN.toString())));
     }
 
     @Test
     void testNumberSchema() {
-        assertSame(JsonType.NUMBER, getSchemaNodeType(TextNode.valueOf(JsonType.NUMBER.toString())));
+        assertSame(JsonType.NUMBER, getSchemaNodeType(StringNode.valueOf(JsonType.NUMBER.toString())));
     }
 
     @Test
     void testIntegerSchema() {
-        assertSame(JsonType.INTEGER, getSchemaNodeType(TextNode.valueOf(JsonType.INTEGER.toString())));
+        assertSame(JsonType.INTEGER, getSchemaNodeType(StringNode.valueOf(JsonType.INTEGER.toString())));
     }
 
     @Test
     void testAnySchema() {
-        assertSame(JsonType.ANY, getSchemaNodeType(TextNode.valueOf(JsonType.ANY.toString())));
+        assertSame(JsonType.ANY, getSchemaNodeType(StringNode.valueOf(JsonType.ANY.toString())));
     }
 
     @Test
     void testNullSchema() {
-        assertSame(JsonType.NULL, getSchemaNodeType(TextNode.valueOf(JsonType.NULL.toString())));
+        assertSame(JsonType.NULL, getSchemaNodeType(StringNode.valueOf(JsonType.NULL.toString())));
     }
 
     @Test

@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import com.networknt.schema.i18n.MessageFormatter;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.utils.CachingSupplier;
@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  *      "https://github.com/json-schema-org/json-schema-spec/blob/main/specs/output/jsonschema-validation-output-machines.md">JSON
  *      Schema</a>
  */
-@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode", "valid" })
+@JsonIgnoreProperties({ "messageSupplier", "schemaNode", "instanceNode" })
 @JsonPropertyOrder({ "keyword", "instanceLocation", "message", "evaluationPath", "schemaLocation",
         "messageKey", "arguments", "details" })
 @JsonInclude(Include.NON_NULL)
@@ -176,10 +176,6 @@ public class Error {
         return messageKey;
     }
     
-    public boolean isValid() {
-        return messageSupplier != null;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

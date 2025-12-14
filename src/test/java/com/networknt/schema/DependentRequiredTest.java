@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ class DependentRequiredTest {
     }
 
     @Test
-    void shouldReturnNoErrorMessagesForObjectWithOptionalAndDependentRequiredFieldSet() throws JsonProcessingException {
+    void shouldReturnNoErrorMessagesForObjectWithOptionalAndDependentRequiredFieldSet() throws JacksonException {
 
         List<Error> messages =
             whenValidate("{ \"optional\": \"present\", \"requiredWhenOptionalPresent\": \"present\" }");
@@ -59,7 +59,7 @@ class DependentRequiredTest {
         assertThat(messages, empty());
     }
 
-    private static List<Error> whenValidate(String content) throws JsonProcessingException {
+    private static List<Error> whenValidate(String content) throws JacksonException {
         return schema.validate(mapper.readTree(content));
     }
 

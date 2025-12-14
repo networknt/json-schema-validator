@@ -16,10 +16,10 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeType;
+import tools.jackson.databind.node.MissingNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRef;
@@ -46,7 +46,7 @@ public class PropertiesValidator extends BaseKeywordValidator {
     
     public PropertiesValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         super(KeywordType.PROPERTIES, schemaNode, schemaLocation, parentSchema, schemaContext);
-        for (Iterator<Entry<String, JsonNode>> it = schemaNode.fields(); it.hasNext();) {
+        for (Iterator<Entry<String, JsonNode>> it = schemaNode.properties().iterator(); it.hasNext();) {
             Entry<String, JsonNode> entry = it.next();
             String pname = entry.getKey();
             this.schemas.put(pname, schemaContext.newSchema(schemaLocation.append(pname),

@@ -4,8 +4,8 @@ import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.keyword.PrefixItemsValidator;
 import com.networknt.schema.path.NodePath;
 import com.networknt.schema.serialization.JsonMapperFactory;
@@ -172,7 +172,7 @@ class PrefixItemsValidatorTest extends AbstractJsonSchemaTestSuite {
     }
 
     @Test
-    void walkDefaults() throws JsonProcessingException {
+    void walkDefaults() throws JacksonException {
         String schemaData = "{\n"
                 + "  \"prefixItems\": [\n"
                 + "    {\n"

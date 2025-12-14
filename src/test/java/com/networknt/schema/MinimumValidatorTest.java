@@ -28,9 +28,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class MinimumValidatorTest {
     private static final String NUMBER = "{ \"$schema\":\"http://json-schema.org/draft-04/schema#\", \"type\": \"number\", \"minimum\": %s }";
@@ -50,8 +50,8 @@ class MinimumValidatorTest {
         // due to a jackson bug, a float number which is larger than Double.POSITIVE_INFINITY cannot be convert to BigDecimal correctly
         // https://github.com/FasterXML/jackson-databind/issues/1770
         // https://github.com/FasterXML/jackson-databind/issues/2087
-        bigDecimalMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-        bigIntegerMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+        bigDecimalMapper = new ObjectMapper().rebuild().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
+        bigIntegerMapper = new ObjectMapper().rebuild().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS).build();
 
     }
 

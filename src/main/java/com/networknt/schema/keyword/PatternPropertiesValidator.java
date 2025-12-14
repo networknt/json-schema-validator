@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
@@ -41,7 +41,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
         if (!schemaNode.isObject()) {
             throw new SchemaException("patternProperties must be an object node");
         }
-        Iterator<String> names = schemaNode.fieldNames();
+        Iterator<String> names = schemaNode.propertyNames().iterator();
         while (names.hasNext()) {
             String name = names.next();
             RegularExpression pattern = RegularExpression.compile(name, schemaContext);
@@ -57,7 +57,7 @@ public class PatternPropertiesValidator extends BaseKeywordValidator {
             return;
         }
         Set<String> matchedInstancePropertyNames = null;
-        Iterator<Entry<String, JsonNode>> fields = node.fields();
+        Iterator<Entry<String, JsonNode>> fields = node.properties().iterator();
         boolean collectAnnotations = hasUnevaluatedPropertiesInEvaluationPath(executionContext) || collectAnnotations(executionContext);
         while (fields.hasNext()) {
             Entry<String, JsonNode> field = fields.next();

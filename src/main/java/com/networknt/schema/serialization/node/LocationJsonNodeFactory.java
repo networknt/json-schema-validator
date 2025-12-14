@@ -18,18 +18,18 @@ package com.networknt.schema.serialization.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
-import com.fasterxml.jackson.databind.util.RawValue;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BinaryNode;
+import tools.jackson.databind.node.BooleanNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.NumericNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
+import tools.jackson.databind.node.ValueNode;
+import tools.jackson.databind.util.RawValue;
 
 /**
  * {@link JsonNodeFactory} that creates {@link TokenStreamLocationAware} nodes.
@@ -141,8 +141,8 @@ public class LocationJsonNodeFactory extends JsonNodeFactory {
     }
 
     @Override
-    public TextNode textNode(String text) {
-        return new TokenStreamLocationAwareTextNode(text, this.jsonParser.currentTokenLocation());
+    public StringNode stringNode(String text) {
+        return new TokenStreamLocationAwareStringNode(text, this.jsonParser.currentTokenLocation());
     }
 
     @Override

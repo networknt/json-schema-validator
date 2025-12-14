@@ -29,10 +29,6 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.InputFormat;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaRegistry;
@@ -47,6 +43,11 @@ import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.utils.JsonNodes;
 import com.networknt.schema.utils.SchemaRefs;
+
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
+
 import com.networknt.schema.Error;
 import com.networknt.schema.Result;
 
@@ -122,14 +123,14 @@ class WalkListenerTest {
         assertEquals("/properties",
                 propertyKeywords.get(0).getEvaluationPath().append(propertyKeywords.get(0).getKeyword()).toString());
         assertEquals("/tags/0", propertyKeywords.get(1).getInstanceLocation().toString());
-        assertEquals("image", propertyKeywords.get(1).getInstanceNode().get("name").asText());
+        assertEquals("image", propertyKeywords.get(1).getInstanceNode().get("name").asString());
         assertEquals("/properties/tags/items/$ref", propertyKeywords.get(1).getEvaluationPath().toString());
         assertEquals("/properties/tags/items/$ref/properties",
                 propertyKeywords.get(1).getEvaluationPath().append(propertyKeywords.get(1).getKeyword()).toString());
         assertEquals("/tags/1", propertyKeywords.get(2).getInstanceLocation().toString());
         assertEquals("/properties/tags/items/$ref/properties",
                 propertyKeywords.get(2).getEvaluationPath().append(propertyKeywords.get(2).getKeyword()).toString());
-        assertEquals("link", propertyKeywords.get(2).getInstanceNode().get("name").asText());
+        assertEquals("link", propertyKeywords.get(2).getInstanceNode().get("name").asString());
     }
 
     @Test
@@ -204,19 +205,19 @@ class WalkListenerTest {
         assertEquals("/properties/tags", properties.get(0).getEvaluationPath().toString());
 
         assertEquals("/tags/0/name", properties.get(1).getInstanceLocation().toString());
-        assertEquals("image", properties.get(1).getInstanceNode().asText());
+        assertEquals("image", properties.get(1).getInstanceNode().asString());
         assertEquals("/properties/tags/items/$ref/properties/name", properties.get(1).getEvaluationPath().toString());
 
         assertEquals("/tags/0/description", properties.get(2).getInstanceLocation().toString());
-        assertEquals("An image", properties.get(2).getInstanceNode().asText());
+        assertEquals("An image", properties.get(2).getInstanceNode().asString());
         assertEquals("/properties/tags/items/$ref/properties/description", properties.get(2).getEvaluationPath().toString());
 
         assertEquals("/tags/1/name", properties.get(3).getInstanceLocation().toString());
-        assertEquals("link", properties.get(3).getInstanceNode().asText());
+        assertEquals("link", properties.get(3).getInstanceNode().asString());
         assertEquals("/properties/tags/items/$ref/properties/name", properties.get(3).getEvaluationPath().toString());
 
         assertEquals("/tags/1/description", properties.get(4).getInstanceLocation().toString());
-        assertEquals("A link", properties.get(4).getInstanceNode().asText());
+        assertEquals("A link", properties.get(4).getInstanceNode().asString());
         assertEquals("/properties/tags/items/$ref/properties/description", properties.get(4).getEvaluationPath().toString());
     }
 
@@ -528,7 +529,7 @@ class WalkListenerTest {
     }
 
     @Test
-    void applyDefaults() throws JsonProcessingException {
+    void applyDefaults() {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -562,7 +563,7 @@ class WalkListenerTest {
     }
 
     @Test
-    void applyDefaultsWithWalker() throws JsonProcessingException {
+    void applyDefaultsWithWalker() {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -622,7 +623,7 @@ class WalkListenerTest {
     }
 
     @Test
-    void applyInvalidDefaultsWithWalker() throws JsonProcessingException {
+    void applyInvalidDefaultsWithWalker() {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -687,7 +688,7 @@ class WalkListenerTest {
     }
 
     @Test
-    void missingRequired() throws JsonProcessingException {
+    void missingRequired() {
         String schemaData = "{\r\n"
                 + "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n"
                 + "  \"title\": \"\",\r\n"
@@ -716,7 +717,7 @@ class WalkListenerTest {
                         if (requiredNode != null) {
                             if (requiredNode.isArray()) {
                                 for (JsonNode fieldName : requiredNode) {
-                                    requiredProperties.add(fieldName.asText());
+                                    requiredProperties.add(fieldName.asString());
                                 }
                             }
                         }
@@ -754,7 +755,7 @@ class WalkListenerTest {
     }
 
     @Test
-    void generateDataWithWalker() throws JsonProcessingException {
+    void generateDataWithWalker() {
         Map<String, Supplier<String>> generators = new HashMap<>();
         generators.put("name.findName", () -> "John Doe");
         generators.put("internet.email", () -> "john.doe@gmail.com");
@@ -798,9 +799,9 @@ class WalkListenerTest {
                             } while (schemaRef != null);
                             JsonNode fakerNode = schema.getSchemaNode().get("faker");
                             if (fakerNode != null) {
-                                String faker = fakerNode.asText();
+                                String faker = fakerNode.asString();
                                 String fakeData = generators.get(faker).get();
-                                JsonNode fakeDataNode = JsonNodeFactory.instance.textNode(fakeData);
+                                JsonNode fakeDataNode = JsonNodeFactory.instance.stringNode(fakeData);
                                 ObjectNode parentNode = JsonNodes.get(walkEvent.getRootNode(),
                                         walkEvent.getInstanceLocation().getParent());
                                 parentNode.set(walkEvent.getInstanceLocation().getName(-1), fakeDataNode);

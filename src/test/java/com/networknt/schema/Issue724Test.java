@@ -9,9 +9,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.walk.WalkListener;
 import com.networknt.schema.walk.KeywordWalkHandler;
 import com.networknt.schema.walk.WalkConfig;
@@ -21,7 +21,7 @@ import com.networknt.schema.walk.WalkFlow;
 class Issue724Test {
 
     @Test
-    void test() throws JsonProcessingException {
+    void test() throws JacksonException {
         StringCollector stringCollector = new StringCollector();
         KeywordWalkHandler keywordWalkHandler = KeywordWalkHandler.builder().keywordWalkListener(stringCollector).build();
 
@@ -68,12 +68,12 @@ class Issue724Test {
             boolean isString =
                 Optional.of(walkEvent.getSchema().getSchemaNode())
                     .map(jsonNode -> jsonNode.get("type"))
-                    .map(JsonNode::asText)
+                    .map(JsonNode::asString)
                     .map(type -> type.equals("string"))
                     .orElse(false);
 
             if (isString) {
-                this.strings.add(walkEvent.getInstanceNode().asText());
+                this.strings.add(walkEvent.getInstanceNode().asString());
             }
 
             return WalkFlow.CONTINUE;

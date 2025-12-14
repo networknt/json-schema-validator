@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaException;
@@ -44,7 +44,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
         if (!schemaNode.isNumber()) {
             throw new SchemaException("exclusiveMinimum value is not a number");
         }
-        final String minimumText = schemaNode.asText();
+        final String minimumText = schemaNode.asString();
         if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
@@ -56,9 +56,9 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                         int compare = node.bigIntegerValue().compareTo(new BigInteger(minimumText));
                         return compare < 0 || compare == 0;
 
-                    } else if (node.isTextual()) {
+                    } else if (node.isString()) {
                         BigDecimal min = new BigDecimal(minimumText);
-                        BigDecimal value = new BigDecimal(node.asText());
+                        BigDecimal value = new BigDecimal(node.asString());
                         int compare = value.compareTo(min);
                         return compare < 0 || compare == 0;
 
@@ -91,7 +91,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                         return false;
                     }
                     final BigDecimal min = new BigDecimal(minimumText);
-                    BigDecimal value = new BigDecimal(node.asText());
+                    BigDecimal value = new BigDecimal(node.asString());
                     int compare = value.compareTo(min);
                     return compare < 0 || compare == 0;
                 }

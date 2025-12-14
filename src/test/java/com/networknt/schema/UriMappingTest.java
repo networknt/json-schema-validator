@@ -20,14 +20,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.SchemaRegistry.Builder;
 import com.networknt.schema.dialect.BasicDialectRegistry;
 import com.networknt.schema.dialect.Dialect;
@@ -58,7 +59,9 @@ class UriMappingTest {
         SchemaRegistry instance = builder.build();
         Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
-        assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
+        try (InputStream inputStream = mappings.openStream()){
+            assertEquals(0, schema.validate(mapper.readTree(inputStream)).size());
+        }
     }
 
     /**
@@ -124,7 +127,10 @@ class UriMappingTest {
                 .schemaIdResolvers(schemaIdResolvers -> schemaIdResolvers.add(getUriMappingsFromUrl(mappings))).build();
         Schema schema = instance.getSchema(SchemaLocation.of(
                 "https://raw.githubusercontent.com/networknt/json-schema-validator/master/src/test/resources/draft4/extra/uri_mapping/uri-mapping.schema.json"));
-        assertEquals(0, schema.validate(mapper.readTree(mappings)).size());
+        try (InputStream inputStream = mappings.openStream()){
+            assertEquals(0, schema.validate(mapper.readTree(inputStream)).size());
+        }
+
     }
 
     /**
@@ -186,9 +192,10 @@ class UriMappingTest {
     private SchemaIdResolver getUriMappingsFromUrl(URL url) {
         HashMap<String, String> map = new HashMap<String, String>();
         try {
-            for (JsonNode mapping : mapper.readTree(url)) {
-                map.put(mapping.get("publicURL").asText(),
-                        mapping.get("localURL").asText());
+            try (InputStream inputStream = url.openStream()) {
+                for (JsonNode mapping : mapper.readTree(inputStream)) {
+                    map.put(mapping.get("publicURL").asString(), mapping.get("localURL").asString());
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

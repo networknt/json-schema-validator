@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.format.Format;
@@ -53,8 +53,8 @@ public class FormatKeyword implements Keyword {
     @Override
     public KeywordValidator newValidator(SchemaLocation schemaLocation, JsonNode schemaNode, Schema parentSchema, SchemaContext schemaContext) {
         Format format = null;
-        if (schemaNode != null && schemaNode.isTextual()) {
-            String formatName = schemaNode.textValue();
+        if (schemaNode != null && schemaNode.isString()) {
+            String formatName = schemaNode.asString();
             format = this.formats.get(formatName);
         }
         return new FormatValidator(schemaLocation, schemaNode, parentSchema, schemaContext, format,

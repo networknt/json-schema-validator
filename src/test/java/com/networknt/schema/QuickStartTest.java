@@ -12,9 +12,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.output.OutputUnit;
 import com.networknt.schema.regex.JoniRegularExpressionFactory;
@@ -197,24 +196,24 @@ class QuickStartTest {
             executionContext.executionConfig(executionConfig -> executionConfig.formatAssertionsEnabled(true));
         });
         Error format = errors.get(0);
-        JsonLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
-        JsonLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
+        TokenStreamLocation formatInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getInstanceNode());
+        TokenStreamLocation formatSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(format.getSchemaNode());
         Error minLength = errors.get(1);
-        JsonLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
-        JsonLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
+        TokenStreamLocation minLengthInstanceNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getInstanceNode());
+        TokenStreamLocation minLengthSchemaNodeTokenLocation = JsonNodes.tokenStreamLocationOf(minLength.getSchemaNode());
 
         assertEquals("format", format.getKeyword());
-        assertEquals("date", format.getSchemaNode().asText());
+        assertEquals("date", format.getSchemaNode().asString());
         assertEquals(5, formatSchemaNodeTokenLocation.getLineNr());
         assertEquals(17, formatSchemaNodeTokenLocation.getColumnNr());
-        assertEquals("1", format.getInstanceNode().asText());
+        assertEquals("1", format.getInstanceNode().asString());
         assertEquals(2, formatInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, formatInstanceNodeTokenLocation.getColumnNr());
         assertEquals("minLength", minLength.getKeyword());
-        assertEquals("6", minLength.getSchemaNode().asText());
+        assertEquals("6", minLength.getSchemaNode().asString());
         assertEquals(6, minLengthSchemaNodeTokenLocation.getLineNr());
         assertEquals(20, minLengthSchemaNodeTokenLocation.getColumnNr());
-        assertEquals("1", minLength.getInstanceNode().asText());
+        assertEquals("1", minLength.getInstanceNode().asString());
         assertEquals(2, minLengthInstanceNodeTokenLocation.getLineNr());
         assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
         assertEquals(16, minLengthInstanceNodeTokenLocation.getColumnNr());
@@ -319,7 +318,7 @@ class QuickStartTest {
     }
 
     @Test
-    void schemaFromJsonNode() throws JsonProcessingException {
+    void schemaFromJsonNode() {
         SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12);
         JsonNode schemaNode = JsonMapperFactory.getInstance().readTree(
                 "{\"$schema\": \"http://json-schema.org/draft-06/schema#\", \"properties\": { \"id\": {\"type\": \"number\"}}}");

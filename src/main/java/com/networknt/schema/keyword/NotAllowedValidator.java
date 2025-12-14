@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -37,7 +37,7 @@ public class NotAllowedValidator extends BaseKeywordValidator implements Keyword
             int size = schemaNode.size();
             this.fieldNames = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
-                fieldNames.add(schemaNode.get(i).asText());
+                fieldNames.add(schemaNode.get(i).asString());
             }
         } else {
             this.fieldNames = Collections.emptyList();

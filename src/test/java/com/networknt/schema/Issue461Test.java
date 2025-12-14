@@ -1,7 +1,7 @@
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.keyword.KeywordType;
 import com.networknt.schema.serialization.JsonMapperFactory;
 import com.networknt.schema.walk.WalkListener;
@@ -33,7 +33,7 @@ class Issue461Test {
                 .build();
 
         Schema schema = getJsonSchemaFromStreamContentV7(SchemaLocation.of("resource:/draft-07/schema#"));
-        JsonNode data = mapper.readTree(Issue461Test.class.getResource("/data/issue461-v7.json"));
+        JsonNode data = mapper.readTree(Issue461Test.class.getResourceAsStream("/data/issue461-v7.json"));
         Result result = schema.walk(data, true, executionContext -> executionContext.setWalkConfig(walkConfig));
         Assertions.assertTrue(result.getErrors().isEmpty());
     }

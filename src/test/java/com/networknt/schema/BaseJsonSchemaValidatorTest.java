@@ -16,8 +16,8 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.serialization.JsonMapperFactory;
 
 import java.io.IOException;
@@ -43,7 +43,9 @@ public class BaseJsonSchemaValidatorTest {
     }
 
     public static JsonNode getJsonNodeFromUrl(String url) throws IOException {
-        return mapper.readTree(new URL(url));
+        try (InputStream inputStream = new URL(url).openStream()) {
+            return mapper.readTree(inputStream);
+        }
     }
 
     public static Schema getJsonSchemaFromClasspath(String name) {

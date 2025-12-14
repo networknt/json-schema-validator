@@ -17,10 +17,10 @@ package com.networknt.schema.serialization.node;
 
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 /**
  * {@link ArrayNode} that is {@link TokenStreamLocationAware}.
@@ -30,25 +30,25 @@ public class TokenStreamLocationAwareArrayNode extends ArrayNode implements Toke
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenStreamLocation;
+    private final TokenStreamLocation tokenStreamLocation;
 
-    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, int capacity, JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, int capacity, TokenStreamLocation tokenStreamLocation) {
         super(nf, capacity);
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
-    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, List<JsonNode> children, JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, List<JsonNode> children, TokenStreamLocation tokenStreamLocation) {
         super(nf, children);
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
-    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareArrayNode(JsonNodeFactory nf, TokenStreamLocation tokenStreamLocation) {
         super(nf);
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenStreamLocation() {
+    public TokenStreamLocation tokenStreamLocation() {
         return this.tokenStreamLocation;
     }
 }

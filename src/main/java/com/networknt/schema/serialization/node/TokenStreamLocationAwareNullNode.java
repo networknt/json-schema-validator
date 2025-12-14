@@ -15,8 +15,8 @@
  */
 package com.networknt.schema.serialization.node;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.node.NullNode;
+import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.databind.node.NullNode;
 
 /**
  * {@link NullNode} that is {@link TokenStreamLocationAware}.
@@ -26,15 +26,15 @@ public class TokenStreamLocationAwareNullNode extends NullNode implements TokenS
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final JsonLocation tokenStreamLocation;
+    private final TokenStreamLocation tokenStreamLocation;
 
-    public TokenStreamLocationAwareNullNode(JsonLocation tokenStreamLocation) {
+    public TokenStreamLocationAwareNullNode(TokenStreamLocation tokenStreamLocation) {
         super();
         this.tokenStreamLocation = tokenStreamLocation;
     }
 
     @Override
-    public JsonLocation tokenStreamLocation() {
+    public TokenStreamLocation tokenStreamLocation() {
         return this.tokenStreamLocation;
     }
 }

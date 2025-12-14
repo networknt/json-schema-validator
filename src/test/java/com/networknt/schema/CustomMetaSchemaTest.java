@@ -16,8 +16,8 @@
 
 package com.networknt.schema;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.networknt.schema.dialect.Dialect;
 import com.networknt.schema.dialect.Dialects;
 import com.networknt.schema.keyword.AbstractKeyword;
@@ -65,7 +65,7 @@ class CustomMetaSchemaTest {
 
             @Override
             public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-                String value = node.asText();
+                String value = node.asString();
                 int idx = enumValues.indexOf(value);
                 if (idx < 0) {
                     throw new IllegalArgumentException("value not found in enum. value: " + value + " enum: " + enumValues);
@@ -110,7 +110,7 @@ class CustomMetaSchemaTest {
             }
             ArrayList<String> result = new ArrayList<String>(node.size());
             for (JsonNode child : node) {
-                result.add(child.asText());
+                result.add(child.asString());
             }
             return result;
         }

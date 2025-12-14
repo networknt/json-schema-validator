@@ -137,7 +137,7 @@ abstract class AbstractJsonSchemaTestSuite {
     private static Iterable<? extends DynamicNode> unsupportedMetaSchema(TestCase testCase) {
         return Collections.singleton(
                 dynamicTest("Detected an unsupported schema", () -> {
-                    String schema = testCase.getSchema().asText();
+                    String schema = testCase.getSchema().asString();
                     AssertionFailedError t = AssertionFailureBuilder.assertionFailure()
                             .message("Detected an unsupported schema: " + schema)
                             .reason("Future and custom meta-schemas are not supported")

@@ -16,7 +16,7 @@
 
 package com.networknt.schema.keyword;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -35,21 +35,21 @@ public class DependentRequired extends BaseKeywordValidator implements KeywordVa
 
         super(KeywordType.DEPENDENT_REQUIRED, schemaNode, schemaLocation, parentSchema, schemaContext);
 
-        for (Iterator<String> it = schemaNode.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = schemaNode.propertyNames().iterator(); it.hasNext(); ) {
             String pname = it.next();
             JsonNode pvalue = schemaNode.get(pname);
             if (pvalue.isArray()) {
                 List<String> dependencies = propertyDependencies.computeIfAbsent(pname, k -> new ArrayList<>());
 
                 for (int i = 0; i < pvalue.size(); i++) {
-                    dependencies.add(pvalue.get(i).asText());
+                    dependencies.add(pvalue.get(i).asString());
                 }
             }
         }
     }
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+        for (Iterator<String> it = node.propertyNames().iterator(); it.hasNext(); ) {
             String pname = it.next();
             List<String> dependencies = propertyDependencies.get(pname);
             if (dependencies != null && !dependencies.isEmpty()) {
