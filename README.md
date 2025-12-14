@@ -668,15 +668,17 @@ Thanks to the following people who have contributed to this project. If you are 
 
 [@stevehu](https://github.com/sponsors/stevehu)
 
-[@prashanth-chaitanya](https://github.com/prashanth-chaitanya)
+[@justin-tay](https://github.com/justin-tay)
 
 [@fdutton](https://github.com/fdutton)
 
-[@valfirst](https://github.com/valfirst)
+[@prashanth-chaitanya](https://github.com/prashanth-chaitanya)
 
 [@BalloonWen](https://github.com/BalloonWen)
 
 [@jiachen1120](https://github.com/jiachen1120)
+
+[@valfirst](https://github.com/valfirst)
 
 [@ddobrin](https://github.com/ddobrin)
 
@@ -690,11 +692,11 @@ Thanks to the following people who have contributed to this project. If you are 
 
 [@FWiesner](https://github.com/FWiesner)
 
-[@rhwood](https://github.com/rhwood)
-
 [@jawaff](https://github.com/jawaff)
 
-[@nitin1891](https://github.com/nitin1891)
+[@aznan2](https://github.com/aznan2)
+
+[@rhwood](https://github.com/rhwood)
 
 For all contributors, please visit https://github.com/networknt/json-schema-validator/graphs/contributors
 
