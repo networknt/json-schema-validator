@@ -282,6 +282,26 @@ public class SchemaRegistry {
      * Creates a new schema registry with a default schema dialect. The schema
      * dialect will only be used if the input does not specify a $schema.
      * <p>
+     * If the dialectId is null then the $schema is mandatory.
+     * <p>
+     * This uses a dialect registry that contains all the supported standard
+     * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
+     * 2020-12.
+     * 
+     * @param dialectId  the default dialect id used when the schema does not
+     *                   specify the $schema keyword
+     * @return the factory
+     */
+    public static SchemaRegistry withDefaultDialectId(String dialectId) {
+        return withDefaultDialectId(dialectId, null);
+    }
+
+    /**
+     * Creates a new schema registry with a default schema dialect. The schema
+     * dialect will only be used if the input does not specify a $schema.
+     * <p>
+     * If the dialectId is null then the $schema is mandatory.
+     * <p>
      * This uses a dialect registry that contains all the supported standard
      * specification dialects, Draft 4, Draft 6, Draft 7, Draft 2019-09 and Draft
      * 2020-12.

@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -109,11 +111,52 @@ class SchemaRegistryTest {
     }
 
     @Test
+    void noDefaultDialectWithDialectId() {
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialectId(null);
+        assertThrows(MissingSchemaKeywordException.class, () -> {
+            registry.getSchema("{\"type\":\"object\"}");
+        });
+    }
+
+    @Test
     void noDefaultDialectButSchemaSpecifiedButNotInRegistry() {
         SchemaRegistry registry = SchemaRegistry.builder()
                 .dialectRegistry(new BasicDialectRegistry(Dialects.getDraft201909())).build();
         assertThrows(InvalidSchemaException.class, () -> {
             registry.getSchema("{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\"}");
         });
+    }
+
+    @Test
+    void noDialectReferredByParentShouldDefaultToDefaultDialect() {
+        String schema = "{\r\n"
+                + "  \"type\": \"object\",\r\n"
+                + "  \"properties\": {\r\n"
+                + "    \"key\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"description\": \"The unique identifier or name (key) for the pair.\"\r\n"
+                + "    },\r\n"
+                + "    \"value\": {\r\n"
+                + "      \"type\": \"string\",\r\n"
+                + "      \"description\": \"The associated data (value) for the key.\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"required\": [\r\n"
+                + "    \"key\",\r\n"
+                + "    \"value\"\r\n"
+                + "  ],\r\n"
+                + "  \"additionalProperties\": false\r\n"
+                + "}";
+        Map<String, String> schemas = new HashMap<>();
+        schemas.put("https://example.org/schema", schema);
+        SchemaRegistry registry = SchemaRegistry.withDefaultDialect(Dialects.getDraft4(), builder -> builder.schemas(schemas));
+        Schema result = registry.getSchema("{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"$ref\":\"https://example.org/schema\"}");
+        String input = "{\r\n"
+                + "  \"key\": \"user_id\",\r\n"
+                + "  \"value\": \"123456\"\r\n"
+                + "}";
+        result.validate(input, InputFormat.JSON);
+        Schema nested = registry.getSchema(SchemaLocation.of("https://example.org/schema"));
+        assertEquals(Dialects.getDraft4(), nested.getSchemaContext().getDialect());
     }
 }
