@@ -19,6 +19,8 @@ import java.util.Optional;
 
 import com.networknt.schema.dialect.DialectId;
 
+import tools.jackson.databind.JsonNode;
+
 /**
  * The version of the JSON Schema specification that defines the standard
  * dialects.
@@ -87,6 +89,22 @@ public enum SpecificationVersion {
             if (version.dialectId.equals(dialectId)) {
                 return Optional.of(version);
             }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the specification version that matches the dialect id indicated by
+     * $schema keyword. The dialect id is an IRI that identifies the meta schema
+     * used to validate the dialect.
+     *
+     * @param schemaNode the schema
+     * @return the specification version if it matches the dialect id
+     */
+    public static Optional<SpecificationVersion> fromSchemaNode(JsonNode schemaNode) {
+        JsonNode schema = schemaNode.get("$schema");
+        if (schema != null && schema.isString()) {
+            return fromDialectId(schema.stringValue());
         }
         return Optional.empty();
     }
