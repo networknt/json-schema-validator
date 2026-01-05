@@ -377,7 +377,7 @@ The specification allows for the `$schema` keyword not to be specified, in which
 The following example creates a `SchemaRegistry` that does not specify a default dialect and will throw a `MissingSchemaKeywordException` if the schema does not specify a dialect using the `$schema` keyword.
 
 ```java
-SchemaRegistry registry = SchemaRegistry.builder().dialectRegistry(new BasicDialectRegistry(Dialects.getDraft202012())).build();
+SchemaRegistry registry = SchemaRegistry.withDefaultDialectId(null);
 ```
 
 ### Results and output formats
