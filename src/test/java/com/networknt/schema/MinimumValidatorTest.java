@@ -18,6 +18,7 @@ package com.networknt.schema;
 
 import static com.networknt.schema.MaximumValidatorTest.augmentWithQuotes;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +28,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.networknt.schema.dialect.Dialects;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
@@ -298,6 +301,20 @@ class MinimumValidatorTest {
             assertTrue(messages.isEmpty(), format(MinimumValidatorTest.POSITIVT_MESSAGE_TEMPLATE, value, minimum));
         }
     }
+
+    @Test
+    void minimumWithArrayType() {
+        final String schemaString = """
+        {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": ["null", "integer"],
+            "minimum": 10
+        }
+        """;
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft7());
+        assertEquals(1, schemaRegistry.getSchema(schemaString).validate("9", InputFormat.JSON).size());
+    }
+
 }
 
 

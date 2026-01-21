@@ -54,7 +54,7 @@ public class MaximumValidator extends BaseKeywordValidator {
         }
 
         final String maximumText = schemaNode.asString();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && hasType(JsonType.INTEGER.toString())) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             this.typedMaximum = new ThresholdMixin() {

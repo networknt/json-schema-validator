@@ -92,4 +92,17 @@ class ExclusiveMinimumValidatorTest {
         SchemaRegistry factory = SchemaRegistry.withDialect(dialect);
         assertThrows(SchemaException.class, () -> factory.getSchema(schemaData));
     }
+
+    @Test
+    void exclusiveMinimum() {
+        final String schemaString = """
+        {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": ["null", "integer"],
+            "exclusiveMinimum": 10
+        }
+        """;
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft7());
+        assertEquals(1, schemaRegistry.getSchema(schemaString).validate("10", InputFormat.JSON).size());
+    }
 }

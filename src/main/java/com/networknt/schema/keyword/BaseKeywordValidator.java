@@ -17,6 +17,7 @@
 package com.networknt.schema.keyword;
 
 import tools.jackson.databind.JsonNode;
+
 import com.networknt.schema.ErrorMessages;
 import com.networknt.schema.Schema;
 import com.networknt.schema.MessageSourceError;
@@ -83,12 +84,23 @@ public abstract class BaseKeywordValidator extends AbstractKeywordValidator {
         return this.parentSchema;
     }
 
-    protected String getNodeFieldType() {
+    protected boolean hasType(String type) {
         JsonNode typeField = this.getParentSchema().getSchemaNode().get("type");
         if (typeField != null) {
-            return typeField.asString();
+            switch (typeField.getNodeType()) {
+            case STRING:
+                return type.equals(typeField.stringValue());
+            case ARRAY:
+                for (JsonNode item : typeField.values()) {
+                    if (item.isString() && type.equals(item.stringValue())) {
+                        return true;
+                    }
+                }
+            default:
+                return false;
+            }
         }
-        return null;
+        return false;
     }
 
     protected void preloadSchemas(final Collection<Schema> schemas) {

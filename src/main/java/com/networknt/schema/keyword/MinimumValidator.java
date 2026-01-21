@@ -58,7 +58,7 @@ public class MinimumValidator extends BaseKeywordValidator {
         }
 
         final String minimumText = schemaNode.asString();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && hasType(JsonType.INTEGER.toString())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
             this.typedMinimum = new ThresholdMixin() {
