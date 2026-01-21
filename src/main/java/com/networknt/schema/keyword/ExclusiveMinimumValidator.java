@@ -45,7 +45,7 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
             throw new SchemaException("exclusiveMinimum value is not a number");
         }
         final String minimumText = schemaNode.asString();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && JsonType.INTEGER.toString().equals(getNodeFieldType())) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && hasType(JsonType.INTEGER.toString())) {
             // "integer", and within long range
             final long lmin = schemaNode.asLong();
             typedMinimum = new ThresholdMixin() {

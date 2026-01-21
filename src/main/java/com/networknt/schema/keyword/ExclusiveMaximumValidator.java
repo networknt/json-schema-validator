@@ -41,7 +41,7 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
             throw new SchemaException("exclusiveMaximum value is not a number");
         }
         final String maximumText = schemaNode.asString();
-        if ((schemaNode.isLong() || schemaNode.isInt()) && (JsonType.INTEGER.toString().equals(getNodeFieldType()))) {
+        if ((schemaNode.isLong() || schemaNode.isInt()) && hasType(JsonType.INTEGER.toString())) {
             // "integer", and within long range
             final long lm = schemaNode.asLong();
             typedMaximum = new ThresholdMixin() {

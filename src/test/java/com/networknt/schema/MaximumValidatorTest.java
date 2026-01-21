@@ -21,11 +21,14 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import com.networknt.schema.dialect.Dialects;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -325,6 +328,19 @@ class MaximumValidatorTest extends BaseJsonSchemaValidatorTest {
             List<Error> messages = v.validate(doc);
             assertFalse(messages.isEmpty(), format(MaximumValidatorTest.NEGATIVE_TEST_CASE_TEMPLATE, value, maximum));
         }
+    }
+
+    @Test
+    void maximumWithArrayType() {
+        final String schemaString = """
+        {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": ["null", "integer"],
+            "maximum": 10
+        }
+        """;
+        final SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft7());
+        assertEquals(1, schemaRegistry.getSchema(schemaString).validate("11", InputFormat.JSON).size());
     }
 }
 
