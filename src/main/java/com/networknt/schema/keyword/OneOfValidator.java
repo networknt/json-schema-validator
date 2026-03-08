@@ -168,7 +168,7 @@ public class OneOfValidator extends BaseKeywordValidator {
                  * schema can be determined and validation SHOULD fail. Mapping keys MUST be
                  * string values, but tooling MAY convert response values to strings for
                  * comparison.
-                 * 
+                 *
                  * https://spec.openapis.org/oas/v3.1.2#examples-0
                  */
                 DiscriminatorState state = executionContext.getDiscriminatorMapping().get(instanceLocation);
@@ -183,7 +183,22 @@ public class OneOfValidator extends BaseKeywordValidator {
                                     .messageKey("discriminator.oneOf.no_match_found")
                                     .arguments(state.getDiscriminatingValue()).build());
                 }
+                /*
+                 * Issue 1225: When the discriminator-indicated schema failed (discriminatorErrors
+                 * is set) but another non-discriminated schema happened to pass (numberOfValidSchema == 1),
+                 * validation incorrectly succeeds. The discriminator mapping constitutes an assertion
+                 * that the payload should validate against the mapped schema. If the mapped schema
+                 * fails but a different schema passes, this is a discriminator mismatch and should fail.
+                 */
+                if (discriminatorErrors != null && numberOfValidSchema == 1 && state != null && state.hasDiscriminatingValue()) {
+                    existingErrors
+                            .add(error().keyword("discriminator").instanceNode(node).instanceLocation(instanceLocation)
+                                    .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
+                                    .messageKey("discriminator.oneOf.no_match_found")
+                                    .arguments(state.getDiscriminatingValue()).build());
+                }
             }
+
         } finally {
             // Restore flag
             executionContext.setFailFast(failFast);

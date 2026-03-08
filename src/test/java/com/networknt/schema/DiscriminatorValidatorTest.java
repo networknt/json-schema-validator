@@ -980,5 +980,76 @@ class DiscriminatorValidatorTest {
         // There is still a schema in the anyOf that matches
         assertTrue(list.isEmpty());
     }
- 
+
+    /**
+     * Issue 1225.
+     * <p>
+     * When oneOf with discriminator mapping is used and the discriminating value
+     * maps to a specific schema (e.g., type=string -> $defs/string), but the
+     * data only validates against a different schema (e.g., $defs/number),
+     * validation should fail because the discriminator-indicated schema is not
+     * the one that matches.
+     */
+    @Test
+    void oneOfDiscriminatorEnabledWithDiscriminatorMismatch() {
+        String schemaData = "{\r\n"
+                + "  \"discriminator\": {\r\n"
+                + "    \"propertyName\": \"type\",\r\n"
+                + "    \"mapping\": {\r\n"
+                + "      \"string\": \"#/$defs/string\",\r\n"
+                + "      \"number\": \"#/$defs/number\"\r\n"
+                + "    }\r\n"
+                + "  },\r\n"
+                + "  \"oneOf\": [\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/string\"\r\n"
+                + "    },\r\n"
+                + "    {\r\n"
+                + "      \"$ref\": \"#/$defs/number\"\r\n"
+                + "    }\r\n"
+                + "  ],\r\n"
+                + "  \"$defs\": {\r\n"
+                + "    \"string\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"type\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"value\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    },\r\n"
+                + "    \"number\": {\r\n"
+                + "      \"properties\": {\r\n"
+                + "        \"type\": {\r\n"
+                + "          \"type\": \"string\"\r\n"
+                + "        },\r\n"
+                + "        \"value\": {\r\n"
+                + "          \"type\": \"number\"\r\n"
+                + "        }\r\n"
+                + "      }\r\n"
+                + "    }\r\n"
+                + "  }\r\n"
+                + "}";
+
+        SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
+
+        // type=string maps to $defs/string via explicit discriminator mapping.
+        // However, value=1 is a number, so $defs/string fails (value must be string).
+        // $defs/number succeeds (value=1 is a valid number).
+        // oneOf passes because exactly one schema matches, but it's the WRONG schema.
+        // The discriminator says type=string should map to $defs/string, so this should fail.
+        String inputData = "{\r\n"
+                + "  \"type\": \"string\",\r\n"
+                + "  \"value\": 1\r\n"
+                + "}";
+        List<Error> messages = schema.validate(inputData, InputFormat.JSON);
+        // This should be invalid because type=string maps to $defs/string via discriminator,
+        // but the data does NOT validate against $defs/string (value:1 is not a string).
+        // The discriminator mapping mismatch means the wrong schema matched.
+        assertEquals(1, messages.size());
+        assertEquals("discriminator", messages.get(0).getKeyword());
+    }
+
 }

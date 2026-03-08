@@ -129,11 +129,17 @@ class OpenApi31Test {
     }
 
     /**
-     * Test oneOf with one match but incorrect discriminator should succeed. Note
-     * that the discriminator does not affect the validation outcome.
+     * Test oneOf with one match but incorrect discriminator should fail.
+     * <p>
+     * When petType=dog maps to the Dog schema via discriminator mapping, but the
+     * data only validates against Lizard (because lovesRocks=true satisfies Lizard),
+     * validation should fail because the discriminator-indicated schema (Dog) is not
+     * the one that matched.
+     * <p>
+     * Fix for issue 1225.
      */
     @Test
-    void discriminatorOneOfOneMatchWrongDiscriminatorShouldSucceed() {
+    void discriminatorOneOfOneMatchWrongDiscriminatorShouldFail() {
         SchemaRegistry factory = SchemaRegistry.withDialect(Dialects.getOpenApi31());
         Schema schema = factory
                 .getSchema(SchemaLocation.of("classpath:schema/oas/3.1/petstore.yaml#/components/schemas/PetResponse"));
@@ -142,7 +148,10 @@ class OpenApi31Test {
                 + "  \"lovesRocks\": true\r\n"
                 + "}";
         List<Error> messages = schema.validate(input, InputFormat.JSON);
-        assertEquals(0, messages.size());
+        // petType=dog maps Dog schema via discriminator, but data only validates against Lizard.
+        // The discriminator-indicated schema (Dog) is not the one that matched, so this should fail.
+        assertEquals(1, messages.size());
+        assertEquals("discriminator", messages.get(0).getKeyword());
     }
 
 }
