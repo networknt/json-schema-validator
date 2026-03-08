@@ -1192,6 +1192,8 @@ public class Schema implements Validator {
             return this.getSchemaContext().getSchemaRegistry().readTree(input, inputFormat);
         } catch (IOException e) {
             throw new UncheckedIOException("Invalid input", e);
+        } catch (RuntimeException e) {
+            throw new SchemaException("Invalid " + inputFormat + " input: " + e.getMessage(), e);
         }
     }
 
@@ -1213,6 +1215,8 @@ public class Schema implements Validator {
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Invalid input", e);
+        } catch (RuntimeException e) {
+            throw new SchemaException("Invalid " + inputFormat + " input from " + input + ": " + e.getMessage(), e);
         }
     }
 

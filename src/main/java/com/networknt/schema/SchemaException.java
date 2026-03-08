@@ -40,6 +40,11 @@ public class SchemaException extends RuntimeException {
         this.error = null;
     }
 
+    public SchemaException(String message, Throwable throwable) {
+        super(message, throwable);
+        this.error = null;
+    }
+
     @Override
     public String getMessage() {
         return this.error != null ? this.error.getMessage() : super.getMessage();

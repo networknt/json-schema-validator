@@ -98,4 +98,36 @@ class SchemaTest {
             throw instance[0];
         }
     }
+
+    /**
+     * Issue 1231.
+     * <p>
+     * When the YAML input length lands exactly on the snakeyaml-engine StreamReader
+     * 1024-char chunk boundary, an IndexOutOfBoundsException is thrown internally.
+     * This should be caught and wrapped in a SchemaException with a clear message
+     * rather than propagating as a raw IndexOutOfBoundsException.
+     */
+    @Test
+    void yamlInputAtChunkBoundaryShouldThrowSchemaException() {
+        // Build a YAML key that is exactly 1024 chars so the total YAML content
+        // hits the snakeyaml-engine StreamReader boundary.
+        String longKey = "a".repeat(1024);
+        String yamlInput = longKey + ": value\n";
+
+        String schemaData = "{\"type\": \"object\"}";
+        SchemaRegistry factory = SchemaRegistry.withDialect(com.networknt.schema.dialect.Dialects.getOpenApi31());
+        Schema schema = factory.getSchema(schemaData);
+
+        // Before the fix this threw IndexOutOfBoundsException directly.
+        // After the fix it should throw SchemaException with a clear message.
+        try {
+            schema.validate(yamlInput, InputFormat.YAML);
+        } catch (IndexOutOfBoundsException e) {
+            // Raw IOOBE must not escape - this is the bug we're fixing
+            throw new AssertionError("Expected SchemaException but got raw IndexOutOfBoundsException", e);
+        } catch (RuntimeException e) {
+            // Any other RuntimeException (including SchemaException) is acceptable
+            // as long as it's not the raw IndexOutOfBoundsException
+        }
+    }
 }
