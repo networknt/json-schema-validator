@@ -73,7 +73,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <version.itu>1.14.0</version.itu>
-    <version.jackson>3.0.3</version.jackson>
+    <version.jackson>3.1.0</version.jackson>
     <version.joni>2.2.6</version.joni>
     <version.logback>1.5.22</version.logback>
     <version.slf4j>2.0.17</version.slf4j>
