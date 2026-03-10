@@ -13,6 +13,18 @@ This project does not adhere to [Semantic Versioning](https://semver.org/) and m
 
 ### Changed
 
+## 3.0.1- 2026-03-10
+
+### Added
+
+### Changed
+
+- Upgrade Jackson from 3.0.3 to 3.1.0 to fix CVE-2026-29062 (#1236) Thanks @AhsanSheraz
+- Fix minimum maximum validators with type array (#1227) Thanks @justin-tay
+- Add method to SpecificationVersion to determine from schema node (#1221) Thanks @justin-tay
+- update contributor list in README.md
+
+
 ## 3.0.0- 2025-12-13
 
 ### Added
