@@ -16,6 +16,8 @@
 package com.networknt.schema.keyword;
 
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NumericNode;
+
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -33,7 +35,26 @@ public class ConstValidator extends BaseKeywordValidator implements KeywordValid
 
     public void validate(ExecutionContext executionContext, JsonNode node, JsonNode rootNode, NodePath instanceLocation) {
         if (schemaNode.isNumber() && node.isNumber()) {
-            if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
+            if (((NumericNode) schemaNode).isNaN() || ((NumericNode) node).isNaN()) {
+                // At least one of the nodes is a non-finite floating-point number and therefore not representable as BigDecimal.
+                if (Double.isNaN(schemaNode.doubleValue())) {
+                    // Treat `const: .nan` in schema as meaning "isNaN()"
+                    // because NaN != anything (including itself) per IEEE 754.
+                    if (!Double.isNaN(node.doubleValue())) {
+                        executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                            .evaluationPath(executionContext.getEvaluationPath())
+                            .locale(executionContext.getExecutionConfig().getLocale())
+                            .arguments(schemaNode.asString(schemaNode.toString()), node.asString(node.toString())).build());
+                    }
+                }
+                else if (schemaNode.doubleValue() != node.doubleValue()) {
+                    executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath())
+                        .locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(schemaNode.asString(schemaNode.toString()), node.asString(node.toString())).build());
+                }
+            }
+            else if (schemaNode.decimalValue().compareTo(node.decimalValue()) != 0) {
                 executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
                         .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
                         .arguments(schemaNode.asString(schemaNode.toString()), node.asString())

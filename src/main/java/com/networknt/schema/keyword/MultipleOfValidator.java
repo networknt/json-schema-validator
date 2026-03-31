@@ -42,6 +42,14 @@ public class MultipleOfValidator extends BaseKeywordValidator implements Keyword
             NodePath instanceLocation) {
         
         if (this.divisor != null) {
+            if (node.isFloatingPointNumber() && !Double.isFinite(node.doubleValue())) {
+                executionContext.addError(error().instanceNode(node).instanceLocation(instanceLocation)
+                        .evaluationPath(executionContext.getEvaluationPath()).locale(executionContext.getExecutionConfig().getLocale())
+                        .arguments(this.divisor.toString()) // String is used as the MessageFormat NumberFormat considers 3 fractional digits by default
+                        .build());
+                return;
+            }
+
             BigDecimal dividend = getDividend(node);
             if (dividend != null) {
                 if (dividend.divideAndRemainder(this.divisor)[1].abs().compareTo(BigDecimal.ZERO) > 0) {

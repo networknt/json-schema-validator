@@ -90,6 +90,9 @@ public class ExclusiveMinimumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return false;
                     }
+                    if (node.isDouble() && Double.isNaN(node.doubleValue())) {
+                        return true;
+                    }
                     final BigDecimal min = new BigDecimal(minimumText);
                     BigDecimal value = new BigDecimal(node.asString());
                     int compare = value.compareTo(min);

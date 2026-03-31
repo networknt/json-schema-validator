@@ -19,7 +19,9 @@ package com.networknt.schema.keyword;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.DoubleNode;
 import tools.jackson.databind.node.NullNode;
+
 import com.networknt.schema.ExecutionContext;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -129,6 +131,9 @@ public class EnumValidator extends BaseKeywordValidator implements KeywordValida
      * @return the node
      */
     protected JsonNode processNumberNode(JsonNode n) {
+        if (n.isFloatingPointNumber() && !Double.isFinite(n.doubleValue())) {
+            return DoubleNode.valueOf(n.doubleValue());
+        }
         return DecimalNode.valueOf(n.decimalValue().stripTrailingZeros());
     }
 

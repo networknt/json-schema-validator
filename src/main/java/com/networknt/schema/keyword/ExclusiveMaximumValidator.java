@@ -83,6 +83,9 @@ public class ExclusiveMaximumValidator extends BaseKeywordValidator {
                     if (node.isDouble() && node.doubleValue() == Double.POSITIVE_INFINITY) {
                         return true;
                     }
+                    if (node.isDouble() && Double.isNaN(node.doubleValue())) {
+                        return true;
+                    }
                     final BigDecimal max = new BigDecimal(maximumText);
                     BigDecimal value = new BigDecimal(node.asString());
                     int compare = value.compareTo(max);
